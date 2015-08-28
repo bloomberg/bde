@@ -15,9 +15,9 @@ BSLS_IDENT_RCSID(bdlsb_memoutstreambuf_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlsb {
 
-                          // ---------------------
-                          // class MemOutStreamBuf
-                          // ---------------------
+                           // ---------------------
+                           // class MemOutStreamBuf
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 void MemOutStreamBuf::grow(size_t newLength)

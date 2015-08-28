@@ -68,7 +68,7 @@ using namespace bsl;
 // ============================================================================
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
@@ -82,7 +82,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -97,7 +97,7 @@ static void aSsErT(int c, const char *s, int i)
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -106,7 +106,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
@@ -116,7 +116,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baltzo::TimeZoneUtil        Obj;
@@ -125,9 +125,9 @@ typedef baltzo::ErrorCode           Err;
 typedef baltzo::DstPolicy           Dst;
 typedef baltzo::LocalTimeDescriptor Descriptor;
 
-//=============================================================================
-//                              GLOBAL CONSTANTS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             GLOBAL CONSTANTS
+// ----------------------------------------------------------------------------
 const Dst::Enum      UNSP = Dst::e_UNSPECIFIED;
 const Dst::Enum      DST  = Dst::e_DST;
 const Dst::Enum      STD  = Dst::e_STANDARD;
@@ -145,7 +145,7 @@ const char *GM1 = "Etc/GMT-1";
 
 
 // ============================================================================
-//                     TEST TIME ZONE DATA
+//                            TEST TIME ZONE DATA
 // ----------------------------------------------------------------------------
 
 // America/New_York
@@ -787,7 +787,7 @@ static const unsigned char ASIA_SAIGON_DATA[] = {
 };
 
 // ============================================================================
-//                  GLOBAL CLASSES FOR TESTING
+//                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
 struct LogVerbosityGuard {
@@ -810,16 +810,16 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
@@ -829,23 +829,23 @@ struct LogVerbosityGuard {
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };
 
-//=============================================================================
-//                                 HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 static bdlt::DatetimeTz toDatetimeTz(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
@@ -875,7 +875,7 @@ static bdlt::Datetime toDatetime(const char *iso8601TimeString)
 }
 
 // ============================================================================
-//                                 MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

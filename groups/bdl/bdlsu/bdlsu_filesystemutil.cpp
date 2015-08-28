@@ -318,9 +318,9 @@ int removeFile(const char *path)
 
 #endif
 
-                           // ---------------------------
-                           // struct bdlsu::FilesystemUtil
-                           // ---------------------------
+                        // ----------------------------
+                        // struct bdlsu::FilesystemUtil
+                        // ----------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
@@ -521,7 +521,7 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
 
     HANDLE hMap;
 
-    if (MemoryUtil::BDESU_ACCESS_NONE == mode) {
+    if (MemoryUtil::k_ACCESS_NONE == mode) {
         return -1;                                                    // RETURN
     }
     mode &= 7;
@@ -1213,13 +1213,13 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     BSLS_ASSERT(0 <= size);
 
     int protect = 0;
-    if (mode & MemoryUtil::BDESU_ACCESS_READ) {
+    if (mode & MemoryUtil::k_ACCESS_READ) {
         protect |= PROT_READ;
     }
-    if (mode & MemoryUtil::BDESU_ACCESS_WRITE) {
+    if (mode & MemoryUtil::k_ACCESS_WRITE) {
         protect |= PROT_WRITE;
     }
-    if (mode & MemoryUtil::BDESU_ACCESS_EXECUTE) {
+    if (mode & MemoryUtil::k_ACCESS_EXECUTE) {
         protect |= PROT_EXEC;
     }
 

@@ -204,9 +204,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bd
 }  // close namespace bdet
 
 namespace balxml {
-                           // =============================
+                           // ======================
                            // struct TypesParserUtil
-                           // =============================
+                           // ======================
 
 struct TypesParserUtil {
     // This 'struct' contains functions for parsing input strings using various
@@ -279,9 +279,9 @@ struct TypesParserUtil {
         // otherwise.
 };
 
-                         // =================================
+                         // ==========================
                          // struct TypesParserUtil_Imp
-                         // =================================
+                         // ==========================
 
 struct TypesParserUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
@@ -571,9 +571,9 @@ struct TypesParserUtil_Imp {
 //                               PROXY CLASSES
 // ============================================================================
 
-                // ==================================================
+                // ===========================================
                 // struct TypesParserUtil_Imp_parseBase64Proxy
-                // ==================================================
+                // ===========================================
 
 struct TypesParserUtil_Imp_parseBase64Proxy {
     // Component-private struct.  Do not use.
@@ -607,9 +607,9 @@ struct TypesParserUtil_Imp_parseBase64Proxy {
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDecimalProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDecimalProxy {
     // Component-private struct.  Do not use.
@@ -643,9 +643,9 @@ struct TypesParserUtil_Imp_parseDecimalProxy {
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDefaultProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDefaultProxy {
     // Component-private struct.  Do not use.
@@ -679,9 +679,9 @@ struct TypesParserUtil_Imp_parseDefaultProxy {
     }
 };
 
-                  // ===============================================
+                  // ========================================
                   // struct TypesParserUtil_Imp_parseHexProxy
-                  // ===============================================
+                  // ========================================
 
 struct TypesParserUtil_Imp_parseHexProxy {
     // Component-private struct.  Do not use.
@@ -715,9 +715,9 @@ struct TypesParserUtil_Imp_parseHexProxy {
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseListProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseListProxy {
     // Component-private struct.  Do not use.
@@ -751,9 +751,9 @@ struct TypesParserUtil_Imp_parseListProxy {
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseTextProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseTextProxy {
     // Component-private struct.  Do not use.
@@ -791,9 +791,9 @@ struct TypesParserUtil_Imp_parseTextProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // -----------------------------
+                           // ----------------------
                            // struct TypesParserUtil
-                           // -----------------------------
+                           // ----------------------
 
 template <class TYPE>
 int TypesParserUtil::parse(TYPE       *result,
@@ -801,7 +801,7 @@ int TypesParserUtil::parse(TYPE       *result,
                                   int         inputLength,
                                   int         formattingMode)
 {
-    enum { BAEXML_FAILURE = - 1 };
+    enum { k_FAILURE = - 1 };
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
@@ -845,7 +845,7 @@ int TypesParserUtil::parse(TYPE       *result,
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
       }
     }
 }
@@ -922,9 +922,9 @@ int TypesParserUtil::parseText(TYPE       *result,
                                                  inputLength, Tag());
 }
 
-                         // ---------------------------------
+                         // --------------------------
                          // struct TypesParserUtil_Imp
-                         // ---------------------------------
+                         // --------------------------
 
 // BASE64 FUNCTIONS
 
@@ -947,7 +947,7 @@ int TypesParserUtil_Imp::parseBase64(TYPE       *result,
                                             int         inputLength,
                                             ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -958,7 +958,7 @@ int TypesParserUtil_Imp::parseBase64(TYPE       *result,
     // Note: 'parseBase64' for 'bsl::string' and 'bsl::vector<char>' is inside
     //       the CPP file.
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 // DECIMAL FUNCTIONS
@@ -970,13 +970,13 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              int         inputLength,
                                              bdlat_TypeCategory::Enumeration)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     int intValue;
 
     if (0 != TypesParserUtil::parseDecimal(&intValue, input,
                                                   inputLength)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return bdlat_EnumFunctions::fromInt(result, intValue);
@@ -990,7 +990,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              bdlat_TypeCategory::CustomizedType
                                             )
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
@@ -998,7 +998,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
     BaseType base;
 
     if (0 != TypesParserUtil::parseDecimal(&base, input, inputLength)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
@@ -1026,7 +1026,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              int         inputLength,
                                              ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -1034,7 +1034,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
     (void) input;
     (void) inputLength;
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 // DEFAULT FUNCTIONS
@@ -1057,7 +1057,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
                                              bdlat_TypeCategory::CustomizedType
                                             )
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
@@ -1065,7 +1065,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
     BaseType base;
 
     if (0 != TypesParserUtil::parseDefault(&base, input, inputLength)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
@@ -1093,7 +1093,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
                                              int         inputLength,
                                              ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -1101,7 +1101,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
     (void) input;
     (void) inputLength;
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 inline
@@ -1281,7 +1281,7 @@ int TypesParserUtil_Imp::parseHex(TYPE       *result,
                                          int         inputLength,
                                          ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -1292,7 +1292,7 @@ int TypesParserUtil_Imp::parseHex(TYPE       *result,
     // Note: 'parseHex' for 'bsl::string' and 'bsl::vector<char>' is inside the
     //       CPP file.
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 // LIST FUNCTIONS
@@ -1303,7 +1303,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
                                           int         inputLength,
                                           bdlat_TypeCategory::Array)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     typedef balxml::ListParser<TYPE> ListParser;
 
@@ -1313,11 +1313,11 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
     ListParser listParser(fn);
 
     if (0 != listParser.beginParse(result)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     if (0 != listParser.pushCharacters(input, input + inputLength)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;
     }
 
     return listParser.endParse();
@@ -1342,7 +1342,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
                                           int         inputLength,
                                           ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -1350,7 +1350,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
     (void) input;
     (void) inputLength;
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 // TEXT FUNCTIONS
@@ -1372,7 +1372,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
                                           int         inputLength,
                                           bdlat_TypeCategory::CustomizedType)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
@@ -1380,7 +1380,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
     BaseType base;
 
     if (0 != TypesParserUtil::parseText(&base, input, inputLength)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
@@ -1405,7 +1405,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
                                           int         inputLength,
                                           ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
@@ -1413,7 +1413,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
     (void) input;
     (void) inputLength;
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 }  // close package namespace
 

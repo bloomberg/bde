@@ -117,7 +117,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //      static bsl::string *theSingletonPtr = 0;
 //      BDLQQ_ONCE_DO {
-//          static bsl::string theSingleton(s);
+//          static bsl::string theSingleton(s, 
+//                                          bslma::Default::globalAllocator());
 //          theSingletonPtr = &theSingleton;
 //      }
 //      return *theSingletonPtr;
@@ -391,9 +392,9 @@ namespace bdlqq {
     //  Once once = BDLQQ_ONCE_INITIALIZER;
     //..
 
-                                // ==========
-                                // class Once
-                                // ==========
+                                 // ==========
+                                 // class Once
+                                 // ==========
 
 class Once {
     // Gate-keeper class for code that should only execute once per process.
@@ -402,7 +403,7 @@ class Once {
     // have any explicitly-declared constructors or destructor.
 
     // PRIVATE TYPES
-    enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
 
   private:
     // NOT IMPLEMENTED
@@ -471,9 +472,9 @@ class Once {
         // 'function' terminates with an exception.
 };
 
-                            // ===============
-                            // class OnceGuard
-                            // ===============
+                              // ===============
+                              // class OnceGuard
+                              // ===============
 
 class OnceGuard {
     // Guard class for using 'Once' safely.  Construct an object of this
@@ -483,7 +484,7 @@ class OnceGuard {
     // one-time code is being executed.
 
     // PRIVATE TYPES
-    enum State { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum State { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
 
     // DATA
     Once::OnceLock  d_onceLock;
@@ -571,15 +572,15 @@ class OnceGuard {
     for (BloombergLP::bdlqq::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
          bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
 
-                            // ---------------
-                            // class OnceGuard
-                            // ---------------
+                              // ---------------
+                              // class OnceGuard
+                              // ---------------
 
 // CREATORS
 inline
 bdlqq::OnceGuard::OnceGuard(Once *once)
 : d_once(once)
-, d_state(BCEMT_NOT_ENTERED)
+, d_state(e_NOT_ENTERED)
 {
 }
 
@@ -587,22 +588,22 @@ bdlqq::OnceGuard::OnceGuard(Once *once)
 inline
 void bdlqq::OnceGuard::setOnce(Once *once)
 {
-    BSLS_ASSERT_SAFE(BCEMT_IN_PROGRESS != d_state);
+    BSLS_ASSERT_SAFE(e_IN_PROGRESS != d_state);
 
     d_once = once;
-    d_state = BCEMT_NOT_ENTERED;
+    d_state = e_NOT_ENTERED;
 }
 
 // ACCESSORS
 inline
 bool bdlqq::OnceGuard::isInProgress() const
 {
-    return BCEMT_IN_PROGRESS == d_state;
+    return e_IN_PROGRESS == d_state;
 }
 
-                                // ----------
-                                // class Once
-                                // ----------
+                                 // ----------
+                                 // class Once
+                                 // ----------
 
 template <class FUNC>
 inline

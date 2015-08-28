@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
 //
 //@CLASSES:
-//  bdlde::QuotedPrintableDecoder: automata performing Quoted-Printable decoding
+//  bdlde::QuotedPrintableDecoder: automata for Quoted-Printable decoding
 //
 //@AUTHOR: Alex Fung (afung8)
 //
@@ -130,10 +130,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-
 namespace BloombergLP {
-
 namespace bdlde {
+
 class QuotedPrintableDecoder {
     // This class implements a mechanism capable of converting data of
     // arbitrary length from its corresponding Quoted-Printable representation.
@@ -142,14 +141,14 @@ class QuotedPrintableDecoder {
     enum {
         // Symbolic state values.
 
-        BDEDE_ERROR_STATE        = -1, // input is irreparably invalid
-        BDEDE_INPUT_STATE        =  0, // general input state
-        BDEDE_SAW_EQUAL_STATE    =  1, // need two hexadecimal values or CR LF
-        BDEDE_SAW_WS_STATE       =  2, // saw a whitespace
-        BDEDE_NEED_HEX_STATE     =  3, // need one hexadecimal value
-        BDEDE_NEED_SOFT_LF_STATE =  4, // need soft new line
-        BDEDE_NEED_HARD_LF_STATE =  5, // need soft new line
-        BDEDE_DONE_STATE         =  6  // any additional input is an error
+        e_ERROR_STATE        = -1, // input is irreparably invalid
+        e_INPUT_STATE        =  0, // general input state
+        e_SAW_EQUAL_STATE    =  1, // need two hexadecimal values or CR LF
+        e_SAW_WS_STATE       =  2, // saw a whitespace
+        e_NEED_HEX_STATE     =  3, // need one hexadecimal value
+        e_NEED_SOFT_LF_STATE =  4, // need soft new line
+        e_NEED_HARD_LF_STATE =  5, // need soft new line
+        e_DONE_STATE         =  6  // any additional input is an error
     };
 
   public:
@@ -161,48 +160,70 @@ class QuotedPrintableDecoder {
         // main decoding loop.
 
                        // Regular character - copy straight to output
-        BDEDE_RC_ = 0, // strict mode
-        BDEDE_RC,      // relaxed mode
+        e_RC_ = 0, // strict mode
+        e_RC,      // relaxed mode
 
                        // Hexadecimal digit - numeral only when preceded by
                        // '='; otherwise a regular character
-        BDEDE_HX_,     // strict mode
-        BDEDE_HX,      // relaxed mode
+        e_HX_,     // strict mode
+        e_HX,      // relaxed mode
 
                        // '=' - wait for more input
-        BDEDE_EQ_,     // strict mode
-        BDEDE_EQ,      // relaxed mode
+        e_EQ_,     // strict mode
+        e_EQ,      // relaxed mode
 
                        // Whitespace        - buffer; wait for more input
-        BDEDE_WS_,     // strict mode
-        BDEDE_WS,      // relaxed mode
+        e_WS_,     // strict mode
+        e_WS,      // relaxed mode
 
                        // Carriage return
-        BDEDE_CR_,     // strict mode       - wait for further input
-        BDEDE_CR,      // relaxed mode      - wait for further input
+        e_CR_,     // strict mode       - wait for further input
+        e_CR,      // relaxed mode      - wait for further input
 
                        // Line Feed Strict mode
                        // ------------
-        BDEDE_LC_,     // CRLF_MODE         - decode to "\r\n" if preceded by
+        e_LC_,     // CRLF_MODE         - decode to "\r\n" if preceded by
                        // '\r'; report error otherwise
-        BDEDE_LL_,     // LF_MODE           - decode to '\n' if preceded by
+        e_LL_,     // LF_MODE           - decode to '\n' if preceded by
                        // '\r' report error otherwise Relaxed mode
                        // ------------
-        BDEDE_LC,      // CRLF_MODE         - decode to "\r\n" if preceded by
+        e_LC,      // CRLF_MODE         - decode to "\r\n" if preceded by
                        // '\r'; ignore otherwise
-        BDEDE_LL,      // LF_MODE           - decode to "\n" if preceded by
+        e_LL,      // LF_MODE           - decode to "\n" if preceded by
                        // '\r'; ignore otherwise
 
                        // Unrecognized char - halt and report error
-        BDEDE_UC_,     // strict mode       - Ignore and halt decoding
-        BDEDE_UC       // relaxed mode      - Ignore but continue decoding
+        e_UC_,     // strict mode       - Ignore and halt decoding
+        e_UC       // relaxed mode      - Ignore but continue decoding
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_RC_ = e_RC_
+      , BDEDE_RC = e_RC
+      , BDEDE_HX_ = e_HX_
+      , BDEDE_HX = e_HX
+      , BDEDE_EQ_ = e_EQ_
+      , BDEDE_EQ = e_EQ
+      , BDEDE_WS_ = e_WS_
+      , BDEDE_WS = e_WS
+      , BDEDE_CR_ = e_CR_
+      , BDEDE_CR = e_CR
+      , BDEDE_LC_ = e_LC_
+      , BDEDE_LL_ = e_LL_
+      , BDEDE_LC = e_LC
+      , BDEDE_LL = e_LL
+      , BDEDE_UC_ = e_UC_
+      , BDEDE_UC = e_UC
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum LineBreakMode {
         // Configuration governing how line breaks are decoded.
 
-        BDEDE_CRLF_MODE,       // "\r\n" are decoded to "\r\n".
-        BDEDE_LF_MODE          // "\r\n" are decoded to "\n".
+        e_CRLF_MODE,       // "\r\n" are decoded to "\r\n".
+        e_LF_MODE          // "\r\n" are decoded to "\n".
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_CRLF_MODE = e_CRLF_MODE
+      , BDEDE_LF_MODE = e_LF_MODE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS DATA
@@ -239,33 +260,32 @@ class QuotedPrintableDecoder {
                           // complete configuration.
 
   private:
-    // PRIVATE CREATORS -- NOT IMPLEMENTED
+    // NOT IMPLEMENTED
     QuotedPrintableDecoder(const QuotedPrintableDecoder&);
-
-    QuotedPrintableDecoder& operator=(
-                                          const QuotedPrintableDecoder&);
+    QuotedPrintableDecoder& operator=(const QuotedPrintableDecoder&);
 
   public:
     // CLASS METHODS
     static const char* lineBreakModeToAscii(LineBreakMode mode);
         // Return the ASCII string describing the specified 'mode' governing
         // the decoding of hard linebreaks ("\r\n").  The behavior is undefined
-        // unless 'mode' is either BDEDE_CRLF_MODE or BDEDE_LF_MODE.
+        // unless 'mode' is either e_CRLF_MODE or e_LF_MODE.
 
     // CREATORS
+    explicit
     QuotedPrintableDecoder(
-        bool                                        detectError,
+        bool                                  detectError,
         QuotedPrintableDecoder::LineBreakMode lineBreakMode =
-                                      QuotedPrintableDecoder::BDEDE_CRLF_MODE);
+                                          QuotedPrintableDecoder::e_CRLF_MODE);
         // Create a Quoted-Printable decoder in the initial state, set to the
         // strict or relaxed error-reporting mode according to whether the
         // specified 'detectError' flag is 'true' or 'false', respectively, and
         // also configured to the specified 'lineBreakMode'.  The behavior is
-        // undefined unless 'lineBreakMode' is either BDEDE_CRLF_MODE or
-        // BDEDE_LF_MODE.  Note that the decoder reports errors in the strict
+        // undefined unless 'lineBreakMode' is either e_CRLF_MODE or
+        // e_LF_MODE.  Note that the decoder reports errors in the strict
         // mode and output offending characters in the relaxed mode.  Hard line
-        // breaks ("\r\n") are decoded to "\r\n" in BDEDE_CRLF_MODE (default)
-        // and to '\n' in BDEDE_LF_MODE.
+        // breaks ("\r\n") are decoded to "\r\n" in e_CRLF_MODE (default)
+        // and to '\n' in e_LF_MODE.
 
     ~QuotedPrintableDecoder();
         // Destroy this object.
@@ -385,11 +405,11 @@ const char* QuotedPrintableDecoder::lineBreakModeToAscii(
 // CREATORS
 inline
 QuotedPrintableDecoder::QuotedPrintableDecoder(
-           bool                                        unrecognizedIsErrorFlag,
-           QuotedPrintableDecoder::LineBreakMode lineBreakMode)
+                 bool                                  unrecognizedIsErrorFlag,
+                 QuotedPrintableDecoder::LineBreakMode lineBreakMode)
 : d_unrecognizedIsErrorFlag(unrecognizedIsErrorFlag)
 , d_lineBreakMode(lineBreakMode)
-, d_state(BDEDE_INPUT_STATE)
+, d_state(e_INPUT_STATE)
 , d_bufferLength(0)
 , d_outputLength(0)
 {
@@ -398,17 +418,17 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
         d_equivClass_p = const_cast<char*>(s_defaultEquivClassStrict_p);
     }
     else {
-        if (lineBreakMode == BDEDE_CRLF_MODE) {
+        if (lineBreakMode == e_CRLF_MODE) {
             d_equivClass_p = const_cast<char*>(s_defaultEquivClassCRLF_p);
         }
         else {
             // First copy the map of equivalence classes for the
-            // BDEDE_CRLF_MODE to the strict error-report mode.
+            // e_CRLF_MODE to the strict error-report mode.
 
             int len = sizeof(*s_defaultEquivClassCRLF_p) * 256;
             d_equivClass_p = new char[len];
             bsl::memcpy(d_equivClass_p, s_defaultEquivClassCRLF_p, len);
-            d_equivClass_p['\n'] = BDEDE_LL;  // output '\n' instead if preceded
+            d_equivClass_p['\n'] = e_LL;  // output '\n' instead if preceded
                                               // by '='.
         }
     }
@@ -418,7 +438,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
 inline
 void QuotedPrintableDecoder::reset()
 {
-    d_state = BDEDE_INPUT_STATE;
+    d_state = e_INPUT_STATE;
     d_outputLength = 0;
     d_bufferLength = 0;
 }
@@ -427,25 +447,25 @@ void QuotedPrintableDecoder::reset()
 inline
 bool QuotedPrintableDecoder::isAccepting() const
 {
-    return BDEDE_INPUT_STATE == d_state || BDEDE_DONE_STATE == d_state;
+    return e_INPUT_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableDecoder::isDone() const
 {
-    return BDEDE_DONE_STATE == d_state && 0 == d_bufferLength;
+    return e_DONE_STATE == d_state && 0 == d_bufferLength;
 }
 
 inline
 bool QuotedPrintableDecoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableDecoder::isInitialState() const
 {
-    return BDEDE_INPUT_STATE == d_state && 0 == d_outputLength;
+    return e_INPUT_STATE == d_state && 0 == d_outputLength;
 }
 
 inline
@@ -478,11 +498,9 @@ int QuotedPrintableDecoder::outputLength() const
 {
     return d_outputLength;
 }
+
 }  // close package namespace
-
 }  // close enterprise namespace
-
-
 
 #endif
 

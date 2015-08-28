@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerEncoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 balxml::Encoder::MemOutStream::~MemOutStream()
 {
@@ -34,7 +34,7 @@ Encoder::Encoder(
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
-, d_severity      (ErrorInfo::BAEXML_NO_ERROR)
+, d_severity      (ErrorInfo::e_NO_ERROR)
 , d_errorStream   (0)
 , d_warningStream (0)
 {
@@ -48,7 +48,7 @@ Encoder::Encoder(
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
-, d_severity      (ErrorInfo::BAEXML_NO_ERROR)
+, d_severity      (ErrorInfo::e_NO_ERROR)
 , d_errorStream   (errorStream)
 , d_warningStream (warningStream)
 {
@@ -67,8 +67,8 @@ ErrorInfo::Severity  Encoder::logError(
                          int                     formattingMode,
                          int                     index)
 {
-    if ((int) d_severity < (int) ErrorInfo::BAEXML_ERROR) {
-        d_severity = ErrorInfo::BAEXML_ERROR;
+    if ((int) d_severity < (int) ErrorInfo::e_ERROR) {
+        d_severity = ErrorInfo::e_ERROR;
     }
 
     bsl::ostream& out = logStream();
@@ -86,9 +86,9 @@ ErrorInfo::Severity  Encoder::logError(
     return d_severity;
 }
 
-                       // ----------------------------
-                       // class Encoder_Context
-                       // ----------------------------
+                           // ---------------------
+                           // class Encoder_Context
+                           // ---------------------
 
 Encoder_Context::Encoder_Context(
                                 Formatter *formatter,
@@ -98,9 +98,9 @@ Encoder_Context::Encoder_Context(
 {
 }
 
-                       // ------------------------------
-                       // class Encoder_EncodeObject
-                       // ------------------------------
+                         // --------------------------
+                         // class Encoder_EncodeObject
+                         // --------------------------
 
 int Encoder_EncodeObject::executeImp(
                                       const bsl::vector<char>&  object,

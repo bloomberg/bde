@@ -110,13 +110,13 @@ void my_OstreamObserver::publish(const ball::Record&  record,
 {
 
     switch (context.transmissionCause()) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_stream << "Single Passthrough Message:" << endl;
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_stream << "Remotely ";      // no 'break'; concatenated output
       }
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message ";
         d_stream << context.recordIndex() + 1  // Account for 0-based index.
                  << " of " << context.sequenceLength() << endl;
@@ -189,7 +189,7 @@ static int isNthContext(const ball::Context& context, int nth)
     // Return 1 if the specified 'context' is the specified 'nth' in the
     // publication sequence, and 0 otherwise.
 {
-    if (ball::Transmission::BAEL_TRIGGER == context.transmissionCause()
+    if (ball::Transmission::e_TRIGGER == context.transmissionCause()
         &&                     nth == context.recordIndex()
         &&         SEQUENCE_LENGTH == context.sequenceLength()) {
         return 1;                                                     // RETURN
@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
                                &testAllocator);
             const bsl::shared_ptr<ball::Record>& R = mR;
 
-            Ctxt mC(ball::Transmission::BAEL_TRIGGER, 0, SEQUENCE_LENGTH);
+            Ctxt mC(ball::Transmission::e_TRIGGER, 0, SEQUENCE_LENGTH);
             const Ctxt& C = mC;
 
             //   X
@@ -759,7 +759,7 @@ int main(int argc, char *argv[])
 
             Rec mR;  const Rec& R = mR;
 
-            Ctxt mC(ball::Transmission::BAEL_TRIGGER, 0, SEQUENCE_LENGTH);
+            Ctxt mC(ball::Transmission::e_TRIGGER, 0, SEQUENCE_LENGTH);
             const Ctxt& C = mC;
 
             //   X

@@ -456,9 +456,9 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-                        // =====================
-                        // class btlsc::CbChannel
-                        // =====================
+                           // ======================
+                           // class btlsc::CbChannel
+                           // ======================
 
 namespace BloombergLP {
 

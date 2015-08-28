@@ -197,9 +197,9 @@ namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                             // ================
-                             // class TcpChannel
-                             // ================
+                              // ================
+                              // class TcpChannel
+                              // ================
 
 class TcpChannel : public btlsc::Channel {
     // This class implements 'btlsc::Channel' protocol over TCP/IP sockets.  It
@@ -553,7 +553,7 @@ class TcpChannel : public btlsc::Channel {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

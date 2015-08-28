@@ -33,20 +33,20 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                     // current Line number
 #define T_ printf("\t");                // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 template <int I>
 int indexOf(const bdlf::PlaceHolder<I>&)
@@ -54,9 +54,9 @@ int indexOf(const bdlf::PlaceHolder<I>&)
     return I;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -115,11 +115,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting `bdlf::PlaceHolder<I>'"
                             "\n=============================\n");
 
-        ASSERT(-2 == bdlf::PlaceHolder<-2>::VALUE);
-        ASSERT(-1 == bdlf::PlaceHolder<-1>::VALUE);
-        ASSERT( 0 == bdlf::PlaceHolder< 0>::VALUE);
-        ASSERT( 1 == bdlf::PlaceHolder< 1>::VALUE);
-        ASSERT( 2 == bdlf::PlaceHolder< 2>::VALUE);
+        ASSERT(-2 == bdlf::PlaceHolder<-2>::value);
+        ASSERT(-1 == bdlf::PlaceHolder<-1>::value);
+        ASSERT( 0 == bdlf::PlaceHolder< 0>::value);
+        ASSERT( 1 == bdlf::PlaceHolder< 1>::value);
+        ASSERT( 2 == bdlf::PlaceHolder< 2>::value);
 
       } break;
       default: {

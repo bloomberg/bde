@@ -496,9 +496,9 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
-                        // --------------------------
-                        // class ZoneinfoBinaryReader
-                        // --------------------------
+                         // --------------------------
+                         // class ZoneinfoBinaryReader
+                         // --------------------------
 
 int baltzo::ZoneinfoBinaryReader::read(Zoneinfo      *zoneinfoResult,
                                        bsl::istream&  stream)

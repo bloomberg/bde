@@ -2,7 +2,7 @@
 
 #include <bdlma_memoryblockdescriptor.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>  // for testing only
 #include <bslma_testallocator.h>          // for testing only
@@ -31,7 +31,7 @@ using namespace bsl;  // automatically added by script
 //                                  Overview
 //                                  --------
 // The 'bdlma::MemoryBlockDescriptor' is a simple value object holding to
-// properties that can be written and accessed freely, i.e. there are no
+// properties that can be written and accessed freely, i.e., there are no
 // constraints placed up their values.
 //
 // The basic manipulators for a memory block descriptor are the default
@@ -78,22 +78,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                               GLOBAL TYPEDEF
@@ -224,11 +224,11 @@ int main(int argc, char *argv[])
             snprintf(mExp, BUF_SZ, "[%p, %d]",
                      VALUES[i].d_address, static_cast<int>(VALUES[i].d_size));
 
-            // Because bdema is a low-level utility, MemoryBlockDescriptor does
-            // not have a function to print to ostream, and thus cannot print
-            // to a strstream.  The print() member function always prints to
-            // 'stdout'.  The code below forks a process and captures stdout to
-            // a memory buffer
+            // Because 'bdema' is a low-level utility, 'MemoryBlockDescriptor'
+            // does not have a function to print to ostream, and thus cannot
+            // print to a 'strstream'.  The print() member function always
+            // prints to 'stdout'.  The code below forks a process and captures
+            // stdout to a memory buffer
             const char *EXP = mExp;
             int pipes[2];
             int sz;
@@ -600,14 +600,23 @@ int main(int argc, char *argv[])
         //   denote unique, but otherwise arbitrary, object values, while 'U'
         //   denotes the valid, but "unknown", default object value.
         //
-        // 1.  Create an object x1 (init. to VA).  { x1:VA } 2.  Create an
-        // object x2 (copy from x1).  { x1:VA x2:VA } 3.  Set x1 to VB.  {
-        // x1:VB x2:VA } 4.  Create an object x3 (default ctor).  { x1:VB x2:VA
-        // x3:U } 5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U
-        // x4:U } 6.  Set x3 to VC.  { x1:VB x2:VA x3:VC x4:U } 7.  Assign x2 =
-        // x1.  { x1:VB x2:VB x3:VC x4:U } 8.  Assign x2 = x3.  { x1:VB x2:VC
-        // x3:VC x4:U } 9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC
-        // x4:U }
+        //: 1.  Create an object x1 (init. to VA).  { x1:VA }
+        //:
+        //: 2.  Create an object x2 (copy from x1).  { x1:VA x2:VA }
+        //:
+        //: 3.  Set x1 to VB.  { x1:VB x2:VA }
+        //:
+        //: 4.  Create an object x3 (default ctor).  { x1:VB x2:VA x3:U }
+        //:
+        //: 5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U x4:U }
+        //:
+        //: 6.  Set x3 to 'VC'. { x1:VB x2:VA x3:VC x4:U }
+        //:
+        //: 7.  Assign x2 = x1.  { x1:VB x2:VB x3:VC x4:U }
+        //:
+        //: 8.  Assign x2 = x3.  { x1:VB x2:VC x3:VC x4:U }
+        //:
+        //: 9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC x4:U }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.
@@ -621,9 +630,9 @@ int main(int argc, char *argv[])
         char VA[1];
         char VB[5];
         char VC[10];
-        void *AA = VA; const int SA = sizeof(VA);  // address & size for VA
-        void *AB = VB; const int SB = sizeof(VB);  // address & size for VB
-        void *AC = VC; const int SC = sizeof(VC);  // address & size for VC
+        void *AA = VA; const int SA = sizeof(VA);  // address & size for 'VA'
+        void *AB = VB; const int SB = sizeof(VB);  // address & size for 'VB'
+        void *AC = VC; const int SC = sizeof(VC);  // address & size for 'VC'
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."

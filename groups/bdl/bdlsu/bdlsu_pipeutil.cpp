@@ -65,9 +65,9 @@ void getPipeDir(bsl::string *dir)
 #endif
 
 namespace bdlsu {
-                              // ---------------------
+                              // ---------------
                               // struct PipeUtil
-                              // ---------------------
+                              // ---------------
 
 // CLASS METHODS
 int

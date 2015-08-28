@@ -117,16 +117,16 @@ void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                     // current Line number
 #define T_ printf("\t");                // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 class ConvertibleFromToInt {
     // Object that is convertible from and to 'int'.  Used to make sure that
@@ -198,9 +198,9 @@ typedef bdlf::Bind_TestArgAlloc<14>    AllocTestArg14;
 
 typedef bdlf::Bind_TestTypeAlloc       AllocTestType;
 
-//=============================================================================
-//               MACROS EXPORTING INITIALIZATION OUT OF MAIN
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                MACROS EXPORTING INITIALIZATION OUT OF MAIN
+// ----------------------------------------------------------------------------
 #define DECLARE_MAIN_VARIABLES                                                \
     /* The following machinery is for use in conjunction with the             \
     // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.  \
@@ -235,9 +235,9 @@ typedef bdlf::Bind_TestTypeAlloc       AllocTestType;
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0          \
     };
 
-//=============================================================================
-//                              TEST CASES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASES
+// ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
@@ -1425,9 +1425,9 @@ DEFINE_TEST_CASE(1) {
         }
       }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

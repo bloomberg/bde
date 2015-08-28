@@ -72,9 +72,9 @@ namespace BloombergLP {
 namespace balst {template <class RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
-           // =======================================================
-           // class StackTraceResolverImpl<ObjectFileFormat::Elf>
-           // =======================================================
+            // ===================================================
+            // class StackTraceResolverImpl<ObjectFileFormat::Elf>
+            // ===================================================
 
 template <>
 class StackTraceResolverImpl<ObjectFileFormat::Elf> {

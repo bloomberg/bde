@@ -76,9 +76,9 @@ namespace BloombergLP {
 
 namespace balxml {
 
-                      // ===============================
-                      // class EncoderOptions
-                      // ===============================
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
 
 class EncoderOptions {
     // Options for performing XML encodings.  Encoding style is either COMPACT
@@ -127,41 +127,76 @@ class EncoderOptions {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_OBJECT_NAMESPACE            = 0
-      , ATTRIBUTE_ID_SCHEMA_LOCATION             = 1
-      , ATTRIBUTE_ID_TAG                         = 2
-      , ATTRIBUTE_ID_FORMATTING_MODE             = 3
-      , ATTRIBUTE_ID_INITIAL_INDENT_LEVEL        = 4
-      , ATTRIBUTE_ID_SPACES_PER_LEVEL            = 5
-      , ATTRIBUTE_ID_WRAP_COLUMN                 = 6
-      , ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS    = 7
-      , ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = 8
-      , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS   = 9
-      , ATTRIBUTE_ID_ENCODING_STYLE              = 10
-      , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS    = 11
-      , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
-      , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
+        e_ATTRIBUTE_ID_OBJECT_NAMESPACE            = 0
+      , e_ATTRIBUTE_ID_SCHEMA_LOCATION             = 1
+      , e_ATTRIBUTE_ID_TAG                         = 2
+      , e_ATTRIBUTE_ID_FORMATTING_MODE             = 3
+      , e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL        = 4
+      , e_ATTRIBUTE_ID_SPACES_PER_LEVEL            = 5
+      , e_ATTRIBUTE_ID_WRAP_COLUMN                 = 6
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS    = 7
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = 8
+      , e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS   = 9
+      , e_ATTRIBUTE_ID_ENCODING_STYLE              = 10
+      , e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS    = 11
+      , e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
+      , e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_OBJECT_NAMESPACE = e_ATTRIBUTE_ID_OBJECT_NAMESPACE
+      , ATTRIBUTE_ID_SCHEMA_LOCATION = e_ATTRIBUTE_ID_SCHEMA_LOCATION
+      , ATTRIBUTE_ID_TAG = e_ATTRIBUTE_ID_TAG
+      , ATTRIBUTE_ID_FORMATTING_MODE = e_ATTRIBUTE_ID_FORMATTING_MODE
+      , ATTRIBUTE_ID_INITIAL_INDENT_LEVEL = e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL
+      , ATTRIBUTE_ID_SPACES_PER_LEVEL = e_ATTRIBUTE_ID_SPACES_PER_LEVEL
+      , ATTRIBUTE_ID_WRAP_COLUMN = e_ATTRIBUTE_ID_WRAP_COLUMN
+      , ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS = e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS
+      , ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS
+      , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS = e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS
+      , ATTRIBUTE_ID_ENCODING_STYLE = e_ATTRIBUTE_ID_ENCODING_STYLE
+      , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS = e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS
+      , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER = e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER
+      , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS = e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ATTRIBUTES = 14
+        k_NUM_ATTRIBUTES = 14
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_OBJECT_NAMESPACE            = 0
-      , ATTRIBUTE_INDEX_SCHEMA_LOCATION             = 1
-      , ATTRIBUTE_INDEX_TAG                         = 2
-      , ATTRIBUTE_INDEX_FORMATTING_MODE             = 3
-      , ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL        = 4
-      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL            = 5
-      , ATTRIBUTE_INDEX_WRAP_COLUMN                 = 6
-      , ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS    = 7
-      , ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = 8
-      , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS   = 9
-      , ATTRIBUTE_INDEX_ENCODING_STYLE              = 10
-      , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS    = 11
-      , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
-      , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
+        e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE            = 0
+      , e_ATTRIBUTE_INDEX_SCHEMA_LOCATION             = 1
+      , e_ATTRIBUTE_INDEX_TAG                         = 2
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE             = 3
+      , e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL        = 4
+      , e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL            = 5
+      , e_ATTRIBUTE_INDEX_WRAP_COLUMN                 = 6
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS    = 7
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = 8
+      , e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS   = 9
+      , e_ATTRIBUTE_INDEX_ENCODING_STYLE              = 10
+      , e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS    = 11
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_OBJECT_NAMESPACE = e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE
+      , ATTRIBUTE_INDEX_SCHEMA_LOCATION = e_ATTRIBUTE_INDEX_SCHEMA_LOCATION
+      , ATTRIBUTE_INDEX_TAG = e_ATTRIBUTE_INDEX_TAG
+      , ATTRIBUTE_INDEX_FORMATTING_MODE = e_ATTRIBUTE_INDEX_FORMATTING_MODE
+      , ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL = e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL
+      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL = e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL
+      , ATTRIBUTE_INDEX_WRAP_COLUMN = e_ATTRIBUTE_INDEX_WRAP_COLUMN
+      , ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS = e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS
+      , ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS
+      , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS = e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS
+      , ATTRIBUTE_INDEX_ENCODING_STYLE = e_ATTRIBUTE_INDEX_ENCODING_STYLE
+      , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS = e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS
+      , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER = e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER
+      , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS = e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
@@ -437,13 +472,13 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(balxml::EncoderOptions
 namespace balxml {
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 
-                      // -------------------------------
-                      // class EncoderOptions
-                      // -------------------------------
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -451,72 +486,72 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    ret = manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    ret = manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
+    ret = manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    ret = manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    ret = manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    ret = manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    ret = manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    ret = manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    ret = manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    ret = manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    ret = manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    ret = manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    ret = manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -527,67 +562,67 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
-        return manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SCHEMA_LOCATION: {
-        return manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TAG: {
-        return manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
+      case e_ATTRIBUTE_ID_TAG: {
+        return manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
-        return manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SPACES_PER_LEVEL: {
-        return manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRAP_COLUMN: {
-        return manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
-        return manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
-        return manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
-        return manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_ENCODING_STYLE: {
-        return manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
-        return manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
-        return manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
-        return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -597,12 +632,12 @@ int EncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -698,72 +733,72 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    ret = accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    ret = accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
+    ret = accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    ret = accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    ret = accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    ret = accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    ret = accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    ret = accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    ret = accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    ret = accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    ret = accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -774,67 +809,67 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
-        return accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SCHEMA_LOCATION: {
-        return accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TAG: {
-        return accessor(d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
+      case e_ATTRIBUTE_ID_TAG: {
+        return accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
-        return accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SPACES_PER_LEVEL: {
-        return accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRAP_COLUMN: {
-        return accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
-        return accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
-        return accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
-        return accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_ENCODING_STYLE: {
-        return accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
-        return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
-        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
-        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -844,12 +879,12 @@ int EncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

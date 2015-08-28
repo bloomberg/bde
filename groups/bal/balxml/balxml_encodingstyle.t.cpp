@@ -21,9 +21,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -37,9 +37,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -56,9 +56,9 @@ static void aSsErT(int c, const char *s, int i)
                aSsErT(1, #X, __LINE__); } }
 
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -75,9 +75,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 
 static int verbose = 0;
@@ -85,9 +85,9 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -137,13 +137,13 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 // line         enumerator value        expected result
                 // ----    -----------------------      -----------------
-                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,         "COMPACT"         },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::COMPACT,                "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,                "COMPACT"         },
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,          "PRETTY"          },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::PRETTY,                 "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,                 "PRETTY"          },
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -172,14 +172,14 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 // line         enumerator value        expected result
                 // ----    -----------------------      -----------------
-                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
-                {  L_,     Obj::BAEXML_COMPACT,         "compact"         },
-                {  L_,     Obj::BAEXML_COMPACT,         "BAEXML_COMPACT"  },
-                {  L_,     Obj::BAEXML_COMPACT,         "baexml_compact"  },
-                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
-                {  L_,     Obj::BAEXML_PRETTY,          "pretty"          },
-                {  L_,     Obj::BAEXML_PRETTY,          "BAEXML_PRETTY"   },
-                {  L_,     Obj::BAEXML_PRETTY,          "baexml_pretty"   },
+                {  L_,     Obj::e_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,         "compact"         },
+                {  L_,     Obj::e_COMPACT,         "BAEXML_COMPACT"  },
+                {  L_,     Obj::e_COMPACT,         "baexml_compact"  },
+                {  L_,     Obj::e_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,          "pretty"          },
+                {  L_,     Obj::e_PRETTY,          "BAEXML_PRETTY"   },
+                {  L_,     Obj::e_PRETTY,          "baexml_pretty"   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

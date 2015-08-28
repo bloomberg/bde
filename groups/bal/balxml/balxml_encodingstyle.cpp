@@ -19,9 +19,9 @@ BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$ $CCId$")
 
 namespace BloombergLP {
 
-                            // --------------------------
-                            // class balxml::EncodingStyle
-                            // --------------------------
+                        // ---------------------------
+                        // class balxml::EncodingStyle
+                        // ---------------------------
 
 // CONSTANTS
 
@@ -29,13 +29,13 @@ const char balxml::EncodingStyle::CLASS_NAME[] = "balxml::EncodingStyle";
 
 const bdlat_EnumeratorInfo balxml::EncodingStyle::ENUMERATOR_INFO_ARRAY[] = {
     {
-        balxml::EncodingStyle::BAEXML_COMPACT,
+        balxml::EncodingStyle::e_COMPACT,
         "COMPACT",
         sizeof("COMPACT") - 1,
         ""
     },
     {
-        balxml::EncodingStyle::BAEXML_PRETTY,
+        balxml::EncodingStyle::e_PRETTY,
         "PRETTY",
         sizeof("PRETTY") - 1,
         ""
@@ -48,8 +48,8 @@ namespace balxml {
 int EncodingStyle::fromInt(EncodingStyle::Value *result, int number)
 {
     switch (number) {
-      case EncodingStyle::BAEXML_COMPACT:
-      case EncodingStyle::BAEXML_PRETTY:
+      case EncodingStyle::e_COMPACT:
+      case EncodingStyle::e_PRETTY:
         *result = (EncodingStyle::Value)number;
         return 0;                                                     // RETURN
       default:
@@ -71,7 +71,7 @@ int EncodingStyle::fromString(EncodingStyle::Value *result,
              && (string[4]|0x20)=='t'
              && (string[5]|0x20)=='y')
             {
-                *result = EncodingStyle::BAEXML_PRETTY;
+                *result = EncodingStyle::e_PRETTY;
                 return 0;                                             // RETURN
             }
         } break;
@@ -84,7 +84,7 @@ int EncodingStyle::fromString(EncodingStyle::Value *result,
              && (string[5]|0x20)=='c'
              && (string[6]|0x20)=='t')
             {
-                *result = EncodingStyle::BAEXML_COMPACT;
+                *result = EncodingStyle::e_COMPACT;
                 return 0;                                             // RETURN
             }
         } break;
@@ -103,7 +103,7 @@ int EncodingStyle::fromString(EncodingStyle::Value *result,
              && (string[11]|0x20)=='t'
              && (string[12]|0x20)=='y')
             {
-                *result = EncodingStyle::BAEXML_PRETTY;
+                *result = EncodingStyle::e_PRETTY;
                 return 0;                                             // RETURN
             }
         } break;
@@ -123,7 +123,7 @@ int EncodingStyle::fromString(EncodingStyle::Value *result,
              && (string[12]|0x20)=='c'
              && (string[13]|0x20)=='t')
             {
-                *result = EncodingStyle::BAEXML_COMPACT;
+                *result = EncodingStyle::e_COMPACT;
                 return 0;                                             // RETURN
             }
         } break;
@@ -135,10 +135,10 @@ int EncodingStyle::fromString(EncodingStyle::Value *result,
 const char *EncodingStyle::toString(EncodingStyle::Value value)
 {
     switch (value) {
-      case BAEXML_COMPACT: {
+      case e_COMPACT: {
         return "COMPACT";                                             // RETURN
       } break;
-      case BAEXML_PRETTY: {
+      case e_PRETTY: {
         return "PRETTY";                                              // RETURN
       } break;
     }

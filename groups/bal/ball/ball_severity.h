@@ -130,28 +130,41 @@ struct Severity {
 
   public:
     enum Level {
-        BAEL_OFF   =   0,  // disable generation of corresponding message
-        BAEL_FATAL =  32,  // a condition that will (likely) cause a *crash*
-        BAEL_ERROR =  64,  // a condition that *will* cause incorrect behavior
-        BAEL_WARN  =  96,  // a *potentially* problematic condition
-        BAEL_INFO  = 128,  // data about the running process
-        BAEL_DEBUG = 160,  // information useful while debugging
-        BAEL_TRACE = 192,  // execution trace data
-        BAEL_NONE  = 224   // !DEPRECATED! Do not use
+        e_OFF   =   0,  // disable generation of corresponding message
+        e_FATAL =  32,  // a condition that will (likely) cause a *crash*
+        e_ERROR =  64,  // a condition that *will* cause incorrect behavior
+        e_WARN  =  96,  // a *potentially* problematic condition
+        e_INFO  = 128,  // data about the running process
+        e_DEBUG = 160,  // information useful while debugging
+        e_TRACE = 192,  // execution trace data
+        e_NONE  = 224   // !DEPRECATED! Do not use
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , OFF   = BAEL_OFF
-      , FATAL = BAEL_FATAL
-      , ERROR = BAEL_ERROR
-      , WARN  = BAEL_WARN
-      , INFO  = BAEL_INFO
-      , DEBUG = BAEL_DEBUG
-      , TRACE = BAEL_TRACE
-      , NONE  = BAEL_NONE
+      , BAEL_OFF = e_OFF
+      , BAEL_FATAL = e_FATAL
+      , BAEL_ERROR = e_ERROR
+      , BAEL_WARN = e_WARN
+      , BAEL_INFO = e_INFO
+      , BAEL_DEBUG = e_DEBUG
+      , BAEL_TRACE = e_TRACE
+      , BAEL_NONE = e_NONE
+      , OFF   = e_OFF
+      , FATAL = e_FATAL
+      , ERROR = e_ERROR
+      , WARN  = e_WARN
+      , INFO  = e_INFO
+      , DEBUG = e_DEBUG
+      , TRACE = e_TRACE
+      , NONE  = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BAEL_LENGTH = 8 };
+    enum {
+        e_LENGTH = 8
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_LENGTH = e_LENGTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
 

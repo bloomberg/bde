@@ -156,9 +156,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ================
-                            // class TestLoader
-                            // ================
+                              // ================
+                              // class TestLoader
+                              // ================
 
 class TestLoader : public Loader {
     // This class provides a concrete test implementation of the 'Loader'
@@ -265,9 +265,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // class TestLoader
-                            // ----------------
+                              // ----------------
+                              // class TestLoader
+                              // ----------------
 
 // CREATORS
 inline

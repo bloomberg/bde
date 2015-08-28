@@ -75,12 +75,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baljsn {
 
-                      // ===========================
-                      // class DecoderOptions
-                      // ===========================
+                            // ====================
+                            // class DecoderOptions
+                            // ====================
 
 class DecoderOptions {
     // This simply constrained (value-semantic) attribute class describes
@@ -99,20 +98,23 @@ class DecoderOptions {
 
     // CONSTANTS
     enum {
-        BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
+        e_DEFAULT_MAX_DEPTH = 32  // default value for
                                        // 'maxDepth' attribute
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_DEFAULT_MAX_DEPTH = e_DEFAULT_MAX_DEPTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
     int  d_maxDepth;             // maximum recursion depth
-    bool d_skipUnknownElements;  // flag specifying if unknown elements
-                                 // should be skipped
+    bool d_skipUnknownElements;  // flag specifying if unknown elements should
+                                 // be skipped
 
   public:
     // CREATORS
     DecoderOptions();
-        // Create a 'DecoderOptions' object having the (default)
-        // attribute values:
+        // Create a 'DecoderOptions' object having the (default) attribute
+        // values:
         //..
         //  maxDepth            == 0
         //  skipUnknownElements == true
@@ -167,42 +169,40 @@ class DecoderOptions {
 };
 
 // FREE OPERATORS
-bool operator==(const DecoderOptions& lhs,
-                const DecoderOptions& rhs);
+bool operator==(const DecoderOptions& lhs, const DecoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'EncoderOptions' objects have
-    // the same value if all of the corresponding values of their 'maxDepth'
-    // and 'skipUnknownElements'attributes are the same.
+    // value, and 'false' otherwise.  Two 'EncoderOptions' objects have the
+    // same value if all of the corresponding values of their 'maxDepth' and
+    // 'skipUnknownElements'attributes are the same.
 
-bool operator!=(const DecoderOptions& lhs,
-                const DecoderOptions& rhs);
+bool operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'EncoderOptions' objects
-    // do not have the same value if any of the corresponding values of their
+    // same value, and 'false' otherwise.  Two 'EncoderOptions' objects do not
+    // have the same value if any of the corresponding values of their
     // 'maxDepth' and 'skipUnknownElements' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const DecoderOptions& rhs);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.  Also note
-    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-    // but with the attribute names elided.
+bsl::ostream& operator<<(bsl::ostream&         stream,
+                         const DecoderOptions& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)', but with
+    // the attribute names elided.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------
-                      // class DecoderOptions
-                      // ---------------------------
+                            // --------------------
+                            // class DecoderOptions
+                            // --------------------
 
 // CREATORS
 inline
 DecoderOptions::DecoderOptions()
-: d_maxDepth(BAEJSN_DEFAULT_MAX_DEPTH)
+: d_maxDepth(e_DEFAULT_MAX_DEPTH)
 , d_skipUnknownElements(true)
 {
 }
@@ -244,16 +244,14 @@ bool DecoderOptions::skipUnknownElements() const
 
 // FREE FUNCTIONS
 inline
-bool baljsn::operator==(const DecoderOptions& lhs,
-                const DecoderOptions& rhs)
+bool baljsn::operator==(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
     return  lhs.maxDepth()            == rhs.maxDepth()
          && lhs.skipUnknownElements() == rhs.skipUnknownElements();
 }
 
 inline
-bool baljsn::operator!=(const DecoderOptions& lhs,
-                const DecoderOptions& rhs)
+bool baljsn::operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
     return  lhs.maxDepth()            != rhs.maxDepth()
          || lhs.skipUnknownElements() != rhs.skipUnknownElements();

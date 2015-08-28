@@ -42,9 +42,9 @@ using namespace BloombergLP;
 // [01] BREATHING TEST
 // [06] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -92,18 +92,18 @@ static void aSsErT(int c, const char *s, int i) {
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -542,9 +542,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == y.numPrefixes());
 
-        ASSERT(Registry::BAEXML_XML == y.lookupNamespaceId("xml"));
-        ASSERT(Registry::BAEXML_XMLNS == y.lookupNamespaceId("xmlns"));
-        ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE ==
+        ASSERT(Registry::e_XML == y.lookupNamespaceId("xml"));
+        ASSERT(Registry::e_XMLNS == y.lookupNamespaceId("xmlns"));
+        ASSERT(Registry::e_XMLSCHEMA_INSTANCE ==
                                                    y.lookupNamespaceId("xsi"));
 
         ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
@@ -559,10 +559,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(X2, y.lookupNamespaceUri("xmlns")));
         ASSERT(0 == strcmp(X3, y.lookupNamespaceUri("xsi")));
 
-        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri(Registry::BAEXML_XML)));
-        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri(Registry::BAEXML_XMLNS)));
+        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri(Registry::e_XML)));
+        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri(Registry::e_XMLNS)));
         ASSERT(0 == strcmp(X3,
-                   y.lookupNamespaceUri(Registry::BAEXML_XMLSCHEMA_INSTANCE)));
+                   y.lookupNamespaceUri(Registry::e_XMLSCHEMA_INSTANCE)));
 
         ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
         ASSERT(0 == strcmp("xmlns", y.lookupNamespacePrefix("xmlns")));

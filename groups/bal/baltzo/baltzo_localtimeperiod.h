@@ -172,9 +172,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // =====================
-                        // class LocalTimePeriod
-                        // =====================
+                           // =====================
+                           // class LocalTimePeriod
+                           // =====================
 
 class LocalTimePeriod {
     // This complex-constrained (value-semantic) attribute class describes a
@@ -348,9 +348,9 @@ void swap(LocalTimePeriod& a, LocalTimePeriod& b);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
-                        // class LocalTimePeriod
-                        // ---------------------
+                           // ---------------------
+                           // class LocalTimePeriod
+                           // ---------------------
 
 // CLASS METHODS
 inline

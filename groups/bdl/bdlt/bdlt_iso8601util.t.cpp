@@ -852,7 +852,7 @@ void testCase2TestingGenerate()
                                   HOUR, MINUTE, SECOND, MILLISECOND);
 
         bsl::stringstream output;
-        char outbuf[Util::BDEPU_MAX_DATETIME_STRLEN + 3];
+        char outbuf[Util::k_MAX_DATETIME_STRLEN + 3];
         int  rc;
 
         for (int j = 0; j < NUM_UTC_OFFSETS; ++j) {
@@ -881,7 +881,7 @@ void testCase2TestingGenerate()
                 bsl::strcat(expected, timeStr);
                 bsl::strcat(expected, offsetStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATETIMETZ_STRLEN;
+                int TEST_LENGTH = Util::k_DATETIMETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -939,7 +939,7 @@ void testCase2TestingGenerate()
                 bsl::strcat(expected, "T");
                 bsl::strcat(expected, timeStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATETIME_STRLEN;
+                int TEST_LENGTH = Util::k_DATETIME_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1000,7 +1000,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, dateStr);
                 bsl::strcat(expected, offsetStr);
-                int TEST_LENGTH = Util::BDEPU_DATETZ_STRLEN;
+                int TEST_LENGTH = Util::k_DATETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1059,7 +1059,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, dateStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATE_STRLEN;
+                int TEST_LENGTH = Util::k_DATE_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1116,7 +1116,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, timeStr);
                 bsl::strcat(expected, offsetStr);
-                int TEST_LENGTH = Util::BDEPU_TIMETZ_STRLEN;
+                int TEST_LENGTH = Util::k_TIMETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1172,7 +1172,7 @@ void testCase2TestingGenerate()
                 output.str("");
 
                 bsl::strcpy(expected, timeStr);
-                int TEST_LENGTH = Util::BDEPU_TIME_STRLEN;
+                int TEST_LENGTH = Util::k_TIME_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {

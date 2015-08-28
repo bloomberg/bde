@@ -24,14 +24,16 @@ using namespace bsl;
 //                              --------
 //
 //-----------------------------------------------------------------------------
-// [ ] static void setLevelCredentials(proxyNetwork, level, credentials);
-// [ ] static void setAllCredentials(proxyNetwork, credentials);
+// [1] static bool isWellFormed(const NetworkDescription& socks5Servers);
+// [1] static void setLevelCredentials(proxyNetwork, level, credentials);
+// [1] static void setAllCredentials(proxyNetwork, credentials);
 //
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [2] USAGE TEST
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -47,7 +49,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -73,7 +75,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -83,7 +85,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -94,13 +96,13 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef btls5::NetworkDescriptionUtil Obj;
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -110,6 +112,8 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose, (void) veryVeryVerbose, (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -230,6 +234,16 @@ int main(int argc, char *argv[])
         ASSERT(n1.beginLevel(0)[1].credentials() == c2);
         ASSERT(n1.beginLevel(1)[0].credentials() == c2);
         ASSERT(n1.beginLevel(1)[1].credentials() == c2);
+
+        btls5::NetworkDescription n2;
+        ASSERT(true  == Obj::isWellFormed(n1))
+        ASSERT(false == Obj::isWellFormed(n2))
+
+        n1.addProxy(3, btlso::Endpoint("proxy1.ny.bloomberg.com", 1080));
+        n2.addProxy(0, btlso::Endpoint("proxy1.ny.bloomberg.com", 1080));
+
+        ASSERT(false == Obj::isWellFormed(n1))
+        ASSERT(true  == Obj::isWellFormed(n2))
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -19,6 +19,8 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 
+#include <bslalg_scalardestructionprimitives.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 
@@ -29,6 +31,8 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
+#include <bsl_iterator.h>
 #include <bsl_vector.h>
 
 // ============================================================================
@@ -69,9 +73,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
@@ -102,9 +106,9 @@ enum {
 
 namespace btlsos {
 
-                  // =====================================
-                  // class btesos_TcpTimedCbConnector_RReg
-                  // =====================================
+                   // =====================================
+                   // class btesos_TcpTimedCbConnector_RReg
+                   // =====================================
 
 class TcpTimedCbConnector_Reg {
 
@@ -146,8 +150,9 @@ class TcpTimedCbConnector_Reg {
     void invoke(int status);
     void invoke(btlsc::CbChannel *channel, int status);
     void invokeTimed(btlsc::TimedCbChannel *channel, int status);
-    // The behavior is undefined unless this registration holds a non-timed
-    // callback or unless 'channel' is actually a 'btlsc::TimedCbChannel'.
+        // The behavior is undefined unless this registration holds a non-timed
+        // callback or unless the specified 'channel' is actually a
+        // 'btlsc::TimedCbChannel'.
 
     // ACCESSORS
     int flags() const;
@@ -161,9 +166,9 @@ class TcpTimedCbConnector_Reg {
 
 // CREATORS
 TcpTimedCbConnector_Reg::TcpTimedCbConnector_Reg(
-    const bsls::TimeInterval& timeout,
-    const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-    int flags)
+          const bsls::TimeInterval&                                    timeout,
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags)
 : d_isTimedChannel(1)
 , d_isTimedOperation(1)
 , d_timeout(timeout)
@@ -174,8 +179,8 @@ TcpTimedCbConnector_Reg::TcpTimedCbConnector_Reg(
 }
 
 TcpTimedCbConnector_Reg::TcpTimedCbConnector_Reg(
-    const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-    int flags)
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags)
 : d_isTimedChannel(1)
 , d_isTimedOperation(0)
 , d_flags(flags)
@@ -195,9 +200,9 @@ TcpTimedCbConnector_Reg::TcpTimedCbConnector_Reg(
 }
 
 TcpTimedCbConnector_Reg::TcpTimedCbConnector_Reg(
-    const bsls::TimeInterval& timeout,
-    const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-    int flags)
+               const bsls::TimeInterval&                               timeout,
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(0)
 , d_isTimedOperation(1)
 , d_timeout(timeout)
@@ -287,9 +292,9 @@ TcpTimedCbConnector_Reg::timedCallback() const {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class TcpTimedCbConnector
-                        // -------------------------
+                         // -------------------------
+                         // class TcpTimedCbConnector
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 
@@ -659,9 +664,9 @@ void TcpTimedCbConnector::deallocateCb(btlsc::CbChannel *channel) {
 // CREATORS
 
 TcpTimedCbConnector::TcpTimedCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -684,10 +689,10 @@ TcpTimedCbConnector::TcpTimedCbConnector(
 }
 
 TcpTimedCbConnector::TcpTimedCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  int                                           numChannels,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numChannels,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -746,7 +751,7 @@ int TcpTimedCbConnector::allocate(const Callback& callback, int flags)
     return 0;
 }
 
-int TcpTimedCbConnector::allocateTimed(const TimedCallback& callback,
+int TcpTimedCbConnector::allocateTimed(const TimedCallback& timedCallback,
                                        int                  flags)
 {
     if (d_isInvalidFlag) {
@@ -758,12 +763,12 @@ int TcpTimedCbConnector::allocateTimed(const TimedCallback& callback,
 
     if (d_callbacks.size() == 0) {
         initiateConnection<TimedCallback, TcpTimedCbChannel>
-            (callback, flags, 1);
+            (timedCallback, flags, 1);
         return 0;                                                     // RETURN
     }
 
     TcpTimedCbConnector_Reg *cb =
-        new (d_callbackPool) TcpTimedCbConnector_Reg(callback, flags);
+        new (d_callbackPool) TcpTimedCbConnector_Reg(timedCallback, flags);
     d_callbacks.push_front(cb);
     return 0;
 }
@@ -849,9 +854,10 @@ int TcpTimedCbConnector::timedAllocate(const Callback&           callback,
     return 0;
 }
 
-int TcpTimedCbConnector::timedAllocateTimed(const TimedCallback&      callback,
-                                            const bsls::TimeInterval& timeout,
-                                            int                       flags)
+int TcpTimedCbConnector::timedAllocateTimed(
+                                       const TimedCallback&      timedCallback,
+                                       const bsls::TimeInterval& timeout,
+                                       int                       flags)
 {
     if (d_isInvalidFlag) {
         return e_INVALID;                                             // RETURN
@@ -860,12 +866,12 @@ int TcpTimedCbConnector::timedAllocateTimed(const TimedCallback&      callback,
     if (d_callbacks.size() == 0) {
         BSLS_ASSERT(NULL == d_connectingSocket_p);
         return initiateTimedConnection<TimedCallback, TcpTimedCbChannel>
-                                      (callback, timeout, flags, 1) < 0;
+                                      (timedCallback, timeout, flags, 1) < 0;
                                                                       // RETURN
     }
     TcpTimedCbConnector_Reg *cb =
         new (d_callbackPool)
-                   TcpTimedCbConnector_Reg(timeout, callback, flags);
+                   TcpTimedCbConnector_Reg(timeout, timedCallback, flags);
     d_callbacks.push_front(cb);
     return 0;
 }

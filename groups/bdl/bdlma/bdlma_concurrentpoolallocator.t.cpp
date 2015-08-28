@@ -2,7 +2,7 @@
 
 #include <bdlma_concurrentpoolallocator.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlqq_condition.h>
 #include <bdlqq_threadutil.h>
@@ -67,22 +67,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 // The following macros facilitate thread-safe streaming to standard output.
 
@@ -315,6 +315,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my1_WorkQueue(const my1_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_alloc_p(bslma::Default::allocator(basicAllocator))
@@ -537,6 +542,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my2_WorkQueue(const my2_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_queue(basicAllocator)
@@ -1274,16 +1284,16 @@ int main(int argc, char *argv[])
 
             bdlqq::ThreadUtil::Handle upHandle;
             int status = bdlqq::ThreadUtil::create(&upHandle,
-                                                   attributes,
-                                                   &my3_up,
-                                                   (void*)a);
+                                                  attributes,
+                                                  &my3_up,
+                                                  static_cast<void *>(a));
             ASSERT(0 == status);
 
             bdlqq::ThreadUtil::Handle downHandle;
             status = bdlqq::ThreadUtil::create(&downHandle,
-                                               attributes,
-                                               &my3_down,
-                                               (void*)a);
+                                              attributes,
+                                              &my3_down,
+                                              static_cast<void *>(a));
             ASSERT(0 == status);
             status = bdlqq::ThreadUtil::join(upHandle);
             ASSERT(0 == status);

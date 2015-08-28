@@ -360,9 +360,9 @@ struct TypesPrintUtil {
         // byte in this character is output.
 };
 
-                         // ================================
+                         // =========================
                          // struct TypesPrintUtil_Imp
-                         // ================================
+                         // =========================
 
 struct TypesPrintUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
@@ -740,9 +740,9 @@ struct TypesPrintUtil_Imp {
 //                               PROXY CLASSES
 // ============================================================================
 
-                  // ==============================================
+                  // =======================================
                   // struct TypesPrintUtil_printDefaultProxy
-                  // ==============================================
+                  // =======================================
 
 struct TypesPrintUtil_printDefaultProxy {
     // Component-private struct.  Do not use.
@@ -767,9 +767,9 @@ struct TypesPrintUtil_printDefaultProxy {
     }
 };
 
-                 // =================================================
+                 // ==========================================
                  // struct TypesPrintUtil_Imp_printBase64Proxy
-                 // =================================================
+                 // ==========================================
 
 struct TypesPrintUtil_Imp_printBase64Proxy {
     // Component-private struct.  Do not use.
@@ -803,9 +803,9 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
     }
 };
 
-                // ==================================================
+                // ===========================================
                 // struct TypesPrintUtil_Imp_printDecimalProxy
-                // ==================================================
+                // ===========================================
 
 struct TypesPrintUtil_Imp_printDecimalProxy {
     // Component-private struct.  Do not use.
@@ -839,9 +839,9 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
     }
 };
 
-                // ==================================================
+                // ===========================================
                 // struct TypesPrintUtil_Imp_printDefaultProxy
-                // ==================================================
+                // ===========================================
 
 struct TypesPrintUtil_Imp_printDefaultProxy {
     // Component-private struct.  Do not use.
@@ -875,9 +875,9 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
     }
 };
 
-                  // ==============================================
+                  // =======================================
                   // struct TypesPrintUtil_Imp_printHexProxy
-                  // ==============================================
+                  // =======================================
 
 struct TypesPrintUtil_Imp_printHexProxy {
     // Component-private struct.  Do not use.
@@ -911,9 +911,9 @@ struct TypesPrintUtil_Imp_printHexProxy {
     }
 };
 
-                  // ===============================================
+                  // ========================================
                   // struct TypesPrintUtil_Imp_printListProxy
-                  // ===============================================
+                  // ========================================
 
 struct TypesPrintUtil_Imp_printListProxy {
     // Component-private struct.  Do not use.
@@ -947,9 +947,9 @@ struct TypesPrintUtil_Imp_printListProxy {
     }
 };
 
-                  // ===============================================
+                  // ========================================
                   // struct TypesPrintUtil_Imp_printTextProxy
-                  // ===============================================
+                  // ========================================
 
 struct TypesPrintUtil_Imp_printTextProxy {
     // Component-private struct.  Do not use.
@@ -987,9 +987,9 @@ struct TypesPrintUtil_Imp_printTextProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // ----------------------------
+                           // ---------------------
                            // struct TypesPrintUtil
-                           // ----------------------------
+                           // ---------------------
 
 template <class TYPE>
 bsl::ostream& TypesPrintUtil::print(
@@ -1138,9 +1138,9 @@ bsl::ostream& TypesPrintUtil::printText(
                                                 Tag());
 }
 
-                         // --------------------------------
+                         // -------------------------
                          // struct TypesPrintUtil_Imp
-                         // --------------------------------
+                         // -------------------------
 
 // BASE64 FUNCTIONS
 

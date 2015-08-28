@@ -116,9 +116,8 @@ BSLS_IDENT("$Id: $")
 //  class my_MessageFactory;
 //
 //  class my_Message {
-//      // This class represents a general message interface that provides
-//      // a 'getMessage' method for clients to retrieve the underlying
-//      // message.
+//      // This class represents a general message interface that provides a
+//      // 'getMessage' method for clients to retrieve the underlying message.
 //
 //    public:
 //      // ACCESSORS
@@ -253,6 +252,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      bdlma::Multipool d_multipool;  // multipool used to supply memory
+//
+//    private:
+//      // Not implemented:
+//      my_MessageFactory(const my_MessageFactory&);
 //
 //    public:
 //      // CREATORS
@@ -562,20 +565,19 @@ class Multipool {
   public:
     // CREATORS
     explicit
-    Multipool(bslma::Allocator                  *basicAllocator = 0);
+    Multipool(bslma::Allocator *basicAllocator = 0);
     explicit
-    Multipool(int                                numPools,
-              bslma::Allocator                  *basicAllocator = 0);
+    Multipool(int numPools, bslma::Allocator *basicAllocator = 0);
     explicit
-    Multipool(bsls::BlockGrowth::Strategy        growthStrategy,
-              bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
-              bsls::BlockGrowth::Strategy        growthStrategy,
-              bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
-              bsls::BlockGrowth::Strategy        growthStrategy,
-              int                                maxBlocksPerChunk,
-              bslma::Allocator                  *basicAllocator = 0);
+    Multipool(bsls::BlockGrowth::Strategy  growthStrategy,
+              bslma::Allocator            *basicAllocator = 0);
+    Multipool(int                          numPools,
+              bsls::BlockGrowth::Strategy  growthStrategy,
+              bslma::Allocator            *basicAllocator = 0);
+    Multipool(int                          numPools,
+              bsls::BlockGrowth::Strategy  growthStrategy,
+              int                          maxBlocksPerChunk,
+              bslma::Allocator            *basicAllocator = 0);
         // Create a multipool memory manager.  Optionally specify 'numPools',
         // indicating the number of internally created 'bdlma::Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -614,10 +616,10 @@ class Multipool {
               const bsls::BlockGrowth::Strategy *growthStrategyArray,
               int                                maxBlocksPerChunk,
               bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
-              bsls::BlockGrowth::Strategy        growthStrategy,
-              const int                         *maxBlocksPerChunkArray,
-              bslma::Allocator                  *basicAllocator = 0);
+    Multipool(int                          numPools,
+              bsls::BlockGrowth::Strategy  growthStrategy,
+              const int                   *maxBlocksPerChunkArray,
+              bslma::Allocator            *basicAllocator = 0);
     Multipool(int                                numPools,
               const bsls::BlockGrowth::Strategy *growthStrategyArray,
               const int                         *maxBlocksPerChunkArray,

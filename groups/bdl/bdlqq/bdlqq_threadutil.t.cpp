@@ -45,9 +45,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -85,9 +85,9 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlqq::ThreadUtil       Obj;
 typedef bdlqq::ThreadAttributes Attr;
@@ -97,7 +97,7 @@ int veryVerbose;
 int veryVeryVerbose;
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
@@ -111,9 +111,9 @@ int veryVeryVerbose;
     const int MIN_GUARD_SIZE = 1;
 #endif
 
-//=============================================================================
-//                  GLOBAL FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       GLOBAL FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
 {
@@ -126,10 +126,10 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
     switch (policy) {
 #undef CASE
 #define CASE(x) case bdlqq::ThreadAttributes::x: stream << #x; break
-      CASE(BCEMT_SCHED_OTHER);
-      CASE(BCEMT_SCHED_FIFO);
-      CASE(BCEMT_SCHED_RR);
-      CASE(BCEMT_SCHED_DEFAULT);
+      CASE(e_SCHED_OTHER);
+      CASE(e_SCHED_FIFO);
+      CASE(e_SCHED_RR);
+      CASE(e_SCHED_DEFAULT);
       default:  stream << "<UNKNOWN>";
 #undef CASE
     }
@@ -142,9 +142,9 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 namespace {
     // unnamed namespace for local resources
 
-                            // ================
-                            // class BigFunctor
-                            // ================
+                              // ================
+                              // class BigFunctor
+                              // ================
 
 class BigFunctor {
     // This 'class' is used in the allocator test.
@@ -163,9 +163,9 @@ class BigFunctor {
     }
 };
 
-                        // ===================
-                        // class ThreadChecker
-                        // ===================
+                            // ===================
+                            // class ThreadChecker
+                            // ===================
 
 class ThreadChecker {
 
@@ -225,7 +225,7 @@ void createSmallStackSizeThread()
     enum { STACK_SIZE = 16384 };
     bdlqq::ThreadAttributes attributes;
     attributes.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
     attributes.setStackSize(STACK_SIZE);
 
     char initValue = 1;
@@ -239,16 +239,16 @@ void createSmallStackSizeThread()
 static
 const char *policyToString(Attr::SchedulingPolicy policy)
 {
-    if      (Attr::BCEMT_SCHED_OTHER   == policy) {
+    if      (Attr::e_SCHED_OTHER   == policy) {
         return "other";                                               // RETURN
     }
-    else if (Attr::BCEMT_SCHED_FIFO    == policy) {
+    else if (Attr::e_SCHED_FIFO    == policy) {
         return "fifo";                                                // RETURN
     }
-    else if (Attr::BCEMT_SCHED_RR      == policy) {
+    else if (Attr::e_SCHED_RR      == policy) {
         return "rr";                                                  // RETURN
     }
-    else if (Attr::BCEMT_SCHED_DEFAULT == policy) {
+    else if (Attr::e_SCHED_DEFAULT == policy) {
         return "default";                                             // RETURN
     }
     else {
@@ -506,9 +506,9 @@ void Functor::operator()()
 
 }  // close namespace MULTIPRIORITY_EFFECTIVENESS_TEST_CASE
 
-//-----------------------------------------------------------------------------
-//                       Thread Policy Creation Test Case
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                     Thread Policy Creation Test Case
+// ----------------------------------------------------------------------------
 
 namespace BCEMT_THREAD_POLICY_CREATION_TEST {
 
@@ -528,9 +528,9 @@ struct Touch {
 
 }  // close namespace BCEMT_THREAD_POLICY_CREATION_TEST
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                       Multipriority Usage Test Case
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITY_USAGE_TEST_CASE {
 
@@ -561,9 +561,9 @@ void *LeastUrgentThreadFunctor(void* arg) {
 
 }  // close namespace MULTIPRIORITY_USAGE_TEST_CASE
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                          CONFIGURATION TEST CASE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BCEMT_CONFIGURATION_TEST_NAMESPACE {
 
@@ -630,9 +630,9 @@ void *configurationTestFunction(void *stackToUse)
     return 0;
 }
 
-//-----------------------------------------------------------------------------
-//                             STACKSIZE TEST CASE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                            STACKSIZE TEST CASE
+// ----------------------------------------------------------------------------
 
 namespace STACKSIZE_TEST_CASE_NAMESPACE {
 
@@ -719,9 +719,9 @@ void testStackSize()
 
 }  // close namespace STACKSIZE_TEST_CASE_NAMESPACE
 
-//-----------------------------------------------------------------------------
-//                              TEST CASE 6
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                                TEST CASE 6
+// ----------------------------------------------------------------------------
 
 extern "C" {
 
@@ -795,9 +795,9 @@ void TlsDestructor6_2(void *)
 
 }  // extern "C"
 
-//-----------------------------------------------------------------------------
-//                              TEST CASE 5
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                                TEST CASE 5
+// ----------------------------------------------------------------------------
 
 extern "C" {
 
@@ -932,9 +932,9 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
     return 0;
 }
 
-//-----------------------------------------------------------------------------
-//                                  TEST CASE -2
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                               TEST CASE -2
+// ----------------------------------------------------------------------------
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 
@@ -964,9 +964,9 @@ extern "C" void *clearanceTest(void *)
 
 #endif
 
-//-----------------------------------------------------------------------------
-//                                  TEST CASE -3
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                               TEST CASE -3
+// ----------------------------------------------------------------------------
 
 bool stackGrowthIsNegative(char *pc)
 {
@@ -975,9 +975,9 @@ bool stackGrowthIsNegative(char *pc)
     return &c < pc;
 }
 
-//-----------------------------------------------------------------------------
-//                                  TEST CASE -4
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                               TEST CASE -4
+// ----------------------------------------------------------------------------
 
 extern "C" void *secondClearanceTest(void *vStackSize)
 {
@@ -1003,9 +1003,9 @@ extern "C" void *secondClearanceTest(void *vStackSize)
     return 0;
 }
 
-//=============================================================================
-//                                  MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1161,10 +1161,10 @@ int main(int argc, char *argv[])
             int    d_line;
             Policy d_policy;
         } DATA[] = {
-            { L_, Attr::BCEMT_SCHED_DEFAULT },
-            { L_, Attr::BCEMT_SCHED_OTHER   },
-            { L_, Attr::BCEMT_SCHED_FIFO    },
-            { L_, Attr::BCEMT_SCHED_RR      },
+            { L_, Attr::e_SCHED_DEFAULT },
+            { L_, Attr::e_SCHED_OTHER   },
+            { L_, Attr::e_SCHED_FIFO    },
+            { L_, Attr::e_SCHED_RR      },
         };
         enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
 
@@ -1175,8 +1175,8 @@ int main(int argc, char *argv[])
             const Policy POLICY = DATA[i].d_policy;
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
-            if (Attr::BCEMT_SCHED_FIFO == POLICY ||
-                                              Attr::BCEMT_SCHED_RR == POLICY) {
+            if (Attr::e_SCHED_FIFO == POLICY ||
+                                              Attr::e_SCHED_RR == POLICY) {
                 continue;
             }
 #endif
@@ -1194,8 +1194,8 @@ int main(int argc, char *argv[])
 
 #if   defined(BSLS_PLATFORM_OS_SOLARIS)
             const int prioritiesWork = !isPost_5_10 ||
-                                           (Attr::BCEMT_SCHED_FIFO != POLICY &&
-                                            Attr::BCEMT_SCHED_RR   != POLICY);
+                                           (Attr::e_SCHED_FIFO != POLICY &&
+                                            Attr::e_SCHED_RR   != POLICY);
 #elif defined(BSLS_PLATFORM_OS_AIX)
             const int prioritiesWork = 1;
 #else
@@ -1390,10 +1390,10 @@ int main(int argc, char *argv[])
 
         namespace TC = BCEMT_THREAD_POLICY_CREATION_TEST;
 
-        Attr::SchedulingPolicy policies[] = { Attr::BCEMT_SCHED_OTHER,
-                                              Attr::BCEMT_SCHED_FIFO,
-                                              Attr::BCEMT_SCHED_RR,
-                                              Attr::BCEMT_SCHED_DEFAULT };
+        Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
+                                              Attr::e_SCHED_FIFO,
+                                              Attr::e_SCHED_RR,
+                                              Attr::e_SCHED_DEFAULT };
         enum { NUM_POLICIES = sizeof policies / sizeof *policies };
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
@@ -1402,12 +1402,12 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_HPUX
             const bool willFail = true;
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)
-            const bool willFail = (Attr::BCEMT_SCHED_FIFO == policy ||
-                                   Attr::BCEMT_SCHED_RR   == policy);
+            const bool willFail = (Attr::e_SCHED_FIFO == policy ||
+                                   Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
             const bool willFail = isPost_5_10 &&
-                                           (Attr::BCEMT_SCHED_FIFO == policy ||
-                                            Attr::BCEMT_SCHED_RR   == policy);
+                                           (Attr::e_SCHED_FIFO == policy ||
+                                            Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
             const bool willFail = false;
 #else
@@ -1633,7 +1633,7 @@ int main(int argc, char *argv[])
         bdlqq::ThreadAttributes attributes;
         attributes.setInheritSchedule(false);
         const bdlqq::ThreadAttributes::SchedulingPolicy policy =
-                                    bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
+                                    bdlqq::ThreadAttributes::e_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1751,10 +1751,10 @@ int main(int argc, char *argv[])
 
         typedef bdlqq::ThreadAttributes Attr;
 
-        Attr::SchedulingPolicy policies[] = { Attr::BCEMT_SCHED_OTHER,
-                                              Attr::BCEMT_SCHED_FIFO,
-                                              Attr::BCEMT_SCHED_RR,
-                                              Attr::BCEMT_SCHED_DEFAULT };
+        Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
+                                              Attr::e_SCHED_FIFO,
+                                              Attr::e_SCHED_RR,
+                                              Attr::e_SCHED_DEFAULT };
         enum { NUM_POLICIES = sizeof policies / sizeof *policies };
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
@@ -1797,8 +1797,8 @@ int main(int argc, char *argv[])
             }
             else {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-                ASSERT(Attr::BCEMT_SCHED_FIFO == POLICY ||
-                       Attr::BCEMT_SCHED_RR   == POLICY);
+                ASSERT(Attr::e_SCHED_FIFO == POLICY ||
+                       Attr::e_SCHED_RR   == POLICY);
 #elif !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 // This should only happen on Linux and Windows
                 ASSERT(0);
@@ -2159,7 +2159,7 @@ int main(int argc, char *argv[])
 
        bdlqq::ThreadAttributes detached;
        detached.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;

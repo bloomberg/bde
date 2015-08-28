@@ -161,9 +161,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ==========================
-                        // struct LocalTimeOffsetUtil
-                        // ==========================
+                         // ==========================
+                         // struct LocalTimeOffsetUtil
+                         // ==========================
 
 struct LocalTimeOffsetUtil {
     // This 'struct' provides a namespace for a 'bdetu_systemtime' local time
@@ -269,9 +269,9 @@ struct LocalTimeOffsetUtil {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // struct LocalTimeOffsetUtil
-                        // --------------------------
+                         // --------------------------
+                         // struct LocalTimeOffsetUtil
+                         // --------------------------
 
 // CLASS METHODS
 

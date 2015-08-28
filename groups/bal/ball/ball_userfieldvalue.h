@@ -78,12 +78,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -182,20 +190,20 @@ class UserFieldValue {
         // will be 'ball::UserFieldType::e_VOID'.
 
     void setInt64(int64_t value);
-        // Set this object to the specified 'value'.  After this operation
-        // 'type' will be 'ball::UserFieldType::e_INT64'.
+        // Set this object to the specified 'value'.  After this operation,
+        // 'type' is 'ball::UserFieldType::e_INT64'.
 
     void setDouble(double value);
-        // Set this object to the specified 'value'.  After this operation
-        // 'type' will be 'ball::UserFieldType::e_DOUBLE'.
+        // Set this object to the specified 'value'.  After this operation,
+        // 'type' is 'ball::UserFieldType::e_DOUBLE'.
 
     void setString(bslstl::StringRef value);
-        // Set this object to the specified 'value'.  After this operation
-        // 'type' will be 'ball::UserFieldType::e_STRING'.
+        // Set this object to the specified 'value'.  After this operation,
+        // 'type' is 'ball::UserFieldType::e_STRING'.
 
     void setDatetimeTz(const bdlt::DatetimeTz& value);
-        // Set this object to the specified 'value'.  After this operation
-        // 'type' will be 'ball::UserFieldType::e_DATETIMETZ'.
+        // Set this object to the specified 'value'.  After this operation,
+        // 'type' is 'ball::UserFieldType::e_DATETIMETZ'.
 
                                   // Aspects
 

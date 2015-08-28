@@ -7,7 +7,7 @@
 #include <btlso_ipv4address.h>
 #include <btlso_tcptimereventmanager.h>
 #include <btlso_inetstreamsocketfactory.h>  // HACK
-#include <btlso_socketimputil.h>            // cleanup, startup
+#include <btlso_socketimputil.h>            // cleanup, start-up
 
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
@@ -16,7 +16,7 @@
 
 #include <bdlt_currenttime.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bsls_timeinterval.h>
 
@@ -29,6 +29,7 @@
 #include <bsls_platform.h>
 #include <bdlt_currenttime.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
 #include <bsl_iostream.h>
@@ -76,23 +77,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
@@ -104,9 +105,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 const char* hostName = "127.0.0.1";
 typedef btlsos::TcpCbConnector  Obj;
 
@@ -142,21 +143,26 @@ struct TestCommand {
     char d_commandCode;     // a command to invoke a corresponding function,
                             // e.g., 'D' -- invoke the event manager's
                             // dispatch(); 'R' -- an "ACCEPT" request etc.
-    int d_channelType;      // a request for a 'btlsos::TcpCbChannel'
-                            // or 'btlsos::TcpTimedCbChannel', i.e., 1 for a
-                            // timed channel and 0 for a 'btlsos::TcpCbChannel'
+
+    int d_channelType;      // a request for a 'btlsos::TcpCbChannel' or
+                            // 'btlsos::TcpTimedCbChannel', i.e., 1 for a timed
+                            // channel and 0 for a 'btlsos::TcpCbChannel'
+
     int d_timedRequestFlag; // a request with/without timeout request
 
     int d_timeoutFlag;      // a flag to indicate if the request will timeout
 
     int d_validChannel;     // a flag to indicate if a new channel is created
                             // or not
+
     int d_expStatus;        // a expected status value from a "CONNECT" request
 
     int d_expNumEvents;     // the number of events after the execution of this
                             // command
-    int d_expNumTimers;     // the number of timers after the execution of
-                            // this command
+
+    int d_expNumTimers;     // the number of timers after the execution of this
+                            // command
+
     int d_expNumChannels;
 
     int d_cancelFlag;       // a flag to indicate if 'cancelAll' will be called
@@ -166,9 +172,9 @@ struct TestCommand {
                             // command is executed.
 };
 
-//=============================================================================
-//                      HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -210,7 +216,7 @@ struct TestCommand {
         void writeCb(int                    status,
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *channel,
-                     int                    numBytes);
+                     int                    sequence);
 
       private:
         // Not implemented:
@@ -238,14 +244,14 @@ struct TestCommand {
     my_EchoClient::my_EchoClient(
                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                 btlso::TimerEventManager                       *manager,
-                int                                             numConnections,
+                int                                             maxConnections,
                 int                                             numMessages,
                 bslma::Allocator                               *basicAllocator)
     : d_allocator(factory, manager, basicAllocator)
     , d_readTimeout(20.0)
     , d_writeTimeout(5,0)
     , d_numConnections(0)
-    , d_maxConnections(numConnections)
+    , d_maxConnections(maxConnections)
     , d_numMessages(numMessages)
     {
         ASSERT(factory);
@@ -554,10 +560,10 @@ struct TestCommand {
                           int                     cancelFlag)
         // Verify the result of an "ACCEPT" request by comparing against the
         // expected values: If the specified 'validChannel' is nonzero, a new
-        // channel should be established; the return 'status' should be the
-        // same as the specified 'expStatus'.  If the specified 'cancelFlag'
-        // is nonzero, invoke the 'cancelAll()' on the specified 'acceptor'
-        // for test.
+        // 'btlsc::CbChannel' should be established; the specified return
+        // 'status' should be the same as the specified 'expStatus'.  If the
+        // specified 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the
+        // specified 'acceptor' for test.
     {
         if (validChannel) {
             ASSERT(channel);
@@ -588,9 +594,9 @@ extern "C"
 #endif
 void *threadToAcceptConnection(void *arg)
     // Create a server socket which is ready for accept connections.  The
-    // following information will be pass in through the specified 'arg':
-    // a pointer to a 'btlso::StreamSocket' to create the server socket; the
-    // port number the server will use.
+    // following information will be pass in through the specified 'arg': a
+    // pointer to a 'btlso::StreamSocket' to create the server socket; the port
+    // number the server will use.
 {
     ASSERT(arg);
 
@@ -780,9 +786,9 @@ int getMaxconnectValue(TestCommand *commands, int maxCommands)
 
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

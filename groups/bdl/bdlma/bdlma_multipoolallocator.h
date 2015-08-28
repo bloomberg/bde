@@ -121,8 +121,8 @@ BSLS_IDENT("$Id: $")
 //  class my_Node;
 //
 //  class my_Edge {
-//      // This class represents an edge within a graph.  Both ends of an
-//      // edge must be connected to nodes.
+//      // This class represents an edge within a graph.  Both ends of an edge
+//      // must be connected to nodes.
 //
 //      // DATA
 //      my_Node *d_first;   // first node
@@ -157,6 +157,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // ...
 //
+//    private:
+//      // Not implemented:
+//      my_Node(const my_Node&);
+//
 //    public:
 //      // TRAITS
 //      BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
@@ -188,6 +192,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // ...
 //
+//    private:
+//      // Not implemented:
+//      my_Graph(const my_Graph&);
+//
 //    public:
 //      // TRAITS
 //      BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
@@ -216,6 +224,10 @@ BSLS_IDENT("$Id: $")
 //      // DATA
 //      bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph name to
 //                                                   // graph
+//
+//    private:
+//      // Not implemented:
+//      my_NamedGraphContainer(const my_NamedGraphContainer&);
 //
 //    public:
 //      // TRAITS
@@ -504,7 +516,6 @@ BSLS_IDENT("$Id: $")
 // Finally, in main, we run the test with the different allocators and
 // different allocator configurations based on command line arguments:
 //..
-//  int main(int argc, char **argv)
 //  {
 //      int testLengthFactor = 5;
 //      const int NUM_POOLS  = 10;
@@ -644,25 +655,19 @@ class MultipoolAllocator : public ManagedAllocator {
   public:
     // CREATORS
     explicit
-    MultipoolAllocator(
-                     bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
-    MultipoolAllocator(
-                     int                                numPools,
-                     bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(int numPools, bslma::Allocator *basicAllocator = 0);
     explicit
-    MultipoolAllocator(
-                     bsls::BlockGrowth::Strategy        growthStrategy,
-                     bslma::Allocator                  *basicAllocator = 0);
-    MultipoolAllocator(
-                     int                                numPools,
-                     bsls::BlockGrowth::Strategy        growthStrategy,
-                     bslma::Allocator                  *basicAllocator = 0);
-    MultipoolAllocator(
-                     int                                numPools,
-                     bsls::BlockGrowth::Strategy        growthStrategy,
-                     int                                maxBlocksPerChunk,
-                     bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
+                       bslma::Allocator            *basicAllocator = 0);
+    MultipoolAllocator(int                          numPools,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       bslma::Allocator            *basicAllocator = 0);
+    MultipoolAllocator(int                          numPools,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       int                          maxBlocksPerChunk,
+                       bslma::Allocator            *basicAllocator = 0);
         // Create a multipool allocator.  Optionally specify 'numPools',
         // indicating the number of internally created 'bdlma::Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -694,20 +699,17 @@ class MultipoolAllocator : public ManagedAllocator {
         // growth would exceed the maximum value, the chunk size is capped at
         // that value.
 
-    MultipoolAllocator(
-                     int                                numPools,
-                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                     bslma::Allocator                  *basicAllocator = 0);
-    MultipoolAllocator(
-                     int                                numPools,
-                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                     int                                maxBlocksPerChunk,
-                     bslma::Allocator                  *basicAllocator = 0);
-    MultipoolAllocator(
-                     int                                numPools,
-                     bsls::BlockGrowth::Strategy        growthStrategy,
-                     const int                         *maxBlocksPerChunkArray,
-                     bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(int                                numPools,
+                       const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                       bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(int                                numPools,
+                       const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                       int                                maxBlocksPerChunk,
+                       bslma::Allocator                  *basicAllocator = 0);
+    MultipoolAllocator(int                          numPools,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       const int                   *maxBlocksPerChunkArray,
+                       bslma::Allocator            *basicAllocator = 0);
     MultipoolAllocator(
                      int                                numPools,
                      const bsls::BlockGrowth::Strategy *growthStrategyArray,

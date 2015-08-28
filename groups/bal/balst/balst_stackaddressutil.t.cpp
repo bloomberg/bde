@@ -40,9 +40,9 @@ using bsl::flush;
 // [ 2] getStackAddresses(0, 0)
 // [-1] Speed benchmark of getStackAddresses
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
@@ -57,9 +57,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-// STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -73,9 +73,9 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-// SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -83,18 +83,18 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//=============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-//=============================================================================
-//              GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bsls::Types::UintPtr UintPtr;
 int verbose;
@@ -108,9 +108,9 @@ const bool lamePlatform = true;
 const bool lamePlatform = false;
 #endif
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 static bsl::string myHex(UintPtr up)
 {
@@ -555,9 +555,9 @@ void recurser(int  iterations,
 
 }  // close namespace CASE_MINUS_ONE
 
-//=============================================================================
-//                                   MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

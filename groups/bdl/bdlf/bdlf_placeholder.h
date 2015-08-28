@@ -34,7 +34,16 @@ namespace BloombergLP {
 namespace bdlf {
 template <int I>
 struct PlaceHolder {
-    enum { VALUE = I };
+    enum {
+        value = I
+
+            // ARB: backup value not needed (based on OpenGrok search)
+            // VALUE never was part of the intended interface, and is not used.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , VALUE = value
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 };
 
 namespace PlaceHolders {

@@ -212,10 +212,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_timequeue.h>
 #endif
 
-#ifndef INCLUDED_BDLCFXXX_VFUNC0
-#include <bdlcfxxx_vfunc0.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #include <bdlma_concurrentpool.h>
 #endif
@@ -366,27 +362,24 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // DEPRECATED: The enumerated hints are not supported and will be
         // ignored by this component.
 
-        BTEMT_NO_HINT,                 // The (de)registrations will likely be
+        e_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
-        BTEMT_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
+        e_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NO_HINT                 = BTEMT_NO_HINT
-      , INFREQUENT_REGISTRATION = BTEMT_INFREQUENT_REGISTRATION
+      , BTEMT_NO_HINT = e_NO_HINT
+      , BTEMT_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
+      , NO_HINT                 = e_NO_HINT
+      , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef bdlcfxxx::Vfunc0                   Callback;
-        // DEPRECATED: Use 'btlso::TimerEventManager::Callback' instead.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   private:
     // PRIVATE TYPES
     enum State {
-        BTEMT_ENABLED  = 0,  // dispatching thread is running
-        BTEMT_DISABLED = 1   // dispatching thread is not running
+        e_ENABLED  = 0,  // dispatching thread is running
+        e_DISABLED = 1   // dispatching thread is not running
     };
 
     typedef TcpTimerEventManager_ControlChannel ControlChannel;

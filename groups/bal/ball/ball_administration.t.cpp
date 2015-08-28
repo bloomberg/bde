@@ -8,7 +8,7 @@
 #include <ball_testobserver.h>               // for testing only
 #include <ball_defaultobserver.h>            // for testing only
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -82,23 +82,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -121,12 +121,12 @@ typedef ball::Administration Obj;
 
 const char *DEFAULT_CATEGORY_NAME                 = "";
 const int   DEFAULT_CATEGORY_RECORD_THRESHOLD     = 0;
-const int   DEFAULT_CATEGORY_PASS_THRESHOLD       = ball::Severity::BAEL_ERROR;
+const int   DEFAULT_CATEGORY_PASS_THRESHOLD       = ball::Severity::e_ERROR;
 const int   DEFAULT_CATEGORY_TRIGGER_THRESHOLD    = 0;
 const int   DEFAULT_CATEGORY_TRIGGERALL_THRESHOLD = 0;
 
 const int   DEFAULT_RECORD_THRESHOLD_LEVEL        = 0;
-const int   DEFAULT_PASS_THRESHOLD_LEVEL          = ball::Severity::BAEL_ERROR;
+const int   DEFAULT_PASS_THRESHOLD_LEVEL          = ball::Severity::e_ERROR;
 const int   DEFAULT_TRIGGER_THRESHOLD_LEVEL       = 0;
 const int   DEFAULT_TRIGGERALL_THRESHOLD_LEVEL    = 0;
 
@@ -210,10 +210,10 @@ int main(int argc, char *argv[])
      for (int i = 0; i < NUM_CATEGORIES; ++i) {
          int retValue = ball::Administration::addCategory(
                                               equityCategories[i],
-                                              ball::Severity::BAEL_TRACE + i,
-                                              ball::Severity::BAEL_WARN  + i,
-                                              ball::Severity::BAEL_ERROR + i,
-                                              ball::Severity::BAEL_FATAL + i);
+                                              ball::Severity::e_TRACE + i,
+                                              ball::Severity::e_WARN  + i,
+                                              ball::Severity::e_ERROR + i,
+                                              ball::Severity::e_FATAL + i);
          ASSERT(0 == retValue);  // added new category
      }
 //..
@@ -271,10 +271,10 @@ int main(int argc, char *argv[])
          const int returnValue =
                    ball::Administration::setThresholdLevels(
                                               equityCategories[i],
-                                              ball::Severity::BAEL_TRACE - i,
-                                              ball::Severity::BAEL_WARN  - i,
-                                              ball::Severity::BAEL_ERROR - i,
-                                              ball::Severity::BAEL_FATAL - i);
+                                              ball::Severity::e_TRACE - i,
+                                              ball::Severity::e_WARN  - i,
+                                              ball::Severity::e_ERROR - i,
+                                              ball::Severity::e_FATAL - i);
          ASSERT(1 == returnValue);  // modified one category
      }
 //..

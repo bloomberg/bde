@@ -124,9 +124,8 @@ BSLS_IDENT("$Id: $")
 //  class my_MessageFactory;
 //
 //  class my_Message {
-//      // This class represents a general message interface that provides
-//      // a 'getMessage' method for clients to retrieve the underlying
-//      // message.
+//      // This class represents a general message interface that provides a
+//      // 'getMessage' method for clients to retrieve the underlying message.
 //
 //    public:
 //      // ACCESSORS
@@ -258,6 +257,10 @@ BSLS_IDENT("$Id: $")
 //      // DATA
 //      bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply
 //                                               // memory
+//
+//    private:
+//      // Not implemented:
+//      my_MessageFactory(const my_MessageFactory&);
 //
 //    public:
 //      // CREATORS
@@ -561,9 +564,8 @@ class ConcurrentMultipool {
 
   public:
     // CREATORS
-    ConcurrentMultipool(bslma::Allocator            *basicAllocator = 0);
-    ConcurrentMultipool(int                          numPools,
-                        bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipool(bslma::Allocator *basicAllocator = 0);
+    ConcurrentMultipool(int numPools, bslma::Allocator *basicAllocator = 0);
     ConcurrentMultipool(bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
     ConcurrentMultipool(int                          numPools,
@@ -610,10 +612,10 @@ class ConcurrentMultipool {
                         const bsls::BlockGrowth::Strategy *growthStrategyArray,
                         int                                maxBlocksPerChunk,
                         bslma::Allocator                  *basicAllocator = 0);
-    ConcurrentMultipool(int                           numPools,
-                        bsls::BlockGrowth::Strategy   growthStrategy,
-                        const int                    *maxBlocksPerChunkArray,
-                        bslma::Allocator             *basicAllocator = 0);
+    ConcurrentMultipool(int                          numPools,
+                        bsls::BlockGrowth::Strategy  growthStrategy,
+                        const int                   *maxBlocksPerChunkArray,
+                        bslma::Allocator            *basicAllocator = 0);
     ConcurrentMultipool(
                      int                                numPools,
                      const bsls::BlockGrowth::Strategy *growthStrategyArray,

@@ -96,9 +96,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlde {
 
-                            // =================
-                            // class Crc32
-                            // =================
+                                // ===========
+                                // class Crc32
+                                // ===========
 
 class Crc32 {
     // This class represents a CRC-32 checksum value that can be updated as
@@ -250,9 +250,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Crc32& checksum);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // class Crc32
-                            // -----------------
+                                // -----------
+                                // class Crc32
+                                // -----------
 
 // CLASS METHODS
 inline

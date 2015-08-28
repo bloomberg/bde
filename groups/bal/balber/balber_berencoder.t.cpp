@@ -2,13 +2,18 @@
 
 #include <balber_berencoder.h>
 
+#include <balber_berconstants.h>
+#include <balber_berutil.h>
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
+#include <bdlat_sequencefunctions.h>
 
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlsb_memoutstreambuf.h>
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -43,17 +48,15 @@ using bsl::dec;
 using bsl::hex;
 using bsl::flush;
 
-//=============================================================================
-//                             TEST PLAN
-//-----------------------------------------------------------------------------
-//
-//
+// ============================================================================
+//                                 TEST PLAN
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -65,7 +68,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -96,18 +99,18 @@ static void aSsErT(int c, const char *s, int i) {
                          << L << "\t" << #M << ": " << M << "\t" << #N     \
                          << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int numOctets(const char *s)
     // Return the number of octets contained in the specified 's'.  Note that
@@ -127,35 +130,16 @@ int numOctets(const char *s)
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
 typedef bdlt::PosixDateImpUtil  DateUtil;
 
-//typedef balber::BerEncoder Obj;
-
-//struct Obj
-//{
-//    template <typename TYPE>
-//    static int encode(bsl::streambuf *streamBuf, const TYPE& value)
-//    {
-//        balber::BerEncoder encoder(0, &bsl::cerr, &bsl::cerr);
-//        return encoder.encode(streamBuf, value);
-//    }
-//
-//    template <typename TYPE>
-//    static bsl::ostream& encode(bsl::ostream& stream, const TYPE& value)
-//    {
-//        balber::BerEncoder encoder(0, &bsl::cerr, &bsl::cerr);
-//        return encoder.encode(stream, value);
-//    }
-//
-//};
-
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+static bool         verbose = false;
+static bool     veryVerbose = false;
+static bool veryVeryVerbose = false;
+
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int getIntValue(char c)
 {
@@ -192,7 +176,7 @@ int compareBuffers(const char *stream, const char *buffer)
 }
 
 void printBuffer(const char *buffer, int length)
-    // Print the specified 'buffer' of the specified 'length' in hex form
+    // Print the specified 'buffer' of the specified 'length' in hex form.
 {
     bsl::cout << bsl::hex;
     int numOutput = 0;
@@ -234,9 +218,16 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
     }
 }
 
-//=============================================================================
-//                  GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+void printDiagnostic(balber::BerEncoder & encoder)
+{
+    if (veryVerbose) {
+        bsl::cout << encoder.loggedMessages();
+    }
+}
+
+// ============================================================================
+//                     GLOBAL HELPER CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 // The code below was generated using the following command:
 //..
@@ -396,8 +387,8 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 // NOTE: Please update schema above and regenerate to make changes.
 
 // test_messages.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MESSAGES
-#define INCLUDED_TEST_MESSAGES
+//#ifndef INCLUDED_TEST_MESSAGES
+//#define INCLUDED_TEST_MESSAGES
 
 //@PURPOSE: TODO: Provide purpose
 //
@@ -3311,7 +3302,7 @@ struct Messages {
 }  // close namespace test
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace test {
@@ -6336,6 +6327,7 @@ bool TimingRequest::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
+
 }  // close namespace test
 
 // FREE FUNCTIONS
@@ -6350,10 +6342,10 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_SELECTION1:
             return lhs.selection1() == rhs.selection1();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_SELECTION2:
             return lhs.selection2() == rhs.selection2();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -6611,10 +6603,10 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_MY_CHOICE1:
             return lhs.myChoice1() == rhs.myChoice1();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_MY_CHOICE2:
             return lhs.myChoice2() == rhs.myChoice2();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -6734,13 +6726,13 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_SQRT:
             return lhs.sqrt() == rhs.sqrt();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_BASIC:
             return lhs.basic() == rhs.basic();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_BIG:
             return lhs.big() == rhs.big();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -6769,7 +6761,6 @@ bsl::ostream& test::operator<<(
 }
 
 }  // close enterprise namespace
-#endif
 
 // GENERATED BY BLP_BAS_CODEGEN_2.1.8
 // ----------------------------------------------------------------------------
@@ -6779,7 +6770,7 @@ bsl::ostream& test::operator<<(
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_messages.cpp   -*-C++-*-
 
@@ -8714,7 +8705,7 @@ bsl::ostream& TimingRequest::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test
+}  // close package namespace
 }  // close enterprise namespace
 
 // GENERATED BY BLP_BAS_CODEGEN_2.1.8
@@ -8725,100 +8716,546 @@ bsl::ostream& TimingRequest::print(
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // ************************ END OF GENERATED CODE **************************
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//..
+    namespace BloombergLP {
+    namespace usage {
 
-// The following snippets of code illustrate the usage of this component.
-// Suppose we have the following XML schema inside a file called 'xsdfile.xsd':
-//..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:bdem='http://bloomberg.com/schemas/bdem'
-//             elementFormDefault='unqualified'>
-//
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='string'/>
-//              <xs:element name='city'   type='string'/>
-//              <xs:element name='state'  type='string'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='string'/>
-//              <xs:element name='homeAddress' type='Address'/>
-//              <xs:element name='age'         type='int'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//  </xs:schema>
-//..
-// Using the 'bde_xsdcc.pl' tool, we can generate C++ classes for this schema:
-//..
-//  $ bde_xsdcc.pl -g h -g cpp -p test xsdfile.xsd
-//..
-// This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
-//
-// Now suppose we wanted to encode information about a particular employee
-// using BER encoding.  The following function will do this:
-//..
-void usageExample()
-{
-    bdlsb::MemOutStreamBuf osb;
+    struct EmployeeRecord {
+        // This struct represents a sequence containing a 'string' member, an
+        // 'int' member, and a 'float' member.
 
-    test::Employee bob;
+        // CONSTANTS
+        enum {
+            NAME_ATTRIBUTE_ID   = 1,
+            AGE_ATTRIBUTE_ID    = 2,
+            SALARY_ATTRIBUTE_ID = 3
+        };
 
-    bob.name()                 = "Bob";
-    bob.homeAddress().street() = "Some Street";
-    bob.homeAddress().city()   = "Some City";
-    bob.homeAddress().state()  = "Some State";
-    bob.age()                  = 21;
+        // DATA
+        bsl::string d_name;
+        int         d_age;
+        float       d_salary;
 
-    balber::BerEncoder encoder(0);
-    int retCode = encoder.encode(&osb, bob);
+        // CREATORS
+        EmployeeRecord();
+            // Create an 'EmployeeRecord' having the attributes:
+            //..
+            //  d_name   == ""
+            //  d_age    == 0
+            //  d_salary = 0.0
+            //..
+        EmployeeRecord(const bsl::string& name, int age, float salary);
+            // Create an 'EmployeeRecord' object having the specified
+            // 'name', 'age', and 'salary' attributes.
 
-    ASSERT(0 == retCode);
-//..
-// Now we will verify the contents of 'osb' using the 'bdem_berdecoderutil'
-// component:
-//..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-//      test::Employee            obj;
-//
-//      retCode = balber::BerDecoder::decode(&isb, &obj);
-//
-//      ASSERT(0                          == retCode);
-//      ASSERT(bob.name()                 == obj.name());
-//      ASSERT(bob.homeAddress().street() == obj.homeAddress().street());
-//      ASSERT(bob.homeAddress().city()   == obj.homeAddress().city());
-//      ASSERT(bob.homeAddress().state()  == obj.homeAddress().state());
-//      ASSERT(bob.age()                  == obj.age());
-}
-//..
+        // ACCESSORS
+        const bsl::string& name()   const;
+        int                age()    const;
+        float              salary() const;
+    };
 
-void printDiagnostic(balber::BerEncoder & encoder)
-{
-    if (veryVerbose) {
-        bsl::cout << encoder.loggedMessages();
+    // CREATORS
+    EmployeeRecord::EmployeeRecord()
+    : d_name()
+    , d_age()
+    , d_salary()
+    {
     }
+
+    EmployeeRecord::EmployeeRecord(const bsl::string& name,
+                                   int               age,
+                                   float             salary)
+    : d_name(name)
+    , d_age(age)
+    , d_salary(salary)
+    {
+    }
+
+    // ACCESSORS
+    const bsl::string& EmployeeRecord::name() const
+    {
+        return d_name;
+    }
+
+    int EmployeeRecord::age() const
+    {
+        return d_age;
+    }
+
+    float EmployeeRecord::salary() const
+    {
+        return d_salary;
+    }
+
+    }  // close namespace 'usage'
+
+    namespace usage {
+
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(EmployeeRecord *object,
+                                          MANIPULATOR&    manipulator,
+                                          const char     *attributeName,
+                                          int             attributeNameLength);
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(EmployeeRecord *object,
+                                          MANIPULATOR&    manipulator,
+                                          int             attributeId);
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttributes(EmployeeRecord *object,
+                                           MANIPULATOR&    manipulator);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttribute(
+                                   const EmployeeRecord&  object,
+                                   ACCESSOR&              accessor,
+                                   const char            *attributeName,
+                                   int                    attributeNameLength);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttribute(const EmployeeRecord& object,
+                                      ACCESSOR&             accessor,
+                                      int                   attributeId);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttributes(const EmployeeRecord& object,
+                                       ACCESSOR&             accessor);
+    bool bdlat_sequenceHasAttribute(
+                                   const EmployeeRecord&  object,
+                                   const char            *attributeName,
+                                   int                    attributeNameLength);
+    bool bdlat_sequenceHasAttribute(const EmployeeRecord& object,
+                                    int                   attributeId);
+
+    }  // close namespace 'usage'
+
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttribute(
+                                           EmployeeRecord *object,
+                                           MANIPULATOR&    manipulator,
+                                           const char     *attributeName,
+                                           int             attributeNameLength)
+    {
+        enum { k_NOT_FOUND = -1 };
+
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+
+            return bdlat_sequenceManipulateAttribute(
+                                            object,
+                                            manipulator,
+                                            EmployeeRecord::NAME_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+
+            return bdlat_sequenceManipulateAttribute(
+                                             object,
+                                             manipulator,
+                                             EmployeeRecord::AGE_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+
+            return bdlat_sequenceManipulateAttribute(
+                                          object,
+                                          manipulator,
+                                          EmployeeRecord::SALARY_ATTRIBUTE_ID);
+        }
+
+        return k_NOT_FOUND;
+    }
+
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttribute(EmployeeRecord  *object,
+                                                 MANIPULATOR&     manipulator,
+                                                 int              attributeId)
+    {
+        enum { k_NOT_FOUND = -1 };
+
+        switch (attributeId) {
+          case EmployeeRecord::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
+
+            return manipulator(&object->d_name, info);
+          }
+          case EmployeeRecord::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
+
+            return manipulator(&object->d_age, info);
+          }
+          case EmployeeRecord::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
+
+            return manipulator(&object->d_salary, info);
+          }
+          default: {
+              return k_NOT_FOUND;
+          }
+        }
+    }
+
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttributes(
+                                                 EmployeeRecord   *object,
+                                                 MANIPULATOR&      manipulator)
+    {
+        int retVal;
+
+        retVal = bdlat_sequenceManipulateAttribute(
+                                            object,
+                                            manipulator,
+                                            EmployeeRecord::NAME_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceManipulateAttribute(
+                                             object,
+                                             manipulator,
+                                             EmployeeRecord::AGE_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceManipulateAttribute(
+                                          object,
+                                          manipulator,
+                                          EmployeeRecord::SALARY_ATTRIBUTE_ID);
+
+        return retVal;
+    }
+
+    // ACCESSORS
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttribute(
+                                    const EmployeeRecord&  object,
+                                    ACCESSOR&              accessor,
+                                    const char            *attributeName,
+                                    int                    attributeNameLength)
+    {
+        enum { k_NOT_FOUND = -1 };
+
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                            object,
+                                            accessor,
+                                            EmployeeRecord::NAME_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                             object,
+                                             accessor,
+                                             EmployeeRecord::AGE_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+
+            return bdlat_sequenceAccessAttribute(
+                                          object,
+                                          accessor,
+                                          EmployeeRecord::SALARY_ATTRIBUTE_ID);
+        }
+
+        return k_NOT_FOUND;
+    }
+
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttribute(const EmployeeRecord& object,
+                                             ACCESSOR&             accessor,
+                                             int                   attributeId)
+    {
+        enum { k_NOT_FOUND = -1 };
+
+        switch (attributeId) {
+          case EmployeeRecord::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
+
+            return accessor(object.d_name, info);
+          }
+          case EmployeeRecord::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
+
+            return accessor(object.d_age, info);
+          }
+          case EmployeeRecord::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
+
+            return accessor(object.d_salary, info);
+          }
+          default: {
+              return k_NOT_FOUND;
+          }
+        }
+    }
+
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttributes(const EmployeeRecord& object,
+                                              ACCESSOR&             accessor)
+    {
+        int retVal;
+
+        retVal = bdlat_sequenceAccessAttribute(
+                                            object,
+                                            accessor,
+                                            EmployeeRecord::NAME_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceAccessAttribute(
+                                             object,
+                                             accessor,
+                                             EmployeeRecord::AGE_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceAccessAttribute(
+                                          object,
+                                          accessor,
+                                          EmployeeRecord::SALARY_ATTRIBUTE_ID);
+
+        return retVal;
+    }
+
+    bool usage::bdlat_sequenceHasAttribute(
+                                    const EmployeeRecord&  ,
+                                    const char            *attributeName,
+                                    int                    attributeNameLength)
+    {
+        return bdlb::String::areEqualCaseless("name",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("age",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("salary",
+                                              attributeName,
+                                              attributeNameLength);
+    }
+
+    bool usage::bdlat_sequenceHasAttribute(const EmployeeRecord& ,
+                                           int                   attributeId)
+    {
+        return EmployeeRecord::NAME_ATTRIBUTE_ID   == attributeId
+            || EmployeeRecord::AGE_ATTRIBUTE_ID    == attributeId
+            || EmployeeRecord::SALARY_ATTRIBUTE_ID == attributeId;
+    }
+
+    namespace bdlat_SequenceFunctions {
+
+        template <>
+        struct IsSequence<usage::EmployeeRecord> {
+            enum { VALUE = 1 };
+        };
+
+    }  // close namespace 'bdlat_SequenceFunctions'
+    }  // close enterprise namespace
+
+static void usageExample()
+{
+    using namespace BloombergLP;
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding an Employee Record
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose that an "employee record" consists of a sequence of attributes --
+// 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
+// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// records as a sequence of values (for out-of-process consumption).
+//
+// Assume that we have defined a 'usage::EmployeeRecord' class to represent
+// employee record values, and assume that we have provided the 'bdlat'
+// specializations that allow the 'balber' codec components to represent class
+// values as a sequence of BER primitive values.  See
+// {'bdlat_sequencefunctions'|Usage} for details of creating specializations
+// for a sequence type.
+//
+// First, we create an employee record object having typical values:
+//..
+    usage::EmployeeRecord bob("Bob", 56, 1234.00);
+    ASSERT("Bob"   == bob.name());
+    ASSERT(  56    == bob.age());
+    ASSERT(1234.00 == bob.salary());
+//..
+// Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// object.  Here, to facilitate the examination of our results, the BER
+// encoding data is delivered to a 'bslsb::MemOutStreamBuf' object:
+//..
+    bdlsb::MemOutStreamBuf osb;
+    balber::BerEncoder     encoder;
+    int                    rc = encoder.encode(&osb, bob);
+    ASSERT( 0 == rc);
+    ASSERT(18 == osb.length());
+//..
+// Finally, we confirm that the generated BER encoding has the expected layout
+// and values.  We create an 'bdlsb::FixedMemInStreamBuf' to manage our access
+// to the data portion of the 'bdlsb::MemOutStreamBuf' where our BER encoding
+// resides:
+//..
+    bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+//..
+// The 'balber_berutil' component provides functions that allow us to decode
+// the descriptive fields and values of the BER encoded sequence:
+//..
+    balber::BerConstants::TagClass tagClass;
+    balber::BerConstants::TagType  tagType;
+    int                            tagNumber;
+    int                            accumNumBytesConsumed = 0;
+    int                            length;
+
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    ASSERT(0                                             == rc);
+    ASSERT(balber::BerConstants::e_UNIVERSAL             == tagClass);
+    ASSERT(balber::BerConstants::e_CONSTRUCTED           == tagType);
+    ASSERT(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
+
+    rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
+    ASSERT(0                                    == rc);
+    ASSERT(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+//..
+// The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
+// represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
+// the infrastructure (see the 'IsSequence' specialization above).  The
+// 'tagType' value of 'CONSTRUCTED' indicates that this is a non-primitive
+// type.  The 'INDEFINITE' value for length is typical for sequence encodings.
+// In these cases, the end-of-data is indicated by a sequence to two null
+// bytes.
+//
+// We now examine the tags and values corresponding to each of the data members
+// of 'usage::EmployeeRecord' class.  For each of these the 'tagClass' is
+// 'CONTEXT_SPECIFIC' (i.e., member of a larger construct) and the 'tagType' is
+// 'PRIMITIVE' ('bsl::string', 'int', and 'float' each correspond to a
+// primitive BER type.  The 'tagNumber' for each field was defined (in the
+// elided definiton) to correspond the position of the field in the
+// 'usage::EmployeeRecord' class.
+//..
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    ASSERT(0                                        == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(1                                        == tagNumber);
+
+    bsl::string name;
+    rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
+    ASSERT(0     == rc);
+    ASSERT("Bob" == name);
+
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    ASSERT(0                                        == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(2                                        == tagNumber);
+
+    int age;
+    rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
+    ASSERT(0  == rc);
+    ASSERT(56 == age);
+
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    ASSERT(0 == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(3                                        == tagNumber);
+
+    float salary;
+    rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
+    ASSERT(0       == rc);
+    ASSERT(1234.00 == salary);
+//..
+// Lastly, we confirm that end-of-data sequence (two null bytes) are found we
+// expect them and that we have entirely consumed the data that we generated by
+// our encoding.
+//..
+    rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
+    ASSERT(0            == rc);
+    ASSERT(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
+//..
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
     balber::BerEncoder encoder(0);
@@ -8828,22 +9265,27 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
-
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
         usageExample();
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -8870,6 +9312,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   opt  exp
   //----  -----  -----   ---   ---  ---
   {   L_, 2020,      1,    1,    1, "04 01 00"                       },
@@ -8985,7 +9428,7 @@ int main(int argc, char *argv[])
 
   {   L_,    1,      1,    1,    1, "04 03 F4BF70"                   },
   {   L_,    1,      1,    1,    0, "1a 0a 303030 312d3031 2d3031"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -8999,10 +9442,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
@@ -9014,7 +9458,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9036,6 +9480,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   off   opt  exp
   //----  -----  -----   ---   ---   ---  ---
   {   L_, 2020,      1,    1,    0,    1, "04 01 00"                         },
@@ -9205,7 +9650,7 @@ int main(int argc, char *argv[])
   {   L_, 9999,     12,   31,-1439,    1, "04 05 FA612C79 4A"                },
   {   L_, 9999,     12,   31,-1439,    0,
                               "1A 10 393939 392d3132 2d33312D 32333A35 39"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -9219,10 +9664,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
 
@@ -9234,7 +9680,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9256,6 +9702,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms   opt  exp
   //----  -----  ---  ---  ---  ---  ---
   {   L_,     0,   0,   0,   0,   1, "04 01 00"                              },
@@ -9292,8 +9739,9 @@ int main(int argc, char *argv[])
   {   L_,    23,  59,  59, 999,   0, "1A 0C 32333A35 393A3539 2E393939"      },
 
   {   L_,    24,   0,   0,   0,   1, "04 01 00"                              },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"   },
+// TBD: Current doesnt work
+// {  L_,    24,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"      },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -9318,8 +9766,9 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
-                LOOP2_ASSERT(osb.data(), EXP,
+                LOOP3_ASSERT(LINE, LEN, osb.length(),
+                             LEN == (int)osb.length());
+                LOOP3_ASSERT(LINE, osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -9341,6 +9790,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms     off  opt  exp
   //----  -----  ---  ---  ---    ---  ---  ---
   {   L_,     0,   0,   0,   0,     0,  1, "04 01 00"                        },
@@ -9452,8 +9902,9 @@ int main(int argc, char *argv[])
                             "1A 12 32333A35 393A3539 2E393939 2D32333A 3539" },
 
   {   L_,    24,   0,   0,   0,     0,  1, "04 01 00"                        },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "04 0C 30303A30 303A3030 2E303030"   },
+// TBD: Current doesnt work
+// {  L_,    24,   0,   0,   0,   0, "04 0C 30303A30 303A3030 2E303030"      },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -9480,8 +9931,9 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
-                LOOP2_ASSERT(osb.data(), EXP,
+                LOOP3_ASSERT(LINE, LEN, osb.length(),
+                             LEN == (int)osb.length());
+                LOOP3_ASSERT(LINE, osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -9505,6 +9957,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year  mon  day  hour   min  sec    ms    opt  exp
   //----  ----- ---  ---  ----   ---  ---    --    ---  ---
   {   L_, 2020,   1,   1,    0,    0,   0,    0,     1,
@@ -9831,11 +10284,11 @@ int main(int argc, char *argv[])
                                             "04 09 000000E5 0873B8F3 FF"     },
   {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,
                  "1A 17 39393939 2d31322d 33315432 333A3539 3A35392E 393939" },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-
                 const int   LINE  = DATA[i].d_lineNum;
                 const int   YEAR  = DATA[i].d_year;
                 const int   MONTH = DATA[i].d_month;
@@ -9848,10 +10301,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -9865,7 +10319,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9891,6 +10345,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year  mon  day  hour   min  sec    ms    off    opt  exp
   //----  ----- ---  ---  ----   ---  ---    --    ---    ---  ---
   {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     1,
@@ -10282,7 +10737,7 @@ int main(int argc, char *argv[])
                                             "04 09 FA6100E5 0873B8F3 FF"     },
   {   L_, 9999,  12,  31,   23,   59,  59,  999, -1439,     0,
    "1A 1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392D 32333A35 39" },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10301,10 +10756,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(BIN)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -10320,7 +10776,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -11168,7 +11624,7 @@ int main(int argc, char *argv[])
             const          bool   XO1 = true;
 
             const bsl::string     XP1("This is a really long line");
-            bsl::string           XP2;
+                  bsl::string     XP2;
 
             const float        XQ1 = 99.234;
             const float        XR1 = -100.987;
@@ -11506,15 +11962,15 @@ int main(int argc, char *argv[])
         }
         stopwatch.stop();
 
-        ASSERT(minOutputSize <= osb.length());
-        ASSERT(osb.length() <= MAX_BUF_SIZE);
+        ASSERT(minOutputSize     <= (int)osb.length());
+        ASSERT((int)osb.length() <= MAX_BUF_SIZE);
         elapsed = stopwatch.elapsedTime();
         ASSERT(elapsed > 0);
 
-        double berEncodeSpeed = reps / elapsed;
-        bsl::cout << "    balber::BerEncoder: " << elapsed << " seconds, "
+        bsl::cout << "    balber::BerEncoder: "
+                  << elapsed          << " seconds, "
                   << (reps / elapsed) << " reps/sec, "
-                  << osb.length() << " bytes" << bsl::endl;
+                  << osb.length()     << " bytes" << bsl::endl;
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

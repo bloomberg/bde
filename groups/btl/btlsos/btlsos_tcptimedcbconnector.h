@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //      void writeCb(int                    status,
 //                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *channel,
-//                   int                    numBytes);
+//                   int                    sequence);
 //
 //    private:
 //      // Not implemented:
@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  my_EchoClient::my_EchoClient(
 //              btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
 //              btlso::TimerEventManager                       *manager,
-//              int                                             numConnections,
+//              int                                             maxConnections,
 //              int                                             numMessages,
 //              bslma::Allocator                               *basicAllocator)
 //  : d_allocator(factory, manager, basicAllocator)
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //  , d_readTimeout(20.0)
 //  , d_writeTimeout(5,0)
 //  , d_numConnections(0)
-//  , d_maxConnections(numConnections)
+//  , d_maxConnections(maxConnections)
 //  , d_numMessages(numMessages)
 //  {
 //      assert(factory);
@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //                                                         + d_connectTimeout);
 //              assert(0 == s);
 //          }
-//          return;
+//          return;                                                   // RETURN
 //      }
 //
 //      assert(0 >= status);    // Interrupts are not enabled.
@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //                 "(Connection %d of of %d)\n",
 //                 status, d_numConnections, d_maxConnections);
 //          d_allocator.invalidate();
-//          return;
+//          return;                                                   // RETURN
 //      }
 //      // In any case, except for hard error on allocator, enqueue another
 //      // connect request
@@ -365,7 +365,7 @@ BSLS_IDENT("$Id: $")
 //          // or 'manager' is 0.
 //
 //      ~my_DataStream();
-//      // Destroy this server.
+//          // Destroy this server.
 //
 //      // MANIPULATORS
 //      int setUpCallbacks();
@@ -410,7 +410,7 @@ BSLS_IDENT("$Id: $")
 //      if (d_allocator.timedAllocateTimed(callback,
 //                                         bdlt::CurrentTime::now()
 //                                                       + d_connectTimeout)) {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //
 //      callback = bdlf::BindUtil::bind(&my_DataStream::allocateCb,
@@ -450,10 +450,10 @@ BSLS_IDENT("$Id: $")
 //                        int                          cancelFlag)
 //      // Verify the result of an "ACCEPT" request by comparing against the
 //      // expected values: If the specified 'validChannel' is nonzero, a new
-//      // channel should be established; the return 'status' should be the
-//      // same as the specified 'expStatus'.  If the specified 'cancelFlag' is
-//      // nonzero, invoke the 'cancelAll()' on the specified 'acceptor' for
-//      // test.
+//      // 'btlsc::CbChannel' should be established; the specified return
+//      // 'status' should be the same as the specified 'expStatus'.  If the
+//      // specified 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the
+//      // specified 'acceptor' for test.
 //  {
 //      if (validChannel) {
 //          assert(channel);
@@ -514,9 +514,9 @@ namespace btlsos {
 
 class TcpTimedCbConnector_Reg; // component-local class declaration
 
-                        // =========================
-                        // class TcpTimedCbConnector
-                        // =========================
+                         // =========================
+                         // class TcpTimedCbConnector
+                         // =========================
 
 class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
     // This class implements a 'btesc'-style timed callback-based channel
@@ -798,7 +798,7 @@ class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

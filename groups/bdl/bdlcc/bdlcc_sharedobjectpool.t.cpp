@@ -2,20 +2,30 @@
 
 #include <bdlcc_sharedobjectpool.h>
 
-#include <bdls_testutil.h>
-
 #include <bdlcc_objectpool.h>
+
+#include <bdlf_memfn.h>
+
+#include <bslim_testutil.h>
+
 #include <bdlma_concurrentpoolallocator.h>
-#include <bslma_testallocator.h>
+
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
+
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_spinlock.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
 #include <bsl_string.h>
@@ -28,9 +38,9 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -47,32 +57,32 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 namespace {
 
    //Unnamed namespace scopes private classes and methods for testing
 
-bdlqq::SpinLock coutLock;
+bsls::SpinLock coutLock = BSLS_SPINLOCK_UNLOCKED;
 
 template <class POOL>
 class TestRun
@@ -89,11 +99,15 @@ class TestRun
    double   d_ratePerThread;          //char arrays acq/rel per sec per thread
 
    void threadProc(int id);
-public:
 
-   TestRun(int numThreads,
-           int numCharArraysPerIteration,
-           int secondsToRun,
+  private:
+    // Not implemented:
+    TestRun(const TestRun&);
+
+  public:
+   TestRun(int               numThreads,
+           int               numCharArraysPerIteration,
+           int               secondsToRun,
            bslma::Allocator *basicAllocator = 0)
       : d_allocator_p(bslma::Default::allocator(basicAllocator)),
         d_pool(bslma::Default::allocator(basicAllocator)),
@@ -175,8 +189,11 @@ class SlowerCharArrayPool {
         new (address) CharArray(allocator);
     }
 
-  public:
+  private:
+    // Not implemented:
+    SlowerCharArrayPool(const SlowerCharArrayPool&);
 
+  public:
     SlowerCharArrayPool(bslma::Allocator *basicAllocator = 0)
       : d_charArrayPool(bdlf::BindUtil::bind(
                                     &SlowerCharArrayPool::createCharArray,
@@ -207,7 +224,7 @@ class SlowerCharArrayPool {
     typedef vector<char> CharArray;
 
     class SlowCharArrayPool {
-        bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+        bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
         bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 
         static void createCharArray(void *address, bslma::Allocator *allocator)
@@ -223,8 +240,11 @@ class SlowerCharArrayPool {
             pool->releaseObject(charArray);
         }
 
-      public:
+      private:
+        // Not implemented:
+        SlowCharArrayPool(const SlowCharArrayPool&);
 
+      public:
         SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
         : d_spAllocator(basicAllocator)
         , d_charArrayPool(bdlf::BindUtil::bind(
@@ -269,8 +289,11 @@ class SlowerCharArrayPool {
             new (address) CharArray(allocator);
         }
 
-      public:
+      private:
+        // Not implemented:
+        FastCharArrayPool(const FastCharArrayPool&);
 
+      public:
         FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
         : d_charArrayPool(bdlf::BindUtil::bind(
                                            &FastCharArrayPool::createCharArray,
@@ -313,10 +336,16 @@ class LinkTestRun
    double   d_ratePerThread;  //links acq/rel per sec per thread
 
    void threadProc(int id);
-public:
 
-   LinkTestRun(int numThreads, int numLinksPerIteration,
-           int secondsToRun, bslma::Allocator *basicAllocator = 0)
+  private:
+    // Not implemented:
+    LinkTestRun(const LinkTestRun&);
+
+  public:
+   LinkTestRun(int               numThreads,
+               int               numLinksPerIteration,
+               int               secondsToRun,
+               bslma::Allocator *basicAllocator = 0)
       : d_allocator_p(bslma::Default::allocator(basicAllocator)),
         d_pool(bslma::Default::allocator(basicAllocator)),
         d_partialRates(bslma::Default::allocator(basicAllocator)),
@@ -409,9 +438,9 @@ void LinkTestRun<POOL>::run()
 //
 // ACCESSORS
 
-//=============================================================================
-//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   THREAD-SAFE OUTPUT AND ASSERT MACROS
+// ----------------------------------------------------------------------------
 
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
@@ -451,7 +480,12 @@ struct ConstructorTestHelp3
    int d_resetCount;
    int d_startCount;
 
-   // CREATORS
+  private:
+    // Not implemented:
+    ConstructorTestHelp3(const ConstructorTestHelp3&);
+
+  public:
+    // CREATORS
    ConstructorTestHelp3(int startCount, bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
@@ -492,7 +526,12 @@ struct ConstructorTestHelp1a
    bslma::Allocator     *d_allocator_p; //held
    int                   d_resetCount;
 
-   // CREATORS
+  private:
+    // Not implemented:
+    ConstructorTestHelp1a(const ConstructorTestHelp1a&);
+
+  public:
+    // CREATORS
    ConstructorTestHelp1a(bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
@@ -557,24 +596,27 @@ void ConstructorTestHelp1a::reset()
 void ConstructorTestHelp1b::reset()
 {++d_resetCount;}
 
-void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self, int c)
+void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
-void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
+void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
-//=============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 bdlqq::ThreadAttributes attributes;
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
+void executeInParallel(int                               numThreads,
+                       bdlqq::ThreadUtil::ThreadFunction function)
+    // Create the specified 'numThreads', each executing the specified
+    // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
+    // by passing i to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -583,7 +625,7 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                   attributes,
-                                  func,
+                                  function,
                                   static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
@@ -593,9 +635,9 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     delete [] threads;
 }
 
-//=============================================================================
-//                   HELPER CLASSES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 class StringCreator
 {
@@ -628,8 +670,11 @@ class SlowLinkPool {
       new (address) SpLink;
    }
 
-public:
+  private:
+    // Not implemented:
+    SlowLinkPool(const SlowLinkPool&);
 
+public:
    SlowLinkPool(bslma::Allocator *basicAllocator = 0)
       : d_spAllocator(bslma::Default::allocator(basicAllocator))
       , d_linkPool(bdlf::BindUtil::bind(&createLink,
@@ -654,8 +699,11 @@ class FastLinkPool {
 
     LinkPool                      d_linkPool;
 
-  public:
+  private:
+    // Not implemented:
+    FastLinkPool(const FastLinkPool&);
 
+  public:
     FastLinkPool(bslma::Allocator *basicAllocator = 0)
       : d_linkPool(-1, basicAllocator)
    {}
@@ -665,9 +713,9 @@ class FastLinkPool {
    }
 };
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;

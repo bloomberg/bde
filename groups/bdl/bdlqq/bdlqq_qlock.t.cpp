@@ -54,9 +54,9 @@ using namespace bsl;  // automatically added by script
 //      and bcemt_QLocks.
 // [ 1] BREATHING TEST
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -81,16 +81,16 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int verbose = 0;
 int veryVerbose = 0;
 
-//-----------------------------------------------------------------------------
-//          Class providing thread pool to run testCase functions
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//           Class providing thread pool to run testCase functions
+// ----------------------------------------------------------------------------
 
 class MyTask {
 
@@ -180,7 +180,7 @@ MyTask::MyTask(TestFunc f, void *arg)
 , d_totalThreadsFinished(0)
 , d_barrier(0)
 {
-    d_attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    d_attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     d_attr.setStackSize (1024*128);
 
     for (int i=0; i < MAX_THREADS; ++i) {
@@ -296,9 +296,9 @@ void *MyTask::run()
     return ret;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                      Class generating random numbers
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class Rand {
 
     // DATA
@@ -448,40 +448,39 @@ struct DataCase6 {
 
 void *testCase6(int threadNum, const MyTask& task)
 {
-     DataCase6 *data = reinterpret_cast<DataCase6 *> (task.arg());
+    DataCase6 *data = reinterpret_cast<DataCase6 *>(task.arg());
 
-     ASSERT(data != 0);
-     ASSERT(threadNum > 0);
+    ASSERT(data != 0);
+    ASSERT(threadNum > 0);
 
-     bsl::size_t i = 0;
+    bsl::size_t i = 0;
 
-     for (i=0; i < data->d_slots.size(); ++i) {
-         ASSERT(data->d_slots[i] == 0);
-     }
+    for (i = 0; i < data->d_slots.size(); ++i) {
+        ASSERT(data->d_slots[i] == 0);
+    }
 
-     task.barrier()->wait();
+    task.barrier()->wait();
 
-     {
+    {
         bdlqq::QLockGuard guard(data->d_qlock);
 
-        //sleep enough to allow other threads be enqueued
-        bdlqq::ThreadUtil::microSleep(1000*100);
+        // sleep enough to allow other threads be enqueued
+        bdlqq::ThreadUtil::microSleep(1000 * 250);
 
-        ASSERT (data->d_slots[threadNum-1] == 0);
-        data->d_slots[threadNum-1] = 1;
-     }
+        ASSERT(data->d_slots[threadNum - 1] == 0);
+        data->d_slots[threadNum - 1] = 1;
+    }
 
-     {
-         bdlqq::QLockGuard guard(data->d_qlock);
+    {
+        bdlqq::QLockGuard guard(data->d_qlock);
 
-         //bdlqq::ThreadUtil::microSleep(1000*250);
-
-         for (i=0; i < data->d_slots.size(); ++i) {
+        // check that all threads have had their turn
+        for (i = 0; i < data->d_slots.size(); ++i) {
             ASSERT(data->d_slots[i] != 0);
         }
-     }
+    }
 
-     return 0;
+    return 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -876,7 +875,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-//                              USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // For this example, assume that we have the need to use the string "Hello"
@@ -996,9 +995,9 @@ void *testCase1(int threadNum, const MyTask& task)
     return 0;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

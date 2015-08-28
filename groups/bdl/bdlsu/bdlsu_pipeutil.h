@@ -31,9 +31,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                              // =====================
+                              // ===============
                               // struct PipeUtil
-                              // =====================
+                              // ===============
 struct PipeUtil {
     // This struct contains utility methods for platform-independent
     // named pipe operations.

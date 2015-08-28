@@ -19,15 +19,14 @@ BSLS_IDENT_RCSID(btlb_blob_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace {
 
 typedef bsl::vector<btlb::BlobBuffer>::iterator       BlobBufferIterator;
 typedef bsl::vector<btlb::BlobBuffer>::const_iterator BlobBufferConstIterator;
 
-                       // ==============================
-                       // class InvalidBlobBufferFactory
-                       // ==============================
+                      // ==============================
+                      // class InvalidBlobBufferFactory
+                      // ==============================
 
 class InvalidBlobBufferFactory : private btlb::BlobBufferFactory {
 
@@ -64,9 +63,10 @@ class InvalidBlobBufferFactory : private btlb::BlobBufferFactory {
 }  // close unnamed namespace
 
 namespace btlb {
-                           // ======================
-                           // class BlobBuffer
-                           // ======================
+
+                             // ================
+                             // class BlobBuffer
+                             // ================
 
 // MANIPULATORS
 BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
@@ -105,18 +105,19 @@ bsl::ostream& btlb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 }
 
 namespace btlb {
-                        // =============================
-                        // class BlobBufferFactory
-                        // =============================
+
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
 
 // CREATORS
 BlobBufferFactory::~BlobBufferFactory()
 {
 }
 
-                              // ================
-                              // class Blob
-                              // ================
+                                // ==========
+                                // class Blob
+                                // ==========
 
 // PRIVATE ACCESSORS
 int Blob::assertInvariants() const
@@ -243,7 +244,7 @@ Blob::Blob(bslma::Allocator *basicAllocator)
 }
 
 Blob::Blob(BlobBufferFactory *factory,
-                       bslma::Allocator        *basicAllocator)
+           bslma::Allocator  *basicAllocator)
 : d_buffers(basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -255,9 +256,9 @@ Blob::Blob(BlobBufferFactory *factory,
 }
 
 Blob::Blob(const BlobBuffer  *buffers,
-                       int                      numBuffers,
-                       BlobBufferFactory *factory,
-                       bslma::Allocator        *basicAllocator)
+           int                numBuffers,
+           BlobBufferFactory *factory,
+           bslma::Allocator  *basicAllocator)
 : d_buffers(buffers, buffers + numBuffers, basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -274,8 +275,8 @@ Blob::Blob(const BlobBuffer  *buffers,
 }
 
 Blob::Blob(const Blob&        original,
-                       BlobBufferFactory *factory,
-                       bslma::Allocator        *basicAllocator)
+           BlobBufferFactory *factory,
+           bslma::Allocator  *basicAllocator)
 : d_buffers(original.d_buffers, basicAllocator)
 , d_totalSize(original.d_totalSize)
 , d_dataLength(original.d_dataLength)
@@ -286,8 +287,8 @@ Blob::Blob(const Blob&        original,
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
-Blob::Blob(const Blob&  original,
-                       bslma::Allocator  *basicAllocator)
+Blob::Blob(const Blob&       original,
+           bslma::Allocator *basicAllocator)
 : d_buffers(original.d_buffers, basicAllocator)
 , d_totalSize(original.d_totalSize)
 , d_dataLength(original.d_dataLength)

@@ -3,7 +3,7 @@
 #include <bdlma_concurrentmultipool.h>
 #include <bdlma_concurrentpool.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>                // for testing only
 
@@ -87,22 +87,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                       GLOBAL TYPES, CONSTANTS, AND VARIABLES
@@ -205,10 +205,10 @@ static void scribble(char *address, int size)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements' each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless 0 <= numElements and 0 <= objSize.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements' each of the specified
+    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
+    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -233,13 +233,13 @@ struct WorkerArgs {
 
 bdlqq::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
-    // Perform a series of allocate, protect, unprotect, and deallocate
+    // Perform a series of allocate, protect, un-protect, and deallocate
     // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
     // verify their results.  This is operation is intended to be a thread
     // entry point.  Cast the specified 'args' to a 'WorkerArgs', and perform a
     // series of '(WorkerArgs *)args->d_numSizes' allocations using the
     // corresponding allocations sizes specified by
-    // '(WorkerARgs *)args->d_sizes'.  Protect, unprotect, and finally delete
+    // '(WorkerARgs *)args->d_sizes'.  Protect, un-protect, and finally delete
     // the allocated memory.  Use the barrier 'g_barrier' to ensure tests are
     // performed while the allocator is in the correct state.
 
@@ -310,9 +310,8 @@ extern "C" void *workerThread(void *arg) {
     class my_MessageFactory;
 
     class my_Message {
-        // This class represents a general message interface that provides
-        // a 'getMessage' method for clients to retrieve the underlying
-        // message.
+        // This class represents a general message interface that provides a
+        // 'getMessage' method for clients to retrieve the underlying message.
 
       public:
         // ACCESSORS
@@ -444,6 +443,10 @@ extern "C" void *workerThread(void *arg) {
         // DATA
         bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply
                                                  // memory
+
+      private:
+        // Not implemented:
+        my_MessageFactory(const my_MessageFactory&);
 
       public:
         // CREATORS

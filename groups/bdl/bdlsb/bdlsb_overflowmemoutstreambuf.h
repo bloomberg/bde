@@ -228,9 +228,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                      // =============================
-                      // class OverflowMemOutStreamBuf
-                      // =============================
+                       // =============================
+                       // class OverflowMemOutStreamBuf
+                       // =============================
 
 class OverflowMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the
@@ -399,12 +399,12 @@ typedef OverflowMemOutStreamBuf OverflowMemOutStreambuf;
     // DEPRECATED: Use 'OverflowMemOutStreamBuf' instead.
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // -----------------------------
-                      // class OverflowMemOutStreamBuf
-                      // -----------------------------
+                       // -----------------------------
+                       // class OverflowMemOutStreamBuf
+                       // -----------------------------
 
 // PROTECTED VIRTUAL FUNCTIONS
 inline

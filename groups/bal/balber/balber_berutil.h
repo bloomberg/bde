@@ -1,4 +1,4 @@
-// balber_berutil.h                                                     -*-C++-*-
+// balber_berutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BALBER_BERUTIL
 #define INCLUDED_BALBER_BERUTIL
 
@@ -38,8 +38,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:  Reading and Writing Identifier Octets
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate the usage of this component.
-// Suppose we want to write the identifier octets for a BER tag having the
+// The following snippets of code illustrate the usage of this component.  Due
+// to the low-level nature of this component, an extended usage example is not
+// necessary.
+//
+// Suppose we wanted to write the identifier octets for a BER tag having the
 // following properties:
 //..
 //    Tag Class:   Context-specific
@@ -47,56 +50,46 @@ BSLS_IDENT("$Id: $")
 //    Tag Number:  31
 //..
 // According to the BER specification, this should generate two octets
-// containing the values 0x9F and 0x1F.  Note that we will use 'bdlsb' stream
-// buffers for in-core buffer management:
+// containing the values 0x9F and 0x1F.  The following function demonstrates
+// this:
 //..
-//  #include <balber_berconstants.h>
-//  #include <balber_berutil.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
-//  #include <bdlsb_memoutstreambuf.h>
+//  bdlsb::MemOutStreamBuf osb;
 //
-//  using namespace BloombergLP;
+//  balber::BerConstants::TagClass tagClass  =
+//                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
+//  balber::BerConstants::TagType  tagType   =
+//                                           balber::BerConstants::e_PRIMITIVE;
+//  int                            tagNumber = 31;
 //
-//  void usageExample()
-//  {
-//      bdlsb::MemOutStreamBuf osb;
-//
-//      balber::BerConstants::TagClass tagClass  =
-//                                      balber::BerConstants::CONTEXT_SPECIFIC;
-//      balber::BerConstants::TagType  tagType   =
-//                                             balber::BerConstants::PRIMITIVE;
-//      int                            tagNumber = 31;
-//
-//      int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-//                                                          tagClass,
-//                                                          tagType,
-//                                                          tagNumber);
-//      assert(0    == retCode);
-//      assert(2    == osb.length());
-//      assert(0x9F == (unsigned char)osb.data()[0]);
-//      assert(0x1F == (unsigned char)osb.data()[1]);
+//  int retCode = balber::BerUtil::putIdentifierOctets(&osb,
+//                                                     tagClass,
+//                                                     tagType,
+//                                                     tagNumber);
+//  assert(0    == retCode);
+//  assert(2    == osb.length());
+//  assert(0x9F == (unsigned char)osb.data()[0]);
+//  assert(0x1F == (unsigned char)osb.data()[1]);
 //..
 // The next part of the function will read the identifier octets from the
 // stream and verify its contents:
 //..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());     // NO COPY
+//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 //
-//      balber::BerConstants::TagClass tagClassIn;
-//      balber::BerConstants::TagType  tagTypeIn;
-//      int                            tagNumberIn;
-//      int                            numBytesConsumed = 0;
+//  balber::BerConstants::TagClass tagClassIn;
+//  balber::BerConstants::TagType  tagTypeIn;
+//  int                            tagNumberIn;
+//  int                            numBytesConsumed = 0;
 //
-//      retCode = balber::BerUtil::getIdentifierOctets(&isb,
-//                                                     &tagClassIn,
-//                                                     &tagTypeIn,
-//                                                     &tagNumberIn,
-//                                                     &numBytesConsumed);
-//      assert(0         == retCode);
-//      assert(2         == numBytesConsumed);
-//      assert(tagClass  == tagClassIn);
-//      assert(tagType   == tagTypeIn);
-//      assert(tagNumber == tagNumberIn);
-//  }
+//  retCode = balber::BerUtil::getIdentifierOctets(&isb,
+//                                                 &tagClassIn,
+//                                                 &tagTypeIn,
+//                                                 &tagNumberIn,
+//                                                 &numBytesConsumed);
+//  assert(0         == retCode);
+//  assert(2         == numBytesConsumed);
+//  assert(tagClass  == tagClassIn);
+//  assert(tagType   == tagTypeIn);
+//  assert(tagNumber == tagNumberIn);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -173,9 +166,9 @@ namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 namespace bdet { typedef ::BloombergLP::bdlt::TimeTz TimeTz; }  // bdet -> bdlt
 
 namespace balber {
-                            // ==============
-                            // struct BerUtil
-                            // ==============
+                               // ==============
+                               // struct BerUtil
+                               // ==============
 
 struct BerUtil {
     // This utility contains functions to encode and decode primitive BER
@@ -283,9 +276,9 @@ struct BerUtil {
         // date/time types are supported.
 };
 
-                        // ==================
-                        // struct BerUtil_Imp
-                        // ==================
+                             // ==================
+                             // struct BerUtil_Imp
+                             // ==================
 
 struct BerUtil_Imp {
     // This 'struct' contains implementation functions used by the namespace
@@ -543,13 +536,13 @@ struct BerUtil_Imp {
                         const BerEncoderOptions *options);
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                            // ----------------------
-                            // struct balber::BerUtil
-                            // ----------------------
+                           // ----------------------
+                           // struct balber::BerUtil
+                           // ----------------------
 
 // PRIVATE CLASS METHODS
 template <>
@@ -598,42 +591,42 @@ template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Date>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATE_STRLEN;
+    return bdlt::Iso8601Util::k_DATE_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Time>()
 {
-    return bdlt::Iso8601Util::BDEPU_TIME_STRLEN;
+    return bdlt::Iso8601Util::k_TIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Datetime>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETIME_STRLEN;
+    return bdlt::Iso8601Util::k_DATETIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DateTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETZ_STRLEN;
+    return bdlt::Iso8601Util::k_DATETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::TimeTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_TIMETZ_STRLEN;
+    return bdlt::Iso8601Util::k_TIMETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DatetimeTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETIMETZ_STRLEN;
+    return bdlt::Iso8601Util::k_DATETIMETZ_STRLEN;
 }
 
 // CLASS METHODS
@@ -730,9 +723,9 @@ int BerUtil::putValue(bsl::streambuf          *streamBuf,
     return BerUtil_Imp::putValue(streamBuf, value, options);
 }
 
-                      // ------------------
-                      // struct BerUtil_Imp
-                      // ------------------
+                             // ------------------
+                             // struct BerUtil_Imp
+                             // ------------------
 
 // CLASS METHODS
 template <typename TYPE>
@@ -883,11 +876,11 @@ int BerUtil_Imp::getValue(bsl::streambuf                    *streamBuf,
                                bdlb::Variant2<TYPE, TYPETZ> *value,
                                int                           length)
 {
-    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::DateTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Time, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::TimeTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Datetime, TYPE>::VALUE
+    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Time,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::VALUE
                && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
 
     const int k_MAX_BINARY_TYPETZ_LENGTH =
@@ -1155,8 +1148,7 @@ int BerUtil_Imp::putValue(bsl::streambuf           *streamBuf,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------

@@ -110,13 +110,13 @@ void my_OstreamObserver::publish(const ball::Record&  record,
     d_stream << endl;  // skip a line
 
     switch (context.transmissionCause()) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_stream << "Single Pass-through Message:" << endl;
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_stream << "Remotely ";      // no 'break'; concatenated output
       }
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message "
                  << context.recordIndex() + 1  // Account for 0-based index.
                  << " of " << context.sequenceLength()
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
                              &testAllocator);
                 observer.publish(
                             handle,
-                            ball::Context(ball::Transmission::BAEL_PASSTHROUGH,
+                            ball::Context(ball::Transmission::e_PASSTHROUGH,
                             0,
                             1));
                 out << ends;
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
                              &testAllocator);
                     observer.publish(
                                 handle,
-                                ball::Context(ball::Transmission::BAEL_TRIGGER,
+                                ball::Context(ball::Transmission::e_TRIGGER,
                                               n,
                                               NUM_MESSAGES));
                 }

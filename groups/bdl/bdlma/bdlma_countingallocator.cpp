@@ -21,7 +21,7 @@ namespace {
 // Define the number of bytes by which the address returned to the user is
 // *offset* from the actual address of the allocated memory block.
 
-const bslma::Allocator::size_type OFFSET =
+static const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 }  // close unnamed namespace

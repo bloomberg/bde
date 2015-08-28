@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class, 'baljsn::Tokenizer', that
 // traverses data stored in a 'bsl::streambuf' one node at a time and provides
-// clients access to the data associated with that node, including its type
-// and data value.  Client code can use the 'reset' function to associate a
+// clients access to the data associated with that node, including its type and
+// data value.  Client code can use the 'reset' function to associate a
 // 'bsl::streambuf' containing JSON data with a tokenizer object and then call
 // the 'advanceToNextToken' function to extract individual data values.
 //
-// This 'class' was created to be used by other components in the 'baejsn'
+// This 'class' was created to be used by other components in the 'baljsn'
 // package and in most cases clients should use the 'baljsn_decoder' component
 // instead of using this 'class'.
 //
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //  assert(!rc);
 //
 //  baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-//  assert(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
+//  assert(baljsn::Tokenizer::e_START_OBJECT == token);
 //
 //  rc = tokenizer.advanceToNextToken();
 //  assert(!rc);
@@ -78,8 +78,8 @@ BSLS_IDENT("$Id: $")
 //
 //  // Continue reading elements till '}' is encountered
 //
-//  while (baljsn::Tokenizer::BAEJSN_END_OBJECT != token) {
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
+//  while (baljsn::Tokenizer::e_END_OBJECT != token) {
+//      assert(baljsn::Tokenizer::e_ELEMENT_NAME == token);
 //
 //      // Read element name
 //
@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //      assert(!rc);
 //
 //      token = tokenizer.tokenType();
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
+//      assert(baljsn::Tokenizer::e_ELEMENT_VALUE == token);
 //
 //      rc = tokenizer.value(&nodeValue);
 //      assert(!rc);
@@ -152,11 +152,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baljsn {
-                            // ======================
-                            // class Tokenizer
-                            // ======================
+
+                              // ===============
+                              // class Tokenizer
+                              // ===============
 
 class Tokenizer {
     // This 'class' provides a mechanism for traversing JSON data stored in a
@@ -168,14 +168,24 @@ class Tokenizer {
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
-        BAEJSN_BEGIN = 1,                  // starting token
-        BAEJSN_ELEMENT_NAME,               // element name
-        BAEJSN_START_OBJECT,               // start of an object ('{')
-        BAEJSN_END_OBJECT,                 // end of an object   ('}')
-        BAEJSN_START_ARRAY,                // start of an array  ('[')
-        BAEJSN_END_ARRAY,                  // end of an array    (']')
-        BAEJSN_ELEMENT_VALUE,              // element value of a simple type
-        BAEJSN_ERROR                       // error token
+        e_BEGIN = 1,                  // starting token
+        e_ELEMENT_NAME,               // element name
+        e_START_OBJECT,               // start of an object ('{')
+        e_END_OBJECT,                 // end of an object   ('}')
+        e_START_ARRAY,                // start of an array  ('[')
+        e_END_ARRAY,                  // end of an array    (']')
+        e_ELEMENT_VALUE,              // element value of a simple type
+        e_ERROR                       // error token
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_BEGIN = e_BEGIN
+      , BAEJSN_ELEMENT_NAME = e_ELEMENT_NAME
+      , BAEJSN_START_OBJECT = e_START_OBJECT
+      , BAEJSN_END_OBJECT = e_END_OBJECT
+      , BAEJSN_START_ARRAY = e_START_ARRAY
+      , BAEJSN_END_ARRAY = e_END_ARRAY
+      , BAEJSN_ELEMENT_VALUE = e_ELEMENT_VALUE
+      , BAEJSN_ERROR = e_ERROR
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -184,29 +194,29 @@ class Tokenizer {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
-        BAEJSN_OBJECT_CONTEXT = 1,         // object context
-        BAEJSN_ARRAY_CONTEXT               // array context
+        e_OBJECT_CONTEXT = 1,         // object context
+        e_ARRAY_CONTEXT               // array context
     };
 
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
-        BAEJSN_BUFSIZE = 1024 * 8,
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
+        k_BUFSIZE = 1024 * 8,
+        k_MAX_STRING_SIZE = k_BUFSIZE - 1
     };
 
     // DATA
-    bsls::AlignedBuffer<BAEJSN_BUFSIZE>  d_buffer;               // buffer
+    bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer
 
-    bdlma::BufferedSequentialAllocator    d_allocator;            // allocater
+    bdlma::BufferedSequentialAllocator    d_allocator;           // allocator
                                                                  // (owned)
 
     bsl::string                          d_stringBuffer;         // string
                                                                  // buffer
 
-    bsl::streambuf                      *d_streamBuf_p;          // streambuf
-                                                                 // (held,
-                                                                 // not owned)
+    bsl::streambuf                      *d_streambuf_p;          // streambuf
+                                                                 // (held, not
+                                                                 // owned)
 
     bsl::size_t                          d_cursor;               // current
                                                                  // cursor
@@ -244,7 +254,7 @@ class Tokenizer {
         // Move the current sequence of characters being tokenized to the front
         // of the internal string buffer, 'd_stringBuffer', and then append
         // additional characters, from the internally-held 'streambuf'
-        // ('d_streamBuf_p') to the end of that sequence up to a maximum
+        // ('d_streambuf_p') to the end of that sequence up to a maximum
         // sequence length of 'd_buffer.size()' characters.  Return the number
         // of bytes read from the 'streambuf'.
 
@@ -270,19 +280,22 @@ class Tokenizer {
         // encountered and position the cursor onto the first such character.
         // Return 0 on success and a non-zero value otherwise.
 
+    // Not implemented:
+    Tokenizer(const Tokenizer&);
+
   public:
     // CREATORS
     explicit Tokenizer(bslma::Allocator *basicAllocator = 0);
-       // Create a 'Reader' object.  Optionally specify a
-       // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-       // the currently installed default allocator is used.
+        // Create a 'Reader' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Tokenizer();
         // Destroy this object.
 
     // MANIPULATORS
-    void reset(bsl::streambuf *streamBuf);
-        // Reset this tokenizer to read data from the specified 'streamBuf'.
+    void reset(bsl::streambuf *streambuf);
+        // Reset this tokenizer to read data from the specified 'streambuf'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the value of the 'allowStandAloneValues' option.
@@ -326,24 +339,24 @@ class Tokenizer {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
 inline
 Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer.buffer(), BAEJSN_BUFSIZE, basicAllocator)
+: d_allocator(d_buffer.buffer(), k_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
-, d_streamBuf_p(0)
+, d_streambuf_p(0)
 , d_cursor(0)
 , d_valueBegin(0)
 , d_valueEnd(0)
 , d_valueIter(0)
-, d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT_CONTEXT)
+, d_tokenType(e_BEGIN)
+, d_context(e_OBJECT_CONTEXT)
 , d_allowStandAloneValues(true)
 {
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.reserve(k_MAX_STRING_SIZE);
 }
 
 inline
@@ -353,15 +366,15 @@ Tokenizer::~Tokenizer()
 
 // MANIPULATORS
 inline
-void Tokenizer::reset(bsl::streambuf *streamBuf)
+void Tokenizer::reset(bsl::streambuf *streambuf)
 {
-    d_streamBuf_p = streamBuf;
+    d_streambuf_p = streambuf;
     d_stringBuffer.clear();
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
     d_valueIter   = 0;
-    d_tokenType   = BAEJSN_BEGIN;
+    d_tokenType   = e_BEGIN;
 }
 
 inline

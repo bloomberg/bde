@@ -9,6 +9,7 @@
 
 #include <bsl_algorithm.h>   // sort()
 #include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
@@ -98,9 +99,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlde::Crc32& gg(bdlde::Crc32 *object, const char *spec);
 // [ 8] bdlde::Crc32   g(const char *spec);
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -114,9 +115,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -145,26 +146,26 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlde::Crc32        Obj;
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -220,9 +221,9 @@ void receiverExample(In& input)
     ASSERT(crcLocal == crc);
 }
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void printHex(const char *str)
     // Print the specified 'str' string to 'bsl::cout', taking care to expand
@@ -492,9 +493,9 @@ Obj g(const char *spec)
     return gg(&object, spec);
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1199,8 +1200,8 @@ int main(int argc, char *argv[])
 
                 // create a concatenated version of MSG1 and MSG2
                 char msgAccum[20];
-                memcpy(msgAccum,      MSG1, LEN1);
-                memcpy(msgAccum+LEN1, MSG2, LEN2);
+                bsl::memcpy(msgAccum,      MSG1, LEN1);
+                bsl::memcpy(msgAccum+LEN1, MSG2, LEN2);
 
                 // initialize the second object
                 objAccum.update(msgAccum, LEN1+LEN2);
@@ -1334,8 +1335,8 @@ int main(int argc, char *argv[])
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     In in(OD, LOD);  In &testInStream = in;
@@ -1371,9 +1372,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
-                // Ensure that reading from an empty or invalid input
-                // stream leaves the stream invalid and the target object
-                // unchanged.
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
                 const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {

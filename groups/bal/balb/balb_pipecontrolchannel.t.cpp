@@ -1,30 +1,38 @@
 // balb_pipecontrolchannel.t.cpp                                      -*-C++-*-
 #include <balb_pipecontrolchannel.h>
 
+#include <bslim_testutil.h>
+
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_threadgroup.h>
-#include <bsls_atomic.h>
 
-#include <bdlf_bind.h>
 #include <bdlsu_pipeutil.h>
 
-#include <bslma_testallocator.h>
-#include <bsls_assert.h>
-#include <bsls_platform.h>
-
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
 #include <bsl_fstream.h>
+#include <bsl_iostream.h>
+
+#include <bslma_testallocator.h>
+
+#include <bsls_assert.h>
+#include <bsls_atomic.h>
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <bsl_c_signal.h>
-#include <bsl_c_stdio.h>
+#include <bsl_csignal.h>
+#include <bsl_cstdio.h>
+
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,9 +42,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test is a mechanism that reads data from a named pipe
@@ -45,11 +53,11 @@ using namespace bsl;  // automatically added by script
 // started, stopped, and shutdown, and also by ensuring that any data written
 // to the named pipe is supplied as an argument to the user-defined callback
 // function.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] explicit
 //      balb::PipeControlChannel(const ControlCallback&  callback,
-//                              bslma::Allocator       *basicAllocator = 0);
+//                               bslma::Allocator       *basicAllocator = 0);
 //
 // [ 4] ~balb::PipeControlChannel();
 //
@@ -69,57 +77,53 @@ using namespace bsl;  // automatically added by script
 // [ 6] TESTING CONCERN: CONCURRENT WRITES
 // [ 7] TESTING USAGE EXAMPLE
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
-
-//=============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
@@ -136,14 +140,14 @@ namespace {
 
 const char LOG_CATEGORY[] = "BAEA.PCC.TEST";
 
-                       // ===================
-                       // class ControlServer
-                       // ===================
+                            // ===================
+                            // class ControlServer
+                            // ===================
 
 class ControlServer {
 
     // DATA
-    balb::PipeControlChannel  d_channel;
+    balb::PipeControlChannel d_channel;
     bsl::vector<bsl::string> d_messages;
 
     // PRIVATE MANIPULATORS
@@ -157,14 +161,18 @@ class ControlServer {
         }
     }
 
+    // UNIMPLEMENTED
+    ControlServer(const ControlServer&);             // = deleted
+    ControlServer& operator=(const ControlServer&);  // = deleted
+
   public:
     // CREATORS
     explicit ControlServer(bslma::Allocator *basicAllocator = 0)
-        : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
-                                        this,
-                                        bdlf::PlaceHolders::_1),
-                    basicAllocator)
-        , d_messages(basicAllocator)
+    : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
+                                     this,
+                                     bdlf::PlaceHolders::_1),
+                basicAllocator)
+    , d_messages(basicAllocator)
     {}
 
     // MANIPULATORS
@@ -203,9 +211,9 @@ void noop(const bslstl::StringRef&)
 {
 }
 
-void verifyPayload(const bsl::string&      expected,
+void verifyPayload(const bsl::string&        expected,
                    const bslstl::StringRef&  found,
-                   bdlqq::Barrier          *barrier)
+                   bdlqq::Barrier           *barrier)
 {
     // Verify that the specified 'found' payload has the same value as the
     // specified 'expected' payload.
@@ -261,9 +269,9 @@ void onSigPipe(int) {
     BALL_LOG_WARN << "SIGPIPE received" << BALL_LOG_END;
 }
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = (argc > 1) ? bsl::atoi(argv[1]) : 1;
@@ -280,8 +288,8 @@ int main(int argc, char *argv[])
     }
 
     ball::DefaultObserver observer(9 == test ? devnull
-                                            : test < 0 ? bsl::cerr
-                                                       : bsl::cout);
+                                             : test < 0 ? bsl::cerr
+                                                        : bsl::cout);
 #else
     ball::DefaultObserver observer(test < 0 ? bsl::cerr : bsl::cout);
 #endif
@@ -289,16 +297,16 @@ int main(int argc, char *argv[])
     ball::LoggerManager::initSingleton(&observer, configuration);
 
     if (test != -10) {
-        ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;
-        if (verbose) passthrough = ball::Severity::BAEL_WARN;
-        if (veryVerbose) passthrough = ball::Severity::BAEL_INFO;
-        if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;
+        ball::Severity::Level passthrough = ball::Severity::e_OFF;
+        if (verbose) passthrough = ball::Severity::e_WARN;
+        if (veryVerbose) passthrough = ball::Severity::e_INFO;
+        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
 
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                      ball::Severity::BAEL_OFF,
-                                                      passthrough,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                        ball::Severity::e_OFF,
+                                                        passthrough,
+                                                        ball::Severity::e_OFF,
+                                                        ball::Severity::e_OFF);
     }
 
     if (test >= 0) {
@@ -331,15 +339,15 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argv[2][0] == 'A';
         verbose = veryVeryVerbose || argv[2][0] == 'Z';
 
-        ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;
-        if (verbose) passthrough = ball::Severity::BAEL_WARN;
-        if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;
+        ball::Severity::Level passthrough = ball::Severity::e_OFF;
+        if (verbose) passthrough = ball::Severity::e_WARN;
+        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
 
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                      ball::Severity::BAEL_OFF,
-                                                      passthrough,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                        ball::Severity::e_OFF,
+                                                        passthrough,
+                                                        ball::Severity::e_OFF,
+                                                        ball::Severity::e_OFF);
 
         cout << "P" << getpid() << "\n" << flush;
 
@@ -352,10 +360,10 @@ int main(int argc, char *argv[])
 
         bdlqq::Barrier barrier(2);
         balb::PipeControlChannel channel(bdlf::BindUtil::bind(
-                                                         &verifyPayload,
-                                                         bsl::string(argv[4]),
-                                                         bdlf::PlaceHolders::_1,
-                                                         &barrier));
+                                                        &verifyPayload,
+                                                        bsl::string(argv[4]),
+                                                        bdlf::PlaceHolders::_1,
+                                                        &barrier));
 
         int rc = channel.start(argv[3]);
         ASSERT(0 == rc);
@@ -460,10 +468,10 @@ int main(int argc, char *argv[])
 
         bsl::string message(MESSAGE);
         balb::PipeControlChannel channel(bdlf::BindUtil::bind(
-                                             &verifyPayload,
-                                             message,
-                                             bdlf::PlaceHolders::_1,
-                                             &barrier));
+                                                        &verifyPayload,
+                                                        message,
+                                                        bdlf::PlaceHolders::_1,
+                                                        &barrier));
 
         ASSERT(0 == channel.start(argv[3]));
 
@@ -474,11 +482,10 @@ int main(int argc, char *argv[])
         cout << "A\n" << flush;
 
         bdlqq::ThreadGroup threadGroup;
-        threadGroup.addThreads(bdlf::BindUtil::bind(
-                                                   &threadSend,
-                                                   bsl::string(argv[3]),
-                                                   message + "\n",
-                                                   (int)NUM_ITERATIONS),
+        threadGroup.addThreads(bdlf::BindUtil::bind(&threadSend,
+                                                    bsl::string(argv[3]),
+                                                    message + "\n",
+                                                    (int)NUM_ITERATIONS),
                                NUM_CLIENTS);
 
         for (int i = 0; i < NUM_CLIENTS * NUM_ITERATIONS; ++i) {
@@ -531,8 +538,8 @@ int main(int argc, char *argv[])
                (&pipeName, "ctrl.safttest9"));
 
         char buffer[512];
-        snprintf (buffer, 512, "%s -9 %c %s", argv[0],
-                  verbose? 'Z' : 'Y', pipeName.c_str());
+        snprintf(buffer, 512, "%s -9 %c %s", argv[0],
+                 verbose? 'Z' : 'Y', pipeName.c_str());
         FILE* childFD = popen(buffer, "r");
         BSLS_ASSERT(0 != childFD); // test invariant
         do {
@@ -583,7 +590,8 @@ int main(int argc, char *argv[])
         unlink(argv[3]);
 #endif
 
-        balb::PipeControlChannel *channel = new balb::PipeControlChannel(&noop);
+        balb::PipeControlChannel *channel =
+                                           new balb::PipeControlChannel(&noop);
         ASSERT(0 == channel->start(argv[3]));
 
         if (verbose) {
@@ -601,8 +609,8 @@ int main(int argc, char *argv[])
         // TESTING CRASH RECOVERY
         //
         // Concern: That if a process opens a PipeControlChannel and
-        // subsequently crashes, another process can then open the
-        // same named pipe.
+        // subsequently crashes, another process can then open the same named
+        // pipe.
         //---------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -621,8 +629,8 @@ int main(int argc, char *argv[])
                (&pipeName, "ctrl.restarttest8"));
 
         char buffer[512];
-        snprintf (buffer, 512, "%s -8 %c %s", argv[0],
-                  verbose? 'Z' : 'Y', pipeName.c_str());
+        snprintf(buffer, 512, "%s -8 %c %s", argv[0],
+                 verbose? 'Z' : 'Y', pipeName.c_str());
         FILE* childFD = popen(buffer, "r");
         BSLS_ASSERT(0 != childFD); // test invariant
         do {
@@ -781,10 +789,10 @@ int main(int argc, char *argv[])
                 bsls::AtomicInt numWrites(0);
 
                 balb::PipeControlChannel channel(bdlf::BindUtil::bind(
-                                                         &verifyPayload,
-                                                         message,
-                                                         bdlf::PlaceHolders::_1,
-                                                         &barrier),
+                                                        &verifyPayload,
+                                                        message,
+                                                        bdlf::PlaceHolders::_1,
+                                                        &barrier),
                                                  &ta);
 
                 int rc = channel.start(pipeName);
@@ -792,10 +800,10 @@ int main(int argc, char *argv[])
 
                 bdlqq::ThreadGroup threadGroup;
                 threadGroup.addThreads(bdlf::BindUtil::bind(
-                                                        &threadSend,
-                                                        bsl::string(pipeName),
-                                                        message + "\n",
-                                                        (int)NUM_ITERATIONS),
+                                                         &threadSend,
+                                                         bsl::string(pipeName),
+                                                         message + "\n",
+                                                         (int)NUM_ITERATIONS),
                                        NUM_CLIENTS);
 
                 for (int i = 0; i < NUM_CLIENTS * NUM_ITERATIONS; ++i) {
@@ -856,10 +864,10 @@ int main(int argc, char *argv[])
             bdlqq::Barrier barrier(2);
 
             balb::PipeControlChannel channel(bdlf::BindUtil::bind(
-                                                         &verifyPayload,
-                                                         bsl::string(MESSAGE),
-                                                         bdlf::PlaceHolders::_1,
-                                                         &barrier),
+                                                        &verifyPayload,
+                                                        bsl::string(MESSAGE),
+                                                        bdlf::PlaceHolders::_1,
+                                                        &barrier),
                                              &ta);
 
             int rc = channel.start(pipeName);

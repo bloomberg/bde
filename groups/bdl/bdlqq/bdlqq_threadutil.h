@@ -345,9 +345,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 struct ThreadUtilImpl;
 
-                            // =================
-                            // struct ThreadUtil
-                            // =================
+                             // =================
+                             // struct ThreadUtil
+                             // =================
 
 struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
@@ -709,9 +709,9 @@ public:
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // struct ThreadUtil
-                            // -----------------
+                             // -----------------
+                             // struct ThreadUtil
+                             // -----------------
 
 
 template <typename INVOKABLE>

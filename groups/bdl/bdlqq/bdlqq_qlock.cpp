@@ -188,9 +188,9 @@ SemaphorePtr getSemaphoreForCurrentThread()
 
 namespace BloombergLP {
 
-                        // ---------------------
-                        // class QLock_EventFlag
-                        // ---------------------
+                           // ---------------------
+                           // class QLock_EventFlag
+                           // ---------------------
 
 #define FLAG_SET_WITHOUT_SEMAPHORE (reinterpret_cast<SemaphorePtr>(-1L))
 
@@ -247,9 +247,9 @@ void bdlqq::QLock_EventFlag::waitUntilSet(int spinRetryCount)
     BSLS_ASSERT(flagValue == FLAG_SET_WITHOUT_SEMAPHORE);
 }
 
-                            // ----------------
-                            // class QLockGuard
-                            // ----------------
+                              // ----------------
+                              // class QLockGuard
+                              // ----------------
 
 // MANIPULATORS
 void bdlqq::QLockGuard::unlockRaw()

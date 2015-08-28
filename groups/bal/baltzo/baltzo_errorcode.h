@@ -68,9 +68,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ================
-                            // struct ErrorCode
-                            // ================
+                              // ================
+                              // struct ErrorCode
+                              // ================
 
 struct ErrorCode {
     // This 'struct' provides a namespace for enumerating the set of named
@@ -89,9 +89,9 @@ struct ErrorCode {
     enum Enum {
         k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      , e_UNSUPPORTED_ID = k_UNSUPPORTED_ID
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAETZO_UNSUPPORTED_ID = k_UNSUPPORTED_ID
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -150,9 +150,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct ErrorCode
-                            // ----------------
+                              // ----------------
+                              // struct ErrorCode
+                              // ----------------
 
 // FREE OPERATORS
 inline

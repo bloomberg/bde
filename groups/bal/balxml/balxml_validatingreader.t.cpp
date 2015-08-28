@@ -24,9 +24,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -40,9 +40,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -58,9 +58,9 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -71,9 +71,9 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
 #define NL "\n"
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 #define CHK(X) (X != 0 ? (const char *) X : "")
 #define NUM_ATTRIBUTES 5
 
@@ -118,90 +118,90 @@ static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 static const TestNode goodDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { 0, Obj::BAEXML_NODE_TYPE_NONE },
+    { 0, Obj::e_NODE_TYPE_NONE },
 
-    { 0, Obj::BAEXML_NODE_TYPE_XML_DECLARATION,
+    { 0, Obj::e_NODE_TYPE_XML_DECLARATION,
          "xml"          , XmlValue   , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0             ,  0,
         false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "John Smith"  , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "name"           , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
         false, { "dir:phonetype", "cell"                                   } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "phone"          , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "address"        , 0             ,  0,
         true                                                                 },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "directory-entry", 0             , -1
                                                                              },
 
-    { 1, Obj::BAEXML_NODE_TYPE_NONE
+    { 1, Obj::e_NODE_TYPE_NONE
                                                                              }
 };
 
 static const TestNode badDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { 0, Obj::BAEXML_NODE_TYPE_NONE },
+    { 0, Obj::e_NODE_TYPE_NONE },
 
-    { 0, Obj::BAEXML_NODE_TYPE_XML_DECLARATION,
+    { 0, Obj::e_NODE_TYPE_XML_DECLARATION,
          "xml"          , XmlValue      , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0             ,  0,
         false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "John Smith"  , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "name"           , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
         false, { "dir:phonetype", "cell"                                   } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "phone"          , 0             , -1
                                                                              },
 
-    { -1, Obj::BAEXML_NODE_TYPE_NONE
+    { -1, Obj::e_NODE_TYPE_NONE
                                                                              }
 };
 
@@ -335,19 +335,19 @@ int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
         value = reader.nodeValue();
         type  = reader.nodeType();
     } while(0 == rc &&
-            type == balxml::ValidatingReader::BAEXML_NODE_TYPE_WHITESPACE ||
-            (type == balxml::ValidatingReader::BAEXML_NODE_TYPE_TEXT &&
+            type == balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE ||
+            (type == balxml::ValidatingReader::e_NODE_TYPE_TEXT &&
              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
     ASSERT( reader.nodeType() !=
-                         balxml::ValidatingReader::BAEXML_NODE_TYPE_WHITESPACE);
+                         balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE);
 
     return rc;
 }
 
-                        // ----------------
-                        // class TestReader
-                        // ----------------
+                              // ----------------
+                              // class TestReader
+                              // ----------------
 
 // Do to the size of the TestReader's implementation it does not get promoted
 // to the usage example in the 'balxml::ValidatingReader' header.
@@ -362,7 +362,7 @@ inline void TestReader::setEncoding(const char *encoding) {
 inline void TestReader::adjustPrefixStack() {
     // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
     // push an prefixed on the prefix stack.
-    if (Obj::BAEXML_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
+    if (Obj::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
 
         for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
             const char *prefix = d_currentNode->d_attributes[ii].d_qname;
@@ -382,7 +382,7 @@ inline void TestReader::adjustPrefixStack() {
             }
         }
     }
-    else if (Obj::BAEXML_NODE_TYPE_NONE == d_currentNode->d_type) {
+    else if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
         d_prefixes->reset();
     }
 }
@@ -407,7 +407,7 @@ TestReader::~TestReader(void)
 }
 
 // ----------------------------------------------------------------------------
-//   balxml::ValidatingReader interface
+//                    balxml::ValidatingReader interface
 // ----------------------------------------------------------------------------
 bool
 TestReader::validationFlag() const
@@ -673,7 +673,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return BAEXML_NODE_TYPE_NONE;                                 // RETURN
+        return e_NODE_TYPE_NONE;                                 // RETURN
     }
 
     return d_currentNode->d_type;
@@ -915,9 +915,9 @@ int usageExample()
 }
 // End of usage example, extract to the 'balxml::ValidatingReader' header file.
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

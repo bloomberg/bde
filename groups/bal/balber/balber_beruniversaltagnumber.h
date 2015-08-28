@@ -1,4 +1,4 @@
-// balber_beruniversaltagnumber.h                                       -*-C++-*-
+// balber_beruniversaltagnumber.h                                     -*-C++-*-
 #ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #define INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 
@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of 'BER' universal tag numbers.
+//@PURPOSE: Enumerate the set of BER universal tag numbers.
 //
 //@CLASSES:
 //  balber::BerUniversalTagNumber: namespace universal tag number enumeration
@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of 'BER'
-// universal tag numbers used by the 'BER' encoder and decoder.  The universal
+// 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of BER
+// universal tag numbers used by the BER encoder and decoder.  The universal
 // tag numbers are defined in the X.680 standard, in section 8.
 //
 // In addition, this component supports functions that convert the 'Value'
@@ -156,13 +156,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace balber {
-                     // ============================
-                     // struct BerUniversalTagNumber
-                     // ============================
+                        // ============================
+                        // struct BerUniversalTagNumber
+                        // ============================
 
 struct BerUniversalTagNumber {
     // This 'struct' contains an enumeration of the universal tag numbers for
-    // 'BER' encoding.
+    // BER encoding.
 
     // TYPES
     enum Value {
@@ -222,9 +222,9 @@ struct BerUniversalTagNumber {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <typename TYPE>
     static Value select(const TYPE&  object,
@@ -235,10 +235,9 @@ struct BerUniversalTagNumber {
         // 'alternateTag' any alternative tag numbers corresponding to
         // 'object'.  The behavior is undefined if the type category of
         // 'object' and the 'formattingMode' does not permit a universal tag
-        // number (see {DESCRRIPTON} for allowed type
-        // categories and formatting modes).  Note that if an alternate tag
-        // number does not exist for 'object' then 'alternateTag' is not
-        // modified.
+        // number (see {DESCRRIPTON} for allowed type categories and formatting
+        // modes).  Note that if an alternate tag number does not exist for
+        // 'object' then 'alternateTag' is not modified.
 
     template <typename TYPE>
     static Value select(const TYPE&              object,
@@ -248,25 +247,24 @@ struct BerUniversalTagNumber {
         // specified 'formattingMode' using the specified 'options'.  The
         // behavior is undefined if the type category of 'object' and the
         // 'formattingMode' do not permit a universal tag number (see
-        // {DESCRIPTON} for allowed type categories and
-        // formatting modes).
+        // {DESCRIPTON} for allowed type categories and formatting modes).
 };
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          BerUniversalTagNumber::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference providing modifiable access to 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference providing modifiable access to 'stream'.
 
 
-                 // ====================================
-                 // struct BerUniversalTagNumber_ImpUtil
-                 // ====================================
+                    // ====================================
+                    // struct BerUniversalTagNumber_ImpUtil
+                    // ====================================
 
 class BerUniversalTagNumber_Imp {
-    // Component-private class.  Do not use.
-    // This class contains implementation details for this component.
+    // Component-private class.  Do not use.  This class contains
+    // implementation details for this component.
 
     typedef bdlat_FormattingMode         FMode;   // shorthand
     typedef BerUniversalTagNumber::Value TagVal;  // shorthand
@@ -278,8 +276,8 @@ class BerUniversalTagNumber_Imp {
     // PRIVATE MANIPULATORS
     TagVal selectForDateAndTimeTypes();
         // Return the universal tag number for date and time types and load
-        // into the internal 'alternateTag' data member the any alternative
-        // tag numbers corresponding to those types.
+        // into the internal 'alternateTag' data member the any alternative tag
+        // numbers corresponding to those types.
 
   public:
     BerUniversalTagNumber_Imp(int                      fm,
@@ -290,7 +288,7 @@ class BerUniversalTagNumber_Imp {
     {
     }
 
-    // --- By Type ------------------------------------------------------------
+                        //  ** By Type **
 
     TagVal select(const bool&              object, bdlat_TypeCategory::Simple);
     TagVal select(const char&              object, bdlat_TypeCategory::Simple);
@@ -321,7 +319,7 @@ class BerUniversalTagNumber_Imp {
 
     TagVal select(const bsl::vector<char>& object, bdlat_TypeCategory::Array);
 
-    // --- By Category --------------------------------------------------------
+                        //  ** By Catetory **
 
     template <typename TYPE>
     TagVal select(const TYPE& object, bdlat_TypeCategory::CustomizedType);
@@ -364,15 +362,16 @@ class BerUniversalTagNumber_Imp {
         return d_alternateTag;
     }
 };
+
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                     // ------------------------------------
-                     // struct balber::BerUniversalTagNumber
-                     // ------------------------------------
+                    // ------------------------------------
+                    // struct balber::BerUniversalTagNumber
+                    // ------------------------------------
 
 // FORWARD DECLARATIONS
 
@@ -473,9 +472,9 @@ bsl::ostream& balber::operator<<(bsl::ostream&                stream,
 
 namespace balber {
 
-                 // --------------------------------
-                 // struct BerUniversalTagNumber_Imp
-                 // --------------------------------
+                      // --------------------------------
+                      // struct BerUniversalTagNumber_Imp
+                      // --------------------------------
 
 // PRIVATE MANIPULATORS
 inline
@@ -497,7 +496,7 @@ BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
     }
 }
 
-// --- By Type ----------------------------------------------------------------
+                        //  ** By Type **
 
 inline
 BerUniversalTagNumber::Value
@@ -744,11 +743,11 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const bdlb::Variant2<TYPE, TYPETZ>& ,
                                   bdlat_TypeCategory::Simple          )
 {
-    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::DateTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Time, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::TimeTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Datetime, TYPE>::VALUE
+    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Time,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::VALUE
                && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
 
     return selectForDateAndTimeTypes();
@@ -771,7 +770,7 @@ BerUniversalTagNumber_Imp::select(const bsl::vector<char>&  ,
     return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
 
-// --- By Category ------------------------------------------------------------
+                        //  ** By Catetory **
 
 template <typename TYPE>
 inline
@@ -837,8 +836,8 @@ BerUniversalTagNumber_Imp::select(const TYPE&                ,
     BSLS_ASSERT_SAFE(
           FMode::e_DEFAULT == (d_formattingMode & FMode::e_TYPE_MASK));
 
-    // According to X.694 (clause 20.4), an XML choice element is encoded
-    // as a sequence with 1 element.
+    // According to X.694 (clause 20.4), an XML choice element is encoded as a
+    // sequence with 1 element.
 
     return BerUniversalTagNumber::e_BER_SEQUENCE;
 }
@@ -875,8 +874,7 @@ BerUniversalTagNumber_Imp::select(const TYPE&, ANY_CATEGORY)
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------

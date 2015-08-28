@@ -6,6 +6,7 @@
 
 #include <bdlb_random.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorderutil.h>
 #include <bsls_stopwatch.h>
@@ -16,6 +17,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
 
@@ -85,26 +87,20 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
 namespace {
 int testStatus = 0;
-int testFailures = 0;
-int testFailureLim = 500;        // <0 => no limit.
 
 bool aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100)
+        if (testStatus >= 0 && testStatus <= 100) {
             ++testStatus;
-
-        ++testFailures;
-        if (testFailureLim >= 0
-         && testFailures > testFailureLim)
-            exit(1);
+        }
     }
     return c == 0;
 }
@@ -114,7 +110,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -160,7 +156,7 @@ bool aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -177,7 +173,7 @@ bool aSsErT(int c, const char *s, int i)
 #define R_(X) #X " = " << (X) << " "
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
@@ -186,7 +182,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                               GLOBAL TYPEDEFS
+//                              GLOBAL TYPEDEFS
 // ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertUtf32  Util;
@@ -205,12 +201,12 @@ bool veryVeryVeryVerbose;
 bool veryVeryVeryVeryVerbose;
 
 bdlde::ByteOrder::Enum oppositeEndian =
-                       bdlde::ByteOrder::e_BIG_ENDIAN == bdlde::ByteOrder::e_HOST
-                       ? bdlde::ByteOrder::e_LITTLE_ENDIAN
-                       : bdlde::ByteOrder::e_BIG_ENDIAN;
+                     bdlde::ByteOrder::e_BIG_ENDIAN == bdlde::ByteOrder::e_HOST
+                     ? bdlde::ByteOrder::e_LITTLE_ENDIAN
+                     : bdlde::ByteOrder::e_BIG_ENDIAN;
 
 const void *hx(bsls::Types::UintPtr val)
-    // Cast 'val' to 'void *' so it will be printed in hex
+    // Cast the specified 'val' to 'void *' so it will be printed in hex
 {
     return (const void *) val;
 }
@@ -2095,10 +2091,11 @@ unsigned char utf8MultiLang[] = {
     187, 244, 128, 128, 128, 243, 174, 187, 174, 242, 187, 174,
     187,  13,  10,   0
 };
-const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
+const char * const charUtf8MultiLang =
+                                 reinterpret_cast<const char *>(utf8MultiLang);
 
 // ============================================================================
-//                              Padded String Ref
+//                             Padded String Ref
 // ============================================================================
 
 namespace {
@@ -2107,7 +2104,7 @@ class PaddedStringRef {
     // This 'class' is initialized by a string (in either of two forms) and the
     // only way to read it is via an implicit conversion to a
     // 'bslstl::StringRef'.  The important quality is that while the string
-    // reference converted to will represent the strng passed at construction,
+    // reference converted to will represent the string passed at construction,
     // it will NOT be null terminated, to test functions that take string refs
     // as args, to verify they aren't relying on the input being 0-terminated
     // at the right place.
@@ -2151,9 +2148,9 @@ class PaddedStringRef {
 
 }  // close unnamed namespace
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 char *decodeFourByteUtf8String(char *outBuf, unsigned val)
     // Translate the specified 'val' to UTF-8 to be written to the specified
@@ -2697,7 +2694,7 @@ enum { NUM_BETTER_UTF8_TABLE      =
 
 int main(int argc, char **argv)
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
@@ -2775,7 +2772,7 @@ int main(int argc, char **argv)
         // Then, we do the translation to 'UTF-32':
 
         int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
-                                                         utf8MultiLang);
+                                                          utf8MultiLang);
 
         ASSERT(0 == retVal);        // verify success
         ASSERT(0 == v32.back());    // verify null terminated
@@ -2822,8 +2819,8 @@ int main(int argc, char **argv)
         // Now, we do the reverse transform:
 
         retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
-                                                     v32.begin(),
-                                                     &utf8CharsWritten);
+                                                      v32.begin(),
+                                                      &utf8CharsWritten);
 
         // Finally, we verify that a successful status was returned, that the
         // output of the reverse transform was identical to the original input,
@@ -2888,8 +2885,8 @@ int main(int argc, char **argv)
             const bool opposite  = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             // 'nullIdx0' and 'nullIdx1' are indexes where nulls are inserted.
             // If they have a value of '-1', no null is inserted.  We are only
@@ -2944,7 +2941,7 @@ int main(int argc, char **argv)
                 prevTrunc          =     betterUtf8Table[tableIdx].d_truncBy;
 
                 if (                     betterUtf8Table[tableIdx].d_error) {
-                    expRc = Status::BDEDE_INVALID_CHARS_BIT;
+                    expRc = Status::k_INVALID_CHARS_BIT;
                 }
 
                 idxVec.push_back(tableIdx);
@@ -3031,8 +3028,8 @@ int main(int argc, char **argv)
             const bool opposite         = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             char *pc = utf8InBuf;
             for (unsigned tj = 1; tj < numBytesIn; ++tj) {
@@ -3074,7 +3071,7 @@ int main(int argc, char **argv)
                                             utf8InBuf,
                                             errorChar,
                                             endian);
-                ASSERT(0 == (ret & ~Status::BDEDE_INVALID_CHARS_BIT));
+                ASSERT(0 == (ret & ~Status::k_INVALID_CHARS_BIT));
                 ASSERT(bsl::find(utf32OutVec.begin(), utf32OutVec.end(), 0) ==
                                                           &utf32OutVec.back());
                 ASSERT(utf32OutVec.size() <= numBytesIn);
@@ -3114,7 +3111,7 @@ int main(int argc, char **argv)
                     LOOP6_ASSERT(ti, len, utf32OutVec.size(), ret,
                              dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32OutVec),
                                               (len < utf32OutVec.size() + 1) ||
-                                  0 == (ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                                  0 == (ret & Status::k_OUT_OF_SPACE_BIT));
                     ASSERT(len > utf32OutVec.size() ? utf32OutVec.size() == ncw
                                                     : ncw == len);
                     ASSERT(bsl::find_if(utf32OutBuf + ncw,
@@ -3133,9 +3130,9 @@ int main(int argc, char **argv)
                                                            :    errorChar);
                     LOOP8_ASSERT(ncw, pos - utf32OutBuf,
                            hx(errorChar), hx(sb(errorChar)),
-                           (ret & Status::BDEDE_INVALID_CHARS_BIT), len,
+                           (ret & Status::k_INVALID_CHARS_BIT), len,
                            dumpUtf32Vec(utf32OutVec), opposite,
-                           0 == (ret & Status::BDEDE_INVALID_CHARS_BIT) ||
+                           0 == (ret & Status::k_INVALID_CHARS_BIT) ||
                            0 == errorChar ||
                            pos < utf32OutBuf + ncw - 1);
                 }
@@ -3224,8 +3221,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
                 unsigned int errorChar;
@@ -3336,7 +3333,7 @@ int main(int argc, char **argv)
                                             utf8InBuf,
                                             errorChar,
                                             endian);
-                ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
                                              : 0));
                 LOOP3_ASSERT(ti, dumpUtf32Vec(utf32ExpVec),
                                                      dumpUtf32Vec(utf32OutVec),
@@ -3384,10 +3381,10 @@ int main(int argc, char **argv)
                                             endian);
                     LOOP6_ASSERT(ti, len, utf32ExpVec.size(), ret,
                              dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32ExpVec),
-                                 0 == (ret & Status::BDEDE_OUT_OF_SPACE_BIT) ||
+                                 0 == (ret & Status::k_OUT_OF_SPACE_BIT) ||
                                                (len < utf32ExpVec.size() + 1));
                     ASSERT(errorsPresent || 0 ==
-                                      (ret & Status::BDEDE_INVALID_CHARS_BIT));
+                                      (ret & Status::k_INVALID_CHARS_BIT));
                     ASSERT(len > utf32ExpVec.size() ? utf32ExpVec.size() == ncw
                                                     : ncw == len);
                     ASSERT(bsl::find_if(utf32OutBuf + ncw,
@@ -3474,8 +3471,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             origUtf32InVec. clear();
             for (unsigned tj = 1; tj < numCharsIn; ++tj) {
@@ -3542,7 +3539,7 @@ int main(int argc, char **argv)
                                             &ncw,
                                             errorChar,
                                             endian);
-                ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
                                              : 0));
                 ASSERT(ncw == utf32ExpVec.size());
 
@@ -3559,7 +3556,7 @@ int main(int argc, char **argv)
                                         &ncw,
                                         errorChar,
                                         endian);
-                ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
                                              : 0));
                 ASSERT(ncw == utf32ExpVec.size());
                 ASSERT(! bsl::strcmp(utf8OutStr.c_str(), &utf8OutVec.front()));
@@ -3593,10 +3590,10 @@ int main(int argc, char **argv)
                                             errorChar,
                                             endian);
                     if (!errorsPresent) {
-                        ASSERT(0 == (ret & Status::BDEDE_INVALID_CHARS_BIT));
+                        ASSERT(0 == (ret & Status::k_INVALID_CHARS_BIT));
                     }
                     ASSERT((len < utf8ExpVec.size()) ==
-                                     !!(ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                                     !!(ret & Status::k_OUT_OF_SPACE_BIT));
                     ASSERT(ncw <= utf8ExpVec.size());
                     ASSERT(ncw <= len);
                     ASSERT(nbw <= MAX_UTF8_BYTES_WRITTEN);
@@ -3653,8 +3650,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             utf32InVec. clear();
             utf8ExpVec. clear();
@@ -3696,7 +3693,7 @@ int main(int argc, char **argv)
                                         &ncw,
                                         0,
                                         endian);
-            ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+            ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
                                          : 0));
             ASSERT(ncw == numCharsOut);
 
@@ -3723,7 +3720,7 @@ int main(int argc, char **argv)
                 bufferVec.resize(utf8OutVec.size() + 4, fillByte);
 
                 const int expectedRet = len < (int) utf8OutVec.size() ?
-                                            Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                            Status::k_OUT_OF_SPACE_BIT : 0;
 
                 ncw = -1;
                 bsl::size_t nbw = -1;
@@ -3735,7 +3732,7 @@ int main(int argc, char **argv)
                                         0,
                                         endian);
                 LOOP5_ASSERT(ti, len, utf8OutVec.size(), expectedRet, ret,
-                        expectedRet == (ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                        expectedRet == (ret & Status::k_OUT_OF_SPACE_BIT));
                 ASSERT(ncw <= numCharsOut);
                 ASSERT(len >= (int) utf8OutVec.size() || ncw <  numCharsOut);
                 ASSERT(len <  (int) utf8OutVec.size() || ncw == numCharsOut);
@@ -3795,8 +3792,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             utf32InVec. clear();
             utf8ExpVec. clear();
@@ -3837,7 +3834,7 @@ int main(int argc, char **argv)
                                         &ncw,
                                         '?',
                                         endian);
-            ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+            ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
                                          : 0));
             ASSERT((int) ncw == numChars);
 
@@ -3865,7 +3862,7 @@ int main(int argc, char **argv)
                 bufferVec.resize(utf8OutVec.size() + 4, fillByte);
 
                 int expectedRet = len < (int) utf8OutVec.size() ?
-                                            Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                            Status::k_OUT_OF_SPACE_BIT : 0;
 
                 ncw = -1;
                 bsl::size_t nbw = -1;
@@ -3877,7 +3874,7 @@ int main(int argc, char **argv)
                                         '?',
                                         endian);
                 LOOP5_ASSERT(ti, len, utf8OutVec.size(), expectedRet, ret,
-                        expectedRet == (ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                        expectedRet == (ret & Status::k_OUT_OF_SPACE_BIT));
                 ASSERT((int) ncw <= numChars);
                 ASSERT(len >= (int) utf8OutVec.size() ||(int) ncw <  numChars);
                 ASSERT(len <  (int) utf8OutVec.size() ||(int) ncw == numChars);
@@ -4259,7 +4256,7 @@ int main(int argc, char **argv)
             }
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             for (int errChr = 1; errChr < 0x80; ++errChr) {
@@ -4317,7 +4314,7 @@ int main(int argc, char **argv)
             }
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             bsl::vector<char> compareVec, outVec;
@@ -4400,7 +4397,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             bsl::size_t expectedNumChars = 4 - IS_ERROR;
@@ -4447,9 +4444,9 @@ int main(int argc, char **argv)
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -4521,7 +4518,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             bsl::size_t expectedNumChars = 3 - IS_ERROR;
@@ -4568,9 +4565,9 @@ int main(int argc, char **argv)
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -4646,7 +4643,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             const bsl::size_t expectedNumChars = 3 - IS_ERROR;
@@ -4693,9 +4690,9 @@ int main(int argc, char **argv)
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -4772,7 +4769,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             const bsl::size_t expectedNumChars = 2 - IS_ERROR;
@@ -4817,9 +4814,9 @@ int main(int argc, char **argv)
                 numChars = -1;
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -4939,7 +4936,7 @@ int main(int argc, char **argv)
             compareVec.push_back(0);
             const bsl::string compareStr = &compareVec[0];
 
-            int expectedRet = IS_ERROR ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
 
             bsl::size_t numChars = -1;
             int ret;
@@ -4999,9 +4996,9 @@ int main(int argc, char **argv)
                 numChars = -1;
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -5087,7 +5084,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             bsl::size_t numChars = -1;
@@ -5143,9 +5140,9 @@ int main(int argc, char **argv)
                 numChars = -1;
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                          ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                          ? Status::k_OUT_OF_SPACE_BIT : 0;
 
                 const unsigned int cvs = compareVec.size();
                 const bsl::size_t expectedNumChars = len >= cvs   ? 3
@@ -5230,7 +5227,7 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::BDEDE_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_CHARS_BIT
                             : 0;
 
             bsl::size_t numChars = -1;
@@ -5286,9 +5283,9 @@ int main(int argc, char **argv)
                 numChars = -1;
 
                 expectedRet = IS_ERROR && len >= 2
-                                     ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                     ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < compareVec.size()
-                                           ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                           ? Status::k_OUT_OF_SPACE_BIT
                                            : 0;
 
                 const unsigned int cvs = compareVec.size();
@@ -5371,12 +5368,14 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             for (int check = 0; check < 2; ++check) {
+                //..
                 // check == 0, check 'numChars' && 'numBytes'
                 // check == 1: check 'numChars'
                 // check == 2: check neither
+                //..
 
                 int expectedRet = IS_ERROR
-                                ? Status::BDEDE_INVALID_CHARS_BIT
+                                ? Status::k_INVALID_CHARS_BIT
                                 : 0;
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(check); }
@@ -5436,9 +5435,9 @@ int main(int argc, char **argv)
                     numChars = -1;
 
                     expectedRet = IS_ERROR && len >= 1
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < compareVec.size()
-                                               ? Status::BDEDE_OUT_OF_SPACE_BIT
+                                               ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                     const unsigned int cvs = compareVec.size();
@@ -5543,7 +5542,7 @@ int main(int argc, char **argv)
                         expectedOut[u] = sb(expectedOut[u]);
                     }
                 }
-                int expectedRet = Status::BDEDE_INVALID_CHARS_BIT;
+                int expectedRet = Status::k_INVALID_CHARS_BIT;
                 const unsigned expectedChars = 4;
 
                 bsl::vector<unsigned int> outVec;
@@ -5638,7 +5637,7 @@ int main(int argc, char **argv)
             }
 
             const int expectedRet = IS_ERROR
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = 3 + !IS_ERROR;
 
             bsl::vector<unsigned int> outVec;
@@ -5696,7 +5695,7 @@ int main(int argc, char **argv)
                 midVal = sb(midVal);
             }
 
-            int expectedRet = IS_ERROR ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = IS_ERROR ? 2 : 3;
 
             bsl::vector<unsigned int> outVec;
@@ -5756,7 +5755,7 @@ int main(int argc, char **argv)
                 }
                 midVal = sb(midVal);
             }
-            int expectedRet = IS_ERROR ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = IS_ERROR ? 2 : 3;
 
             bsl::vector<unsigned int> outVec;
@@ -5825,17 +5824,17 @@ int main(int argc, char **argv)
 
             switch (TRUNC_BY) {
               case 0: {
-                expectedRet = Status::BDEDE_INVALID_CHARS_BIT;
+                expectedRet = Status::k_INVALID_CHARS_BIT;
                 expectedChars = IS_ERROR ? 2 : 3;
                 expectedMatch = expectedChars;
               } break;
               case 1: {
-                expectedRet = fiveOctet ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                expectedRet = fiveOctet ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedChars = fiveOctet ? 2 : 3;
                 expectedMatch = 1;
               } break;
               default: {    // 2 or more
-                expectedRet = Status::BDEDE_INVALID_CHARS_BIT;
+                expectedRet = Status::k_INVALID_CHARS_BIT;
                 expectedChars = 2;
                 expectedMatch = expectedChars;
               }
@@ -5955,9 +5954,9 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 3
-                                  ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 3 : 4)
-                               ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                               ? Status::k_OUT_OF_SPACE_BIT : 0;
                 const unsigned expectedChars = bsl::min(len, 3+!IS_ERROR);
 
                 bsl::size_t numChars = -1;
@@ -6039,9 +6038,9 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 2
-                                  ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 2 : 3)
-                               ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                               ? Status::k_OUT_OF_SPACE_BIT : 0;
                 const unsigned expectedChars = bsl::min(len, IS_ERROR ? 2 : 3);
 
                 bsl::size_t numChars = -1;
@@ -6116,9 +6115,9 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 3
-                                  ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < 3
-                               ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                               ? Status::k_OUT_OF_SPACE_BIT : 0;
                 const unsigned expectedChars =
                                            bsl::min(len, IS_ERROR ? 2 : 3);
 
@@ -6206,28 +6205,28 @@ int main(int argc, char **argv)
                 switch (TRUNC_BY) {
                   case 0: {
                     expectedRet = (IS_ERROR && len >= 3) || len >= 4
-                                         ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < (IS_ERROR ? 3 : 4)
-                                  ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
+                                  ? Status::k_OUT_OF_SPACE_BIT  : 0;
                     expectedChars = bsl::min(len, IS_ERROR ? 2 : 3);
                   } break;
                   case 1: {
-                    expectedRet = len < 3 ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                    expectedRet = len < 3 ? Status::k_OUT_OF_SPACE_BIT : 0;
                     expectedRet |= len >= 3 && fiveOctet ?
-                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_CHARS_BIT : 0;
                     expectedChars = bsl::min(len, fiveOctet ? 2 : 3);
                   } break;
                   default: {    // 2 or more
                     expectedRet = len >= 3 ?
-                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
-                    expectedRet |= len<3 ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                           Status::k_INVALID_CHARS_BIT : 0;
+                    expectedRet |= len<3 ? Status::k_OUT_OF_SPACE_BIT : 0;
                     expectedChars = bsl::min(len, 2);
                   }
                 }
 
                 int expectedMatch = bsl::max(0,
                        (!TRUNC_BY ? ((int) expectedChars -
-                       !!(expectedRet & Status::BDEDE_OUT_OF_SPACE_BIT)) :
+                       !!(expectedRet & Status::k_OUT_OF_SPACE_BIT)) :
                     bsl::min(len - 1, 1))) * sizeof(unsigned int);
 
                 bsl::size_t numChars = -1;
@@ -6315,7 +6314,7 @@ int main(int argc, char **argv)
                 }
                 midVal = sb(midVal);
             }
-            int expectedRet = IS_ERROR ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = 4;
 
             bsl::vector<unsigned int> outVec;
@@ -6366,7 +6365,7 @@ int main(int argc, char **argv)
             }
             bsl::vector<unsigned int> outVec;
             int expectedRet = IS_ERROR
-                              ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                              ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = 3;
 
             PaddedStringRef sr(UTF8_STRING);
@@ -6418,7 +6417,7 @@ int main(int argc, char **argv)
             }
             bsl::vector<unsigned int> outVec;
             int expectedRet = IS_ERROR
-                              ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                              ? Status::k_INVALID_CHARS_BIT : 0;
             const unsigned expectedChars = 3;
 
             PaddedStringRef sr(s);
@@ -6477,18 +6476,18 @@ int main(int argc, char **argv)
 
             switch (TRUNC_BY) {
               case 0: {
-                expectedRet = Status::BDEDE_INVALID_CHARS_BIT;
+                expectedRet = Status::k_INVALID_CHARS_BIT;
                 expectedChars = 4;
                 expectedMatch = 4 * sizeof(unsigned int);
               } break;
               case 1: {
                 expectedRet = (UTF8_STRING[1] & 0xf8) == 0xf8 ?
-                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_CHARS_BIT : 0;
                 expectedChars = 3;
                 expectedMatch = sizeof(unsigned int);
               } break;
               default: {    // 2 or more
-                expectedRet = Status::BDEDE_INVALID_CHARS_BIT;
+                expectedRet = Status::k_INVALID_CHARS_BIT;
                 expectedChars = 3;
                 expectedMatch = 3 * sizeof(unsigned int);
                 expectedOut[2] = 0;
@@ -6523,7 +6522,7 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Buffer Translation
         //
         // Concerns:
-        // That 'utf8ToUtf32' called with buffer output performs as expected:
+        //   That 'utf8ToUtf32' called with buffer output performs as expected:
         //: 1 Test sound encodings of minimal and maximal encoded values for
         //:   UTF-8 sequences 1, 2, 3, and 4 octets long.
         //: 2 Test non-minimal encodings -- values 1 too small, and zero
@@ -6538,10 +6537,10 @@ int main(int argc, char **argv)
         //: 6 Repeat all tests with both byte orders.
         //
         // Plan:
-        // Set up one loop for each of the case listed under '5' in the
-        // concerns.  The loops will call 'utf8ToUtf32', setting up variables
-        // first to anticipate what the expected behavior of this translation
-        // call.
+        //   Set up one loop for each of the case listed under '5' in the
+        //   concerns.  The loops will call 'utf8ToUtf32', setting up variables
+        //   first to anticipate what the expected behavior of this translation
+        //   call.
         //: 1 Iterate eight times over the variable 'mode', driving 3 booleans:
         //:   o checkNumChars -- have 'numChars' returned and verify accuracy
         //:   o useStringRef -- pass input as a string ref rather than a
@@ -6607,9 +6606,9 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len > 2
-                                      ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 4
-                                   ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                   ? Status::k_OUT_OF_SPACE_BIT : 0;
                     const unsigned expectedChars = bsl::min(len, 4);
 
                     if (veryVeryVeryVerbose) { P_(mode); P_(ti); P(len); }
@@ -6708,9 +6707,9 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len > 1
-                                      ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 3
-                                   ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                   ? Status::k_OUT_OF_SPACE_BIT : 0;
                     const unsigned expectedChars = bsl::min(len, 3);
 
                     bsl::size_t numChars = -1;
@@ -6808,9 +6807,9 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len >= 3
-                                      ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 3
-                                   ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                   ? Status::k_OUT_OF_SPACE_BIT : 0;
                     const unsigned expectedChars = bsl::min(len, 3);
 
                     bsl::size_t numChars = -1;
@@ -6918,28 +6917,28 @@ int main(int argc, char **argv)
                     switch (TRUNC_BY) {
                       case 0: {
                         expectedRet = (IS_ERROR && len >= 3) || len >= 4
-                                      ? Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_CHARS_BIT : 0;
                         expectedRet |= len < 4
-                                      ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
+                                      ? Status::k_OUT_OF_SPACE_BIT  : 0;
                         expectedChars = bsl::min(len, 4);
                         expectedMatch =(len >= 4 ? 4 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
                       } break;
                       case 1: {
                         expectedRet = len < 3
-                                      ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
+                                      ? Status::k_OUT_OF_SPACE_BIT  : 0;
                         expectedRet |= len >= 3 &&
                                               (UTF8_STRING[1] & 0xf8) == 0xf8 ?
-                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_CHARS_BIT : 0;
                         expectedChars = bsl::min(len, 3);
                         expectedMatch = bsl::max(0, bsl::min(len - 1, 1)) *
                                                           sizeof(unsigned int);
                       } break;
                       default: {    // 2 or more
                         expectedRet = len >= 3 ?
-                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_CHARS_BIT : 0;
                         expectedRet |= len < 3
-                                       ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                                       ? Status::k_OUT_OF_SPACE_BIT : 0;
                         expectedChars = bsl::min(len, 3);
                         expectedMatch = (len >= 3 ? 3 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);

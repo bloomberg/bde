@@ -2,29 +2,35 @@
 
 #include <balb_performancemonitor.h>
 
+#include <bslim_testutil.h>
+
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
+#include <bdlqq_threadutil.h>
+
 #include <bdlsu_processutil.h>
 
 #include <bdlt_currenttime.h>
-
-#include <bslma_testallocator.h>
-#include <bdlqq_threadutil.h>
-
-#include <bslma_newdeleteallocator.h>
-#include <bsls_platform.h>
-#include <bsls_types.h>
+#include <bdlt_datetimeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
+
+#include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <sys/mman.h>
@@ -32,78 +38,71 @@
 #endif
 
 using namespace BloombergLP;
+using namespace bsl;
 
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::flush;
-
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] int numRegisteredPids() const
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
 // [ 4] CONCERN: The Process Start Time is Reasonable
 // [ 5] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() bsl::cout << '\t' << bsl::flush; // Print tab w/o newline.
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -112,35 +111,35 @@ static int veryVeryVeryVerbose = 0;
 
 const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
 
-//=============================================================================
-//                        HELPER FUNCTIONS AND CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS AND CLASSES
+// ----------------------------------------------------------------------------
 
-#define INITIALIZE_LOGGER() \
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;\
-\
-    ball::DefaultObserver               observer(&bsl::cout); \
-    ball::LoggerManagerConfiguration    configuration; \
-    ball::LoggerManager::initSingleton(\
-            &observer, \
-            configuration, \
-            &bslma::NewDeleteAllocator::singleton());\
-\
-    ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;\
-\
-    if (verbose) passthrough         = ball::Severity::BAEL_WARN;\
-    if (veryVerbose) passthrough     = ball::Severity::BAEL_INFO;\
-    if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;\
-\
-    ball::LoggerManager::singleton().setDefaultThresholdLevels(\
-                                       ball::Severity::BAEL_OFF,\
-                                       passthrough,\
-                                       ball::Severity::BAEL_OFF,\
-                                       ball::Severity::BAEL_OFF)
+#define INITIALIZE_LOGGER()                                                   \
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;        \
+                                                                              \
+    ball::DefaultObserver               observer(&bsl::cout);                 \
+    ball::LoggerManagerConfiguration    configuration;                        \
+    ball::LoggerManager::initSingleton(                                       \
+                                     &observer,                               \
+                                     configuration,                           \
+                                     &bslma::NewDeleteAllocator::singleton());\
+                                                                              \
+    ball::Severity::Level passthrough = ball::Severity::e_OFF;                \
+                                                                              \
+    if (verbose) passthrough         = ball::Severity::e_WARN;                \
+    if (veryVerbose) passthrough     = ball::Severity::e_INFO;                \
+    if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;               \
+                                                                              \
+    ball::LoggerManager::singleton().setDefaultThresholdLevels(               \
+                                                        ball::Severity::e_OFF,\
+                                                        passthrough,          \
+                                                        ball::Severity::e_OFF,\
+                                                        ball::Severity::e_OFF)
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 namespace test {
@@ -151,6 +150,10 @@ class MmapAllocator : public bslma::Allocator {
 
     MapType           d_map;
     bslma::Allocator *d_allocator_p;
+
+    // UNIMPLEMENTED
+    MmapAllocator(const MmapAllocator &);             // = deleted
+    MmapAllocator& operator=(const MmapAllocator &);  // = deleted
 
   public:
     MmapAllocator(bslma::Allocator *basicAllocator = 0)
@@ -352,7 +355,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a performance monitor, collect statistics, reset the
-        //:   statics, and verify that the returned statiscs after the reset
+        //:   statics, and verify that the returned statistics after the reset
         //:   are plausible (Note that drqs 49280976, reset statistics lead to
         //:   incorrectly determining the time since the last reset, and
         //:   wildly incorrect statics after a reset).
@@ -374,8 +377,8 @@ int main(int argc, char *argv[])
             int rc = perfmon.registerPid(pid, "perfmon");
             ASSERT(0 == rc);
 
-            // Because of how CPU utlization is collected, the first collect is
-            // always used as a baseline and hence is ignored
+            // Because of how CPU utilization is collected, the first collect
+            // is always used as a baseline and hence is ignored
             perfmon.collect();
 
             balb::PerformanceMonitor::ConstIterator perfmonIter =
@@ -389,11 +392,11 @@ int main(int argc, char *argv[])
             perfmon.collect();
 
             userCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::e_CPU_UTIL_USER);
+                                    balb::PerformanceMonitor::e_CPU_UTIL_USER);
             systemCpu = perfmonIter->avgValue(
-                                balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
+                                  balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
             totalCpu = perfmonIter->avgValue(
-                                       balb::PerformanceMonitor::e_CPU_UTIL);
+                                         balb::PerformanceMonitor::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -415,11 +418,11 @@ int main(int argc, char *argv[])
             // our CPU utilization should be really low
 
             userCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::e_CPU_UTIL_USER);
+                                    balb::PerformanceMonitor::e_CPU_UTIL_USER);
             systemCpu = perfmonIter->avgValue(
-                                balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
+                                  balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
             totalCpu = perfmonIter->avgValue(
-                                       balb::PerformanceMonitor::e_CPU_UTIL);
+                                         balb::PerformanceMonitor::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -454,7 +457,8 @@ int main(int argc, char *argv[])
         int rc = perfmon.registerPid(0, "perfmon");
         ASSERT(0 == rc);
 
-        bdlt::Datetime st = perfmon.begin()->startupTime();// process start time
+        // process start time
+        bdlt::Datetime st = perfmon.begin()->startupTime();
 
         bdlt::Datetime nowDt(1970, 1, 1);
         nowDt.addSeconds(static_cast<int>(
@@ -591,7 +595,8 @@ int main(int argc, char *argv[])
                                                         it != perfmon.end();
                                                       ++it)
                     {
-                        const balb::PerformanceMonitor::Statistics& stats = *it;
+                        const balb::PerformanceMonitor::Statistics &stats =
+                                                                           *it;
 
                         if (veryVerbose) {
                             bsl::cout << "Pid = " << stats.pid() << ":\n";
@@ -618,7 +623,8 @@ int main(int argc, char *argv[])
                                                         it != perfmon.end();
                                                       ++it)
                     {
-                        const balb::PerformanceMonitor::Statistics& stats = *it;
+                        const balb::PerformanceMonitor::Statistics& stats =
+                                                                           *it;
 
                         if (veryVerbose) {
                             bsl::cout << "Pid = " << stats.pid() << ":\n";

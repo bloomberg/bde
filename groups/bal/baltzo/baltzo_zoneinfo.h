@@ -283,9 +283,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ========================
-                        // class ZoneinfoTransition
-                        // ========================
+                          // ========================
+                          // class ZoneinfoTransition
+                          // ========================
 
 class ZoneinfoTransition {
     // This class is an unconstrained *in-core* value-semantic class that
@@ -385,9 +385,9 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     // without notice.  Also note that this method has the same behavior as
     // 'object.print(stream, 0, -1)' with the attribute names elided.
 
-                            // ==============
-                            // class Zoneinfo
-                            // ==============
+                               // ==============
+                               // class Zoneinfo
+                               // ==============
 
 class Zoneinfo {
     // This class is a value-semantic type holding a structured representation
@@ -616,9 +616,9 @@ void swap(Zoneinfo& a, Zoneinfo& b);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------
-                        // class ZoneinfoTransition
-                        // ------------------------
+                          // ------------------------
+                          // class ZoneinfoTransition
+                          // ------------------------
 
 // PRIVATE CREATORS
 inline
@@ -675,9 +675,9 @@ bool baltzo::operator<(const ZoneinfoTransition& lhs,
     return lhs.utcTime() < rhs.utcTime();
 }
 
-                            // --------------
-                            // class Zoneinfo
-                            // --------------
+                               // --------------
+                               // class Zoneinfo
+                               // --------------
 
 // CREATORS
 inline

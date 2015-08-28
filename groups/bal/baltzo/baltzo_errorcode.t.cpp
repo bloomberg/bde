@@ -45,7 +45,7 @@ using namespace bsl;
 // [ 5] USAGE EXAMPLE
 
 // ============================================================================
-//                       STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                     STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -92,7 +92,7 @@ static void aSsErT(int c, const char *s, int i) {
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -272,9 +272,9 @@ if (veryVerbose)
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        ASSERT(Obj::e_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ASSERT(Obj::k_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 

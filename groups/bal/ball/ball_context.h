@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for the context of a transmitted log record.
 //
 //@CLASSES:
-//    ball::Context: context of a transmitted log record
+//  ball::Context: context of a transmitted log record
 //
 //@SEE_ALSO: ball_transmission, ball_observer, ball_record
 //
@@ -27,11 +27,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  Attribute          Type                      Description        Default
 //  -----------------  ------------------------  -----------------  -----------
-//  transmissionCause  ball::Transmission::Cause  cause of output    PASSTHROUGH
+//  transmissionCause  ball::Transmission::Cause cause of output    PASSTHROUGH
 //  recordIndex        int                       index in sequence  0
 //  sequenceLength     int                       # records in seq.  1
 //..
-///CONSTRAINTS
+//
+///Constraints
 ///-----------
 // This attribute class assumes that the following constraints on contained
 // values hold:
@@ -42,10 +43,10 @@ BSLS_IDENT("$Id: $")
 //    }
 //    else {
 //        assert(
-//          ball::Transmission::BAEL_TRIGGER            == transmissionCause()
-//       || ball::Transmission::BAEL_TRIGGER_ALL        == transmissionCause()
-//       || ball::Transmission::BAEL_MANUAL_PUBLISH     == transmissionCause()
-//       || ball::Transmission::BAEL_MANUAL_PUBLISH_ALL == transmissionCause());
+//         ball::Transmission::BAEL_TRIGGER            == transmissionCause()
+//      || ball::Transmission::BAEL_TRIGGER_ALL        == transmissionCause()
+//      || ball::Transmission::BAEL_MANUAL_PUBLISH     == transmissionCause()
+//      || ball::Transmission::BAEL_MANUAL_PUBLISH_ALL == transmissionCause());
 //        assert(0 <= recordIndex());
 //        assert(1 <= sequenceLength());
 //        assert(recordIndex() < sequenceLength());
@@ -57,11 +58,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// A 'ball::Context' object holds sufficient information to determine the length
-// of a message sequence and the index of a message within that sequence.  In
-// addition, 'ball::Context' indicates the cause for the transmission of a
-// message.  The following example illustrates the essentials of working with
-// these contextual attributes.
+// A 'ball::Context' object holds sufficient information to determine the
+// length of a message sequence and the index of a message within that
+// sequence.  In addition, 'ball::Context' indicates the cause for the
+// transmission of a message.  The following example illustrates the essentials
+// of working with these contextual attributes.
 //
 // This example illustrates the use of 'ball::Context' by a hypothetical
 // logging system.  First we define a simple logger class named 'my_Logger':
@@ -152,7 +153,9 @@ BSLS_IDENT("$Id: $")
 //            // Do nothing beyond archiving the message.
 //          } break;
 //          case WARN: {
-//            ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
+//            ball::Context context(ball::Transmission::BAEL_PASSTHROUGH,
+//                                  0,
+//                                  1);
 //            publish(message, context);
 //          } break;
 //          case ERROR: {
@@ -206,6 +209,14 @@ BSLS_IDENT("$Id: $")
 #include <ball_transmission.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -228,9 +239,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                        // ==================
+                        // =============
                         // class Context
-                        // ==================
+                        // =============
 
 class Context {
     // This class provides a container for aggregating the auxiliary
@@ -257,26 +268,24 @@ class Context {
     // both source and destination) is supported in all cases.
 
     // DATA
-    Transmission::Cause d_transmissionCause;  // cause of transmitted
-                                                   // record
-
-    int                      d_recordIndex;        // 0-based index within
-                                                   // sequence
-
-    int                      d_sequenceLength;     // number of records in
-                                                   // sequence
+    Transmission::Cause d_transmissionCause;  // cause of transmitted record
+    int                 d_recordIndex;        // 0-based index within sequence
+    int                 d_sequenceLength;     // number of records in sequence
 
     // PRIVATE TYPES
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     // FRIENDS
     friend bool operator==(const Context&, const Context&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Context, bslma::UsesBslmaAllocator);
+
     // CLASS METHODS
     static bool isValid(Transmission::Cause transmissionCause,
-                        int                      recordIndex,
-                        int                      sequenceLength);
+                        int                 recordIndex,
+                        int                 sequenceLength);
         // Return 'true' if the specified 'transmissionCause', 'recordIndex',
         // and 'sequenceLength' represent a valid context, and 'false'
         // otherwise.  (See the CONSTRAINTS section of the component-level
@@ -292,9 +301,9 @@ class Context {
         // used.
 
     Context(Transmission::Cause  transmissionCause,
-                 int                       recordIndex,
-                 int                       sequenceLength,
-                 bslma::Allocator         *basicAllocator = 0);
+            int                  recordIndex,
+            int                  sequenceLength,
+            bslma::Allocator    *basicAllocator = 0);
         // Create a context object indicating the specified
         // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -302,8 +311,8 @@ class Context {
         // used.  The behavior is undefined if the resulting attribute values
         // are incompatible.
 
-    Context(const Context&  original,
-                 bslma::Allocator    *basicAllocator = 0);
+    Context(const Context&    original,
+            bslma::Allocator *basicAllocator = 0);
         // Create a context object having the value of the specified 'original'
         // context object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -319,17 +328,17 @@ class Context {
         // context object.
 
     int setAttributes(Transmission::Cause transmissionCause,
-                      int                      recordIndex,
-                      int                      sequenceLength);
+                      int                 recordIndex,
+                      int                 sequenceLength);
         // Set the value of this context object to the specified
-        // 'transmissionCause', 'recordIndex', and 'sequenceLength' values
-        // if 'transmissionCause', 'recordIndex', and 'sequenceLength'
-        // represent a valid context.  Return 0 on success, and a non-zero
-        // value (with no effect on this context object) otherwise.
+        // 'transmissionCause', 'recordIndex', and 'sequenceLength' values if
+        // 'transmissionCause', 'recordIndex', and 'sequenceLength' represent a
+        // valid context.  Return 0 on success, and a non-zero value (with no
+        // effect on this context object) otherwise.
 
     void setAttributesRaw(Transmission::Cause transmissionCause,
-                          int                      recordIndex,
-                          int                      sequenceLength);
+                          int                 recordIndex,
+                          int                 sequenceLength);
         // Set the value of this context object to the specified
         // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
         // The behavior is undefined if the resulting attribute values are
@@ -367,37 +376,34 @@ class Context {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const Context& lhs, const Context& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' context objects have the
     // same value, and 'false' otherwise.  Two context objects have the same
     // value if each respective pair of corresponding attributes have the same
     // value.
 
-inline
 bool operator!=(const Context& lhs, const Context& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' context objects do not
     // have the same value, and 'false' otherwise.  Two context objects do not
     // have the same value if one or more respective attributes differ in
     // value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
     // Write the specified 'rhs' context to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------
+                        // -------------
                         // class Context
-                        // ------------------
+                        // -------------
 
 // CREATORS
 inline
 Context::Context(bslma::Allocator *basicAllocator)
-: d_transmissionCause(Transmission::BAEL_PASSTHROUGH)
+: d_transmissionCause(Transmission::e_PASSTHROUGH)
 , d_recordIndex(0)
 , d_sequenceLength(1)
 {
@@ -406,9 +412,9 @@ Context::Context(bslma::Allocator *basicAllocator)
 
 inline
 Context::Context(Transmission::Cause  transmissionCause,
-                           int                       recordIndex,
-                           int                       sequenceLength,
-                           bslma::Allocator         *basicAllocator)
+                 int                  recordIndex,
+                 int                  sequenceLength,
+                 bslma::Allocator    *basicAllocator)
 : d_transmissionCause(transmissionCause)
 , d_recordIndex(recordIndex)
 , d_sequenceLength(sequenceLength)
@@ -417,8 +423,8 @@ Context::Context(Transmission::Cause  transmissionCause,
 }
 
 inline
-Context::Context(const Context&  original,
-                           bslma::Allocator    *basicAllocator)
+Context::Context(const Context&    original,
+                 bslma::Allocator *basicAllocator)
 : d_transmissionCause(original.d_transmissionCause)
 , d_recordIndex(original.d_recordIndex)
 , d_sequenceLength(original.d_sequenceLength)
@@ -438,8 +444,8 @@ Context& Context::operator=(const Context& rhs)
 
 inline
 void Context::setAttributesRaw(Transmission::Cause transmissionCause,
-                                    int                      recordIndex,
-                                    int                      sequenceLength)
+                               int                 recordIndex,
+                               int                 sequenceLength)
 {
     d_transmissionCause = transmissionCause;
     d_recordIndex       = recordIndex;
@@ -448,14 +454,14 @@ void Context::setAttributesRaw(Transmission::Cause transmissionCause,
 
 inline
 int Context::setAttributes(Transmission::Cause transmissionCause,
-                                int                      recordIndex,
-                                int                      sequenceLength)
+                           int                 recordIndex,
+                           int                 sequenceLength)
 {
     if (isValid(transmissionCause, recordIndex, sequenceLength)) {
         setAttributesRaw(transmissionCause, recordIndex, sequenceLength);
-        return BAEL_SUCCESS;                                          // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
-    return BAEL_FAILURE;
+    return k_FAILURE;
 }
 
 inline

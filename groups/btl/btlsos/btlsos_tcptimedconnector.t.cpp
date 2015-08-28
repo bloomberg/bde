@@ -13,25 +13,32 @@
 #include <btlsc_channel.h>
 #include <btlsc_timedchannel.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
-#include <bsls_timeinterval.h>
+#include <bdlt_currenttime.h>
+
 #include <bslma_testallocator.h>
-#include <bsls_platform.h>
 
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
-#include <bslma_testallocator.h>            // thread-safe allocator
-#include <bsl_typeinfo.h>
+
+#include <bsls_timeinterval.h>
+#include <bsls_platform.h>
+
 #include <bsl_c_time.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #endif
 
-#include <bsl_iostream.h>
-#include <bsl_c_stdio.h>
+#include <signal.h>
+#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -69,7 +76,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] virtual int isInvalid()
 // [ 3] int numChannels() const;
 //-----------------------------------------------------------------------------
-// [10] USAGE example
+// [ 9] USAGE example
 // [ 1] Breathing test
 //=============================================================================
 
@@ -99,23 +106,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
@@ -123,9 +130,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef btlsos::TcpTimedConnector Obj;
 typedef btlso::StreamSocket<btlso::IPv4Address> StreamSocket;
@@ -200,9 +207,9 @@ struct TestCommand {
 
 bslma::TestAllocator testAllocator;
 
-//=============================================================================
-//                      HELPER FUNCTIONS/CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   HELPER FUNCTIONS/CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
@@ -291,7 +298,8 @@ static void signalHandler(int sig)
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
-    // Register the signal handler for the signal 'signo' to be generated.
+    // Register the specified signal 'handler' for the specified signal 'signo'
+    // to be generated.
 {
     struct sigaction act, oact;
 
@@ -332,9 +340,9 @@ static int testExecutionHelper(btlsos::TcpTimedConnector     *connector,
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
     // specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the array of
-    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // 'command' is to deallocate a channel, the first channel in the specified
+    // array of 'channels' will be deallocated.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     int rCode = 0;
 
@@ -393,17 +401,16 @@ int processTest(
         int                                                     numCommands,
         int                                                     signals,
         int                                                     expNumChannels,
-        int                                                     equeueSize)
+        int                                                     queueSize)
     // The specified 'numCommands' of test commands will be issued in the
     // specified 'commands' to invoke some function in the specified
     // 'acceptor'.  Each new channel will be added to the array of channels
     // specified as 'channels'.  Create a thread taking the specified
     // 'threadFunction' as the thread function.  The thread will work as a
     // client to submit the expected number of connection requests and/or
-    // generate signals if the 'signals' is set.  Results after each test will
-    // be compared against those expected which are also specified in the
-    // specified 'commands'.  Return 0 on success, and a non-zero value
-    // otherwise.
+    // generate signals if the specified 'signals' is set.  Results after each
+    // test will be compared against those expected which are also specified in
+    // the 'commands'.  Return 0 on success, and a non-zero value otherwise.
 {
     bdlqq::ThreadUtil::Handle threadHandle;
 
@@ -415,7 +422,7 @@ int processTest(
                                    signals,
                                    expNumChannels,
                                    connList,
-                                   equeueSize
+                                   queueSize
                                  };
 
     bdlqq::ThreadAttributes attributes;
@@ -502,9 +509,9 @@ int processTest(
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -524,7 +531,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     switch (test) { case 0:
-      case 24: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   This test is really just to make sure the syntax is correct.
@@ -588,7 +595,7 @@ int main(int argc, char *argv[]) {
                                     &status,
                                     bdlt::CurrentTime::now() + connectTimeout);
     if (!channel) {
-        ASSERT(0 >= status);  // Async interrupts are *not* enabled.
+        ASSERT(0 >= status);  // Asynchronous interrupts are *not* enabled.
         if (status) {
             bsl::cout << "Failed to connect to the peer."
                       << bsl::endl;
@@ -1755,7 +1762,7 @@ int main(int argc, char *argv[]) {
           //     Create a thread to generate signals  and deliver to the main
           //     thread.  The result from result will be compared against
           //     those expected.  Note that concern(6) can only be tested at
-          //     this moment by waiting util the system call timeout--thus an
+          //     this moment by waiting until the system call timeout--thus an
           //     error occurs and the "allocate" request is stopped.
           //
           //   Step 3: (for concern 7)
@@ -2184,7 +2191,7 @@ int main(int argc, char *argv[]) {
           //     Create a thread to generate signals  and deliver to the main
           //     thread.  The result from result will be compared against
           //     those expected.  Note that concern(6) can only be tested at
-          //     this moment by waiting util the system call timeout--thus an
+          //     this moment by waiting until the system call timeout--thus an
           //     error occurs and the "allocate" request is stopped.
           //
           //   Step 3: (for concern 7)

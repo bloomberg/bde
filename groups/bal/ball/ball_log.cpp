@@ -148,7 +148,7 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
 {
     BSLS_ASSERT(categoryHolder);
 
-    if (CategoryHolder::BAEL_UNINITIALIZED_CATEGORY ==
+    if (CategoryHolder::e_UNINITIALIZED_CATEGORY ==
                                               categoryHolder->threshold() ||
         !LoggerManager::isInitialized()                              ||
         !categoryHolder->category()) {
@@ -158,7 +158,7 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
         // category is 0) then simply test whether the severity is greater than
         // the WARNING level.
 
-        return Severity::BAEL_WARN >= severity;                       // RETURN
+        return Severity::e_WARN >= severity;                       // RETURN
     }
 
     return LoggerManager::singleton().isCategoryEnabled(

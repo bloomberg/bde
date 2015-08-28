@@ -11,7 +11,7 @@ namespace BloombergLP {
 namespace btlmt {
 const char *ChannelType::toAscii(Value channelType)
 {
-#define CASE(X) case(BTEMT_ ## X): return #X
+#define CASE(X) case(e_ ## X): return #X
 
     switch (channelType) {
       CASE(LISTENING_CHANNEL);

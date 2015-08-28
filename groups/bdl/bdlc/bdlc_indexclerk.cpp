@@ -14,9 +14,9 @@ BSLS_IDENT_RCSID(bdlc_indexclerk_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
-                            // ----------------
-                            // class IndexClerk
-                            // ----------------
+                              // ----------------
+                              // class IndexClerk
+                              // ----------------
 
 // PRIVATE ACCESSORS
 bool

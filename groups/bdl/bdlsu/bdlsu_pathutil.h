@@ -110,9 +110,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                              // =====================
+                              // ===============
                               // struct PathUtil
-                              // =====================
+                              // ===============
 
 struct PathUtil {
     // This struct contains utility methods for platform-independent
@@ -219,12 +219,12 @@ struct PathUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // --------------------
-                           // class PathUtil
-                           // --------------------
+                               // --------------
+                               // class PathUtil
+                               // --------------
 
 // CLASS METHODS
 inline

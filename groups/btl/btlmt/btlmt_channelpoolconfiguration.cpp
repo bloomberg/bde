@@ -28,98 +28,98 @@ const char btlmt::ChannelPoolConfiguration::CLASS_NAME[] =
 const bdlat_AttributeInfo
                      btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_MAX_CONNECTIONS,
+        e_ATTRIBUTE_ID_MAX_CONNECTIONS,
         "MaxConnections",                     // name
         sizeof("MaxConnections") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_MAX_THREADS,
+        e_ATTRIBUTE_ID_MAX_THREADS,
         "MaxThreads",                     // name
         sizeof("MaxThreads") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_READ_TIMEOUT,
+        e_ATTRIBUTE_ID_READ_TIMEOUT,
         "ReadTimeout",                     // name
         sizeof("ReadTimeout") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_METRICS_INTERVAL,
+        e_ATTRIBUTE_ID_METRICS_INTERVAL,
         "MetricsInterval",                     // name
         sizeof("MetricsInterval") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT,
         "MinMessageSizeOut",                     // name
         sizeof("MinMessageSizeOut") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT,
         "TypMessageSizeOut",                     // name
         sizeof("TypMessageSizeOut") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT,
         "MaxMessageSizeOut",                     // name
         sizeof("MaxMessageSizeOut") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN,
         "MinMessageSizeIn",                     // name
         sizeof("MinMessageSizeIn") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN,
         "TypMessageSizeIn",                     // name
         sizeof("TypMessageSizeIn") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN,
         "MaxMessageSizeIn",                     // name
         sizeof("MaxMessageSizeIn") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT,
+        e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT,
         "WriteCacheLowWat",                     // name
         sizeof("WriteCacheLowWat") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_WRITE_CACHE_HI_WAT,
+        e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT,
         "WriteCacheHiWat",                     // name
         sizeof("WriteCacheHiWat") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_THREAD_STACK_SIZE,
+        e_ATTRIBUTE_ID_THREAD_STACK_SIZE,
         "ThreadStackSize",                     // name
         sizeof("ThreadStackSize") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_COLLECT_TIME_METRICS,
+        e_ATTRIBUTE_ID_COLLECT_TIME_METRICS,
         "CollectTimeMetrics",                  // name
         sizeof("CollectTimeMetrics") - 1,      // name length
         "",// annotation
@@ -149,7 +149,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[7])=='A' &&
                 bsl::toupper(name[8])=='D' &&
                 bsl::toupper(name[9])=='S') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS];
                                                                       // RETURN
             }
         } break;
@@ -165,7 +165,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[8])=='O' &&
                 bsl::toupper(name[9])=='U' &&
                 bsl::toupper(name[10])=='T') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT];
                                                                       // RETURN
             }
         } break;
@@ -184,7 +184,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[11])=='O' &&
                 bsl::toupper(name[12])=='N' &&
                 bsl::toupper(name[13])=='S') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS];
                                                                       // RETURN
             }
         } break;
@@ -206,7 +206,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[13])=='A' &&
                         bsl::toupper(name[14])=='L') {
                         return
-                       &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL];
+                       &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL];
                                                                       // RETURN
                     }
                 } break;
@@ -226,7 +226,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[13])=='A' &&
                         bsl::toupper(name[14])=='T') {
                         return
-                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+                     &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
                                                                       // RETURN
                     }
                 } break;
@@ -246,7 +246,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[13])=='Z' &&
                         bsl::toupper(name[14])=='E') {
                         return
-                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
+                     &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
                                                                       // RETURN
                     }
                 } break;
@@ -272,7 +272,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[14])=='I' &&
                                 bsl::toupper(name[15])=='N') {
                                return
-                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
+                    &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
                                                                       // RETURN
                             }
                         } break;
@@ -292,7 +292,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[14])=='I' &&
                                 bsl::toupper(name[15])=='N') {
                                 return
-                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
+                    &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
                                                                       // RETURN
                             }
                         } break;
@@ -315,7 +315,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='I' &&
                         bsl::toupper(name[15])=='N') {
                         return
-                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
+                    &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
                                                                       // RETURN
                     }
                 } break;
@@ -336,7 +336,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='A' &&
                         bsl::toupper(name[15])=='T') {
                         return
-                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+                    &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
                                                                       // RETURN
                     }
                 } break;
@@ -363,7 +363,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='U' &&
                                 bsl::toupper(name[16])=='T') {
                                 return
-                   &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
+                   &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
                                                                       // RETURN
                             }
                         } break;
@@ -384,7 +384,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='U' &&
                                 bsl::toupper(name[16])=='T') {
                                 return
-                   &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
+                   &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
                                                                       // RETURN
                             }
                         } break;
@@ -408,7 +408,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[15])=='U' &&
                         bsl::toupper(name[16])=='T') {
                         return
-                   &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
+                   &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
                                                                       // RETURN
                     }
                 } break;
@@ -434,7 +434,7 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[16])=='C' &&
                 bsl::toupper(name[17])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[
-                                         ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
+                                         e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
                                                                       // RETURN
             }
 
@@ -447,49 +447,38 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                                                         int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_MAX_CONNECTIONS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS];
-      case ATTRIBUTE_ID_MAX_THREADS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS];
-      case ATTRIBUTE_ID_READ_TIMEOUT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT];
-      case ATTRIBUTE_ID_METRICS_INTERVAL:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL];
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
-      case ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
-      case ATTRIBUTE_ID_WRITE_CACHE_HI_WAT:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
-      case ATTRIBUTE_ID_THREAD_STACK_SIZE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
-      case ATTRIBUTE_ID_COLLECT_TIME_METRICS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
+      case e_ATTRIBUTE_ID_MAX_CONNECTIONS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS];
+      case e_ATTRIBUTE_ID_MAX_THREADS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS];
+      case e_ATTRIBUTE_ID_READ_TIMEOUT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT];
+      case e_ATTRIBUTE_ID_METRICS_INTERVAL:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL];
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
+      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+      case e_ATTRIBUTE_ID_THREAD_STACK_SIZE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
+      case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
 
       default:
         return 0;
     }
-}
-                               // -------------
-                               // CLASS METHODS
-                               // -------------
-
-int ChannelPoolConfiguration::maxSupportedBdexVersion() {
-    return 5;
-}
-
-int ChannelPoolConfiguration::maxSupportedVersion() {
-    return maxSupportedBdexVersion();
 }
 
                                   // --------
@@ -509,7 +498,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration()
 , d_minMessageSizeIn(1)
 , d_typMessageSizeIn(1)
 , d_maxMessageSizeIn(1024)
-, d_threadStackSize(BTEMT_DEFAULT_THREAD_STACK_SIZE)
+, d_threadStackSize(k_DEFAULT_THREAD_STACK_SIZE)
 , d_collectTimeMetrics(true)
 {
 }

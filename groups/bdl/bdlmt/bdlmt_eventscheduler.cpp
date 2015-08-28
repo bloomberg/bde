@@ -28,13 +28,12 @@ void defaultDispatcherFunction(const bdlf::Function<void (*)()>& callback)
 }
 
 namespace bdlmt {
-                             // -------------------------
-                             // class EventScheduler
-                             // -------------------------
+                            // --------------------
+                            // class EventScheduler
+                            // --------------------
 
 // PRIVATE MANIPULATORS
-bsls::Types::Int64 EventScheduler::chooseNextEvent(
-                                                       bsls::Types::Int64 *now)
+bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
 {
     BSLS_ASSERT(0 != d_currentRecurringEvent || 0 != d_currentEvent);
 
@@ -166,9 +165,8 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 {
 }
 
-EventScheduler::EventScheduler(
-                                   bsls::SystemClockType::Enum  clockType,
-                                   bslma::Allocator            *basicAllocator)
+EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
+                               bslma::Allocator            *basicAllocator)
 : d_clockType(clockType)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
@@ -183,12 +181,12 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                        const EventScheduler::Dispatcher&  dispatcher,
-                        bslma::Allocator                       *basicAllocator)
+                          const EventScheduler::Dispatcher&  dispatcherFunctor,
+                          bslma::Allocator                  *basicAllocator)
 : d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(dispatcher)
+, d_dispatcherFunctor(dispatcherFunctor)
 , d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -198,13 +196,13 @@ EventScheduler::EventScheduler(
 }
 
 EventScheduler::EventScheduler(
-                        const EventScheduler::Dispatcher&  dispatcher,
-                        bsls::SystemClockType::Enum             clockType,
-                        bslma::Allocator                       *basicAllocator)
+                          const EventScheduler::Dispatcher&  dispatcherFunctor,
+                          bsls::SystemClockType::Enum        clockType,
+                          bslma::Allocator                  *basicAllocator)
 : d_clockType(clockType)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(dispatcher)
+, d_dispatcherFunctor(dispatcherFunctor)
 , d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
 , d_queueCondition(clockType)
 , d_running(false)
@@ -230,17 +228,18 @@ int EventScheduler::start()
 int EventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
-    if (d_running || bdlqq::ThreadUtil::invalidHandle() != d_dispatcherThread) {
+    if (d_running ||
+        bdlqq::ThreadUtil::invalidHandle() != d_dispatcherThread) {
         return 0;                                                     // RETURN
     }
 
     bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
     if (bdlqq::ThreadUtil::create(
-            &d_dispatcherThread,
-            modAttr,
-            bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this))) {
+                &d_dispatcherThread,
+                modAttr,
+                bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this))) {
         return -1;                                                    // RETURN
     }
 
@@ -268,14 +267,14 @@ void EventScheduler::stop()
 }
 
 void
-EventScheduler::scheduleEvent(EventHandle                      *event,
-                                   const bsls::TimeInterval&          timer,
-                                   const bdlf::Function<void (*)()>&  callback)
+EventScheduler::scheduleEvent(EventHandle                       *event,
+                              const bsls::TimeInterval&          time,
+                              const bdlf::Function<void (*)()>&  callback)
 {
     bool newTop;
 
     d_eventQueue.addR(&event->d_handle,
-                      timer.totalMicroseconds(),
+                      time.totalMicroseconds(),
                       callback,
                       &newTop);
 
@@ -285,16 +284,15 @@ EventScheduler::scheduleEvent(EventHandle                      *event,
     }
 }
 
-void
-EventScheduler::scheduleEventRaw(
-                                   Event                            **event,
-                                   const bsls::TimeInterval&           timer,
-                                   const bdlf::Function<void (*)()>&   callback)
+void EventScheduler::scheduleEventRaw(
+                                  Event                             **event,
+                                  const bsls::TimeInterval&           time,
+                                  const bdlf::Function<void (*)()>&   callback)
 {
     bool newTop;
 
     d_eventQueue.addRawR((EventQueue::Pair **)event,
-                         timer.totalMicroseconds(),
+                         time.totalMicroseconds(),
                          callback,
                          &newTop);
 
@@ -306,10 +304,10 @@ EventScheduler::scheduleEventRaw(
 
 void
 EventScheduler::scheduleRecurringEvent(
-                                   RecurringEventHandle             *event,
-                                   const bsls::TimeInterval&          interval,
-                                   const bdlf::Function<void (*)()>&  callback,
-                                   const bsls::TimeInterval&          startTime)
+                                  RecurringEventHandle              *event,
+                                  const bsls::TimeInterval&          interval,
+                                  const bdlf::Function<void (*)()>&  callback,
+                                  const bsls::TimeInterval&          startTime)
 {
     BSLS_ASSERT(0 != interval);
 
@@ -336,10 +334,10 @@ EventScheduler::scheduleRecurringEvent(
 
 void
 EventScheduler::scheduleRecurringEventRaw(
-                                  RecurringEvent                   **event,
-                                  const bsls::TimeInterval&           interval,
-                                  const bdlf::Function<void (*)()>&   callback,
-                                  const bsls::TimeInterval&           startTime)
+                                 RecurringEvent                    **event,
+                                 const bsls::TimeInterval&           interval,
+                                 const bdlf::Function<void (*)()>&   callback,
+                                 const bsls::TimeInterval&           startTime)
 {
     BSLS_ASSERT(0 != interval);
 
@@ -396,8 +394,8 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 
     int ret = d_recurringQueue.remove(itemPtr);
 
-    // Cannot 'return' if '0 == ret': since the event is recurring, it may
-    // be the currently executing event even if it's still in the queue.
+    // Cannot 'return' if '0 == ret': since the event is recurring, it may be
+    // the currently executing event even if it's still in the queue.
 
     if (RecurringEventQueue::e_INVALID == ret) {
         return ret;                                                   // RETURN
@@ -437,8 +435,8 @@ int EventScheduler::cancelEventAndWait(const Event *handle)
     }
 
     // At this point, we know we could not remove the item because it was not
-    // in the list.  Check whether the currently executing event is the
-    // one we wanted to cancel; if it is, wait until the next iteration.
+    // in the list.  Check whether the currently executing event is the one we
+    // wanted to cancel; if it is, wait until the next iteration.
 
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     while (1) {
@@ -476,8 +474,8 @@ int EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
     return ret;
 }
 
-int EventScheduler::rescheduleEvent(const Event              *handle,
-                                         const bsls::TimeInterval&  newTime)
+int EventScheduler::rescheduleEvent(const Event               *handle,
+                                    const bsls::TimeInterval&  newTime)
 {
     const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
                                        reinterpret_cast<const void *>(handle));
@@ -493,15 +491,13 @@ int EventScheduler::rescheduleEvent(const Event              *handle,
     return ret;
 }
 
-int EventScheduler::rescheduleEventAndWait(
-                                            const Event              *handle,
-                                            const bsls::TimeInterval&  newTime)
+int EventScheduler::rescheduleEventAndWait(const Event               *handle,
+                                           const bsls::TimeInterval&  newTime)
 {
     BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
-                                           d_dispatcherThread));
+                                            d_dispatcherThread));
 
-    const EventQueue::Pair *h =
-                            reinterpret_cast<const EventQueue::Pair *>(
+    const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
                                        reinterpret_cast<const void *>(handle));
     int ret;
 

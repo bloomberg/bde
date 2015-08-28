@@ -4,10 +4,6 @@
 
 #include <bdlb_print.h>
 
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-
 #include <bslalg_typetraitbitwisecopyable.h>
 #include <bslalg_typetraitbitwisemoveable.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
@@ -71,7 +67,6 @@ using namespace bsl;  // automatically added by script
 // [ 9] bdlb::VariantImp& operator=(const bdlb::VariantImp& rhs);
 // [ 2] void assign(const TYPE& value);
 // [11] void assignTo(SOURCE const& value);
-// [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [14] void createInPlace<TYPE>(...);                     // all 15 variations
 // [ 2] TYPE& the<TYPE>();
 //
@@ -97,8 +92,6 @@ using namespace bsl;  // automatically added by script
 // [16] RET_TYPE applyRaw(VISITOR& visitor);
 //
 // ACCESSORS
-// [10] int maxSupportedBdexVersion() const;
-// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] bool is<Type>() const;
 // [17] bool isUnset() const;
 // [ 5] void print(bsl::ostream& stream, int level, int spacesPerLevel) const;
@@ -143,6 +136,8 @@ using namespace bsl;  // automatically added by script
 // [19] CONCERN: 'bslalg::TypeTraitBitwiseCopyable' trait
 // [19] CONCERN: 'bslalg::TypeTraitBitwiseMoveable' trait
 // [20] CONCERN: 'applyRaw' accepts VISITORs without a 'bslmf::Nil' overload
+// [10] Reserved for 'BDEX' streaming.
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -237,37 +232,9 @@ typedef bdlb::VariantImp<VariantTypes>                    Obj;
 
 struct TestVoid {
     // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the 'bdex' streaming protocol.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
-
-    // CLASS METHODS
-    static int maxSupportedBdexVersion()
-    {
-        // Implementation note: in order to play nice with our variant wrapper
-        // below, we *need* all the TestTypes to have the same version numbers
-        // (2 since TestInt and TestString below all have version 2).
-
-        return 2;
-    }
-
-    // MANIPULATORS
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version)
-    {
-        if (version != 1 && version != 2) {
-            stream.invalidate();
-        }
-        return stream;
-    }
-
-    // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
-    {
-        return stream;
-    }
+    // compare equal).  For brevity, and only because this is a test driver, we
+    // relax our rules and implement each method in the class body and do not
+    // provide documentation of these straightforward and bde-standard methods.
 };
 
 bool operator==(const TestVoid& lhs, const TestVoid& rhs)
@@ -294,11 +261,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
 
 class TestAllocObj {
     // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the 'bdex' streaming protocol.  The object
-    // allocates during construction and deallocates during destruction.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
+    // compare equal).  The object allocates during construction and
+    // deallocates during destruction.  For brevity, and only because this is a
+    // test driver, we relax our rules and implement each method in the class
+    // body and do not provide documentation of these straightforward and
+    // bde-standard methods.
 
     void             *d_data_p;       // holds the memory allocated on
                                       // construction
@@ -309,16 +276,6 @@ class TestAllocObj {
     // TYPES
     BSLALG_DECLARE_NESTED_TRAITS(TestAllocObj,
                                  bslalg::TypeTraitUsesBslmaAllocator);
-
-    // CLASS METHODS
-    static int maxSupportedBdexVersion()
-    {
-        // Implementation note: in order to play nice with our variant wrapper
-        // below, we *need* all the TestTypes to have the same version numbers
-        // (2 since TestInt and TestString below all have version 2).
-
-        return 2;
-    }
 
     // CREATORS
     explicit TestAllocObj(bslma::Allocator *basicAllocator = 0)
@@ -343,22 +300,6 @@ class TestAllocObj {
     TestAllocObj& operator=(const TestAllocObj& original)
     {
         return *this;
-    }
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version)
-    {
-        if (version != 1 && version != 2) {
-            stream.invalidate();
-        }
-        return stream;
-    }
-
-    // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
-    {
-        return stream;
     }
 };
 
@@ -385,12 +326,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj& rhs)
                                // =============
 
 class TestInt {
-    // This class, similar to the forthcoming 'TestString', wraps class-level
-    // 'bdex' streaming around an 'int' value, a reference to which one can
-    // obtain using 'theInt' method.  It also supports 'bdeu' print methods.
-    // For brevity, and only because this is a test driver, we relax our rules
-    // and implement each method in the class body and do not provide
-    // documentation of these straightforward and bde-standard methods.
+    // This class, similar to the forthcoming 'TestString', wraps an 'int'
+    // value, a reference to which one can obtain using 'theInt' method.  It
+    // also supports 'bdeu' print methods.  For brevity, and only because this
+    // is a test driver, we relax our rules and implement each method in the
+    // class body and do not provide documentation of these straightforward and
+    // bde-standard methods.
 
     // DATA
     int d_value;
@@ -398,12 +339,6 @@ class TestInt {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestInt, bdlb::TypeTraitHasPrintMethod);
-
-    // CLASS METHODS
-    static int maxSupportedBdexVersion()
-    {
-        return 2;
-    }
 
     // CREATORS
     explicit TestInt(int value = 0)
@@ -418,80 +353,12 @@ class TestInt {
         return *this;
     }
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version)
-    {
-        if (stream) {
-            switch(version) {
-              case 1: {
-                stream.getInt32(d_value);
-              } break;
-              case 2: {
-                int value;
-                stream.getInt32(value);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                // Add redundant code (purely for the sake of example!)
-                unsigned char sum;
-                stream.getUint8(sum);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                union {
-                    unsigned char d_char[4];
-                    int           d_int;
-                } check;
-                check.d_int = value;
-                if (check.d_char[0] + check.d_char[1] + check.d_char[2] +
-                                                      check.d_char[3] != sum) {
-                    stream.invalidate();
-                } else {
-                    d_value = value;
-                }
-              } break;
-              default: {
-                stream.invalidate();
-              }
-            }
-        }
-        return stream;
-    }
-
     int& theInt()
     {
         return d_value;
     }
 
     // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
-    {
-        switch (version) {
-          case 1: {
-            stream.putInt32(d_value);
-          } break;
-          case 2: {
-            stream.putInt32(d_value);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            // Add redundant code (purely for the sake of example!)
-            union {
-                unsigned char d_char[4];
-                int           d_int;
-            } value;
-            value.d_int = d_value;
-            stream.putUint8(value.d_char[0] +
-                            value.d_char[1] +
-                            value.d_char[2] +
-                            value.d_char[3]);
-          } break;
-          default: ASSERT(0);
-        }
-        return stream;
-    }
-
     int theInt() const
     {
         return d_value;
@@ -539,12 +406,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
                                // ================
 
 class TestString {
-    // This class, similar to 'TestInt', wraps class-level 'bdex' streaming
-    // around a 'bsl::string' value, a reference to which one can obtain using
-    // 'theString' method.  It also supports 'bdeu' print methods.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
+    // This class, similar to 'TestInt', wraps a 'bsl::string' value, a
+    // reference to which one can obtain using 'theString' method.  It also
+    // supports 'bdeu' print methods.  For brevity, and only because this is a
+    // test driver, we relax our rules and implement each method in the class
+    // body and do not provide documentation of these straightforward and
+    // bde-standard methods.
 
     // DATA
     bsl::string d_value;
@@ -554,12 +421,6 @@ class TestString {
     BSLALG_DECLARE_NESTED_TRAITS2(TestString,
                                   bslalg::TypeTraitUsesBslmaAllocator,
                                   bdlb::TypeTraitHasPrintMethod);
-
-    // CLASS METHODS
-    static int maxSupportedBdexVersion()
-    {
-        return 2;
-    }
 
     // CREATORS
     explicit TestString(bslma::Allocator *allocator = 0)
@@ -585,73 +446,12 @@ class TestString {
         return *this;
     }
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version)
-    {
-        if (stream) {
-            switch(version) {
-              case 1: {
-                stream.getString(d_value);
-              } break;
-              case 2: {
-                bsl::string value;
-                stream.getString(value);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                // Add redundant code (purely for the sake of example!)
-                unsigned char sum, check = 0;
-                stream.getUint8(sum);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                for (int i = 0; i < value.length(); ++i) {
-                    check += value[i];
-                }
-                if (check != sum) {
-                    stream.invalidate();
-                } else {
-                    d_value = value;
-                }
-              } break;
-              default: {
-                stream.invalidate();
-              }
-            }
-        }
-        return stream;
-    }
-
     bsl::string& theString()
     {
         return d_value;
     }
 
     // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
-    {
-        switch (version) {
-          case 1: {
-            stream.putString(d_value);
-          } break;
-          case 2: {
-            stream.putString(d_value);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            // Add redundant code (purely for the sake of example!)
-            unsigned char sum = 0;
-            for (int i = 0; i < d_value.length(); ++i) {
-                sum += d_value[i];
-            }
-            stream.putUint8(sum);
-          } break;
-          default: ASSERT(0);
-        };
-        return stream;
-    }
-
     const bsl::string& theString() const
     {
         return d_value;
@@ -710,12 +510,6 @@ class TestArg {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestArg, bdlb::TypeTraitHasPrintMethod);
 
-    // CLASS METHODS
-    static int maxSupportedBdexVersion()
-    {
-        return 2;
-    }
-
     // CREATORS
     explicit TestArg(int value = 0)
     : d_value(value)
@@ -729,80 +523,12 @@ class TestArg {
         return *this;
     }
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version)
-    {
-        if (stream) {
-            switch(version) {
-              case 1: {
-                stream.getInt32(d_value);
-              } break;
-              case 2: {
-                int value;
-                stream.getInt32(value);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                // Add redundant code (purely for the sake of example!)
-                unsigned char sum;
-                stream.getUint8(sum);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                union {
-                    unsigned char d_char[4];
-                    int           d_int;
-                } check;
-                check.d_int = value;
-                if (check.d_char[0] + check.d_char[1] + check.d_char[2] +
-                                                      check.d_char[3] != sum) {
-                    stream.invalidate();
-                } else {
-                    d_value = value;
-                }
-              } break;
-              default: {
-                stream.invalidate();
-              }
-            }
-        }
-        return stream;
-    }
-
     int& theInt()
     {
         return d_value;
     }
 
     // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
-    {
-        switch (version) {
-          case 1: {
-            stream.putInt32(d_value);
-          } break;
-          case 2: {
-            stream.putInt32(d_value);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            // Add redundant code (purely for the sake of example!)
-            union {
-                unsigned char d_char[4];
-                int           d_int;
-            } value;
-            value.d_int = d_value;
-            stream.putUint8(value.d_char[0] +
-                            value.d_char[1] +
-                            value.d_char[2] +
-                            value.d_char[3]);
-          } break;
-          default: ASSERT(0);
-        }
-        return stream;
-    }
-
     int theInt() const
     {
         return d_value;
@@ -1380,11 +1106,10 @@ void dummyConvert(void *result, const bdlb::Variant<int>& value)
 
 template <class VARIANT>
 class my_VariantWrapper {
-    // This class wraps a variant object and provides version  'bdex'
-    // streaming.  This class also implements a similar 'visit' interface as
-    // the 'bdlb::VariantImp', which is used to keep track of which 'visit'
-    // method is invoked.  A reference to the wrapped variant object is
-    // accessible through 'theVariant' methods.
+    // This class wraps a variant object.  This class also implements a similar
+    // 'visit' interface as the 'bdlb::VariantImp', which is used to keep track
+    // of which 'visit' method is invoked.  A reference to the wrapped variant
+    // object is accessible through 'theVariant' methods.
 
   public:
     // PUBLIC TYPES
@@ -1406,11 +1131,6 @@ class my_VariantWrapper {
     BSLALG_DECLARE_NESTED_TRAITS(my_VariantWrapper,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the maximum supported version number of this type (currently
-        // 2).
-
     // CREATORS
     my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
         // Create a wrapper around an unset variant object.
@@ -1424,25 +1144,13 @@ class my_VariantWrapper {
         // Destroy this wrapper object.
 
     // MANIPULATORS
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
     VARIANT& variant();
         // Return a reference to the modifiable variant object held by this
         // wrapper.
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1451,7 +1159,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1460,7 +1168,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1469,7 +1177,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1478,7 +1186,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1487,7 +1195,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1504,17 +1212,6 @@ class my_VariantWrapper {
         // which visit method is invoked.
 
     // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  Note that 'version' is *not* used for the 'bdlb::Variant'
-        // object, but for the contained object, and thus has a different
-        // meaning (and different value) depending on the variant type.  See
-        // the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers, and the
-        // section "Bdex Streamability" in the component-level documentation.
-
     VisitType lastVisited() const { return d_lastVisitCall; }
         // Returns the last visit method invoked on this variant wrapper.
 
@@ -1524,7 +1221,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1533,7 +1230,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1542,7 +1239,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1551,7 +1248,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1560,7 +1257,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1569,7 +1266,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1613,13 +1310,6 @@ bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
     // does not have the same value as the (variant object wrapped by the)
     // specified 'rhs', and 'false' otherwise.
 
-// CLASS METHODS
-template <class VARIANT>
-int my_VariantWrapper<VARIANT>::maxSupportedBdexVersion()
-{
-    return 2;
-}
-
 // CREATORS
 template <class VARIANT>
 my_VariantWrapper<VARIANT>::my_VariantWrapper(bslma::Allocator *basicAllocator)
@@ -1640,31 +1330,6 @@ my_VariantWrapper<VARIANT>::~my_VariantWrapper()
 }
 
 // MANIPULATORS
-template <class VARIANT>
-template <class STREAM>
-STREAM& my_VariantWrapper<VARIANT>::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch(version) {
-          case 1: {
-            d_variant.bdexStreamIn(stream, version);
-          } break;
-          case 2: {
-            if (d_variant.maxSupportedBdexVersion() < version) {
-                d_variant.bdexStreamIn(stream,
-                                       d_variant.maxSupportedBdexVersion());
-            } else {
-                d_variant.bdexStreamIn(stream, version);
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 template <class VARIANT>
 VARIANT& my_VariantWrapper<VARIANT>::variant()
 {
@@ -1696,30 +1361,6 @@ RET_TYPE my_VariantWrapper<VARIANT>::applyRaw(const VISITOR& visitor)
 }
 
 // ACCESSORS
-template <class VARIANT>
-template <class STREAM>
-STREAM&
-my_VariantWrapper<VARIANT>::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        d_variant.bdexStreamOut(stream, version);
-      } break;
-      case 2: {
-        if (d_variant.maxSupportedBdexVersion() < version) {
-            d_variant.bdexStreamOut(stream,
-                                    d_variant.maxSupportedBdexVersion());
-        } else {
-            d_variant.bdexStreamOut(stream, version);
-        }
-      } break;
-      default: {
-        stream.invalidate();
-      }
-    }
-    return stream;
-}
-
 template <class VARIANT>
 const VARIANT& my_VariantWrapper<VARIANT>::variant() const
 {
@@ -7016,9 +6657,7 @@ template struct BloombergLP::bslmf::IsSame<TestInt,BloombergLP::bslmf::Nil>;  //
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList6<TestAllocObj,int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,Copyable>;  // 59203
 template struct BloombergLP::bslmf::IsSame<Copyable,int>;  // 59204
-template struct BloombergLP::bdlb::Variant_BdexStreamOutVisitor<BloombergLP::bdlxxxx::TestOutStream>;  // 59661
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;  // 80651
-template struct BloombergLP::bdlb::Variant_BdexStreamInVisitor<BloombergLP::bdlxxxx::TestInStream>;  // 59240
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,int>;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,const char *>;  // 59187
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
@@ -9163,477 +8802,24 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING STREAMING FUNCTIONALITY
+        // BDEX STREAMING
+        //   'bdlb::Variant' does not support 'BDEX' streaming.
         //
         // Concerns:
-        //  1. The (free) streaming operators '<<' and '>>' are implemented
-        //     using the respective member functions 'bdexStreamOut' and
-        //     'bdexStreamIn'.
-        //  2. Streaming must be exception neutral.
-        //  3. Ensure that streaming works under the following conditions:
-        //      VALID - may contain any sequence of valid values.
-        //      EMPTY - valid, but contains no data.
-        //      INVALID - may or may not be empty.
-        //      INCOMPLETE - the stream is truncated, but otherwise valid.
-        //      CORRUPTED - the data contains explicitly inconsistent fields.
+        //   N/A
         //
         // Plan:
-        //  This test plan has to be adapted from the standard 'bdex'
-        //  streaming test plan, because a variant is not a top-level
-        //  streamable object.  For this reason, we wrap the variant object
-        //  into a 'struct' that streams its top-level version and then the
-        //  variant object in the version 1.
-        //
-        //  To address concern 1, perform a trivial direct (breathing) test of
-        //  the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the rest
-        //  of the testing will use the stream operators.
-        //
-        //  To address concern 2, use the macros 'BEGIN_BDEX_EXCEPTION_TEST'
-        //  and 'END_BDEX_EXCEPTION_TEST' to generate exceptions.  These macros
-        //  first set the allocation limit of the test allocator to 0 and
-        //  gradually increase it while exercising the streaming functionality.
-        //  When an exception occurs, the exception handler verifies that the
-        //  destination object is unchanged.
-        //
-        //  To address concern 3, specify a set S of unique object values with
-        //  substantial and varied differences, ordered by increasing
-        //  complexity.
-        //
-        //  VALID STREAMS (and exceptions)
-        //    Using all combinations of (u, v) in S X S, stream-out the value
-        //    of u into a buffer and stream it back into (an independent
-        //    object) v, and assert that u == v.
-        //
-        //  EMPTY AND INVALID STREAMS
-        //    For each x in S, attempt to stream into (a temporary copy of) x
-        //    from an empty and then invalid stream.  Verify after each try
-        //    that the object is unchanged and that the stream is invalid.
-        //
-        //  INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //    Write 3 distinct objects to an output stream buffer of total
-        //    length N.  For each partial stream length from 0 to N - 1,
-        //    construct a truncated input stream and attempt to read into
-        //    objects initialized with distinct values.  Verify values of
-        //    objects that are either successfully modified or left entirely
-        //    unmodified, and that the stream became invalid immediately
-        //    after the first incomplete read.
-        //
-        //  CORRUPTED DATA
-        //    We will assume that the incomplete test fails every field,
-        //    including a char (multi-byte representation).  Hence we need to
-        //    produce values that are inconsistent with a valid value and
-        //    verify that they are detected.  Use the underlying stream package
-        //    to simulate a typical valid (control) stream and verify that it
-        //    can be streamed in successfully.  Then for each data field in the
-        //    stream (beginning with the version number), provide one or more
-        //    similar tests with that data field corrupted.  After each test,
-        //    verify that the object is unchanged after streaming.
+        //   N/A
         //
         // Testing:
-        //   int maxSupportedBdexVersion() const
-        //   STREAM& bdexStreamIn(STREAM&, int)
-        //   STREAM& bdexStreamOut(STREAM&, int) const
-        //   operator>>(bdlxxxx::InStream&, bdlb::Variant&)
-        //   operator<<(bdlxxxx::OutStream&, const bdlb::Variant&)
+        //   Reserved for 'BDEX' streaming.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING STREAMING FUNCTIONALITY" << endl
-                          << "===============================" << endl;
+                          << "BDEX STREAMING" << endl
+                          << "==============" << endl;
 
-        using bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER;
-
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
-        {
-            if (verbose) cout << "\tusing object syntax:" << endl;
-            {
-                const Obj X;
-                ASSERT(0 == X.typeIndex());
-                ASSERT(BDEX_NO_VERSION_NUMBER == X.maxSupportedBdexVersion());
-                if (veryVerbose) { T_ P_(X); P(X.maxSupportedBdexVersion()); }
-            }
-            {
-                Obj mX;  const Obj& X = mX;
-                mX.assign<int>(VA);
-                ASSERT(INT_TYPE == X.typeIndex());
-                ASSERT(BDEX_NO_VERSION_NUMBER == X.maxSupportedBdexVersion());
-                if (veryVerbose) { T_ P_(X); P(X.maxSupportedBdexVersion()); }
-            }
-            {
-                Obj mX;  const Obj& X = mX;
-                mX.assign<TestInt>(VF);
-                ASSERT(TEST_INT_TYPE == X.typeIndex());
-                ASSERT(bdex_VersionFunctions::maxSupportedVersion(VF) ==
-                                                  X.maxSupportedBdexVersion());
-                if (veryVerbose) { T_ P_(X); P(X.maxSupportedBdexVersion()); }
-            }
-            {
-                Obj mX;  const Obj& X = mX;
-                mX.assign<bsl::string>(VS);
-                ASSERT(STRING_TYPE == X.typeIndex());
-                ASSERT(BDEX_NO_VERSION_NUMBER == X.maxSupportedBdexVersion());
-                if (veryVerbose) { T_ P_(X); P(X.maxSupportedBdexVersion()); }
-            }
-            {
-                Obj mX;  const Obj& X = mX;
-                mX.assign<TestString>(VK);
-                ASSERT(TEST_STRING_TYPE == X.typeIndex());
-                ASSERT(bdex_VersionFunctions::maxSupportedVersion(VK) ==
-                                                  X.maxSupportedBdexVersion());
-                if (veryVerbose) { T_ P_(X); P(X.maxSupportedBdexVersion()); }
-            }
-        }
-
-        typedef my_VariantWrapper<Obj> TObj;
-
-        static const char *SPECS[] = {
-            "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-                "S", "T", "U", "V", "W", "K", "L", "M", "N", "O",
-                "Z",
-        0};
-
-        if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut' and"
-                             " (valid) 'bdexStreamIn' functionality." << endl;
-
-        if (verbose) cout << "\tusing version 1." << endl;
-
-        for (int i = 0; SPECS[i]; ++i) {
-            const int version = 1;
-
-            const char *const SPEC = SPECS[i];
-            TObj mX(g(SPEC), &testAllocator);  const TObj& X = mX;
-            if (veryVerbose) { cout << "\t\t   Value being streamed: "; P(X); }
-
-            bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            bdlxxxx::TestInStream in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-            in.setSuppressVersionCheck(1);
-
-            TObj t(&testAllocator);
-            if (0 == strcmp("K", SPEC)) {
-                gg(&t.variant(), "F");
-            } else {
-                gg(&t.variant(), "K");
-            }
-
-            if (veryVerbose) { cout << "\t\tValue being overwritten: "; P(t); }
-            ASSERT(X != t);
-
-            t.bdexStreamIn(in, version);    ASSERT(in);  ASSERT(in.isEmpty());
-
-            if (veryVerbose) { cout << "\t\t  Value after overwrite: "; P(t); }
-            ASSERT(X == t);
-        }
-
-        if (verbose) cout << "\tUsing version 2." << endl;
-
-        for (int i = 0; SPECS[i]; ++i) {
-            const int version = 2;
-
-            const char *const SPEC = SPECS[i];
-            TObj mX(g(SPEC), &testAllocator);  const TObj& X = mX;
-            if (veryVerbose) { cout << "\t\t   Value being streamed: "; P(X); }
-
-            bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            bdlxxxx::TestInStream in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-            in.setSuppressVersionCheck(1);
-
-            TObj t(&testAllocator);
-            if (0 == strcmp("K", SPEC)) {
-                gg(&t.variant(), "F");
-            } else {
-                gg(&t.variant(), "K");
-            }
-
-            if (veryVerbose) { cout << "\t\tValue being overwritten: "; P(t); }
-            ASSERT(X != t);
-
-            t.bdexStreamIn(in, version);    ASSERT(in);  ASSERT(in.isEmpty());
-
-            if (veryVerbose) { cout << "\t\t  Value after overwrite: "; P(t); }
-            ASSERT(X == t);
-        }
-
-        if (verbose)
-            cout << "\nTesting stream operators ('<<' and '>>')." << endl;
-
-        const int VERSION = TObj::maxSupportedBdexVersion();
-        if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
-        {
-            for (int ui = 0; SPECS[ui]; ++ui) {
-                const char *const U_SPEC = SPECS[ui];
-                const TObj UU = g(U_SPEC);
-
-                for (int vi = 0; SPECS[vi]; ++vi) {
-                    const TObj U = g(U_SPEC);
-                    bdlxxxx::TestOutStream out;
-
-                    // Testing stream-out operator here.
-                    bdex_OutStreamFunctions::streamOut(out, U, VERSION);
-
-                    const char *const OD  = out.data();
-                    const int         LOD = out.length();
-
-                    bdlxxxx::TestInStream testInStream(OD, LOD);
-                    LOOP_ASSERT(U_SPEC, testInStream);
-                    LOOP_ASSERT(U_SPEC, !testInStream.isEmpty());
-                    testInStream.setSuppressVersionCheck(1);
-
-                    const char *const V_SPEC = SPECS[vi];
-
-                    const TObj VV = g(V_SPEC);
-
-                    if (UU.variant().maxSupportedBdexVersion() > 0 &&
-                        VV.variant().maxSupportedBdexVersion() <= 0) {
-                        // This will not work since 'operator<<' will not
-                        // stream in the version for UU.  Must abort.
-                        // See "Bdex streamability" in component-level doc.
-
-                        continue;
-                    }
-
-                    BEGIN_BDEX_EXCEPTION_TEST {
-                        testInStream.reset();
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, testInStream);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, !testInStream.isEmpty());
-
-                        TObj mV = g(V_SPEC); const TObj& V = mV;
-
-                        if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
-
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == U));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (VV == V));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (ui == vi) == (U == V));
-
-                        bdex_InStreamFunctions::streamIn(testInStream,
-                                                         mV,
-                                                         VERSION);
-
-                        if (veryVerbose) { cout << "\t |=> "; P_(U); P(V); }
-
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, testInStream);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, testInStream.isEmpty());
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == U));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == V));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (U == V));
-
-                    } END_BDEX_EXCEPTION_TEST
-
-                    // Redo the tests with 'bdema' exceptions instead, note
-                    // that it is *not* necessary to assert.
-
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        testInStream.reset();
-                        const int AL = testAllocator.allocationLimit();
-                        testAllocator.setAllocationLimit(-1);
-
-                        TObj mV = g(V_SPEC); const TObj& V = mV;
-
-                        if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
-
-                        testAllocator.setAllocationLimit(AL);
-                        bdex_InStreamFunctions::streamIn(testInStream,
-                                                         mV,
-                                                         VERSION);
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                }
-            }
-        }
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            bdlxxxx::TestInStream testInStream("", 0);
-            testInStream.setSuppressVersionCheck(1);
-
-            for (int ti = 0; SPECS[ti]; ++ti) {
-                const char *const SPEC   = SPECS[ti];
-
-                if (veryVerbose) { cout << "\t\t\t"; P(SPEC); }
-
-                // Create control object X.
-
-                Obj mV;  const Obj& V = gg(&mV, SPEC);
-                TObj mX(V); const TObj& X = mX;
-                TObj t; const TObj UNSET(t);
-
-                BEGIN_BDEX_EXCEPTION_TEST {
-                    testInStream.reset();
-                    gg(&t.variant(), SPEC);
-
-                    // Ensure that reading from an empty or invalid input
-                    // stream leaves the stream invalid and the target object
-                    // unchanged.
-
-                    LOOP_ASSERT(ti, testInStream);
-                    LOOP_ASSERT(ti, X == t);
-
-                    bdex_InStreamFunctions::streamIn(testInStream,
-                                                     t,
-                                                     VERSION);
-                    LOOP_ASSERT(ti, !testInStream);
-                    LOOP3_ASSERT(ti, X, t, X == t);
-
-                    bdex_InStreamFunctions::streamIn(testInStream,
-                                                     t,
-                                                     VERSION);
-                    LOOP_ASSERT(ti, !testInStream);
-                    LOOP3_ASSERT(ti, X, t, X == t);
-
-                } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
-                          << endl;
-        {
-            const TObj X1 = g("A");
-            const TObj X2 = g("B");
-            const TObj X3 = g("C");
-            const TObj Y1 = g("S");
-            const TObj Y2 = g("T");
-            const TObj Y3 = g("U");
-            const TObj Z1 = g("K");
-            const TObj Z2 = g("L");
-            const TObj Z3 = g("M");
-
-            bdlxxxx::TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, Y1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-                bdlxxxx::TestInStream testInStream(OD, i);
-                bdlxxxx::TestInStream& in = testInStream;
-                in.setSuppressVersionCheck(1);
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
-
-                if (veryVerbose) { cout << "\t\t"; P(i); }
-
-                BEGIN_BDEX_EXCEPTION_TEST {
-                    in.reset();
-                    LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-
-                    TObj t1(X1), t2(X2), t3(X3);
-                    int stage = 0;
-
-                    if (i < LOD1) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X1 == t1));
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X2 == t2));
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X3 == t3));
-                    }
-                    else if (i < LOD2) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y1 == t1));
-                        stage = 1;
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X2 == t2));
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X3 == t3));
-                    }
-                    else {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y1 == t1));
-                        stage = 1;
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y2 == t2));
-                        stage = 2;
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X3 == t3));
-                    }
-                } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (verbose) cout << "\tOn corrupted data." << endl;
-
-        const Obj W = g("F");   // default value
-        const Obj X = g("K");  // original value
-        const Obj Y = g("L");  // new value
-
-        if (verbose) cout << "\t\tGood stream (for control)." << endl;
-        {
-            bdlxxxx::TestOutStream out;
-
-            TObj z(Y);
-            out.putVersion(VERSION);
-            bdex_OutStreamFunctions::streamOut(out, z, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            TObj t(X);
-            ASSERT(W != t);   ASSERT(X == t);   ASSERT(Y != t);
-
-            bdlxxxx::TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-                                           ASSERT(in);
-            int version;
-            in.getVersion(version);
-            ASSERT(version == VERSION);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(in);
-            ASSERT(W != t);   ASSERT(X != t);   ASSERT(Y == t);
-        }
-        if (verbose) cout << "\t\tBad version." << endl;
-        {
-            const char version = 0;
-            bdlxxxx::TestOutStream out;
-            out.putVersion(version);  // version too small
-
-            TObj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            TObj t(X);
-            ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-                                           ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-            ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
-        }
-        {
-            const char version = TObj::maxSupportedBdexVersion() + 1;
-            bdlxxxx::TestOutStream out;
-            out.putVersion(version);  // version too large
-
-            TObj z(Y);
-            bdex_OutStreamFunctions::streamOut(out, z, version);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            TObj t(X);
-            ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD); in.setQuiet(!veryVerbose);
-                                           ASSERT(in);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
-        }
+        if (verbose) cout << "'BDEX' streaming is not supported." << endl;
 
       } break;
       case 9: {

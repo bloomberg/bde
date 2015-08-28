@@ -7,14 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class for specifying BER decoding options. 
+//@PURPOSE: Provide an attribute class for specifying BER decoding options.
 //
 //@CLASSES:
 //  bdem::balber::BerDecoderOptions: options for decoding objects in BDE format
 //
 //@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
 //
-//@DESCRIPTION: // Schema of options records for bdem codecs
+//@DESCRIPTION: Schema of options records for 'bdem' codecs
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -58,9 +58,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace balber {
-                     // =======================
-                     // class BerDecoderOptions
-                     // =======================
+
+                          // =======================
+                          // class BerDecoderOptions
+                          // =======================
 
 class BerDecoderOptions {
     // BER decoding options
@@ -92,10 +93,14 @@ class BerDecoderOptions {
             // index for "MaxSequenceSize" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_INDEX_MAX_DEPTH             = e_ATTRIBUTE_INDEX_MAX_DEPTH
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
-      , ATTRIBUTE_INDEX_TRACE_LEVEL           = e_ATTRIBUTE_INDEX_TRACE_LEVEL
-      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
+      , ATTRIBUTE_INDEX_MAX_DEPTH             =
+                                        e_ATTRIBUTE_INDEX_MAX_DEPTH
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS =
+                                        e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_INDEX_TRACE_LEVEL           =
+                                        e_ATTRIBUTE_INDEX_TRACE_LEVEL
+      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     =
+                                        e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -178,8 +183,8 @@ class BerDecoderOptions {
         // value.
 
     //! BerDecoderOptions(const BerDecoderOptions& original) = default;
-        // Create a 'BderDecoderOptons' object having the same value
-        // as the specified 'original'.
+        // Create a 'BderDecoderOptons' object having the same value as the
+        // specified 'original'.
 
     //! ~BerDecoderOptions() = default;
         // Destroy this object.
@@ -202,33 +207,33 @@ class BerDecoderOptions {
         // value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -280,16 +285,16 @@ class BerDecoderOptions {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -298,8 +303,8 @@ class BerDecoderOptions {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -341,8 +346,8 @@ bool operator!=(const BerDecoderOptions& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const BerDecoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference providing modifiable access to 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference providing modifiable access to 'stream'.
 
 }  // close package namespace
 
@@ -353,7 +358,7 @@ BDLAT_DECL_SEQUENCE_TRAITS(balber::BerDecoderOptions)
 namespace balber {
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                           // -----------------------
@@ -458,7 +463,7 @@ template <class MANIPULATOR>
 inline
 int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -485,7 +490,7 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -495,12 +500,12 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
                                            const char   *name,
                                            int           nameLength)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
-        return k_BDEM_NOT_FOUND;                                      // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -589,7 +594,7 @@ template <class ACCESSOR>
 inline
 int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -615,7 +620,7 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -625,12 +630,12 @@ int BerDecoderOptions::accessAttribute(ACCESSOR&   accessor,
                                        const char *name,
                                        int         nameLength) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
-       return k_BDEM_NOT_FOUND;                                       // RETURN
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -690,8 +695,7 @@ bsl::ostream& balber::operator<<(bsl::ostream&            stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------

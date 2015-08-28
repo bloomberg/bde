@@ -148,22 +148,21 @@ using namespace bsl;
 // [ 2] strange template functions
 // [ 1] strange template functions
 
-// SERIOUS THING TO FIX: The tests use varying values for 'BUFFER_ZONE'
-// and the value is NOT passed from the place that allocates the space to the
-// place that does the work.
+// SERIOUS THING TO FIX: The tests use varying values for 'BUFFER_ZONE' and the
+// value is NOT passed from the place that allocates the space to the place
+// that does the work.
 
-//=============================================================================
-//              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 // There are two changes here.  First, the variable 'testStatus' and the
-// function 'aSsErT' are moved into the anonymous namespace; previously
-// they were file-level static.  The Sun compiler (Suite 8) did not believe
-// that file-level statics should be visible in a template function.
-// Second, the function and macro are changed so that they constitute an
-// expression that returns 'true' if the test passes and 'false' otherwise.
-// This allows verbose flags to govern additional error reporting when a
-// failure occurs.
+// function 'aSsErT' are moved into the anonymous namespace; previously they
+// were file-level static.  The Sun compiler (Suite 8) did not believe that
+// file-level statics should be visible in a template function.  Second, the
+// function and macro are changed so that they constitute an expression that
+// returns 'true' if the test passes and 'false' otherwise.  This allows
+// verbose flags to govern additional error reporting when a failure occurs.
 
 namespace {
 int testStatus = 0;
@@ -182,9 +181,9 @@ bool aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -221,9 +220,9 @@ bool aSsErT(int c, const char *s, int i)
        #P << ": " << (P) << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -231,23 +230,23 @@ bool aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
+// ============================================================================
 //                         CUSTOM TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define R(X) #X " = " << (X)
 #define R_(X) #X " = " << (X) << " "
 
-//=============================================================================
-//                               GLOBAL TYPEDEFS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              GLOBAL TYPEDEFS
+// ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertUtf16  Util;
 typedef bdlde::CharConvertStatus Status;
 
-//=============================================================================
-//                               GLOBAL VARIABLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             GLOBAL VARIABLES
+// ----------------------------------------------------------------------------
 
 static const bdlde::ByteOrder::Enum e_BACKWARDS =
                          bdlde::ByteOrder::e_HOST ==
@@ -255,81 +254,13 @@ static const bdlde::ByteOrder::Enum e_BACKWARDS =
                          ? bdlde::ByteOrder::e_LITTLE_ENDIAN
                          : bdlde::ByteOrder::e_BIG_ENDIAN;
 
-//=============================================================================
+// ============================================================================
 //                           CUSTOM TEST APPARATUS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//  Families of Assertion-as-expression Macros:  ASSERT2, ASSERT3, ...
-//-----------------------------------------------------------------------------
-
-// Multiple (short) assertions per call, to hold down the length of source
-// code.  (We'll base other stuff on this.)  These macro-function units
-// return a value so that subsequent tests can be made contingent upon them.
-// The layering of macro over function provides stringized arguments and
-// __LINE_ but avoids repeating the argument evaluations.
-
-#define ASSERT2(X,Y)       (aSsErT((X), #X, (Y), #Y, __LINE__))
-
-inline
-int aSsErT(int x, const char *cx, int y, const char *cy, int line)
-{
-        aSsErT(!x, cx, line);
-        aSsErT(!y, cy, line);
-        return x && y;
-}
-
-#define ASSERT3(X,Y,Z)     (aSsErT((X), #X, (Y), #Y, (Z), #Z, __LINE__))
-
-inline
-int aSsErT(int x, const char *cx,
-           int y, const char *cy,
-           int z, const char *cz, int line)
-{
-        aSsErT(!x, cx, line);
-        aSsErT(!y, cy, line);
-        aSsErT(!z, cz, line);
-        return x && y && z;
-}
-
-#define ASSERT4(W,X,Y,Z) (aSsErT((W), #W, (X), #X, (Y), #Y, (Z), #Z, __LINE__))
-
-inline
-int aSsErT(int w, const char *cw,
-           int x, const char *cx,
-           int y, const char *cy,
-           int z, const char *cz, int line)
-{
-        aSsErT(!w, cw, line);
-        aSsErT(!x, cx, line);
-        aSsErT(!y, cy, line);
-        aSsErT(!z, cz, line);
-        return w && x && y && z;
-}
-
-#define ASSERT5(V,W,X,Y,Z)   (aSsErT((V), #V, (W), #W, \
-                                     (X), #X, (Y), #Y, \
-                                     (Z), #Z,          \
-                                     __LINE__))
-
-inline
-int aSsErT(int v, const char *cv,
-           int w, const char *cw,
-           int x, const char *cx,
-           int y, const char *cy,
-           int z, const char *cz, int line)
-{
-        aSsErT(!v, cv, line);
-        aSsErT(!w, cw, line);
-        aSsErT(!x, cx, line);
-        aSsErT(!y, cy, line);
-        aSsErT(!z, cz, line);
-        return v && w && x && y && z;
-}
-
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #if 0
 void fourByteUtf8Val(unsigned val)
@@ -382,9 +313,9 @@ void *hc(unsigned char c)
     return (void *) (unsigned long) c;
 }
 
-//-----------------------------------------------------------------------------
-//              Evaluate and combine: bothAnd, allAnd
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                   Evaluate and combine: bothAnd, allAnd
+// ----------------------------------------------------------------------------
 
 inline
 bool bothAnd(bool a, bool b)
@@ -451,9 +382,9 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
     return a && b && c && d && e && f && g && h;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Assertion-expression with value printing on equality test: EXPECTED_GOT
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The 'EXPECTED_GOT' macro compresses a great deal of testing and output in a
 // small space, especially for compound types that support comparison and
@@ -468,9 +399,9 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
                               << #GOT << " (" << deChar(GOT) << ")\n\t"), \
                          (aSsErT(1, #EXP " != " #GOT, __LINE__)), 0) )
 
-//-----------------------------------------------------------------------------
-//      FixedVector<>, approximating the c++09 Array<> template
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//          FixedVector<>, approximating the c++09 Array<> template
+// ----------------------------------------------------------------------------
 
 // FixedVector<TYPE, N> replaces vector<TYPE> in a number of places where the
 // execution time of vector<> was found to be a problem.  Rather than recode
@@ -552,9 +483,9 @@ class FixedVector {
     { return d_array[t]; }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // ArrayRange<>: unified handling for array, FixedArray, pointer/length, etc.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  To prevent template type proliferation with vectors or arrays of various
 //  size, and to avoid making everything a vector with its (very) measurable
@@ -566,9 +497,8 @@ class FixedVector {
 template<class VALUE_TYPE>
 struct ArrayRange {
     // ArrayRange<> allows iteration through an array.  It combines the
-    // starting pointer and the length in one object.
-    // It is used to unify the handling of array, pointer/length, and
-    // FixedVector<> cases.
+    // starting pointer and the length in one object.  It is used to unify the
+    // handling of array, pointer/length, and FixedVector<> cases.
 
     typedef VALUE_TYPE           value_type;
     typedef VALUE_TYPE&          reference;
@@ -583,8 +513,8 @@ struct ArrayRange {
 
     // CREATORS
     ArrayRange(value_type* array, size_type span)
-        // Create an ArrayRange given a pointer to an array and a length
-        // to span.
+        // Create an ArrayRange given a pointer to an array and a length to
+        // span.
     : d_array(array), d_size(span)
     {
     }
@@ -700,10 +630,11 @@ bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
 //-----------------------------------------------------------------------------
 
 // Generate/Check pseudo-concept.
-// The tests apply multiple data sets to common test bodies.  The data sets
-// are written into conversion buffers, and it should later be verified that
-// the conversion buffers are unchanged.  In C++09, this might be described
-// with a concept.  Here it is sufficient that the type provide these:
+//
+// The tests apply multiple data sets to common test bodies.  The data sets are
+// written into conversion buffers, and it should later be verified that the
+// conversion buffers are unchanged.  In C++09, this might be described with a
+// concept.  Here it is sufficient that the type provide these:
 //    typename value_type
 //        The (character) type to be copied out and checked
 //    [integral type] size() [const]
@@ -743,10 +674,10 @@ struct GenCheckArrRange {
         return d_range.size();
     }
 
-    // 'value_type' may be a const type, which would prevent us from using
-    // it as the parameter in 'fill()'  So 'fill()' is a template on the
-    // copy-to type, and we verify that they are comparable by doing one
-    // character's copy by assignment.
+    // 'value_type' may be a const type, which would prevent us from using it
+    // as the parameter in 'fill()' So 'fill()' is a template on the copy-to
+    // type, and we verify that they are comparable by doing one character's
+    // copy by assignment.
 
     template<class TO_TYPE>
     void fill(TO_TYPE* toBuffer) const
@@ -760,11 +691,11 @@ struct GenCheckArrRange {
         }
     }
 
-    // We also have to pun signed and unsigned types against each other.
-    // Thus we play the template game for the 'check' method just as for
-    // 'fill()'.  Note that in order to prevent signed/unsigned promotions on
-    // characters and 'short's from messing up the tests, we have to force a
-    // static cast to the value type in the equality comparison.
+    // We also have to pun signed and unsigned types against each other.  Thus
+    // we play the template game for the 'check' method just as for 'fill()'.
+    // Note that in order to prevent signed/unsigned promotions on characters
+    // and 'short's from messing up the tests, we have to force a static cast
+    // to the value type in the equality comparison.
 
     template<class CHECK_TYPE>
     bool check(const CHECK_TYPE* checkBuffer) const
@@ -790,9 +721,9 @@ void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
 { a.fill(c); }
 #endif
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //    deChar: Print and evaluate 'char's and 'unsigned char's as 'int's.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  Template and overloads: 'deChar'
 //      Character types get printed as characters; this is undesirable because
@@ -827,9 +758,9 @@ unsigned int deChar(unsigned char c)
     return static_cast<unsigned>(c);
 }
 
-//-----------------------------------------------------------------------------
-//            Printing strings in hex or mixed hex and graphic
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//             Printing strings in hex or mixed hex and graphic
+// ----------------------------------------------------------------------------
 
 // Some "Print-what-I-point-to" objects, and ways to create and return them.
 // The "hex" versions print all hexadecimal; the "mixed" versions print mixed
@@ -906,9 +837,9 @@ MixedPrImpl<T> prMixedRange(
 void printStr(const char *q);
 void printStr(const unsigned short *p);
 
-//-----------------------------------------------------------------------------
-//                   fillArray<>(), checkArray<>()
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                       fillArray<>(), checkArray<>()
+// ----------------------------------------------------------------------------
 
 // Array fill and fill-check.  Used to verify that unsanctioned writes have
 // not occurred in a 'margin' around the intended output buffer.
@@ -921,23 +852,24 @@ int checkFill(ITER      first,
               ITER      last,
               CHAR_TYPE ch);
 
-//-----------------------------------------------------------------------------
-//    OdomIter: Run multiple nested iterators by means of a single, flat loop
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//  OdomIter: Run multiple nested iterators by means of a single, flat loop
+// ----------------------------------------------------------------------------
 
 template<class ITER, int N_ITER_PARM>
 struct OdomIter {
     // Compound "iterator" based on the odometer algorithm.  Note that this is
     // not really an iterator but a generator.  (It's big enough that to return
-    // objects via 'begin' and 'end' is a good deal more costly than we
-    // expect in an iterator.)
+    // objects via 'begin' and 'end' is a good deal more costly than we expect
+    // in an iterator.)
+    //
     // 'OdomIter' is set up to work for N iterators of the same type.  (With
-    // parameter packs we could do better.  Otherwise a common wrapper type
-    // can be used to make dissimilar things work together, and a range type
-    // can be used to wrap containers holding the same types but having a
-    // different sizing parameter.  There are some 'const' issues as well.)
-    // Note that the iterators do NOT have to operate over the same range,
-    // or cover an equal number of values.  Only the types must match.
+    // parameter packs we could do better.  Otherwise a common wrapper type can
+    // be used to make dissimilar things work together, and a range type can be
+    // used to wrap containers holding the same types but having a different
+    // sizing parameter.  There are some 'const' issues as well.)  Note that
+    // the iterators do NOT have to operate over the same range, or cover an
+    // equal number of values.  Only the types must match.
     //
     // OdomIter works by cycling the last iterator through its range, then
     // resetting it and advancing the next-to-last, and when that reaches the
@@ -945,8 +877,8 @@ struct OdomIter {
     // is advanced, and so forth--like turning the wheels of an odometer.
     //
     // Why use it?  Well, we go four loops deep in places and that tends to
-    // nest things off the page.  OdomIter flattens the loops out.
-    // @+@+@+@ Need a range iterator to use this in the other places!
+    // nest things off the page.  OdomIter flattens the loops out.  @+@+@+@
+    // Need a range iterator to use this in the other places!
 
     typedef ITER Iter;
     enum { N_ITER = N_ITER_PARM };
@@ -1025,16 +957,16 @@ struct OdomIter {
 
     inline
     const Iter begin(int i) const
-        // Return the begin() value extracted for the true iterator
-        // at position 'i'.
+        // Return the begin() value extracted for the true iterator at position
+        // 'i'.
     {
         return d_wheels[i].d_begin;
     }
 
     inline
     const Iter end(int i) const
-        // Return the end() value extracted for the true iterator
-        // at position 'i'.
+        // Return the end() value extracted for the true iterator at position
+        // 'i'.
     {
         return d_wheels[i].d_end;
     }
@@ -1065,16 +997,16 @@ struct OdomIter {
     }
 };
 
-//-----------------------------------------------------------------------------
-//  HighBit<> and BufferSizes<>: compile-time computations to help size arrays.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// HighBit<> and BufferSizes<>: compile-time computations to help size arrays.
+// ----------------------------------------------------------------------------
 
 template<unsigned long X>
 struct HighBit {
   private:
-    // Isolate the highest bit set in X.  (Compile-time metaprogramming.)
-    // Used below in BufferSizes.  There need be no instances of this object,
-    // as all its products are enums, and the only interesting one is HIGH_BIT.
+    // Isolate the highest bit set in X.  (Compile-time metaprogramming.)  Used
+    // below in BufferSizes.  There need be no instances of this object, as all
+    // its products are enums, and the only interesting one is HIGH_BIT.
 
     enum { K6 = X < ( 1 << 6 ) ? 0 :     X < ( 1 << 12 ) ? 6 :
                 X < ( 1 << 18 ) ? 12 :   X < ( 1 << 24 ) ? 18 :
@@ -1093,8 +1025,8 @@ template<bsl::size_t N_CHARS_P,
                  int MARGIN_P>
 struct BufferSizes {
     // Calculate the sizes needed for various buffers.  Compile-time
-    // metaprogramming.  There need be no instances of this object, as
-    // all its products are enums.
+    // metaprogramming.  There need be no instances of this object, as all its
+    // products are enums.
 
     enum { N_CHARS   = N_CHARS_P,    // Number of characters, of whatever size
            FROM_SIZE = FROM_SIZE_P,  // Bytes or words per input char
@@ -1114,9 +1046,9 @@ struct BufferSizes {
     };
 };
 
-//-----------------------------------------------------------------------------
-//  ConvRslt: Summarizing the three return values from a conversion function.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ConvRslt: Summarizing the three return values from a conversion function.
+// ----------------------------------------------------------------------------
 
 //  The ConvRslt holds the three 'return' values from a call to one of the
 //  conversion routines.  It can be printed and compared with its like for
@@ -1174,9 +1106,9 @@ bool operator!=(const ConvRslt& lhs, const ConvRslt& rhs)
 
 ostream& operator<<(ostream& os, const ConvRslt& cvr);
 
-//-----------------------------------------------------------------------------
-//      SrcSpec: bundle parameters to a conversion test.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//             SrcSpec: bundle parameters to a conversion test.
+// ----------------------------------------------------------------------------
 
 // SrcSpec gives the source data, error character, and output buffer size to
 // use for a test.  It does not contain the expected return and
@@ -1189,8 +1121,8 @@ struct SrcSpec {
     bsl::size_t d_dstBufSize;
 
     SrcSpec(const CHAR_TYPE *source,
-             CHAR_TYPE        errorChar,
-             bsl::size_t      dstBufSize)
+            CHAR_TYPE        errorChar,
+            bsl::size_t      dstBufSize)
     : d_source(source)
     , d_errorChar(errorChar)
     , d_dstBufSize(dstBufSize)
@@ -1198,13 +1130,13 @@ struct SrcSpec {
     }
 };
 
-//-----------------------------------------------------------------------------
-//  WorkPiece and BufferedWPiece: Stewards of the arena for a conversion test.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// WorkPiece and BufferedWPiece: Stewards of the arena for a conversion test.
+// ----------------------------------------------------------------------------
 
-// The WorkPiece describes the output buffer and manages sanity tests.
-// It does not itself own the buffer because in some cases we run multiple
-// tests and buffers with the same WorkPiece.
+// The WorkPiece describes the output buffer and manages sanity tests.  It does
+// not itself own the buffer because in some cases we run multiple tests and
+// buffers with the same WorkPiece.
 
 template<class CHAR_TYPE>
 struct WorkPiece {
@@ -1248,20 +1180,21 @@ struct WorkPiece {
     }
 };
 
-// The BufferedWPiece associates a buffer (given at construction time)
-// with the WorkPiece.  The interface parallels that of the WorkPiece; there
-// is no buffer pointer argument in the various individual member functions
-// and the buffer pointer and WorkPiece are both accessible.
+// The BufferedWPiece associates a buffer (given at construction time) with the
+// WorkPiece.  The interface parallels that of the WorkPiece; there is no
+// buffer pointer argument in the various individual member functions and the
+// buffer pointer and WorkPiece are both accessible.
+
 template<class CHAR_TYPE>
 struct BufferedWPiece {
     CHAR_TYPE *const d_buf;
     WorkPiece<CHAR_TYPE> d_wp;
 
-    BufferedWPiece(CHAR_TYPE* bufp,
-                      bsl::size_t memLength,
-                      bsl::size_t winLength,
-                      CHAR_TYPE   fillChar,
-                      bsl::size_t margin = 32)
+    BufferedWPiece(CHAR_TYPE   *bufp,
+                   bsl::size_t  memLength,
+                   bsl::size_t  winLength,
+                   CHAR_TYPE    fillChar,
+                   bsl::size_t  margin = 32)
     : d_buf(bufp), d_wp(memLength, winLength, fillChar, margin)
     {
     }
@@ -1318,13 +1251,13 @@ struct BufferedWPiece {
 //-----------------------------------------------------------------------------
 
 static
-int surrogateUtf8ToUtf16(unsigned short             *dstBuffer,
-                         bsl::size_t                 dstCapacity,
-                         const char                 *srcBuffer,
-                         bsl::size_t                *numCharsWritten,
-                         bsl::size_t                *numWordsWritten,
-                         unsigned short              errorCharacter,
-                         bdlde::ByteOrder::Enum       byteOrder)
+int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
+                         bsl::size_t             dstCapacity,
+                         const char             *srcBuffer,
+                         bsl::size_t            *numCharsWritten,
+                         bsl::size_t            *numWordsWritten,
+                         unsigned short          errorCharacter,
+                         bdlde::ByteOrder::Enum  byteOrder)
 {
     return Util::utf8ToUtf16(dstBuffer,
                              dstCapacity,
@@ -1335,22 +1268,22 @@ int surrogateUtf8ToUtf16(unsigned short             *dstBuffer,
                              byteOrder);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Conversion<>: bring SrcSpec, WorkPiece, and a conversion function together.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  The Conversion template is written as a struct so that each conversion can
 //  be represented by an object with a short local instance name.
 
 template <class TO_CHAR, class FROM_CHAR>
 struct Conversion {
-    typedef int (*Function)(TO_CHAR                   *dstBuf,
-                            bsl::size_t                toSize,
-                            const FROM_CHAR           *srcBuf,
-                            bsl::size_t               *toSymbols,
-                            bsl::size_t               *toUnits,
-                            TO_CHAR                    errorChar,
-                            bdlde::ByteOrder::Enum      byteOrder);
+    typedef int (*Function)(TO_CHAR                *dstBuf,
+                            bsl::size_t             toSize,
+                            const FROM_CHAR        *srcBuf,
+                            bsl::size_t            *toSymbols,
+                            bsl::size_t            *toUnits,
+                            TO_CHAR                 errorChar,
+                            bdlde::ByteOrder::Enum  byteOrder);
 
     typedef TO_CHAR toChar;
     typedef FROM_CHAR fromChar;
@@ -1372,16 +1305,15 @@ struct Conversion {
 
         ConvRslt result;
 
-        result.d_retVal = (d_converter)(
-                                       to.begin(dstBuf),
-                                       to.d_winLength,
-                                       from.d_source,
-                                       INF == expected.d_symbols ?
-                                                    0 : &result.d_symbols,
-                                       INF == expected.d_units ?
-                                                    0 : &result.d_units,
-                                       static_cast<TO_CHAR>(from.d_errorChar),
-                                       bdlde::ByteOrder::e_HOST);
+        result.d_retVal = (d_converter)(to.begin(dstBuf),
+                                        to.d_winLength,
+                                        from.d_source,
+                                        INF == expected.d_symbols ?
+                                                     0 : &result.d_symbols,
+                                        INF == expected.d_units ?
+                                                     0 : &result.d_units,
+                                        static_cast<TO_CHAR>(from.d_errorChar),
+                                        bdlde::ByteOrder::e_HOST);
 
         if (INF == expected.d_symbols) {
             result.d_symbols = INF;
@@ -1395,9 +1327,9 @@ struct Conversion {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // ConversionArg<>: Metaprogram find of the function needed for a conversion
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template<class TO_CHAR, class FROM_CHAR>
 struct ConversionArg {
@@ -1429,24 +1361,23 @@ struct ConversionArg<char, unsigned short> {
 
 // The 'RUN_AND_CHECK' macro sets up the workpiece and runs the basic checks
 // against it.  (This could be made a member of 'WorkPiece' and
-// 'BufferedWPiece', just
-// as the core of the 'RUN_FOUR_WAYS' macro is 'FourWayRunner::runFourWays()'.
-//
+// 'BufferedWPiece', just as the core of the 'RUN_FOUR_WAYS' macro is
+// 'FourWayRunner::runFourWays()'.
+
 #define RUN_AND_CHECK(WP,MEM,RESULT,CONV,SOURCE,EXPECTED)   \
         ((WP).fillMargins(MEM),                             \
          (RESULT) = (CONV)((WP),(MEM),(SOURCE),(EXPECTED)), \
           bothAnd(EXPECTED_GOT((EXPECTED),(RESULT)),        \
-                  ASSERT2((WP).checkMargins(MEM),           \
-                          (WP).checkFinalNull(MEM))))
+                  ASSERT((WP).checkMargins(MEM)) &&         \
+                  ASSERT((WP).checkFinalNull(MEM))))
 
 // Given a vector of pointers to strings, compare them and determine
-// equivalence classes among them.  Return a vector of vectors, containing
-// the equivalence classes among the strings; each string is named by
-// its index in the original vector.
-// (Note: this was intended to return the nested FixedVector<> that contains
-// the result, but the Windows compiler generated bogus code when it was
-// used in the debugging macros--which have also been simplified.)
-// @+@+@+@+@  Have to get a better way to print out failure.
+// equivalence classes among them.  Return a vector of vectors, containing the
+// equivalence classes among the strings; each string is named by its index in
+// the original vector.  (Note: this was intended to return the nested
+// FixedVector<> that contains the result, but the Windows compiler generated
+// bogus code when it was used in the debugging macros--which have also been
+// simplified.)  @+@+@+@+@ Have to get a better way to print out failure.
 
 template<class ARRAY_TYPE, bsl::size_t N_WAY>
 void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
@@ -1455,7 +1386,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 // The 'RUN_FOUR_WAYS' macros contains the basic test sequence, set up four
 // times to run with all four combinations of return-by-argument.  It does the
 // basic sanity checks on each return.  (Using a macro keeps __LINE__'s value
-// meaningful.) It uses 'RUN_AND_CHECK_4' for each basic run/check.
+// meaningful.)  It uses 'RUN_AND_CHECK_4' for each basic run/check.
 // 'RUN_AND_CHECK_4' evaluates to true if the sanity test on the string passes;
 // if all the sanity tests pass (and the expected length is not zero) the
 // four-way comparison is safe to do.
@@ -1463,6 +1394,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 // The run-four-way mechanism is a mixture of a struct (to propagate the types
 // through the template and to hold state) with macros (to keep __LINE__
 // useful.)
+
 template <class TO_CHAR, class FROM_CHAR>
 struct FourWayRunner {
     enum { N_WAY = 4 };
@@ -1483,12 +1415,13 @@ struct FourWayRunner {
     FixedVector<FixedVector<int,N_WAY>,N_WAY> d_strEqClasses; // push_back, etc
 
     template<bsl::size_t OUTPUT_LEN>
-    FourWayRunner(TO_CHAR                    (&outputArray)[N_WAY][OUTPUT_LEN],
-                  TO_CHAR                         fillChar,
-                  bsl::size_t                     margin,
-                  SrcSpec<FROM_CHAR>&             src,
-                  Conversion<TO_CHAR, FROM_CHAR>& conv,
-                  ConvRslt&                       exp)
+    FourWayRunner(
+             TO_CHAR                         (&outputArray)[N_WAY][OUTPUT_LEN],
+             TO_CHAR                           fillChar,
+             bsl::size_t                       margin,
+             SrcSpec<FROM_CHAR>&               src,
+             Conversion<TO_CHAR, FROM_CHAR>&   conv,
+             ConvRslt&                         exp)
     : d_src(src),
       d_wp(OUTPUT_LEN, src.d_dstBufSize, fillChar, margin),
       d_conv(conv),
@@ -1529,9 +1462,10 @@ struct FourWayRunner {
     }
 };
 
-//  Note that the 'checkMargins' in this call goes through 'FourWayRunner'
-//  while in 'RUN_AND_CHECK' it goes through 'WorkPiece'.  ('FourWayRunner'
-//  forwards to 'WorkPiece', translating the arguments.)
+// Note that the 'checkMargins' in this call goes through 'FourWayRunner' while
+// in 'RUN_AND_CHECK' it goes through 'WorkPiece'.  ('FourWayRunner' forwards
+// to 'WorkPiece', translating the arguments.)
+
 #define RUN_AND_CHECK_4(RN,N) ((RN).runAndCheck(N,__LINE__))
 
 #define RUN_FOUR_WAYS(RUNNER) ((RUNNER).runFourWays(__LINE__))
@@ -1539,6 +1473,7 @@ struct FourWayRunner {
 // Enumeration of the return codes expected from the functions being tested.
 // The correctness of these values with respect to the documentation is tested
 // in case 2.
+
 enum {
     SUCCESS                 = 0,
     OK                      = 0,
@@ -1636,8 +1571,8 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
 // input strings in 'inputBuffer' and output strings in 'outputBuffer', and
 // call 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
 // match.  'inputCursor' and 'outputCursor' point to the "current position" in
-// the respective buffers where this level of the recursion will operate.
-// The recursion terminates once 'depth <= 0'.
+// the respective buffers where this level of the recursion will operate.  The
+// recursion terminates once 'depth <= 0'.
 
 void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
@@ -1674,7 +1609,7 @@ void testSingleOctetPerturbation(const char             *input,
                                  bsl::size_t             characterCount,
                                  const PerturbationDesc &perturb,
                                  int,
-                                 int                    veryVerbose)
+                                 int                     veryVerbose)
 {
     char           inputBuffer[256];
 
@@ -1696,6 +1631,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     // Make sure conversions where 'outputBuffer' is too small result in the
     // correct errors AND a null-terminated output
+
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(outputBuffer,
                                                    characterCount - 1,
                                                    inputBuffer,
@@ -1743,8 +1679,8 @@ void testSingleOctetPerturbation(const char             *input,
 
     ASSERT ( charsWritten == characterCount );
 
-    // Adjust the position in the output of the character we
-    // changed by adding 'before'.
+    // Adjust the position in the output of the character we changed by adding
+    // 'before'.
 
     pos += before;
 
@@ -2173,8 +2109,8 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
 // input strings in 'inputBuffer' and output strings in 'outputBuffer', and
 // call 'checkForExpectedConversionResultsU8ToU2' to make sure that the results
 // match.  'inputCursor' and 'outputCursor' point to the "current position" in
-// the respective buffers where this level of the recursion will operate.
-// The recursion terminates once 'depth <= 0'.
+// the respective buffers where this level of the recursion will operate.  The
+// recursion terminates once 'depth <= 0'.
 
 void buildUpAndTestStringsU8ToU2(int             idx,
                                  int             depth,
@@ -2241,10 +2177,10 @@ int runPlainTextPerformanceTest(void);
 
 template<bsl::size_t N>
 struct Permuter {
-    // How this works:  A recursive algorithm for generating the permutation
-    // is flattened by an odometer-like data structure.
-    // The recursive procedure, which returns in the middle, works like
-    // this:
+    // How this works: A recursive algorithm for generating the permutation is
+    // flattened by an odometer-like data structure.
+    //
+    // The recursive procedure, which returns in the middle, works like this:
     //      Given a set containing N items (the integers 0 .. (N - 1), loop
     //      through the set, selecting each one in turn as the first element
     //      of the sequence.  In each loop, recurse, using the unselected
@@ -2310,16 +2246,16 @@ struct Permuter {
     // So ... There are two data structures involved.  One is an "odometer"
     // with decreasing wheel size (from N to zero).  Turning the odometers in
     // this 'd_wheel' array directs the swapping of values in the 'd_val'
-    // array.  'd_val[]' contains every value from [ 0 .. N ).  (These could
-    // be letters, names, colors, foods, whatever.)  The swaps and wheel
-    // advances are carried out as above.
+    // array.  'd_val[]' contains every value from '[0 .. N)'.  (These could be
+    // letters, names, colors, foods, whatever.)  The swaps and wheel advances
+    // are carried out as above.
     //
     // As coded, 'Permuter' does NOT provide a stable end-of-sequence
     // indication.
 
     unsigned d_wheel[N]; // The 'odometer position' of the wheels
-    unsigned d_val[N];   // The values array.  Each value in [ 0 .. N )
-                         // must occur exactly once.
+    unsigned d_val[N];   // The values array.  Each value in [ 0 .. N ) must
+                         // occur exactly once.
 
     Permuter()
     {
@@ -2352,8 +2288,9 @@ struct Permuter {
 
     ostream& print(ostream&) const;
 
-    // Advance wheel N one position.  Return false if it has returned to
-    // its original position (position zero).
+    // Advance wheel N one position.  Return false if it has returned to its
+    // original position (position zero).
+    //
     //   With wheel n in position zero, there is a value V at that position.
     //   As it advances upwards, that value advances upwards, and the value
     //   it replaces (at n + wheel[n]) replaces it at n.  This is restored
@@ -2411,25 +2348,25 @@ unsigned char u8ThreeByteHdrCases[] ={ '\x0', '\x1', '\x3', '\x6',
    // sequences are well-behaved.)
 
 enum { THREE_BYTE_ZERO_NEEDS = 0x20 };
-    // If the first continuation is at least this, the content
-    // part of the three-byte header may be zero.
+    // If the first continuation is at least this, the content part of the
+    // three-byte header may be zero.
 
 const
 unsigned char u8FourByteHdrCases[] ={ '\x0', '\x1', '\x2', '\x3', '\x4' };
-    // The Four-byte header can hold three bits, but for iso10646 the
-    // maximum value is four, and at that maximum the first continuation
-    // octet's content must be less than 0x10.
+    // The Four-byte header can hold three bits, but for iso10646 the maximum
+    // value is four, and at that maximum the first continuation octet's
+    // content must be less than 0x10.
 
 const
 unsigned char u8InvalidFourByteHdrCases[] ={ '\x5', '\x6', '\x7', };
 
 enum { FOUR_BYTE_ZERO_NEEDS = 0x10 };
-    // If the first continuation is at least this, the content part of
-    // the four-byte header may be zero.
+    // If the first continuation is at least this, the content part of the
+    // four-byte header may be zero.
 
 enum { FOUR_BYTE_FOUR_MAX = 0xf };
-    // If the first continuation is no greater than this, the content
-    // part of the four-byte header may be two.
+    // If the first continuation is no greater than this, the content part of
+    // the four-byte header may be two.
 
 const
 unsigned char u8ContinByteCases[] ={ '\x0',  '\x1',  '\x3',
@@ -2471,17 +2408,17 @@ unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x70, 0x80, 0xc0, 0xd0, 0x100, 0x180,
                                      0x1c0, 0x200, 0x300, 0x380, 0x3ff,
                                    };
-    // Used as the content part of the upper and lower words of 2-word
-    // utf-16 characters.
+    // Used as the content part of the upper and lower words of 2-word utf-16
+    // characters.
 
 typedef ArrayRange<const unsigned char> AvCharList;
-    // 'AvCharList' provides an stl-like iterator to walk the lists
-    // of octet contents for various tests.  (Using 'unsigned char' avoids
-    // sign extension problems.)
+    // 'AvCharList' provides an stl-like iterator to walk the lists of octet
+    // contents for various tests.  (Using 'unsigned char' avoids sign
+    // extension problems.)
 
 typedef ArrayRange<const unsigned short> avWordList;
-    // 'avWordList' provides an stl-like iterator to walk the lists
-    // of 16-bit word contents for various tests.
+    // 'avWordList' provides an stl-like iterator to walk the lists of 16-bit
+    // word contents for various tests.
 
 namespace {
     // The test number and the verbosity level are out here so that they are
@@ -2495,15 +2432,15 @@ namespace {
 }  // close unnamed namespace
 
 template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
-bool testOneErrorCharConversion(
-            int                          line,    // '__LINE__' where this
-                                                  // function is invoked
-            ArrayRange<TO_CHAR> const&   toBuf,   // Workspaces provided by our
-            ArrayRange<FROM_CHAR> const& fromBuf, // caller.  We depend on the
-                                                  // value of 'fromBuf.size()'
-            FILL_CHECK&                  fillCheck);  // Source of the octet or
-                                                  // word sequence under test.
-
+bool testOneErrorCharConversion(int                          line,
+                                ArrayRange<TO_CHAR> const&   toBuf,
+                                ArrayRange<FROM_CHAR> const& fromBuf,
+                                FILL_CHECK&                  fillCheck);
+    //: o 'line': '__LINE__' where this function is invoked
+    //: o 'toBuf', fromBuf: Workspaces provided by our caller.  We depend on
+    //:   the value of 'fromBuf.size()'
+    //: o 'fillCheck': Source of the octet or word sequence under test.
+    //
     // The 'testOneErrorCharConversion' function is the common part of all the
     // subtests in test 4.  It verifies that the error conversion occurs as
     // expected (using the 'RUN_AND_CHECK' macro, which also verifies that the
@@ -2518,18 +2455,20 @@ template<class TO_CHAR,
          class TO_FILL_CHECK,
          class FR_CHAR,
          class FR_FILL_CHECK>
-bool oneStringConversion(
-            int                      line,          // '__LINE__' of this call
-            BufferedWPiece<TO_CHAR>& toBuf,         // Destination workspace
-            TO_FILL_CHECK&           toFillCheck,   // Reference for checking
-                                                    //   the output string.
-            ArrayRange<FR_CHAR>&     fromBuf,       // Source workspace buffer
-            FR_FILL_CHECK&           fromFillCheck, // Source and reference
-                                                    // for checking the input
-                                                    // string.
-            const ConvRslt&          expected);     // The expected set of
-                                                    // return values from the
-                                                    // conversion function.
+bool oneStringConversion(int                      line,
+                         BufferedWPiece<TO_CHAR>& toBuf,
+                         TO_FILL_CHECK&           toFillCheck,
+                         ArrayRange<FR_CHAR>&     fromBuf,
+                         FR_FILL_CHECK&           fromFillCheck,
+                         const ConvRslt&          expected);
+    //: o 'line': '__LINE__' of this call
+    //: o 'toBuf': Destination workspace
+    //: o 'toFillCheck': Reference for checking the output string.
+    //: o 'fromBuf': Source workspace buffer
+    //: o 'fromFillCheck': Source and reference for checking the input string.
+    //: o 'expected': The expected set of return values from the conversion
+    //:   function.
+    //
     // The 'oneStringConversion' templated function invokes the conversions for
     // test 5.  It verifies that the conversion returns with the expected
     // values (using the 'RUN_AND_CHECK' macro, which also verifies that the
@@ -4563,9 +4502,9 @@ bsl::size_t localUtf16Len(const UTF16_CHAR *str)
 }
 
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char**argv)
 {
@@ -4670,9 +4609,9 @@ int main(int argc, char**argv)
     ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
 
 // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
-// into UTF-8, and we should get a result identical to our original input.
-// We declare a 'bsl::string' for our output, and a variable to count the
-// number of characters (characters, not bytes or words) translated:
+// into UTF-8, and we should get a result identical to our original input.  We
+// declare a 'bsl::string' for our output, and a variable to count the number
+// of characters (characters, not bytes or words) translated:
 
     bsl::string s;
     bsl::size_t utf8CharsWritten;
@@ -5096,9 +5035,9 @@ int main(int argc, char**argv)
                                                               NUM_CHARS == nc);
 
                             // Broken glass test, just making sure embedded
-                            // zeros at certain places don't cause segfaults
-                            // or failed asserts.  Only do when 'ti == tj'
-                            // to reduce the # of times this expensive test is
+                            // zeros at certain places don't cause segfaults or
+                            // failed asserts.  Only do when 'ti == tj' to
+                            // reduce the # of times this expensive test is
                             // done.
 
                             if (ti == tj) {
@@ -5207,16 +5146,16 @@ int main(int argc, char**argv)
                                    bslstl::StringRefWide(start, end),
                                    &nc,
                                    errorChar);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
         if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5310,7 +5249,7 @@ int main(int argc, char**argv)
                                     &nw,
                                     errorChar);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
@@ -5319,7 +5258,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
             if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5335,13 +5274,13 @@ int main(int argc, char**argv)
                                     &nw2,
                                     errorChar);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
             if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5413,16 +5352,16 @@ int main(int argc, char**argv)
                                    &nc,
                                    errorChar,
                                    e_BACKWARDS);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
         if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5524,7 +5463,7 @@ int main(int argc, char**argv)
                                     errorChar,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
@@ -5533,7 +5472,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
             if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5550,13 +5489,13 @@ int main(int argc, char**argv)
                                     errorChar,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
             if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5623,8 +5562,8 @@ int main(int argc, char**argv)
           { L_,   "\xe4\xb8\xad" },              // -- Valid Chinese
           { L_,   "\xf2\x94\xb4\xa5" },          // -- Valid Quad
 
-          // All sequences before this are valid, all sequences after this
-          // are invalid.
+          // All sequences before this are valid, all sequences after this are
+          // invalid.
 
           { L_,   "\xed\xa0\x85" },              // illegal UTF-16 0xd805
           { L_,   "\xed\xb6\xa3" },              // illegal UTF-16 0xdda3
@@ -5678,8 +5617,8 @@ int main(int argc, char**argv)
                                    errorChar);
         LOOP4_ASSERT(rc, i, k, m, INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(nc <= dst.size());
 
         max16Len = bsl::max(max16Len, dst.size());
@@ -5786,11 +5725,11 @@ int main(int argc, char**argv)
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
             ASSERT((cap < dstCap) ==
-                     !!(rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                     !!(rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
             bsl::fill(dst.begin(), dst.end(), (unsigned short) -1);
 
             save = *end;
@@ -5810,11 +5749,11 @@ int main(int argc, char**argv)
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
             ASSERT((cap < dstCap) ==
-                     !!(rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                     !!(rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
 
             *end = save;
 
@@ -6063,7 +6002,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
@@ -6090,7 +6029,7 @@ int main(int argc, char**argv)
                                             (int) sizeof(errorUnsignedIn) - 1),
                           &nChars,
                           errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
@@ -6106,7 +6045,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
@@ -6134,7 +6073,7 @@ int main(int argc, char**argv)
                                             (int) sizeof(errorUnsignedIn) - 1),
                           &nChars,
                           errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
@@ -6164,7 +6103,7 @@ int main(int argc, char**argv)
                                            errorUtf16InOrig,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == utf8Vec.size());
 
@@ -6181,7 +6120,7 @@ int main(int argc, char**argv)
                                            errorChar);
                 nBytes = utf8String.length() + 1;
 
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == nBytes);
                 ASSERT(expectedChars == utf8String.length() + 1);
@@ -6724,15 +6663,16 @@ int main(int argc, char**argv)
 
         // The test sets are created in two stages, using a four-wheel
         // OdomIter, three places per wheel, one wheel for the single-byte
-        // character and one for each of the headers, and a Permuter with
-        // five places to shift the continuation parts around.
-        // Since we need six different continuation contents but the permuter
-        // only permutes five (to keep the execution time reasonable) we
-        // re-use one permuter value in the middle continuation octet of
-        // the four-octet sequence.  It can't do any mischief there.
+        // character and one for each of the headers, and a Permuter with five
+        // places to shift the continuation parts around.  Since we need six
+        // different continuation contents but the permuter only permutes five
+        // (to keep the execution time reasonable) we re-use one permuter value
+        // in the middle continuation octet of the four-octet sequence.  It
+        // can't do any mischief there.
         //
         // Since the OdomIter is cheaper to operate than the Permuter, the
         // Permuter is the outer loop.
+
         const unsigned char OneByteForTest5[] ={
             '\x1', '\x21', '\x73',      // ^A, !, s
         };
@@ -6748,8 +6688,9 @@ int main(int argc, char**argv)
 
         // The one-byte case iterator is placed last so it will change fastest.
         // Since the single-byte case is the easiest to spot in veryVeryVerbose
-        // output, this should make it easier to verify that the changes
-        // are taking place.
+        // output, this should make it easier to verify that the changes are
+        // taking place.
+
         AvCharList *const wheelsFive[] ={ &FourFor5,
                                           &ThreeFor5,
                                           &TwoFor5,
@@ -8159,13 +8100,14 @@ MARK
                                    // output string space and fill it before
                                    // testing the conversion.  They check
                                    // afterwards that the values stored are
-                                   // still present.  Making this larger
-                                   // slows the tests.
+                                   // still present.  Making this larger slows
+                                   // the tests.
         };
 
-        // Test 3a1: utf-8 => UTF-16, one-octet characters.
-        // A string of all legal one-octet characters is converted from
-        // utf-8 to utf-16 and checked.
+        // Test 3a1: utf-8 => UTF-16, one-octet characters.  A string of all
+        // legal one-octet characters is converted from utf-8 to utf-16 and
+        // checked.
+
         if (verbose) {
             cout << "\nTest 3a1: UTF-8 => UTF-16, single-octet"
                  << "\n=======================================" << endl ;
@@ -8332,10 +8274,11 @@ MARK
 
             for (unsigned iFirst = 0x0 ; iFirst < THREE_OCTET_LIM ; ++iFirst) {
                 // With zero in the header, we have to stay above what a two-
-                // octet coding can handle; with 0xd in the header, we need
-                // to stay below 0x20 where the reserved range sits.  (16-bit
+                // octet coding can handle; with 0xd in the header, we need to
+                // stay below 0x20 where the reserved range sits.  (16-bit
                 // patterns in that range are the upper and lower halves of
                 // two-word codings.)
+
                 unsigned rangeStart = (0x0 == iFirst) ? 0x20  : 0x0 ;
                 unsigned rangeLimit = (0xd == iFirst) ? 0x20 : CONTIN_LIM ;
 
@@ -8727,10 +8670,11 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
             for (unsigned iFirst = 0x0 ; iFirst < THREE_OCTET_LIM ; ++iFirst) {
                 // With zero in the header, we have to stay above what a two-
-                // octet coding can handle; with 0xd in the header, we need
-                // to stay below 0x20 where the reserved range sits.  (16-bit
+                // octet coding can handle; with 0xd in the header, we need to
+                // stay below 0x20 where the reserved range sits.  (16-bit
                 // patterns in that range are the upper and lower halves of
                 // two-word codings.)
+
                 unsigned rangeStart = (0x0 == iFirst) ? 0x20  : 0x0 ;
                 unsigned rangeLimit = (0xd == iFirst) ? 0x20 : CONTIN_LIM ;
 
@@ -8972,6 +8916,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
       case 2: {
         // --------------------------------------------------------------------
         // SINGLE-VALUE, LEGAL VALUE TEST
+        //
         // Concerns:
         //   - That the conversion functions do not overwrite memory
         //     adjacent to or nearby the output buffer: (1).
@@ -9005,9 +8950,11 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                    // output string space and fill it before
                                    // testing the conversion.  They check
                                    // afterwards that the values stored are
-                                   // still present.  Making this larger
-                                   // slows the tests.
-// @+@+@+@+@ MaT --- Change this over to use the BufferSize<> stuff!
+                                   // still present.  Making this larger slows
+                                   // the tests.
+
+// TBD --- Change this over to use the BufferSize<> stuff!
+
                WORKPAD_SIZE = 256  // WORKPAD_SIZE is the size of the output
                                    // string buffer for this group of tests.
                                    // It must be at least twice the size of
@@ -9605,6 +9552,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING/USAGE TEST
+        //
         // Concerns:
         //   - That the enumerations used herein for return values match the
         //     written return values.
@@ -9658,19 +9606,23 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
         // Check return value enumeration:
 
         // "Return 0 on success, ..."
+
         ASSERT(0 == SUCCESS);
         ASSERT(0 == OK);
 
         // "... 1 on invalid input, ..."
+
         ASSERT(1 == INVALID_INPUT_CHARACTER);
         ASSERT(1 == BADC);
 
-        // "... 2 if 'dstCapacity' is insufficient
-        // to hold the complete conversion, ..."
+        // "...  2 if 'dstCapacity' is insufficient to hold the complete
+        // conversion, ..."
+
         ASSERT(2 == OUTPUT_BUFFER_TOO_SMALL);
         ASSERT(2 == OBTS);
 
         // "and 3 if both types of error occur."
+
         ASSERT(3 == (OUTPUT_BUFFER_TOO_SMALL | INVALID_INPUT_CHARACTER));
         ASSERT(3 == BOTH);
 
@@ -9692,12 +9644,11 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         enum { BUFFER_ZONE = 256        // How much memory to check before and
                                         // after the output buffer, in order to
-                                        // detect stray writes.
-                                        // In this test we use a large
-                                        // BUFFER_ZONE.  Some machines will
-                                        // dump core if a local array is too
-                                        // large.  This works on the machines
-                                        // at hand.
+                                        // detect stray writes.  In this test
+                                        // we use a large BUFFER_ZONE.  Some
+                                        // machines will dump core if a local
+                                        // array is too large.  This works on
+                                        // the machines at hand.
         };
 
 // @+@+@ MaT --- should find a way to get veryVerbose checks inside
@@ -9999,10 +9950,11 @@ void printStr(const unsigned short *p)
     printf(" ]");
 }
 
-// strcmp() on arbitrary types.  It's concerned only with equality; it does
-// not define a partial order or a partitioning.  It requires that the end
-// of the string be marked by a sentinel which compares equal to zero.
-// Returns true if the two strings are equal, false otherwise.
+// strcmp() on arbitrary types.  It's concerned only with equality; it does not
+// define a partial order or a partitioning.  It requires that the end of the
+// string be marked by a sentinel which compares equal to zero.  Returns true
+// if the two strings are equal, false otherwise.
+
 template<class CHAR_TYPE>
 int strEq(const CHAR_TYPE *lhs,
           const CHAR_TYPE *rhs)
@@ -10033,8 +9985,11 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runAndCheck(int bufN, int line)
         failed = true;
     }
 
-    if (! ASSERT2(checkMargins(bufN),
-                  checkFinalNull(bufN))) {
+    const bool c1 = checkMargins(bufN), c2 = checkFinalNull(bufN);
+    ASSERT(c1);
+    ASSERT(c2);
+
+    if (! (c1 && c2)) {
         cout << "   From line " << line << endl;
         failed = true;
     }
@@ -10167,8 +10122,9 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
     }
     eqClasses.resize(0);
 
-    if (sv.size() == 0)
+    if (sv.size() == 0) {
         return;                                                       // RETURN
+    }
 
     // Put the first thing in a class of its own.
     eqClasses.resize(1);
@@ -10200,6 +10156,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 
     return;
 }
+
 //-----------------------------------------------------------------------------
 
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
@@ -11660,17 +11617,15 @@ ostream& operator<<(ostream&                     os,
 }
 
 template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
-bool testOneErrorCharConversion(
-                int                    line,   // '__LINE__' where this
-                                               // function is invoked
-                ArrayRange<TO_CHAR> const&   toBuf,   // Workspaces provided
-                ArrayRange<FROM_CHAR> const& fromBuf, // by our caller.  We
-                                                      // depend on the value
-                                                      // of 'fromBuf.size()'.
-                FILL_CHECK&            fillCheck)  // Source of the octet or
-                                                   // word sequence being
-                                                   // tested.
-
+bool testOneErrorCharConversion(int                          line,
+                                ArrayRange<TO_CHAR> const&   toBuf,
+                                ArrayRange<FROM_CHAR> const& fromBuf,
+                                FILL_CHECK&                  fillCheck)
+    //: o 'line': '__LINE__' where this function is invoked
+    //: o 'toBuf', 'fromBuf': Workspaces provided by our caller.  We depend on
+    //:   the value of 'fromBuf.size()'.
+    //: o 'fillCheck': Source of the octet or word sequence being tested.
+    //
     // The 'testOneErrorCharConversion' templated function is the common part
     // of all the subtests in test 4.  It verifies that the error conversion
     // occurs as expected (using the 'RUN_AND_CHECK' macro, which also verifies
@@ -11681,7 +11636,8 @@ bool testOneErrorCharConversion(
     // characters (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any have failed.
 {
-    enum { BUFFER_ZONE = 32  // Margin to fill and check on the output buffer.
+    enum {
+        BUFFER_ZONE = 32     // Margin to fill and check on the output buffer.
     };
 
     bool failed = false;
@@ -11704,8 +11660,8 @@ bool testOneErrorCharConversion(
 
     SrcSpec<FROM_CHAR> source(fromBuf.begin(), 0, 1);  // No error char, output
                                                        // length 1 (the null)
-    ConvRslt expected(0x1, 1, 1);    // Illegal octet, one symbol, one
-                                     // memory unit (the null)
+    ConvRslt expected(0x1, 1, 1);    // Illegal octet, one symbol, one memory
+                                     // unit (the null)
 
     WorkPiece<TO_CHAR> wp(toBuf.size(),
                           source.d_dstBufSize,
@@ -11757,8 +11713,8 @@ bool testOneErrorCharConversion(
     after[1] = '\0';
 
     source = SrcSpec<FROM_CHAR>(from, 0, 3); // No error char, output length 3
-    expected = ConvRslt(0x1, 3, 3);   // Illegal octet, three symbols,
-                                      // three memory units AB\0
+    expected = ConvRslt(0x1, 3, 3);   // Illegal octet, three symbols, three
+                                      // memory units AB\0
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
                             source.d_dstBufSize,
@@ -11808,8 +11764,8 @@ bool testOneErrorCharConversion(
 
     source = SrcSpec<FROM_CHAR>(from, '$', 2);  //  Error char '$',
                                                      //  output length 2
-    expected = ConvRslt(0x1, 2, 2);  // Illegal octet, two symbols
-                                     // two words ('$' null)
+    expected = ConvRslt(0x1, 2, 2);  // Illegal octet, two symbols two words
+                                     // ('$' null)
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
                             source.d_dstBufSize,
@@ -11859,10 +11815,10 @@ bool testOneErrorCharConversion(
     after[0] = 'B';
     after[1] = '\0';
 
-    source = SrcSpec<FROM_CHAR>(from, '#', 4); // Error char '#',
-                                               // output length 4
-        expected = ConvRslt(0x1, 4, 4);        // Illegal octet, four
-                                               // symbols, four words A#B\0
+    source = SrcSpec<FROM_CHAR>(from, '#', 4); // Error char '#', output length
+                                               // 4
+        expected = ConvRslt(0x1, 4, 4);        // Illegal octet, four symbols,
+                                               // four words A#B\0
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
                             source.d_dstBufSize,
@@ -12184,7 +12140,7 @@ Permuter<N>::print(ostream& os) const
 //                      // the sequence) will go.
 //  };
 //
-//  template<typename T> struct input {
+//  template<class T> struct input {
 //      T& d_ref;
 //
 //      input(T& target)
@@ -12202,7 +12158,7 @@ Permuter<N>::print(ostream& os) const
 //  };
 //
 //  #if 0
-//  template< typename T >
+//  template< class T >
 //  istream&
 //  operator>>( istream& is, input< T >& in )
 //  {
@@ -12440,7 +12396,7 @@ Permuter<N>::print(ostream& os) const
 //  }
 //
 //
-//  template<typename T>
+//  template<class T>
 //  istream& input<T>::get(istream& is)
 //  {
 //      string s;

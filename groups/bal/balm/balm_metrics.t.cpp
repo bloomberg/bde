@@ -1406,10 +1406,10 @@ int main(int argc, char *argv[])
         ball::LoggerManager& manager =
                 ball::LoggerManager::initSingleton(&observer, configuration);
 
-        manager.setDefaultThresholdLevels(ball::Severity::BAEL_OFF,
-                                          ball::Severity::BAEL_WARN,
-                                          ball::Severity::BAEL_OFF,
-                                          ball::Severity::BAEL_OFF);
+        manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
+                                          ball::Severity::e_WARN,
+                                          ball::Severity::e_OFF,
+                                          ball::Severity::e_OFF);
 
         if (verbose) cout << endl <<
             "Test BALM_METRICS_UPDATE warning messages" << endl;
@@ -1544,10 +1544,10 @@ int main(int argc, char *argv[])
         ball::LoggerManager& manager =
                 ball::LoggerManager::initSingleton(&observer, configuration);
 
-        manager.setDefaultThresholdLevels(ball::Severity::BAEL_OFF,
-                                          ball::Severity::BAEL_WARN,
-                                          ball::Severity::BAEL_OFF,
-                                          ball::Severity::BAEL_OFF);
+        manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
+                                          ball::Severity::e_WARN,
+                                          ball::Severity::e_OFF,
+                                          ball::Severity::e_OFF);
 
         if (verbose) cout << endl
             << "Test logEmptyName" << endl

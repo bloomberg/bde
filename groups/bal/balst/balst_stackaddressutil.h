@@ -244,9 +244,9 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-                       // ============================
+                       // =============================
                        // class balst::StackAddressUtil
-                       // ============================
+                       // =============================
 
 namespace BloombergLP {
 namespace balst {
@@ -266,9 +266,9 @@ struct StackAddressUtil {
     enum { k_IGNORE_FRAMES = 0 };
 #endif
 
-#if !defined(BDE_OMIT_INTERNAL_DEPRECATED)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     enum { BAESU_IGNORE_FRAMES = k_IGNORE_FRAMES };
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static

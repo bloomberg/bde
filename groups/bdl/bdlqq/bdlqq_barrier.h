@@ -295,9 +295,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // =============
-                            // class Barrier
-                            // =============
+                               // =============
+                               // class Barrier
+                               // =============
 
 class Barrier {
     // This class defines a thread barrier.

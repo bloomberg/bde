@@ -80,9 +80,9 @@ static void aSsErT(int c, const char *s, int i)
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -95,16 +95,16 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define T_    cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
@@ -112,18 +112,18 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-//=============================================================================
+// ============================================================================
 //                              GLOBAL TYPEDEFS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 typedef baltzo::TimeZoneUtilImp                   Obj;
 typedef baltzo::LocalTimeDescriptor               Descriptor;
 typedef baltzo::LocalTimeValidity                 Validity;
 typedef baltzo::Zoneinfo::TransitionConstIterator Iterator;
 typedef baltzo::ErrorCode                         Err;
 typedef baltzo::DstPolicy                         Dst;
-//=============================================================================
-//                              GLOBAL CONSTANTS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             GLOBAL CONSTANTS
+// ----------------------------------------------------------------------------
 const Dst::Enum      DU   = Dst::e_UNSPECIFIED;
 const Dst::Enum      DD   = Dst::e_DST;
 const Dst::Enum      DS   = Dst::e_STANDARD;
@@ -146,9 +146,9 @@ const char *RM       =  "Europe/Rome";
 const char *ALLDST   = "ALLDST";
 const char *OLDDST   = "OLDDST";
 
-//=============================================================================
-//                     TEST TIME ZONE DATA
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            TEST TIME ZONE DATA
+// ----------------------------------------------------------------------------
 
 // America/New_York
 static const unsigned char AMERICA_NEW_YORK_DATA[] = {
@@ -788,9 +788,9 @@ static const unsigned char ASIA_SAIGON_DATA[] = {
     0x00, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a,
 };
 
-//=============================================================================
-//                  GLOBAL CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        GLOBAL CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 struct LogVerbosityGuard {
     // The Logger verbosity guard disables logging on construction, and
@@ -812,16 +812,16 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
@@ -831,23 +831,23 @@ struct LogVerbosityGuard {
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };
 
-//=============================================================================
-//                                 HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 static bdlt::Datetime fromTimeT(bdlt::EpochUtil::TimeT64 value)
     // Return the 'bdlt::Datetime' representation of the interval in seconds
     // from UNIX epoch time of the specified 'value'.  Note that this method is
@@ -907,9 +907,9 @@ static void addTransitions(baltzo::Zoneinfo            *result,
 }
 
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

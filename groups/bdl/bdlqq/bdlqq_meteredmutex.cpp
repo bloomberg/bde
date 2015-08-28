@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(bdlqq_meteredmutex_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                           // ------------------
-                           // class MeteredMutex
-                           // ------------------
+                             // ------------------
+                             // class MeteredMutex
+                             // ------------------
 
 // MANIPULATORS
 void bdlqq::MeteredMutex::resetMetrics()

@@ -201,9 +201,9 @@ namespace BloombergLP {
 
 namespace balxml {class Encoder_Context;
 
-                             // ====================
-                             // class Encoder
-                             // ====================
+                               // =============
+                               // class Encoder
+                               // =============
 
 class Encoder {
     // This 'class' contains the parameterized 'encode' functions that encode
@@ -361,9 +361,9 @@ class Encoder {
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                         // =============================
-                         // struct Encoder_Context
-                         // =============================
+                           // ======================
+                           // struct Encoder_Context
+                           // ======================
 
 class Encoder_Context {
     // This 'struct' contains state that is maintained during encoding.  It
@@ -448,9 +448,9 @@ class Encoder_Context {
 
 };
 
-                       // =================================
-                       // class Encoder_EncodeObject
-                       // =================================
+                         // ==========================
+                         // class Encoder_EncodeObject
+                         // ==========================
 
 class Encoder_EncodeObject {
     // Component-private class.  Do not use.
@@ -537,9 +537,9 @@ class Encoder_EncodeObject {
                 int                    formattingMode);
 };
 
-                      // ================================
-                      // class Encoder_EncodeValue
-                      // ================================
+                         // =========================
+                         // class Encoder_EncodeValue
+                         // =========================
 
 class Encoder_EncodeValue {
     // Component-private class.  Do not use.
@@ -590,9 +590,9 @@ class Encoder_EncodeValue {
     int execute(const TYPE& object, int formattingMode);
 };
 
-                    // ======================================
-                    // class Encoder_SequenceFirstPass
-                    // ======================================
+                      // ===============================
+                      // class Encoder_SequenceFirstPass
+                      // ===============================
 
 class Encoder_SequenceFirstPass {
     // Component private class.  Do not use.
@@ -675,9 +675,9 @@ class Encoder_SequenceFirstPass {
         // otherwise.
 };
 
-                  // =======================================
-                  // class Encoder_SequenceSecondPass
-                  // =======================================
+                      // ================================
+                      // class Encoder_SequenceSecondPass
+                      // ================================
 
 class Encoder_SequenceSecondPass {
     // Component-private class.  Do not use.
@@ -715,9 +715,9 @@ class Encoder_SequenceSecondPass {
 //                               PROXY CLASSES
 // ============================================================================
 
-                // ===============================================
-                // struct Encoder_EncodeObject_executeProxy
-                // ===============================================
+                  // ========================================
+                  // struct Encoder_EncodeObject_executeProxy
+                  // ========================================
 
 struct Encoder_EncodeObject_executeProxy {
     // Component-private struct.  Do not use.
@@ -740,9 +740,9 @@ struct Encoder_EncodeObject_executeProxy {
     }
 };
 
-              // ==================================================
-              // struct Encoder_EncodeObject_executeImpProxy
-              // ==================================================
+                // ===========================================
+                // struct Encoder_EncodeObject_executeImpProxy
+                // ===========================================
 
 struct Encoder_EncodeObject_executeImpProxy {
     // Component-private struct.  Do not use.
@@ -776,9 +776,9 @@ struct Encoder_EncodeObject_executeImpProxy {
     }
 };
 
-               // =================================================
-               // struct Encoder_EncodeValue_executeImpProxy
-               // =================================================
+                 // ==========================================
+                 // struct Encoder_EncodeValue_executeImpProxy
+                 // ==========================================
 
 struct Encoder_EncodeValue_executeImpProxy {
     // Component-private struct.  Do not use.
@@ -810,9 +810,9 @@ struct Encoder_EncodeValue_executeImpProxy {
     }
 };
 
-         // =========================================================
-         // struct Encoder_SequenceFirstPass_addAttributeProxy
-         // =========================================================
+             // ==================================================
+             // struct Encoder_SequenceFirstPass_addAttributeProxy
+             // ==================================================
 
 struct Encoder_SequenceFirstPass_addAttributeProxy {
     // Component-private struct.  Do not use.
@@ -837,9 +837,9 @@ struct Encoder_SequenceFirstPass_addAttributeProxy {
     }
 };
 
-        // ============================================================
-        // struct Encoder_SequenceFirstPass_addAttributeImpProxy
-        // ============================================================
+           // =====================================================
+           // struct Encoder_SequenceFirstPass_addAttributeImpProxy
+           // =====================================================
 
 struct Encoder_SequenceFirstPass_addAttributeImpProxy {
     // Component-private struct.  Do not use.
@@ -878,9 +878,9 @@ struct Encoder_SequenceFirstPass_addAttributeImpProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerEncoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 inline
 balxml::Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
@@ -911,14 +911,14 @@ int balxml::Encoder::MemOutStream::length() const
 }
 
 namespace balxml {
-                             // --------------------
-                             // class Encoder
-                             // --------------------
+                               // -------------
+                               // class Encoder
+                               // -------------
 
 inline
 bool Encoder::isCompact() const
 {
-    return EncodingStyle::BAEXML_COMPACT == d_options->encodingStyle();
+    return EncodingStyle::e_COMPACT == d_options->encodingStyle();
 }
 
 inline
@@ -1010,7 +1010,7 @@ bsl::ostream& Encoder::encode(bsl::ostream& stream, const TYPE& object)
 template <class TYPE>
 int Encoder::encode(Formatter& formatter, const TYPE& object)
 {
-    d_severity = ErrorInfo::BAEXML_NO_ERROR;
+    d_severity = ErrorInfo::e_NO_ERROR;
     if (d_logStream != 0) {
         d_logStream->reset();
     }
@@ -1067,9 +1067,9 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
     }
 
     switch (d_severity) {
-      case ErrorInfo::BAEXML_NO_ERROR: {
+      case ErrorInfo::e_NO_ERROR: {
       } break;
-      case ErrorInfo::BAEXML_WARNING: {
+      case ErrorInfo::e_WARNING: {
         if (d_warningStream) {
             *d_warningStream << loggedMessages();
         }
@@ -1083,9 +1083,9 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
     return rc;
 }
 
-                       // ---------------------------------
-                       // class Encoder_EncodeObject
-                       // ---------------------------------
+                         // --------------------------
+                         // class Encoder_EncodeObject
+                         // --------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1113,7 +1113,7 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         int                    formattingMode,
                                         bdlat_TypeCategory::NullableValue)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdlat_FormattingMode::e_NILLABLE) {
@@ -1163,7 +1163,7 @@ int Encoder_EncodeObject::executeImp(
                                          int                    formattingMode,
                                          ANY_CATEGORY)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     bool isUntagged = formattingMode & bdlat_FormattingMode::e_UNTAGGED;
 
@@ -1178,7 +1178,7 @@ int Encoder_EncodeObject::executeImp(
         d_context_p->logError("Unable to encode value",
                               tag,
                               formattingMode);
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     if (!isUntagged) {
@@ -1228,7 +1228,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                                          const bslstl::StringRef& tag,
                                          int                    formattingMode)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const int size = (int)bdlat_ArrayFunctions::size(object);
 
@@ -1247,11 +1247,11 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                 formattingMode,
                 i);
 
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 // CREATORS
@@ -1286,9 +1286,9 @@ int Encoder_EncodeObject::execute(const TYPE&            object,
     return executeImp(object, tag, formattingMode, TypeCategory());
 }
 
-                       // --------------------------------
-                       // class Encoder_EncodeValue
-                       // --------------------------------
+                         // -------------------------
+                         // class Encoder_EncodeValue
+                         // -------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1297,7 +1297,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdlat_TypeCategory::Sequence)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
@@ -1310,7 +1310,10 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
     Encoder_SequenceFirstPass firstPass(d_context_p);
 
     if (0 != bdlat_SequenceFunctions::accessAttributes(object, firstPass)) {
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
+    }
+
+    if (!firstPass.simpleContentId().isNull()) {
     }
 
     if (!firstPass.simpleContentId().isNull()) {
@@ -1330,7 +1333,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                                                       // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -1339,7 +1342,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdlat_TypeCategory::Choice)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
@@ -1353,7 +1356,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
         d_context_p->logError("Undefined selection is not allowed ",
                               "???",
                               formattingMode);
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     Encoder_EncodeObject encodeObject(d_context_p);
@@ -1421,9 +1424,9 @@ int Encoder_EncodeValue::execute(const TYPE& object,
     return executeImp(object, formattingMode, TypeCategory());
 }
 
-                    // --------------------------------------
-                    // class Encoder_SequenceFirstPass
-                    // --------------------------------------
+                      // -------------------------------
+                      // class Encoder_SequenceFirstPass
+                      // -------------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1434,10 +1437,10 @@ int Encoder_SequenceFirstPass::addAttributeImp(
                                          int                    formattingMode,
                                          bdlat_TypeCategory::NullableValue)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(object)) {
-        return BAEXML_SUCCESS;                                        // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
     Encoder_SequenceFirstPass_addAttributeProxy proxy = {
@@ -1517,7 +1520,7 @@ template <class TYPE, class INFO_TYPE>
 int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
                                                  const INFO_TYPE& info)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     int  formattingMode  = info.formattingMode();
     bool isSimpleContent = formattingMode
@@ -1543,7 +1546,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
         d_hasSubElements = true;
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 // ACCESSORS
@@ -1560,9 +1563,9 @@ Encoder_SequenceFirstPass::simpleContentId() const
     return d_simpleContentId;
 }
 
-                    // ---------------------------------------
-                    // class Encoder_SequenceSecondPass
-                    // ---------------------------------------
+                      // --------------------------------
+                      // class Encoder_SequenceSecondPass
+                      // --------------------------------
 
 // CREATORS
 inline
@@ -1577,7 +1580,7 @@ template <class TYPE, class INFO_TYPE>
 int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
                                                   const INFO_TYPE& info)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     int formattingMode = info.formattingMode();
 
@@ -1588,7 +1591,7 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
         return d_encodeObjectFunctor(object, info);                   // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 

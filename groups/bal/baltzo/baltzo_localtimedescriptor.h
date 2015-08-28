@@ -148,9 +148,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        //==========================
-                        // class LocalTimeDescriptor
-                        //==========================
+                         // =========================
+                         // class LocalTimeDescriptor
+                         // =========================
 
 class LocalTimeDescriptor {
     // This simply constrained (value-semantic) attribute class characterizes a
@@ -332,9 +332,9 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class LocalTimeDescriptor
-                        // -------------------------
+                         // -------------------------
+                         // class LocalTimeDescriptor
+                         // -------------------------
 
 // CLASS METHODS
     inline

@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ================
-                            // struct DstPolicy
-                            // ================
+                              // ================
+                              // struct DstPolicy
+                              // ================
 
 struct DstPolicy {
     // This 'struct' provides a namespace for enumerating the set of policies
@@ -95,17 +95,22 @@ struct DstPolicy {
   public:
     // TYPES
     enum Enum {
-        e_DST,         // Local time is interpreted as daylight-saving time.
+        e_DST,         // Local time is interpreted as daylight-saving
+                            // time.
 
         e_STANDARD,    // Local time is interpreted as standard time.
 
-        e_UNSPECIFIED  // Local time is interpreted as either daylight-saving
-                       // time or standard time (as appropriate).
+        e_UNSPECIFIED  // Local time is interpreted as either
+                            // daylight-saving time or standard time (as
+                            // appropriate).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , e_DST         = e_DST
-      , e_STANDARD    = e_STANDARD
-      , e_UNSPECIFIED = e_UNSPECIFIED
+      , BALTZO_DST = e_DST
+      , BALTZO_STANDARD = e_STANDARD
+      , BALTZO_UNSPECIFIED = e_UNSPECIFIED
+      , BAETZO_DST         = e_DST
+      , BAETZO_STANDARD    = e_STANDARD
+      , BAETZO_UNSPECIFIED = e_UNSPECIFIED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
@@ -165,9 +170,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, DstPolicy::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct DstPolicy
-                            // ----------------
+                              // ----------------
+                              // struct DstPolicy
+                              // ----------------
 
 // FREE OPERATORS
 inline

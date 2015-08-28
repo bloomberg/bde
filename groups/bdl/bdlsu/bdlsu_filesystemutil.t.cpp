@@ -8,7 +8,7 @@
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -102,26 +102,26 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -131,9 +131,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                           GLOBAL DATA FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                          GLOBAL DATA FOR TESTING
+// ----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #   define PS "\\"
@@ -158,9 +158,9 @@ static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
 static const size_t NUM_VALID_NAMES = NUM_NAMES;
 #endif
 
-//=============================================================================
-//                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlsu::FilesystemUtil Obj;
 
@@ -453,9 +453,9 @@ namespace UsageExample2 {
 
 }  // close namespace UsageExample2
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1060,7 +1060,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
-                                         "tmp.bdesu_filesystemutil_16.mkdir1");
+                                         "tmp.bdlsu_filesystemutil_16.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdlsu::PathUtil::appendRaw(&fullPath, "dir2");
 
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = ::tempFileName(test,
-                                       "tmp.bdesu_filesystemutil_15.open.txt");
+                                       "tmp.bdlsu_filesystemutil_15.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -1201,9 +1201,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdesu_filesystemutil_13.append.txt";
-        const char *tag1     = "tmp.bdesu_filesystemutil_13.tag.1.txt";
-        const char *success  = "tmp.bdesu_filesystemutil_13.success.txt";
+        const char *testFile = "tmp.bdlsu_filesystemutil_13.append.txt";
+        const char *tag1     = "tmp.bdlsu_filesystemutil_13.tag.1.txt";
+        const char *success  = "tmp.bdlsu_filesystemutil_13.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -1455,9 +1455,9 @@ int main(int argc, char *argv[])
 
         const int MYPAGESIZE = bdlsu::MemoryUtil::pageSize();
         const int SIZE       = MYPAGESIZE;
-        const int READ       = bdlsu::MemoryUtil::BDESU_ACCESS_READ;
-        const int READ_WRITE = bdlsu::MemoryUtil::BDESU_ACCESS_READ |
-                               bdlsu::MemoryUtil::BDESU_ACCESS_WRITE;
+        const int READ       = bdlsu::MemoryUtil::k_ACCESS_READ;
+        const int READ_WRITE = bdlsu::MemoryUtil::k_ACCESS_READ |
+                               bdlsu::MemoryUtil::k_ACCESS_WRITE;
         int         rc     = 0;
         Obj::Offset offset = 0;
 
@@ -2456,7 +2456,7 @@ int main(int argc, char *argv[])
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hard-code it.
 
-        const char tripleQMarkLiteral[] = {'b','d','e','s','u','_','f','i','l',
+        const char tripleQMarkLiteral[] = {'b','d','l','s','u','_','f','i','l',
                                            'e','s','y','s','t','e','m','u','t',
                                            'i','l','.','t','e','m','p','.','3',
                                            '.','f','u','t','c','3','/','b',
@@ -4542,7 +4542,7 @@ int main(int argc, char *argv[])
         Obj::growFile(fd, pageSize, true);
         int *p;
         ASSERT(0 == Obj::map(fd, (void**)&p, 0, pageSize,
-                                   bdlsu::MemoryUtil::BDESU_ACCESS_READ_WRITE));
+                                   bdlsu::MemoryUtil::k_ACCESS_READ_WRITE));
         printf("mapped at %p\n", p);
         for (int i = 0; i < 10000; ++i) {
           ASSERT(0 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
@@ -4567,7 +4567,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                bdesu::FilesystemUtilMapping fm =
+                bdlsu::FilesystemUtilMapping fm =
                                     Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);

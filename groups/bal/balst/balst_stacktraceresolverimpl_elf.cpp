@@ -52,9 +52,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #endif
 
-//=============================================================================
-//           Debugging trace macros: 'eprintf' and 'zprintf'
-//=============================================================================
+// ============================================================================
+//              Debugging trace macros: 'eprintf' and 'zprintf'
+// ============================================================================
 
 #undef  TRACES
 #define TRACES 0    // debugging traces off

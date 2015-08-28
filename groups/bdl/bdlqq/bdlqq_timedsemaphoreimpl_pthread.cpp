@@ -122,9 +122,9 @@ int decrementIfPositive(bsls::AtomicInt *a)
 
 }  // close unnamed namespace
 
-            // -----------------------------------------------
-            // class TimedSemaphoreImpl<PthreadTimedSemaphore>
-            // -----------------------------------------------
+              // -----------------------------------------------
+              // class TimedSemaphoreImpl<PthreadTimedSemaphore>
+              // -----------------------------------------------
 
 // CREATORS
 bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::

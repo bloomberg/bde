@@ -7,20 +7,19 @@ BSLS_IDENT_RCSID(baljsn_encoder_cpp,"$Id$ $CSID$")
 #include <bdlde_base64encoder.h>
 
 namespace BloombergLP {
-
 namespace baljsn {
-                        // ------------------------------
-                        // class Encoder_Formatter
-                        // ------------------------------
+
+                          // -----------------------
+                          // class Encoder_Formatter
+                          // -----------------------
 
 // CREATORS
-Encoder_Formatter::Encoder_Formatter(
-                                          bsl::ostream&                stream,
-                                          const EncoderOptions& options)
+Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
+                                     const EncoderOptions& options)
 : d_outputStream(stream)
 , d_isArrayElement(false)
 {
-    if (EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
+    if (EncoderOptions::e_PRETTY == options.encodingStyle()) {
         d_usePrettyStyle = true;
         d_indentLevel    = options.initialIndentLevel();
         d_spacesPerLevel = options.spacesPerLevel();
@@ -136,20 +135,19 @@ void Encoder_Formatter::closeDocument()
     }
 }
 
-
-                            // -------------------------------
-                            // class Encoder_EncodeImpl
-                            // -------------------------------
+                          // ------------------------
+                          // class Encoder_EncodeImpl
+                          // ------------------------
 
 // PRIVATE MANIPULATORS
-int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
-                                         int,
-                                         bdlat_TypeCategory::Array)
+int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>&  value,
+                                  int,
+                                  bdlat_TypeCategory::Array)
 {
     bsl::string base64String;
     bdlde::Base64Encoder encoder(0);
     base64String.resize(
-        bdlde::Base64Encoder::encodedLength(static_cast<int>(value.size()), 0));
+       bdlde::Base64Encoder::encodedLength(static_cast<int>(value.size()), 0));
 
     // Ensure length is a multiple of 4.
 

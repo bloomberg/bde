@@ -333,6 +333,7 @@ namespace bdlat_EnumFunctions {
         // documentation for further information.
 
         enum {
+//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicEnumeration>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -393,7 +394,7 @@ namespace bdlat_EnumFunctions {
 }  // close namespace bdlat_EnumFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                       // -----------------------------

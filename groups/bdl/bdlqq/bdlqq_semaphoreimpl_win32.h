@@ -92,9 +92,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-            // =============================================
-            // class SemaphoreImpl<Platform::Win32Semaphore>
-            // =============================================
+               // =============================================
+               // class SemaphoreImpl<Platform::Win32Semaphore>
+               // =============================================
 
 template <>
 class SemaphoreImpl<Platform::Win32Semaphore> {
@@ -146,13 +146,13 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-            // ---------------------------------------------
-            // class SemaphoreImpl<Platform::Win32Semaphore>
-            // ---------------------------------------------
+               // ---------------------------------------------
+               // class SemaphoreImpl<Platform::Win32Semaphore>
+               // ---------------------------------------------
 
 // CREATORS
 inline

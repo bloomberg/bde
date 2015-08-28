@@ -94,6 +94,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldvalue.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
@@ -127,8 +131,7 @@ class UserFields {
     typedef bsl::vector<ball::UserFieldValue>::const_iterator ConstIterator;
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(UserFields,
-                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFields, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit UserFields(bslma::Allocator *basicAllocator = 0);
@@ -153,7 +156,7 @@ class UserFields {
 
     void removeAll();
         // Remove all of the user field values from this object.  After this
-        // method is called 'length' will be 0.
+        // method is called 'length' is 0.
 
     void append(const UserFieldValue& value);
         // Append the specified 'value' to this object.

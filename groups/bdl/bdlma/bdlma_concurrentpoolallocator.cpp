@@ -4,11 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
-#include <bslma_testallocator.h>    // for testing only
+#include <bdlqq_threadutil.h>
 
 #include <bslma_default.h>
-
-#include <bdlqq_threadutil.h>
+#include <bslma_testallocator.h>    // for testing only
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -192,16 +191,16 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
     return ptr + sizeof(Header);
 }
 
-void ConcurrentPoolAllocator::deallocate(void *ptr)
+void ConcurrentPoolAllocator::deallocate(void *address)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!ptr)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!address)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
     }
 
     Header *header = static_cast<Header *>(
                         static_cast<void *>(
-                            static_cast<char *>(ptr) - sizeof(Header)));
+                            static_cast<char *>(address) - sizeof(Header)));
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                     k_MAGIC_NUMBER == header->d_magicNumber)) {
         d_pool.object().deallocate(header);

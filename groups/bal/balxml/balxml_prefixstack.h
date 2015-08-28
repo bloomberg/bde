@@ -103,9 +103,9 @@ namespace BloombergLP {
 
 namespace balxml {class NamespaceRegistry;
 
-                        // ========================
-                        // class PrefixStack
-                        // ========================
+                             // =================
+                             // class PrefixStack
+                             // =================
 
 class PrefixStack {
     // 'PrefixStack' allows associating a unique integer (namespace ID)
@@ -208,7 +208,7 @@ class PrefixStack {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS

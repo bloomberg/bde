@@ -1,6 +1,8 @@
 // baljsn_parserutil.t.cpp                                            -*-C++-*-
 #include <baljsn_parserutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
@@ -25,6 +27,8 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -72,88 +76,53 @@ using bsl::endl;
 // [ 1] BREATHING TEST
 // [21] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define LOOP0_ASSERT ASSERT
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-// ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-
-enum { SUCCESS = 0, FAILURE = -1 };
 
 typedef bslstl::StringRef StringRef;
 
@@ -161,8 +130,8 @@ typedef baljsn::ParserUtil Util;
 
 bool areBuffersEqual(const char *lhs, const char *rhs)
     // Compare the data written to the specified 'lhs' with the data in the
-    // specified 'rhs' ignoring whitespace in the specified 'lhs'.  Return
-    // 'true' if they are equal, and 'false' otherwise.
+    // specified 'rhs' ignoring whitespace in the 'lhs'.  Return 'true' if they
+    // are equal, and 'false' otherwise.
 {
     while (*lhs) {
         if (' ' == *lhs) {
@@ -179,7 +148,7 @@ bool areBuffersEqual(const char *lhs, const char *rhs)
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64  Int64;
@@ -227,7 +196,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Decoding into a Simple 'struct' from JSON data
 ///---------------------------------------------------------
-// Suppose we want to deserialize some JSON data into an object.
+// Suppose we want to de-serialize some JSON data into an object.
 //
 // First, we define a struct, 'Employee', to contain the data:
 //..
@@ -247,7 +216,7 @@ int main(int argc, char *argv[])
     const char *name = "\"John Smith\"";
     const char *date = "\"1985-06-24\"";
     const char *age  = "21";
-//
+
     bslstl::StringRef nameRef(name);
     bslstl::StringRef dateRef(date);
     bslstl::StringRef ageRef(age);
@@ -763,7 +732,7 @@ int main(int argc, char *argv[])
 
                 bdlt::DatetimeTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1160,7 +1129,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1415,7 +1384,7 @@ int main(int argc, char *argv[])
 
                 bdlt::DateTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1556,7 +1525,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Date value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1697,7 +1666,7 @@ int main(int argc, char *argv[])
 
                 bdlt::TimeTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1817,7 +1786,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Time value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1876,8 +1845,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input              exp                     isValid
-                // ----   -----              ---                     -------
+                //line    input              exp                     isValid
+                //----    -----              ---                     -------
                 {  L_,    "\"\"",            "",                      true   },
                 {  L_,    "\"ABC\"",         "ABC",                   true   },
 
@@ -1963,7 +1932,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -2022,8 +1991,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                         exp    isValid
-                // ----   -----                         ---    -------
+                //line    input                       exp    isValid
+                //----    -----                       ---    -------
                 {  L_,      "0",                      0.0,     true    },
                 {  L_,      "1",                      1.0,     true    },
                 {  L_,     "-1",                     -1.0,     true    },
@@ -2130,7 +2099,8 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(),
+                                 static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2187,7 +2157,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            const Type ERROR_VALUE = 99.99;
+            const Type ERROR_VALUE = 99.99f;
 
             static const struct {
                 int         d_line;    // line number
@@ -2195,8 +2165,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                         exp    isValid
-                // ----   -----                         ---    -------
+                //line    input                        exp    isValid
+                //----    -----                        ---    -------
                 {  L_,      "0",                      0.0f,     true    },
                 {  L_,      "1",                      1.0f,     true    },
                 {  L_,     "-1",                     -1.0f,     true    },
@@ -2230,9 +2200,9 @@ int main(int argc, char *argv[])
                 {  L_,    "1.5",                    1.5f,       true    },
                 {  L_,    "1.9",                    1.9f,       true    },
 
-                {  L_,   "100.123",              100.123,       true    },
-                {  L_,   "99.5",                    99.5,       true    },
-                {  L_,    "0.86",                   0.86,       true    },
+                {  L_,   "100.123",             100.123f,       true    },
+                {  L_,   "99.5",                   99.5f,       true    },
+                {  L_,    "0.86",                  0.86f,       true    },
 
                 {  L_,    "1e0",                       1,       true    },
                 {  L_,    "1E0",                       1,       true    },
@@ -2254,8 +2224,8 @@ int main(int argc, char *argv[])
                 {  L_,    "1E1",                      10,       true    },
                 {  L_,    "1e+1",                     10,       true    },
                 {  L_,    "1E+1",                     10,       true    },
-                {  L_,    "1e-1",                    0.1,       true    },
-                {  L_,    "1E-1",                    0.1,       true    },
+                {  L_,    "1e-1",                   0.1f,       true    },
+                {  L_,    "1E-1",                   0.1f,       true    },
 
                 {  L_,  "-",          ERROR_VALUE,   false   },
                 {  L_,  ".5",         ERROR_VALUE,   false   },
@@ -2296,7 +2266,8 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(),
+                                 static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2364,8 +2335,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -2569,7 +2540,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2637,8 +2608,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -2893,7 +2864,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2961,8 +2932,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3140,7 +3111,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3207,8 +3178,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3435,7 +3406,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3503,8 +3474,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3675,7 +3646,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3742,8 +3713,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3953,7 +3924,7 @@ int main(int argc, char *argv[])
                 const int    IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4020,8 +3991,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
     {  L_,         "127",                   127,      true    },
@@ -4164,7 +4135,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4230,8 +4201,8 @@ int main(int argc, char *argv[])
                 signed char  d_exp;     // exp char value
                 bool         d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                  '\0',      true    },
     {  L_,          "32",                   ' ',      true    },
     {  L_,          "49",                   '1',      true    },
@@ -4384,7 +4355,8 @@ int main(int argc, char *argv[])
 
                 // char values
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&c, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -4397,7 +4369,8 @@ int main(int argc, char *argv[])
 
                 // signed char values
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&sc, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -4426,7 +4399,7 @@ int main(int argc, char *argv[])
         //: 1 Use a brute force approach to test both cases.  Confirm that the
         //:   return value is 0.
         //:
-        //: 2 Try to decode an errorneous value and verify that the return
+        //: 2 Try to decode an erroneous value and verify that the return
         //:   value is non-zero.
         //
         // Testing:
@@ -4447,8 +4420,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp char value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line    input       exp      isValid
-                // ----    -----       ---      -------
+                //line    input        exp      isValid
+                //----    -----        ---      -------
 
                 {   L_,    "",          EV,      false    },
 
@@ -4485,7 +4458,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(LINE) P(INPUT) P(EXP) }
 
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&value, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);

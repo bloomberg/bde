@@ -25,9 +25,9 @@ using namespace BloombergLP;
 // [ 3] USAGE EXMAPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -41,9 +41,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -59,9 +59,9 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -72,9 +72,9 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
 #define NL "\n"
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 #define CHK(X) (X != 0 ? (const char *) X : "")
 #define NUM_ATTRIBUTES 5
 
@@ -117,42 +117,42 @@ static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 static const TestNode fakeDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { Obj::BAEXML_NODE_TYPE_NONE },
+    { Obj::e_NODE_TYPE_NONE },
 
-    { Obj::BAEXML_NODE_TYPE_XML_DECLARATION,
+    { Obj::e_NODE_TYPE_XML_DECLARATION,
       "xml"          , XmlValue      , +1   },
 
-    { Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { Obj::e_NODE_TYPE_ELEMENT,
       "directory-entry" , 0             ,  0,
       false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
-    { Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { Obj::e_NODE_TYPE_ELEMENT,
       "name"           , 0             , +1,  },
 
-    { Obj::BAEXML_NODE_TYPE_TEXT,
+    { Obj::e_NODE_TYPE_TEXT,
       0                , "John Smith"  , +1   },
 
-    { Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { Obj::e_NODE_TYPE_END_ELEMENT,
       "name"           , 0             , -1   },
 
-    { Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { Obj::e_NODE_TYPE_ELEMENT,
       "phone"          , 0             ,  0,
       false, { "dir:phonetype", "cell"                                   } },
 
-    { Obj::BAEXML_NODE_TYPE_TEXT,
+    { Obj::e_NODE_TYPE_TEXT,
       0                , "212-318-2000", +1   },
 
-    { Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { Obj::e_NODE_TYPE_END_ELEMENT,
       "phone"          , 0             , -1   },
 
-    { Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { Obj::e_NODE_TYPE_ELEMENT,
        "address"        , 0             ,  0,
        true                                                                 },
 
-    { Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { Obj::e_NODE_TYPE_END_ELEMENT,
       "directory-entry", 0             , -1   },
 
-    { Obj::BAEXML_NODE_TYPE_NONE }
+    { Obj::e_NODE_TYPE_NONE }
 };
 
 // Start of usage example, extract to the 'balxml::Reader' header file.
@@ -251,11 +251,11 @@ int advancePastWhiteSpace(balxml::Reader& reader) {
         value = reader.nodeValue();
         type  = reader.nodeType();
     } while(0 == rc &&
-            type == balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE ||
-            (type == balxml::Reader::BAEXML_NODE_TYPE_TEXT &&
+            type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
+            (type == balxml::Reader::e_NODE_TYPE_TEXT &&
              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
-    ASSERT( reader.nodeType() != balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE);
+    ASSERT( reader.nodeType() != balxml::Reader::e_NODE_TYPE_WHITESPACE);
 
     return rc;
 }
@@ -304,7 +304,7 @@ int usageExample()
 //..
     ASSERT( reader.isOpen());
     ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
     ASSERT(!reader.nodeName());
     ASSERT(!reader.nodeHasValue());
     ASSERT(!reader.nodeValue());
@@ -320,7 +320,7 @@ int usageExample()
     int rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
     ASSERT( reader.nodeType() ==
-                              balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                              balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "version='1.0' encoding='UTF-8'"));
@@ -334,7 +334,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 1);
@@ -351,7 +351,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -360,7 +360,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "John Smith"));
     ASSERT( reader.nodeDepth() == 3);
@@ -369,7 +369,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -381,7 +381,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -410,7 +410,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
     ASSERT( reader.nodeDepth() == 3);
@@ -419,7 +419,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -431,7 +431,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "address"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -442,7 +442,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( rc == 0);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 1);
@@ -459,9 +459,9 @@ int usageExample()
 //..
 // End of usage example, extract to the 'balxml::Reader' header file.
 
-                        // ----------------
-                        // class TestReader
-                        // ----------------
+                              // ----------------
+                              // class TestReader
+                              // ----------------
 
 // Do to the size of the TestReader's implementation it does not get promoted
 // to the usage example in the 'balxml::Reader' header.
@@ -476,7 +476,7 @@ inline void TestReader::setEncoding(const char *encoding) {
 inline void TestReader::adjustPrefixStack() {
     // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
     // push an namespace prefixed on the prefix stack.
-    if (Obj::BAEXML_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
+    if (Obj::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
 
         for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
             const char *prefix = d_currentNode->d_attributes[ii].d_qname;
@@ -496,7 +496,7 @@ inline void TestReader::adjustPrefixStack() {
             }
         }
     }
-    else if (Obj::BAEXML_NODE_TYPE_NONE == d_currentNode->d_type) {
+    else if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
         d_prefixes->reset();
     }
 }
@@ -591,7 +591,7 @@ int TestReader::advanceToNextNode() {
 
     d_currentNode++;
 
-    if (Obj::BAEXML_NODE_TYPE_NONE == d_currentNode->d_type) {
+    if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
         // If the node type is BAEXML_NODE_TYPE_NONE after we have just
         // incremented to the next node, that mean we are at the end of the
         // document.  An easy way to deal with not incrementing d_currentNode
@@ -739,7 +739,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return BAEXML_NODE_TYPE_NONE;                                 // RETURN
+        return e_NODE_TYPE_NONE;                                 // RETURN
     }
 
     return d_currentNode->d_type;
@@ -830,9 +830,9 @@ unsigned int TestReader::options() const {
     return 0;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -908,23 +908,23 @@ int main(int argc, char *argv[])
             << "==================" << bsl::endl;
 
         static const balxml::Reader::NodeType DATA[] = {
-            balxml::Reader::BAEXML_NODE_TYPE_NONE,
-            balxml::Reader::BAEXML_NODE_TYPE_ELEMENT,
-            balxml::Reader::BAEXML_NODE_TYPE_TEXT,
-            balxml::Reader::BAEXML_NODE_TYPE_CDATA,
-            balxml::Reader::BAEXML_NODE_TYPE_ENTITY_REFERENCE,
-            balxml::Reader::BAEXML_NODE_TYPE_ENTITY,
-            balxml::Reader::BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION,
-            balxml::Reader::BAEXML_NODE_TYPE_COMMENT,
-            balxml::Reader::BAEXML_NODE_TYPE_DOCUMENT,
-            balxml::Reader::BAEXML_NODE_TYPE_DOCUMENT_TYPE,
-            balxml::Reader::BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT,
-            balxml::Reader::BAEXML_NODE_TYPE_NOTATION,
-            balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,
-            balxml::Reader::BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE,
-            balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT,
-            balxml::Reader::BAEXML_NODE_TYPE_END_ENTITY,
-            balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION,
+            balxml::Reader::e_NODE_TYPE_NONE,
+            balxml::Reader::e_NODE_TYPE_ELEMENT,
+            balxml::Reader::e_NODE_TYPE_TEXT,
+            balxml::Reader::e_NODE_TYPE_CDATA,
+            balxml::Reader::e_NODE_TYPE_ENTITY_REFERENCE,
+            balxml::Reader::e_NODE_TYPE_ENTITY,
+            balxml::Reader::e_NODE_TYPE_PROCESSING_INSTRUCTION,
+            balxml::Reader::e_NODE_TYPE_COMMENT,
+            balxml::Reader::e_NODE_TYPE_DOCUMENT,
+            balxml::Reader::e_NODE_TYPE_DOCUMENT_TYPE,
+            balxml::Reader::e_NODE_TYPE_DOCUMENT_FRAGMENT,
+            balxml::Reader::e_NODE_TYPE_NOTATION,
+            balxml::Reader::e_NODE_TYPE_WHITESPACE,
+            balxml::Reader::e_NODE_TYPE_SIGNIFICANT_WHITESPACE,
+            balxml::Reader::e_NODE_TYPE_END_ELEMENT,
+            balxml::Reader::e_NODE_TYPE_END_ENTITY,
+            balxml::Reader::e_NODE_TYPE_XML_DECLARATION,
             balxml::Reader::NodeType(31)   // out of range value
         };
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;

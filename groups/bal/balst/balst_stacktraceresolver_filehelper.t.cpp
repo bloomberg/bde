@@ -39,9 +39,9 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -55,9 +55,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -70,9 +70,9 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -80,9 +80,9 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//=============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
@@ -91,9 +91,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
    || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-//=============================================================================
-//                  GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     GLOBAL HELPER CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlsu::FilesystemUtil                FilesystemUtil;
 typedef FilesystemUtil::FileDescriptor       FdType;    // shorthand for file
@@ -101,9 +101,9 @@ typedef FilesystemUtil::FileDescriptor       FdType;    // shorthand for file
 typedef balst::StackTraceResolver_FileHelper Obj;
 typedef bsls::Types::Int64                   Int64;
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 static
 int getProcessId()
 {
@@ -140,9 +140,9 @@ class FileGuard {
 }  // close unnamed namespace
 #endif
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

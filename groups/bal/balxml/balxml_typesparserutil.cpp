@@ -299,9 +299,9 @@ int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
 }  // close unnamed namespace
 
 namespace balxml {
-                         // ---------------------------------
+                         // --------------------------
                          // struct TypesParserUtil_Imp
-                         // ---------------------------------
+                         // --------------------------
 
 // BASE64 FUNCTIONS
 

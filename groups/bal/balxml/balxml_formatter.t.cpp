@@ -49,9 +49,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
   if (!(X)) { bsl::cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -95,9 +95,9 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ bsl::cout << "\t" << bsl::flush;   // Print tab w/o newline
 
 namespace {
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef balxml::Formatter Obj;
 
 // names
@@ -143,13 +143,13 @@ enum Test {
     TEST_B = 500
 };
 
-//=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    CLASSES FOR TESTING USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//                          Perturbation class
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                            Perturbation class
+// ----------------------------------------------------------------------------
 struct Pert {
     // Provides permutations for orthogonal perturbation
     static bool s_doFlush[];
@@ -401,9 +401,9 @@ using namespace bsl;  // automatically added by script
 }
 
 }  // close unnamed namespace
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 #ifdef BSLS_PLATFORM_CMP_MSVC
 // Disable warnings that the Microsoft compiler issues for overflow of floating
 // point constants, that we are deliberately using to confirm how we handle
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
         formatter.addAttribute("size", 3);
 
         formatter.openElement("pickDates",
-                              balxml::Formatter::BAEXML_NEWLINE_INDENT);
+                              balxml::Formatter::e_NEWLINE_INDENT);
         formatter.addListData(bdlt::Date(2005, 1, 17));
         formatter.addListData(bdlt::Date(2005, 2, 21));
         formatter.addListData(bdlt::Date(2005, 3, 25));
@@ -1391,16 +1391,16 @@ int main(int argc, char *argv[])
               int                 d_levelNesting;
               Obj::WhitespaceType d_ws;
           } DATA[] = {
-              { L_, A, 2, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, A, 5, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, A, 10, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, D, 2, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, D, 10, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, B, 2, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, B, 5, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, B, 10, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, C, 2, Obj:: BAEXML_NEWLINE_INDENT},
-              { L_, C, 10, Obj::BAEXML_NEWLINE_INDENT },
+              { L_, A, 2, Obj::e_PRESERVE_WHITESPACE },
+              { L_, A, 5, Obj::e_PRESERVE_WHITESPACE },
+              { L_, A, 10, Obj::e_PRESERVE_WHITESPACE },
+              { L_, D, 2, Obj::e_PRESERVE_WHITESPACE },
+              { L_, D, 10, Obj::e_PRESERVE_WHITESPACE },
+              { L_, B, 2, Obj::e_NEWLINE_INDENT },
+              { L_, B, 5, Obj::e_NEWLINE_INDENT },
+              { L_, B, 10, Obj::e_NEWLINE_INDENT },
+              { L_, C, 2, Obj:: e_NEWLINE_INDENT},
+              { L_, C, 10, Obj::e_NEWLINE_INDENT },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
           for (int i = 0; i < DATA_SIZE; ++i) {
@@ -1491,18 +1491,18 @@ int main(int argc, char *argv[])
               const char         *d_value;
               Obj::WhitespaceType d_ws;
           } DATA[] = {
-              { L_, A, I, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, A, J, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, A, M, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, C, J, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, D, I, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, D, M, Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, A, I, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, A, J, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, A, M, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, C, J, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, D, I, Obj::BAEXML_NEWLINE_INDENT },
-              { L_, D, M, Obj::BAEXML_NEWLINE_INDENT },
+              { L_, A, I, Obj::e_PRESERVE_WHITESPACE },
+              { L_, A, J, Obj::e_PRESERVE_WHITESPACE },
+              { L_, A, M, Obj::e_PRESERVE_WHITESPACE },
+              { L_, C, J, Obj::e_PRESERVE_WHITESPACE },
+              { L_, D, I, Obj::e_PRESERVE_WHITESPACE },
+              { L_, D, M, Obj::e_PRESERVE_WHITESPACE },
+              { L_, A, I, Obj::e_NEWLINE_INDENT },
+              { L_, A, J, Obj::e_NEWLINE_INDENT },
+              { L_, A, M, Obj::e_NEWLINE_INDENT },
+              { L_, C, J, Obj::e_NEWLINE_INDENT },
+              { L_, D, I, Obj::e_NEWLINE_INDENT },
+              { L_, D, M, Obj::e_NEWLINE_INDENT },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
           for (int i = 0; i < DATA_SIZE; ++i) {
@@ -1532,7 +1532,7 @@ int main(int argc, char *argv[])
 
                   bsl::string expected;
                   if (WRAP_COLUMN > 0
-                   && Obj::BAEXML_NEWLINE_INDENT == WS) { // (c)
+                   && Obj::e_NEWLINE_INDENT == WS) { // (c)
                       if (bsl::strlen(VALUE) > 0) {
                           // do not add unnecessary newline if VALUE is ""
                           expected += '\n';
@@ -1649,7 +1649,7 @@ int main(int argc, char *argv[])
               const int LINE = DATA[i].d_line;
               const char **VALUES = DATA[i].d_value;
               const int NUMVALUES = DATA[i].d_numValues;
-              for (int ws = 0; ws <= Obj::BAEXML_NEWLINE_INDENT; ++ws) {
+              for (int ws = 0; ws <= Obj::e_NEWLINE_INDENT; ++ws) {
                   const Obj::WhitespaceType WS =
                       (Obj::WhitespaceType) ws;
                   Pert pert;
@@ -1684,7 +1684,7 @@ int main(int argc, char *argv[])
                               expected += '>'; // (a)
                               ++expectedColumn;
                               if (WRAP_COLUMN > 0
-                               && Obj::BAEXML_NEWLINE_INDENT == WS) {
+                               && Obj::e_NEWLINE_INDENT == WS) {
                                   expected += '\n'; // (d)
                                   expectedColumn = 0;
                               }
@@ -1695,20 +1695,20 @@ int main(int argc, char *argv[])
                               if (WRAP_COLUMN > 0
                                && expectedColumn + bsl::strlen(VALUE) >=
                                                                     WRAP_COLUMN
-                               && Obj::BAEXML_PRESERVE_WHITESPACE != WS) {
+                               && Obj::e_PRESERVE_WHITESPACE != WS) {
                                   isWrapped = true;
                               }
 
                               if (isWrapped) { // (b), (c)
                                   switch (WS) {
-                                    case Obj::BAEXML_WORDWRAP: {
+                                    case Obj::e_WORDWRAP: {
                                         if (expectedColumn > 0) {
                                             expected += '\n'; // (b)
                                         }
                                         expectedColumn = 0;
                                     } break;
-                                    case Obj::BAEXML_WORDWRAP_INDENT:
-                                    case Obj::BAEXML_NEWLINE_INDENT: {
+                                    case Obj::e_WORDWRAP_INDENT:
+                                    case Obj::e_NEWLINE_INDENT: {
                                         if (expectedColumn > 0) {
                                             expected += '\n'; // (b)
                                         }
@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[])
               const int LINE = DATA[i].d_line;
               const char **VALUES = DATA[i].d_value;
               const int NUMVALUES = DATA[i].d_numValues;
-              for (int ws = 0; ws <= Obj::BAEXML_NEWLINE_INDENT; ++ws) {
+              for (int ws = 0; ws <= Obj::e_NEWLINE_INDENT; ++ws) {
                   const Obj::WhitespaceType WS = (Obj::WhitespaceType) ws;
                   Pert pert;
                   while (pert.next()) {
@@ -1856,14 +1856,14 @@ int main(int argc, char *argv[])
                           }
 
                           if (WRAP_COLUMN > 0
-                           && Obj::BAEXML_NEWLINE_INDENT == WS
+                           && Obj::e_NEWLINE_INDENT == WS
                            && 0 == value) {
                               expected += '\n'; // (c)
                               expectedColumn = 0;
                           }
 
                           if (WRAP_COLUMN > 0
-                           && Obj::BAEXML_NEWLINE_INDENT == WS
+                           && Obj::e_NEWLINE_INDENT == WS
                            && isFirstData && bsl::strlen(VALUE) > 0) {
                               // first non-empty data write the indentation
                               // for BAEXML_NEWLINE_INDENT
@@ -2322,18 +2322,18 @@ int main(int argc, char *argv[])
               Obj::WhitespaceType d_ws;
           } DATA[] = {
               //    hasHeader elemName  ws-handling
-              { L_, true,     A,       Obj::BAEXML_NEWLINE_INDENT },
-              { L_, true,     A,       Obj::BAEXML_WORDWRAP_INDENT },
-              { L_, true,     A,       Obj::BAEXML_WORDWRAP },
-              { L_, true,     A,       Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, false,    A,       Obj::BAEXML_NEWLINE_INDENT },
-              { L_, false,    A,       Obj::BAEXML_WORDWRAP_INDENT },
-              { L_, false,    A,       Obj::BAEXML_WORDWRAP },
-              { L_, false,    A,       Obj::BAEXML_PRESERVE_WHITESPACE },
-              { L_, true,     C,       Obj::BAEXML_NEWLINE_INDENT },
-              { L_, true,     C,       Obj::BAEXML_WORDWRAP_INDENT },
-              { L_, false,    D,       Obj::BAEXML_NEWLINE_INDENT },
-              { L_, false,    D,       Obj::BAEXML_WORDWRAP_INDENT },
+              { L_, true,     A,       Obj::e_NEWLINE_INDENT },
+              { L_, true,     A,       Obj::e_WORDWRAP_INDENT },
+              { L_, true,     A,       Obj::e_WORDWRAP },
+              { L_, true,     A,       Obj::e_PRESERVE_WHITESPACE },
+              { L_, false,    A,       Obj::e_NEWLINE_INDENT },
+              { L_, false,    A,       Obj::e_WORDWRAP_INDENT },
+              { L_, false,    A,       Obj::e_WORDWRAP },
+              { L_, false,    A,       Obj::e_PRESERVE_WHITESPACE },
+              { L_, true,     C,       Obj::e_NEWLINE_INDENT },
+              { L_, true,     C,       Obj::e_WORDWRAP_INDENT },
+              { L_, false,    D,       Obj::e_NEWLINE_INDENT },
+              { L_, false,    D,       Obj::e_WORDWRAP_INDENT },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
           for (int i = 0; i < DATA_SIZE; ++i) {
@@ -2568,7 +2568,7 @@ int main(int argc, char *argv[])
 
           ss.str(bsl::string());
           formatter.openElement("Features",
-                                balxml::Formatter::BAEXML_NEWLINE_INDENT);
+                                balxml::Formatter::e_NEWLINE_INDENT);
           ASSERT(ss.str() ==
                  "        <Features");
 
@@ -2639,7 +2639,7 @@ int main(int argc, char *argv[])
       case -1: {
           balxml::Formatter formatter(bsl::cout, 0, 4, 40);
           formatter.openElement("holidays",
-                                balxml::Formatter::BAEXML_NEWLINE_INDENT);
+                                balxml::Formatter::e_NEWLINE_INDENT);
           formatter.addListData(bdlt::Date(2005, 1, 17));
           formatter.addListData(bdlt::Date(2005, 2, 21));
           formatter.addListData(bdlt::Date(2005, 3, 25));
@@ -2683,7 +2683,7 @@ int main(int argc, char *argv[])
           formatter.addAttribute("size", 3);
 
           formatter.openElement("pickDates",
-                                balxml::Formatter::BAEXML_NEWLINE_INDENT);
+                                balxml::Formatter::e_NEWLINE_INDENT);
           formatter.addListData(bdlt::Date(2005, 1, 17));
           formatter.addListData(bdlt::Date(2005, 2, 21));
           formatter.addListData(bdlt::Date(2005, 3, 25));

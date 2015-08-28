@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlb::StrTokenRefIter: token iterator for a non-modifiable string
 //
-//@SEE_ALSO: bsl_string, bdlb_xxxstrtokeniter
+//@SEE_ALSO: bsl_string
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -28,11 +28,7 @@ BSLS_IDENT("$Id: $")
 // string references (i.e., instances of 'bslstl::StringRef') that are returned
 // by the 'bdlb::StrTokenRefIter' accessors 'operator()', 'delimiter', and
 // 'previousDelimiter' remain valid for as long as the input string supplied to
-// the iterator upon construction (or 'reset') remains valid.  Contrast this
-// behavior with that of the tokenizing iterator supplied by
-// 'bdlb_xxxstrtokeniter' (namely 'bdlb::StrTokenIter') which expressly
-// overwrites the contents of token and delimiter "buffers" each time an
-// instance of that token iterator is advanced (via 'operator++').
+// the iterator upon construction (or 'reset') remains valid.
 //
 ///Definitions
 ///-----------
@@ -324,7 +320,7 @@ class StrTokenRefIter {
     // 'bslstl::StringRef'.
 
     // PRIVATE TYPES
-    enum { BDEUT_TABLE_SIZE = 256 };
+    enum { k_TABLE_SIZE = 256 };
 
     // DATA
     const char *d_cursor_p;                // cursor into original string
@@ -332,7 +328,7 @@ class StrTokenRefIter {
     const char *d_token_p;                 // ptr to (current) token
     const char *d_postDelim_p;             // ptr to (trailing) delimiter
     const char *d_end_p;                   // ptr to one past end of string
-          char  d_delimTable[BDEUT_TABLE_SIZE];  // table of delimiter
+          char  d_delimTable[k_TABLE_SIZE];  // table of delimiter
                                                  // characters
 
   private:

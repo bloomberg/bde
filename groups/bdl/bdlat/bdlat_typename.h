@@ -309,9 +309,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                          // =====================
-                          // struct bdlat_TypeName
-                          // =====================
+                           // =====================
+                           // struct bdlat_TypeName
+                           // =====================
 
 struct bdlat_TypeName {
     // Static template functions for returning a string representation for the
@@ -374,9 +374,9 @@ namespace bdlat_TypeName_Overloadable {
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
-                          // =========================
-                          // struct bdlat_TypeName_Imp
-                          // =========================
+                         // =========================
+                         // struct bdlat_TypeName_Imp
+                         // =========================
 
 struct bdlat_TypeName_Imp {
     // Private class providing implementation of 'bdlat_TypeName'.
@@ -541,9 +541,9 @@ struct bdlat_TypeName_Imp {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // -------------------------
-                          // struct bdlat_TypeName_Imp
-                          // -------------------------
+                         // -------------------------
+                         // struct bdlat_TypeName_Imp
+                         // -------------------------
 
 template <class TYPE>
 inline
@@ -980,9 +980,9 @@ bdlat_TypeName_Overloadable::bdlat_TypeName_xsdName(const TYPE& object,
     return bdlat_TypeName_Imp::xsdName(&object, format);
 }
 
-                          // --------------------
-                          // class bdlat_TypeName
-                          // --------------------
+                            // --------------------
+                            // class bdlat_TypeName
+                            // --------------------
 
 template <class TYPE>
 inline

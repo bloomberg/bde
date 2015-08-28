@@ -60,9 +60,9 @@ using namespace BloombergLP;
 // [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -110,18 +110,18 @@ static void aSsErT(int c, const char *s, int i) {
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -129,9 +129,9 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-//=============================================================================
-//                  GLOBAL HELPER TYPES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               GLOBAL HELPER TYPES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 #define NUM_ELEMENTS(array) (sizeof(array) / sizeof(*(array)))
 
@@ -143,10 +143,10 @@ typedef balxml::ErrorInfo Obj;
 #endif
 
 // Abbreviations for severities.
-const Obj::Severity NO_ERROR    = Obj::BAEXML_NO_ERROR;
-const Obj::Severity WARNING     = Obj::BAEXML_WARNING;
-const Obj::Severity ERROR       = Obj::BAEXML_ERROR;
-const Obj::Severity FATAL_ERROR = Obj::BAEXML_FATAL_ERROR;
+const Obj::Severity NO_ERROR    = Obj::e_NO_ERROR;
+const Obj::Severity WARNING     = Obj::e_WARNING;
+const Obj::Severity ERROR       = Obj::e_ERROR;
+const Obj::Severity FATAL_ERROR = Obj::e_FATAL_ERROR;
 
 struct TestVector
 {
@@ -237,9 +237,9 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     return true;
 }
 
-//=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    CLASSES FOR TESTING USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
 // In this example, we create a parser for a simple file of percentages.
 // The file is formatted as a sequence of lines, with each line containing a
@@ -324,7 +324,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             if (MAX_LINE == len && d_input->fail()) {
                 // 20 characters read without encountering newline.
                 // Warn about long line and discard rest of line.
-                errorInfo->setError(balxml::ErrorInfo::BAEXML_WARNING,
+                errorInfo->setError(balxml::ErrorInfo::e_WARNING,
                                     d_line, len, d_docName,
                                     "Text after 20th column was discarded");
                 d_input->clear();
@@ -354,13 +354,13 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         int endColumn = endp - buffer;
         if (endColumn < len) {
             // Conversion did not consume rest of buffer.
-            errorInfo->setError(balxml::ErrorInfo::BAEXML_ERROR,
+            errorInfo->setError(balxml::ErrorInfo::e_ERROR,
                                 d_line, endColumn + 1, d_docName,
                                 "Bad input character");
             return -2;                                                // RETURN
         } else if (result < 0 || 100 < result) {
             // Range error.
-            errorInfo->setError(balxml::ErrorInfo::BAEXML_ERROR,
+            errorInfo->setError(balxml::ErrorInfo::e_ERROR,
                                 d_line, startColumn + 1, d_docName,
                                 "Value is not between 0 and 100");
             return -2;                                                // RETURN
@@ -497,9 +497,9 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
         Obj errInfo;
 
         //Fatal Error
-        errInfo.setError(balxml::ErrorInfo::BAEXML_FATAL_ERROR,
+        errInfo.setError(balxml::ErrorInfo::e_FATAL_ERROR,
                          111,
                          222,
                          "FatalSource",
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
         ASSERT(errInfo.message() == "FatalError");
 
         //Error
-        errInfo.setError(balxml::ErrorInfo::BAEXML_ERROR,
+        errInfo.setError(balxml::ErrorInfo::e_ERROR,
                          333,
                          444,
                          "Source",
@@ -1111,7 +1111,7 @@ int main(int argc, char *argv[])
 
         // reset and set again
         errInfo.reset();
-        errInfo.setError(balxml::ErrorInfo::BAEXML_ERROR,
+        errInfo.setError(balxml::ErrorInfo::e_ERROR,
                          333,
                          444,
                          "Source",
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
         ASSERT(errInfo.message() == "Error");
 
         // Warning
-        errInfo.setError(balxml::ErrorInfo::BAEXML_WARNING,
+        errInfo.setError(balxml::ErrorInfo::e_WARNING,
                          555,
                          666,
                          "WarningSource",
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
 
         // reset and set again
         errInfo.reset();
-        errInfo.setError(balxml::ErrorInfo::BAEXML_WARNING,
+        errInfo.setError(balxml::ErrorInfo::e_WARNING,
                          555,
                          666,
                          "WarningSource",
@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
 
         // reset
         errInfo.reset();
-        ASSERT(errInfo.severity() == balxml::ErrorInfo::BAEXML_NO_ERROR);
+        ASSERT(errInfo.severity() == balxml::ErrorInfo::e_NO_ERROR);
         ASSERT(errInfo.lineNumber() == 0);
         ASSERT(errInfo.columnNumber() == 0);
         ASSERT(errInfo.source().empty());

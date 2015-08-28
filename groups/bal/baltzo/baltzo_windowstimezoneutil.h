@@ -261,9 +261,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ==========================
-                        // struct WindowsTimeZoneUtil
-                        // ==========================
+                         // ==========================
+                         // struct WindowsTimeZoneUtil
+                         // ==========================
 
 struct WindowsTimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert

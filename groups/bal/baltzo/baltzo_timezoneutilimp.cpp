@@ -200,9 +200,9 @@ void selectUtcOffset(
     *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();
 }
 
-                        // ---------------------
-                        // class TimeZoneUtilImp
-                        // ---------------------
+                           // ---------------------
+                           // class TimeZoneUtilImp
+                           // ---------------------
 
 // CLASS METHODS
 int baltzo::TimeZoneUtilImp::convertUtcToLocalTime(

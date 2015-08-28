@@ -36,11 +36,6 @@
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 #include <bdlb_strtokenrefiter.h>
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_byteoutstream.h>
-#include <bdlxxxx_byteinstream.h>
-#include <bdlxxxx_bytestreamimputil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -49,6 +44,12 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+
+#include <bslx_byteoutstream.h>
+#include <bslx_byteinstream.h>
+#include <bslx_instreamfunctions.h>
+#include <bslx_marshallingutil.h>
+#include <bslx_outstreamfunctions.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -2801,7 +2802,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, msg->buffer(0).data());
+        bslx::MarshallingUtil::getInt32(&d_msgId, msg->buffer(0).data());
         ASSERT(0 <= d_msgId);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
 
@@ -2817,7 +2818,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
+        bslx::MarshallingUtil::getInt32(&d_msgLength,
                                          msg->buffer(0).data());
         ASSERT(0 <= d_msgLength);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
@@ -2908,10 +2909,10 @@ void TestData::run()
     LOOP2_ASSERT(DATA_SIZE, MAX_DATA_SIZE, DATA_SIZE <= MAX_DATA_SIZE);
 
     int offset = 0;
-    bdlxxxx::ByteStreamImpUtil::putInt32(data, d_threadIntId);
+    bslx::MarshallingUtil::putInt32(data, d_threadIntId);
     offset += sizeof(int);
 
-    bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
+    bslx::MarshallingUtil::putInt32(data + offset, DATA_SIZE);
     offset += sizeof(int);
 
     const int TOTAL_SIZE = DATA_SIZE + offset;
@@ -7300,7 +7301,7 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
     // Find Message Boundary
 
     int length;
-    bdlxxxx::ByteStreamImpUtil::getInt32(&length, msg->buffer(0).data());
+    bslx::MarshallingUtil::getInt32(&length, msg->buffer(0).data());
     ASSERT(0 < length);
 
     if (length > msg->length() - INT_SIZE) {
@@ -7503,7 +7504,7 @@ int my_QueueProcessor::processOutgoingQueue() {
 
 int my_QueueProcessor::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueProc, (void*)this);
@@ -7826,12 +7827,16 @@ namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
 typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
+const int versionSelector = 20140601;
+
 static void
 generateMessage(btlb::Blob& msg, bslma::Allocator *basicAllocator = 0)
 {
+    using bslx::OutStreamFunctions::bdexStreamOut;
+
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    bdlxxxx::ByteOutStream stream(basicAllocator);
-    bdex_OutStreamFunctions::streamOut(stream, now, 1);
+    bslx::ByteOutStream stream(versionSelector, basicAllocator);
+    bdexStreamOut(stream, now, 1);
     int streamedLength = stream.length();
     msg.setLength(sizeof(int) + streamedLength);
     btlb::BlobUtil::append(&msg, stream.data(), sizeof(int), streamedLength);
@@ -7980,7 +7985,7 @@ int my_QueueClient::processOutgoingQueue() {
 
 int my_QueueClient::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueClientProc, (void*)this);
@@ -8103,16 +8108,18 @@ void *usageExampleMinusOne(void *arg)
 
     int numConnections = NUM_CONNECTIONS * NUM_ITERS;
     while (numConnections) {
+        using bslx::InStreamFunctions::bdexStreamIn;
+
         BlobTypeWithId msg = incoming.popFront();
 
         // Process message here
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         char *msgData = msg.second.buffer(0).data();
         msgData += sizeof(int);
-        bdlxxxx::ByteInStream stream(msgData, msg.second.length()
+        bslx::ByteInStream stream(msgData, msg.second.length()
                                      - sizeof(int));
         bsls::TimeInterval initialTime;
-        bdex_InStreamFunctions::streamIn(stream, initialTime, 1);
+        bdexStreamIn(stream, initialTime, 1);
         now -= initialTime;
         int channelId = msg.first;
         if (veryVerbose) {
@@ -9089,13 +9096,13 @@ void TestDriver::testCase37()
                 char                  rawLength[sizeof length];
 
                 length = strlen(TEXT) + 1;
-                bdlxxxx::ByteStreamImpUtil::putInt32(rawLength, length);
+                bslx::MarshallingUtil::putInt32(rawLength, length);
                 channel.write(rawLength, sizeof length);
                 channel.write(TEXT, length);
 
                 // Read Response
                 channel.read(rawLength, sizeof length);
-                bdlxxxx::ByteStreamImpUtil::getInt32(&length, rawLength);
+                bslx::MarshallingUtil::getInt32(&length, rawLength);
                 LOOP_ASSERT(i, 0 < length);
                 char   *text = new char[length];
                 channel.read(text, length);
@@ -13269,7 +13276,7 @@ void TestDriver::testCase15()
 
                 ASSERT(1 == handles.size());
                 if (1 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                       == handles[0].d_channelType);
                     ASSERT(-1         == handles[0].d_channelId);
                     ASSERT(serverTime <= handles[0].d_creationTime);
@@ -13309,21 +13316,21 @@ void TestDriver::testCase15()
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
                     LOOP_ASSERT(handles[0].d_channelType,
-                                btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                                btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
                     LOOP_ASSERT(handles[1].d_channelType,
-                                btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                                btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         <= handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
                     LOOP_ASSERT(handles[2].d_channelType,
-                                btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                                btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        <= handles[2].d_creationTime);
@@ -13371,25 +13378,25 @@ void TestDriver::testCase15()
                 ASSERT(4 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (4 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         == handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        == handles[2].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[2].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[3].d_channelType);
                     ASSERT(channelId2         == handles[3].d_channelId);
                     ASSERT(importTime         <= handles[3].d_creationTime);
@@ -13410,19 +13417,19 @@ void TestDriver::testCase15()
                 ASSERT(3 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[0].d_channelId);
                     ASSERT(acceptTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(channelId1         == handles[1].d_channelId);
                     ASSERT(connectTime        == handles[1].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId2         == handles[2].d_channelId);
                     ASSERT(importTime         == handles[2].d_creationTime);
@@ -13447,7 +13454,7 @@ void TestDriver::testCase15()
                 mX.getHandleStatistics(&handles);
 
                 ASSERT(1 == handles.size());
-                ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                                   == handles[0].d_channelType);
                 ASSERT(channelId2 == handles[0].d_channelId);
                 ASSERT(importTime == handles[0].d_creationTime);

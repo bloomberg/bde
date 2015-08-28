@@ -2,7 +2,7 @@
 
 #include <bdlma_concurrentallocatoradapter.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>            // for testing only
 #include <bslma_testallocator.h>            // for testing only
@@ -76,22 +76,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                       GLOBAL TYPES AND CONSTANTS
@@ -153,7 +153,7 @@ void *NoopAllocator::allocate(size_type size)
 
 void NoopAllocator::deallocate(void *address)
 {
-    (void *)address;
+    (void)address;
     *d_lastMethod = "deallocate";
 }
 
@@ -234,8 +234,8 @@ extern "C" void *workerThread(void *arg) {
         // CREATORS
         ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
             // Create a thread-enabled vector.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator'
-            // is 0, the currently installed default allocator is used.
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
         : d_elements(basicAllocator)
         {
         }
@@ -295,6 +295,11 @@ extern "C" void *workerThread(void *arg) {
         // the mutex and adapter are initialized before other member variables
         // that depend on them.
 
+      private:
+        // Not implemented:
+        AddressBook_PrivateData(const AddressBook_PrivateData&);
+
+      public:
         bdlqq::Mutex           d_mutex;             // synchronize allocator
 
         bdlma::ConcurrentAllocatorAdapter
@@ -319,6 +324,10 @@ extern "C" void *workerThread(void *arg) {
         // DATA
         ThreadEnabledVector<bsl::string> d_names;      // list of names
         ThreadEnabledVector<bsl::string> d_addresses;  // list of addresses
+
+      private:
+        // Not implemented:
+        AddressBook(const AddressBook&);
 
       public:
         // CREATORS
@@ -489,7 +498,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a NoopAllocator and supply it to a
         //   'bdlma::ConcurrentAllocatorAdapter' under test.  Verify that
-        //   operations on the allocator are delegated to the noop allocator.
+        //   operations on the allocator are delegated to the no-op allocator.
         //
         // Testing:
         //   This "test" exercises basic functionality, but tests nothing.

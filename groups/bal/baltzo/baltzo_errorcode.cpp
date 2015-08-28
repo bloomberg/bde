@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(baltzo_errorcode_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                     // ----------------
-                     // struct ErrorCode
-                     // ----------------
+                              // ----------------
+                              // struct ErrorCode
+                              // ----------------
 
 // CLASS METHODS
 bsl::ostream& baltzo::ErrorCode::print(bsl::ostream&   stream,

@@ -12,15 +12,15 @@ BSLS_IDENT_RCSID(bdlde_byteorder_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // ----------------------
-                        // struct ByteOrder
-                        // ----------------------
+                              // ----------------
+                              // struct ByteOrder
+                              // ----------------
 
 // CLASS METHODS
-bsl::ostream& ByteOrder::print(bsl::ostream&         stream,
-                                     ByteOrder::Enum value,
-                                     int                   level,
-                                     int                   spacesPerLevel)
+bsl::ostream& ByteOrder::print(bsl::ostream&  stream,
+                              ByteOrder::Enum value,
+                              int             level,
+                              int             spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 

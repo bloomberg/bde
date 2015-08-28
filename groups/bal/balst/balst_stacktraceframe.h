@@ -176,9 +176,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                       // ===========================
-                       // class StackTraceFrame
-                       // ===========================
+                           // =====================
+                           // class StackTraceFrame
+                           // =====================
 
 class StackTraceFrame {
     // This simply constrained (value-semantic) attribute class describes a
@@ -450,12 +450,12 @@ void swap(StackTraceFrame& a, StackTraceFrame& b);
     // allocator.
 
 // ============================================================================
-//                       INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                       // ---------------------------
-                       // class StackTraceFrame
-                       // ---------------------------
+                           // ---------------------
+                           // class StackTraceFrame
+                           // ---------------------
 
 // CREATORS
 inline

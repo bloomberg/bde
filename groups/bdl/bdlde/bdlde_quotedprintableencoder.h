@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
 //
 //@CLASSES:
-// bdlde::QuotedPrintableEncoder: automaton performing Quoted-Printable encoding
+// bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
 //
 //@AUTHOR: Alex Fung (afung8)
 //
@@ -108,7 +108,8 @@ BSLS_IDENT("$Id: $")
 //      const char *extraCharsToEncode,
 //      bdlde::QuotedPrintableEncoder::LineBreakMode lineBreakMode
 //                        = bdlde::QuotedPrintableEncoder::BDEDE_CRLF_MODE,
-//      int maxLineLength = bdlde::QuotedPrintableEncoder::DEFAULT_MAX_LINELEN);
+//      int maxLineLength =
+//                         bdlde::QuotedPrintableEncoder::DEFAULT_MAX_LINELEN);
 //..
 //
 // The following examples demonstrate the above rules per the design choices
@@ -195,9 +196,9 @@ BSLS_IDENT("$Id: $")
 //..
 // We will use fixed-sized input and output buffers in the implementation, but,
 // because of the flexibility of 'bsl::istream' and the output-buffer
-// monitoring functionality of 'bdlde::QuotedPrintableEncoder', the fixed buffer
-// sizes do *not* limit the quantity of data that can be read, encoded, or
-// written to the output stream.  The implementation file is as follows.
+// monitoring functionality of 'QuotedPrintableEncoder', the fixed buffer sizes
+// do *not* limit the quantity of data that can be read, encoded, or written to
+// the output stream.  The implementation file is as follows.
 //..
 // streamconverter.cpp                  -*-C++-*-
 //
@@ -424,13 +425,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>  // INT_MAX
 #endif
 
-
 namespace BloombergLP {
-
 namespace bdlde {
-                              // ==================================
-                              // class QuotedPrintableEncoder
-                              // ==================================
+
+                        // ============================
+                        // class QuotedPrintableEncoder
+                        // ============================
 
 class QuotedPrintableEncoder {
     // This class implements a mechanism capable of converting data of
@@ -440,20 +440,30 @@ class QuotedPrintableEncoder {
     enum States {
         // symbolic state values for the encoder
 
-        BDEDE_ERROR_STATE   = -1,  // input is irreparably invalid
-        BDEDE_INITIAL_STATE = 0,   // require no more input
-        BDEDE_INPUT_STATE   = 1,   // general input state
-        BDEDE_DONE_STATE    = 2,   // accepting; any additional input is error
-        BDEDE_SAW_CR_STATE  = 3    // TBD doc
+        e_ERROR_STATE   = -1,  // input is irreparably invalid
+        e_INITIAL_STATE = 0,   // require no more input
+        e_INPUT_STATE   = 1,   // general input state
+        e_DONE_STATE    = 2,   // accepting; any additional input is error
+        e_SAW_CR_STATE  = 3    // TBD doc
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_ERROR_STATE = e_ERROR_STATE
+      , BDEDE_INITIAL_STATE = e_INITIAL_STATE
+      , BDEDE_INPUT_STATE = e_INPUT_STATE
+      , BDEDE_DONE_STATE = e_DONE_STATE
+      , BDEDE_SAW_CR_STATE = e_SAW_CR_STATE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        DEFAULT_MAX_LINELEN = -1   // a flag to indicate that the default
+        e_DEFAULT_MAX_LINELEN = -1   // a flag to indicate that the default
                                    // s_defaultMaxLineLength is to be used;
                                    // this device prevents recompilation of the
                                    // client's code even in the unlikely event
                                    // that the s_defaultMaxLineLength should
                                    // change
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , DEFAULT_MAX_LINELEN = e_DEFAULT_MAX_LINELEN
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
@@ -461,23 +471,35 @@ class QuotedPrintableEncoder {
     enum EquivalenceClass {
         // The input equivalence classes
 
-        BDEDE_PC = 0,  // printable character - copy straight to output
-        BDEDE_CR,      // carriage return     - wait for more input
-        BDEDE_LF,      // line feed           - complete linebreak
-        BDEDE_WS,      // whitespace          - buffer; wait for more input
-        BDEDE_CC       // control character   - encode to Quoted Printable
+        e_PC = 0,  // printable character - copy straight to output
+        e_CR,      // carriage return     - wait for more input
+        e_LF,      // line feed           - complete linebreak
+        e_WS,      // whitespace          - buffer; wait for more input
+        e_CC       // control character   - encode to Quoted Printable
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_PC = e_PC
+      , BDEDE_CR = e_CR
+      , BDEDE_LF = e_LF
+      , BDEDE_WS = e_WS
+      , BDEDE_CC = e_CC
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum LineBreakMode {
         // Configuration governing how various forms of line breaks are to be
         // interpreted
 
-        BDEDE_CRLF_MODE = 0,  // only allow "\r\n" linebreaks
+        e_CRLF_MODE = 0,  // only allow "\r\n" linebreaks
 
-        BDEDE_LF_MODE,        // only allow '\n' linebreaks (without the '\r'
+        e_LF_MODE,        // only allow '\n' linebreaks (without the '\r'
                               // prefix)
 
-        BDEDE_MIXED_MODE      // allow both "\r\n" and '\n'
+        e_MIXED_MODE      // allow both "\r\n" and '\n'
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_CRLF_MODE = e_CRLF_MODE
+      , BDEDE_LF_MODE = e_LF_MODE
+      , BDEDE_MIXED_MODE = e_MIXED_MODE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -515,11 +537,9 @@ class QuotedPrintableEncoder {
     int  d_lineStart;           // TBD doc
 
   private:
-    // PRIVATE - NOT IMPLEMENTED
+    // NOT IMPLEMENTED
     QuotedPrintableEncoder(const QuotedPrintableEncoder&);
-
-    QuotedPrintableEncoder& operator=(
-                                          const QuotedPrintableEncoder&);
+    QuotedPrintableEncoder& operator=(const QuotedPrintableEncoder&);
 
   public:
     // CLASS METHODS
@@ -529,9 +549,10 @@ class QuotedPrintableEncoder {
         // name corresponding to the specified enumerator 'mode'.
 
     // CREATORS
-    QuotedPrintableEncoder(LineBreakMode lineBreakMode = BDEDE_CRLF_MODE,
-                                 int           maxLineLength
-                                                        = DEFAULT_MAX_LINELEN);
+    explicit
+    QuotedPrintableEncoder(LineBreakMode lineBreakMode = e_CRLF_MODE,
+                           int           maxLineLength =
+                                                        e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to accept hard line breaks based on the specified 'lineBreakMode',
         // and to insert soft line breaks when the line length exceeds the
@@ -542,10 +563,11 @@ class QuotedPrintableEncoder {
         // BDEDE_LF_MODE passes '\n' and converts '\r'; BDEDE_MIXED_MODE passes
         // both "\r\n" and '\n'.
 
+    explicit
     QuotedPrintableEncoder(
-                           const char    *extraCharsToEncode,
-                           LineBreakMode  lineBreakMode = BDEDE_CRLF_MODE,
-                           int            maxLineLength = DEFAULT_MAX_LINELEN);
+                         const char    *extraCharsToEncode,
+                         LineBreakMode  lineBreakMode = e_CRLF_MODE,
+                         int            maxLineLength = e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to convert to the form "=XX" any input character matching those in
         // the specified 'extraCharsToEncode' array (as opposed to the default
@@ -662,8 +684,7 @@ class QuotedPrintableEncoder {
 
 // CLASS METHODS
 inline
-const char* QuotedPrintableEncoder::lineBreakModeToAscii(
-                                                            LineBreakMode mode)
+const char* QuotedPrintableEncoder::lineBreakModeToAscii(LineBreakMode mode)
 {
     return s_lineBreakModeName[mode];
 }
@@ -672,7 +693,7 @@ const char* QuotedPrintableEncoder::lineBreakModeToAscii(
 inline
 void QuotedPrintableEncoder::reset()
 {
-    d_state = BDEDE_INITIAL_STATE;
+    d_state = e_INITIAL_STATE;
     d_outputLength = 0;
     d_lineLength = 0;
     d_bufferLength = 0;
@@ -685,25 +706,25 @@ void QuotedPrintableEncoder::reset()
 inline
 bool QuotedPrintableEncoder::isAccepting() const
 {
-    return BDEDE_INITIAL_STATE == d_state || BDEDE_DONE_STATE == d_state;
+    return e_INITIAL_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableEncoder::isDone() const
 {
-    return BDEDE_DONE_STATE == d_state && 0 == d_outBuf.size();
+    return e_DONE_STATE == d_state && 0 == d_outBuf.size();
 }
 
 inline
 bool QuotedPrintableEncoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableEncoder::isInitialState() const
 {
-    return BDEDE_INITIAL_STATE == d_state && 0 == d_outputLength;
+    return e_INITIAL_STATE == d_state && 0 == d_outputLength;
 }
 
 inline
@@ -730,8 +751,8 @@ int QuotedPrintableEncoder::outputLength() const
 {
     return d_outputLength;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -7,18 +7,21 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bdls_testutil.h>
+
 #include <bsl_climits.h>      // INT_MAX
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
-#ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>     // getpid()
-#endif
 
 #include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+#include <unistd.h>     // getpid()
+#endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // Undefine some awkwardly named Windows macros that interfere with this cpp
@@ -61,62 +64,60 @@ using namespace bsl;  // automatically added by script
 // [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
-#define NL "\n"
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -125,11 +126,11 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::Context       Obj;
 
 const ball::Transmission::Cause CAUSE[] = {
-    ball::Transmission::BAEL_PASSTHROUGH,
-    ball::Transmission::BAEL_TRIGGER,
-    ball::Transmission::BAEL_TRIGGER_ALL,
-    ball::Transmission::BAEL_MANUAL_PUBLISH,
-    ball::Transmission::BAEL_MANUAL_PUBLISH_ALL
+    ball::Transmission::e_PASSTHROUGH,
+    ball::Transmission::e_TRIGGER,
+    ball::Transmission::e_TRIGGER_ALL,
+    ball::Transmission::e_MANUAL_PUBLISH,
+    ball::Transmission::e_MANUAL_PUBLISH_ALL
 };
 
 const int INDEX[]  = { 0, 1, 8, 98,  99, 9998, INT_MAX-1 };
@@ -172,22 +173,22 @@ class my_Logger {
 // my_Logger.cpp
 
 // PRIVATE MANIPULATORS
-void my_Logger::publish(const bsl::string&  message,
+void my_Logger::publish(const bsl::string&   message,
                         const ball::Context& context)
 {
     switch (context.transmissionCause()) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_os << "Single Pass-through Message: ";
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_os << "Remotely ";               // no 'break'; concatenated output
       } break;
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_os << "Triggered Publication Sequence: Message "
              << context.recordIndex() + 1  // Account for zero-based index.
              << " of " << context.sequenceLength() << ": ";
       } break;
-      case ball::Transmission::BAEL_MANUAL_PUBLISH: {
+      case ball::Transmission::e_MANUAL_PUBLISH: {
         d_os << "Manually triggered Message: ";
       } break;
       default: {
@@ -210,13 +211,13 @@ void my_Logger::logMessage(const bsl::string& message, Severity severity)
         // Do nothing beyond archiving the message.
       } break;
       case WARN: {
-        ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
+        ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
         publish(message, context);
       } break;
       case ERROR: {
         int index  = 0;
         int length = (int)archive.size();
-        ball::Context context(ball::Transmission::BAEL_TRIGGER, index, length);
+        ball::Context context(ball::Transmission::e_TRIGGER, index, length);
         while (length--) {
             publish(archive[length], context);
             context.setRecordIndexRaw(++index);
@@ -269,7 +270,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example" << endl
                                   << "=====================" << endl;
 
-        char buf[1024];  memset(buf, 0xff, sizeof buf);  // Scribble on buf.
+        char buf[1024];  memset(buf, 0xff, sizeof buf);  // Scribble on buffer
         ostrstream out(buf, sizeof buf);
 
         my_Logger   logger(out);
@@ -306,7 +307,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == Obj::isValid(CAUSE[0], INDEX[0], LENGTH[0]));
 
             Obj mX(CAUSE[0], INDEX[0], LENGTH[0]);  const Obj& X = mX;
-            if (veryVeryVerbose) { T_(); T_(); P(X); }
+            if (veryVeryVerbose) { T_; T_; P(X); }
             ASSERT( CAUSE[0] == X.transmissionCause());
             ASSERT( INDEX[0] == X.recordIndex());
             ASSERT(LENGTH[0] == X.sequenceLength());
@@ -317,7 +318,7 @@ int main(int argc, char *argv[])
             ASSERT( INDEX[0] != Y.recordIndex());
             ASSERT(LENGTH[0] != Y.sequenceLength());
             ASSERT(0 == mY.setAttributes(CAUSE[0], INDEX[0], LENGTH[0]));
-            if (veryVeryVerbose) { T_(); T_(); P(Y); }
+            if (veryVeryVerbose) { T_; T_; P(Y); }
             ASSERT( CAUSE[0] == Y.transmissionCause());
             ASSERT( INDEX[0] == Y.recordIndex());
             ASSERT(LENGTH[0] == Y.sequenceLength());
@@ -331,7 +332,7 @@ int main(int argc, char *argv[])
                     const int I = INDEX[tind];
                     // Lone valid combination.
                     if (0 == tlen && 0 == tind) continue;
-                    if (veryVeryVerbose) { T_(); T_(); P_(C); P_(I); P(L); }
+                    if (veryVeryVerbose) { T_; T_; P_(C); P_(I); P(L); }
                     ASSERT(0 == Obj::isValid(C, I, L));
 
                     Obj mX;  const Obj& X = mX;
@@ -358,12 +359,12 @@ int main(int argc, char *argv[])
                     for (int tind = 0; tind <= tlen; ++tind) {
                         const int I = INDEX[tind];
                         if (veryVeryVerbose) {
-                            T_(); T_(); P_(C); P_(I); P(L);
+                            T_; T_; P_(C); P_(I); P(L);
                         }
                         ASSERT(1 == Obj::isValid(C, I, L));
 
                         Obj mX(C, I, L);  const Obj& X = mX;
-                        if (veryVeryVerbose) { T_(); T_(); P(X); }
+                        if (veryVeryVerbose) { T_; T_; P(X); }
                         ASSERT(C == X.transmissionCause());
                         ASSERT(I == X.recordIndex());
                         ASSERT(L == X.sequenceLength());
@@ -374,7 +375,7 @@ int main(int argc, char *argv[])
                         ASSERT( INDEX[0] == Y.recordIndex());
                         ASSERT(LENGTH[0] == Y.sequenceLength());
                         ASSERT(0 == mY.setAttributes(C, I, L));
-                        if (veryVeryVerbose) { T_(); T_(); P(Y); }
+                        if (veryVeryVerbose) { T_; T_; P(Y); }
                         ASSERT(C == Y.transmissionCause());
                         ASSERT(I == Y.recordIndex());
                         ASSERT(L == Y.sequenceLength());
@@ -391,7 +392,7 @@ int main(int argc, char *argv[])
                     for (int tind = tlen + 1; tind < NUM_INDEX; ++tind) {
                         const int I = INDEX[tind];
                         if (veryVeryVerbose) {
-                            T_(); T_(); P_(C); P_(I); P(L);
+                            T_; T_; P_(C); P_(I); P(L);
                         }
                         ASSERT(0 == Obj::isValid(C, I, L));
 
@@ -424,8 +425,8 @@ int main(int argc, char *argv[])
         //   int recordIndex() const;
         //   int sequenceLength() const;
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
-        //   bool operator==(const ball::Context& lhs, const ball::Context& rhs);
-        //   bool operator!=(const ball::Context& lhs, const ball::Context& rhs);
+        //   bool operator==(const Context& lhs, const Context& rhs);
+        //   bool operator!=(const Context& lhs, const Context& rhs);
         //   ostream& operator<<(ostream& os, const ball::Context&);
         //
         //   Note: '^' indicates a private method which is tested indirectly.

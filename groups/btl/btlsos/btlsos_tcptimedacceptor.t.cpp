@@ -12,7 +12,7 @@
 #include <btlsc_channel.h>
 #include <btlsc_timedchannel.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -24,7 +24,13 @@
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
+
 #include <bslma_testallocator.h>            // thread-safe allocator
+
+#include <bsls_platform.h>
+
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -32,6 +38,10 @@
 #endif
 
 #include <bsl_iostream.h>
+
+#include <signal.h>
+#include <unistd.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -98,23 +108,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
@@ -123,9 +133,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef btlsos::TcpTimedAcceptor Obj;
 typedef btlso::StreamSocket<btlso::IPv4Address> StreamSocket;
@@ -196,9 +206,9 @@ struct TestCommand {
 
 bslma::TestAllocator testAllocator;
 
-//=============================================================================
-//                      HELPER FUNCTIONS/CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   HELPER FUNCTIONS/CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 // signal stuff
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -219,7 +229,8 @@ static void signalHandler(int sig)
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
-    // Register the signal handler for the signal 'signo' to be generated.
+    // Register the specified signal 'handler' for the specified signal 'signo'
+    // to be generated.
 {
     struct sigaction act, oact;
 
@@ -272,7 +283,7 @@ void* threadAsClient(void *arg)
 
     for (int i = 0 ; i < info.d_numCommands ; ++i) {
 
-        // XXX This is still slighly racy .. we'd like to be sure that the
+        // XXX This is still slightly racy .. we'd like to be sure that the
         // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
         bdlqq::ThreadUtil::yield();
@@ -298,8 +309,8 @@ void* threadAsClient(void *arg)
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
-        // set helperAfterAccept to 1, we will get false results... You may
-        // need to adjust the sleeping time above
+        // set helperAfterAccept to 1, we will get false results.  You may need
+        // to adjust the sleeping time above.
         if (info.d_commands[i].d_commandCode == 'A'
          && 0 == helperAfterAccept) {
 
@@ -387,14 +398,14 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
                                const TestCommand             *command,
                                bsl::vector<btlsc::Channel*>  *channels,
                                btlsc::Channel               **newChannel,
-                               bdlqq::Barrier                * syncBarrier)
+                               bdlqq::Barrier                *syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
     // specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the array of
-    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // 'command' is to deallocate a channel, the first channel in the specified
+    // array of 'channels' will be deallocated.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     int rCode = 0;
 
@@ -482,8 +493,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
     // client to submit the expected number of connection requests and/or
     // generate signals if d_signal is set.  Results after each test will be
     // compared against those expected which are also specified in the
-    // specified 'commands'.  Return 0 on success, and a non-zero value
-    // otherwise.
+    // 'commands'.  Return 0 on success, and a non-zero value otherwise.
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
@@ -552,9 +562,9 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
     return ret;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -572,7 +582,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     switch (test) { case 0:
-      case 24: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   This test is really just to make sure the syntax is correct.

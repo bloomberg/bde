@@ -122,9 +122,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // ==================
-                        // struct Util
-                        // ==================
+                                // ===========
+                                // struct Util
+                                // ===========
 
 struct Util {
 

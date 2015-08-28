@@ -1,44 +1,53 @@
 // bdlmt_multiprioritythreadpool.t.cpp                                -*-C++-*-
 #include <bdlmt_multiprioritythreadpool.h>
 
+#include <bslim_testutil.h>
+
 #include <bdlcc_queue.h>
-#include <bslma_testallocator.h>       // for testing only
+
+#include <bdlma_concurrentpool.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 #include <bdlqq_qlock.h>
-#include <bsls_atomic.h>
+
+#include <bdlsu_pathutil.h>
+
+#include <bdlt_currenttime.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_cctype.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>            // atoi()
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_list.h>
+#include <bsl_string.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
-#include <bdlsu_pathutil.h>
+#include <bslma_testallocator.h>       // for testing only
+
+#include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_iostream.h>
-#include <bsl_list.h>
-#include <bsl_string.h>
-
-#include <bsl_c_ctype.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <bsl_c_string.h>
-#include <bsl_c_stdlib.h>            // atoi()
-#include <bsl_c_stdio.h>
+#include <sys/types.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 //
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // CREATORS
 // [ 4] all constructors, destructor
@@ -59,7 +68,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] numPendingJobs()
 // [ 8] numActiveThreads()
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] // transitions between non-processing states
 // [ 6] // enqueuing fails on disabled queue
@@ -68,71 +77,54 @@ using namespace bsl;  // automatically added by script
 // [11] ignoring 'joinable' trait of attributes passed
 // [12] usage example 2
 // [13] usage example 1
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and
-                                                   // value, then return false.
-
-//=============================================================================
-//              GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlmt::MultipriorityThreadPool Obj;
 
@@ -154,22 +146,22 @@ int veryVeryVeryVerbose;
 
 }  // close unnamed namespace
 
-//=============================================================================
-//               Classes for test case 13 -- usage example 1
-//=============================================================================
+// ============================================================================
+//                Classes for test case 13 -- usage example 1
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_13 {
 
-// The idea here is we have a large number of jobs submitted in too little
-// time for all of them to be completed.  All jobs take the same amount of
-// time to complete, but there are two different priorities of jobs.  There
-// are 100 times more jobs of less urgent priority than of the more urgent
-// priority, and there is more than enough time for the jobs of more
-// urgent priority to be completed.  Verify that all the jobs of more
-// urgent priority get completed while most of the jobs of less urgent
-// priority do not.  This demonstrates that we can construct an arrangement
-// where traffic of low priority, while massively more numerous, does not
-// impede the progress of higher priority jobs.
+// The idea here is we have a large number of jobs submitted in too little time
+// for all of them to be completed.  All jobs take the same amount of time to
+// complete, but there are two different priorities of jobs.  There are 100
+// times more jobs of less urgent priority than of the more urgent priority,
+// and there is more than enough time for the jobs of more urgent priority to
+// be completed.  Verify that all the jobs of more urgent priority get
+// completed while most of the jobs of less urgent priority do not.  This
+// demonstrates that we can construct an arrangement where traffic of low
+// priority, while massively more numerous, does not impede the progress of
+// higher priority jobs.
 
 bsls::AtomicInt     urgentJobsDone;
 bsls::AtomicInt lessUrgentJobsDone;
@@ -190,28 +182,28 @@ extern "C" void *lessUrgentJob(void *) {
     return 0;
 }
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_13
 
-//=============================================================================
-//               Classes for test case 12 -- usage example 2
-//=============================================================================
+// ============================================================================
+//                Classes for test case 12 -- usage example 2
+// ============================================================================
 
 // The idea here is to have a multithreaded algorithm for calculating prime
 // prime numbers.  This is just to serve as an illustration, although it works,
 // it is not really any faster than doing it with a single thread.
 //
 // For every prime number P, we have to mark all multiples of it up in two
-// ranges P .. P**2, and P**2 to TOP_NUMBER as non-prime.  For any P**2,
-// if we can determine that all primes below P have marked all their multiples
-// up to P**2, then we can scan that range and any unmarked values in it will
-// be a new prime.  The we can start out with our first prime, 2, and mark
-// all primes between it and 2**2 == 4, thus discovering 3 is prime.  Once
+// ranges '[P .. P**2]', and '[P**2 .. TOP_NUMBER]' as non-prime.  For any
+// P**2, if we can determine that all primes below P have marked all their
+// multiples up to P**2, then we can scan that range and any unmarked values in
+// it will be a new prime.  The we can start out with our first prime, 2, and
+// mark all primes between it and 2**2 == 4, thus discovering 3 is prime.  Once
 // we have marked all multiples of 2 and 3 below 3*3 == 9, we can then scan
 // that range and discover 5 and 7 are primes, and repeat the process to
 // discover bigger and bigger primes until we have covered an entire range, in
 // this example all ints below TOP_NUMBER == 2000.
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_12 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_12 {
 
 enum {
     TOP_NUMBER = 2000,
@@ -219,26 +211,22 @@ enum {
 };
 
 bool isStillPrime[TOP_NUMBER];
-bsls::AtomicInt scannedTo[TOP_NUMBER];   // is P is a prime, what is the
-                                        // highest multiple of P that
-                                        // we have marked
+bsls::AtomicInt scannedTo[TOP_NUMBER];  // is P is a prime, what is the highest
+                                        // multiple of P that we have marked
                                         // isStillPrime[P] = false;
 
-bsls::AtomicInt maxPrimeFound;       // maximum prime we have identified
-                                    // so far
+bsls::AtomicInt maxPrimeFound;      // maximum prime we have identified so far
 int primeNumbers[TOP_NUMBER];       // elements in the range
-                                    // '0 .. numPrimeNumbers - 1' are
-                                    // the prime numbers we have found
-                                    // so far
+                                    // '0 .. numPrimeNumbers - 1' are the prime
+                                    // numbers we have found so far
 bsls::AtomicInt numPrimeNumbers;
 
 bdlmt::MultipriorityThreadPool *threadPool;
 
-bool          doneFlag;                 // set this flag to signal
-                                        // other jobs that we're done
-bdlqq::Barrier doneBarrier(2);           // we wait on this barrier
-                                        // to signal the main thread
+bool          doneFlag;                 // set this flag to signal other jobs
                                         // that we're done
+bdlqq::Barrier doneBarrier(2);          // we wait on this barrier to signal
+                                        // the main thread that we're done
 
 struct Functor {
     static bdlqq::Mutex s_mutex;
@@ -272,8 +260,7 @@ struct Functor {
         }
 
         int numToScanI;
-        for (numToScanI = numPrimeNumbers - 1; 0 < numToScanI;
-                                                        --numToScanI) {
+        for (numToScanI = numPrimeNumbers - 1; 0 < numToScanI; --numToScanI) {
             if (primeNumbers[numToScanI] == d_numToScan) {
                 break;
             }
@@ -292,33 +279,29 @@ struct Functor {
             }
 
             if (scannedTo[primeNumbers[i]] < d_limit) {
-                // Not all multiples of all prime numbers below
-                // us have been adequately marked as nonPrime.  We
-                // cannot yet draw any new conclusions about what
-                // is and what is not prime in this range.
+                // Not all multiples of all prime numbers below us have been
+                // adequately marked as nonPrime.  We cannot yet draw any new
+                // conclusions about what is and what is not prime in this
+                // range.
 
-                // Resubmit ourselves to back of the priority queue
-                // so that we'll get reevaluated when previous prime
-                // numbers are done scanning.  Note we could get
-                // reenqueued several times.
+                // Resubmit ourselves to back of the priority queue so that
+                // we'll get reevaluated when previous prime numbers are done
+                // scanning.  Note we could get reenqueued several times.
 
-                // Note that jobs marking the isStillPrime array are
-                // at priority 0, while later incarnations that can
-                // only set new primes are at priority 1 and keep
-                // getting resubmitted at less and less urgent
-                // priorities until all their prerequisites (which
-                // are at priority 0) are done.
+                // Note that jobs marking the isStillPrime array are at
+                // priority 0, while later incarnations that can only set new
+                // primes are at priority 1 and keep getting resubmitted at
+                // less and less urgent priorities until all their
+                // prerequisites (which are at priority 0) are done.
 
-                d_priority = bsl::min(NUM_PRIORITIES - 2,
-                                                    d_priority + 1);
+                d_priority = bsl::min(NUM_PRIORITIES - 2, d_priority + 1);
                 threadPool->enqueueJob(*this, d_priority);
 
                 return;                                               // RETURN
             }
         }
 
-        // everything up to d_limit that has not been marked
-        // nonPrime is prime
+        // everything up to d_limit that has not been marked nonPrime is prime
 
         bdlqq::LockGuard<bdlqq::Mutex> guard(&s_mutex);
 
@@ -329,9 +312,9 @@ struct Functor {
         }
 
         if (TOP_NUMBER == d_limit && !doneFlag) {
-            // We have successfully listed all primes below TOP_NUMBER.
-            // Touch the done barrier and our caller will then know that
-            // we are done and shut down the queue.
+            // We have successfully listed all primes below TOP_NUMBER.  Touch
+            // the done barrier and our caller will then know that we are done
+            // and shut down the queue.
 
             doneFlag = true;
             doneBarrier.wait();
@@ -366,13 +349,13 @@ struct Functor {
 };
 bdlqq::Mutex Functor::s_mutex;
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_12
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_12
 
-//=============================================================================
-//                       Classes for test case 11
-//=============================================================================
+// ============================================================================
+//                         Classes for test case 11
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_11 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_11 {
 
 struct Functor {
     bdlqq::Barrier  *d_barrier;
@@ -388,13 +371,13 @@ struct Functor {
     }
 };
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_11
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_11
 
-//=============================================================================
-//                      Classes for test case 10
-//=============================================================================
+// ============================================================================
+//                         Classes for test case 10
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_10 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_10 {
 
 enum {
     NUM_PRIORITIES = 2,
@@ -465,13 +448,13 @@ struct ProducerThread {
 };
 bdlqq::Barrier *ProducerThread::s_barrier = 0;
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_10
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_10
 
-//=============================================================================
-//                           Classes for test case 8
-//=============================================================================
+// ============================================================================
+//                          Classes for test case 8
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_8 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_8 {
 
 bool veryVerboseCase8;
 
@@ -499,14 +482,14 @@ struct BlockFunctor {
     }
 };
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_8
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_8
 
-//=============================================================================
+// ============================================================================
 //                           Classes for test case 5
 //                   also partially used in cases 4, 6, and 7
-//=============================================================================
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_5 {
 
 long resultsVec[100];
 bsls::AtomicInt resultsVecIdx;
@@ -526,8 +509,8 @@ struct PushIntFunctor {
     }
 };
 
-// Generally check out that a threadpool is healthy, given the state it
-// thinks it's in.
+// Generally check out that a threadpool is healthy, given the state it thinks
+// it's in.
 void checkOutPool(bdlmt::MultipriorityThreadPool *pool) {
     ASSERT(pool->isEnabled());
     ASSERT(0 == pool->numActiveThreads());
@@ -568,13 +551,13 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool) {
     ASSERT(0 == pool->numPendingJobs());
 }
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_5
 
-//=============================================================================
-//                           Classes for test case 3
-//=============================================================================
+// ============================================================================
+//                          Classes for test case 3
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_3 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_3 {
 
 long counter;
 
@@ -588,13 +571,13 @@ extern "C" void *sleepAndAmassCounterBy(void *arg)
     return 0;
 }
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_3
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_3
 
-//=============================================================================
-//                           Classes for test case 2
-//=============================================================================
+// ============================================================================
+//                          Classes for test case 2
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_2 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_2 {
 
 int callCount;
 long counter;
@@ -615,13 +598,13 @@ extern "C" void *waiter(void *arg) {
     return 0;
 }
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_2
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_2
 
-//=============================================================================
-//                    Classes for test case 1 - breathing test
-//=============================================================================
+// ============================================================================
+//                 Classes for test case 1 - breathing test
+// ============================================================================
 
-namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_1 {
 
 bsls::AtomicInt counter;
 
@@ -632,11 +615,11 @@ extern "C" void *incCounter(void *)
     return 0;
 }
 
-}  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_1
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -667,11 +650,11 @@ int main(int argc, char *argv[])
                     "===============\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_13;
 
-        bdlmt::MultipriorityThreadPool pool(20,    // threads
-                                          2,     // priorities
-                                          &ta);
+        bdlmt::MultipriorityThreadPool pool(20,  // threads
+                                            2,   // priorities
+                                            &ta);
 
         bsls::TimeInterval finishTime = bdlt::CurrentTime::now() + 0.5;
         pool.startThreads();
@@ -700,7 +683,7 @@ int main(int argc, char *argv[])
         //   That usage example 2 compiles and links.
         // --------------------------------------------------------------------
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_12;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_12;
 
         double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
 
@@ -717,9 +700,8 @@ int main(int argc, char *argv[])
         numPrimeNumbers = 1;
         doneFlag = false;
 
-        threadPool = new (ta) bdlmt::MultipriorityThreadPool(20,
-                                                           NUM_PRIORITIES,
-                                                          &ta);
+        threadPool =
+            new (ta) bdlmt::MultipriorityThreadPool(20, NUM_PRIORITIES, &ta);
         threadPool->startThreads();
 
         double startJobs = bdlt::CurrentTime::now().totalSecondsAsDouble();
@@ -737,14 +719,15 @@ int main(int argc, char *argv[])
         if (verbose) {
             double now = bdlt::CurrentTime::now().totalSecondsAsDouble();
             printf("Runtime: %g seconds, %g seconds w/o init & cleanup\n",
-                                          now - startTime, finish - startJobs);
+                   now - startTime,
+                   finish - startJobs);
 
             printf("%d prime numbers below %d:", (int) numPrimeNumbers,
                                                               TOP_NUMBER);
 
             for (int i = 0; numPrimeNumbers > i; ++i) {
                 printf("%s%4d", 0 == i % 10 ? "\n    " : ", ",
-                                                         primeNumbers[i]);
+                       primeNumbers[i]);
             }
             printf("\n");
         }
@@ -763,7 +746,7 @@ int main(int argc, char *argv[])
         //   blocks until all started jobs have been completed.
         // --------------------------------------------------------------------
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_11;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_11;
 
         if (verbose) {
             cout << "===================================\n"
@@ -797,19 +780,19 @@ int main(int argc, char *argv[])
 
             if (ATTRIB_DETACHED == attrState) {
                 attrib.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                                   bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             }
             else if (ATTRIB_JOINABLE == attrState) {
                 attrib.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+                                   bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
             }
 
             jobsCompleted = 0;
 
             bdlmt::MultipriorityThreadPool pool(NUM_THREADS,
-                                              1,            // # priorities
-                                              attrib,
-                                              &localTa);
+                                                1,  // # priorities
+                                                attrib,
+                                                &localTa);
 
             pool.startThreads();
             for (int i = 0; NUM_THREADS > i; ++i) {
@@ -853,7 +836,7 @@ int main(int argc, char *argv[])
                     "===========\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_10;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_10;
 
         bslma::TestAllocator taDefaultLocal;
         bslma::DefaultAllocatorGuard guard(&taDefaultLocal);
@@ -865,8 +848,9 @@ int main(int argc, char *argv[])
             NUM_WORKERS_PER_PRODUCER = 1000
         };
 
-        bdlmt::MultipriorityThreadPool pool(NUM_POOL_THREADS, NUM_PRIORITIES,
-                                                                          &ta);
+        bdlmt::MultipriorityThreadPool pool(NUM_POOL_THREADS,
+                                            NUM_PRIORITIES,
+                                            &ta);
         Worker::s_pool = &pool;
 
         bdlqq::Barrier barrier(NUM_PRODUCER_THREADS + 1);
@@ -927,7 +911,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            T_(); P(averages[0]); T_(); P(averages[1]);
+            T_ P(averages[0]) T_ P(averages[1])
         }
 
         LOOP2_ASSERT(averages[0], averages[1], averages[0] < averages[1]);
@@ -962,7 +946,7 @@ int main(int argc, char *argv[])
                     "================================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
         bdlmt::MultipriorityThreadPool pool(1, 1, &ta);
 
@@ -1052,7 +1036,7 @@ int main(int argc, char *argv[])
                     "=====================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_8;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_8;
 
         enum {
             NUM_THREADS = 7
@@ -1061,8 +1045,8 @@ int main(int argc, char *argv[])
         veryVerboseCase8 = veryVerbose;
 
         bdlmt::MultipriorityThreadPool pool(NUM_THREADS,
-                                          1,    // single priority
-                                          &ta);
+                                            1,  // single priority
+                                            &ta);
 
         pool.startThreads();
 
@@ -1100,7 +1084,7 @@ int main(int argc, char *argv[])
                     "==================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
         static const long scramble[] = { 5, 8, 3, 1, 7, 9, 0, 4, 6, 2 };
             // ints 0-9 in scrambled order
@@ -1108,15 +1092,16 @@ int main(int argc, char *argv[])
         const char garbageVal = 0x8f;
 
         bdlmt::MultipriorityThreadPool pool(1,            // single thread
-                                          scrambleLen,  // priorities
-                                          &ta);
+                                            scrambleLen,  // priorities
+                                            &ta);
 
         memset(resultsVec, garbageVal, sizeof resultsVec);
         resultsVecIdx = 0;
 
         for (int i = 0; scrambleLen > i; ++i) {
-            pool.enqueueJob(&pushInt, (void *) (scramble[i] * scramble[i]),
-                                                            (int) scramble[i]);
+            pool.enqueueJob(&pushInt,
+                            (void *)(scramble[i] * scramble[i]),
+                            (int)scramble[i]);
         }
 
         ASSERT(scrambleLen == pool.numPendingJobs());
@@ -1167,7 +1152,7 @@ int main(int argc, char *argv[])
                     "====================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
         enum {
             NUM_THREADS = 8,
@@ -1180,7 +1165,9 @@ int main(int argc, char *argv[])
         int ii;
         for (ii = 0; ii <= MAX_LOOP; ++ii) {
             bool startOverFromScratch = false;
-            bdlmt::MultipriorityThreadPool pool(NUM_THREADS, NUM_PRIORITIES,&ta);
+            bdlmt::MultipriorityThreadPool pool(NUM_THREADS,
+                                                NUM_PRIORITIES,
+                                                &ta);
 
             ASSERT(pool.isEnabled());
             ASSERT(!pool.isStarted());
@@ -1232,7 +1219,7 @@ int main(int argc, char *argv[])
                 if (pool.startThreads()) {
                     startOverFromScratch = true;
                     if (verbose) {
-                        P_(L_) P_(ii) P(j);
+                        P_(L_) P_(ii) P(j)
                     }
                     break;
                 }
@@ -1290,7 +1277,7 @@ int main(int argc, char *argv[])
                 if (pool.startThreads()) {
                     startOverFromScratch = true;
                     if (verbose) {
-                        P_(L_) P_(ii) P(j);
+                        P_(L_) P_(ii) P(j)
                     }
                     break;
                 }
@@ -1347,7 +1334,7 @@ int main(int argc, char *argv[])
 
             if (pool.startThreads()) {
                 if (verbose) {
-                    P_(L_) P(ii);
+                    P_(L_) P(ii)
                 }
                 continue;
             }
@@ -1408,7 +1395,7 @@ int main(int argc, char *argv[])
             break;
         }
         ASSERT(ii <= MAX_LOOP);
-        if (verbose) { P_(L_) P(ii); }
+        if (verbose) { P_(L_) P(ii) }
       }  break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1444,11 +1431,11 @@ int main(int argc, char *argv[])
                     "==========\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
-        bdlmt::MultipriorityThreadPool pool(16,   // num threads
-                                          4,    // num priorities
-                                          &ta);
+        bdlmt::MultipriorityThreadPool pool(16,  // num threads
+                                            4,   // num priorities
+                                            &ta);
 
         ASSERT(pool.isEnabled());
         ASSERT(!pool.isStarted());
@@ -1566,7 +1553,7 @@ int main(int argc, char *argv[])
                     "===========================================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
         enum {
             DEBUG_ALLOC,
@@ -1600,29 +1587,33 @@ int main(int argc, char *argv[])
                         if (DEBUG_ALLOC == allocS) {
                             if (ATTRIBS_NONE == aS) {
                                 pool = new (ta)
-                                                bdlmt::MultipriorityThreadPool(
-                                                      numThreads, numPri, &ta);
+                                    bdlmt::MultipriorityThreadPool(numThreads,
+                                                                   numPri,
+                                                                   &ta);
                             }
                             else {
                                 bdlqq::ThreadAttributes attrib;
 
-                                pool = new (ta)
-                                                bdlmt::MultipriorityThreadPool(
-                                              numThreads, numPri, attrib, &ta);
+                                pool = new (ta) bdlmt::MultipriorityThreadPool(
+                                                                    numThreads,
+                                                                    numPri,
+                                                                    attrib,
+                                                                    &ta);
                             }
                         }
                         else { // default allocator
                             if (ATTRIBS_NONE == aS) {
                                 pool = new (taDefault)
-                                                bdlmt::MultipriorityThreadPool(
-                                                   numThreads, numPri);
+                                    bdlmt::MultipriorityThreadPool(numThreads,
+                                                                   numPri);
                             }
                             else {
                                 bdlqq::ThreadAttributes attrib;
 
                                 pool = new (taDefault)
-                                                bdlmt::MultipriorityThreadPool(
-                                           numThreads, numPri, attrib);
+                                    bdlmt::MultipriorityThreadPool(numThreads,
+                                                                   numPri,
+                                                                   attrib);
                             }
                         }
 
@@ -1636,7 +1627,8 @@ int main(int argc, char *argv[])
 
                         for (long i = 0; 10 > i; ++i) {
                             int sts = pool->enqueueJob(&pushInt,
-                                                 (void *) (i * i), numPri - 1);
+                                                       (void *)(i * i),
+                                                        numPri - 1);
                             ASSERT(!sts);
                         }
 
@@ -1713,21 +1705,22 @@ int main(int argc, char *argv[])
                     "===================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_3;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_3;
 
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
         const int incByLength = sizeof incBy / sizeof incBy[0];
 
         bdlqq::Barrier barrier(2);
-        bdlmt::MultipriorityThreadPool pool(1 /* threads */, 1 /* priorities */,
-                                                                          &ta);
+        bdlmt::MultipriorityThreadPool pool(1 /* threads */,
+                                            1 /* priorities */,
+                                            &ta);
 
         counter = 0;
         long otherCounter = 0;
 
         for (int i = 0; incByLength > i; ++i) {
-            int sts = pool.enqueueJob(&sleepAndAmassCounterBy,
-                                                        (void *) incBy[i], 0);
+            int sts =
+                pool.enqueueJob(&sleepAndAmassCounterBy, (void *)incBy[i], 0);
             ASSERT(!sts);
         }
 
@@ -1772,14 +1765,15 @@ int main(int argc, char *argv[])
                     "===============================================\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_2;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_2;
 
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
         const int incByLength = sizeof incBy / sizeof incBy[0];
 
         bdlqq::Barrier barrier(2);
-        bdlmt::MultipriorityThreadPool pool(1 /* threads */, 1 /* priorities */,
-                                                                          &ta);
+        bdlmt::MultipriorityThreadPool pool(1 /* threads */,
+                                            1 /* priorities */,
+                                            &ta);
 
         for (int j = 0; 100 > j; ++j) {
             counter = 0;
@@ -1828,16 +1822,16 @@ int main(int argc, char *argv[])
                     "==============\n";
         }
 
-        using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_1;
 
         {
             bslma::TestAllocator taDefault;
             bslma::DefaultAllocatorGuard guard(&taDefault);
             bslma::TestAllocator ta;
-            bdlmt::MultipriorityThreadPool *pool = new (ta)
-            bdlmt::MultipriorityThreadPool(1 /* threads */,
-                                         1 /* priorities */,
-                                         &ta);
+            bdlmt::MultipriorityThreadPool *pool =
+                new (ta) bdlmt::MultipriorityThreadPool(1 /* threads */,
+                                                        1 /* priorities */,
+                                                        &ta);
 
             pool->startThreads();
 

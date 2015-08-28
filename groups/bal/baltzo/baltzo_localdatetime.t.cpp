@@ -22,7 +22,7 @@
 #include <bsl_sstream.h>
 
 // ============================================================================
-//                          ADL SWAP TEST HELPER
+//                           ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
 // TBD move this into its own component?
@@ -141,7 +141,7 @@ using namespace bsl;
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -156,7 +156,7 @@ static void aSsErT(int c, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -182,7 +182,7 @@ static void aSsErT(int c, const char *s, int i) {
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -192,14 +192,14 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baltzo::LocalDatetime   Obj;
@@ -208,8 +208,10 @@ typedef bslma::TestAllocator TestAllocator;
 typedef bslx::TestInStream   In;
 typedef bslx::TestOutStream  Out;
 
+#define VERSION_SELECTOR 20140601
+
 // ============================================================================
-//                     HELPER FUNCTIONS FOR TESTING
+//                       HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 static bool someDiff(const Obj& a, const Obj& b)
@@ -219,7 +221,7 @@ static bool someDiff(const Obj& a, const Obj& b)
 }
 
 // ============================================================================
-//                                 TYPE TRAITS
+//                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
 BSLMF_ASSERT((bslalg::HasTrait<Obj,
@@ -350,7 +352,7 @@ bool TestAllocatorMonitor::isTotalUp() const
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -612,7 +614,7 @@ int main(int argc, char *argv[])
 
             typedef In&  (Obj::*funcInPtr) (In&,  int);
             typedef Out& (Obj::*funcOutPtr)(Out&, int) const;
-            typedef int  (*funcVerPtr)();
+            typedef int  (*funcVerPtr)(int);
 
             funcInPtr  fIn  = &Obj::bdexStreamIn<In>;
             funcOutPtr fOut = &Obj::bdexStreamOut<Out>;
@@ -628,16 +630,16 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
             if (veryVerbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
         }
 
         // ------------------------------------
         // Values used in several stream tests.
         // ------------------------------------
 
-        const int MAX_VERSION = Obj::maxSupportedBdexVersion();
+        const int MAX_VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
 
         bdlt::DatetimeTz defaultDtz;
 

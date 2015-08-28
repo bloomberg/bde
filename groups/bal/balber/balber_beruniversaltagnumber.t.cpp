@@ -18,18 +18,18 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -47,9 +47,9 @@ void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -61,9 +61,9 @@ void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -71,9 +71,9 @@ void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 #define T_ cout << "\t" << flush; // tab
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 // test_customizedstring.h   -*-C++-*-
 #ifndef INCLUDED_TEST_CUSTOMIZEDSTRING
@@ -118,7 +118,6 @@ void aSsErT(int c, const char *s, int i)
 #endif
 
 namespace BloombergLP {
-
 namespace test {
 
 class CustomizedString {
@@ -218,7 +217,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -432,7 +431,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 #endif
 
 namespace BloombergLP {
-
 namespace test {
 
 class MyChoice {
@@ -621,7 +619,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1187,7 +1185,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1589,7 +1587,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -2052,9 +2050,9 @@ const int                                 NUM_ENUMS = Class::k_LENGTH;
 typedef bdlat_FormattingMode              FM;
 typedef bdlat_TypeCategory                TC;
 
-//=============================================================================
+// ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define TEST_SELECT_WITH_OPTIONS(type, formattingMode, expected, options) {   \
         type object;                                                          \
@@ -2074,63 +2072,85 @@ typedef bdlat_TypeCategory                TC;
 #define TEST_SELECT_WITH_ALT_TAG(type, formattingMode, expected, otherTag) {  \
         type object;                                                          \
         int  altTag = -1;                                                     \
-        const balber::BerUniversalTagNumber::Value expectedResult = expected;    \
-        balber::BerUniversalTagNumber::Value result =                            \
-         balber::BerUniversalTagNumber::select(object, formattingMode, &altTag); \
+        const balber::BerUniversalTagNumber::Value expectedResult = expected; \
+        balber::BerUniversalTagNumber::Value result =                         \
+        balber::BerUniversalTagNumber::select(object,                         \
+                                              formattingMode,                 \
+                                              &altTag);                       \
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
-        balber::BerUniversalTagNumber::Value result2 =                           \
-            balber::BerUniversalTagNumber::select(object,                        \
+        balber::BerUniversalTagNumber::Value result2 =                        \
+            balber::BerUniversalTagNumber::select(object,                     \
                                          formattingMode | FM::e_UNTAGGED, \
-                                               &altTag);                      \
+                                         &altTag);                            \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
         LOOP2_ASSERT(*otherTag, altTag, *otherTag == altTag);                 \
     }
-    // Test select() function, both with unadorned 'formattingMode' and with
-    // an extra bit set in 'formattingMode'.
+    // Test 'select' function, both with unadorned 'formattingMode' and with an
+    // extra bit set in 'formattingMode'.
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-//    int veryVeryVerbose = argc > 4;
+    int         test = argc > 1 ? atoi(argv[1]) : 0;
+    bool     verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
-        //   This will test 'Usage 1'.
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example must work as expected.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example from the header file, replacing 'assert'
-        //   with 'ASSERT', and verify that it compiles and runs as expected.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   Usage 1
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Usage 1"
                                << "\n===============" << bsl::endl;
 
-        balber::BerUniversalTagNumber::Value tagNumber
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Exercise1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// 'balber::BerUniversalTagNumber' operation.
+//
+// First, create a variable 'tagNumber' of type
+// 'balber::BerUniversalTagNumber::Value' and initialize it to the value
+// 'balber::BerUniversalTagNumber::e_BER_INT':
+//..
+    balber::BerUniversalTagNumber::Value tagNumber
                                     = balber::BerUniversalTagNumber::e_BER_INT;
-
-        const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
-        ASSERT(0 == strcmp(rep, "INT"));
-
-        bsl::stringstream ss;
-        ss << tagNumber;
-        ASSERT("INT" == ss.str());
-
+//..
+// Next, store its representation in a variable 'rep' of type 'const char *':
+//..
+    const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
+    ASSERT(0 == strcmp(rep, "INT"));
+//..
+// Finally, print the value of 'tagNumber' to 'bsl::cout':
+//..
+    bsl::cout << tagNumber << bsl::endl;
+//..
+// This statement produces the following output on 'bsl::cout':
+//..
+//  INT
+//..
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 3: {

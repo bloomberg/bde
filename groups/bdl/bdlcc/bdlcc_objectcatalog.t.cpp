@@ -1,7 +1,7 @@
 // bdlcc_objectcatalog.t.cpp                                          -*-C++-*-
 #include <bdlcc_objectcatalog.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
@@ -22,7 +22,9 @@
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_queue.h>
 #include <bsl_utility.h>
@@ -95,9 +97,9 @@ using namespace bsl;  // automatically added by script
 // [13] CONCURRENCY TEST
 // [14] USAGE EXAMPLE
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -114,30 +116,30 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   THREAD-SAFE OUTPUT AND ASSERT MACROS
+// ----------------------------------------------------------------------------
 typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { LockGuard guard(&printMutex); P(X); }
@@ -186,9 +188,9 @@ static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert
                              << ": " << L << "\t" << #M << ": " << M << endl; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -388,12 +390,13 @@ void printSpec(const char *spec)
     cout << "]" ;
 }
 
-void verify(Obj         *o1,
-            vector<int> &handles1,
-            my_Obj      *o2,
-            vector<int> &handles2,
-            int         maxHandles)
-    // Verify that '*o1' is correct by comparing it with '*o2'.
+void verify(Obj          *o1,
+            vector<int>&  handles1,
+            my_Obj       *o2,
+            vector<int>&  handles2,
+            int           maxHandles)
+    // Verify that the specified 'o1' is correct by comparing it with the
+    // specified 'o2'.
 {
     int v1, v2;
     ASSERT(o1->length() == o2->length());
@@ -417,17 +420,17 @@ void verify(Obj         *o1,
     }
 }
 
-void gg(Obj         *o1,
-        vector<int> &handles1,
-        my_Obj      *o2,
-        vector<int> &handles2,
-        const char  *spec,
-        const int    gens = 0)
-    // Bring the object '*o1' into the state specified by the specified 'spec'
-    // by using primary manipulators 'add' and 'remove' only.  Same sequence of
-    // method invocation is applied to '*o2'.  Handles returned by 'o1->add'
-    // are put into 'handles1' and handles returned by 'o2->add' are put into
-    // 'handles2'.
+void gg(Obj          *o1,
+        vector<int>&  handles1,
+        my_Obj       *o2,
+        vector<int>&  handles2,
+        const char   *spec,
+        const int     gens = 0)
+    // Bring the specified object 'o1' into the state specified by the
+    // specified 'spec' by using primary manipulators 'add' and 'remove' only.
+    // Same sequence of method invocation is applied to the specified 'o2'.
+    // Handles returned by 'o1->add' are put into the specified 'handles1' and
+    // handles returned by 'o2->add' are put into the specified 'handles2'.
 {
     // First invoke 'add' 'strlen(spec)' times, this will cause first
     // 'strlen(spec)' entries of 'o1->d_nodes' to be busy.  Then invoke
@@ -478,9 +481,9 @@ void gg(Obj         *o1,
         }
     }
 }
-//=============================================================================
-//                          USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
@@ -534,8 +537,8 @@ void queryCallBack(const QueryResult& result)
 
     class RequestMsg
         // Class encapsulating the request message.  It encapsulates the
-        // actual query and the handle associated with the callback for
-        // the query.
+        // actual query and the handle associated with the callback for the
+        // query.
     {
         Query d_query;
         int   d_handle;
@@ -557,15 +560,15 @@ void queryCallBack(const QueryResult& result)
     };
 
     class ResponseMsg
-        // Class encapsulating the response message.  It encapsulates the
-        // query result and the handle associated with the callback for
-        // the query.
+        // Class encapsulating the response message.  It encapsulates the query
+        // result and the handle associated with the callback for the query.
     {
         int d_handle;
 
       public:
         void setHandle(int handle)
-            // Set the handle contained in this response message.
+            // Set the "handle" contained in this response message to the
+            // specified 'handle'.
         {
             d_handle = handle;
         }
@@ -593,7 +596,7 @@ void queryCallBack(const QueryResult& result)
     }
 
     void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-        // Get the response from the specified 'peer' into '*msg'.
+        // Get the response from the specified 'peer' into the specified 'msg'.
     {
         serverMutex.lock();
         while (peer->empty()) {
@@ -606,11 +609,11 @@ void queryCallBack(const QueryResult& result)
 
     void getQueryAndCallback(Query                                 *query,
                              bdlf::Function<void (*)(QueryResult)> *callBack)
-        // Set the '*query' and '*callBack' to the next query and its
-        // associated callback (the functor to be called when the response
-        // to this query comes in).
+        // Set the specified 'query' and 'callBack' to the next 'Query' and its
+        // associated functor (the functor to be called when the response to
+        // this 'Query' comes in).
     {
-        (void *)query;
+        (void)query;
         *callBack = &queryCallBack;
     }
 //..
@@ -619,11 +622,11 @@ void queryCallBack(const QueryResult& result)
     RemoteAddress serverAddress;  // address of remote server
 
     bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
-        // Catalog of query callbacks, used by the client internally to
-        // keep track of callback functions across multiple queries.  The
-        // invariant is that each element corresponds to a pending query
-        // (i.e., the callback function has not yet been or is in the
-        // process of being invoked).
+        // Catalog of query callbacks, used by the client internally to keep
+        // track of callback functions across multiple queries.  The invariant
+        // is that each element corresponds to a pending query (i.e., the
+        // callback function has not yet been or is in the process of being
+        // invoked).
 //..
 // Now we define functions that will be used in the thread entry functions:
 //..
@@ -651,25 +654,25 @@ void queryCallBack(const QueryResult& result)
     {
         int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
         while (queriesToBeProcessed--) {
-            // The following call blocks until some response is available
-            // in the form of a 'ResponseMsg'.
+            // The following call blocks until some response is available in
+            // the form of a 'ResponseMsg'.
 
             ResponseMsg msg;
             recvMessage(&msg, serverAddress);
             int handle = msg.handle();
             QueryResult result = msg.queryResult();
 
-            // Process query 'result' by applying registered 'callBack'
-            // to it.  The 'callBack' function is retrieved from the
-            // 'catalog' using the given 'handle'.
+            // Process query 'result' by applying registered 'callBack' to it.
+            // The 'callBack' function is retrieved from the 'catalog' using
+            // the given 'handle'.
 
             bdlf::Function<void (*)(QueryResult)> callBack;
             ASSERT(0 == catalog.find(handle, &callBack));
             callBack(result);
 
             // Finally, remove the no-longer-needed 'callBack' from the
-            // 'catalog'.  Assert so that 'catalog' may not grow unbounded
-            // if remove fails.
+            // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
+            // remove fails.
 
             ASSERT(0 == catalog.remove(handle));
         }
@@ -690,9 +693,9 @@ void queryCallBack(const QueryResult& result)
 
 }  // close namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
-//=============================================================================
-//                          CASE 13 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 13 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_13
 
@@ -766,7 +769,7 @@ void *testAddFindReplaceRemove(void *arg)
 void *testLength(void *arg)
     // Invoke 'length' in a loop.
 {
-    (void *)arg;
+    (void)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = catalog.length();
@@ -779,7 +782,7 @@ void *testLength(void *arg)
 void *testIteration(void *arg)
     // Iterate the 'catalog' in a loop.
 {
-    (void *)arg;
+    (void)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
 
@@ -796,7 +799,7 @@ void *testIteration(void *arg)
 void *verifyStateThread(void *arg)
     // Verify the 'catalog' in a loop.
 {
-    (void *)arg;
+    (void)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         catalog.verifyState();
@@ -807,18 +810,18 @@ void *verifyStateThread(void *arg)
 } // extern "C"
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_13
-//=============================================================================
-//                          CASE 12 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 12 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_12
 
 {
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_12
-//=============================================================================
-//                          CASE 11 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 11 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_11
 
@@ -890,9 +893,9 @@ class AllocPattern {
 int AllocPattern::objCount = 0;
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_11
-//=============================================================================
-//                          CASE 10 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 10 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_10
 
@@ -943,9 +946,9 @@ class Pattern {
 int Pattern::objCount = 0;
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_10
-//=============================================================================
+// ============================================================================
 //                          CASE 9 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_9
 
@@ -953,11 +956,11 @@ namespace OBJECTCATALOG_TEST_CASE_9
 
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
-void verifyAccessors(Obj         *o1,
-                     vector<int> &handles1,
-                     my_Obj      *o2,
-                     vector<int> &handles2,
-                     int         maxHandles)
+void verifyAccessors(Obj          *o1,
+                     vector<int>&  handles1,
+                     my_Obj       *o2,
+                     vector<int>&  handles2,
+                     int           maxHandles)
     // Verify the catalog accessors (including iterator) by comparing with
     // alternate implementation.
 {
@@ -1012,77 +1015,77 @@ void verifyAccessors(Obj         *o1,
 }
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_9
-//=============================================================================
+// ============================================================================
 //                          CASE 8 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_8
 
 {
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_8
-//=============================================================================
+// ============================================================================
 //                          CASE 7 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_7
 
 {
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_7
-//=============================================================================
+// ============================================================================
 //                          CASE 6 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_6
 
 {
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_6
-//=============================================================================
+// ============================================================================
 //                          CASE 5 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_5
 
 {
 
 }  // close namespace OBJECTCATALOG_TEST_CASE_5
-//=============================================================================
+// ============================================================================
 //                          CASE 4 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_4
 
 {
 }  // close namespace OBJECTCATALOG_TEST_CASE_4
-//=============================================================================
+// ============================================================================
 //                          CASE 3 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_3
 
 {
 }  // close namespace OBJECTCATALOG_TEST_CASE_3
-//=============================================================================
+// ============================================================================
 //                          CASE 2 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_2
 
 {
 }  // close namespace OBJECTCATALOG_TEST_CASE_2
-//=============================================================================
+// ============================================================================
 //                          CASE 1 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace OBJECTCATALOG_TEST_CASE_1
 
 {
 }  // close namespace OBJECTCATALOG_TEST_CASE_1
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1332,7 +1335,7 @@ int main(int argc, char *argv[])
             ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x.removeAll();
-        } // let a, b and vbuf be destroyed
+        } // let 'a', 'b', and 'vbuf' be destroyed
 
         ASSERT(AllocPattern::objCount == 0);
 
@@ -1398,7 +1401,7 @@ int main(int argc, char *argv[])
             ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x1.removeAll();
-        } // let a, b and vbuf be destroyed
+        } // let 'a', 'b', and 'vbuf' be destroyed
 
         ASSERT(Pattern::objCount == 0);
 

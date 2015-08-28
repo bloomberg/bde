@@ -66,6 +66,10 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::vector<int>              d_values;        // maintains values
 //
+//    private:
+//      // Not implemented:
+//      IntegerQueue(const IntegerQueue&);
+//
 //    public:
 //..
 // Then, we declare the methods of an integer queue:
@@ -226,9 +230,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                       // ============================
-                       // class FixedQueueIndexManager
-                       // ============================
+                        // ============================
+                        // class FixedQueueIndexManager
+                        // ============================
 
 class FixedQueueIndexManager {
     // This class implements a circular buffer of atomic state variables.
@@ -482,12 +486,12 @@ class FixedQueueIndexManager {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                       // ----------------------------
-                       // class FixedQueueIndexManager
-                       // ----------------------------
+                        // ----------------------------
+                        // class FixedQueueIndexManager
+                        // ----------------------------
 
 // PRIVATE ACCESSORS
 inline

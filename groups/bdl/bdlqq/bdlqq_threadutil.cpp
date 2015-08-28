@@ -25,8 +25,8 @@ int bdlqq::ThreadUtil::convertToSchedulingPriority(
                ThreadAttributes::SchedulingPolicy policy,
                double                             normalizedSchedulingPriority)
 {
-    BSLS_ASSERT_OPT((int) policy >= ThreadAttributes::BCEMT_SCHED_MIN);
-    BSLS_ASSERT_OPT((int) policy <= ThreadAttributes::BCEMT_SCHED_MAX);
+    BSLS_ASSERT_OPT((int) policy >= ThreadAttributes::e_SCHED_MIN);
+    BSLS_ASSERT_OPT((int) policy <= ThreadAttributes::e_SCHED_MAX);
 
     BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
     BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
@@ -34,9 +34,9 @@ int bdlqq::ThreadUtil::convertToSchedulingPriority(
     const int minPri = getMinSchedulingPriority(policy);
     const int maxPri = getMaxSchedulingPriority(policy);
 
-    if (minPri == ThreadAttributes::BCEMT_UNSET_PRIORITY ||
-        maxPri == ThreadAttributes::BCEMT_UNSET_PRIORITY) {
-        return ThreadAttributes::BCEMT_UNSET_PRIORITY;                // RETURN
+    if (minPri == ThreadAttributes::e_UNSET_PRIORITY ||
+        maxPri == ThreadAttributes::e_UNSET_PRIORITY) {
+        return ThreadAttributes::e_UNSET_PRIORITY;                // RETURN
     }
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)

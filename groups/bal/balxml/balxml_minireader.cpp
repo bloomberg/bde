@@ -272,19 +272,19 @@ void replaceCharReferences(char *text)
 
 namespace BloombergLP  {
 
-                  // -----------------------------
-                  // class balxml::MiniReader::Node
-                  // -----------------------------
+                       // ------------------------------
+                       // class balxml::MiniReader::Node
+                       // ------------------------------
 
 balxml::MiniReader::Node::Node(bslma::Allocator *basicAllocator)
-: d_type          (BAEXML_NODE_TYPE_NONE)
+: d_type          (e_NODE_TYPE_NONE)
 , d_qualifiedName (0)
 , d_prefix        (0)
 , d_localName     (0)
 , d_value         (0)
 , d_namespaceId   (-1)
 , d_namespaceUri  (0)
-, d_flags         (BAEXML_NODE_NO_FLAGS)
+, d_flags         (k_NODE_NO_FLAGS)
 , d_attributes    (basicAllocator)
 , d_attrCount     ()
 , d_namespaceCount(0)
@@ -314,14 +314,14 @@ balxml::MiniReader::Node::Node(const Node&       other,
 void
 balxml::MiniReader::Node::reset()
 {
-    d_type           = BAEXML_NODE_TYPE_NONE;
+    d_type           = e_NODE_TYPE_NONE;
     d_qualifiedName  = 0;
     d_prefix         = 0;
     d_localName      = 0;
     d_value          = 0;
     d_namespaceId    = -1;
     d_namespaceUri   = 0;
-    d_flags          = BAEXML_NODE_NO_FLAGS;
+    d_flags          = k_NODE_NO_FLAGS;
     d_attrCount      = 0;
     d_namespaceCount = 0;
     d_startPos       = -1;
@@ -357,21 +357,21 @@ balxml::MiniReader::Node::addAttribute(const Attribute& attr)
 
     ++d_attrCount;
 
-    if ((attr.flags() & Attribute::BAEXML_ATTR_IS_NSDECL) != 0) {
+    if ((attr.flags() & Attribute::k_ATTR_IS_NSDECL) != 0) {
         ++d_namespaceCount;
     }
 }
 
 namespace balxml {
-                          // -----------------------
-                          // class MiniReader
-                          // -----------------------
+                              // ----------------
+                              // class MiniReader
+                              // ----------------
 
 // CREATORS
 MiniReader::MiniReader(bslma::Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
-, d_readSize        (BAEXML_DEFAULT_BUFSIZE)
+, d_readSize        (k_DEFAULT_BUFSIZE)
 , d_parseBuf        (basicAllocator)
 , d_streamOffset    (0)
 , d_stream          ()
@@ -399,7 +399,7 @@ MiniReader::MiniReader(bslma::Allocator *basicAllocator)
 , d_dummyStr        ("", basicAllocator)
 , d_options         (0)
 {
-    d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
+    d_activeNodes.resize(k_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
 }
 
@@ -435,20 +435,20 @@ MiniReader::MiniReader(int               bufSize,
 , d_dummyStr        ("", basicAllocator)
 , d_options         (0)
 {
-    if (-20000 >= d_readSize && (-20000 - BAEXML_MIN_BUFSIZE) < d_readSize) {
+    if (-20000 >= d_readSize && (-20000 - k_MIN_BUFSIZE) < d_readSize) {
         // TBD: This condition was added as a special case for stress testing
         // pointer rebase, however because readInput resizes d_parseBuf to be
-        // BAEXML_MIN_BUFSIZE setting d_readSize to anything less then
-        // BAEXML_MIN_BUFSIZE is meaningless.
+        // k_MIN_BUFSIZE setting d_readSize to anything less then
+        // k_MIN_BUFSIZE is meaningless.
         d_readSize = -20000 - d_readSize;
     }
-    else if (d_readSize < BAEXML_MIN_BUFSIZE) {
-        d_readSize = BAEXML_MIN_BUFSIZE;
-    } else if (d_readSize > BAEXML_MAX_BUFSIZE ) {
-        d_readSize = BAEXML_MAX_BUFSIZE;
+    else if (d_readSize < k_MIN_BUFSIZE) {
+        d_readSize = k_MIN_BUFSIZE;
+    } else if (d_readSize > k_MAX_BUFSIZE ) {
+        d_readSize = k_MAX_BUFSIZE;
     }
 
-    d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
+    d_activeNodes.resize(k_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
 }
 
@@ -473,7 +473,7 @@ MiniReader::setError(ErrorInfo::Severity error,
     }
 
     int rc = 0;
-    if ((int)error >= (int)ErrorInfo::BAEXML_ERROR) {
+    if ((int)error >= (int)ErrorInfo::e_ERROR) {
         d_state = ST_ERROR;
         rc = -1;
     }
@@ -502,7 +502,7 @@ MiniReader::setParseError(const char *errText,
         }
         msg.append("'");
     }
-    return setError(ErrorInfo::BAEXML_ERROR, msg);
+    return setError(ErrorInfo::e_ERROR, msg);
 }
 
 void
@@ -719,14 +719,14 @@ bool
 MiniReader::nodeHasValue() const
 {
     switch (nodeType()) {
-      case BAEXML_NODE_TYPE_TEXT:
-      case BAEXML_NODE_TYPE_CDATA:
-      case BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION:
-      case BAEXML_NODE_TYPE_COMMENT:
-      case BAEXML_NODE_TYPE_DOCUMENT_TYPE:
-      case BAEXML_NODE_TYPE_WHITESPACE:
-      case BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE:
-      case BAEXML_NODE_TYPE_XML_DECLARATION: {
+      case e_NODE_TYPE_TEXT:
+      case e_NODE_TYPE_CDATA:
+      case e_NODE_TYPE_PROCESSING_INSTRUCTION:
+      case e_NODE_TYPE_COMMENT:
+      case e_NODE_TYPE_DOCUMENT_TYPE:
+      case e_NODE_TYPE_WHITESPACE:
+      case e_NODE_TYPE_SIGNIFICANT_WHITESPACE:
+      case e_NODE_TYPE_XML_DECLARATION: {
           return true;                                                // RETURN
       }
       default: {
@@ -752,10 +752,10 @@ MiniReader::nodeDepth() const
 {
     int rc = d_activeNodesCount;
     switch (nodeType()) {
-      case BAEXML_NODE_TYPE_END_ELEMENT:
-      case BAEXML_NODE_TYPE_NONE: {
+      case e_NODE_TYPE_END_ELEMENT:
+      case e_NODE_TYPE_NONE: {
       } break;
-      case BAEXML_NODE_TYPE_ELEMENT:
+      case e_NODE_TYPE_ELEMENT:
       default: {
         ++rc;
       } break;
@@ -772,11 +772,11 @@ MiniReader::numAttributes() const
 bool
 MiniReader::isEmptyElement() const
 {
-    if (nodeType() != BAEXML_NODE_TYPE_ELEMENT)
+    if (nodeType() != e_NODE_TYPE_ELEMENT)
     {
         return false;                                                 // RETURN
     }
-    return ((currentNode().d_flags & Node::BAEXML_NODE_EMPTY) != 0);
+    return ((currentNode().d_flags & Node::k_NODE_EMPTY) != 0);
 }
 
 int
@@ -923,9 +923,9 @@ MiniReader::advanceToNextNode()
     return rc;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              PRIVATE methods
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 MiniReader::skipSpaces()
 {
@@ -1075,9 +1075,9 @@ void
 MiniReader::preAdvance()
 {
     switch (currentNode().d_type) {
-      case BAEXML_NODE_TYPE_NONE: {
+      case e_NODE_TYPE_NONE: {
       } break;
-      case BAEXML_NODE_TYPE_END_ELEMENT: {
+      case e_NODE_TYPE_END_ELEMENT: {
         BSLS_ASSERT(d_activeNodesCount > 0);
 
         d_prefixes->popPrefixes(d_activeNodes[d_activeNodesCount-1].second);
@@ -1085,7 +1085,7 @@ MiniReader::preAdvance()
             d_flags |= FLG_ROOT_CLOSED;
         }
       } break;
-      case BAEXML_NODE_TYPE_ELEMENT: {
+      case e_NODE_TYPE_ELEMENT: {
         if (isEmptyElement()) {
             d_prefixes->popPrefixes(currentNode().d_namespaceCount);
             if (0 == d_activeNodesCount) {
@@ -1102,8 +1102,8 @@ MiniReader::preAdvance()
             ++d_activeNodesCount;
         }
       } break;
-      case BAEXML_NODE_TYPE_CDATA:
-      case BAEXML_NODE_TYPE_TEXT:
+      case e_NODE_TYPE_CDATA:
+      case e_NODE_TYPE_TEXT:
       default: {
       } break;
     }
@@ -1139,7 +1139,7 @@ MiniReader::scanText()
 
     node.d_startPos = getCurrentPosition();
     node.d_value = d_scanPtr;
-    node.d_type = BAEXML_NODE_TYPE_WHITESPACE;
+    node.d_type = e_NODE_TYPE_WHITESPACE;
 
     int ch = skipSpaces();
 
@@ -1173,7 +1173,7 @@ MiniReader::scanText()
         // consume separating character with replacing it by zero
         // this will make node value as C-string
         getCharAndSet(0);
-        node.d_type = BAEXML_NODE_TYPE_TEXT;
+        node.d_type = e_NODE_TYPE_TEXT;
         d_state = ST_TAG_BEGIN;
 
         replaceCharReferences(const_cast<char *>(node.d_value));
@@ -1205,7 +1205,7 @@ MiniReader::scanOpenTag()
 
     switch(ch) {
       case 0:           // End of Data
-        setError(ErrorInfo::BAEXML_ERROR,
+        setError(ErrorInfo::e_ERROR,
                  "Syntax error - Unexpected End of Data");
         return -1;                                                    // RETURN
 
@@ -1249,7 +1249,7 @@ MiniReader::scanExclaimConstruct()
 
     if (skipIfMatch("--")) {  // comment
 
-        node.d_type = BAEXML_NODE_TYPE_COMMENT;
+        node.d_type = e_NODE_TYPE_COMMENT;
         node.d_value = d_scanPtr;
 
         if (scanForString("-->") == 0) { // not found
@@ -1269,7 +1269,7 @@ MiniReader::scanExclaimConstruct()
 
     if (skipIfMatch("[CDATA[")) { // CDATA section
 
-        node.d_type = BAEXML_NODE_TYPE_CDATA;
+        node.d_type = e_NODE_TYPE_CDATA;
         node.d_value = d_scanPtr;
 
         if (scanForString("]]>") == 0) { // not found
@@ -1326,7 +1326,7 @@ MiniReader::scanProcessingInstruction()
     // the character following "<?"
     Node& node = currentNode();
 
-    node.d_type = BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION;
+    node.d_type = e_NODE_TYPE_PROCESSING_INSTRUCTION;
     node.d_qualifiedName = d_scanPtr;
 
     int ch = scanForSymbolOrSpace('?');
@@ -1368,7 +1368,7 @@ MiniReader::scanProcessingInstruction()
     }
 
     if (bsl::strcmp("xml", node.d_qualifiedName) == 0) {
-        node.d_type = BAEXML_NODE_TYPE_XML_DECLARATION;
+        node.d_type = e_NODE_TYPE_XML_DECLARATION;
         if (d_state != ST_INITIAL) {
             return setParseError("The XML declaration is unexpected",
                                  0, 0);                               // RETURN
@@ -1386,7 +1386,7 @@ MiniReader::scanEndElement()
     // the character following "</"
     Node& node = currentNode();
 
-    node.d_type = BAEXML_NODE_TYPE_END_ELEMENT;
+    node.d_type = e_NODE_TYPE_END_ELEMENT;
     node.d_qualifiedName = d_scanPtr;
 
     int ch = scanForSymbolOrSpace('>');
@@ -1439,7 +1439,7 @@ MiniReader::scanStartElement()
     // the character following "<"
     Node& node = currentNode();
 
-    node.d_type = BAEXML_NODE_TYPE_ELEMENT;
+    node.d_type = e_NODE_TYPE_ELEMENT;
     node.d_qualifiedName = d_scanPtr;
 
     int ch = scanForSymbolOrSpace('/', '>');
@@ -1463,7 +1463,7 @@ MiniReader::scanStartElement()
     }
 
     if (ch == '/') {
-        node.d_flags |= Node::BAEXML_NODE_EMPTY;
+        node.d_flags |= Node::k_NODE_EMPTY;
         ch = getChar();
     }
 
@@ -1514,11 +1514,11 @@ MiniReader::updateElementInfo()
             //******************************************
             if (d_prefixes != &d_ownPrefixes) {
                 // user provided PrefixStack
-                return setError(ErrorInfo::BAEXML_ERROR, msg);        // RETURN
+                return setError(ErrorInfo::e_ERROR, msg);        // RETURN
             }
 
            // issue warning and continue
-           setError(ErrorInfo::BAEXML_WARNING, msg);
+           setError(ErrorInfo::e_WARNING, msg);
         }
     }
     node.d_namespaceUri =
@@ -1623,8 +1623,8 @@ MiniReader::updateAttributes()
         Attribute& attr =*it1;
         int flags = attr.flags();
 
-        if (flags & Attribute::BAEXML_ATTR_IS_NSDECL
-         || flags & Attribute::BAEXML_ATTR_IS_XSIDECL){
+        if (flags & Attribute::k_ATTR_IS_NSDECL
+         || flags & Attribute::k_ATTR_IS_XSIDECL){
             continue;
         }
 
@@ -1650,7 +1650,7 @@ MiniReader::updateAttributes()
                 bsl::string msg("Prefix is not defined: '");
                 msg.append(qName);
                 msg.append("'");
-                setError(ErrorInfo::BAEXML_WARNING, msg);
+                setError(ErrorInfo::e_WARNING, msg);
 
                 //******************************************
                 // temporary fix for BAS<->SOAP converters.
@@ -1661,11 +1661,11 @@ MiniReader::updateAttributes()
                 //******************************************
                 if (d_prefixes != &d_ownPrefixes) {
                     // user provided PrefixStack
-                    return setError(ErrorInfo::BAEXML_ERROR, msg);    // RETURN
+                    return setError(ErrorInfo::e_ERROR, msg);    // RETURN
                 }
 
                 // issue warning and continue
-                setError(ErrorInfo::BAEXML_WARNING, msg);
+                setError(ErrorInfo::e_WARNING, msg);
             }
 
             namespaceUri = d_prefixes->lookupNamespaceUri(namespaceId);
@@ -1700,7 +1700,7 @@ MiniReader::addAttribute()
         //  only localName
         if (bsl::strcmp(d_attrNamePtr, "xmlns") == 0) {
             localName = "";
-            flags |= Attribute::BAEXML_ATTR_IS_NSDECL;
+            flags |= Attribute::k_ATTR_IS_NSDECL;
         } else {
             localName = d_attrNamePtr;
         }
@@ -1709,10 +1709,10 @@ MiniReader::addAttribute()
         localName = colon + 1;
         *colon = 0;            // temporary set terminating zero
         if (!bsl::strcmp(d_attrNamePtr, "xmlns")) {
-            flags |= Attribute::BAEXML_ATTR_IS_NSDECL;
+            flags |= Attribute::k_ATTR_IS_NSDECL;
         }
         else if (!bsl::strcmp(d_attrNamePtr, "xsi")) {
-            flags |= Attribute::BAEXML_ATTR_IS_XSIDECL;
+            flags |= Attribute::k_ATTR_IS_XSIDECL;
         }
         else {
             prefix = colon;    // later it will be corrected
@@ -1720,7 +1720,7 @@ MiniReader::addAttribute()
         *colon = ':';          // restore
     }
 
-    if (flags & Attribute::BAEXML_ATTR_IS_NSDECL) {
+    if (flags & Attribute::k_ATTR_IS_NSDECL) {
 
         prefix = "xmlns";
         namespaceUri = "http://www.w3.org/2000/xmlns/";
@@ -1728,7 +1728,7 @@ MiniReader::addAttribute()
 
         d_prefixes->pushPrefix(localName, d_attrValPtr);
     }
-    else if (flags & Attribute::BAEXML_ATTR_IS_XSIDECL) {
+    else if (flags & Attribute::k_ATTR_IS_XSIDECL) {
 
         prefix = "xsi";
         namespaceUri = "http://www.w3.org/2001/XMLSchema-instance";
@@ -1832,8 +1832,8 @@ MiniReader::readInput()
 
     size_t chunkSize = d_parseBuf.size() - numLeft;
 
-    if (chunkSize < BAEXML_MIN_BUFSIZE) {
-        chunkSize = BAEXML_MIN_BUFSIZE;
+    if (chunkSize < k_MIN_BUFSIZE) {
+        chunkSize = k_MIN_BUFSIZE;
     }
 
     if (d_parseBuf.size() < (numLeft + chunkSize + 1)) {

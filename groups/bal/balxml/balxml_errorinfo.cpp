@@ -10,7 +10,7 @@ namespace BloombergLP  {
 
 namespace balxml {
 ErrorInfo::ErrorInfo(bslma::Allocator *basicAllocator)
-: d_severity    (BAEXML_NO_ERROR)
+: d_severity    (e_NO_ERROR)
 , d_lineNumber  (0)
 , d_columnNumber(0)
 , d_source      (basicAllocator)
@@ -48,7 +48,7 @@ ErrorInfo& ErrorInfo::operator=(const ErrorInfo& rhs)
 void
 ErrorInfo::reset()
 {
-    d_severity = BAEXML_NO_ERROR;
+    d_severity = e_NO_ERROR;
     d_lineNumber = 0;
     d_columnNumber = 0;
     d_source.clear();
@@ -87,15 +87,15 @@ bsl::ostream& balxml::operator<<(bsl::ostream&           stream,
     const char *severityStr;
 
     switch (errInfo.severity()) {
-      case ErrorInfo::BAEXML_NO_ERROR:
+      case ErrorInfo::e_NO_ERROR:
         return stream;                                                // RETURN
-      case ErrorInfo::BAEXML_WARNING:
+      case ErrorInfo::e_WARNING:
         severityStr = "Warning";
         break;
-      case ErrorInfo::BAEXML_ERROR:
+      case ErrorInfo::e_ERROR:
         severityStr = "Error";
         break;
-      case ErrorInfo::BAEXML_FATAL_ERROR:
+      case ErrorInfo::e_FATAL_ERROR:
         severityStr = "Fatal Error";
         break;
       default:

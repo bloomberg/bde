@@ -70,18 +70,18 @@ static void aSsErT(int c, const char *s, int i)
        #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
        M << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//=============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -163,14 +163,14 @@ int main(int argc, char *argv[])
 //..
     bsl::strcpy(input, "http://www.w3.org/2001/XMLSchema");
     int id3 = namespaceRegistry.lookupOrRegister(input);
-    ASSERT(id3 == balxml::NamespaceRegistry::BAEXML_XMLSCHEMA);
+    ASSERT(id3 == balxml::NamespaceRegistry::e_XMLSCHEMA);
 //..
 // Using the 'lookup' method, a namespace ID can be looked up without
 // registering it.  In this case, an unregistered namespace will result in an
 // ID of -1:
 //..
     ASSERT(googleId  == namespaceRegistry.lookup(googleUri));
-    ASSERT(balxml::NamespaceRegistry::BAEXML_BDEM ==
+    ASSERT(balxml::NamespaceRegistry::e_BDEM ==
            namespaceRegistry.lookup("http://bloomberg.com/schemas/bdem"));
     ASSERT(-1 == namespaceRegistry.lookup("urn:1234"));
 //..
@@ -360,12 +360,12 @@ int main(int argc, char *argv[])
 
             // Look up preregistered namespaces
             i = X.lookup("http://www.w3.org/XML/1998/namespace");
-            ASSERT(Obj::BAEXML_XML == i);
+            ASSERT(Obj::e_XML == i);
             const char *s = X.lookup(i);
             ASSERT(0 == bsl::strcmp("http://www.w3.org/XML/1998/namespace",s));
 
             i = X.lookup("http://bloomberg.com/schemas/bdem");
-            ASSERT(Obj::BAEXML_BDEM == i);
+            ASSERT(Obj::e_BDEM == i);
             s = X.lookup(i);
             ASSERT(0 == bsl::strcmp("http://bloomberg.com/schemas/bdem", s));
 
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
             i = X.lookup(N1); ASSERT(-1 == i);
             i = X.lookup(N2); ASSERT(-1 == i);
             i = X.lookup("http://www.w3.org/XML/1998/namespace");
-            ASSERT(Obj::BAEXML_XML == i);
+            ASSERT(Obj::e_XML == i);
         }
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ta.numBlocksInUse());

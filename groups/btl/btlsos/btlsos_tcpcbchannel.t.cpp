@@ -2,27 +2,35 @@
 #include <btlsos_tcpcbchannel.h>
 
 #include <btlso_tcptimereventmanager.h>
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_platform.h>
 #include <btlso_sockethandle.h>
 #include <btlso_socketimputil.h>
+#include <btlso_inetstreamsocketfactory.h>      // create a streamsocket opt.
 #include <btlso_ipv4address.h>
+#include <btlso_socketoptutil.h>
 #include <btlso_streamsocket.h>
 #include <btlso_streamsocketfactory.h>
-#include <btlso_inetstreamsocketfactory.h>      // create a streamsocket opt.
+
+#include <btls_iovec.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
-#include <bsl_c_stdlib.h>                       // 'atoi'
-#include <bsl_iostream.h>
+#include <bslma_testallocator.h>                // for testing only
+#include <bslma_testallocatorexception.h>       // for testing only
+
+#include <bsls_platform.h>
+
 #include <bsl_c_ctype.h>                        // 'isdigit'
-#include <bsl_c_signal.h>
-#include <bsl_c_stdio.h>                        // _IONBF for buffer control
+#include <bsl_csignal.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>                       // 'atoi'
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+
+#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -105,23 +113,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -158,7 +166,7 @@ static int veryVerbose;
 
 static const struct {
     int         d_lineNum;
-    const char *d_sndBuf;        // write into the channel from this buf.
+    const char *d_sndBuf;        // write into the channel from this buffer
     int         d_sndLen;        // the string length to be sent.
 } BUFFERS[] =
   //line           d_sndBuf        d_sndLen
@@ -192,14 +200,16 @@ char str3[4096];
 
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
 static int
-gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
+gg(btlsos::TcpCbChannel        *channel,
+   Buffer                      *buffer,
    btlso::TcpTimerEventManager *rManager,
    btlso::TcpTimerEventManager *wManager,
-   const char                 *script);
+   const char                  *script);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
@@ -257,7 +267,7 @@ static const char *get1stCbCommand(const char *commandSeq)
         return ++commandSeq;   // skip '{'                            // RETURN
 }
 
-static const char *getNextCbCommand(const char *cbCmd)
+static const char *getNextCbCommand(const char *cbCommand)
     // Return the next callback command in the command list if there's any;
     // e.g., in callback command list "{W1;r3,3,0,{r2,2,0,{cr}};r2,3,0}", there
     // are 3 commands to be executed in the user-installed callback, this
@@ -267,22 +277,22 @@ static const char *getNextCbCommand(const char *cbCmd)
 {
     int curly = 0;
 
-    while (curly || '}' != *cbCmd) { // if it's the end of the cbcommand
-        if (';' != *cbCmd && '\0' != *cbCmd) {
-            if ('{' == *cbCmd)
+    while (curly || '}' != *cbCommand) { // if it's the end of the cbcommand
+        if (';' != *cbCommand && '\0' != *cbCommand) {
+            if ('{' == *cbCommand)
                 curly++;
-            else if ('}' == *cbCmd)
+            else if ('}' == *cbCommand)
                 curly--;
-            ++cbCmd;
+            ++cbCommand;
         }
         else if (curly)
-            ++cbCmd;
+            ++cbCommand;
         else
             break;
     }
-    if (';' == *cbCmd) {
-        while (' ' == *cbCmd || ';' == *cbCmd)  ++cbCmd;
-        return cbCmd;                                                 // RETURN
+    if (';' == *cbCommand) {
+        while (' ' == *cbCommand || ';' == *cbCommand)  ++cbCommand;
+        return cbCommand;                                             // RETURN
     }
     else
         return 0;                                                     // RETURN
@@ -292,7 +302,7 @@ static int helpWrite(btlso::SocketHandle::Handle  client,
                      const char                  *buf,
                      int                          bufLen)
     // Write data into the channel, by which different read function can be
-    // tested. return 0 on success, non-zero otherwise.
+    // tested.  Return 0 on success, non-zero otherwise.
 {
   if (0 == buf || 0 == bufLen)
       return 0;                                                       // RETURN
@@ -306,7 +316,7 @@ static int helpWrite(btlso::SocketHandle::Handle  client,
 }
 
 static void helpBuildVector()
-  // Build a list of vectors for readv/writev.
+    // Build a list of vectors for readv/writev.
 {
     int i;
 
@@ -336,18 +346,18 @@ static void helpBuildVector()
 static void helpAssertVecData(int         i,
                               int         j,
                               int         type,
-                              void       *vecBuffer,
+                              void       *vectorBuffer,
                               const char *expData)
 {
     enum { e_NON_VEC = 0, e_OVECTOR, e_IOVECTOR };
 
-    ASSERT(vecBuffer);
+    ASSERT(vectorBuffer);
 
-    if (vecBuffer)
+    if (vectorBuffer)
     {
         switch (type) {
           case e_IOVECTOR: {
-              btls::Iovec *vec = (btls::Iovec*) vecBuffer;
+              btls::Iovec *vec = (btls::Iovec*) vectorBuffer;
               int idx = 0;
               int len = static_cast<int>(strlen((char*)vec[idx].buffer()));
 
@@ -381,7 +391,7 @@ static void bufferedReadCallback(const char                  *buf,
                                  const char                  *script,
                                  Buffer                      *buffer)
     // Callback function for a buffered read request to indicate the execution
-    // status for the read request to notify the user if it succeeds, partially
+    // of a read request and to notify the user if it succeeds, partially
     // completes, fails or needs to issue other requests.
 {
     ASSERT(buffer);
@@ -464,7 +474,7 @@ static void readCallback(int                          status,
                          const char                  *script,
                          Buffer                      *buffer)
     // Callback function for a non-buffered read request to indicate the
-    // execution status for a read request to notify the user if it succeeds,
+    // execution of a read request and to notify the user if it succeeds,
     // partially completes, fails or needs to issue other requests.
 
 {
@@ -532,7 +542,7 @@ static void myReadCallback(int status,
                            int expStatus,
                            int expAugStatus)
     // Callback function for a non-buffered read request to indicate the
-    // execution status for a read request to notify the user if it succeeds,
+    // execution of a read request and to notify the user if it succeeds,
     // partially completes, fails or needs to issue other requests.
 
 {
@@ -580,8 +590,8 @@ static void readvCallback(int                          status,
                           int                          expAugStatus,
                           const char                  *script,
                           Buffer                      *buffer)
-    // Callback function for a non-buffered readv request to indicate the
-    // execution status for a read request to notify the user if it succeeds,
+    // Callback function for a non-buffered 'readv' request to indicate the
+    // execution of a read request and to notify the user if it succeeds,
     // partially completes, fails or needs to issue other request.
 {
 
@@ -651,9 +661,9 @@ static void writeCallback(int                          status,
                           int                          expAugStatus,
                           const char                  *script,
                           Buffer                      *buffer)
-    // Callback function for a write request to indicate the execution status
-    // for a read request to notify the user if it succeeds, partially
-    // completes, fails or needs to issue other requests.
+    // Callback function for a write request to indicate the execution of a
+    // read request and to notify the user if it succeeds, partially completes,
+    // fails or needs to issue other requests.
 
 {
     ASSERT(expStatus == status);
@@ -760,6 +770,7 @@ static void writeCallback(int                          status,
 // other commands, will be executed and the result can then be verified.
 // Commands enclosed in a pair of '{', '}' can be executed only in the
 // user-installed callback function.
+//..
 //   d     - dispatch,
 //   dr    - read dispatch,
 //   dw    - write dispatch,
@@ -807,6 +818,7 @@ static void writeCallback(int                          status,
 //           the buffer state, it's not a channel operation command,
 //   W     - write to the control buffer for the channel to control the buffer
 //           state, it's not a channel operation command,
+//..
 //
 // Note that any command that is enclosed in a pair of '{' and '}' should be
 //   executed in the user-installed callback function.  This kind of commands
@@ -845,6 +857,7 @@ static void writeCallback(int                          status,
 //     to help test any read/write function of the channel.
 //
 // Script examples based on the above language are as follows:
+//
 // "r2,0,2,0;dr1" means:
 //    -- Read 2 bytes with the interruptible flag off and without a
 //       timeout requirement; then in next command the read-event manager
@@ -877,11 +890,11 @@ static void writeCallback(int                          status,
 //       from which any single entry can be chosen to write to the control
 //       buffer.
 
-static int
-gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
-   btlso::TcpTimerEventManager *rManager,
-   btlso::TcpTimerEventManager *wManager,
-   const char                 *script)
+static int gg(btlsos::TcpCbChannel        *channel,
+              Buffer                      *buffer,
+              btlso::TcpTimerEventManager *rManager,
+              btlso::TcpTimerEventManager *wManager,
+              const char                  *script)
 {
     // Decode the script based on the above language, execute one
     //   command in the script at a time.
@@ -977,7 +990,7 @@ gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
           switch (*(script+1)) {
             case 'b': {
                 if ('r' == *(script+2)) {
-                    if ('t' == *(script+3)) {  // rbrt
+                    if ('t' == *(script+3)) {  // 'rbrt'
                         ret = sscanf(script, "rbrt%d,(%d,%d),%d,%d,%d",
                                      &readLen, &second, &nanoSec, &optFlag,
                                      &expStatus, &expAugStatus);
@@ -1022,12 +1035,12 @@ gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
                 ASSERT(0 == ret || channel->isInvalidRead());
             } break;
             case 'r': {
-                if ('t' == *(script+2)) {   // rrt
+                if ('t' == *(script+2)) {   // 'rrt'
                     ret = sscanf(script, "rrt%d,(%d,%d),%d,%d,%d", &readLen,
                                  &second, &nanoSec, &optFlag, &expStatus,
                                  &expAugStatus);
                 }
-                else {                     // readRaw()
+                else {                     // 'readRaw'
                     ret = sscanf(script, "rr%d,%d,%d,%d", &readLen,
                                  &optFlag, &expStatus, &expAugStatus);
                     ASSERT(4 == ret);
@@ -1349,9 +1362,9 @@ gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
     return ret_flag;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -1376,7 +1389,8 @@ int main(int argc, char *argv[])
     testAllocator.setNoAbort(1);
     btlso::SocketImpUtil::startup(&errCode);
 
-    helpBuildVector();       // Help create global vectors:one Iovec, one Ovec.
+    helpBuildVector();       // Help create global vectors: one 'Iovec', one
+                             //'Ovec'.
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {
         // -------------------------------------------------------------------
@@ -1468,7 +1482,7 @@ int main(int argc, char *argv[])
 
             // We also need creating a functor object corresponding to the
             // specific I/O request to submit the request.  Associate this
-            // functor object with the expected bytest for this I/O request, a
+            // functor object with the expected bytes for this I/O request, a
             // function pointer to a user-installed callback function which is
             // usually to report this I/O request's execution status after
             // being dispatched.
@@ -2039,7 +2053,7 @@ int main(int argc, char *argv[])
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
-     // any write request. there's bug in the code found by this test:
+     // any write request.  There's bug in the code found by this test:
      {L_,  "wbvi6,1,1040,0",  0,      0,       0,      0,   e_NON_VEC,   ""  },
      {L_,  "cS",              0,      0,       0,      0,   e_NON_VEC,   ""  },
      {L_,  "wbvi1,1,-3,0",    0,      0,       0,      0,   e_NON_VEC,   ""  },
@@ -2134,7 +2148,7 @@ int main(int argc, char *argv[])
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
-     // any write request. there's bug in the code found by this test:
+     // any write request.  There's bug in the code found by this test:
      {L_,  "wbvo6,1,1040,0",  0,      0,       0,      0,   e_NON_VEC,   ""  },
      {L_,  "cS",              0,      0,       0,      0,   e_NON_VEC,   ""  },
      {L_,  "wbvo1,1,-3,0",    0,      0,       0,      0,   e_NON_VEC,   ""  },
@@ -5604,8 +5618,8 @@ int main(int argc, char *argv[])
         } SCRIPTS[][MAX_CMDS] =
         {
    // line cmd PendingR ReadE PendingW WriteE Type d_expData
-   { // Enqueue 1 request, then dispatch: test if the request is queued
-     // and later executed properly.
+   { // Enqueue 1 request, then dispatch: test if the request is queued and
+     // later executed properly.
    { L_, "W11",          0,     0,     0,        0,  e_NON_VEC,    ""        },
    { L_, "rb4,0,4,0",    1,     1,     0,        0,  e_NON_VEC,    ""        },
    { L_, "dr1",          0,     0,     0,        0,  e_NON_VEC,    "1234"    },
@@ -7376,8 +7390,8 @@ int main(int argc, char *argv[])
      { L_, "dr0",        0,      0,      0,       0,  e_NON_VEC,     ""      },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
-   { // Invalidate the channel, enter 1 request, then try dispatching:
-     // concern (3).
+   { // Invalidate the channel, enter 1 request, then try dispatching: concern
+     // (3).
      { L_, "W11",        0,      0,      0,       0, e_NON_VEC,     ""      },
      { L_, "ir",         0,      0,      0,       0, e_NON_VEC,     ""      },
      { L_, "rr6,0,-1,0", 0,      0,      0,       0, e_NON_VEC,     ""      },

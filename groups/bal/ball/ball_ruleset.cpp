@@ -5,8 +5,12 @@
 BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitstringutil.h>
+#include <bdlb_bitutil.h>
 
+#include <bslim_printer.h>
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
+
 #include <bsl_functional.h>
 
 namespace BloombergLP {
@@ -17,15 +21,19 @@ int ball::RuleSet::RuleHash::s_hashtableSize = INT_MAX;
 namespace ball {
 // CLASS METHODS
 void RuleSet::printMask(bsl::ostream& stream,
-                             MaskType      mask,
-                             int           level,
-                             int           spacesPerLevel)
+                        MaskType      mask,
+                        int           level,
+                        int           spacesPerLevel)
 {
-    bdlb::BitstringUtil::print(stream,
-                              (int *)&mask,
-                              sizeof(MaskType) * 8,
-                              level,
-                              spacesPerLevel);
+    bsl::uint64_t dummy = mask;
+
+    BSLMF_ASSERT(sizeof(mask) <= sizeof(dummy));
+
+    bdlb::BitStringUtil::print(stream,
+                               &dummy,
+                               bdlb::BitUtil::sizeInBits(mask),
+                               level,
+                               spacesPerLevel);
 }
 
 // CREATORS
@@ -190,29 +198,19 @@ int RuleSet::ruleId(const Rule& value) const
 }
 
 bsl::ostream& RuleSet::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+                             int           level,
+                             int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
+    bslim::Printer printer(&stream, level, spacesPerLevel);
 
-    if (level < 0) {
-        level = -level;
-    }
-    else {
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-    }
-
-    stream << '{' << NL;
-
+    printer.start();
     for (int i = 0; i < maxNumRules(); ++i) {
         const Rule *rule = getRuleById(i);
         if (rule) {
-            rule->print(stream, level + 1, spacesPerLevel);
+            printer.printValue(*rule);
         }
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
+    printer.end();
 
     return stream;
 }

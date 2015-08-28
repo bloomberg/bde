@@ -46,9 +46,9 @@ static void aSsErT(int c, const char *s, int i)
 }
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -61,24 +61,24 @@ static void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlqq::Configuration Obj;
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             ASSERT(native == Obj::nativeDefaultThreadStackSize());
-            ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+            ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                 Obj::defaultThreadStackSize());
         }
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 
         // Then, we verify that 'defaultThreadStackSize' is unset.
 
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                bdlqq::Configuration::defaultThreadStackSize());
 
         // Next, we define 'newDefaultStackSize' to some size other than the
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
                              "==============\n";
 
         bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                        (int) defaultStackSize);
 
         defaultStackSize = Obj::nativeDefaultThreadStackSize();

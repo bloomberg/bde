@@ -14,28 +14,28 @@ BSLS_IDENT_RCSID(bdlqq_once_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                                // ----------
-                                // class Once
-                                // ----------
+                                 // ----------
+                                 // class Once
+                                 // ----------
 
 bool bdlqq::Once::enter(Once::OnceLock *onceLock)
 {
-    if (BCEMT_DONE == bsls::AtomicOperations::getInt(&d_state)) {
+    if (e_DONE == bsls::AtomicOperations::getInt(&d_state)) {
         return false;                                                 // RETURN
     }
 
     onceLock->lock(&d_mutex);  // Lock the mutex
     switch (bsls::AtomicOperations::getInt(&d_state)) {
 
-      case BCEMT_NOT_ENTERED:
-        bsls::AtomicOperations::setInt(&d_state, BCEMT_IN_PROGRESS);
+      case e_NOT_ENTERED:
+        bsls::AtomicOperations::setInt(&d_state, e_IN_PROGRESS);
         return true;  // Leave mutex locked                           // RETURN
 
-      case BCEMT_IN_PROGRESS:
+      case e_IN_PROGRESS:
         BSLS_ASSERT(! "Can't get here!");
         break;
 
-      case BCEMT_DONE:
+      case e_DONE:
         onceLock->unlock();
         return false;                                                 // RETURN
     }
@@ -45,27 +45,27 @@ bool bdlqq::Once::enter(Once::OnceLock *onceLock)
 
 void bdlqq::Once::leave(Once::OnceLock *onceLock)
 {
-    BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
+    BSLS_ASSERT(e_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
-    bsls::AtomicOperations::setInt(&d_state, BCEMT_DONE);
+    bsls::AtomicOperations::setInt(&d_state, e_DONE);
     onceLock->unlock();
 }
 
 void bdlqq::Once::cancel(Once::OnceLock *onceLock)
 {
-    BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
+    BSLS_ASSERT(e_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
-    bsls::AtomicOperations::setInt(&d_state, BCEMT_NOT_ENTERED);
+    bsls::AtomicOperations::setInt(&d_state, e_NOT_ENTERED);
     onceLock->unlock();
 }
 
-                            // ---------------
-                            // class OnceGuard
-                            // ---------------
+                              // ---------------
+                              // class OnceGuard
+                              // ---------------
 
 bdlqq::OnceGuard::~OnceGuard()
 {
-    if (BCEMT_IN_PROGRESS != d_state) {
+    if (e_IN_PROGRESS != d_state) {
         return;                                                       // RETURN
     }
 #if ! defined(BSLS_PLATFORM_CMP_MSVC)
@@ -80,15 +80,15 @@ bdlqq::OnceGuard::~OnceGuard()
 
 bool bdlqq::OnceGuard::enter()
 {
-    if (BCEMT_DONE == d_state) {
+    if (e_DONE == d_state) {
         return false;                                                 // RETURN
     }
 
-    BSLS_ASSERT(BCEMT_IN_PROGRESS != d_state);
+    BSLS_ASSERT(e_IN_PROGRESS != d_state);
     BSLS_ASSERT(d_once);
 
     if (d_once->enter(&d_onceLock)) {
-        d_state = BCEMT_IN_PROGRESS;
+        d_state = e_IN_PROGRESS;
         return true;                                                  // RETURN
     }
     else {
@@ -98,17 +98,17 @@ bool bdlqq::OnceGuard::enter()
 
 void bdlqq::OnceGuard::leave()
 {
-    if (BCEMT_IN_PROGRESS == d_state) {
+    if (e_IN_PROGRESS == d_state) {
         d_once->leave(&d_onceLock);
-        d_state = BCEMT_DONE;
+        d_state = e_DONE;
     }
 }
 
 void bdlqq::OnceGuard::cancel()
 {
-    if (BCEMT_IN_PROGRESS == d_state) {
+    if (e_IN_PROGRESS == d_state) {
         d_once->cancel(&d_onceLock);
-        d_state = BCEMT_NOT_ENTERED;
+        d_state = e_NOT_ENTERED;
     }
 }
 

@@ -1,4 +1,4 @@
-// balber_berdecoderoptions.cpp                                         -*-C++-*-
+// balber_berdecoderoptions.cpp                                       -*-C++-*-
 #include <balber_berdecoderoptions.h>
 
 #include <bsls_ident.h>
@@ -17,9 +17,9 @@ BSLS_IDENT_RCSID(balber_berdecoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // -------------------------------
-                          // class balber::BerDecoderOptions
-                          // -------------------------------
+                      // -------------------------------
+                      // class balber::BerDecoderOptions
+                      // -------------------------------
 
 // CONSTANTS
 
@@ -254,7 +254,7 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

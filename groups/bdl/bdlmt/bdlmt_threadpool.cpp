@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -30,9 +31,9 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlmt {
-                         // =======================
+                         // ==================
                          // ThreadPoolWaitNode
-                         // =======================
+                         // ==================
 
 struct ThreadPoolWaitNode {
     // This structure is used to implement the linked list of threads that are
@@ -49,39 +50,35 @@ struct ThreadPoolWaitNode {
     // state value.  A thread that takes on a new job removes itself from the
     // wait list (not necessarily at the head of the list).
 
-    bdlqq::Condition                   d_jobCond; // signaled when 'd_hasJob' is
-                                                 // set
+    bdlqq::Condition             d_jobCond; // signaled when 'd_hasJob' is set
 
     ThreadPoolWaitNode* volatile d_next;    // pointer to the next waiting
-                                                 // thread
+                                            // thread
 
-    ThreadPoolWaitNode* volatile d_prev;    // pointer to the previous
-                                                 // waiting thread
+    ThreadPoolWaitNode* volatile d_prev;    // pointer to the previous waiting
+                                            // thread
 
-    volatile int                      d_hasJob;  // 1 if a job has been
-                                                 // enqueued, 0 otherwise
+    volatile int                 d_hasJob;  // 1 if a job has been enqueued, 0
+                                            // otherwise
 
     // CREATORS
     ThreadPoolWaitNode();
         // Default constructor.
 };
-}  // close package namespace
+                            // ===============
+                            // ThreadPoolEntry
+                            // ===============
 
-                         // ====================
-                         // bcep_ThreadPoolEntry
-                         // ====================
-
-extern "C" void* bcep_ThreadPoolEntry(void *aThis)
+extern "C" void *ThreadPoolEntry(void *aThis)
     // Entry point for processing threads.
 {
     ((bdlmt::ThreadPool*)aThis)->workerThread();
     return 0;
 }
 
-namespace bdlmt {
-                         // =======================
-                         // ThreadPoolWaitNode
-                         // =======================
+                            // ==================
+                            // ThreadPoolWaitNode
+                            // ==================
 
 ThreadPoolWaitNode::ThreadPoolWaitNode()
 : d_jobCond(bsls::SystemClockType::e_MONOTONIC)
@@ -93,7 +90,8 @@ void ThreadPool::doEnqueueJob(const Job& job)
 {
     d_queue.push_back(job);
     if (d_waitHead) {
-        // Signal this thread (used in 'bdlmt::ThreadPool::workerThread' below).
+        // Signal this thread (used in 'bdlmt::ThreadPool::workerThread'
+        // below).
 
         d_waitHead->d_hasJob = 1;
         d_waitHead->d_jobCond.signal();
@@ -126,8 +124,8 @@ namespace bdlmt {void ThreadPool::initBlockSet()
         SIGIOT
     #endif
     };
-    static const int SIZE = sizeof synchronousSignals
-                                                  / sizeof *synchronousSignals;
+    static const int SIZE =
+                        sizeof synchronousSignals / sizeof *synchronousSignals;
 
     for (int i = 0; i < SIZE; ++i) {
         sigdelset(&d_blockSet, synchronousSignals[i]);
@@ -149,8 +147,10 @@ int ThreadPool::startNewThread()
     pthread_sigmask(SIG_BLOCK, &d_blockSet, &oldset);
 #endif
 
-    int rc = bdlqq::ThreadUtil::create(&handle,d_threadAttributes,
-                                      bcep_ThreadPoolEntry, this);
+    int rc = bdlqq::ThreadUtil::create(&handle,
+                                       d_threadAttributes,
+                                       ThreadPoolEntry,
+                                       this);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask
@@ -297,10 +297,10 @@ void ThreadPool::workerThread()
 
 // CREATORS
 ThreadPool::ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
-                                 int                     minThreads,
-                                 int                     maxThreads,
-                                 int                     maxIdleTime,
-                                 bslma::Allocator       *basicAllocator)
+                       int                             minThreads,
+                       int                             maxThreads,
+                       int                             maxIdleTime,
+                       bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
 , d_threadAttributes(threadAttributes)
 , d_maxThreads(maxThreads)
@@ -317,7 +317,7 @@ ThreadPool::ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                                   bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();
@@ -361,7 +361,7 @@ int ThreadPool::enqueueJob(const Job& functor)
     if ((int) d_queue.size() + d_numActiveThreads > d_threadCount &&
         d_threadCount < d_maxThreads ) {
         int rc = startNewThread();
-        (void)rc;  // Supress unused variable warning.
+        (void)rc;  // Suppress unused variable warning.
 
         if (0 == d_threadCount) {
             // We are unable to spawn the first thread.  The enqueued job will
@@ -372,7 +372,7 @@ int ThreadPool::enqueueJob(const Job& functor)
 
         // In our existing code base, many Linux users unknowingly configure
         // thread stack size to be 64 megabytes by default.  If they ask for a
-        // lot of threads, they run out of RAM and thread creation evenutally
+        // lot of threads, they run out of RAM and thread creation eventually
         // fails.  But by then they have many threads and their jobs get
         // processed and things work.  To avoid disturbing such jobs in
         // production, work if 'startNewThread' failed as long as
@@ -380,7 +380,7 @@ int ThreadPool::enqueueJob(const Job& functor)
         // in development to the problem.
 
         BSLS_ASSERT_SAFE(0 == rc && "Client is not getting as many threads as"
-                                        "requested, check thread stack size.");
+                                    "requested, check thread stack size.");
     }
     return 0;
 }

@@ -129,9 +129,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                     // ===============================
-                     // class StackTracePrintUtil
-                     // ===============================
+                         // =========================
+                         // class StackTracePrintUtil
+                         // =========================
 
 struct StackTracePrintUtil {
     // This 'struct' serves as a namespace for static methods that perform and
@@ -156,9 +156,9 @@ struct StackTracePrintUtil {
         // demangled on the Windows platform.
 };
 
-                   // ====================================
-                   // class StackTracePrintUtil_Test
-                   // ====================================
+                       // ==============================
+                       // class StackTracePrintUtil_Test
+                       // ==============================
 
 struct StackTracePrintUtil_Test {
     // This 'struct' is not intended for use by clients of this component; it
@@ -173,12 +173,12 @@ struct StackTracePrintUtil_Test {
 };
 
 // ============================================================================
-//                       INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                    // -------------------------------------
-                    // struct StackTracePrintUtil_Test
-                    // -------------------------------------
+                      // -------------------------------
+                      // struct StackTracePrintUtil_Test
+                      // -------------------------------
 
 // CLASS METHOD
 inline

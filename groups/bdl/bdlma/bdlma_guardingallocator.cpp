@@ -36,7 +36,7 @@ namespace {
 // Define the offset (in bytes) from the address returned to the user in which
 // to stash reference addresses ('e_AFTER_USER_BLOCK' only).
 
-const bslma::Allocator::size_type OFFSET =
+static const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 struct AfterUserBlockDeallocationData

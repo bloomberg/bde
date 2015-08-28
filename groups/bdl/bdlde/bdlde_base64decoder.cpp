@@ -21,7 +21,7 @@ namespace BloombergLP {
 // The following table identifies characters that can be ignored when
 // d_isUnrecognizedAnErrorFlag 'true'.
 
-static const bool CHARACTERS_THAT_CAN_BE_IGNORED_IN_STRICT_MODE[256] = {
+static const bool charsThatCanBeIgnoredInStrictMode[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,  // 00  // whitespace
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
@@ -44,7 +44,7 @@ static const bool CHARACTERS_THAT_CAN_BE_IGNORED_IN_STRICT_MODE[256] = {
 // The following table identifies characters that can be ignored when
 // d_isUnrecognizedAnErrorFlag 'false'.
 
-static const bool CHARACTERS_THAT_CAN_BE_IGNORED_IN_RELAXED_MODE[256] = {
+static const bool charsThatCanBeIgnoredInRelaxedMode[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
@@ -67,7 +67,7 @@ static const bool CHARACTERS_THAT_CAN_BE_IGNORED_IN_RELAXED_MODE[256] = {
 // The following table is a map from numeric Base64 encoding characters to the
 // corresponding 6-bit index.
 
-static const char DEC[256] = {
+static const char decoding[256] = {
     //  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 00
@@ -89,17 +89,17 @@ static const char DEC[256] = {
 };
 
 
-                        // -------------------------
-                        // class bdlde::Base64Decoder
-                        // -------------------------
+                         // --------------------------
+                         // class bdlde::Base64Decoder
+                         // --------------------------
 
 // CLASS DATA
 
 const bool *const bdlde::Base64Decoder::s_ignorableStrict_p =
-                                 CHARACTERS_THAT_CAN_BE_IGNORED_IN_STRICT_MODE;
+                                             charsThatCanBeIgnoredInStrictMode;
 const bool *const bdlde::Base64Decoder::s_ignorableRelaxed_p =
-                                CHARACTERS_THAT_CAN_BE_IGNORED_IN_RELAXED_MODE;
-const char *const bdlde::Base64Decoder::s_decoding_p = DEC;
+                                            charsThatCanBeIgnoredInRelaxedMode;
+const char *const bdlde::Base64Decoder::s_decoding_p = decoding;
 
 namespace bdlde {
 
@@ -108,12 +108,12 @@ namespace bdlde {
 
 Base64Decoder::~Base64Decoder()
 {
-    BSLS_ASSERT(BDEDE_ERROR_STATE <= d_state);
-    BSLS_ASSERT(d_state <= BDEDE_DONE_STATE);
+    BSLS_ASSERT(e_ERROR_STATE <= d_state);
+    BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_outputLength);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

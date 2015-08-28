@@ -53,9 +53,9 @@ namespace BloombergLP {
 
 namespace balxml {
 
-                            // ===========================
+                            // ====================
                             // class DecoderOptions
-                            // ===========================
+                            // ====================
 
 class DecoderOptions {
     // Options for controlling the XML decoding process.
@@ -71,19 +71,32 @@ class DecoderOptions {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH             = 0
-      , ATTRIBUTE_ID_FORMATTING_MODE       = 1
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
+        e_ATTRIBUTE_ID_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_ID_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_DEPTH = e_ATTRIBUTE_ID_MAX_DEPTH
+      , ATTRIBUTE_ID_FORMATTING_MODE = e_ATTRIBUTE_ID_FORMATTING_MODE
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ATTRIBUTES = 3
+        k_NUM_ATTRIBUTES = 3
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH             = 0
-      , ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
+        e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_DEPTH = e_ATTRIBUTE_INDEX_MAX_DEPTH
+      , ATTRIBUTE_INDEX_FORMATTING_MODE = e_ATTRIBUTE_INDEX_FORMATTING_MODE
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
@@ -256,13 +269,13 @@ BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balxml::DecoderOptions)
 namespace balxml {
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 
-                            // ---------------------------
+                            // --------------------
                             // class DecoderOptions
-                            // ---------------------------
+                            // --------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -270,17 +283,17 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -291,23 +304,23 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -317,12 +330,12 @@ int DecoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -352,17 +365,17 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -373,23 +386,23 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -399,12 +412,12 @@ int DecoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

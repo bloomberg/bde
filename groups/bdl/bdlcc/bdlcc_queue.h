@@ -395,16 +395,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlc_queue.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
-#include <bsls_timeinterval.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -414,9 +414,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                               // ===========
-                               // class Queue
-                               // ===========
+                                // ===========
+                                // class Queue
+                                // ===========
 
 template <class TYPE>
 class Queue {
@@ -721,7 +721,7 @@ class Queue {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -736,7 +736,7 @@ Queue<TYPE>::Queue(bslma::Allocator *basicAllocator)
 template <class TYPE>
 inline
 Queue<TYPE>:: Queue(const InitialCapacity&  numItems,
-                              bslma::Allocator       *basicAllocator)
+                    bslma::Allocator       *basicAllocator)
 : d_queue(QueueCapacity(numItems.d_i), basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -753,8 +753,8 @@ Queue<TYPE>::Queue(int highWaterMark, bslma::Allocator *basicAllocator)
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const InitialCapacity&  numItems,
-                             int                     highWaterMark,
-                             bslma::Allocator       *basicAllocator)
+                   int                     highWaterMark,
+                   bslma::Allocator       *basicAllocator)
 : d_queue(QueueCapacity(numItems.d_i), basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -763,7 +763,7 @@ Queue<TYPE>::Queue(const InitialCapacity&  numItems,
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
-                             bslma::Allocator        *basicAllocator)
+                   bslma::Allocator         *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -772,8 +772,8 @@ Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
-                             int                      highWaterMark,
-                             bslma::Allocator        *basicAllocator)
+                   int                       highWaterMark,
+                   bslma::Allocator         *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -829,8 +829,7 @@ TYPE Queue<TYPE>::popBack()
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPopBack(TYPE                     *buffer,
-                                   const bsls::TimeInterval&  timeout)
+int Queue<TYPE>::timedPopBack(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
 
@@ -894,8 +893,7 @@ TYPE Queue<TYPE>::popFront()
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPopFront(TYPE                     *buffer,
-                                    const bsls::TimeInterval&  timeout)
+int Queue<TYPE>::timedPopFront(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
 
@@ -1053,8 +1051,8 @@ int Queue<TYPE>::timedPushBack(const TYPE&               item,
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPushFront(const TYPE&              item,
-                                const bsls::TimeInterval &timeout)
+int Queue<TYPE>::timedPushFront(const TYPE&               item,
+                                const bsls::TimeInterval& timeout)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {

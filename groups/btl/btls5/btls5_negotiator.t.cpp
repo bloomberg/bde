@@ -38,27 +38,25 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // This mechanism implements negotiation with a SOCKS5 proxy to establish a
-// connection to the destination host. In order to test this component, a test
+// connection to the destination host.  In order to test this component, a test
 // class, 'btls5::TestServer' is used as a proxy to negotiate with.  The test
 // scenarios create a SOCKS5 test server, connect to it (using TCP) and pass
 // the connection socket to the 'btls5::Negotirator' object.
-//
 //-----------------------------------------------------------------------------
 // CREATORS
-// [2] btls5::Negotiator(*eventManager, *bA = 0);
-// [2] ~btls5::Negotiator();
+// [ 2] btls5::Negotiator(*eventManager, *bA = 0);
+// [ 2] ~btls5::Negotiator();
 //
 // MANIPULATORS
-// [2] makeNegotiationHandle(*socket, dst, cb);
-// [2] makeNegotiationHandle(*socket, dst, cb, timeout);
-// [ ] makeNegotiationHandle(*socket, dst, cb, credentials);
-// [3] makeNegotiationHandle(*socket, dst, cb, timeout, credentials);
-// [2] startNegotiation(const NegotiationHandle& negotiation);
-// [ ] cancelNegotiation(const NegotiationHandle& negotiation);
+// [ 2] makeNegotiationHandle(*socket, dst, cb);
+// [ 2] makeNegotiationHandle(*socket, dst, cb, timeout);
+// [  ] makeNegotiationHandle(*socket, dst, cb, credentials);
+// [ 3] makeNegotiationHandle(*socket, dst, cb, timeout, credentials);
+// [ 2] startNegotiation(const NegotiationHandle& negotiation);
+// [  ] cancelNegotiation(const NegotiationHandle& negotiation);
 //-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [3] USAGE EXAMPLE
-// [ ] CONCERN: All memory allocation is from the object's allocator.
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -75,9 +73,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 
-//=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -96,9 +94,9 @@ static void aSsErT(int c, const char *s, int i) {
         << "\n"; aSsErT(1, #X, __LINE__); } }
 
 
-//=============================================================================
-//                    SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value
 #define Q(X) cout << "<! " #X " |>" << endl;  // Quote identifier literally
@@ -106,9 +104,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__
 #define T_ cout << "\t" << flush;           // Print tab w/o newline
 
-//=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef btls5::Negotiator Obj;
 
@@ -117,14 +115,14 @@ void assertHandler(const char *text, const char *file, int line)
     LOOP3_ASSERT(text, file, line, false);
 }
 
-void cbSuccess(int status, Obj *negotiator)
+void cbSuccess(int status, Obj *)
 {
     ASSERT(status == Obj::e_SUCCESS);
 }
 
-//=============================================================================
+// ============================================================================
 //                              USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 namespace {
 
 ///Example 1: Negotiation With Predefined Credentials
@@ -137,8 +135,8 @@ namespace {
 // turn is protected by a mutex and a condition variable:
 //..
     void socks5Callback(btls5::Negotiator::NegotiationStatus  result,
-                        const btls5::DetailedStatus&          error,
-                        int                                 *state,
+                        const btls5::DetailedStatus&          ,
+                        int                                  *state,
                         bdlqq::Mutex                         *stateLock,
                         bdlqq::Condition                     *stateChanged)
     {
@@ -157,7 +155,7 @@ namespace {
 // authentication:
 //..
     int negotiate(btlso::StreamSocket<btlso::IPv4Address> *socket,
-                  const btlso::Endpoint&                  destination)
+                  const btlso::Endpoint&                   destination)
     {
         btls5::Credentials credentials("john.smith", "PassWord123");
 //..
@@ -166,7 +164,7 @@ namespace {
 //..
         bdlqq::Mutex     stateLock;
         bdlqq::Condition stateChanged;
-        int             state = 1;
+        int              state = 1;
             // 'state == 1' means negotiation is still in progress.
 //..
 // Next, we create an event manager and a 'btls5::Negotiator' and start
@@ -178,18 +176,17 @@ namespace {
         btls5::Negotiator negotiator(&eventManager);
 
         using namespace bdlf::PlaceHolders;
-        btls5::Negotiator::NegotiationHandle
-            handle = negotiator.makeNegotiationHandle(
-                                            socket,
-                                            destination,
-                                            bdlf::BindUtil::bind(socks5Callback,
+        btls5::Negotiator::NegotiationHandle handle =
+          negotiator.makeNegotiationHandle(socket,
+                                           destination,
+                                           bdlf::BindUtil::bind(socks5Callback,
                                                                 _1,
                                                                 _2,
                                                                 &state,
                                                                 &stateLock,
                                                                 &stateChanged),
-                                            bsls::TimeInterval(),
-                                            credentials);
+                                           bsls::TimeInterval(),
+                                           credentials);
         negotiator.startNegotiation(handle);
 //..
 // Now, we wait until the negotiation ends and 'socks5Callback' updates the
@@ -209,9 +206,9 @@ namespace {
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -229,7 +226,7 @@ int main(int argc, char *argv[]) {
         :               btls5::TestServerArgs::e_NONE;
 
     ASSERT(0 == btlso::SocketImpUtil::startup());  // needed on Windows,
-                                                  // harmless on UNIX
+                                                   // harmless on UNIX
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -275,10 +272,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { cout << " proxy started on " << proxy << endl; }
 
             btlso::IPv4Address proxyAddress("127.0.0.1", proxy.port());
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
             ASSERT(socket);
             btlso::StreamSocketFactoryAutoDeallocateGuard<btlso::IPv4Address>
-                socketGuard(socket, &factory);
+                                                 socketGuard(socket, &factory);
 
             int rc = socket->connect(proxyAddress);
             LOOP_ASSERT(rc, 0 == rc);
@@ -286,8 +284,6 @@ int main(int argc, char *argv[]) {
             rc = negotiate(socket, args.d_expectedDestination);
             LOOP_ASSERT(rc, rc == 0);
         }
-
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -303,7 +299,6 @@ int main(int argc, char *argv[]) {
         //:   simulate success (without actually connecting).
         //
         // Testing:
-        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CONNECT THROUGH PROXY" << endl
@@ -322,8 +317,7 @@ int main(int argc, char *argv[]) {
         ASSERT(socket);
 
         if (verbose) {
-            cout << "Connecting to " << proxy
-                 << " aka " << proxyAddress
+            cout << "Connecting to " << proxy << " aka " << proxyAddress
                  << endl;
         }
         int rc = socket->connect(proxyAddress);
@@ -333,7 +327,9 @@ int main(int argc, char *argv[]) {
 
         bdlqq::Mutex     stateLock;
         bdlqq::Condition stateChanged;
-        int             state = 0; // value > 0 indicates success, < 0 is error
+        int              state = 0; // value > 0 indicates success, < 0 is
+                                    // error
+
         using namespace bdlf::PlaceHolders;
 
         btlmt::TcpTimerEventManager eventManager;
@@ -341,27 +337,36 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == rc);
 
         Obj negotiator(&eventManager);
-        veryVerbose && cout << "created a negotiator" << endl;
+        if (veryVerbose) {
+            cout << "created a negotiator" << endl;
+        }
 
         btlso::Endpoint destination("nyplat1", args.d_expectedPort);
-        veryVerbose && cout << "try to connect to " << destination << endl;
+        if (veryVerbose) {
+            cout << "try to connect to " << destination << endl;
+        }
         Obj::NegotiationHandle handle = negotiator.makeNegotiationHandle(
-                                            socket,
-                                            destination,
-                                            bdlf::BindUtil::bind(socks5Callback,
+                                           socket,
+                                           destination,
+                                           bdlf::BindUtil::bind(socks5Callback,
                                                                 _1,
                                                                 _2,
                                                                 &state,
                                                                 &stateLock,
                                                                 &stateChanged),
-                                            bsls::TimeInterval());
+                                           bsls::TimeInterval());
         negotiator.startNegotiation(handle);
         bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
         while (1 == state) {
-            veryVeryVerbose && cout << "waiting for state change" << endl;
+            if (veryVeryVerbose) {
+                cout << "waiting for state change" << endl;
+            }
             stateChanged.wait(&stateLock);
         }
-        veryVerbose && cout << "negotiation result: " << state << endl;
+
+        if (veryVerbose) {
+            cout << "negotiation result: " << state << endl;
+        }
 
         factory.deallocate(socket);
         ASSERT(state == 0);

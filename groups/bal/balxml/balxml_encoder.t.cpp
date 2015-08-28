@@ -39,9 +39,9 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -55,9 +55,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
-//=============================================================================
+// ============================================================================
 
 template <class T>
 void printValue(bsl::ostream& out, const T& value)
@@ -365,9 +365,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 
 #endif
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
@@ -407,9 +407,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
                cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
                                                  // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -418,9 +418,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balxml::Encoder        Encoder;
 typedef balxml::EncoderOptions EncoderOptions;
@@ -669,7 +669,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -892,7 +892,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
@@ -1051,7 +1051,7 @@ bsl::ostream& MySequence::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.h   -*-C++-*-
@@ -1308,7 +1308,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -1577,7 +1577,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.cpp  -*-C++-*-
@@ -1761,7 +1761,7 @@ bsl::ostream& MySequenceWithNullables::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.h   -*-C++-*-
@@ -2008,7 +2008,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
@@ -2299,7 +2299,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
@@ -2468,7 +2468,7 @@ bsl::ostream& MyChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.h   -*-C++-*-
@@ -2772,7 +2772,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -3200,7 +3200,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                      stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.cpp  -*-C++-*-
@@ -3479,7 +3479,7 @@ bsl::ostream& MySequenceWithArrays::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.h   -*-C++-*-
@@ -3733,7 +3733,7 @@ bsl::ostream& operator<<(bsl::ostream&                               stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
@@ -4038,7 +4038,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.cpp  -*-C++-*-
@@ -4210,7 +4210,7 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.h   -*-C++-*-
@@ -4464,7 +4464,7 @@ bsl::ostream& operator<<(bsl::ostream&                         stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -4737,7 +4737,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.cpp  -*-C++-*-
@@ -4933,7 +4933,7 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.h   -*-C++-*-
@@ -5201,7 +5201,7 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -5508,7 +5508,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                          stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.cpp  -*-C++-*-
@@ -5729,7 +5729,7 @@ bsl::ostream& MySequenceWithAttributes::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.h   -*-C++-*-
@@ -5982,7 +5982,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySimpleContent& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -6247,7 +6247,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                 stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.cpp  -*-C++-*-
@@ -6447,7 +6447,7 @@ bsl::ostream& MySimpleContent::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.h   -*-C++-*-
@@ -6701,7 +6701,7 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -6965,7 +6965,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                    stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.cpp  -*-C++-*-
@@ -7165,7 +7165,7 @@ bsl::ostream& MySimpleIntContent::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.h   -*-C++-*-
@@ -7420,7 +7420,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -7689,7 +7689,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.cpp  -*-C++-*-
@@ -7876,7 +7876,7 @@ bsl::ostream& MySequenceWithNillables::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_address.h   -*-C++-*-
@@ -8122,7 +8122,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -8377,7 +8377,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Address& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_address.cpp  -*-C++-*-
@@ -8558,7 +8558,7 @@ bsl::ostream& Address::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_employee.h   -*-C++-*-
@@ -8803,7 +8803,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -9058,7 +9058,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_employee.cpp  -*-C++-*-
@@ -9243,12 +9243,12 @@ bsl::ostream& Employee::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
 // Suppose we have an XML schema inside a file named 'employee.xsd':
@@ -9309,7 +9309,7 @@ bsl::ostream& Employee::print(
         bob.age()                  = 21;
 
         balxml::EncoderOptions options;
-        options.setEncodingStyle(balxml::EncodingStyle::BAEXML_PRETTY);
+        options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
 
         balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
 
@@ -9333,9 +9333,9 @@ bsl::ostream& Employee::print(
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -9438,9 +9438,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9493,9 +9493,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9545,9 +9545,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9597,9 +9597,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9653,9 +9653,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9709,9 +9709,9 @@ int main(int argc, char *argv[])
             bsl::stringstream result1, result2, result3;
 
             EncoderOptions options1, options2, options3;
-            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
             options1.setOutputXMLHeader(true);
             options2.setOutputXMLHeader(false);
 
@@ -9883,9 +9883,9 @@ int main(int argc, char *argv[])
 
             bsl::stringstream result1, result2, result3;
 
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             int rc;
             balxml::Encoder encoder1(&options1, 0, 0);
@@ -9922,13 +9922,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -9989,13 +9989,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace("");
-            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             options2.setObjectNamespace("");
-            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             options3.setObjectNamespace("");
-            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -10028,13 +10028,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options1.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options2.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options3.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             rc = encoder1.encodeToStream(result1, X);
             LOOP_ASSERT(rc, 0 == rc);
@@ -10075,13 +10075,13 @@ int main(int argc, char *argv[])
             result3.str("");
 
             options1.setObjectNamespace(OBJ_NS);
-            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options1.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             options2.setObjectNamespace(OBJ_NS);
-            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             options3.setObjectNamespace(OBJ_NS);
-            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             int rc = encoder1.encodeToStream(result1, X);
             rc = encoder2.encodeToStream(result2, X);
@@ -10197,7 +10197,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10218,7 +10218,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace(OBJ_NS);
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -10267,7 +10267,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace("");
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -10287,7 +10287,7 @@ int main(int argc, char *argv[])
             result.str("");
 
             options.setObjectNamespace(OBJ_NS);
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             rc = encoder.encodeToStream(result, X);
 
@@ -10339,7 +10339,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10373,7 +10373,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10407,7 +10407,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10442,7 +10442,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10495,7 +10495,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10532,7 +10532,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10570,7 +10570,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10623,7 +10623,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10659,7 +10659,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10695,7 +10695,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -10784,7 +10784,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+                options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, X);
@@ -10858,7 +10858,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+                options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, X);
@@ -10949,7 +10949,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11028,7 +11028,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11082,7 +11082,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11119,7 +11119,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11174,7 +11174,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11212,7 +11212,7 @@ int main(int argc, char *argv[])
             bsl::stringstream result;
 
             EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+            options.setEncodingStyle(EncodingStyle::e_COMPACT);
 
             balxml::Encoder encoder(&options, 0, 0);
             int rc = encoder.encodeToStream(result, X);
@@ -11274,7 +11274,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+                options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, VALUE);
@@ -11322,7 +11322,7 @@ int main(int argc, char *argv[])
                 bsl::stringstream result;
 
                 EncoderOptions options;
-                options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+                options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, VALUE);
@@ -11403,7 +11403,7 @@ int main(int argc, char *argv[])
                 }
 
                 options.setFormattingMode(FORMATTING_MODE);
-                options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+                options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, OBJECT);
@@ -11466,7 +11466,7 @@ int main(int argc, char *argv[])
                 }
 
                 options.setFormattingMode(FORMATTING_MODE);
-                options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+                options.setEncodingStyle(EncodingStyle::e_PRETTY);
 
                 balxml::Encoder encoder(&options, 0, 0);
                 int rc = encoder.encodeToStream(result, OBJECT);

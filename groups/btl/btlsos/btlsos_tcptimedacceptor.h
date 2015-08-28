@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == acceptor.isInvalid());
 //  if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
 //      bsl::cout << "Can't open listening socket" << bsl::endl;
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //  assert(acceptor.address() == serverAddress);
 //..
@@ -187,9 +187,9 @@ namespace btlsc { class TimedChannel; }
 namespace btlsc { class Channel; }
 namespace btlsos {
 
-                          // ======================
-                          // class TcpTimedAcceptor
-                          // ======================
+                           // ======================
+                           // class TcpTimedAcceptor
+                           // ======================
 
 class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for a
@@ -413,7 +413,7 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

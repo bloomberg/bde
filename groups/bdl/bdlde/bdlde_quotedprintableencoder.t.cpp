@@ -103,12 +103,14 @@ using namespace bsl;  // automatically added by script
 //
 // ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -146,9 +148,9 @@ static void aSsErT(int c, const char *s, int i) {
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
@@ -160,9 +162,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define VVV(X) { if (veryVeryVerbose) { cout << "\t\t\t" << X << endl; } }
 #define VVVV(X) { if (veryVeryVeryVerbose) {cout << "\t\t\t\t" << X << endl;} }
 
-//=============================================================================
-//                       GLOBAL TYPEDEFS/CONSTANTS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         GLOBAL TYPEDEFS/CONSTANTS
+// ----------------------------------------------------------------------------
 
 typedef bdlde::QuotedPrintableEncoder Obj;
 
@@ -199,15 +201,16 @@ const int NUM_STATES = sizeof STATE_NAMES / sizeof *STATE_NAMES;
 
 char assertion[ERROR_STATE + 1 == NUM_STATES];
 
-                        // ===================
-                        // class StateAccessor
-                        // ===================
+                            // ===================
+                            // class StateAccessor
+                            // ===================
 
 class StateAccessor {
   private:
     bdlde::QuotedPrintableEncoder *d_object_p;
 
   public:
+    explicit
     StateAccessor(bdlde::QuotedPrintableEncoder *object)
         // Construct an instance of 'StateAccessor' which sets and examine the
         // internal states of the specified 'object'.  Note that the 'object'
@@ -242,7 +245,8 @@ class StateAccessor {
         // probably will) be modified arbitrarily from its initial state in
         // order to distinguish similar states.
 
-    static int numState() {
+    static int numState()
+    {
         return NUM_STATES;
     }
 };
@@ -378,6 +382,7 @@ class EnabledGuard {
     bool d_state;
 
   public:
+    explicit
     EnabledGuard(bool flag)
         // Create a guard to control the activation of individual assertions
         // in the '::isState' test helper function using the specified
@@ -611,7 +616,7 @@ bool StateAccessor::isState(State state) const
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
 
-      }
+      } break;
       default: {
         ASSERT("Unknown State" && 0);
       } break;
@@ -720,7 +725,8 @@ class StateTransitionMatrix {
     , d_numInputTypes(numTypes)
     { }
 
-    bool Test() {
+    bool Test()
+    {
         for (int i = 0; i < d_numStates; ++i) {
             for (int j = 0; j < d_numInputTypes; ++j) {
                 const EquivalenceClass *type = d_inputTypes_p[j];
@@ -740,9 +746,9 @@ class StateTransitionMatrix {
     }
 };
 
-//=============================================================================
-//                         TEST HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                           TEST HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 
                         // =============================
                         // Function findEquivalenceClass
@@ -773,7 +779,11 @@ const EquivalenceClass& findEquivalenceClass(char ch)
                         // ==============
 
 template <class T>
-inline T myMin(const T& a, const T& b) { return a < b ? a : b; }
+inline
+T myMin(const T& a, const T& b)
+{
+    return a < b ? a : b;
+}
 
                         // ==============
                         // Function isHex
@@ -1028,8 +1038,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case STATE_ZERO: {
         bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1105,8 +1114,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
             && c0 && c6 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case SAW_RETURN: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1149,8 +1157,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c3 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case SAW_WHITE: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1197,8 +1204,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;          // RETURN
-
-      }
+      } break;
       case DONE_STATE: {
         bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 1 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1226,8 +1232,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case ERROR_STATE: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1255,8 +1260,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       default: {
         ASSERT("Unknown State" && 0);
       } break;
@@ -1281,13 +1285,13 @@ const char* getStateInText(bdlde::QuotedPrintableEncoder *object)
 
 #endif
 
-//=============================================================================
-//                         TEST HELPER CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            TEST HELPER CLASSES
+// ----------------------------------------------------------------------------
 
-                        //====================
-                        // class InputIterator
-                        //====================
+                            // ===================
+                            // class InputIterator
+                            // ===================
 
 class InputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1301,6 +1305,7 @@ class InputIterator {
 
   public:
     // CREATORS
+    explicit
     InputIterator(const char *source);
         // Create an iterator referring the specified 'source' character.
 
@@ -1346,29 +1351,34 @@ InputIterator::InputIterator(const InputIterator& original)
 {
 }
 
-InputIterator& InputIterator::operator=(const InputIterator& rhs) {
+InputIterator& InputIterator::operator=(const InputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void InputIterator::operator++() {
+void InputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char InputIterator::operator*() const {
+char InputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator==(const InputIterator& lhs, const InputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
-                        //=====================
-                        // class OutputIterator
-                        //=====================
+                            // ====================
+                            // class OutputIterator
+                            // ====================
 
 class OutputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1382,6 +1392,7 @@ class OutputIterator {
 
   public:
     // CREATORS
+    explicit
     OutputIterator(char *source);
         // Create an iterator referring the specified 'source' character.
 
@@ -1427,33 +1438,38 @@ OutputIterator::OutputIterator(const OutputIterator& original)
 {
 }
 
-OutputIterator& OutputIterator::operator=(const OutputIterator& rhs) {
+OutputIterator& OutputIterator::operator=(const OutputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void OutputIterator::operator++() {
+void OutputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char& OutputIterator::operator*() const {
+char& OutputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator==(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
-//=============================================================================
-//                       SUPPORT FOR USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         SUPPORT FOR USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

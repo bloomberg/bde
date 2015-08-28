@@ -2,10 +2,14 @@
 
 #include <ball_defaultattributecontainer.h>
 
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>             // for testing only
 #include <bslma_testallocatorexception.h>    // for testing only
 #include <bsls_types.h>
 
+#include <bdls_testutil.h>
+
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -46,48 +50,61 @@ using namespace bsl;  // automatically added by script
 // [ 8] UNUSED
 // [10] UNUSED
 // [13] USAGE EXAMPLE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n"               \
-                     << #L << ": " << L << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -97,15 +114,17 @@ typedef ball::DefaultAttributeContainer Obj;
 
 typedef bsls::Types::Int64             Int64;
 
-ball::Attribute A0("", "12345678");
-ball::Attribute A1("", 12345678);
-ball::Attribute A2("", (Int64)12345678);
-ball::Attribute A3("uuid", "12345678");
-ball::Attribute A4("uuid", 12345678);
-ball::Attribute A5("uuid", (Int64)12345678);
-ball::Attribute A6("UUID", "12345678");
-ball::Attribute A7("UUID", 12345678);
-ball::Attribute A8("UUID", (Int64)12345678);
+bslma::Allocator *globalAllocator = &bslma::NewDeleteAllocator::singleton();
+
+ball::Attribute A0("", "12345678", globalAllocator);
+ball::Attribute A1("", 12345678, globalAllocator);
+ball::Attribute A2("", (Int64)12345678, globalAllocator);
+ball::Attribute A3("uuid", "12345678", globalAllocator);
+ball::Attribute A4("uuid", 12345678, globalAllocator);
+ball::Attribute A5("uuid", (Int64)12345678, globalAllocator);
+ball::Attribute A6("UUID", "12345678", globalAllocator);
+ball::Attribute A7("UUID", 12345678, globalAllocator);
+ball::Attribute A8("UUID", (Int64)12345678, globalAllocator);
 
 const char* NAMES[] = { "",                                       // A
                         "A",                                      // B
@@ -135,6 +154,54 @@ int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+bool compareText(bslstl::StringRef lhs,
+                 bslstl::StringRef rhs,
+                 bsl::ostream&     errorStream = bsl::cout)
+    // Return 'true' if the specified 'lhs' has the same value as the
+    // specified' rhs' and 'false' otherwise.  Optionally specify a
+    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
+    // description of how the two strings differ will be written.  If
+    // 'errorStream' is not supplied, 'stdout' will be used to report an error
+    // description.
+{
+
+    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            errorStream << "lhs: \"" << lhs << "\"\n"
+                        << "rhs: \"" << rhs << "\"\n"
+                        << "Strings differ at index (" << i << ") "
+                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                        << endl;
+            return false;                                             // RETURN
+        }
+    }
+
+    if (lhs.length() < rhs.length()) {
+        unsigned int i = lhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = END-OF-STRING "
+                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                    << endl;
+        return false;                                                 // RETURN
+
+    }
+    if (lhs.length() > rhs.length()) {
+        unsigned int i = rhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                    << "rhs[i] = END-OF-STRING"
+                    << endl;
+        return false;                                                 // RETURN
+    }
+    return true;
+
+}
 
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
@@ -230,6 +297,7 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -442,7 +510,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   const ball::DefaultAttributeContainer& operator=(
-        //                                                const bael::AS& other)
+        //                                               const bael::AS& other)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n==========================" << endl;
@@ -866,11 +934,11 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line   spec          expected output
             // ----   ----          ---------------
-            {  L_,    "",           "{ } "                                   },
-            {  L_,    "AA",         "{  [  = A ] } "                        },
-            {  L_,    "Ai1",        "{  [  = 1 ] } "                        },
-            {  L_,    "AI1",        "{  [  = 1 ] } "                        },
-            {  L_,    "BB",         "{  [ A = B ] } "                       },
+            {  L_,    "",           "[ ]"                                   },
+            {  L_,    "AA",         "[  [ \"\" = A ] ]"                     },
+            {  L_,    "Ai1",        "[  [ \"\" = 1 ] ]"                     },
+            {  L_,    "AI1",        "[  [ \"\" = 1 ] ]"                     },
+            {  L_,    "BB",         "[  [ \"A\" = B ] ]"                    },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -883,7 +951,7 @@ int main(int argc, char *argv[])
 
             ostringstream os;
             os << X;
-            LOOP_ASSERT(LINE, os.str() == DATA[i].d_output);
+            LOOP_ASSERT(LINE, compareText(os.str(), DATA[i].d_output));
 
             if (veryVerbose) {
                 P_(LINE);
@@ -904,9 +972,9 @@ int main(int argc, char *argv[])
         } PDATA[] = {
             // line spec        level space expected
             // ---- ----        ----- ----- -----------------------
-            {  L_,  "BA",       1,    2,    "  {\n"
-                                            "    [ A = A ]\n"
-                                            "  }\n"  },
+            {  L_,  "BA",       1,    2,    "  [\n"
+                                            "          [ \"A\" = A ]\n"
+                                            "  ]\n"  },
         };
 
         const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
@@ -927,7 +995,7 @@ int main(int argc, char *argv[])
                 P(os.str());
             }
 
-            LOOP_ASSERT(LINE, os.str() == PDATA[i].d_output);
+            LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
      } break;

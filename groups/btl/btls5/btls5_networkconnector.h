@@ -190,9 +190,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                        // ======================
-                        // class NetworkConnector
-                        // ======================
+                           // ======================
+                           // class NetworkConnector
+                           // ======================
 
 class NetworkConnector {
     // This class supports a connection to a destination TCP server using one

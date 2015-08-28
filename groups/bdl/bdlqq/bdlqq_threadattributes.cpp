@@ -24,23 +24,23 @@ namespace BloombergLP {
 int bdlqq::ThreadAttributes::getMaxSchedPriority(
                                             ThreadAttributes::SchedulingPolicy)
 {
-    return BCEMT_UNSET_PRIORITY;
+    return e_UNSET_PRIORITY;
 }
 
 int bdlqq::ThreadAttributes::getMinSchedPriority(
                                             ThreadAttributes::SchedulingPolicy)
 {
-    return BCEMT_UNSET_PRIORITY;
+    return e_UNSET_PRIORITY;
 }
 
 // CREATORS
 bdlqq::ThreadAttributes::ThreadAttributes()
-: d_detachedState(BCEMT_CREATE_JOINABLE)
-, d_guardSize(BCEMT_UNSET_GUARD_SIZE)
+: d_detachedState(e_CREATE_JOINABLE)
+, d_guardSize(e_UNSET_GUARD_SIZE)
 , d_inheritScheduleFlag(true)
-, d_schedulingPolicy(BCEMT_SCHED_DEFAULT)
-, d_schedulingPriority(BCEMT_UNSET_PRIORITY)
-, d_stackSize(BCEMT_UNSET_STACK_SIZE)
+, d_schedulingPolicy(e_SCHED_DEFAULT)
+, d_schedulingPriority(e_UNSET_PRIORITY)
+, d_stackSize(e_UNSET_STACK_SIZE)
 {
 }
 

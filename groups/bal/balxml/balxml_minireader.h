@@ -306,9 +306,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // =======================
-                        // class MiniReader
-                        // =======================
+                              // ================
+                              // class MiniReader
+                              // ================
 
 class MiniReader :  public Reader {
     // This 'class' provides a concrete and efficient implementation of the
@@ -317,10 +317,10 @@ class MiniReader :  public Reader {
   private:
     // PRIVATE TYPES
     enum {
-        BAEXML_MIN_BUFSIZE     = 1024,        // MIN - 1 KB
-        BAEXML_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
-        BAEXML_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
-        BAEXML_DEFAULT_DEPTH   = 20           // Average expected deep
+        k_MIN_BUFSIZE     = 1024,        // MIN - 1 KB
+        k_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
+        k_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
+        k_DEFAULT_DEPTH   = 20           // Average expected deep
     };                                        // to minimize allocations
 
     typedef ElementAttribute Attribute;
@@ -331,8 +331,8 @@ class MiniReader :  public Reader {
     struct Node
     {
         enum {
-            BAEXML_NODE_NO_FLAGS = 0x0000,
-            BAEXML_NODE_EMPTY    = 0x0001
+            k_NODE_NO_FLAGS = 0x0000,
+            k_NODE_EMPTY    = 0x0001
         };
 
         NodeType         d_type;
@@ -814,9 +814,9 @@ class MiniReader :  public Reader {
         // byte following after the last byte of the current node.
 
 };
-//=============================================================================
-//                              INLINE FUNCTIONS
-//=============================================================================
+// ============================================================================
+//                             INLINE FUNCTIONS
+// ============================================================================
 inline MiniReader::Node &
 MiniReader::currentNode()
 {

@@ -1,7 +1,7 @@
 // bdlma_autoreleaser.t.cpp                                           -*-C++-*-
 #include <bdlma_autoreleaser.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 
@@ -57,22 +57,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -303,6 +303,9 @@ my_StrPool::~my_StrPool()
         // PRIVATE MANIPULATORS
         void increaseSize();
 
+        // Not implemented:
+        my_FastCstrArray(const my_FastCstrArray&);
+
       public:
         // CREATORS
         my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
@@ -319,6 +322,7 @@ my_StrPool::~my_StrPool()
 
     // FREE OPERATORS
     ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
+
 //..
 // Then, we implement the methods:
 //..
@@ -341,8 +345,8 @@ my_StrPool::~my_StrPool()
                     int                 length,
                     bslma::Allocator   *allocator)
         // Reallocate memory in the specified 'array' and update the specified
-        // size to the specified 'newSize', using the specified 'allocator' to
-        // supply memory.  The specified 'length' number of leading elements
+        // 'size' to the specified 'newSize', using the specified 'allocator'
+        // to supply memory.  The specified 'length' number of leading elements
         // are preserved.  If 'allocate' should throw an exception, this
         // function has no effect.  The behavior is undefined unless
         // '1 <= newSize', '0 <= length', and 'length <= newSize'.

@@ -13,9 +13,9 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//-----------------------------------------------------------------------------
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -45,9 +45,9 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o line feed.
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int verbose;
 int veryVerbose;
@@ -190,9 +190,9 @@ void F::operator()()
 
 }  // close namespace BCEMT_MUTEX_CASE_MINUS_1
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
             args.d_retvalSet = 0;
             bdlqq::ThreadAttributes attr;
             attr.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             bdlqq::ThreadUtil::Handle dum;
             bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
@@ -270,10 +270,10 @@ int main(int argc, char *argv[])
         namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
 
         typedef bdlqq::ThreadAttributes::SchedulingPolicy Policy;
-        const Policy DF = bdlqq::ThreadAttributes::BCEMT_SCHED_DEFAULT;
-        const Policy SO = bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
-        const Policy SF = bdlqq::ThreadAttributes::BCEMT_SCHED_FIFO;
-        const Policy SR = bdlqq::ThreadAttributes::BCEMT_SCHED_RR;
+        const Policy DF = bdlqq::ThreadAttributes::e_SCHED_DEFAULT;
+        const Policy SO = bdlqq::ThreadAttributes::e_SCHED_OTHER;
+        const Policy SF = bdlqq::ThreadAttributes::e_SCHED_FIFO;
+        const Policy SR = bdlqq::ThreadAttributes::e_SCHED_RR;
 
         ZeroIntMap urgentPlaces[2];
 

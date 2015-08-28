@@ -218,9 +218,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ==========================
-                        // class DefaultZoneinfoCache
-                        // ==========================
+                         // ==========================
+                         // class DefaultZoneinfoCache
+                         // ==========================
 
 struct DefaultZoneinfoCache {
     // This struct provides a namespace for functions that manage and access
@@ -279,9 +279,9 @@ struct DefaultZoneinfoCache {
         // zone cache.
 };
 
-                // =====================================
-                // class DefaultZoneinfoCacheScopedGuard
-                // =====================================
+                   // =====================================
+                   // class DefaultZoneinfoCacheScopedGuard
+                   // =====================================
 
 class DefaultZoneinfoCacheScopedGuard {
     // Upon construction, an object of this class saves the current default
@@ -330,9 +330,9 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
     return cache ? cache : instance();
 }
 
-                // -------------------------------------
-                // class DefaultZoneinfoCacheScopedGuard
-                // -------------------------------------
+                   // -------------------------------------
+                   // class DefaultZoneinfoCacheScopedGuard
+                   // -------------------------------------
 
 // CREATORS
 inline

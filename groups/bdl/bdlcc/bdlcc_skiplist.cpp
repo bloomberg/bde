@@ -41,9 +41,9 @@ enum {
 
 namespace bdlcc {
 
-                          // ======================
-                          // class SkipList_Control
-                          // ======================
+                           // ======================
+                           // class SkipList_Control
+                           // ======================
 
 // MANIPULATORS
 void SkipList_Control::init(int level)
@@ -96,9 +96,9 @@ int SkipList_Control::level() const
     return d_level;
 }
 
-                   // ===================================
-                   // class SkipList_RandomLevelGenerator
-                   // ===================================
+                    // ===================================
+                    // class SkipList_RandomLevelGenerator
+                    // ===================================
 
 SkipList_RandomLevelGenerator::SkipList_RandomLevelGenerator()
 : d_seed(k_SEED), d_randomBits(1)
@@ -139,9 +139,9 @@ int SkipList_RandomLevelGenerator::randomLevel()
 
 }  // close package namespace
 
-                       // ============================
-                       // class bcec_SkipList_PoolNode
-                       // ============================
+                        // ============================
+                        // class bcec_SkipList_PoolNode
+                        // ============================
 
 struct bcec_SkipList_PoolNode {
     typedef bdlcc::SkipList_Control  Control;
@@ -151,9 +151,9 @@ struct bcec_SkipList_PoolNode {
     Node *volatile  d_next_p;
 };
 
-                         // ========================
-                         // class bcec_SkipList_Pool
-                         // ========================
+                          // ========================
+                          // class bcec_SkipList_Pool
+                          // ========================
 
 struct bcec_SkipList_Pool {
     typedef bcec_SkipList_PoolNode Node;
@@ -166,9 +166,9 @@ struct bcec_SkipList_Pool {
 
 namespace bdlcc {
 
-                        // ==========================
-                        // class SkipList_PoolManager
-                        // ==========================
+                         // ==========================
+                         // class SkipList_PoolManager
+                         // ==========================
 
 class SkipList_PoolManager {
     enum {
@@ -195,6 +195,10 @@ class SkipList_PoolManager {
     void replenish(Pool *pool);
     void *allocate(Pool *pool);
     void deallocate(Pool *pool, void *node);
+
+  private:
+    // Not implemented:
+    SkipList_PoolManager(const SkipList_PoolManager&);
 
   public:
     explicit SkipList_PoolManager(int              *objectSizes,
@@ -380,27 +384,27 @@ void SkipList_PoolManager::deallocate(void *node)
     deallocate(&d_pools[level], node);
 }
 
-                         // =======================
-                         // class SkipList_PoolUtil
-                         // =======================
+                          // =======================
+                          // class SkipList_PoolUtil
+                          // =======================
 
 void *SkipList_PoolUtil::allocate(PoolManager *poolManager, int level)
 {
     return poolManager->allocate(level);
 }
 
-void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *node)
+void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *address)
 {
-    poolManager->deallocate(node);
+    poolManager->deallocate(address);
 }
 
 SkipList_PoolManager *SkipList_PoolUtil::createPoolManager(
                                               int              *objectSizes,
-                                              int               numPools,
+                                              int               numLevels,
                                               bslma::Allocator *basicAllocator)
 {
     return new (*basicAllocator) PoolManager(objectSizes,
-                                             numPools,
+                                             numLevels,
                                              basicAllocator);
 }
 

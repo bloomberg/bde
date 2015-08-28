@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //      bdlsu::MemoryUtil: struct which scopes memory system utilities.
 //
-//@SEE_ALSO: bdlma_xxxprotectableblocklist,
-//           bdlmca_xxxprotectablesequentialallocator
-//
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
 //
 //@DESCRIPTION: This component defines a platform-independent interface for
@@ -65,34 +62,42 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                       // =======================
-                       // struct MemoryUtil
-                       // =======================
+                             // =================
+                             // struct MemoryUtil
+                             // =================
 
 struct MemoryUtil {
 
     // TYPES
     enum Access {
-        BDESU_ACCESS_NONE          = 0,
-        BDESU_ACCESS_READ          = 0x1,
-        BDESU_ACCESS_WRITE         = 0x2,
-        BDESU_ACCESS_EXECUTE       = 0x4,
-        BDESU_ACCESS_READ_WRITE    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE,
-        BDESU_ACCESS_READ_EXECUTE  = BDESU_ACCESS_READ | BDESU_ACCESS_EXECUTE,
-        BDESU_ACCESS_WRITE_EXECUTE = BDESU_ACCESS_WRITE | BDESU_ACCESS_EXECUTE,
-        BDESU_ACCESS_READ_WRITE_EXECUTE
-                                   = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE
-                                   | BDESU_ACCESS_EXECUTE
+        k_ACCESS_NONE          = 0,
+        k_ACCESS_READ          = 0x1,
+        k_ACCESS_WRITE         = 0x2,
+        k_ACCESS_EXECUTE       = 0x4,
+        k_ACCESS_READ_WRITE    = k_ACCESS_READ | k_ACCESS_WRITE,
+        k_ACCESS_READ_EXECUTE  = k_ACCESS_READ | k_ACCESS_EXECUTE,
+        k_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE | k_ACCESS_EXECUTE,
+        k_ACCESS_READ_WRITE_EXECUTE
+                                   = k_ACCESS_READ | k_ACCESS_WRITE
+                                   | k_ACCESS_EXECUTE
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ACCESS_READ               = BDESU_ACCESS_READ
-      , ACCESS_WRITE              = BDESU_ACCESS_WRITE
-      , ACCESS_EXECUTE            = BDESU_ACCESS_EXECUTE
-      , ACCESS_NONE               = BDESU_ACCESS_NONE
-      , ACCESS_READ_WRITE         = BDESU_ACCESS_READ_WRITE
-      , ACCESS_READ_EXECUTE       = BDESU_ACCESS_READ_EXECUTE
-      , ACCESS_WRITE_EXECUTE      = BDESU_ACCESS_WRITE_EXECUTE
-      , ACCESS_READ_WRITE_EXECUTE = BDESU_ACCESS_READ_WRITE_EXECUTE
+      , BDESU_ACCESS_NONE = k_ACCESS_NONE
+      , BDESU_ACCESS_READ = k_ACCESS_READ
+      , BDESU_ACCESS_WRITE = k_ACCESS_WRITE
+      , BDESU_ACCESS_EXECUTE = k_ACCESS_EXECUTE
+      , BDESU_ACCESS_READ_WRITE = k_ACCESS_READ_WRITE
+      , BDESU_ACCESS_READ_EXECUTE = k_ACCESS_READ_EXECUTE
+      , BDESU_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE_EXECUTE
+      , BDESU_ACCESS_READ_WRITE_EXECUTE = k_ACCESS_READ_WRITE_EXECUTE
+      , ACCESS_READ               = k_ACCESS_READ
+      , ACCESS_WRITE              = k_ACCESS_WRITE
+      , ACCESS_EXECUTE            = k_ACCESS_EXECUTE
+      , ACCESS_NONE               = k_ACCESS_NONE
+      , ACCESS_READ_WRITE         = k_ACCESS_READ_WRITE
+      , ACCESS_READ_EXECUTE       = k_ACCESS_READ_EXECUTE
+      , ACCESS_WRITE_EXECUTE      = k_ACCESS_WRITE_EXECUTE
+      , ACCESS_READ_WRITE_EXECUTE = k_ACCESS_READ_WRITE_EXECUTE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

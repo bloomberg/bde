@@ -20,9 +20,9 @@
 #include <bsl_cstring.h>  // memcpy
 
 namespace BloombergLP {
-                        // --------------------------
-                        // struct LocalTimeOffsetUtil
-                        // --------------------------
+                         // --------------------------
+                         // struct LocalTimeOffsetUtil
+                         // --------------------------
 
 // PRIVATE CLASS METHODS
 inline

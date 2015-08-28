@@ -2,7 +2,7 @@
 
 #include <bdlma_concurrentfixedpool.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
@@ -51,22 +51,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                   GLOBAL TYPEDEFS, CONSTANTS, AND VARIABLES
@@ -140,6 +140,9 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
         bdlma::ConcurrentFixedPool  d_pool;
         bslma::Allocator           *d_allocator_p;
 
+        // Not implemented:
+        my_JobQueue(const my_JobQueue&);
+
       public:
         // CREATORS
         my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator = 0);
@@ -197,8 +200,12 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 // destructors of all these objects, as the destructor of
 // 'bdlma::ConcurrentFixedPool' will not do so.
 
-void sum5(double* result, double op1, double op2,
-          double op3, double op4, double op5)
+void sum5(double* result,
+          double  op1,
+          double  op2,
+          double  op3,
+          double  op4,
+          double  op5)
 {
     *result = op1 + op2 + op3 + op4 + op5;
 }
@@ -352,8 +359,11 @@ void bench(Control *control)
     }
 }
 
-void runtest(int numIterations, int numObjects, int numThreads,
-             int load, int backoff)
+void runtest(int numIterations,
+             int numObjects,
+             int numThreads,
+             int load,
+             int backoff)
 {
     bdlma::ConcurrentFixedPool pool(sizeof(Item), numThreads * numObjects);
     pool.setBackoffLevel(backoff);

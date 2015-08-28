@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //                                  &status,
 //                                  bdlt::CurrentTime::now() + connectTimeout);
 //  if (!channel) {
-//      assert(0 >= status);  // Async interrupts are *not* enabled.
+//      assert(0 >= status);  // Asynchronous interrupts are *not* enabled.
 //      if (status) {
 //          bsl::cout << "Failed to connect to the peer."
 //                    << bsl::endl;
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //      // In any case, invalidate the allocator, and exit.
 //      connector.invalidate();
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //..
 // Send 'k_NUM_PACKETS' packets to the server, wait for the response for each,
@@ -202,9 +202,9 @@ namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                         // =======================
-                         // class TcpTimedConnector
-                         // =======================
+                          // =======================
+                          // class TcpTimedConnector
+                          // =======================
 
 class TcpTimedConnector : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
@@ -383,7 +383,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

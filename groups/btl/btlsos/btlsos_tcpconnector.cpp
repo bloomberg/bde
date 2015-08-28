@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(btlsos_tcpconnector_cpp,"$Id$ $CSID$")
 #include <bsls_blockgrowth.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -25,9 +26,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
@@ -43,9 +44,9 @@ enum {
     e_SUCCESS       =  0
 };
 
-                         // =======================
-                         // local function allocate
-                         // =======================
+                          // =======================
+                          // local function allocate
+                          // =======================
 
 template <class RESULT>
 inline
@@ -93,9 +94,9 @@ namespace btlsos {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                            // ------------------
-                            // class TcpConnector
-                            // ------------------
+                             // ------------------
+                             // class TcpConnector
+                             // ------------------
 
 // CREATORS
 TcpConnector::TcpConnector(

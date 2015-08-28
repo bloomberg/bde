@@ -102,9 +102,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                     // ================================
-                     // struct FileDescriptorGuard
-                     // ================================
+                         // ==========================
+                         // struct FileDescriptorGuard
+                         // ==========================
 
 struct FileDescriptorGuard {
     // This class implements a guard that conditionally closes an open file
@@ -151,7 +151,7 @@ struct FileDescriptorGuard {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS

@@ -17,10 +17,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a protocol class,
-//'ball::AttributeContainer', for containers of 'ball::Attribute' values.  The
-// 'ball::AttributeContainer' protocol primarily provides a 'hasValue()' method,
-// allowing clients to determine if a given attribute value is held by the
-// container.
+// 'ball::AttributeContainer', for containers of 'ball::Attribute' values.  The
+// 'ball::AttributeContainer' protocol primarily provides a 'hasValue()'
+// method, allowing clients to determine if a given attribute value is held by
+// the container.
 //
 ///Usage
 ///-----
@@ -42,11 +42,11 @@ BSLS_IDENT("$Id: $")
 // "luw", and "firmNumber".
 //
 // Note that this implementation requires no memory allocation, so it will be
-// more efficient than a more general set-based implementation if the
-// container is frequently created, destroyed, or modified.  We will develop a
-// 'ball::AttributeContainer' implementation that can hold any 'ball::Attribute'
-// value in example 2 (and one is provided by the 'bael' package in the
-// 'ball_defaultattributecontainer' component).
+// more efficient than a more general set-based implementation if the container
+// is frequently created, destroyed, or modified.  We will develop a
+// 'ball::AttributeContainer' implementation that can hold any
+// 'ball::Attribute' value in example 2 (and one is provided by the 'bael'
+// package in the 'ball_defaultattributecontainer' component).
 //..
 //    // serviceattributes.h
 //
@@ -131,13 +131,12 @@ BSLS_IDENT("$Id: $")
 //                                         int           level,
 //                                         int           spacesPerLevel) const
 //  {
-//      char EL = (spacesPerLevel < 0) ? ' ' : '\n';
-//      bdlb::Print::indent(stream, level, spacesPerLevel);
-//      stream << "[ "
-//             << d_uuid << ' '
-//             << d_luw << ' '
-//             << d_firmNumber << ' '
-//             << ']' << EL;
+//      bslim::Printer printer(&stream, level, spacesPerLevel);
+//      printer.start();
+//      printer.printAttribute("uuid", d_uuid);
+//      printer.printAttribute("luw", d_luw);
+//      printer.printAttribute("firmNumber", d_firmNumber);
+//      printer.end();
 //      return stream;
 //  }
 //..
@@ -268,16 +267,15 @@ BSLS_IDENT("$Id: $")
 //                                    int           level,
 //                                    int           spacesPerLevel) const
 //  {
-//      char EL = (spacesPerLevel < 0) ? ' ' : '\n';
-//      bdlb::Print::indent(stream, level, spacesPerLevel);
-//      stream << "[" << EL;
-//
+//      bslim::Printer printer(&stream, level, spacesPerLevel);
+//      printer.start();
+//     
 //      bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
 //      for (; it != d_set.end(); ++it) {
-//          it->print(stream, level + 1, spacesPerLevel);
+//          printer.printValue(*it);
 //      }
-//      bdlb::Print::indent(stream, level, spacesPerLevel);
-//      stream << "]" << EL;
+//      printer.end();
+//
 //      return stream;
 //  }
 //..
@@ -327,9 +325,9 @@ namespace BloombergLP {
 
 namespace ball {class Attribute;
 
-                    // =============================
+                    // ========================
                     // class AttributeContainer
-                    // =============================
+                    // ========================
 
 class AttributeContainer {
     // This class defines a protocol for a container of attribute values.  The
@@ -350,37 +348,36 @@ class AttributeContainer {
     virtual bsl::ostream& print(bsl::ostream& stream,
                                 int           level = 0,
                                 int           spacesPerLevel = 4) const = 0;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
 };
 
 // FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream&                  stream,
+bsl::ostream& operator<<(bsl::ostream&             stream,
                          const AttributeContainer& container);
-}  // close package namespace
-    // Write the value of the specified 'container' to the specified
-    // output 'stream' in a single-line format, and return a reference to the
+    // Write the value of the specified 'container' to the specified output
+    // 'stream' in a single-line format, and return a reference to the
     // modifiable stream.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&                  output,
-                         const AttributeContainer& container)
+bsl::ostream& ball::operator<<(bsl::ostream&             stream,
+                               const AttributeContainer& container)
 {
-    return container.print(output, 0, -1);
+    return container.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace

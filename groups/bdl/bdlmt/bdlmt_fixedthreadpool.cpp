@@ -51,15 +51,15 @@ void initBlockSet(sigset_t *blockSet)
 namespace BloombergLP {
 
 namespace bdlmt {
-                         // --------------------------
-                         // class FixedThreadPool
-                         // --------------------------
+                           // ---------------------
+                           // class FixedThreadPool
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 void FixedThreadPool::processJobs()
 {
     while (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                        BCEP_RUN == d_control.loadRelaxed())) {
+                                        e_RUN == d_control.loadRelaxed())) {
         Job functor;
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -68,7 +68,7 @@ void FixedThreadPool::processJobs()
 
             ++d_numThreadsWaiting;
 
-            if (BCEP_RUN == d_control && d_queue.isEmpty()) {
+            if (e_RUN == d_control && d_queue.isEmpty()) {
                 d_queueSemaphore.wait();
             }
 
@@ -82,7 +82,7 @@ void FixedThreadPool::processJobs()
 
 void FixedThreadPool::drainQueue()
 {
-    while (BCEP_DRAIN == d_control.loadRelaxed()) {
+    while (e_DRAIN == d_control.loadRelaxed()) {
         Job functor;
 
         const int ret = d_queue.tryPopFront(&functor);
@@ -146,19 +146,19 @@ void FixedThreadPool::workerThread()
 
         int control = d_control.loadRelaxed();
 
-        if (BCEP_RUN == control) {
+        if (e_RUN == control) {
             processJobs();
             control = d_control;
         }
 
-        if (BCEP_DRAIN == control) {
+        if (e_DRAIN == control) {
             drainQueue();
         }
-        else if (BCEP_SUSPEND == control) {
+        else if (e_SUSPEND == control) {
             continue;
         }
         else {
-            BSLS_ASSERT(BCEP_STOP == control);
+            BSLS_ASSERT(e_STOP == control);
             return;                                                   // RETURN
         }
     }
@@ -190,12 +190,12 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bdlqq::ThreadAttributes&  threadAttributes,
-        int                     numThreads,
-        int                     maxQueueSize,
-        bslma::Allocator       *basicAllocator)
-: d_queue(maxQueueSize, basicAllocator)
-, d_control(BCEP_STOP)
+                             const bdlqq::ThreadAttributes&  threadAttributes,
+                             int                             numThreads,
+                             int                             maxNumPendingJobs,
+                             bslma::Allocator               *basicAllocator)
+: d_queue(maxNumPendingJobs, basicAllocator)
+, d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
@@ -212,10 +212,10 @@ FixedThreadPool::FixedThreadPool(
 }
 
 FixedThreadPool::FixedThreadPool(int               numThreads,
-                                           int               maxQueueSize,
-                                           bslma::Allocator *basicAllocator)
-: d_queue(maxQueueSize, basicAllocator)
-, d_control(BCEP_STOP)
+                                 int               maxNumPendingJobs,
+                                 bslma::Allocator *basicAllocator)
+: d_queue(maxNumPendingJobs, basicAllocator)
+, d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
@@ -270,8 +270,8 @@ void FixedThreadPool::drain()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
-        d_control = BCEP_DRAIN;
+    if (e_RUN == d_control.loadRelaxed()) {
+        d_control = e_DRAIN;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -280,7 +280,7 @@ void FixedThreadPool::drain()
         interruptWorkerThreads();
         waitWorkerThreads();
 
-        d_control = BCEP_RUN;
+        d_control = e_RUN;
 
         // 'releaseWorkerThreads' emits a release barrier so that the worker
         // threads can't return from wait without observing the previous store.
@@ -293,9 +293,9 @@ void FixedThreadPool::shutdown()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
+    if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
-        d_control = BCEP_STOP;
+        d_control = e_STOP;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -312,7 +312,7 @@ int FixedThreadPool::start()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_STOP != d_control.loadRelaxed()) {
+    if (e_STOP != d_control.loadRelaxed()) {
         return 0;                                                     // RETURN
     }
 
@@ -328,7 +328,7 @@ int FixedThreadPool::start()
     waitWorkerThreads();
 
     d_queue.enable();
-    d_control = BCEP_RUN;
+    d_control = e_RUN;
 
     // 'releaseWorkerThreads' emits a release barrier so that the worker
     // threads can't return from wait without observing the previous store.
@@ -342,9 +342,9 @@ void FixedThreadPool::stop()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
+    if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
-        d_control = BCEP_DRAIN;
+        d_control = e_DRAIN;
 
         // 'interruptWorkerThreads' has an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -354,7 +354,7 @@ void FixedThreadPool::stop()
 
         waitWorkerThreads();
 
-        d_control = BCEP_STOP;
+        d_control = e_STOP;
 
         // 'releaseWorkerThreads' emits a release barrier so that the worker
         // threads can't return from wait without observing the previous store.

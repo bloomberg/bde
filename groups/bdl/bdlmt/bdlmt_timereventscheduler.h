@@ -16,29 +16,31 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides a thread-safe event scheduler.
-// It provides methods to schedule and cancel recurring and non-recurring
-// events.  (A recurring event is also referred to as a clock).  The callbacks
-// are processed by a separate thread (called the dispatcher thread).  By
-// default the callbacks are executed in the dispatcher thread, but this
-// behavior can be altered by providing a dispatcher functor at the creation
-// time (see the section "The dispatcher thread and the dispatcher functor").
-// Use this component for implementing timeouts, deferred executions, calendars
-// and reminders, and recurring tasks, among other time-bound behaviors.
+//@DESCRIPTION: This component provides a thread-safe event scheduler,
+// 'bdlmt::TimerEventScheduler'.  It provides methods to schedule and cancel
+// recurring and non-recurring events.  (A recurring event is also referred to
+// as a clock).  The callbacks are processed by a separate thread (called the
+// dispatcher thread).  By default the callbacks are executed in the dispatcher
+// thread, but this behavior can be altered by providing a dispatcher functor
+// at the creation time (see the section "The dispatcher thread and the
+// dispatcher functor").  Use this component for implementing timeouts,
+// deferred executions, calendars and reminders, and recurring tasks, among
+// other time-bound behaviors.
 //
 ///Comparison to 'bdlmt::EventScheduler'
-///- - - - - - - - - - - - - - - - - -
-// This class has been made mostly obsolete by the newer 'bdlmt_eventscheduler',
-// which addresses two main disadvantages of this component: 1)
-// 'bdlmt_timereventscheduler' can only manage a finite number of events -- this
-// limit is in the millions, but 'bdlmt_eventscheduler' has no such limit; and
-// 2) accessing the queue of a 'bdlmt::TimerEventScheduler' is inefficient when
-// there is a large number of managed events (since adding or removing an event
-// involves a linear search); 'bdlmt_eventscheduler' has a more sophisticated
-// queue which can be accessed in constant or worst-case log(n) time.  The
-// advantage this component provides over 'bdlmt_eventscheduler' is that it
-// provides light-weight handles to events in the queue, 'bcep_eventmanager'
-// provides more heavy-weight reference-counted handles that must be released.
+///- - - - - - - - - - - - - - - - - - -
+// This class has been made mostly obsolete by the newer
+// 'bdlmt_eventscheduler', which addresses two main disadvantages of this
+// component: 1) 'bdlmt_timereventscheduler' can only manage a finite number of
+// events -- this limit is in the millions, but 'bdlmt_eventscheduler' has no
+// such limit; and 2) accessing the queue of a 'bdlmt::TimerEventScheduler' is
+// inefficient when there is a large number of managed events (since adding or
+// removing an event involves a linear search); 'bdlmt_eventscheduler' has a
+// more sophisticated queue which can be accessed in constant or worst-case
+// log(n) time.  The advantage this component provides over
+// 'bdlmt_eventscheduler' is that it provides light-weight handles to events in
+// the queue, while 'bdlmt_eventscheduler' provides more heavy-weight
+// reference-counted handles that must be released.
 //
 ///Order of Execution of Events
 ///----------------------------
@@ -75,8 +77,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The 'bdlmt::TimerEventScheduler' class is both *fully thread-safe* (i.e., all
-// non-creator methods can correctly execute concurrently), and is
+// The 'bdlmt::TimerEventScheduler' class is both *fully thread-safe* (i.e.,
+// all non-creator methods can correctly execute concurrently), and is
 // *thread-enabled* (i.e., the classes does not function correctly in a
 // non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *fully thread-safe* and *thread-enabled*.
@@ -144,8 +146,8 @@ BSLS_IDENT("$Id: $")
 //         // the data does not arrive before the timeout.
 //
 //   public:
-//     my_Server(const bsls::TimeInterval& ioTimeout,
-//                                            bslma::Allocator *allocator = 0);
+//     my_Server(const bsls::TimeInterval&  ioTimeout,
+//               bslma::Allocator          *allocator = 0);
 //         // Construct a 'my_Server' object with a timeout value of
 //         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
 //         // supply memory.  If 'allocator' is 0, the currently installed
@@ -155,10 +157,10 @@ BSLS_IDENT("$Id: $")
 //         // Perform the required clean-up and destroy this object.
 // };
 //
-// my_Server::my_Server(const bsls::TimeInterval& ioTimeout,
-//                                                     bslma::Allocator *alloc)
-// : d_connections(alloc)
-// , d_scheduler(alloc)
+// my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
+//                      bslma::Allocator          *allocator)
+// : d_connections(allocator)
+// , d_scheduler(allocator)
 // , d_ioTimeout(ioTimeout)
 // {
 //      // logic to start monitoring the arriving connections or data
@@ -179,8 +181,8 @@ BSLS_IDENT("$Id: $")
 //
 //     // setup the timeout for data arrival
 //     connection->d_timerId = d_scheduler.scheduleEvent(
-//      bdlt::CurrentTime::now() + d_ioTimeout,
-//      bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
 // void my_Server::closeConnection(my_Server::Connection *connection)
@@ -202,8 +204,8 @@ BSLS_IDENT("$Id: $")
 //
 //     // setup the timeout for data arrival
 //     connection->d_timerId = d_scheduler.scheduleEvent(
-//      bdlt::CurrentTime::now() + d_ioTimeout,
-//      bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
 
@@ -243,7 +245,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -270,43 +272,46 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlmt {
-                           // ==============================
-                           // class TimerEventScheduler
-                           // ==============================
+
+struct TimerEventSchedulerDispatcher;
+
+                         // =========================
+                         // class TimerEventScheduler
+                         // =========================
 
 class TimerEventScheduler {
     // This class provides a thread-safe event scheduler.  'scheduleEvent'
     // schedules a non-recurring event, returning a handle of type
-    // 'TimerEventScheduler::Handle', which can be used to cancel the
-    // scheduled event by invoking 'cancelEvent'.  Similarly, 'startClock'
-    // schedules a recurring event, returning a handle of type
-    // 'TimerEventScheduler::Handle', which can be used to cancel the
-    // clock by invoking 'cancelClock'.  'cancelAllEvents' cancels all the
-    // registered events and 'cancelAllClocks' cancels all the registered
-    // clocks.  The callbacks are processed by a separate thread (called
-    // dispatcher thread).  By default the callbacks are executed in the
-    // dispatcher thread, but this behavior can be altered by providing a
-    // dispatcher functor at the creation time (see the section "The dispatcher
-    // thread and the dispatcher functor").  'start' must be invoked to start
-    // dispatching the callbacks.  'stop' stops the dispatching of the
-    // callbacks without removing the pending events.
+    // 'TimerEventScheduler::Handle', which can be used to cancel the scheduled
+    // event by invoking 'cancelEvent'.  Similarly, 'startClock' schedules a
+    // recurring event, returning a handle of type
+    // 'TimerEventScheduler::Handle', which can be used to cancel the clock by
+    // invoking 'cancelClock'.  'cancelAllEvents' cancels all the registered
+    // events and 'cancelAllClocks' cancels all the registered clocks.  The
+    // callbacks are processed by a separate thread (called dispatcher thread).
+    // By default the callbacks are executed in the dispatcher thread, but this
+    // behavior can be altered by providing a dispatcher functor at the
+    // creation time (see the section "The dispatcher thread and the dispatcher
+    // functor").  'start' must be invoked to start dispatching the callbacks.
+    // 'stop' stops the dispatching of the callbacks without removing the
+    // pending events.
 
   private:
     // PRIVATE TYPES
     struct ClockData {
         // This structure encapsulates the data associated with a clock.
 
-        bdlf::Function<void(*)()> d_callback;         // associated callback
+        bdlf::Function<void(*)()> d_callback;          // associated callback
 
-        bsls::TimeInterval        d_periodicInterval; // associated periodic
-                                                     // interval
+        bsls::TimeInterval        d_periodicInterval;  // associated periodic
+                                                       // interval
 
-        volatile bool            d_isCancelled;      // tracks if the
-                                                     // associated clock has
-                                                     // been cancelled
+        volatile bool             d_isCancelled;       // tracks if the
+                                                       // associated clock has
+                                                       // been cancelled
 
-        int                      d_handle;           // handle for clock
-                                                     // callback
+        int                       d_handle;            // handle for clock
+                                                       // callback
 
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(ClockData,
@@ -315,7 +320,7 @@ class TimerEventScheduler {
         // CREATORS
         ClockData(const bdlf::Function<void(*)()>&  callback,
                   const bsls::TimeInterval&         interval,
-                  bslma::Allocator                *basicAllocator = 0)
+                  bslma::Allocator                 *basicAllocator = 0)
         : d_callback(callback, basicAllocator)
         , d_periodicInterval(interval)
         , d_isCancelled(false)
@@ -333,8 +338,8 @@ class TimerEventScheduler {
         }
     };
 
-    typedef bsl::shared_ptr<ClockData>                    ClockDataPtr;
-    typedef bdlcc::TimeQueue<ClockDataPtr>                  ClockTimeQueue;
+    typedef bsl::shared_ptr<ClockData>                       ClockDataPtr;
+    typedef bdlcc::TimeQueue<ClockDataPtr>                   ClockTimeQueue;
     typedef bdlcc::TimeQueueItem<bdlf::Function<void(*)()> > EventItem;
     typedef bdlcc::TimeQueue<bdlf::Function<void(*)()> >     EventTimeQueue;
 
@@ -344,7 +349,8 @@ class TimerEventScheduler {
         // Defines a type alias for a handle that identifies a scheduled clock
         // or event.
 
-    typedef bdlf::Function<void(*)(const bdlf::Function<void(*)()>&)> Dispatcher;
+    typedef bdlf::Function<void (*)(const bdlf::Function<void (*)()>&)>
+                                                                    Dispatcher;
         // Defines a type alias for the dispatcher functor type.
 
     typedef bdlcc::TimeQueue<bdlf::Function<void(*)()> >::Key EventKey;
@@ -352,9 +358,10 @@ class TimerEventScheduler {
 
     // CONSTANTS
     enum {
-        BCEP_INVALID_HANDLE = -1  // value of an invalid event or clock handle
+        e_INVALID_HANDLE = -1  // value of an invalid event or clock handle
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , INVALID_HANDLE = BCEP_INVALID_HANDLE
+      , BCEP_INVALID_HANDLE = e_INVALID_HANDLE
+      , INVALID_HANDLE = e_INVALID_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -365,7 +372,8 @@ class TimerEventScheduler {
     bsls::SystemClockType::Enum
                       d_clockType;          // clock type used
 
-    bdlma::ConcurrentPool        d_clockDataAllocator; // pool for 'ClockData' objects
+    bdlma::ConcurrentPool
+                      d_clockDataAllocator; // pool for 'ClockData' objects
 
     EventTimeQueue    d_eventTimeQueue;     // time queue for non recurring
                                             // events
@@ -375,10 +383,10 @@ class TimerEventScheduler {
     bdlcc::ObjectCatalog<ClockDataPtr>
                       d_clocks;             // catalog of clocks
 
-    bdlqq::Mutex       d_mutex;              // mutex used to control access to
+    bdlqq::Mutex      d_mutex;              // mutex used to control access to
                                             // this timer event scheduler
 
-    bdlqq::Condition   d_condition;          // condition variable used to
+    bdlqq::Condition  d_condition;          // condition variable used to
                                             // control access to this timer
                                             // event scheduler
 
@@ -401,12 +409,12 @@ class TimerEventScheduler {
                                             // current event callback being
                                             // processed by dispatcher thread
 
-    bsls::AtomicInt    d_numEvents;          // the number of events currently
+    bsls::AtomicInt   d_numEvents;          // the number of events currently
                                             // registered and/or pending
                                             // dispatch (current callback is
                                             // NOT counted)
 
-    bsls::AtomicInt    d_numClocks;          // number of clocks currently
+    bsls::AtomicInt   d_numClocks;          // number of clocks currently
                                             // registered
 
     // NOT IMPLEMENTED
@@ -443,14 +451,13 @@ class TimerEventScheduler {
         // Construct an event scheduler using the default dispatcher functor
         // (see the "The dispatcher thread and the dispatcher functor" section
         // in component-level doc) and use the specified 'clockType' to
-        // indicate the epoch used for all time intervals (see
-        // {Supported Clock-Types} in the component documentation).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // indicate the epoch used for all time intervals (see {Supported
+        // Clock-Types} in the component documentation).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     explicit TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
-                                      bslma::Allocator  *basicAllocator = 0);
+                                 bslma::Allocator  *basicAllocator = 0);
         // Construct an event scheduler using the specified 'dispatcherFunctor'
         // (see "The dispatcher thread and the dispatcher functor" section in
         // component-level doc) and use the realtime clock epoch for all time
@@ -472,8 +479,8 @@ class TimerEventScheduler {
         // the currently installed default allocator is used.
 
     TimerEventScheduler(int               numEvents,
-                             int               numClocks,
-                             bslma::Allocator *basicAllocator = 0);
+                        int               numClocks,
+                        bslma::Allocator *basicAllocator = 0);
         // Construct a timer event scheduler using the default dispatcher
         // functor (see the "The dispatcher thread and the dispatcher functor"
         // section in component level doc) that has the capability to
@@ -486,9 +493,9 @@ class TimerEventScheduler {
         // '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                          numEvents,
-                             int                          numClocks,
-                             bsls::SystemClockType::Enum  clockType,
-                             bslma::Allocator            *basicAllocator = 0);
+                        int                          numClocks,
+                        bsls::SystemClockType::Enum  clockType,
+                        bslma::Allocator            *basicAllocator = 0);
         // Construct a timer event scheduler using the default dispatcher
         // functor (see the "The dispatcher thread and the dispatcher functor"
         // section in component level doc) that has the capability to
@@ -501,9 +508,9 @@ class TimerEventScheduler {
         // unless '0 <= numEvents < 2**24' and '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                numEvents,
-                             int                numClocks,
-                             const Dispatcher&  dispatcherFunctor,
-                             bslma::Allocator  *basicAllocator = 0);
+                        int                numClocks,
+                        const Dispatcher&  dispatcherFunctor,
+                        bslma::Allocator  *basicAllocator = 0);
         // Construct a timer event scheduler using the specified
         // 'dispatcherFunctor' (see "The dispatcher thread and the dispatcher
         // functor" section in component level doc) that has the capability to
@@ -516,10 +523,10 @@ class TimerEventScheduler {
         // '0 <= numClocks < 2**24'.
 
     TimerEventScheduler(int                          numEvents,
-                             int                          numClocks,
-                             const Dispatcher&            dispatcherFunctor,
-                             bsls::SystemClockType::Enum  clockType,
-                             bslma::Allocator            *basicAllocator = 0);
+                        int                          numClocks,
+                        const Dispatcher&            dispatcherFunctor,
+                        bsls::SystemClockType::Enum  clockType,
+                        bslma::Allocator            *basicAllocator = 0);
         // Construct a timer event scheduler using the specified
         // 'dispatcherFunctor' (see "The dispatcher thread and the dispatcher
         // functor" section in component level doc) that has the capability to
@@ -565,22 +572,22 @@ class TimerEventScheduler {
 
     Handle scheduleEvent(const bsls::TimeInterval&        time,
                          const bdlf::Function<void(*)()>& callback,
-                         const EventKey&                 key = EventKey(0));
+                         const EventKey&                  key = EventKey(0));
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'time' and return a handle that can be used to cancel the 'callback'
-        // (by invoking 'cancelEvent').  Optionally use the specified 'key' to
-        // uniquely identify the event.  The 'time' is an absolute time
-        // represented as an interval from some epoch, which is detemined by
-        // the clock indicated at construction (see {'Supported Clock-Types'}
-        // in the component documentation).
+        // (by invoking 'cancelEvent').  Optionally specify 'key' to uniquely
+        // identify the event.  The 'time' is an absolute time represented as
+        // an interval from some epoch, which is detemined by the clock
+        // indicated at construction (see {'Supported Clock-Types'} in the
+        // component documentation).
 
-    int rescheduleEvent(Handle                   handle,
+    int rescheduleEvent(Handle                    handle,
                         const bsls::TimeInterval& newTime,
-                        bool                     wait = false);
-    int rescheduleEvent(Handle                   handle,
-                        const EventKey&          key,
+                        bool                      wait = false);
+    int rescheduleEvent(Handle                    handle,
+                        const EventKey&           key,
                         const bsls::TimeInterval& newTime,
-                        bool                     wait = false);
+                        bool                      wait = false);
 
         // Reschedule the event having the specified 'handle' at the specified
         // 'newTime'.  Optionally use the specified 'key' to uniquely identify
@@ -618,9 +625,9 @@ class TimerEventScheduler {
         // to avoid deadlock.
 
     Handle startClock(
-             const bsls::TimeInterval&        interval,
-             const bdlf::Function<void(*)()>& callback,
-             const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
+           const bsls::TimeInterval&        interval,
+           const bdlf::Function<void(*)()>& callback,
+           const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', starting at the optionally specified
         // 'startTime'.  Return an identifier that can be use to cancel the
@@ -633,11 +640,10 @@ class TimerEventScheduler {
     int cancelClock(Handle handle, bool wait = false);
         // Cancel the clock having the specified 'handle'.  If the optionally
         // specified 'wait' is true, then ensure that any scheduled event for
-        // the clock having the specified 'handle' is either cancelled or have
-        // been dispatched before this call returns.  Return 0 on success, and
-        // a non-zero value if the 'handle' is invalid.  If this method is
-        // being invoked from the dispatcher thread, then the 'wait' is ignored
-        // to avoid deadlock.
+        // the clock having 'handle' is either cancelled or has been dispatched
+        // before this call returns.  Return 0 on success, and a non-zero value
+        // if the 'handle' is invalid.  If this method is being invoked from
+        // the dispatcher thread, then the 'wait' is ignored to avoid deadlock.
 
     void cancelAllClocks(bool wait = false);
         // Cancel all clocks.  If the optionally specified 'wait' is true, then
@@ -657,27 +663,25 @@ class TimerEventScheduler {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // ------------------------
-                          // TimerEventScheduler
-                          // ------------------------
+                            // -------------------
+                            // TimerEventScheduler
+                            // -------------------
 
 // MANIPULATORS
 inline
-int TimerEventScheduler::cancelEvent(
-        TimerEventScheduler::Handle handle,
-        bool                             wait)
+int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
+                                     bool                        wait)
 {
     return cancelEvent(handle, EventKey(0), wait);
 }
 
 inline
-int TimerEventScheduler::rescheduleEvent(
-        TimerEventScheduler::Handle handle,
-        const bsls::TimeInterval&         newTime,
-        bool                             wait)
+int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
+                                         const bsls::TimeInterval&   newTime,
+                                         bool                        wait)
 {
     return rescheduleEvent(handle, EventKey(0), newTime, wait);
 }
@@ -694,8 +698,8 @@ int TimerEventScheduler::numEvents() const
 {
     return d_numEvents;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -594,11 +594,11 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 //  }
 //..
 // This method will work fine when 'TYPE' is a standard BDE value-semantic
-// component (e.g., 'bdlmxxx::List'):
+// component (e.g., 'bdlt::Date'):
 //..
-//  bdlmxxx::List            myList;
-//  MyWrapper<bdlmxxx::List> myWrapperForList(myList);
-//  myWrapperForList.print(bsl::cout);  // No problem: 'bdlmxxx::List' has a
+//  bdlt::Date            myDate;
+//  MyWrapper<bdlt::Date> myWrapperForDate(myDate);
+//  myWrapperForDate.print(bsl::cout);  // No problem: 'bdlt::Date' has a
 //                                      // corresponding 'print' method.
 //..
 // However, when 'TYPE' is not a standard BDE value-semantic component (e.g.,

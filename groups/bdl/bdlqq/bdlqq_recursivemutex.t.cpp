@@ -11,9 +11,9 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//-----------------------------------------------------------------------------
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -42,9 +42,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o line feed.
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int verbose;
 int veryVerbose;
@@ -63,7 +63,7 @@ void My_Sleep(int ms)
 void My_CreateDetachedThread(ThreadFunction function,
                              void* userData) {
     bdlqq::ThreadAttributes attr;
-    attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+    attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
     bdlqq::ThreadUtil::Handle dum;
     bdlqq::ThreadUtil::create(&dum, attr, function, userData);
 }
@@ -85,9 +85,9 @@ extern "C" void* Case1Thread(void* arg_p) {
     return arg_p;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

@@ -4,7 +4,6 @@
 #include <bsl_c_math.h>
 
 namespace BloombergLP {
-
 namespace {
 
 bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
@@ -37,9 +36,9 @@ bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
 
     bsls::Types::Uint64 nanounits = 0;
 
-    // As long as rate is represented by a whole number, the fractional part
-    // of number of units to drain comes from fractional part of seconds of
-    // the time interval
+    // As long as rate is represented by a whole number, the fractional part of
+    // number of units to drain comes from fractional part of seconds of the
+    // time interval
 
     nanounits = *fractionalUnitDrainedInNanoUnits +
         (drainRate % NANOUNITS_PER_UNIT) * timeInterval.nanoseconds();
@@ -54,9 +53,10 @@ bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
 }  // close unnamed namespace
 
 namespace btls {
-                            //------------------
+
+                            // -----------------
                             // class LeakyBucket
-                            //------------------
+                            // -----------------
 
 // CLASS METHODS
 bsls::TimeInterval LeakyBucket::calculateDrainTime(
@@ -210,7 +210,6 @@ void LeakyBucket::setRateAndCapacity(bsls::Types::Uint64 newRate,
 
     // Calculate the maximum interval between updates that would not cause the
     // number of units drained to overflow an unsigned 64-bit integral type.
-
 
     if (newRate == 1) {
         d_maxUpdateInterval = bsls::TimeInterval(LLONG_MAX, 999999999);

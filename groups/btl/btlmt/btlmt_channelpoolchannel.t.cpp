@@ -18,11 +18,11 @@
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 
-#include <bdlxxxx_bytestreamimputil.h>
-
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+
+#include <bslx_marshallingutil.h>
 
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
@@ -390,7 +390,7 @@ void DataReader::blobBasedReadCb(int         state,
             dataPtr = tmp;
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, dataPtr);
+        bslx::MarshallingUtil::getInt32(&d_msgId, dataPtr);
         ASSERT(0 <= d_msgId);
         btlb::BlobUtil::erase(msg, 0, INT_SIZE);
         if (0 == msg->length()) {
@@ -417,7 +417,7 @@ void DataReader::blobBasedReadCb(int         state,
             dataPtr = tmp;
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength, dataPtr);
+        bslx::MarshallingUtil::getInt32(&d_msgLength, dataPtr);
         ASSERT(0 <= d_msgLength);
         btlb::BlobUtil::erase(msg, 0, INT_SIZE);
 
@@ -964,10 +964,10 @@ int main(int argc, char *argv[])
             ASSERT(DATA_SIZE <= MAX_DATA_SIZE);
 
             int offset = 0;
-            bdlxxxx::ByteStreamImpUtil::putInt32(data, i);
+            bslx::MarshallingUtil::putInt32(data, i);
             offset += sizeof(int);
 
-            bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
+            bslx::MarshallingUtil::putInt32(data + offset, DATA_SIZE);
             offset += sizeof(int);
 
             const int TOTAL_SIZE = DATA_SIZE + offset;

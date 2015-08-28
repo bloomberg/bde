@@ -40,7 +40,7 @@ using namespace bsl;
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -56,7 +56,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define C_(X)   << #X << ": " << X << '\t'
@@ -70,7 +70,7 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP7_ASSERT(I,J,K,L,M,N,O,X) A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N)C_(O))
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -80,20 +80,20 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef balst::AssertionLogger Obj;
 
 // ============================================================================
-//                            GLOBAL HELPER CLASSES
+//                           GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
 template <ball::Severity::Level Level>
@@ -141,9 +141,9 @@ AlwaysAssert::~AlwaysAssert()
     BSLS_ASSERT_OPT(false);
 }
 
-//=============================================================================
+// ============================================================================
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
-//=============================================================================
+// ============================================================================
 
 // Usage
 ///-----
@@ -239,7 +239,7 @@ void protect_the_subsystem()
 //..
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -342,19 +342,19 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ cout << "Severity OFF" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                     ball::Severity::BAEL_OFF);
+                                                     ball::Severity::e_OFF);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_OFF ==
+                                 ball::Severity::e_OFF ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                   ball::Severity::BAEL_FATAL);
+                                                   ball::Severity::e_FATAL);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_FATAL ==
+                                 ball::Severity::e_FATAL ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
@@ -365,10 +365,10 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                   ball::Severity::BAEL_ERROR);
+                                                   ball::Severity::e_ERROR);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_ERROR ==
+                                 ball::Severity::e_ERROR ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
@@ -379,24 +379,24 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                    ball::Severity::BAEL_WARN);
+                                                    ball::Severity::e_WARN);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_WARN ==
+                                 ball::Severity::e_WARN ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity TRACE" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                   ball::Severity::BAEL_TRACE);
+                                                   ball::Severity::e_TRACE);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_TRACE ==
+                                 ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
-        SeverityCB<ball::Severity::BAEL_FATAL>        fatalCb;
-        SeverityCB<ball::Severity::BAEL_WARN>         warnCb;
+        SeverityCB<ball::Severity::e_FATAL>        fatalCb;
+        SeverityCB<ball::Severity::e_WARN>         warnCb;
         balst::AssertionLogger::LogSeverityCallback   cb;
         void                                        *cl;
 
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
         ASSERT(&cb              == cl);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_TRACE ==
+                                 ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
         ASSERT(&cb             == cl);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_TRACE ==
+                                 ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
 
@@ -435,10 +435,10 @@ int main(int argc, char *argv[])
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
                                                                  0, 255, 0, 0);
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                     ball::Severity::BAEL_OFF);
+                                                     ball::Severity::e_OFF);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                 ball::Severity::BAEL_OFF ==
+                                 ball::Severity::e_OFF ==
                                  balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
       } break;

@@ -233,20 +233,18 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 
   public:
     // CREATORS
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char             *buffer,
+                                int               size,
+                                bslma::Allocator *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                int                        size,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
@@ -271,23 +269,21 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char             *buffer,
+                                int               size,
+                                int               maxBufferSize,
+                                bslma::Allocator *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
                               int                          maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                int                        size,
+                                int                        maxBufferSize,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,

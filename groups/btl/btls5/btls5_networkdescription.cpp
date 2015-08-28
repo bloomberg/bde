@@ -14,9 +14,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                       // ------------------------
-                       // class NetworkDescription
-                       // ------------------------
+                          // ------------------------
+                          // class NetworkDescription
+                          // ------------------------
 
 // MANIPULATORS
 bsl::size_t NetworkDescription::addProxy(bsl::size_t            level,
@@ -29,11 +29,12 @@ bsl::size_t NetworkDescription::addProxy(bsl::size_t            level,
         d_proxies.resize(level + 1);
     }
     d_proxies[level].push_back(ProxyDescription(address, credentials));
+
     return d_proxies[level].size() - 1;
 }
 
-void NetworkDescription::setCredentials(bsl::size_t              level,
-                                        bsl::size_t              order,
+void NetworkDescription::setCredentials(bsl::size_t        level,
+                                        bsl::size_t        order,
                                         const Credentials& credentials)
 {
     BSLS_ASSERT(level < d_proxies.size());
@@ -69,6 +70,7 @@ bsl::ostream& NetworkDescription::print(bsl::ostream& stream,
 bsl::ostream& btls5::operator<<(bsl::ostream&             output,
                                 const NetworkDescription& object)
 {
+    output << "[ ";
     for (bsl::size_t level = 0, endLevel = object.numLevels();
             level < endLevel;
             level++) {
@@ -80,8 +82,11 @@ bsl::ostream& btls5::operator<<(bsl::ostream&             output,
              proxy++) {
             output << " " << *proxy;
         }
-        output << "\n";
+        if (level + 1  < endLevel) {
+            output << " ";
+        }
     }
+    output << " ]";
     return output;
 }
 

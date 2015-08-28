@@ -3,6 +3,8 @@
 
 #include <baljsn_parserutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
@@ -16,6 +18,9 @@
 #include <bdlsb_memoutstreambuf.h>            // for testing only
 #include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>        // for testing only
+
+#include <bsl_cstring.h>
+#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -54,91 +59,55 @@ using bsl::endl;
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define LOOP0_ASSERT ASSERT
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 #define WS "   \t       \n      \v       \f       \r       "
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-enum { SUCCESS = 0, FAILURE = -1 };
 
 typedef baljsn::Tokenizer Obj;
 
@@ -147,14 +116,14 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 #define CASE(X) case(Obj::X): stream << #X; break;
 
     switch (value) {
-      CASE(BAEJSN_BEGIN)
-      CASE(BAEJSN_ELEMENT_NAME)
-      CASE(BAEJSN_START_OBJECT)
-      CASE(BAEJSN_END_OBJECT)
-      CASE(BAEJSN_START_ARRAY)
-      CASE(BAEJSN_END_ARRAY)
-      CASE(BAEJSN_ELEMENT_VALUE)
-      CASE(BAEJSN_ERROR)
+      CASE(e_BEGIN)
+      CASE(e_ELEMENT_NAME)
+      CASE(e_START_OBJECT)
+      CASE(e_END_OBJECT)
+      CASE(e_START_ARRAY)
+      CASE(e_END_ARRAY)
+      CASE(e_ELEMENT_VALUE)
+      CASE(e_ERROR)
       default: stream << "(* UNKNOWN *)"; break;
     }
     return stream;
@@ -171,7 +140,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
                            bool                checkNumAvailAfterReset = true)
 {
     Obj mX;  const Obj& X = mX;
-    ASSERTV(LINE, X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+    ASSERTV(LINE, X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
     mX.reset(sb);
 
@@ -203,7 +172,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64  Int64;
@@ -288,7 +257,7 @@ int main(int argc, char *argv[])
     ASSERT(!rc);
 
     baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-    ASSERT(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
+    ASSERT(baljsn::Tokenizer::e_START_OBJECT == token);
 
     rc = tokenizer.advanceToNextToken();
     ASSERT(!rc);
@@ -296,8 +265,8 @@ int main(int argc, char *argv[])
 
     // Continue reading elements till '}' is encountered
 
-    while (baljsn::Tokenizer::BAEJSN_END_OBJECT != token) {
-        ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
+    while (baljsn::Tokenizer::e_END_OBJECT != token) {
+        ASSERT(baljsn::Tokenizer::e_ELEMENT_NAME == token);
 
         // Read element name
 
@@ -313,7 +282,7 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         token = tokenizer.tokenType();
-        ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
+        ASSERT(baljsn::Tokenizer::e_ELEMENT_VALUE == token);
 
         rc = tokenizer.value(&nodeValue);
         ASSERT(!rc);
@@ -402,7 +371,7 @@ int main(int argc, char *argv[])
                 "12",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -410,7 +379,7 @@ int main(int argc, char *argv[])
                 "12",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "12"
             },
             {
@@ -418,7 +387,7 @@ int main(int argc, char *argv[])
                 "true",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -426,7 +395,7 @@ int main(int argc, char *argv[])
                 "true",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "true"
             },
             {
@@ -434,7 +403,7 @@ int main(int argc, char *argv[])
                 "\"true\"",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -442,7 +411,7 @@ int main(int argc, char *argv[])
                 "\"true\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"true\""
             },
             {
@@ -450,7 +419,7 @@ int main(int argc, char *argv[])
                 "Michael",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -458,7 +427,7 @@ int main(int argc, char *argv[])
                 "Michael",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "Michael"
             },
             {
@@ -466,7 +435,7 @@ int main(int argc, char *argv[])
                 "\"Michael\"",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -474,7 +443,7 @@ int main(int argc, char *argv[])
                 "\"Michael\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"Michael\""
             },
             {
@@ -482,7 +451,7 @@ int main(int argc, char *argv[])
                 "\"Mic\\\"hael\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"Mic\\\"hael\""
             },
             {
@@ -490,7 +459,7 @@ int main(int argc, char *argv[])
                 "\"Mic\\\"hael\\\"\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"Mic\\\"hael\\\"\""
             },
             {
@@ -498,7 +467,7 @@ int main(int argc, char *argv[])
                 "\"Mic\\\"hael\\\\\\\"\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"Mic\\\"hael\\\\\\\"\""
             },
             {
@@ -506,7 +475,7 @@ int main(int argc, char *argv[])
                 "\"Mic\\\"\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"Mic\\\"\""
             },
             {
@@ -514,7 +483,7 @@ int main(int argc, char *argv[])
                 "null",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -522,7 +491,7 @@ int main(int argc, char *argv[])
                 "null",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "null"
             },
             {
@@ -530,7 +499,7 @@ int main(int argc, char *argv[])
                 "\"null\"",
                 false,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 ""
             },
             {
@@ -538,7 +507,7 @@ int main(int argc, char *argv[])
                 "\"null\"",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "\"null\""
             },
             {
@@ -546,7 +515,7 @@ int main(int argc, char *argv[])
                 "Michael",
                 true,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 "Michael"
             },
             {
@@ -554,7 +523,7 @@ int main(int argc, char *argv[])
                 "{ \"name\" : \"Michael\" }",
                 true,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 "{"
             },
             {
@@ -562,7 +531,7 @@ int main(int argc, char *argv[])
                 "{ \"name\" : \"Michael\" }",
                 false,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 "{"
             },
             {
@@ -570,7 +539,7 @@ int main(int argc, char *argv[])
                 "[ \"12\" ]",
                 true,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 "["
             },
             {
@@ -578,7 +547,7 @@ int main(int argc, char *argv[])
                 "[ \"12\" ]",
                 false,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 "["
             },
         };
@@ -601,7 +570,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
             ASSERTV(X.allowStandAloneValues(),
                     true == X.allowStandAloneValues());
 
@@ -616,7 +585,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, X.tokenType(), EXP_TOKEN,
                         EXP_TOKEN == X.tokenType());
 
-                if (Obj::BAEJSN_ELEMENT_VALUE == EXP_TOKEN) {
+                if (Obj::e_ELEMENT_VALUE == EXP_TOKEN) {
                     bslstl::StringRef value;
                     ASSERTV(LINE, 0 == X.value(&value));
                     ASSERTV(LINE, value, EXP_VALUE, value == EXP_VALUE);
@@ -694,8 +663,8 @@ int main(int argc, char *argv[])
             int             d_numAdvances;
             int             d_numAvail;
         } DATA[] = {
-        // line   value            nAdv      nAvail
-        // ----   -----            ----      ------
+        //line    value            nAdv      nAvail
+        //----    -----            ----      ------
 
         { L_,   "",                  0,           0   },
         { L_,   "{}",                2,           0   },
@@ -964,8 +933,8 @@ int main(int argc, char *argv[])
             int             d_line;
             const char     *d_value_p;
         } DATA[] = {
-        // line   value
-        // ----   -----
+        //line    value
+        //----    -----
 
           { L_,   "\"\""                    },
 
@@ -1184,14 +1153,14 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator ta;
             Obj mX(&ta);  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             int rc;
             do {
                 rc = mX.advanceToNextToken();
-            } while (!rc && Obj::BAEJSN_ELEMENT_VALUE != X.tokenType());
+            } while (!rc && Obj::e_ELEMENT_VALUE != X.tokenType());
 
             ASSERTV(LINE, rc, 0 == rc);
 
@@ -1370,8 +1339,8 @@ int main(int argc, char *argv[])
             bool              d_allocatesMemory;
         } DATA[] = {
 
-        // Line  Suffix Text                             Allocates memory flag
-        // ----  -----------                             ---------------------
+        //Line   Suffix Text                             Allocates memory flag
+        //----   -----------                             ---------------------
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
 
@@ -1424,13 +1393,13 @@ int main(int argc, char *argv[])
             mX.reset(is.rdbuf());
 
             ASSERTV(0                         == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+            ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
 
             ASSERTV(0                         == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+            ASSERTV(Obj::e_ELEMENT_NAME  == X.tokenType());
 
             ASSERTV(LINE, 0                   == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+            ASSERTV(Obj::e_ELEMENT_VALUE == X.tokenType());
 
             bslstl::StringRef data;
             ASSERTV(0                      == X.value(&data));
@@ -1480,13 +1449,13 @@ int main(int argc, char *argv[])
             mX.reset(is.rdbuf());
 
             ASSERTV(0                         == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+            ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
 
             ASSERTV(0                         == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+            ASSERTV(Obj::e_ELEMENT_NAME  == X.tokenType());
 
             ASSERTV(0                         == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+            ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
 
             for (int ti = 0; ti < NUM_DATA; ++ ti) {
                 const int    LINE   = DATA[ti].d_line;
@@ -1494,10 +1463,10 @@ int main(int argc, char *argv[])
                 const string TEXT   = LARGE_STRING + SUFFIX;
 
                 ASSERTV(LINE, 0                    == mX.advanceToNextToken());
-                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+                ASSERTV(LINE, Obj::e_ELEMENT_NAME  == X.tokenType());
 
                 ASSERTV(LINE, 0                    == mX.advanceToNextToken());
-                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+                ASSERTV(LINE, Obj::e_ELEMENT_VALUE == X.tokenType());
 
                 bslstl::StringRef data;
                 ASSERTV(LINE, 0                == X.value(&data));
@@ -1506,10 +1475,10 @@ int main(int argc, char *argv[])
 
             for (int ti = 0; ti < NUM_DATA; ++ ti) {
                 ASSERTV(0                         == mX.advanceToNextToken());
-                ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+                ASSERTV(Obj::e_ELEMENT_NAME  == X.tokenType());
 
                 ASSERTV(0                         == mX.advanceToNextToken());
-                ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+                ASSERTV(Obj::e_ELEMENT_VALUE == X.tokenType());
 
                 bslstl::StringRef data;
                 ASSERTV(0                                 == X.value(&data));
@@ -1517,7 +1486,7 @@ int main(int argc, char *argv[])
             }
 
             ASSERTV(0                       == mX.advanceToNextToken());
-            ASSERTV(Obj::BAEJSN_END_OBJECT  == X.tokenType());
+            ASSERTV(Obj::e_END_OBJECT  == X.tokenType());
         }
       } break;
       case 9: {
@@ -1539,7 +1508,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_END_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -1603,8 +1572,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                 << "TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY" << endl
-                 << "================================================" << endl;
+                 << "TESTING 'advanceToNextToken' TO 'e_END_ARRAY'" << endl
+                 << "=============================================" << endl;
 
         const struct {
             int             d_line;
@@ -1626,7 +1595,7 @@ int main(int argc, char *argv[])
                               "]",
                 3,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1639,7 +1608,7 @@ int main(int argc, char *argv[])
                 WS               "]" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1652,7 +1621,7 @@ int main(int argc, char *argv[])
                 WS                     "]",
                 3,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1665,7 +1634,7 @@ int main(int argc, char *argv[])
                 WS                            "]" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1681,7 +1650,7 @@ int main(int argc, char *argv[])
                                          "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1695,7 +1664,7 @@ int main(int argc, char *argv[])
                                      "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1709,7 +1678,7 @@ int main(int argc, char *argv[])
                 WS                          "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1723,7 +1692,7 @@ int main(int argc, char *argv[])
                 WS                                "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1739,7 +1708,7 @@ int main(int argc, char *argv[])
                                           "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1755,7 +1724,7 @@ int main(int argc, char *argv[])
                                           "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1770,7 +1739,7 @@ int main(int argc, char *argv[])
                 WS                                       "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1786,7 +1755,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1802,7 +1771,7 @@ int main(int argc, char *argv[])
                 WS                                 "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1818,7 +1787,7 @@ int main(int argc, char *argv[])
                                          "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1832,7 +1801,7 @@ int main(int argc, char *argv[])
                 WS                          "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1846,7 +1815,7 @@ int main(int argc, char *argv[])
                 WS                                   "]" WS,
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1860,7 +1829,7 @@ int main(int argc, char *argv[])
                 WS                                                   "]",
                 4,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1876,7 +1845,7 @@ int main(int argc, char *argv[])
                                           "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1892,7 +1861,7 @@ int main(int argc, char *argv[])
                                            "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1907,7 +1876,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1923,7 +1892,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1938,7 +1907,7 @@ int main(int argc, char *argv[])
                 WS                                  "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1954,7 +1923,7 @@ int main(int argc, char *argv[])
                 WS                                  "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1969,7 +1938,7 @@ int main(int argc, char *argv[])
                 WS                                           "]" WS,
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -1985,7 +1954,7 @@ int main(int argc, char *argv[])
                 WS                                           "]" WS,
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2000,7 +1969,7 @@ int main(int argc, char *argv[])
                 WS                                                         "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2016,7 +1985,7 @@ int main(int argc, char *argv[])
                 WS                                                         "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2033,7 +2002,7 @@ int main(int argc, char *argv[])
                               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2048,7 +2017,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2066,7 +2035,7 @@ int main(int argc, char *argv[])
                               "]",
                 7,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2084,7 +2053,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 7,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2107,7 +2076,7 @@ int main(int argc, char *argv[])
                                "]",
                 11,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2130,7 +2099,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 11,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2153,7 +2122,7 @@ int main(int argc, char *argv[])
                 WS               "]" WS,
                 11,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2170,7 +2139,7 @@ int main(int argc, char *argv[])
                               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2185,7 +2154,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2201,7 +2170,7 @@ int main(int argc, char *argv[])
                               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2217,7 +2186,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 5,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2234,7 +2203,7 @@ int main(int argc, char *argv[])
                               "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2251,7 +2220,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 6,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2270,7 +2239,7 @@ int main(int argc, char *argv[])
                               "]",
                 8,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2289,7 +2258,7 @@ int main(int argc, char *argv[])
                 WS               "]",
                 8,
                 true,
-                Obj::BAEJSN_END_ARRAY,
+                Obj::e_END_ARRAY,
                 false,
                 ""
             },
@@ -2302,7 +2271,7 @@ int main(int argc, char *argv[])
                            "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2313,7 +2282,7 @@ int main(int argc, char *argv[])
                 WS            "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2325,7 +2294,7 @@ int main(int argc, char *argv[])
                              "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2337,7 +2306,7 @@ int main(int argc, char *argv[])
                 WS              "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2349,7 +2318,7 @@ int main(int argc, char *argv[])
                              "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2361,7 +2330,7 @@ int main(int argc, char *argv[])
                 WS              "]",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2375,7 +2344,7 @@ int main(int argc, char *argv[])
                                         "]",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2389,7 +2358,7 @@ int main(int argc, char *argv[])
                 WS                         "]",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2402,7 +2371,7 @@ int main(int argc, char *argv[])
                                "]",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2415,7 +2384,7 @@ int main(int argc, char *argv[])
                 WS                "]",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2429,7 +2398,7 @@ int main(int argc, char *argv[])
                              "]",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2443,7 +2412,7 @@ int main(int argc, char *argv[])
                 WS              "]",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2458,7 +2427,7 @@ int main(int argc, char *argv[])
                              "]",
                 5,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2473,7 +2442,7 @@ int main(int argc, char *argv[])
                 WS              "]",
                 5,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2488,7 +2457,7 @@ int main(int argc, char *argv[])
                              "]",
                 5,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2503,7 +2472,7 @@ int main(int argc, char *argv[])
                 WS              "]",
                 5,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2527,14 +2496,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
-                        Obj::BAEJSN_ERROR != X.tokenType());
+                        Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -2555,7 +2524,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_START_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2609,8 +2578,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -2631,7 +2600,7 @@ int main(int argc, char *argv[])
                               "[",
                 2,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2643,7 +2612,7 @@ int main(int argc, char *argv[])
                 WS               "[" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2655,7 +2624,7 @@ int main(int argc, char *argv[])
                 WS                     "[" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2667,7 +2636,7 @@ int main(int argc, char *argv[])
                 WS                            "[" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2682,7 +2651,7 @@ int main(int argc, char *argv[])
                                 "[",
                 3,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2695,7 +2664,7 @@ int main(int argc, char *argv[])
                 WS                 "[",
                 3,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2708,7 +2677,7 @@ int main(int argc, char *argv[])
                 WS                 "[" WS,
                 3,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2725,7 +2694,7 @@ int main(int argc, char *argv[])
                                 "[",
                 5,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2740,7 +2709,7 @@ int main(int argc, char *argv[])
                 WS                 "[",
                 5,
                 true,
-                Obj::BAEJSN_START_ARRAY,
+                Obj::e_START_ARRAY,
                 false,
                 ""
             },
@@ -2753,7 +2722,7 @@ int main(int argc, char *argv[])
                             "[",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2764,7 +2733,7 @@ int main(int argc, char *argv[])
                 WS             "[",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2777,7 +2746,7 @@ int main(int argc, char *argv[])
                                         "[",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2790,7 +2759,7 @@ int main(int argc, char *argv[])
                 WS                         "[",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2803,7 +2772,7 @@ int main(int argc, char *argv[])
                                 "[",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2816,7 +2785,7 @@ int main(int argc, char *argv[])
                 WS                 "[",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2830,7 +2799,7 @@ int main(int argc, char *argv[])
                               "[",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2844,7 +2813,7 @@ int main(int argc, char *argv[])
                 WS               "[",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -2868,13 +2837,13 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -2895,7 +2864,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_END_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2959,8 +2928,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT" << endl
-                << "=================================================" << endl;
+                << "TESTING 'advanceToNextToken' TO 'e_END_OBJECT'" << endl
+                << "==============================================" << endl;
 
         const struct {
             int             d_line;
@@ -2979,7 +2948,7 @@ int main(int argc, char *argv[])
                 "}",
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -2989,7 +2958,7 @@ int main(int argc, char *argv[])
                 "}",
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -2999,7 +2968,7 @@ int main(int argc, char *argv[])
                    "}",
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3009,7 +2978,7 @@ int main(int argc, char *argv[])
                 "}",
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3019,7 +2988,7 @@ int main(int argc, char *argv[])
                 "}" WS,
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3029,7 +2998,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3040,7 +3009,7 @@ int main(int argc, char *argv[])
                 WS,
                 1,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3055,7 +3024,7 @@ int main(int argc, char *argv[])
                                     "}",
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3068,7 +3037,7 @@ int main(int argc, char *argv[])
                 WS                     "}" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3081,7 +3050,7 @@ int main(int argc, char *argv[])
                 WS                                   "}" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3096,7 +3065,7 @@ int main(int argc, char *argv[])
                                    "}",
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3109,7 +3078,7 @@ int main(int argc, char *argv[])
                 WS                    "}" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3122,7 +3091,7 @@ int main(int argc, char *argv[])
                 WS                                "}" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3135,7 +3104,7 @@ int main(int argc, char *argv[])
                 WS                                                      "}" WS,
                 3,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3151,7 +3120,7 @@ int main(int argc, char *argv[])
                                 "}",
                 4,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3165,7 +3134,7 @@ int main(int argc, char *argv[])
                 WS                 "}",
                 4,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3179,7 +3148,7 @@ int main(int argc, char *argv[])
                 WS                 "}" WS,
                 4,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3197,7 +3166,7 @@ int main(int argc, char *argv[])
                                                 "}",
                 5,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3213,7 +3182,7 @@ int main(int argc, char *argv[])
                 WS                                 "}",
                 5,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3229,7 +3198,7 @@ int main(int argc, char *argv[])
                 WS                                 "}" WS,
                 5,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3248,7 +3217,7 @@ int main(int argc, char *argv[])
                               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3265,7 +3234,7 @@ int main(int argc, char *argv[])
                 WS               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3282,7 +3251,7 @@ int main(int argc, char *argv[])
                 WS               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3302,7 +3271,7 @@ int main(int argc, char *argv[])
                 "}",
                 7,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3320,7 +3289,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 7,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3338,7 +3307,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 7,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3356,7 +3325,7 @@ int main(int argc, char *argv[])
                                 "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3372,7 +3341,7 @@ int main(int argc, char *argv[])
                 WS                 "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3388,7 +3357,7 @@ int main(int argc, char *argv[])
                 WS                 "}" WS,
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3405,7 +3374,7 @@ int main(int argc, char *argv[])
                 "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3421,7 +3390,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3438,7 +3407,7 @@ int main(int argc, char *argv[])
                 "}",
                 8,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3457,7 +3426,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 8,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3475,7 +3444,7 @@ int main(int argc, char *argv[])
                 "}",
                 10,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3499,7 +3468,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 12,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3518,7 +3487,7 @@ int main(int argc, char *argv[])
                               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3535,7 +3504,7 @@ int main(int argc, char *argv[])
                 WS               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3552,7 +3521,7 @@ int main(int argc, char *argv[])
                 WS               "}",
                 6,
                 true,
-                Obj::BAEJSN_END_OBJECT,
+                Obj::e_END_OBJECT,
                 false,
                 ""
             },
@@ -3565,7 +3534,7 @@ int main(int argc, char *argv[])
                            "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3576,7 +3545,7 @@ int main(int argc, char *argv[])
                 WS            "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3588,7 +3557,7 @@ int main(int argc, char *argv[])
                              "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3600,7 +3569,7 @@ int main(int argc, char *argv[])
                 WS              "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3612,7 +3581,7 @@ int main(int argc, char *argv[])
                              "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3624,7 +3593,7 @@ int main(int argc, char *argv[])
                 WS              "}",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3638,7 +3607,7 @@ int main(int argc, char *argv[])
                                         "}",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3652,7 +3621,7 @@ int main(int argc, char *argv[])
                 WS                         "}",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3665,7 +3634,7 @@ int main(int argc, char *argv[])
                                "}",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -3678,7 +3647,7 @@ int main(int argc, char *argv[])
                 WS                "}",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             }
@@ -3702,13 +3671,13 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -3729,7 +3698,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_VALUE
+        // TESTING 'advanceToNextToken' TO 'e_VALUE'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -3791,8 +3760,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                     << "TESTING 'advanceToNextToken' TO BAEJSN_VALUE" << endl
-                     << "============================================" << endl;
+                     << "TESTING 'advanceToNextToken' TO 'e_VALUE'" << endl
+                     << "=========================================" << endl;
 
         const struct {
             int             d_line;
@@ -3814,7 +3783,7 @@ int main(int argc, char *argv[])
                                     "}",
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3827,7 +3796,7 @@ int main(int argc, char *argv[])
                 WS                     "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3840,7 +3809,7 @@ int main(int argc, char *argv[])
                 WS                                   "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3855,7 +3824,7 @@ int main(int argc, char *argv[])
                                    "}",
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"John\""
             },
@@ -3868,7 +3837,7 @@ int main(int argc, char *argv[])
                 WS                    "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"John\""
             },
@@ -3881,7 +3850,7 @@ int main(int argc, char *argv[])
                 WS                                "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "John" WS "\""
             },
@@ -3894,7 +3863,7 @@ int main(int argc, char *argv[])
                 WS                                                      "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "John" WS " Doe" WS "\""
             },
@@ -3907,7 +3876,7 @@ int main(int argc, char *argv[])
                 WS                                            "}" WS,
                 2,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"John " WS " Doe\""
             },
@@ -3923,7 +3892,7 @@ int main(int argc, char *argv[])
                                          "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3937,7 +3906,7 @@ int main(int argc, char *argv[])
                 WS                          "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3951,7 +3920,7 @@ int main(int argc, char *argv[])
                 WS                                "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "1.500012"
             },
@@ -3967,7 +3936,7 @@ int main(int argc, char *argv[])
                                          "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"John\""
             },
@@ -3981,7 +3950,7 @@ int main(int argc, char *argv[])
                 WS                          "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"John\""
             },
@@ -3995,7 +3964,7 @@ int main(int argc, char *argv[])
                 WS                                   "]" WS,
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "John" WS "\""
             },
@@ -4009,7 +3978,7 @@ int main(int argc, char *argv[])
                 WS                                                   "]",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "John" WS "Doe" WS "\""
             },
@@ -4026,7 +3995,7 @@ int main(int argc, char *argv[])
                                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "-2.12345"
             },
@@ -4042,7 +4011,7 @@ int main(int argc, char *argv[])
                                           "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "0"
             },
@@ -4057,7 +4026,7 @@ int main(int argc, char *argv[])
                 WS                                       "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "-2.12345"
             },
@@ -4073,7 +4042,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "0"
             },
@@ -4089,7 +4058,7 @@ int main(int argc, char *argv[])
                 WS                                 "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "0"
             },
@@ -4106,7 +4075,7 @@ int main(int argc, char *argv[])
                                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Smith\""
             },
@@ -4122,7 +4091,7 @@ int main(int argc, char *argv[])
                                            "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Ryan\""
             },
@@ -4137,7 +4106,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Smith\""
             },
@@ -4153,7 +4122,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Ryan\""
             },
@@ -4168,7 +4137,7 @@ int main(int argc, char *argv[])
                 WS                                 "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Smith\""
             },
@@ -4184,7 +4153,7 @@ int main(int argc, char *argv[])
                 WS                                  "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Ryan\""
             },
@@ -4199,7 +4168,7 @@ int main(int argc, char *argv[])
                 WS                                           "]" WS,
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "Smith" WS "\""
             },
@@ -4215,7 +4184,7 @@ int main(int argc, char *argv[])
                 WS                                           "]" WS,
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "Ryan" WS "\""
             },
@@ -4230,7 +4199,7 @@ int main(int argc, char *argv[])
                 WS                                                         "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "Black" WS "Jack" WS "\""
             },
@@ -4246,13 +4215,15 @@ int main(int argc, char *argv[])
                 WS                                                         "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"" WS "New" WS "Deal" WS "\""
             },
 
+            //..
             // value (integer) -> value (string)
             // value (string)  -> value (integer)
+            //..
             {
                 L_,
                 "{"
@@ -4264,7 +4235,7 @@ int main(int argc, char *argv[])
                                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Smith\""
             },
@@ -4280,7 +4251,7 @@ int main(int argc, char *argv[])
                                            "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Ryan\""
             },
@@ -4295,7 +4266,7 @@ int main(int argc, char *argv[])
                                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "12345"
             },
@@ -4311,7 +4282,7 @@ int main(int argc, char *argv[])
                                           "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "12345"
             },
@@ -4326,7 +4297,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Smith\""
             },
@@ -4342,7 +4313,7 @@ int main(int argc, char *argv[])
                 WS                           "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "\"Ryan\""
             },
@@ -4357,7 +4328,7 @@ int main(int argc, char *argv[])
                 WS                                 "]",
                 4,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "12345"
             },
@@ -4373,7 +4344,7 @@ int main(int argc, char *argv[])
                 WS                                  "]",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_VALUE,
+                Obj::e_ELEMENT_VALUE,
                 true,
                 "12345"
             },
@@ -4389,7 +4360,7 @@ int main(int argc, char *argv[])
                              "12345",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4403,7 +4374,7 @@ int main(int argc, char *argv[])
                 WS              "12345",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4417,7 +4388,7 @@ int main(int argc, char *argv[])
                              "\"John\"",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4431,7 +4402,7 @@ int main(int argc, char *argv[])
                 WS              "\"John\"",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4446,7 +4417,7 @@ int main(int argc, char *argv[])
                                "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4461,7 +4432,7 @@ int main(int argc, char *argv[])
                 WS                "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4475,7 +4446,7 @@ int main(int argc, char *argv[])
                                     "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4489,7 +4460,7 @@ int main(int argc, char *argv[])
                 WS                     "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4503,7 +4474,7 @@ int main(int argc, char *argv[])
                                     "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4517,7 +4488,7 @@ int main(int argc, char *argv[])
                 WS                     "12345",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4533,7 +4504,7 @@ int main(int argc, char *argv[])
                                   "]",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4549,7 +4520,7 @@ int main(int argc, char *argv[])
                 WS                   "]",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -4573,14 +4544,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
-                        Obj::BAEJSN_ERROR != X.tokenType());
+                        Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -4601,7 +4572,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_NAME
+        // TESTING 'advanceToNextToken' TO 'e_NAME'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -4657,8 +4628,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -4677,7 +4648,7 @@ int main(int argc, char *argv[])
                  "\"name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4687,7 +4658,7 @@ int main(int argc, char *argv[])
                  "\"name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4697,7 +4668,7 @@ int main(int argc, char *argv[])
                  "\"name\"\n",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4707,7 +4678,7 @@ int main(int argc, char *argv[])
                     "\"name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4717,7 +4688,7 @@ int main(int argc, char *argv[])
                 WS " \"name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4727,7 +4698,7 @@ int main(int argc, char *argv[])
                 WS " \"name\"" WS,
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4736,7 +4707,7 @@ int main(int argc, char *argv[])
                 WS "{\"element name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "element name"
             },
@@ -4745,7 +4716,7 @@ int main(int argc, char *argv[])
                 WS "{\"element " WS " name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "element " WS " name"
             },
@@ -4755,7 +4726,7 @@ int main(int argc, char *argv[])
                 WS " \"element " WS " name\"",
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "element " WS " name"
             },
@@ -4765,7 +4736,7 @@ int main(int argc, char *argv[])
                 WS " \"element " WS " name\"" WS,
                 1,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "element " WS " name"
             },
@@ -4780,7 +4751,7 @@ int main(int argc, char *argv[])
                   "\"name\"",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4793,7 +4764,7 @@ int main(int argc, char *argv[])
                 WS   "\"name\"",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "name"
             },
@@ -4806,7 +4777,7 @@ int main(int argc, char *argv[])
                   "\"bid_price\"",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "bid_price"
             },
@@ -4819,7 +4790,7 @@ int main(int argc, char *argv[])
                 WS   "\"bid_price\"",
                 3,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "bid_price"
             },
@@ -4836,7 +4807,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4851,7 +4822,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4867,7 +4838,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 8,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4883,7 +4854,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 8,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4900,7 +4871,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4915,7 +4886,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4931,7 +4902,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4947,7 +4918,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4962,7 +4933,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4977,7 +4948,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 5,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -4993,7 +4964,7 @@ int main(int argc, char *argv[])
                   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -5009,7 +4980,7 @@ int main(int argc, char *argv[])
                 WS   "\"date\"",
                 6,
                 true,
-                Obj::BAEJSN_ELEMENT_NAME,
+                Obj::e_ELEMENT_NAME,
                 true,
                 "date"
             },
@@ -5023,7 +4994,7 @@ int main(int argc, char *argv[])
                                   "\"value\"",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5035,7 +5006,7 @@ int main(int argc, char *argv[])
                 WS                   "\"value\"",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5049,7 +5020,7 @@ int main(int argc, char *argv[])
                                     "\"value\"",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5063,7 +5034,7 @@ int main(int argc, char *argv[])
                 WS                     "\"value\"",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5077,7 +5048,7 @@ int main(int argc, char *argv[])
                                     "\"value\"",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5091,7 +5062,7 @@ int main(int argc, char *argv[])
                 WS                     "\"value\"",
                 4,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5115,14 +5086,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
-                        Obj::BAEJSN_ERROR != X.tokenType());
+                        Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -5143,7 +5114,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_START_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -5199,8 +5170,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT" << endl
-              << "===================================================" << endl;
+              << "TESTING 'advanceToNextToken' TO 'e_START_OBJECT'" << endl
+              << "================================================" << endl;
 
         const struct {
             int             d_line;
@@ -5218,7 +5189,7 @@ int main(int argc, char *argv[])
                 "{",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5227,7 +5198,7 @@ int main(int argc, char *argv[])
                 WS "{",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5236,7 +5207,7 @@ int main(int argc, char *argv[])
                 "{" WS,
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5245,7 +5216,7 @@ int main(int argc, char *argv[])
                 WS "{" WS,
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5255,7 +5226,7 @@ int main(int argc, char *argv[])
                  "\"name\"",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5265,7 +5236,7 @@ int main(int argc, char *argv[])
                  "\"name\"",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5275,7 +5246,7 @@ int main(int argc, char *argv[])
                  "\"name\"\n",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5285,7 +5256,7 @@ int main(int argc, char *argv[])
                     "\"name\"",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5295,7 +5266,7 @@ int main(int argc, char *argv[])
                 WS "\"name\"",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5305,7 +5276,7 @@ int main(int argc, char *argv[])
                  "\"name\"" WS,
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5315,7 +5286,7 @@ int main(int argc, char *argv[])
                 WS  "\"name\"",
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5325,7 +5296,7 @@ int main(int argc, char *argv[])
                 WS " \"name\"" WS,
                 0,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5339,7 +5310,7 @@ int main(int argc, char *argv[])
                               "{",
                 2,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5351,7 +5322,7 @@ int main(int argc, char *argv[])
                 WS               "{" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5363,7 +5334,7 @@ int main(int argc, char *argv[])
                 WS                     "{" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5375,7 +5346,7 @@ int main(int argc, char *argv[])
                 WS                          "{" WS,
                 2,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5390,7 +5361,7 @@ int main(int argc, char *argv[])
                                 "{",
                 3,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5403,7 +5374,7 @@ int main(int argc, char *argv[])
                 WS                 "{",
                 3,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5416,7 +5387,7 @@ int main(int argc, char *argv[])
                 WS                 "{" WS,
                 3,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5433,7 +5404,7 @@ int main(int argc, char *argv[])
                                 "{",
                 5,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5448,7 +5419,7 @@ int main(int argc, char *argv[])
                 WS                 "{",
                 5,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5464,7 +5435,7 @@ int main(int argc, char *argv[])
                                 "{",
                 7,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5480,7 +5451,7 @@ int main(int argc, char *argv[])
                 WS                 "{",
                 7,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5498,7 +5469,7 @@ int main(int argc, char *argv[])
                 WS                 "{",
                 7,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5517,7 +5488,7 @@ int main(int argc, char *argv[])
                 WS                 "{" WS,
                 7,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5534,7 +5505,7 @@ int main(int argc, char *argv[])
                                 "{",
                 9,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5555,7 +5526,7 @@ int main(int argc, char *argv[])
                 WS                 "{",
                 9,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5577,7 +5548,7 @@ int main(int argc, char *argv[])
                 WS                 "{" WS,
                 9,
                 true,
-                Obj::BAEJSN_START_OBJECT,
+                Obj::e_START_OBJECT,
                 false,
                 ""
             },
@@ -5590,7 +5561,7 @@ int main(int argc, char *argv[])
                             "{",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5601,7 +5572,7 @@ int main(int argc, char *argv[])
                 WS             "{" WS,
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5614,7 +5585,7 @@ int main(int argc, char *argv[])
                                 "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5627,7 +5598,7 @@ int main(int argc, char *argv[])
                 WS                 "{" WS,
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5640,7 +5611,7 @@ int main(int argc, char *argv[])
                                       "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5653,7 +5624,7 @@ int main(int argc, char *argv[])
                 WS                    "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5666,7 +5637,7 @@ int main(int argc, char *argv[])
                                     "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5679,7 +5650,7 @@ int main(int argc, char *argv[])
                 WS                     "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5692,7 +5663,7 @@ int main(int argc, char *argv[])
                                    "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5705,7 +5676,7 @@ int main(int argc, char *argv[])
                 WS                    "{",
                 3,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5717,7 +5688,7 @@ int main(int argc, char *argv[])
                               "{",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5729,7 +5700,7 @@ int main(int argc, char *argv[])
                 WS               "{" WS,
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5741,7 +5712,7 @@ int main(int argc, char *argv[])
                               "{",
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5753,7 +5724,7 @@ int main(int argc, char *argv[])
                 WS               "{" WS,
                 2,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5777,14 +5748,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
                 ASSERTV(LINE, X.tokenType(),
-                        Obj::BAEJSN_ERROR != X.tokenType());
+                        Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -5879,7 +5850,7 @@ int main(int argc, char *argv[])
                 "",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5888,7 +5859,7 @@ int main(int argc, char *argv[])
                 "          ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5897,7 +5868,7 @@ int main(int argc, char *argv[])
                 "   \t       ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5906,7 +5877,7 @@ int main(int argc, char *argv[])
                 "\n          ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5915,7 +5886,7 @@ int main(int argc, char *argv[])
                 "      \n    ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5924,7 +5895,7 @@ int main(int argc, char *argv[])
                 "\n\t          ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5933,7 +5904,7 @@ int main(int argc, char *argv[])
                 "    \t  \n    ",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5942,7 +5913,7 @@ int main(int argc, char *argv[])
                 " \t\n\v\f\r",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5951,7 +5922,7 @@ int main(int argc, char *argv[])
                 WS,
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5962,7 +5933,7 @@ int main(int argc, char *argv[])
                 "]",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5971,7 +5942,7 @@ int main(int argc, char *argv[])
                 WS "]",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5980,7 +5951,7 @@ int main(int argc, char *argv[])
                 "}",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5989,7 +5960,7 @@ int main(int argc, char *argv[])
                 WS "}",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -5999,7 +5970,7 @@ int main(int argc, char *argv[])
                 "\"",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6008,7 +5979,7 @@ int main(int argc, char *argv[])
                 WS "\"",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6017,7 +5988,7 @@ int main(int argc, char *argv[])
                 ",",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6026,7 +5997,7 @@ int main(int argc, char *argv[])
                 WS ",",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6035,7 +6006,7 @@ int main(int argc, char *argv[])
                 ":",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6044,7 +6015,7 @@ int main(int argc, char *argv[])
                 WS ":",
                 0,
                 false,
-                Obj::BAEJSN_ERROR,
+                Obj::e_ERROR,
                 false,
                 ""
             },
@@ -6068,13 +6039,13 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(X.tokenType(), Obj::e_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -6113,7 +6084,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         Obj mX;  const Obj& X = mX;
-        ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+        ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

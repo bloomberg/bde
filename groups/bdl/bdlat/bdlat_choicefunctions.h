@@ -500,9 +500,9 @@ namespace bdlat_ChoiceFunctions {
         k_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
+      , UNDEFINED_SELECTION_ID       = k_UNDEFINED_SELECTION_ID
 
-      , k_UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
+      , BDEAT_UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -624,7 +624,7 @@ namespace bdlat_ChoiceFunctions {
 }  // close namespace bdlat_ChoiceFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                       // -------------------------------

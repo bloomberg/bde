@@ -36,15 +36,21 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Guarding units reservation in operations with btls::LeakyBucket
-///-------------------------------------------------------------------------
+///--------------------------------------------------------------------------
 // Suppose that we are limiting the rate of network traffic generation using a
 // 'btls::LeakyBucket' object.  We send data buffer over a network interface
 // using the 'mySendData' function:
 //..
-//  bsls::Types::Uint64 mySendData(size_t dataSize);
+//  static bsls::Types::Uint64 mySendData(size_t dataSize)
 //      // Send a specified 'dataSize' amount of data over the network.  Return
 //      // the amount of data actually sent.  Throw an exception if a network
 //      // failure is detected.
+//  {
+//      // In our example we don`t deal with actual data sending, so we assume
+//      // that the function has sent certain amount of data (3/4 of the
+//      // requested amount) successfully.
+//      return (dataSize * 3) >> 2;
+//  }
 //..
 // Notice that the 'mySendData' function may throw an exception; therefore, we
 // should wait until 'mySendData' returns before indicating the amount of data
@@ -64,23 +70,22 @@ BSLS_IDENT("$Id: $")
 // First, we define the size of each data chunk and the total size of the data
 // to send:
 //..
-//  const bsls::Types::Uint64 CHUNK_SIZE = 256;
-//  bsls::Types::Uint64 bytesSent        = 0;
-//  bsls::Types::Uint64 totalSize        = 10 * 1024; // in bytes
+//  const unsigned int  CHUNK_SIZE = 256;
+//  bsls::Types::Uint64 bytesSent  = 0;
+//  bsls::Types::Uint64 totalSize  = 10 * 1024; // in bytes
 //..
 // Then, we create a 'btls::LeakyBucket' object to limit the rate of data
 // transmission:
 //..
 //  bsls::Types::Uint64 rate     = 512;
 //  bsls::Types::Uint64 capacity = 1536;
-//  bsls::TimeInterval   now      = bdlt::CurrentTime::now();
-//  btls::LeakyBucket    bucket(rate, capacity, now);
+//  bsls::TimeInterval  now      = bdlt::CurrentTime::now();
+//  btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
 //..
 //  while (bytesSent < totalSize) {
-//
 //      now = bdlt::CurrentTime::now();
 //      if (!bucket.wouldOverflow(now)) {
 //..
@@ -88,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // 'btls::ReservationGuard' object to reserve the amount of data to be sent:
 //..
 //          btls::ReservationGuard<btls::LeakyBucket> guard(&bucket,
-//                                                        CHUNK_SIZE);
+//                                                          CHUNK_SIZE);
 //..
 // Then, we use the 'mySendData' function to send the data chunk over the
 // network.  After the data had been sent, we submit the amount of reserved
@@ -112,12 +117,11 @@ BSLS_IDENT("$Id: $")
 // time returned by the 'calculateTimeToSubmit' method:
 //..
 //      else {
-//
 //          bsls::TimeInterval timeToSubmit =
 //                                           bucket.calculateTimeToSubmit(now);
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-//          bdlqq::ThreadUtil::microSleep(uS);
+//          bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
 //      }
 //  }
 //..
@@ -136,9 +140,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace btls {
-                        // ======================
-                        // class ReservationGuard
-                        // ======================
+
+                          // ======================
+                          // class ReservationGuard
+                          // ======================
 
 template<class TYPE>
 class ReservationGuard {
@@ -198,12 +203,12 @@ class ReservationGuard {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class ReservationGuard
-                        // ----------------------
+                          // ----------------------
+                          // class ReservationGuard
+                          // ----------------------
 
 // CREATORS
 template <class TYPE>

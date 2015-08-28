@@ -292,9 +292,9 @@ namespace bdlqq {
 
 class Mutex;
 
-                        // =====================
-                        // class MutexAssert_Imp
-                        // =====================
+                           // =====================
+                           // class MutexAssert_Imp
+                           // =====================
 
 struct MutexAssert_Imp {
     // This 'struct' provides a (component private) namespace for

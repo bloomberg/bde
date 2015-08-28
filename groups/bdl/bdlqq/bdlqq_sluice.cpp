@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(bdlqq_sluice_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                    // ----------------------------------
-                    // class Sluice::GenerationDescriptor
-                    // ----------------------------------
+                     // ----------------------------------
+                     // class Sluice::GenerationDescriptor
+                     // ----------------------------------
 
 // CREATORS
 bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(

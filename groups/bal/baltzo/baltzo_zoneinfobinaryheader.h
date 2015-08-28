@@ -175,9 +175,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ==========================
-                        // class ZoneinfoBinaryHeader
-                        // ==========================
+                         // ==========================
+                         // class ZoneinfoBinaryHeader
+                         // ==========================
 
 class ZoneinfoBinaryHeader {
     // This simply constrained (value-semantic) attribute class represents the
@@ -401,9 +401,9 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class ZoneinfoBinaryHeader
-                        // --------------------------
+                         // --------------------------
+                         // class ZoneinfoBinaryHeader
+                         // --------------------------
 
 // CLASS METHODS
 inline

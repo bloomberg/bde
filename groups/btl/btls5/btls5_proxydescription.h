@@ -70,10 +70,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -84,11 +80,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
 namespace btls5 {
 
-                        // ======================
-                        // class ProxyDescription
-                        // ======================
+                           // ======================
+                           // class ProxyDescription
+                           // ======================
 
 class ProxyDescription {
     // This unconstrained (value-semantic) type describes a SOCKS5 proxy in
@@ -207,8 +205,6 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.
 
-}  // close package namespace
-
 // FREE FUNCTIONS
 void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
@@ -216,15 +212,13 @@ void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b);
     // behavior is undefined unless the two objects were created with the same
     // allocator.
 
-namespace btls5 {
-
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ----------------------
-                         // class ProxyDescription
-                         // ----------------------
+                           // ----------------------
+                           // class ProxyDescription
+                           // ----------------------
 
 // CREATORS
 inline
@@ -325,7 +319,7 @@ bool btls5::operator!=(const ProxyDescription& lhs,
 
 // FREE FUNCTIONS
 inline
-void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b)
+void btls5::swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b)
 {
     a.swap(b);
 }

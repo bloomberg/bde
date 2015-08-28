@@ -95,9 +95,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                         // ============
-                         // class Sluice
-                         // ============
+                                // ============
+                                // class Sluice
+                                // ============
 
 class Sluice {
     // This class controls the release of threads from a common synchronization

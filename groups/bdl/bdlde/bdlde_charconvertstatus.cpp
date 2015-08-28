@@ -9,18 +9,17 @@ BSLS_IDENT_RCSID(bdlde_charconvertstatus,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace bdlde {
-                     // ------------------------------
-                     // struct CharConvertStatus
-                     // ------------------------------
+
+                          // ------------------------
+                          // struct CharConvertStatus
+                          // ------------------------
 
 // CLASS METHODS
-bsl::ostream& CharConvertStatus::print(
-                                  bsl::ostream&                 stream,
-                                  CharConvertStatus::Enum value,
-                                  int                           level,
-                                  int                           spacesPerLevel)
+bsl::ostream& CharConvertStatus::print(bsl::ostream&           stream,
+                                       CharConvertStatus::Enum value,
+                                       int                     level,
+                                       int                     spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 
@@ -33,22 +32,21 @@ bsl::ostream& CharConvertStatus::print(
     return stream;
 }
 
-const char *CharConvertStatus::toAscii(
-                                           CharConvertStatus::Enum value)
+const char *CharConvertStatus::toAscii(CharConvertStatus::Enum value)
 {
     switch (value) {
-      case BDEDE_INVALID_CHARS_BIT: {
+      case k_INVALID_CHARS_BIT: {
         return  "INVALID_CHARS_BIT";                                  // RETURN
       } break;
-      case BDEDE_OUT_OF_SPACE_BIT: {
+      case k_OUT_OF_SPACE_BIT: {
         return  "OUT_OF_SPACE_BIT";                                   // RETURN
       } break;
     }
 
     return "(* UNKNOWN *)";
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

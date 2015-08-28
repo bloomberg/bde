@@ -50,14 +50,14 @@ int localPthreadsPolicy(int policy)
     typedef bdlqq::ThreadAttributes Attr;
 
     switch (policy) {
-      case Attr::BCEMT_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
-      case Attr::BCEMT_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
-      case Attr::BCEMT_SCHED_RR:      return SCHED_RR;                // RETURN
+      case Attr::e_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
+      case Attr::e_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
+      case Attr::e_SCHED_RR:      return SCHED_RR;                // RETURN
 #if defined(BSLS_PLATFORM_OS_HPUX)
-      case Attr::BCEMT_SCHED_DEFAULT:
+      case Attr::e_SCHED_DEFAULT:
       default:                        return SCHED_HPUX;              // RETURN
 #else
-      case Attr::BCEMT_SCHED_DEFAULT:
+      case Attr::e_SCHED_DEFAULT:
       default:                        return SCHED_OTHER;             // RETURN
 #endif
     }
@@ -86,12 +86,12 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     rc |= pthread_attr_setdetachstate(
                              dest,
-                             Attr::BCEMT_CREATE_DETACHED == src.detachedState()
+                             Attr::e_CREATE_DETACHED == src.detachedState()
                                                     ? PTHREAD_CREATE_DETACHED
                                                     : PTHREAD_CREATE_JOINABLE);
 
     int guardSize = src.guardSize();
-    if (Attr::BCEMT_UNSET_GUARD_SIZE != guardSize) {
+    if (Attr::e_UNSET_GUARD_SIZE != guardSize) {
         rc |= pthread_attr_setguardsize(dest, guardSize);
     }
 
@@ -102,7 +102,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         rc |= pthread_attr_setschedpolicy(dest, pthreadPolicy);
 
         int priority = src.schedulingPriority();
-        if (Attr::BCEMT_UNSET_PRIORITY != priority) {
+        if (Attr::e_UNSET_PRIORITY != priority) {
             sched_param param;
             rc |= pthread_attr_getschedparam(dest, &param);
             param.sched_priority = priority;
@@ -111,11 +111,11 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     }
 
     int stackSize = src.stackSize();
-    if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
+    if (Attr::e_UNSET_STACK_SIZE == stackSize) {
         stackSize = bdlqq::Configuration::defaultThreadStackSize();
     }
 
-    if (Attr::BCEMT_UNSET_STACK_SIZE != stackSize) {
+    if (Attr::e_UNSET_STACK_SIZE != stackSize) {
         // Note that if 'stackSize' is still unset, we just leave the '*dest'
         // to its default, initialized state.
 
@@ -189,9 +189,9 @@ class MachClockGuard {
 
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
-            // --------------------------------------------
-            // class ThreadUtilImpl<Platform::PosixThreads>
-            // --------------------------------------------
+                // --------------------------------------------
+                // class ThreadUtilImpl<Platform::PosixThreads>
+                // --------------------------------------------
 
 // CLASS DATA
 const pthread_t
@@ -238,16 +238,16 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
     int pPolicy;
 
     switch (policy) {
-      case Attributes::BCEMT_SCHED_FIFO: {
+      case Attributes::e_SCHED_FIFO: {
         pPolicy = SCHED_FIFO;
       }  break;
-      case Attributes::BCEMT_SCHED_RR: {
+      case Attributes::e_SCHED_RR: {
         pPolicy = SCHED_RR;
       }  break;
-      case Attributes::BCEMT_SCHED_OTHER: {
+      case Attributes::e_SCHED_OTHER: {
         pPolicy = SCHED_OTHER;
       }  break;
-      case Attributes::BCEMT_SCHED_DEFAULT: {
+      case Attributes::e_SCHED_DEFAULT: {
         pPolicy = SCHED_OTHER;
       }  break;
       default: {
@@ -332,16 +332,16 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
 
     typedef ThreadAttributes Attributes;
     switch (policy) {
-      case Attributes::BCEMT_SCHED_FIFO: {
+      case Attributes::e_SCHED_FIFO: {
         pPolicy = SCHED_FIFO;
       }  break;
-      case Attributes::BCEMT_SCHED_RR: {
+      case Attributes::e_SCHED_RR: {
         pPolicy = SCHED_RR;
       }  break;
-      case Attributes::BCEMT_SCHED_OTHER: {
+      case Attributes::e_SCHED_OTHER: {
         pPolicy = SCHED_OTHER;
       }  break;
-      case Attributes::BCEMT_SCHED_DEFAULT: {
+      case Attributes::e_SCHED_DEFAULT: {
         pPolicy = SCHED_OTHER;
       }  break;
       default: {

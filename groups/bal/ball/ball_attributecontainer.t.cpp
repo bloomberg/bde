@@ -3,15 +3,18 @@
 
 #include <ball_attribute.h>             // for testing only
 
+#include <bslim_testutil.h>
+
+#include <bslim_printer.h>
 #include <bsls_assert.h>
 #include <bsls_protocoltest.h>
 #include <bsls_types.h>
 
-#include <bsl_iostream.h>
-#include <bsl_set.h>
-
 #include <bsl_cstdlib.h>                      // atoi()
 #include <bsl_cstring.h>                      // strcmp(), memcmp(), memcpy()
+#include <bsl_iostream.h>
+#include <bsl_set.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -32,35 +35,60 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -82,11 +110,11 @@ typedef ball::AttributeContainer Obj;
 // "firmNumber".
 //
 // Note that this implementation requires no memory allocation, so it will be
-// more efficient than a more general set-based implementation if the
-// container is frequently created, destroyed, or modified.  We will develop a
-// 'ball::AttributeContainer' implementation that can hold any 'ball::Attribute'
-// value in example 2 (and one is provided by the 'bael' package in the
-// 'ball_defaultattributecontainer' component).
+// more efficient than a more general set-based implementation if the container
+// is frequently created, destroyed, or modified.  We will develop a
+// 'ball::AttributeContainer' implementation that can hold any
+// 'ball::Attribute' value in example 2 (and one is provided by the 'bael'
+// package in the 'ball_defaultattributecontainer' component).
 //..
       // serviceattributes.h
 
@@ -172,13 +200,12 @@ typedef ball::AttributeContainer Obj;
                                            int           level,
                                            int           spacesPerLevel) const
     {
-        char EL = (spacesPerLevel < 0) ? ' ' : '\n';
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-        stream << "[ "
-               << d_uuid << " "
-               << d_luw << " "
-               << d_firmNumber << " "
-               << "]" << EL;
+        bslim::Printer printer(&stream, level, spacesPerLevel);
+        printer.start();
+        printer.printAttribute("uuid", d_uuid);
+        printer.printAttribute("luw", d_luw);
+        printer.printAttribute("firmNumber", d_firmNumber);
+        printer.end();
         return stream;
     }
 //
@@ -252,10 +279,10 @@ typedef ball::AttributeContainer Obj;
 
         // MANIPULATORS
         void insert(const ball::Attribute& value);
-            // Add the specified value to this attribute set.
+            // Add the specified 'value' to this attribute set.
 
         bool remove(const ball::Attribute& value);
-            // Remove the specified value from this attribute set, return
+            // Remove the specified 'value' from this attribute set, return
             // 'true' if the attribute was found, and 'false' if 'value' was
             // not a member of this set.
 
@@ -312,16 +339,16 @@ typedef ball::AttributeContainer Obj;
                                       int           level,
                                       int           spacesPerLevel) const
     {
-        char EL = (spacesPerLevel < 0) ? ' ' : '\n';
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-        stream << "[" << EL;
+
+        bslim::Printer printer(&stream, level, spacesPerLevel);
+        printer.start();
 
         bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
         for (; it != d_set.end(); ++it) {
-            it->print(stream, level+1, spacesPerLevel);
+            printer.printValue(*it);
         }
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-        stream << "]" << EL;
+        printer.end();
+
         return stream;
     }
 
@@ -330,7 +357,7 @@ typedef ball::AttributeContainer Obj;
 //-----------------------------------------------------------------------------
 
 struct AttributeContainerTest :
-                               bsls::ProtocolTestImp<ball::AttributeContainer> {
+                              bsls::ProtocolTestImp<ball::AttributeContainer> {
     bool hasValue(const ball::Attribute&) const        { return markDone(); }
     bsl::ostream& print(bsl::ostream&, int, int) const
                                                       { return markDoneRef(); }
@@ -353,6 +380,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -360,8 +388,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
         //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
-        //   a buffer to test programmatically the printing examples.
+        //   all 'cout' statements in non-verbose mode, and add streaming to a
+        //   buffer to test programmatically the printing examples.
         //
         // Testing:
         //   USAGE EXAMPLE

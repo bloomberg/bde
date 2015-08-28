@@ -8,15 +8,17 @@
 #include <btlso_ipv4address.h>
 #include <btlso_platform.h>
 #include <btlso_resolveutil.h>
-#include <btlso_socketimputil.h>            // cleanup, startup
+#include <btlso_socketimputil.h>            // cleanup, start-up
 #include <btlso_tcptimereventmanager.h>
+
+#include <btlsc_timedcbchannel.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
 #include <bdlqq_mutex.h>
@@ -33,9 +35,10 @@
 
 #include <bsl_iostream.h>
 
+#include <bsl_cstdio.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
-#include <bsl_c_stdio.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -74,23 +77,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
@@ -98,9 +101,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 const char* hostName = "127.0.0.1";
 typedef btlsos::TcpTimedCbConnector  Obj;
 
@@ -136,9 +139,9 @@ struct TestCommand {
     char d_commandCode;    // a command to invoke a corresponding function,
                            // e.g., 'D' -- invoke the event manager's
                            // dispatch(); 'R' -- an "ACCEPT" request etc.
-    int d_channelType;     // a request for a 'btlsos::TcpCbChannel'
-                           // or 'btlsos::TcpTimedCbChannel', i.e., 1 for a
-                           // timed channel and 0 for a 'btlsos::TcpCbChannel'
+    int d_channelType;     // a request for a 'btlsos::TcpCbChannel' or
+                           // 'btlsos::TcpTimedCbChannel', i.e., 1 for a timed
+                           // channel and 0 for a 'btlsos::TcpCbChannel'
     int d_timedRequestFlag;// a request with/without timeout request
 
     int d_timeoutFlag;     // a flag to indicate if the request will timeout
@@ -149,8 +152,8 @@ struct TestCommand {
 
     int d_expNumEvents;    // the number of events after the execution of this
                            // command
-    int d_expNumTimers;    // the number of timers after the execution of
-                           // this command
+    int d_expNumTimers;    // the number of timers after the execution of this
+                           // command
     int d_expNumChannels;
 
     int d_cancelFlag;      // a flag to indicate if 'cancelAll' will be called
@@ -160,13 +163,13 @@ struct TestCommand {
                            // command is executed.
 };
 
-//=============================================================================
-//                      HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  USAGE EXAMPLES HELPER FUNCTIONS AND CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                USAGE EXAMPLES HELPER FUNCTIONS AND CLASSES
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -208,7 +211,7 @@ struct TestCommand {
         void writeCb(int                    status,
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *channel,
-                     int                    numBytes);
+                     int                    sequence);
 
       private:
         // Not implemented:
@@ -236,7 +239,7 @@ struct TestCommand {
     my_EchoClient::my_EchoClient(
                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                 btlso::TimerEventManager                       *manager,
-                int                                             numConnections,
+                int                                             maxConnections,
                 int                                             numMessages,
                 bslma::Allocator                               *basicAllocator)
     : d_allocator(factory, manager, basicAllocator)
@@ -244,7 +247,7 @@ struct TestCommand {
     , d_readTimeout(20.0)
     , d_writeTimeout(5,0)
     , d_numConnections(0)
-    , d_maxConnections(numConnections)
+    , d_maxConnections(maxConnections)
     , d_numMessages(numMessages)
     {
         ASSERT(factory);
@@ -467,9 +470,9 @@ void *echoClientThread(void *arg) {
     return arg;
 }
 
-//-----------------------------------------------------------------------------
-//  USAGE EXAMPLE: Data stream
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                        USAGE EXAMPLE: Data stream
+// ----------------------------------------------------------------------------
 
 ///Dual control and data channels
 ///- - - - - - - - - - - - - -  -
@@ -520,7 +523,7 @@ void *echoClientThread(void *arg) {
             // or 'manager' is 0.
 
         ~my_DataStream();
-        // Destroy this server.
+            // Destroy this server.
 
         // MANIPULATORS
         int setUpCallbacks();
@@ -605,10 +608,10 @@ void *echoClientThread(void *arg) {
                           int                          cancelFlag)
         // Verify the result of an "ACCEPT" request by comparing against the
         // expected values: If the specified 'validChannel' is nonzero, a new
-        // channel should be established; the return 'status' should be the
-        // same as the specified 'expStatus'.  If the specified 'cancelFlag' is
-        // nonzero, invoke the 'cancelAll()' on the specified 'acceptor' for
-        // test.
+        // 'btlsc::CbChannel' should be established; the specified return
+        // 'status' should be the same as the specified 'expStatus'.  If the
+        // specified 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the
+        // specified 'acceptor' for test.
     {
         if (validChannel) {
             ASSERT(channel);
@@ -639,9 +642,9 @@ extern "C"
 #endif
 void *threadToAcceptConnection(void *arg)
     // Create a server socket which is ready for accept connections.  The
-    // following information will be pass in through the specified 'arg':
-    // a pointer to a 'btlso::StreamSocket' to create the server socket; the
-    // port number the server will use.
+    // following information will be pass in through the specified 'arg': a
+    // pointer to a 'btlso::StreamSocket' to create the server socket; the port
+    // number the server will use.
 {
     ASSERT(arg);
 
@@ -863,10 +866,10 @@ class my_Tick {
         // to the modifiable 'stream'.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
         // operation, this object is valid, but its value is undefined.  If the
-        // specified 'version' is not supported, 'stream' is marked invalid,
-        // but this object is unaltered.  Note that no version is read from
-        // 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+        // 'version' is not supported, 'stream' is marked invalid, but this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // (See the package-group-level documentation for more information on
+        // 'bdex' streaming of container types.)
 
     void print(bsl::ostream& stream) const;
 };
@@ -997,11 +1000,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         my_TickerplantSimulator& operator=(const my_TickerplantSimulator&);
 
       public:
-        my_TickerplantSimulator(
-                              bsl::ostream&                   console,
-                              btlsc::TimedCbChannelAllocator *connector,
-                              btlso::TcpTimerEventManager    *d_eventManager_p,
-                              int                             inputSize);
+        my_TickerplantSimulator(bsl::ostream&                   console,
+                                btlsc::TimedCbChannelAllocator *connector,
+                                btlso::TcpTimerEventManager    *eventManager,
+                                int                             inputSize);
             // Create a non-blocking ticker-plant simulator using the specified
             // 'input' channel to read ASCII tick records of the specified
             // 'inputSize' and convert each record to a 'my_Tick' structure;
@@ -1012,8 +1014,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
             // exceeds 10 seconds, display a message on 'console' and abort the
             // transmission.  If three successive reads of the input channel
             // fail to produce a valid ticks, invalidate the channel and shut
-            // down this simulator.  The behavior is undefined unless 0 <
-            // inputSize.
+            // down this simulator.  The behavior is undefined unless
+            // '0 < inputSize'.
 
         ~my_TickerplantSimulator();
             // Destroy this simulator object.
@@ -1100,13 +1102,13 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
     void my_TickerplantSimulator::writeCb(int                    status,
                                           int                    asyncStatus,
                                           btlsc::TimedCbChannel *serverChannel,
-                                          int                    msgSize,
+                                          int                    messageSize,
                                           int                    maxTicks)
     {
         static int curNumTicks = 0;
         ASSERT(serverChannel);
-        ASSERT(0 < msgSize);
-        ASSERT(status <= msgSize);
+        ASSERT(0 < messageSize);
+        ASSERT(status <= messageSize);
 
         enum { k_TIME_LEN = 15 };  // 15 seconds
         bsls::TimeInterval now = bdlt::CurrentTime::now();
@@ -1114,13 +1116,13 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         const bsls::TimeInterval PERIOD(k_TIME_LEN, 0);
 
         // Tracing message: Print out any abnormal tick sending information.
-        if (msgSize != status) {
-            d_console << "msgSize = " << msgSize << "; status = "
+        if (messageSize != status) {
+            d_console << "messageSize = " << messageSize << "; status = "
                       << status << "; asyncStatus = " << asyncStatus
                       << bsl::endl;
         }
 
-        if (msgSize == status) {
+        if (messageSize == status) {
             // Encoded tick value written successfully.
             ++curNumTicks;
             if (0 == (curNumTicks % 200000)) {
@@ -1250,9 +1252,9 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1402,9 +1404,8 @@ int main(int argc, char *argv[])
               const int portNumber = argc > 3 ? atoi(argv[3]) : k_DEFAULT_PORT;
               const int inputSize  = argc > 4 ? atoi(argv[4]) : k_DEFAULT_SIZE;
 
-                // INBOUND:
-                // This simulator accepts connections on port 'DEFAULT_PORT'
-                // only.
+                // INBOUND: This simulator accepts connections on port
+                // 'DEFAULT_PORT' only.
 
                 btlso::IPv4Address serverAddress;
 

@@ -96,9 +96,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ========================
-                        // struct LocalTimeValidity
-                        // ========================
+                          // ========================
+                          // struct LocalTimeValidity
+                          // ========================
 
 struct LocalTimeValidity {
     // This 'struct' provides a namespace for enumerating the set of validity
@@ -117,11 +117,11 @@ struct LocalTimeValidity {
         e_VALID_AMBIGUOUS,  // Local time is *valid*, but *ambiguous*.
         e_INVALID           // Local time is *invalid*.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAETZO_VALID_UNIQUE    = e_VALID_UNIQUE
       , BAETZO_VALID_AMBIGUOUS = e_VALID_AMBIGUOUS
       , BAETZO_INVALID         = e_INVALID
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -181,9 +181,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, LocalTimeValidity::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                     // ------------------------
-                     // struct LocalTimeValidity
-                     // ------------------------
+                          // ------------------------
+                          // struct LocalTimeValidity
+                          // ------------------------
 
 // FREE OPERATORS
 inline

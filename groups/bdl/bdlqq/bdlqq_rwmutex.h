@@ -67,9 +67,9 @@ struct RWMutexImpl;
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                    // ================================
-                    // struct RWMutexImpl<PosixThreads>
-                    // ================================
+                      // ================================
+                      // struct RWMutexImpl<PosixThreads>
+                      // ================================
 
 template <>
 struct RWMutexImpl<Platform::PosixThreads> {
@@ -100,9 +100,9 @@ struct RWMutexImpl<Platform::PosixThreads> {
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                            // =============
-                            // class RWMutex
-                            // =============
+                               // =============
+                               // class RWMutex
+                               // =============
 
 class RWMutex {
     // This class is a platform-independent interface to a reader-writer lock
@@ -176,9 +176,9 @@ class RWMutex {
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
-                            // ------------------
-                            // struct RWMutexImpl
-                            // ------------------
+                             // ------------------
+                             // struct RWMutexImpl
+                             // ------------------
 
 // CREATORS
 inline
@@ -251,9 +251,9 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
-                            // -------------
-                            // class RWMutex
-                            // -------------
+                               // -------------
+                               // class RWMutex
+                               // -------------
 
 // CREATORS
 inline

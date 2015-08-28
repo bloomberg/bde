@@ -218,9 +218,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlc {
-                         // ================
-                         // class Queue
-                         // ================
+                                // ===========
+                                // class Queue
+                                // ===========
 
 template <class T>
 class Queue {
@@ -735,7 +735,7 @@ class Queue {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
 
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -750,7 +750,7 @@ class Queue {
         //
         // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -1147,7 +1147,7 @@ int bdlc::Queue<T>::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;  // Required by BDE policy; versions start at 1.
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
 
 // DEPRECATED METHODS
 
@@ -1165,7 +1165,7 @@ int bdlc::Queue<T>::maxSupportedBdexVersion()
     return 1;  // Required by BDE policy; versions start at 1.
 }
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 
 // CREATORS
 template <class T>

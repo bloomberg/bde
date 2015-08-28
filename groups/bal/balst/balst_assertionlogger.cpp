@@ -35,7 +35,7 @@ bsls::AtomicOperations::AtomicTypes::Pointer s_closure  = { 0 };
     // Closure value passed back to callback function.
 
 bsls::AtomicOperations::AtomicTypes::Int s_severity = {
-    ball::Severity::BAEL_FATAL
+    ball::Severity::e_FATAL
 };
     // Severity level used when no callback is installed.
 
@@ -54,7 +54,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
     ball::Severity::Level level =
          callback ? callback(closure, text, file, line) : defaultLogSeverity();
 
-    if (level > ball::Severity::BAEL_OFF) {
+    if (level > ball::Severity::e_OFF) {
         BALL_LOG_SET_CATEGORY("Assertion.Failure");
         BALL_LOG_STREAM(level)
             << "Assertion failed: "

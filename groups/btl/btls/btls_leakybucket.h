@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // which the resource is drained.  The capacity, measured in 'units', is the
 // maximum amount of the resource that the leaky bucket can hold before it
 // overflows.  'unit' is a generic unit of measurement (e.g., bytes, number of
-// messages, packets, liters, clock cycles, etc.).  Note that the drain rate
+// messages, packets, liters, clock cycles).  Note that the drain rate
 // determines average rate of resource consumption, while the capacity
 // restricts the time period over which the average actual rate of resource
 // consumption approaches the drain rate.
@@ -74,10 +74,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Suppose that we have an empty leaky bucket with a capacity of 'c = 5 units'
 // and a drain rate of 'd = 1 units/s'.  At 't0', we submit 5 units to the
-// leaky bucket, bringing the total number of units held up to 5.  At 't0 +
-// 4s', 4 units have been drained from the leaky bucket, bringing the number of
-// units held down to 1.  Finally, at 't0 + 10s', all units have been drained
-// from the leaky bucket, making it empty.
+// leaky bucket, bringing the total number of units held up to 5.  At
+// 't0 + 4s', 4 units have been drained from the leaky bucket, bringing the
+// number of units held down to 1.  Finally, at 't0 + 10s', all units have been
+// drained from the leaky bucket, making it empty.
 //
 // Unlike a real-life water bucket, units submitted to a leaky bucket don't
 // spillover after its capacity has been exceeded, instead the leaky bucket may
@@ -141,13 +141,13 @@ BSLS_IDENT("$Id: $")
 // Time: t0         t0 + 5s      t0 + 6s      t0 + 9s      t0 + 10s
 //..
 // Suppose that we have an empty leaky bucket with a capacity of 'c = 5 units'
-// and a drain rate of 'd = 1 units/s'.  At 't0' we reserve 4 units.  At 't0 +
-// 5s', we observe that none of the reserved units are drained from the leaky
-// bucket.  At 't0 + 6s', we submit 3 of the previously reserved units, which
-// brings the number of reserved units down to 1 and the number of units held
-// up to 3.  At 't0 + 9s', we observe that all but the remaining reserved unit
-// have been drained from the bucket.  Finally, at 't0 + 10s', we cancel the
-// remaining reserved unit.
+// and a drain rate of 'd = 1 units/s'.  At 't0' we reserve 4 units.  At
+// 't0 + 5s', we observe that none of the reserved units are drained from the
+// leaky bucket.  At 't0 + 6s', we submit 3 of the previously reserved units,
+// which brings the number of reserved units down to 1 and the number of units
+// held up to 3.  At 't0 + 9s', we observe that all but the remaining reserved
+// unit have been drained from the bucket.  Finally, at 't0 + 10s', we cancel
+// the remaining reserved unit.
 //
 ///Monitoring Resource Usage
 ///-------------------------
@@ -245,10 +245,18 @@ BSLS_IDENT("$Id: $")
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified data buffer over that network interface:
 //..
-//  bool sendData(const char *buffer, size_t dataSize);
+//  bool sendData(const char *buffer, size_t dataSize)
 //      // Send the specified 'buffer' of the specified size 'dataSize' through
 //      // the network interface.  Return 'true' if data was sent successfully,
 //      // and 'false' otherwise.
+//  {
+//      (void) buffer;
+//      (void) dataSize;
+//
+//      // In our example we don`t deal with actual data sending, so we assume
+//      // that the function sends data successfully and return true.
+//      return true;
+//  }
 //..
 // First, we create a leaky bucket having a drain rate of 512 bytes/s, a
 // capacity of 2560 bytes, and a time origin set to the current time (as an
@@ -257,8 +265,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsls::Types::Uint64 rate     = 512;  // bytes/second
 //  bsls::Types::Uint64 capacity = 2560; // bytes
-//  bsls::TimeInterval  now       = bdlt::CurrentTime::now();
-//
+//  bsls::TimeInterval  now      = bdlt::CurrentTime::now();
 //  btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
@@ -269,8 +276,7 @@ BSLS_IDENT("$Id: $")
 //  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
 //  bsls::Types::Uint64 dataSent   = 0;               // in bytes
 //
-//  // Load 'buffer'.
-//  // ...
+//  // Load 'buffer'...
 //..
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
@@ -303,7 +309,7 @@ BSLS_IDENT("$Id: $")
 //          // Round up the number of microseconds.
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                               ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
-//          bdlqq::ThreadUtil::microSleep(uS);
+//          bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
 //      }
 //  }
 //..
@@ -332,6 +338,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace btls {
+
                             // =================
                             // class LeakyBucket
                             // =================
@@ -390,8 +397,8 @@ class LeakyBucket {
 
     bsls::Types::Uint64 d_fractionalUnitDrainedInNanoUnits;
                                                // fractional number of units
-                                               // that is carried from the
-                                               // last drain operation
+                                               // that is carried from the last
+                                               // drain operation
 
     bsls::TimeInterval  d_lastUpdateTime;      // time of last drain, updated
                                                // via the 'updateState' method
@@ -478,14 +485,14 @@ class LeakyBucket {
 
     void reserve(bsls::Types::Uint64 numUnits);
         // Reserve the specified 'numUnits' for future use by this leaky
-        // bucket.  The behavior is undefined unless 'unitsReserved() +
-        // unitsInBucket() + numOfUnits' can be represented by a 64-bit
-        // unsigned integral type.  Note that after this operation, this bucket
-        // may overflow.  Also note that the time interval between the
-        // invocations of 'reserve' and 'submitReserved' or 'cancelReserved'
-        // should be kept as short as possible; otherwise, the precision of the
-        // time interval calculated by 'calculateTimeToSubmit' may be
-        // negatively affected.
+        // bucket.  The behavior is undefined unless
+        // 'unitsReserved() + unitsInBucket() + numOfUnits' can be represented
+        // by a 64-bit unsigned integral type.  Note that after this operation,
+        // this bucket may overflow.  Also note that the time interval between
+        // the invocations of 'reserve' and 'submitReserved' or
+        // 'cancelReserved' should be kept as short as possible; otherwise, the
+        // precision of the time interval calculated by 'calculateTimeToSubmit'
+        // may be negatively affected.
 
     void cancelReserved(bsls::Types::Uint64 numUnits);
         // Cancel the specified 'numUnits' that were previously reserved.  This
@@ -572,7 +579,7 @@ class LeakyBucket {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                             // -----------------
@@ -624,7 +631,6 @@ void LeakyBucket::submitReserved(bsls::Types::Uint64 numUnits)
 
     submit(numUnits);
 }
-
 
 inline
 void LeakyBucket::reset(const bsls::TimeInterval& currentTime)

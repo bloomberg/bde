@@ -82,26 +82,26 @@ bdlb::Float::Classification classifyImp(FloatRep_t number)
         // Zero exponent.  Number is either zero or subnormal.
         if (number & floatManMask) {
             // Zero exponent and non-zero mantissa.  Number is subnormal.
-            return bdlb::Float::BDES_SUBNORMAL;                       // RETURN
+            return bdlb::Float::k_SUBNORMAL;                       // RETURN
         }
         else {
             // Zero exponent and zero mantissa.  Number is zero.
-            return bdlb::Float::BDES_ZERO;                            // RETURN
+            return bdlb::Float::k_ZERO;                            // RETURN
         }
     }
     else if (floatExpMask == numberExp) {
         // Exponent is all ones: Number is either infinity or NaN
         if (number & floatManMask) {
             // Exponent is all ones and mantissa is non-zero.  Number is NaN.
-            return bdlb::Float::BDES_NAN;                             // RETURN
+            return bdlb::Float::k_NAN;                             // RETURN
         }
         else {
             // Exponent is all ones and mantissa is zero.  Number is infinite.
-            return bdlb::Float::BDES_INFINITE;                        // RETURN
+            return bdlb::Float::k_INFINITE;                        // RETURN
         }
     }
 
-    return bdlb::Float::BDES_NORMAL;
+    return bdlb::Float::k_NORMAL;
 }
 
 }  // close unnamed namespace
@@ -116,16 +116,16 @@ Float::FineClassification Float::classifyFine(float number)
 {
     FloatRep_t numberRep = toRep(number);
     int ret = classifyImp(numberRep);
-    if (BDES_NAN == ret) {
+    if (k_NAN == ret) {
         if (numberRep & floatHBitMask) {
-            ret = BDES_QNAN;
+            ret = k_QNAN;
         }
         else {
-            ret = BDES_SNAN;
+            ret = k_SNAN;
         }
     }
     else if (numberRep & floatSignMask) {
-        ret |= BDES_NEGATIVE;
+        ret |= k_NEGATIVE;
     }
 
     return static_cast<FineClassification>(ret);
@@ -219,26 +219,26 @@ bdlb::Float::Classification classifyImp(DoubleRep_t number)
         // Zero exponent.  Number is either zero or subnormal.
         if (number & doubleManMask) {
             // Zero exponent and non-zero mantissa.  Number is subnormal.
-            return bdlb::Float::BDES_SUBNORMAL;                       // RETURN
+            return bdlb::Float::k_SUBNORMAL;                       // RETURN
         }
         else {
             // Zero exponent and zero mantissa.  Number is zero.
-            return bdlb::Float::BDES_ZERO;                            // RETURN
+            return bdlb::Float::k_ZERO;                            // RETURN
         }
     }
     else if (doubleExpMask == numberExp) {
         // Exponent is all ones: Number is either infinity or NaN
         if (number & doubleManMask) {
             // Exponent is all ones and mantissa is non-zero.  Number is NaN.
-            return bdlb::Float::BDES_NAN;                             // RETURN
+            return bdlb::Float::k_NAN;                             // RETURN
         }
         else {
             // Exponent is all ones and mantissa is zero.  Number is infinite.
-            return bdlb::Float::BDES_INFINITE;                        // RETURN
+            return bdlb::Float::k_INFINITE;                        // RETURN
         }
     }
 
-    return bdlb::Float::BDES_NORMAL;
+    return bdlb::Float::k_NORMAL;
 }
 
 }  // close unnamed namespace
@@ -253,16 +253,16 @@ Float::FineClassification Float::classifyFine(double number)
 {
     DoubleRep_t numberRep = toRep(number);
     int ret = classifyImp(numberRep);
-    if (BDES_NAN == ret) {
+    if (k_NAN == ret) {
         if (numberRep & doubleHBitMask) {
-            ret = BDES_QNAN;
+            ret = k_QNAN;
         }
         else {
-            ret = BDES_SNAN;
+            ret = k_SNAN;
         }
     }
     else if (numberRep & doubleSignMask) {
-        ret |= BDES_NEGATIVE;
+        ret |= k_NEGATIVE;
     }
 
     return static_cast<FineClassification>(ret);
