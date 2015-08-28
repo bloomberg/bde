@@ -1,6 +1,7 @@
 // bdlb_print.t.cpp                                                   -*-C++-*-
 
 #include <bdlb_print.h>
+#include <bdls_testutil.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -12,9 +13,6 @@
 #include <bsl_strstream.h>
 
 #include <bsl_cctype.h>      // 'bsl::isspace'
-#if 0
-#include <bsl_cstdio.h>      // sprintf()
-#endif
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
 #include <bsl_sstream.h>     // 'bsl::ostringstream'
@@ -27,9 +25,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-//
-// This component namespace for a set of pure procedures.  Each function is
-// tested independently.
+// This component namespace for a set of functions, each tested independently.
 // ----------------------------------------------------------------------------
 // [ 3] indent(ostream& s, int l, int spl = 4);
 // [ 4] newlineAndIndent(ostream& s, int l, int spl = 4)
@@ -40,8 +36,8 @@ using namespace bsl;  // automatically added by script
 // [ 9] singleLineHexDump(ostream& s, INPUT_ITER b, INPUT_ITER e);
 // [ 9] singleLineHexDump(ostream& s, const char *b, const char *e);
 // [ 9] singleLineHexDump(ostream& s, const char *b, int l);
-// [ 6] struct bdlb::PrintStringHexDumper;
-// [10] struct bdlb::PrintStringSingleLineHexDumper;
+// [ 6] struct PrintStringHexDumper;
+// [10] struct PrintStringSingleLineHexDumper;
 // ----------------------------------------------------------------------------
 // [ 1] USAGE EXAMPLE
 
@@ -59,52 +55,42 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define L_ __LINE__
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
 // ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+//
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bdlb::Print Util;
+
 
 // ============================================================================
 //              SUPPORTING FUNCTIONS USED FOR TESTING
@@ -204,11 +190,10 @@ bsl::size_t generateHexRepresentation(char        *result,
     // 'length'.  Return the number of characters written.  Note that we will
     // use this function as an oracle.
 {
-    ASSERT(0 <= length);
-
     bsl::size_t ret = 0;
     for (bsl::size_t i = 0; i < length; ++i) {
-        const bsl::string s = ASCII_HEX_PRESENTATION[(unsigned char)input[i]];
+        const bsl::string s = ASCII_HEX_PRESENTATION[
+                                         static_cast<unsigned char>(input[i])];
         result[2 * i + 0] = s[0];
         result[2 * i + 1] = s[1];
         ret += 2;
@@ -287,20 +272,22 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'bdlb::PrintStringSingleLineHexDumper' CLASS
+        // TESTING 'PrintStringSingleLineHexDumper' CLASS
         //
         // Concerns:
         //: 1 Dumping via the class results in the same output as if done to
         //:   the stream directly.
         //
+        // Plan:
+        //: 1 Ad hoc test.
+        //
         // Testing:
-        //   ostream& operator<<(ostream&,
-        //                       const bdlb::PrintStringSingleLineHexDumper&)
+        //  struct PrintStringSingleLineHexDumper;
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-              "\n" "TESTING 'bdlb::PrintStringSingleLineHexDumper' CLASS" "\n"
-                   "====================================================" "\n";
+              "\n" "TESTING 'PrintStringSingleLineHexDumper' CLASS" "\n"
+                   "==============================================" "\n";
 
         static const char   SOME_STRING[]   = "ABCDefghIJKLmnopQRSTuvwXYZ";
         static const size_t SOME_STRING_LEN = sizeof SOME_STRING - 1;
@@ -310,7 +297,7 @@ int main(int argc, char *argv[])
 
         oss1 << bdlb::PrintStringSingleLineHexDumper(SOME_STRING,
                                                     SOME_STRING_LEN);
-        bdlb::Print::singleLineHexDump(oss2, SOME_STRING, SOME_STRING_LEN);
+        Util::singleLineHexDump(oss2, SOME_STRING, SOME_STRING_LEN);
 
         ASSERT(0 == strncmp(oss1.str().c_str(),
                             oss2.str().c_str(),
@@ -327,10 +314,10 @@ int main(int argc, char *argv[])
         //: 2 Exactly 'length' characters get dumped.
         //
         // Plan:
-        //   Build up a table of the hex representations of all 256 different
-        //   byte patterns.  After some preliminary tests, mechanically
-        //   create the expected output from the input and verify that that
-        //   each of the functions performs the same way.
+        //: 1 Build up a table of the hex representations of all 256 different
+        //:   byte patterns.  After some preliminary tests, mechanically create
+        //:   the expected output from the input and verify that that each of
+        //:   the functions performs the same way.
         //
         // Testing:
         //   singleLineHexDump(ostream& s, INPUT_ITER b, INPUT_ITER e);
@@ -350,9 +337,9 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i <= 255; ++i) {
             bsl::ostringstream oss;
-            char c = static_cast<char>(i);
+            char               c = static_cast<char>(i);
 
-            bdlb::Print::singleLineHexDump(oss, &c, 1) << bsl::flush;
+            Util::singleLineHexDump(oss, &c, 1) << bsl::flush;
 
             if (veryVerbose) {
                 bsl::cout
@@ -373,7 +360,7 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < LONG_STR_LEN; ++i) {
             bsl::ostringstream oss;
 
-            bdlb::Print::singleLineHexDump(oss, LONG_STR, i) << bsl::flush;
+            Util::singleLineHexDump(oss, LONG_STR, i) << bsl::flush;
 
             if (veryVerbose) {
                 bsl::cout
@@ -401,12 +388,14 @@ int main(int argc, char *argv[])
             bsl::size_t  len  = lengths[i];
             unsigned int seed = 19;
 
+            if (veryVerbose) { P(N) }
+
             generatePseudoRandomInputBufferData(inputBuffer, len, seed);
             bsl::size_t outLen = generateHexRepresentation(outBuf,
                                                            inputBuffer,
                                                            len);
 
-            if (veryVeryVerbose || veryVerbose && len < 50) {
+            if (veryVeryVerbose || (veryVerbose && len < 50)) {
                  cout << "     Input: "; printPrintable(inputBuffer, len);
                  cout << endl;
                  cout << "    Output: " << outBuf << endl;
@@ -416,36 +405,52 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream out1;
-                bdlb::Print::singleLineHexDump<const char *>(out1,
-                                                            inputBuffer,
-                                                            inputBuffer + len)
-                                                            << '\0' << bsl::flush;
-                LOOP2_ASSERT(i, len, outLen == strlen(out1.str().c_str()));
-                LOOP2_ASSERT(i, len, 0 == strcmp(out1.str().c_str(), outBuf));
+                Util::singleLineHexDump<const char *>(out1,
+                                                      inputBuffer,
+                                                      inputBuffer + len)
+                                                         << '\0' << bsl::flush;
+                LOOP2_ASSERT(i, len,
+                             outLen == bsl::strlen(out1.str().c_str()));
+                LOOP2_ASSERT(i, len,
+                             0      == bsl::strcmp(out1.str().c_str(),
+                                                   outBuf));
             }
 
             {
                 bsl::ostringstream out2;
-                bdlb::Print::singleLineHexDump(out2, INPUT_BUFFER,
-                                     INPUT_BUFFER + len) << '\0' << bsl::flush;
-                LOOP2_ASSERT(i, len, outLen == strlen(out2.str().c_str()));
-                LOOP2_ASSERT(i, len, 0 == strcmp(out2.str().c_str(), outBuf));
+                Util::singleLineHexDump(out2,
+                                        INPUT_BUFFER,
+                                        INPUT_BUFFER + len)
+                                                         << '\0' << bsl::flush;
+                LOOP2_ASSERT(i, len,
+                             outLen == bsl::strlen(out2.str().c_str()));
+                LOOP2_ASSERT(i, len,
+                             0      == bsl::strcmp(out2.str().c_str(),
+                                                   outBuf));
             }
 
             {
                 bsl::ostringstream out3;
-                bdlb::Print::singleLineHexDump(out3, inputBuffer,
-                                                    len) << '\0' << bsl::flush;
-                LOOP2_ASSERT(i, len, outLen == strlen(out3.str().c_str()));
-                LOOP2_ASSERT(i, len, 0 == strcmp(out3.str().c_str(), outBuf));
+                Util::singleLineHexDump(out3,
+                                        inputBuffer,
+                                        len) << '\0' << bsl::flush;
+                LOOP2_ASSERT(i, len,
+                             outLen == bsl::strlen(out3.str().c_str()));
+                LOOP2_ASSERT(i, len,
+                             0      == bsl::strcmp(out3.str().c_str(),
+                                                   outBuf));
             }
 
             {
                 bsl::ostringstream out4;
-                ::originalSingleLineHexDump(out4, inputBuffer,
-                                                    len) << '\0' << bsl::flush;
-                LOOP2_ASSERT(i, len, outLen == strlen(out4.str().c_str()));
-                LOOP2_ASSERT(i, len, 0 == strcmp(out4.str().c_str(), outBuf));
+                ::originalSingleLineHexDump(out4,
+                                            inputBuffer,
+                                            len) << '\0' << bsl::flush;
+                LOOP2_ASSERT(i, len,
+                             outLen == bsl::strlen(out4.str().c_str()));
+                LOOP2_ASSERT(i, len,
+                             0      == bsl::strcmp(out4.str().c_str(),
+                                                   outBuf));
             }
         }
 
@@ -556,9 +561,18 @@ int main(int argc, char *argv[])
             const bool  EXPAND          = DATA[i].d_expandSlash;
             const char *EXPECTED_RESULT = DATA[i].d_expectedResult;
             const int   LEN             = bsl::strlen(SPEC);
+
+            if (veryVerbose) {
+                    P_(LINE)
+                    P_(SPEC)
+                    P_(EXPAND)
+                    P_(EXPECTED_RESULT)
+                    P(LEN)
+            }
+
             stringstream ss;
 
-            ostream& ret = bdlb::Print::printString(ss, SPEC, LEN, EXPAND);
+            ostream& ret = Util::printString(ss, SPEC, LEN, EXPAND);
 
             LOOP_ASSERT(LINE, &ss == &ret);
             LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -572,11 +586,18 @@ int main(int argc, char *argv[])
             const int   LEN    = bsl::strlen(SPEC);
             const bool  EXPAND = DATA[i].d_expandSlash;
 
+            if (veryVerbose) {
+                P_(LINE)
+                P_(SPEC)
+                P_(LEN)
+                P(EXPAND)
+            }
+
             stringstream ss;
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdlb::Print::printString(ss, SPEC, LEN, EXPAND);
+            ostream& ret = Util::printString(ss, SPEC, LEN, EXPAND);
 
             LOOP_ASSERT(LINE, &ss == &ret);
             LOOP2_ASSERT(LINE, ss.str(), "" == ss.str());
@@ -591,7 +612,7 @@ int main(int argc, char *argv[])
 
             stringstream ss;
 
-            ostream& ret = bdlb::Print::printString(ss, SPEC, LEN, false);
+            ostream& ret = Util::printString(ss, SPEC, LEN, false);
 
             ASSERT(&ss == &ret);
             LOOP2_ASSERT(ss.str(), EXPECTED_RETURN,
@@ -600,7 +621,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING HEXDUMP (Multiple buffers)
+        // TESTING 'hexDump' (MULTIPLE BUFFERS)
         //
         // Concerns:
         //: 1 When multiple buffers are printed out, on the border where one
@@ -638,8 +659,8 @@ int main(int argc, char *argv[])
         //    hexDump(ostream& s, bsl::pair<const char *, int> *b, int nb)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING HEXDUMP (Multiple buffers)" "\n"
-                                  "==================================" "\n";
+        if (verbose) cout << "\n" "TESTING 'hexDump' (MULTIPLE BUFFERS)" "\n"
+                                  "====================================" "\n";
 
         {
             if (verbose) cout << "a.  Small buffers test."  << endl;
@@ -648,7 +669,8 @@ int main(int argc, char *argv[])
                    k_SIZE               = 1024 };
 
             bsl::pair<const char *, int> buffers[k_NUM_STATIC_BUFFERS];
-            char                         staticBuffers[k_NUM_STATIC_BUFFERS][1];
+            char                         staticBuffers[k_NUM_STATIC_BUFFERS]
+                                                                           [1];
 
             for (int i=0; i < k_NUM_STATIC_BUFFERS; i++) {
                 staticBuffers[i][0] = 'a' + (i % 26);
@@ -656,7 +678,7 @@ int main(int argc, char *argv[])
             }
 
             char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
-            bdlb::Print::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
+            Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
             ASSERT(0 == strncmp(buf,
                                 expectedOutCase7[0].c_str(),
                                 expectedOutCase7[0].size()));
@@ -675,17 +697,18 @@ int main(int argc, char *argv[])
                    k_SIZE               = 1024 };
 
             bsl::pair<const char *, int> buffers[k_NUM_STATIC_BUFFERS];
-            char staticBuffers[k_NUM_STATIC_BUFFERS][k_NUM_STATIC_BUFFERS];
+            char                         staticBuffers[k_NUM_STATIC_BUFFERS]
+                                                        [k_NUM_STATIC_BUFFERS];
 
-            for (int i=0; i < k_NUM_STATIC_BUFFERS; i++) {
-                for (int j=0; j <=i; j ++ ) {
-                  staticBuffers[i][j] = 'a' + (j % 26);
+            for (int i = 0; i < k_NUM_STATIC_BUFFERS; i++) {
+                for (int j = 0; j <= i; j ++ ) {
+                    staticBuffers[i][j] = 'a' + (j % 26);
                 }
                 buffers[i] = bsl::make_pair(&staticBuffers[i][0], i + 1);
             }
 
             char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
-            bdlb::Print::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
+            Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
             ASSERT(0 == strncmp(buf,
                                 expectedOutCase7[1].c_str(),
                                 expectedOutCase7[1].size()));
@@ -706,12 +729,13 @@ int main(int argc, char *argv[])
             };
 
             bsl::pair<const char *, int> buffers[k_NUM_STATIC_BUFFERS];
-            char staticBuffers[k_NUM_STATIC_BUFFERS][2 * k_CHAR_PER_LINE];
+            char                         staticBuffers[k_NUM_STATIC_BUFFERS]
+                                                         [2 * k_CHAR_PER_LINE];
 
             for (int i=0; i < k_NUM_STATIC_BUFFERS; i++) {
                 for (int j=0; j < k_CHAR_PER_LINE; j++ ) {
-                  staticBuffers[i][j]                   = 'a';
-                  staticBuffers[i][k_CHAR_PER_LINE + j] = 'B';
+                    staticBuffers[i][j]                   = 'a';
+                    staticBuffers[i][k_CHAR_PER_LINE + j] = 'B';
                 }
                 buffers[i] = bsl::make_pair(&staticBuffers[i][0],
                                             k_CHAR_PER_LINE
@@ -719,7 +743,7 @@ int main(int argc, char *argv[])
             }
 
             char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
-            bdlb::Print::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
+            Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
             ASSERT(0 == strncmp(buf, expectedOutCase7[2].c_str(),
                                      expectedOutCase7[2].size()));
 
@@ -735,20 +759,21 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'bdlb::PrintStringHexDumper':
+        // TESTING 'PrintStringHexDumper'
         //
         // Concerns:
-        //   That the output resulting from the use of this struct and its
-        //   output operator tis the same as the corresponding dump method.
+        //: 1 That the output resulting from the use of this struct and its
+        //:   output operator is the same as the corresponding dump method.
         //
         // Plan:
-        //   Use the same test input and expected output as in case 5.
+        //: 1 Use the same test input and expected output as in case 5.
         //
         // Testing:
-        //   struct bdlb::PrintStringHexDumper;
+        //   struct PrintStringHexDumper;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'bdlb::PrintStringHexDumper'." << endl;
+        if (verbose) cout << "\n" "TESTING 'PrintStringHexDumper'" "\n"
+                                  "==============================" "\n";
         {
             const int SIZE = 256;
 
@@ -792,11 +817,11 @@ int main(int argc, char *argv[])
 
                 char buf[SIZE];  bsl::strstream out(buf, SIZE);
                 out << bdlb::PrintStringHexDumper(INPUT.c_str(),
-                                                 INPUT.length());
+                                                  INPUT.length());
 
                 bsl::string OUTPUT(buf, out.pcount());
 
-                if (verbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
+                if (veryVerbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
 
                 LOOP_ASSERT(LINE, OUTPUT == EXPECTED);
             }
@@ -805,27 +830,28 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING HEX DUMP
+        // TESTING 'hexDump'
         //
         // Concerns:
-        //   That the input buffer is formatted correctly.
+        //: 1 The input buffer is formatted correctly.
         //
         // Plan:
-        //   Use the format array at the top of this file to test inputs of
-        //  varying length from 0 to 16.
+        //: 2 Use the format array at the top of this file to test inputs of
+        //:   varying length from 0 to 16.
         //
         // Testing:
         //   hexDump(ostream& s, const char *b, int l);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'hexDump'." << endl;
+        if (verbose) cout << "\n" "TESTING 'hexDump'" "\n"
+                                  "=================" "\n";
         {
-            const int SIZE = 256;
+            const int k_SIZE = 256;
 
             // Prepare input buffer.
 
-            char input[SIZE];
-            for (int i = 0; i < SIZE; ++i) {
+            char input[k_SIZE];
+            for (int i = 0; i < k_SIZE; ++i) {
                 input[i] = static_cast<char>(i);
             }
 
@@ -834,8 +860,8 @@ int main(int argc, char *argv[])
                 bsl::string d_expected;
                 bsl::string d_input;
             } DATA[] = {
-                //line no.  expected output                 input
-                //-------   ---------------        ----------------------
+                //LINE      EXPECTED output        INPUT
+                //----      ---------------        ----------------------
                 { L_,       expectedOut[ 0],       bsl::string(input,  0)   },
                 { L_,       expectedOut[ 1],       bsl::string(input,  1)   },
                 { L_,       expectedOut[ 2],       bsl::string(input,  2)   },
@@ -861,12 +887,12 @@ int main(int argc, char *argv[])
                 const bsl::string& EXPECTED = DATA[ti].d_expected;
                 const bsl::string& INPUT    = DATA[ti].d_input;
 
-                char buf[SIZE];  bsl::strstream out(buf, SIZE);
-                bdlb::Print::hexDump(out, INPUT.c_str(), INPUT.length());
+                char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
+                Util::hexDump(out, INPUT.c_str(), INPUT.length());
 
                 bsl::string OUTPUT(buf, out.pcount());
 
-                if (verbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
+                if (veryVerbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
 
                 LOOP_ASSERT(LINE, OUTPUT == EXPECTED);
             }
@@ -875,22 +901,22 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING NEWLINEANDINDENT METHOD
+        // TESTING 'newLineAndIndent'
         //
         // Concerns:
-        //   Ensure that the newlineAndIndent method prints properly for:
-        //     - negative, 0, and positive levels.
-        //     - negative, 0, and positive spaces per level.
+        //: 1 Ensure that the newlineAndIndent method prints properly for:
+        //:   1 Negative, 0, and positive levels.
+        //:   2 Negative, 0, and positive spaces per level.
         //
         // Plan:
-        //   Specifying a set of test vectors and verify the return value.
+        //: 1 Specifying a set of test vectors and verify the return value.
         //
         // Testing:
         //   newlineAndIndent(ostream& s, int l, int spl = 4)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'newLineAndindent'" << endl
-                                  << "==========================" << endl;
+        if (verbose) cout << "\n" "TESTING 'newLineAndIndent'" "\n"
+                                  "==========================" "\n";
 
         {
             static const struct {
@@ -918,12 +944,15 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            const int SIZE = 128; // Must be big enough to hold output string.
-            const char Z1 = (char) 0xff;  // Used to represent an unset char.
-            const char Z2 = 0x00;  // Value 2 used to represent an unset char.
+            const int  SIZE = 128;        // Must be big enough to hold output
+                                          // string.
+            const char Z1 = static_cast<char>(0xff);
+                                          // Used to represent an unset 'char'.
+            const char Z2 = 0x00;         // Value 2 used to represent an unset
+                                          // 'char'.
 
-            char mCtrlBuf1[SIZE];  memset(mCtrlBuf1, Z1, SIZE);
-            char mCtrlBuf2[SIZE];  memset(mCtrlBuf2, Z2, SIZE);
+            char        mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
+            char        mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
             const char *CTRL_BUF1 = mCtrlBuf1;
             const char *CTRL_BUF2 = mCtrlBuf2;
 
@@ -934,53 +963,57 @@ int main(int argc, char *argv[])
                 const char *const FMT  = DATA[ti].d_fmt_p;
 
                 char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
+                bsl::memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values
+                bsl::memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values
 
-                if (verbose) { P_(IND); P(SPL); }
-                if (veryVerbose) {
+                if (veryVerbose) { P_(IND); P(SPL); }
+
+                if (veryVeryVerbose) {
                     cout << "EXPECTED FORMAT: '" << FMT << '\'' << endl;
                 }
+
                 ostrstream out1(buf1, SIZE);
-                bdlb::Print::newlineAndIndent(out1, IND, SPL);  out1 << ends;
+                Util::newlineAndIndent(out1, IND, SPL);  out1 << ends;
+
                 ostrstream out2(buf2, SIZE);
-                bdlb::Print::newlineAndIndent(out2, IND, SPL);  out2 << ends;
-                if (veryVerbose) {
+                Util::newlineAndIndent(out2, IND, SPL);  out2 << ends;
+
+                if (veryVeryVerbose) {
                     cout << "ACTUAL FORMAT:   '" << buf1 << '\'' << endl;
                 }
 
-                const int SZ = (int) strlen(FMT) + 1;
+                const int SZ   = bsl::strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf1, FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE,
-                            0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                            0 == bsl::memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
                 LOOP_ASSERT(LINE,
-                            0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                            0 == bsl::memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING INDENT METHOD
-        //   Ensure that the indent method prints properly for:
-        //     - negative, 0, and positive levels.
-        //     - negative, 0, and positive spaces per level.
+        // TESTING 'indent'
+        //
+        // Concerns:
+        //: 1 The indent method prints properly for:
+        //:   1 Negative, 0, and positive levels.
+        //:   2 Negative, 0, and positive spaces per level.
         //
         // Plan:
-        //   Specifying a set of test vectors and verify the return value.
+        //: 1 Specifying a set of test vectors and verify the return value.
         //
         // Testing:
         //   indent(ostream& s, int l, int spl = 4);
-        //   static ostream&
-        //              indent(ostream& stream, int level, int spacesPerLevel);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'indent'" << endl
-                                  << "================" << endl;
+        if (verbose) cout << "\n" "TESTING 'indent'" "\n"
+                                  "================" "\n";
 
         {
             static const struct {
@@ -1012,12 +1045,16 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            const int SIZE = 128; // Must be big enough to hold output string.
-            const char Z1 = (char) 0xff;  // Used to represent an unset char.
-            const char Z2 = 0x00;  // Value 2 used to represent an unset char.
+            const int  SIZE = 128;   // Must be big enough to hold the output
+                                     // string.
+            const char Z1   = static_cast<char>(0xff);
+                                     // Used to represent an unset 'char'.
+            const char Z2   = 0x00;  // Value 2 used to represent an unset
+                                     // 'char'.
 
-            char mCtrlBuf1[SIZE];  memset(mCtrlBuf1, Z1, SIZE);
-            char mCtrlBuf2[SIZE];  memset(mCtrlBuf2, Z2, SIZE);
+            char mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
+            char mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
+
             const char *CTRL_BUF1 = mCtrlBuf1;
             const char *CTRL_BUF2 = mCtrlBuf2;
 
@@ -1028,64 +1065,62 @@ int main(int argc, char *argv[])
                 const char *const FMT    = DATA[ti].d_fmt_p;
 
                 char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
+                bsl::memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values
+                bsl::memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values
 
-                if (verbose) { P_(IND); P(SPL); }
-                if (veryVerbose) {
+                if (veryVerbose) { P_(IND); P(SPL); }
+                if (veryVeryVerbose) {
                     cout << "EXPECTED FORMAT: '" << FMT << '\'' << endl;
                 }
                 ostrstream out1(buf1, SIZE);
-                bdlb::Print::indent(out1, IND, SPL);  out1 << ends;
+                Util::indent(out1, IND, SPL);  out1 << ends;
                 ostrstream out2(buf2, SIZE);
-                bdlb::Print::indent(out2, IND, SPL);  out2 << ends;
-                if (veryVerbose) {
+                Util::indent(out2, IND, SPL);  out2 << ends;
+                if (veryVeryVerbose) {
                     cout << "ACTUAL FORMAT:   '" << buf1 << '\'' << endl;
                 }
 
-                const int SZ = (int) strlen(FMT) + 1;
+                const int SZ   = bsl::strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf1, FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE,
-                            0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                            0 == bsl::memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
                 LOOP_ASSERT(LINE,
-                            0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                            0 == bsl::memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING PRINT POINTER FUNCTION
+        // TESTING 'printPtr'
         //
         // Concerns:
-        //   1.   Leading zeros are suppressed.
-        //   2    Embedded zeros are displayed.
-        //   3.   Values don't get confused for negative numbers.
-        //   4.   Case is always lower case for a, b, c, d, e, and f"
-        //   5.   Upper and lower 32-bits treated the same.
+        //: 1 Leading zeros are suppressed.
+        //: 2 Embedded zeros are displayed.
+        //: 3 Values do not get confused for negative numbers.
+        //: 4 Case is always lower case for a, b, c, d, e, and f.
+        //: 5 Upper and lower 32-bits treated the same.
         //
         // Plan:
-        //   Create a table consisting of high an low 32-bit address values
-        //   and the expected print value.  Depending on the architecture
-        //   test all the addresses or just those with the upper 32-bit
-        //   values 0.
+        //: 1 Create a table consisting of high an low 32-bit address values
+        //:   and the expected print value.  Depending on the architecture test
+        //:   all the addresses or just those with the upper 32-bit values 0.
         //
         // Testing:
         //   printPtr(ostream& stream, const void *value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Test 'printPtr' function." << endl
-                                  << "=========================" << endl;
+        if (verbose) cout << "\n" "TESTING 'printPtr'" "\n"
+                                  "==================" "\n";
 
-        if (verbose) cout << "\nTesting printPtr function" << endl;
         static const struct {
-                unsigned int addr1;             // MS 32 bits
-                unsigned int addr2;             // LS 32 bits
-                const char * str;
+            unsigned int  d_addr1;             // MS 32 bits
+            unsigned int  d_addr2;             // LS 32 bits
+            const char   *d_str;
         } DATA[] = {
                 {  0x0,           0x0,              "0"                },
                 {  0x0,           0x1,              "1"                },
@@ -1138,37 +1173,39 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int t = 0; t < NUM_DATA; ++t) {
-            char buf[100];  memset(buf, 0xff, sizeof buf);  // Scribble on buf.
+            char       buf[100];  bsl::memset(buf, 0xff, sizeof buf);
             ostrstream out(buf, sizeof buf);
 
             // test if 64-bit pointers or if value has only 32 bits
             #if defined(BSLS_PLATFORM_CPU_64_BIT)
             {
-                void *p = (void *) ((((bsls::Types::Int64)
-                                        DATA[t].addr1) << 32) + DATA[t].addr2);
-                bdlb::Print::printPtr(out, p);
+                void *p = reinterpret_cast<void *>(
+                       (static_cast<bsls::Types::Int64>(DATA[t].d_addr1) << 32)
+                     + DATA[t].d_addr2);
+
+                Util::printPtr(out, p);
                 out << ends;
 
                 if (veryVerbose) {
-                    cout << "EXPECTED: " << DATA[t].str;
+                    cout << "EXPECTED: " << DATA[t].d_str;
                     cout << "  ACTUAL: " << buf;
                     cout << endl;
                 }
 
-                ASSERT(strcmp(buf, DATA[t].str) == 0);
+                ASSERT(0 == bsl::strcmp(buf, DATA[t].d_str));
             }
             #else  // BSLS_PLATFORM_CPU_32_BIT
-            if (0 == DATA[t].addr1) {
-                bdlb::Print::printPtr(out, (void *) DATA[t].addr2);
+            if (0 == DATA[t].d_addr1) {
+                    Util::printPtr(out, (void *) DATA[t].d_addr2);
                 out << ends;
 
                 if (veryVerbose) {
-                    cout << "EXPECTED: " << DATA[t].str;
+                    cout << "EXPECTED: " << DATA[t].d_str;
                     cout << "  ACTUAL: " << buf;
                     cout << endl;
                 }
 
-                ASSERT(strcmp(buf, DATA[t].str) == 0);
+                ASSERT(0 == bsl::strcmp(buf, DATA[t].d_str));
             }
             #endif
         }
@@ -1245,15 +1282,11 @@ int main(int argc, char *argv[])
     out2b << bdlb::PrintStringSingleLineHexDumper(buf, sizeof buf);
 //..
 // The 'bdlb::PrintStringSingleLineHexDumper' provides a simple, single-line
-// represenation.
+// representation.
 //..
     ASSERT("6162636465666768696A6B6C6D6E6F707172737475767778797A00"
         == out2b.str());
 //..
-
-
-
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
