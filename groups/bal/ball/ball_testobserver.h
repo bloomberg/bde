@@ -65,9 +65,8 @@ BSLS_IDENT("$Id: $")
 // testing observer's purpose is simply to report what has been presented to
 // its 'publish' method.
 //..
-// TBD: Fix List reference
 //     ball::RecordAttributes attributes;
-//     bdlmxxx::List             list;
+//     ball::UserFields       list;
 //     ball::Record           record(attributes, list);
 //     ball::Context          context;
 //..

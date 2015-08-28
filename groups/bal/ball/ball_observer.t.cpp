@@ -176,10 +176,10 @@ int main(int argc, char *argv[])
 
             my_OstreamObserver    myObserver(out);
             ball::Observer&        observer =
-                                      dynamic_cast<ball::Observer&>(myObserver);
+                                     dynamic_cast<ball::Observer&>(myObserver);
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            ball::UserFields  userValues;
+            ball::UserFields       userValues;
 
 
             if (verbose)

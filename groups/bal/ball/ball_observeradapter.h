@@ -72,8 +72,7 @@ BSLS_IDENT("$Id: $")
 //                << fixedFields.category()                << ' '
 //                << fixedFields.message()                 << ' ';
 //
-// TBD: Fix List reference
-//      const bdlmxxx::List& userFields = record.userFields();
+//      const ball::UserFields& userFields = record.userFields();
 //      const int numUserFields = userFields.length();
 //      for (int i = 0; i < numUserFields; ++i) {
 //          *d_stream << userFields[i] << ' ';

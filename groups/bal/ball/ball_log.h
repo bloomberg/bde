@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides preprocessor macros and utility
 // functions to facilitate use of the 'ball_loggermanager' component.  In
-// particular, the macros defined herein greatly simplify the mechanics of
-// by the macros and should *not* be called directly.
-// generating log records.  The utility functions are only intended for use
+// particular, the macros defined herein greatly simplify the mechanics of by
+// the macros and should *not* be called directly. generating log records.  The
+// utility functions are only intended for use
 //
 ///Thread-Safety
 ///-------------
@@ -48,17 +48,19 @@ BSLS_IDENT("$Id: $")
 //      block (or else a compiler diagnostic will result).
 //
 //  BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)
+
 //      Set, *on EACH invocation*, the category for logging to the specified
 //      'CATEGORY' (assumed to be of type convertible to 'const char *').  On
 //      *EVERY* invocation of this macro in a code block, the
-//      'ball::Log::setCategory' method is invoked to retrieve the address of an
-//      appropriate category structure for its scope; the address returned from
-//      'ball::Log::setCategory' is *NOT* cached for subsequent calls.  (See the
-//      function-level documentation of 'ball::Log::setCategory' for more
-//      information.)  Note that this macro should be used to create categories
-//      that depend on *RUN-TIME* values only (e.g., LUW or UUID).  Also note
-//      that this macro must be used at block scope and can be used at most
-//      once in any given block (or else a compiler diagnostic will result).
+//      'ball::Log::setCategory' method is invoked to retrieve the address of
+//      an appropriate category structure for its scope; the address returned
+//      from 'ball::Log::setCategory' is *NOT* cached for subsequent calls.
+//      (See the function-level documentation of 'ball::Log::setCategory' for
+//      more information.)  Note that this macro should be used to create
+//      categories that depend on *RUN-TIME* values only (e.g., LUW or UUID).
+//      Also note that this macro must be used at block scope and can be used
+//      at most once in any given block (or else a compiler diagnostic will
+//      result).
 //..
 // Note that there can be at most one use of either 'BALL_LOG_SET_CATEGORY' or
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY' in any given block (or else a compiler
@@ -102,10 +104,9 @@ BSLS_IDENT("$Id: $")
 //      established by the 'BALL_LOG_SET_CATEGORY' (or
 //      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //..
-// TBD:FIX blmxxx references
 // Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
 // allow the caller to specify a "callback" function which is passed the
-// 'bdlmxxx::List *' used to represent the user fields of a log record.  The
+// 'ball::UserFields *' used to represent the user fields of a log record.  The
 // callback is expected to populate these user fields according to the schema
 // specified in the logger manager configuration.  'BALL_LOGCB_TRACE',
 // 'BALL_LOGCB_DEBUG', 'BALL_LOGCB_INFO', 'BALL_LOGCB_WARN',
@@ -119,16 +120,17 @@ BSLS_IDENT("$Id: $")
 //  BALL_LOGCB_ERROR(CB) << X << Y ... << BALL_LOGCB_END
 //  BALL_LOGCB_FATAL(CB) << X << Y ... << BALL_LOGCB_END
 //      where X, Y, ... represents any sequence of values for which
-//      'operator<<' is defined and 'CB' is a callback taking a 'bdlmxxx::List *'
-//      as an argument.  The resulting formatted message string is logged with
-//      the severity indicated by the name of the initial macro (e.g.,
-//      'BALL_LOGCB_ERROR' ... 'BALL_LOGCB_END' logs with severity
-//      'ball::Severity::e_ERROR').  The log record will contain the
-//      'bdlmxxx::List' representing user fields as populated by 'CB'.  Note that
-//      the formatted string includes the category and filename as established
-//      by the 'BALL_LOG_SET_CATEGORY' (or 'BALL_LOG_SET_DYNAMIC_CATEGORY')
-//      and '__FILE__' macros, respectively.  Note the callback supplied to the
-//      logging macro must match the prototype 'void (*)(bdlmxxx::List *)'.
+//      'operator<<' is defined and 'CB' is a callback taking a 
+//      'ball::UserFields *' as an argument.  The resulting formatted message
+//      string is logged with the severity indicated by the name of the
+//      initial macro (e.g., 'BALL_LOGCB_ERROR' ... 'BALL_LOGCB_END' logs with
+//      severity 'ball::Severity::e_ERROR').  The log record will contain the
+//      'ball::UserFields' representing user fields as populated by 'CB'.
+//      Note that the formatted string includes the category and filename as
+//      established by the 'BALL_LOG_SET_CATEGORY' (or
+//      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
+//      Note the callback supplied to the logging macro must match the
+//      prototype 'void (*)(ball::UserFields *)'. 
 //..
 // The remaining macros are based on 'printf'-style format specifications:
 //..
@@ -475,26 +477,27 @@ BSLS_IDENT("$Id: $")
 // logging line.
 //
 // We define a callback function 'populateUsingPoint' that appends to the
-// specified 'list' the attributes of the 'point' to log:
+// specified 'fields' the attributes of the 'point' to log:
 //..
-//  void populateUsingPoint(bdlmxxx::List *list, const Point& point)
+//  void populateUsingPoint(ball::UserFields *fields, const Point& point)
 //      // Append to the specified 'list' the name, x value, and y value of
 //      // the specified 'point'.
 //  {
-//      list->appendString(point.name());
-//      list->appendInt(point.x());
-//      list->appendInt(point.y());
+//      fields->appendString(point.name());
+//      fields->appendInt64(point.x());
+//      fields->appendInt64(point.y());
 //  }
 //
 //  int validatePoint(const Point& point)
 //  {
+//      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //..
 // We now bind our callback function 'populateUsingPoint' and the supplied
 // 'point' to a functor object we will pass to the logging callback.  Note
 // that the callback supplied to the logging macro must match the prototype
-// 'void (*)(bdlmxxx::List *)'.
+// 'void (*)(ball::UserFields *)'.
 //..
-//      bdlf::Function <void (*)(bdlmxxx::List *)> callback;
+//      bdlf::Function <void (*)(ball::UserFields *)> callback;
 //      callback = bdlf::BindUtil::bind(&populateUsingPoint,
 //                                     bdlf::PlaceHolders::_1,
 //                                     point);
@@ -519,23 +522,6 @@ BSLS_IDENT("$Id: $")
 //      return numErrors;
 //  }
 //..
-// The macros taking a callback implicitly allow for the string representation
-// of an object to be processed together with its complete structured
-// representation.  Consider a 'processTrade' function that logs a 'trade'
-// via 'BALL_LOGCB_INFO' using a hypothetical 'populate' callback:
-//..
-//  void processTrade(const Trade& trade)
-//  {
-//      BALL_LOGCB_INFO(bdlf::BindUtil::bind(&populate,
-//                                          bdlf::PlaceHolders::_1,
-//                                          trade))
-//          << "Process " << trade << BALL_LOGCB_END
-//  }
-//..
-// The string representation of each 'trade' will be logged via the normal
-// 'bael' mechanism.  In addition, an appropriate observer can be defined whose
-// 'publish' method stores each 'trade' in a database.
-//
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>

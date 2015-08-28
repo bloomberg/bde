@@ -2,6 +2,9 @@
 
 #include <ball_loggermanagerconfiguration.h>
 
+#include <ball_userfields.h>                                // for testing only
+#include <ball_userfieldsschema.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -116,6 +119,112 @@ typedef bdlf::Function<void (*)(ball::UserFields *,
 typedef bdlf::Function<void (*)(bsl::string *, const char *)> CnfCb;
 typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
 
+
+//=============================================================================
+//                             USAGE EXAMPLE 1
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// The following snippets of code illustrate how to use a
+// 'ball::LoggerManagerConfiguration' object.  
+//
+// First we define a simple function that will serve as a
+// 'UserFieldsPopulatorCallback', a callback that will be invoked for each
+// logged message to populate user defined fields for the log record:
+//..
+    void exampleCallback(ball::UserFields              *fields, 
+                         const ball::UserFieldsSchema&  schema)
+    {
+      // Verify the schema matches this callbacks expectations.
+//
+      BSLS_ASSERT(1                             == schema.length());
+      BSLS_ASSERT(ball::UserFieldType::e_STRING == schema.type(0));
+      BSLS_ASSERT("example"                     == schema.name(0));
+//
+      fields->appendString("example user field value");
+    }
+//..
+// Next, we define a function 'inititialize' in which we will create and
+// configure a 'ball::LoggerManagerConfiguration' object (see 
+// {'ball_loggermanager'} for an example of how to create the logger-manager
+// singleton object):
+//..
+    void initializeConfiguration(bool verbose) 
+    {
+      ball::LoggerManagerConfiguration config;
+//
+//..
+// Here, we configure the default record buffer size, logger buffer size, and
+// the various logging thresholds (see {'ball_loggermanager'} for more
+// information on the various threshold levels):
+//..
+      if (0 != config.setDefaultRecordBufferSizeIfValid(32768) ||
+          0 != config.setDefaultLoggerBufferSizeIfValid(1024)  ||
+          0 != config.setDefaultThresholdLevelsIfValid(0, 64, 0, 0)) {
+         bsl::cerr << "Failed set log configuration defaults." << bsl::endl;
+         bsl::exit(-1);
+      }
+//
+      ASSERT(32768 == config.defaultRecordBufferSize());
+      ASSERT( 1024 == config.defaultLoggerBufferSize());
+      ASSERT(    0 == config.defaultRecordLevel());
+      ASSERT(   64 == config.defaultPassLevel());
+      ASSERT(    0 == config.defaultTriggerLevel());
+      ASSERT(    0 == config.defaultTriggerAllLevel());
+//..
+// Next, we create a user field schema, that will be used with the user field
+// populator callback 'exampleCallback':
+//..
+      ball::UserFieldsSchema schema;
+      schema.appendFieldDescription("example", ball::UserFieldType::e_STRING);
+//..
+// Now, we set populate the configuration options in our schema (note that the
+// following methods cannot fail and return 'void'):
+//..
+      config.setUserFieldsSchema(schema, &exampleCallback);
+      config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
+      config.setTriggerMarkers(
+                            ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+//..
+// Then, we verify the options are configured correctly:
+//..
+      ASSERT(schema == config.userFieldsSchema());
+      ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
+      ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
+                                                   == config.triggerMarkers());
+//..
+// Finally, we print the configuration value to 'stdout' and return:
+//..
+      if (verbose) {
+        bsl::cout << config << bsl::endl;
+      }
+    }
+//..
+// This produces the following (multi-line) output:
+//..
+//  [
+//      Defaults:
+//      [
+//          recordBufferSize : 32768
+//          loggerBufferSize : 1024
+//          recordLevel      : 0
+//          passLevel        : 64
+//          triggerLevel     : 0
+//          triggerAllLevel  : 0
+//      ]
+//      User Fields Schema:
+//      [
+//          example = STRING
+//      ]
+//      User Fields Populator functor is not null
+//      Category Name Filter functor is null
+//      Default Threshold Callback functor is null
+//      Logging order is FIFO
+//      Trigger markers are NO_MARKERS
+//  ]
+//..
+
 //-----------------------------------------------------------------------------
 //          Dummy functions to populate each of the three functors
 //-----------------------------------------------------------------------------
@@ -222,81 +331,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Usage
-///-----
-// The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerConfiguration' object.  First, we create a configuration
-// object named 'config'.  Note that it is necessarily initialized to valid but
-// unpublished defaults:
-//..
-    ball::LoggerManagerConfiguration config;
-//
-    ASSERT(    0 == config.setDefaultRecordBufferSizeIfValid(32768));
-    ASSERT(    0 == config.setDefaultLoggerBufferSizeIfValid(1024));
-    ASSERT(    0 == config.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
-//
-    ASSERT(32768 == config.defaultRecordBufferSize());
-    ASSERT( 1024 == config.defaultLoggerBufferSize());
-    ASSERT(  192 == config.defaultRecordLevel());
-    ASSERT(   64 == config.defaultPassLevel());
-    ASSERT(   48 == config.defaultTriggerLevel());
-    ASSERT(   32 == config.defaultTriggerAllLevel());
-//
-    ASSERT(ball::LoggerManagerConfiguration::e_LIFO == config.logOrder());
-//..
-// Next, set each attribute.  Note that the user schema and the corresponding
-// populator functor must be set atomically (i.e., with a single two-argument
-// "set" method).  The user is responsible for the logical sensibility of the
-// functor attributes, and especially the coherence of the schema and its
-// populator.
-//
-// We will need to define a few objects before we can call the "set" methods.
-// Also, to illustrate a non-null functor, we will create a trivial function
-// payload 'pop' for the populator functor attribute:
-//..
-//    void pop(ball::UserFields *list, ball::UserFieldsSchema schema);
-//    {
-//    }
-//..
-// Now we can proceed to define the contents of our 'config' object.  We will
-// need a schema and three functors, two of which will be default-constructed
-// and not populated, resulting in "null" functors:
-//..
-       ball::UserFieldsSchema descriptors;
-//
-       bdlf::Function<void (*)(ball::UserFields *, ball::UserFieldsSchema)>    populator(&pop);
-       bdlf::Function<void (*)(bsl::string *, const char *)> nameFilter;
-       bdlf::Function<void (*)(int *, int *, int *, int *, const char*)>
-                                                            defaultThresholds;
-//..
-// Note that the 'bdlf::Function' class takes an optional allocator.  The same
-// allocator that is used to initialize the logger manager singleton (which
-// is the global allocator if one is not explicitly supplied) should also be
-// passed to 'bdlf::Function'.  In this simple example, we allow the default
-// allocator to be used.
-//
-// We are now ready to populate our 'config' object, which is our goal.  Note
-// that the "set" methods called in this example cannot fail, so they return
-// 'void':
-//..
-       config.setUserFieldsSchema(descriptors, populator);
-       config.setCategoryNameFilterCallback(nameFilter);
-       config.setDefaultThresholdLevelsCallback(defaultThresholds);
-       config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
-       config.setTriggerMarkers(
-                      ball::LoggerManagerConfiguration::e_NO_MARKERS);
-//
-       ASSERT(           descriptors == config.userFieldsSchema());
-//       ASSERT(        populator == config.userFieldsPopulatorCallback());
-//       ASSERT(       nameFilter == config.categoryNameFilterCallback());
-//       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
-       ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
-       ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
-                                                   == config.triggerMarkers());
-//..
-// The configuration object is now validly configured with our choice of
-// parameters.  We can now print the configuration value to 'stdout':
-//..
+        initializeConfiguration(verbose);
 
       } break;
       case 6: {

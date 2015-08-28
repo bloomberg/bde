@@ -127,13 +127,12 @@ BSLS_IDENT("$Id: $")
 // zero-based 'index' attribute; in this example, the 'publish' implementation
 // will print a natural-number message count equal to index + 1:
 //..
-// TBD: fix bdlmxx references
 //     void recordPublisher()
 //     {
-//         my_OstreamObserver    myObserver(bsl::cout);
+//         my_OstreamObserver     myObserver(bsl::cout);
 //         bdlt::Datetime         now;
 //         ball::RecordAttributes fixed;
-//         bdlmxxx::List             emptyList;
+//         ball::UserFields       emptyList;
 //
 //         bdlt::EpochUtil::convertFromTimeT(&now, time(0));
 //         fixed.setTimestamp(now);

@@ -23,11 +23,10 @@ BSLS_IDENT("$Id: $")
 // Each function provides a specific customization or convenience enhancement
 // to the basic logger functionality.
 //
-// TBD: FIX Documentation around Populator callbacks
 // Functions in this component have at most nine parameters and match one of
 // the four signatures:
 //..
-//    (bdlmxxx::List *, bdlmxxx::Schema)
+//    (ball::UserFields *, const ball::UserFieldsSchema &)
 //    (ball::Transmission::Cause)
 //    (int *, int *, int *, int *, const char *)
 //..
@@ -39,7 +38,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  ball::Logger Functors
 //  --------------------
-//  typedef bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)> Populator;
+//  typedef bdlf::Function<
+//            void (*)(ball::UserFields *, const ball::UserSchema&)> Populator;
 //      // 'Populator' is the type of a user-supplied callback functor used to
 //      // populate the user-defined fields in each log record.  In particular,
 //      // the first 'd_userSchema_p->length()' user-defined fields of each

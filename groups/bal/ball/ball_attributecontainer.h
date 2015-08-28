@@ -269,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      bslim::Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
-//     
+//
 //      bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
 //      for (; it != d_set.end(); ++it) {
 //          printer.printValue(*it);

@@ -11,6 +11,7 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_record.h>
 #include <ball_testobserver.h>
+#include <ball_userfields.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_threadattributes.h>
@@ -189,68 +190,6 @@ const int FATAL = Sev::e_FATAL;
 const int OFF   = Sev::e_OFF;
 
 //=============================================================================
-//                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-namespace BloombergLP {
-
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
-
-///Example 5: Rule Based Logging
-///- - - - - - - - - - - - - - -
-// The following example demonstrates using rules and attributes to
-// conditionally enable logging particular messages.
-//
-// We start by defining a function, 'processData', that is passed data in a
-// 'vector<char>' and information about the user who sent the data.  This
-// example function performs no actual processing, but does log a single
-// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
-// function also adds the user information passed to this function to the
-// thread's attribute context.  We will use these attributes later, to create a
-// logging rule that enables verbose logging only for a particular user.
-//..
-  void processData(int                      uuid,
-                   int                      luw,
-                   int                      terminalNumber,
-                   const bsl::vector<char>& data)
-      // Process the specified 'data' associated with the specified bloomberg
-      // 'uuid', 'luw', and 'terminalNumber'.
-  {
-//..
-// We add our attributes to the generic "default" attribute container.  In
-// practice we could create a more efficient attribute container
-// implementation specifically for these three attributes (uuid, luw, and
-// terminalNumber).  See the 'bael::attributeContainer' component documentation
-// for an example.
-//..
-      ball::DefaultAttributeContainer attributes;
-      attributes.addAttribute(ball::Attribute("uuid", uuid));
-      attributes.addAttribute(ball::Attribute("luw", luw));
-      attributes.addAttribute(ball::Attribute("terminalNumber",
-                                             terminalNumber));
-      ball::AttributeContext *context = ball::AttributeContext::getContext();
-      ball::AttributeContext::iterator it =
-                                         context->addAttributes(&attributes);
-//..
-// In this simplified example we perform no actual processing, and simply log
-// a message at the 'ball::Severity::DEBUG' level.
-//..
-      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-
-      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END;
-//..
-// Because 'attributes' is defined on this thread's stack, it must be removed
-// from this thread's attribute context before exiting the function.
-//..
-      context->removeAttributes(it);
-  }
-//..
-
-}  // close enterprise namespace
-
-//=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -360,6 +299,12 @@ void incCallback(BloombergLP::ball::UserFields *list) {
     return;
 }
 
+//=============================================================================
+//                             USAGE EXAMPLE 6
+//-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
 class Point {
     int d_x;
     int d_y;
@@ -371,12 +316,124 @@ class Point {
     const bsl::string& name() const { return d_name; };
 };
 
-void populateUsingPoint(BloombergLP::ball::UserFields *list, const Point& point)
-{
-    list->appendString(point.name());
-    list->appendInt64(point.x());
-    list->appendInt64(point.y());
-}
+///Example 6: Logging Using a Callback
+///- - - - - - - - - - - - - - - - - -
+// The following example demonstrates how to register a logging callback.  The
+// C++ stream-based macros that take a callback are particularly useful to
+// seamlessly populate the user fields of a record, thus simplying the
+// logging line.
+//
+// We define a callback function 'populateUsingPoint' that appends to the
+// specified 'fields' the attributes of the 'point' to log:
+//..
+    void populateUsingPoint(ball::UserFields *fields, const Point& point)
+        // Append to the specified 'list' the name, x value, and y value of
+        // the specified 'point'.
+    {
+        fields->appendString(point.name());
+        fields->appendInt64(point.x());
+        fields->appendInt64(point.y());
+    }
+//
+    int validatePoint(const Point& point)
+    {
+        BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+//..
+// We now bind our callback function 'populateUsingPoint' and the supplied
+// 'point' to a functor object we will pass to the logging callback.  Note
+// that the callback supplied to the logging macro must match the prototype
+// 'void (*)(ball::UserFields *)'.
+//..
+        bdlf::Function <void (*)(ball::UserFields *)> callback;
+        callback = bdlf::BindUtil::bind(&populateUsingPoint,
+                                       bdlf::PlaceHolders::_1,
+                                       point);
+//
+        int numErrors = 0;
+        if (point.x() > 255) {
+            BALL_LOGCB_ERROR(callback) << "X > 255"  << BALL_LOGCB_END
+            ++numErrors;
+        }
+        if (point.x() < -255) {
+            BALL_LOGCB_ERROR(callback) << "X < -255" << BALL_LOGCB_END
+            ++numErrors;
+        }
+        if (point.y() > 255) {
+            BALL_LOGCB_ERROR(callback) << "Y > 255"  << BALL_LOGCB_END
+            ++numErrors;
+        }
+        if (point.y() < -255) {
+            BALL_LOGCB_ERROR(callback) << "Y < -255" << BALL_LOGCB_END
+            ++numErrors;
+        }
+        return numErrors;
+    }
+//..
+
+}  // close enterprise namespace
+
+//=============================================================================
+//                             USAGE EXAMPLE 5
+//-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
+
+///Example 5: Rule Based Logging
+///- - - - - - - - - - - - - - -
+// The following example demonstrates using rules and attributes to
+// conditionally enable logging particular messages.
+//
+// We start by defining a function, 'processData', that is passed data in a
+// 'vector<char>' and information about the user who sent the data.  This
+// example function performs no actual processing, but does log a single
+// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+// function also adds the user information passed to this function to the
+// thread's attribute context.  We will use these attributes later, to create a
+// logging rule that enables verbose logging only for a particular user.
+//..
+  void processData(int                      uuid,
+                   int                      luw,
+                   int                      terminalNumber,
+                   const bsl::vector<char>& data)
+      // Process the specified 'data' associated with the specified bloomberg
+      // 'uuid', 'luw', and 'terminalNumber'.
+  {
+//..
+// We add our attributes to the generic "default" attribute container.  In
+// practice we could create a more efficient attribute container
+// implementation specifically for these three attributes (uuid, luw, and
+// terminalNumber).  See the 'bael::attributeContainer' component documentation
+// for an example.
+//..
+      ball::DefaultAttributeContainer attributes;
+      attributes.addAttribute(ball::Attribute("uuid", uuid));
+      attributes.addAttribute(ball::Attribute("luw", luw));
+      attributes.addAttribute(ball::Attribute("terminalNumber",
+                                             terminalNumber));
+      ball::AttributeContext *context = ball::AttributeContext::getContext();
+      ball::AttributeContext::iterator it =
+                                         context->addAttributes(&attributes);
+//..
+// In this simplified example we perform no actual processing, and simply log
+// a message at the 'ball::Severity::DEBUG' level.
+//..
+      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+
+      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END;
+//..
+// Because 'attributes' is defined on this thread's stack, it must be removed
+// from this thread's attribute context before exiting the function.
+//..
+      context->removeAttributes(it);
+  }
+//..
+
+}  // close enterprise namespace
+
 
 //=============================================================================
 //                         CASE 24 RELATED ENTITIES
@@ -1073,37 +1130,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "callback macro usage" << bsl::endl;
+        if (verbose) bsl::cout << "callback macro usage (example 6)" 
+                               << bsl::endl;
         {
             using namespace BloombergLP;
 
-            BALL_LOG_SET_CATEGORY("callback test");
             const Point point;
-            bdlf::Function <void (*)(BloombergLP::ball::UserFields *)> cb;
-            cb = bdlf::BindUtil::bind(&populateUsingPoint,
-                                     bdlf::PlaceHolders::_1,
-                                     point);
-
-            int errors = 0;
-            if (point.x() > 255) {
-                BALL_LOGCB_ERROR(cb) << "X > 255" << BALL_LOGCB_END;
-                ++errors;
-            }
-            if (point.x() < -255) {
-                BALL_LOGCB_ERROR(cb) << "X < -255" << BALL_LOGCB_END;
-                ++errors;
-            }
-            if (point.y() > 255) {
-                BALL_LOGCB_ERROR(cb) << "Y > 255" << BALL_LOGCB_END;
-                ++errors;
-            }
-            if (point.y() < -255) {
-                BALL_LOGCB_ERROR(bdlf::BindUtil::bind(&populateUsingPoint,
-                                                     bdlf::PlaceHolders::_1,
-                                                     point))
-                    << "Y < -255" << BALL_LOGCB_END;
-                ++errors;
-            }
+            validatePoint(point);
         }
 
       } break;
