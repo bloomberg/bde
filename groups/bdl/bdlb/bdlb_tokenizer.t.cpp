@@ -220,7 +220,7 @@ int main(int argc, char **argv)
         } break;
       case 5: {
         // --------------------------------------------------------------------
-        // SECONDARY MANIPULATORS
+        // SECONDARY CONSTRUCTOR
         //   Ensure that constructor with two parameters is "wired-up" and
         //   defaults properly.
         //
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Secondary" << endl
+                          << "SECONDARY CONSTRUCTOR" << endl
                           << "====================" << endl;
         } break;
       case 4: {
@@ -259,13 +259,123 @@ int main(int argc, char **argv)
         //   Tokenizer::isPreviousHard());
         //   Tokenizer::previousDelimiter();
         //   Tokenizer::token();
+        //
         // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "BASIC ACCESSORS" << endl
+                          << "===============" << endl;
+        {
+            static const struct {
+                int         d_line;         // line number
+                const char *d_input;        // input string
+                const char *d_soft;         // list of soft delimiters
+                const char *d_hard;         // list of hard delimiters
+                const char *d_token;        // expected token
+                const char *d_delim;        // expected current delimiter
+                const char *d_prevDelim;    // expected previous delimiter
+                bool        d_isValid;      // expected tokenizer validity
+                bool        d_hasSoft;      // expected soft character presence
+                                            // in current delimiter
+
+                bool        d_hasPrevSoft;  // expected soft character presence
+                                            // in previous delimiter
+
+                bool        d_isHard;       // expected hard character presence
+                                            // in current delimiter
+
+                bool        d_isPrevHard;   // expected hard character presence
+                                            // in previous delimiter
+            } DATA[] = {
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
+                //                                           DELIM           SOFT    SOFT               HARD
+                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
+                { L_,   "",     ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   ".",    ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   "#",    ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
+                { L_,   "T",    ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   "..",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   "##",   ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
+                { L_,   ".#",   ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
+                { L_,   "#.",   ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
+                { L_,   ".T",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   "#T",   ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
+                { L_,   "T.",   ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false   },
+                { L_,   "T#",   ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
+                { L_,   "TT",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
+                //                                           DELIM           SOFT    SOFT               HARD
+                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
+                { L_,   "...",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   "..#",  ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
+                { L_,   "..T",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                { L_,   ".#.",  ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
+                { L_,   ".##",  ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
+                { L_,   ".#T",  ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
+                { L_,   "#..",  ".",   "#",   "",     "",    "#..",  false,  false,  true,     false,   true    },
+                { L_,   "#.#",  ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
+                { L_,   "#.T",  ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
+                { L_,   "T..",  ".",   "#",   "",     "",    "..",   false,  false,  true,     false,   false   },
+                { L_,   "T.#",  ".",   "#",   "",     "",    ".#",   false,  false,  true,     false,   true    },
+                { L_,   "T.T",  ".",   "#",   "T",    "",    ".",    true,   false,  true,     false,   false   },
+                { L_,   "T#.",  ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
+                { L_,   "T##",  ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
+                { L_,   "T#T",  ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
+                { L_,   "TT.",  ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false   },
+                { L_,   "TT#",  ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
+                { L_,   "TTT",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
+                // Extended cases.
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
+                //                                           DELIM           SOFT    SOFT               HARD
+                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
+                { L_,   ".#.#", ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
+                { L_,   ".#.T", ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
+                { L_,   "#.#.", ".",   "#",   "",     "#.",  "#.",   true,   true,   true,     true,    true    },
+                { L_,   "T.##", ".",   "#",   "",     "#",   ".#",   true,   false,  true,     true,    true    },
+                { L_,   "T.#T", ".",   "#",   "T",    "",    ".#",   true,   false,  true,     false,   true    },
+                { L_,   "T#.#", ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
+                { L_,   "T#.T", ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int        LINE          = DATA[i].d_line;
+                const char      *INPUT         = DATA[i].d_input;
+                const StringRef  SOFT          = DATA[i].d_soft
+                                                 ? StringRef(DATA[i].d_soft)
+                                                 : StringRef();
+                const StringRef  HARD          = DATA[i].d_hard
+                                                 ? StringRef(DATA[i].d_hard)
+                                                 : StringRef();
+                const char      *TOKEN         = DATA[i].d_token;
+                const char      *DELIM         = DATA[i].d_delim;
+                const char      *PREV_DELIM    = DATA[i].d_prevDelim;
+                bool             VALID         = DATA[i].d_isValid;
+                bool             HAS_SOFT      = DATA[i].d_hasSoft;
+                bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
+                bool             IS_HARD       = DATA[i].d_isHard;
+                bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
+
+                Obj        mT(INPUT, SOFT, HARD);
+                const Obj& T = mT;
+                ++mT;
+
+                ASSERTV(LINE, T, VALID      == (!!T));
+                ASSERTV(LINE, DELIM         == T.delimiter());
+                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
+                ASSERTV(LINE, TOKEN         == T.token());
+                ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
+                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
+                ASSERTV(LINE, IS_HARD       == T.isHard());
+                ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
+
+            }
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS
-        //   Ensure that constructor with tree parameters is "wired-up" and
-        //   defaults properly.
         //
         // Concerns:
         //
@@ -274,6 +384,7 @@ int main(int argc, char **argv)
         // Testing:
         //   Tokenizer(const char *, const StringRef&, const StringRef&);
         //   Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+        //   Tokenizer::operator++()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -290,80 +401,68 @@ int main(int argc, char **argv)
                 const char *d_token;        // expected token
                 const char *d_delim;        // expected current delimiter
                 const char *d_prevDelim;    // expected previous delimiter
-                bool        d_isValid;      // expected tokenizer validity
-                bool        d_hasSoft;      // expected soft character presence
-                                            // in current delimiter
-
-                bool        d_hasPrevSoft;  // expected soft character presence
-                                            // in previous delimiter
-
-                bool        d_isHard;       // expected hard character presence
-                                            // in current delimiter
-
-                bool        d_isPrevHard;   // expected hard character presence
-                                            // in previous delimiter
             } DATA[] = {
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "",     0,     0,     "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     0,     "",    "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     "",    0,     "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     "",    "",    "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     "",    "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     ".",   "",    "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "",     ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   ".",    ".",   "",    "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   ".",    ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   "#",    "",    "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "#",    ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "T",    "",    "",    "T",    "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "T",    "",    "#",   "T",    "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "T",    ".",   "",    "T",    "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "T",    ".",   "#",   "T",    "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "..",   ".",   "#",   "",     "",    "..",   false,  false,  true,     false,   false   },
-                { L_,   "##",   "",    "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "##",   ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   ".#",   ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false   },
-                { L_,   "#.",   ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false   },
-                { L_,   ".T",   ".",   "",    "T",    "",    ".",    true,   false,  true,     false,   false   },
-                { L_,   ".T",   ".",   "#",   "T",    "",    ".",    true,   false,  true,     false,   false   },
-                { L_,   "#T",   "",    "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "#T",   ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "T.",   ".",   "",    "T",    ".",   "",     true,   true,   false,    false,   false   },
-                { L_,   "T.",   ".",   "#",   "T",    ".",   "",     true,   true,   false,    false,   false   },
-                { L_,   "T#",   "",    "#",   "T",    "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "T#",   ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "TT",   "",    "",    "TT",   "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "TT",   "",    "#",   "TT",   "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "TT",   ".",   "",    "TT",   "",    "",     true,   false,  false,    false,   false   },
-                { L_,   "TT",   ".",   "#",   "TT",   "",    "",     true,   false,  false,    false,   false   },
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "...",  ".",   "#",   "",     "",    "...",  false,  false,  true,     false,   false   },
-                { L_,   "..#",  ".",   "#",   "",     "#",   "..",   true,   false,  true,     true,    false   },
-                { L_,   "..T",  ".",   "#",   "T",    "",    "..",   true,   false,  true,     false,   false   },
-                { L_,   ".#.",  ".",   "#",   "",     "#.",  ".",    true,   true,   true,     true,    false   },
-                { L_,   ".##",  ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false   },
-                { L_,   ".#T",  ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false   },
-                { L_,   "#..",  ".",   "#",   "",     "#..", "",     true,   true,   false,    true,    false   },
-                { L_,   "#.#",  ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false   },
-                { L_,   "#.T",  ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false   },
-                { L_,   "T..",  ".",   "#",   "T",    "..",  "",     true,   true,   false,    false,   false   },
-                { L_,   "T.#",  ".",   "#",   "T",    ".#",  "",     true,   true,   false,    true,    false   },
-                { L_,   "T.T",  ".",   "#",   "T",    ".",   "",     true,   true,   false,    false,   false   },
-                { L_,   "T#.",  ".",   "#",   "T",    "#.",  "",     true,   true,   false,    true,    false   },
-                { L_,   "T##",  ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "T#T",  ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "TT.",  ".",   "#",   "TT",   ".",   "",     true,   true,   false,    false,   false   },
-                { L_,   "TT#",  ".",   "#",   "TT",   "#",   "",     true,   false,  false,    true,    false   },
-                { L_,   "TTT",  ".",   "#",   "TTT",  "",    "",     true,   false,  false,    false,   false   },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
+                //                                           DELIM
+                //----  ------  ----   ----   ------  -----  -----
+                { L_,   "",     0,     0,     "",     "",    ""    },
+                { L_,   "",     0,     "",    "",     "",    ""    },
+                { L_,   "",     "",    0,     "",     "",    ""    },
+                { L_,   "",     "",    "",    "",     "",    ""    },
+                { L_,   "",     "",    "#",   "",     "",    ""    },
+                { L_,   "",     ".",   "",    "",     "",    ""    },
+                { L_,   "",     ".",   "#",   "",     "",    ""    },
+                { L_,   ".",    ".",   "",    "",     "",    "."   },
+                { L_,   ".",    ".",   "#",   "",     "",    "."   },
+                { L_,   "#",    "",    "#",   "",     "#",   ""    },
+                { L_,   "#",    ".",   "#",   "",     "#",   ""    },
+                { L_,   "T",    "",    "",    "T",    "",    ""    },
+                { L_,   "T",    "",    "#",   "T",    "",    ""    },
+                { L_,   "T",    ".",   "",    "T",    "",    ""    },
+                { L_,   "T",    ".",   "#",   "T",    "",    ""    },
+                { L_,   "..",   ".",   "#",   "",     "",    ".."  },
+                { L_,   "##",   "",    "#",   "",     "#",   ""    },
+                { L_,   "##",   ".",   "#",   "",     "#",   ""    },
+                { L_,   ".#",   ".",   "#",   "",     "#",   "."   },
+                { L_,   "#.",   ".",   "#",   "",     "#.",  ""    },
+                { L_,   ".T",   ".",   "",    "T",    "",    "."   },
+                { L_,   ".T",   ".",   "#",   "T",    "",    "."   },
+                { L_,   "#T",   "",    "#",   "",     "#",   ""    },
+                { L_,   "#T",   ".",   "#",   "",     "#",   ""    },
+                { L_,   "T.",   ".",   "",    "T",    ".",   ""    },
+                { L_,   "T.",   ".",   "#",   "T",    ".",   ""    },
+                { L_,   "T#",   "",    "#",   "T",    "#",   ""    },
+                { L_,   "T#",   ".",   "#",   "T",    "#",   ""    },
+                { L_,   "TT",   "",    "",    "TT",   "",    ""    },
+                { L_,   "TT",   "",    "#",   "TT",   "",    ""    },
+                { L_,   "TT",   ".",   "",    "TT",   "",    ""    },
+                { L_,   "TT",   ".",   "#",   "TT",   "",    ""    },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
+                //                                           DELIM
+                //----  ------  ----   ----   ------  -----  -----
+                { L_,   "...",  ".",   "#",   "",     "",    "..." },
+                { L_,   "..#",  ".",   "#",   "",     "#",   ".."  },
+                { L_,   "..T",  ".",   "#",   "T",    "",    ".."  },
+                { L_,   ".#.",  ".",   "#",   "",     "#.",  "."   },
+                { L_,   ".##",  ".",   "#",   "",     "#",   "."   },
+                { L_,   ".#T",  ".",   "#",   "",     "#",   "."   },
+                { L_,   "#..",  ".",   "#",   "",     "#..", ""    },
+                { L_,   "#.#",  ".",   "#",   "",     "#.",  ""    },
+                { L_,   "#.T",  ".",   "#",   "",     "#.",  ""    },
+                { L_,   "T..",  ".",   "#",   "T",    "..",  ""    },
+                { L_,   "T.#",  ".",   "#",   "T",    ".#",  ""    },
+                { L_,   "T.T",  ".",   "#",   "T",    ".",   ""    },
+                { L_,   "T#.",  ".",   "#",   "T",    "#.",  ""    },
+                { L_,   "T##",  ".",   "#",   "T",    "#",   ""    },
+                { L_,   "T#T",  ".",   "#",   "T",    "#",   ""    },
+                { L_,   "TT.",  ".",   "#",   "TT",   ".",   ""    },
+                { L_,   "TT#",  ".",   "#",   "TT",   "#",   ""    },
+                { L_,   "TTT",  ".",   "#",   "TTT",  "",    ""    },
 
             };   // end table DATA
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
-            if (verbose) cout << "\nTesting 'bdlb::Tokenizer(const char*, "
+            if (verbose) cout << "\tTesting 'bdlb::Tokenizer(const char*, "
                               << "const StringRef&, const StringRef&)'."
                               << endl;
             for (int i = 0; i < DATA_LEN; ++i) {
@@ -378,26 +477,16 @@ int main(int argc, char **argv)
                 const char      *TOKEN         = DATA[i].d_token;
                 const char      *DELIM         = DATA[i].d_delim;
                 const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-                bool             VALID         = DATA[i].d_isValid;
-                bool             HAS_SOFT      = DATA[i].d_hasSoft;
-                bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
-                bool             IS_HARD       = DATA[i].d_isHard;
-                bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
 
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, T, VALID      == (!!T));
                 ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
-                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
-                ASSERTV(LINE, IS_HARD       == T.isHard());
-                ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
             }
 
-            if (verbose) cout << "\nTesting 'bdlb::Tokenizer("
+            if (verbose) cout << "\tTesting 'bdlb::Tokenizer("
                               << "const StringRef&, "
                               << "const StringRef&, "
                               << "const StringRef&)'."
@@ -414,23 +503,13 @@ int main(int argc, char **argv)
                 const char      *TOKEN         = DATA[i].d_token;
                 const char      *DELIM         = DATA[i].d_delim;
                 const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-                bool             VALID         = DATA[i].d_isValid;
-                bool             HAS_SOFT      = DATA[i].d_hasSoft;
-                bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
-                bool             IS_HARD       = DATA[i].d_isHard;
-                bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
 
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, T, VALID      == (!!T));
                 ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
-                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
-                ASSERTV(LINE, IS_HARD       == T.isHard());
-                ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
             }
         }
 
@@ -444,122 +523,61 @@ int main(int argc, char **argv)
                 const char *d_token;        // expected token
                 const char *d_delim;        // expected current delimiter
                 const char *d_prevDelim;    // expected previous delimiter
-                bool        d_isValid;      // expected tokenizer validity
-                bool        d_hasSoft;      // expected soft character presence
-                                            // in current delimiter
-
-                bool        d_hasPrevSoft;  // expected soft character presence
-                                            // in previous delimiter
-
-                bool        d_isHard;       // expected hard character presence
-                                            // in current delimiter
-
-                bool        d_isPrevHard;   // expected hard character presence
-                                            // in previous delimiter
-                // Those fields contain expected values after operator++
+                  // Those fields contain expected values after operator++
                 const char *d_token1;       // expected token
                 const char *d_delim1;       // expected current delimiter
                 const char *d_prevDelim1;   // expected previous delimiter
-                bool        d_isValid1;     // expected tokenizer validity
-                bool        d_hasSoft1;     // expected soft character presence
-                                            // in current delimiter
-
-                bool        d_hasPrevSoft1; // expected soft character presence
-                                            // in previous delimiter
-
-                bool        d_isHard1;      // expected hard character presence
-                                            // in current delimiter
-
-                bool        d_isPrevHard1;  // expected hard character presence
-                                            // in previous delimiter
             } DATA[] = {
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "",     ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   ".",    ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "#",    ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false,
-                                              "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "T",    ".",   "#",   "T",    "",    "",     true,   false,  false,    false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "..",   ".",   "#",   "",     "",    "..",   false,  false,  true,     false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "##",   ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false,
-                                              "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   ".#",   ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false,
-                                              "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "#.",   ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false,
-                                              "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   ".T",   ".",   "#",   "T",    "",    ".",    true,   false,  true,     false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "#T",   ".",   "#",   "",     "#",   "",     true,   false,  false,    true,    false,
-                                              "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "T.",   ".",   "#",   "T",    ".",   "",     true,   true,   false,    false,   false,
-                                              "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   "T#",   ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false,
-                                              "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "TT",   ".",   "#",   "TT",   "",    "",     true,   false,  false,    false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "...",  ".",   "#",   "",     "",    "...",  false,  false,  true,     false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "..#",  ".",   "#",   "",     "#",   "..",   true,   false,  true,     true,    false,
-                                              "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "..T",  ".",   "#",   "T",    "",    "..",   true,   false,  true,     false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   ".#.",  ".",   "#",   "",     "#.",  ".",    true,   true,   true,     true,    false,
-                                              "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   ".##",  ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false,
-                                              "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   ".#T",  ".",   "#",   "",     "#",   ".",    true,   false,  true,     true,    false,
-                                              "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "#..",  ".",   "#",   "",     "#..", "",     true,   true,   false,    true,    false,
-                                              "",     "",    "#..",  false,  false,  true,     false,   true    },
-                { L_,   "#.#",  ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false,
-                                              "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   "#.T",  ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false,
-                                              "T",    "",    "#.",   true,   false,  true,     false,   true    },
-                { L_,   "T..",  ".",   "#",   "T",    "..",  "",     true,   true,   false,    false,   false,
-                                              "",     "",    "..",   false,  false,  true,     false,   false   },
-                { L_,   "T.#",  ".",   "#",   "T",    ".#",  "",     true,   true,   false,    true,    false,
-                                              "",     "",    ".#",   false,  false,  true,     false,   true    },
-                { L_,   "T.T",  ".",   "#",   "T",    ".",   "",     true,   true,   false,    false,   false,
-                                              "T",    "",    ".",    true,   false,  true,     false,   false   },
-                { L_,   "T#.",  ".",   "#",   "T",    "#.",  "",     true,   true,   false,    true,    false,
-                                              "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   "T##",  ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false,
-                                              "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   "T#T",  ".",   "#",   "T",    "#",   "",     true,   false,  false,    true,    false,
-                                              "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "TT.",  ".",   "#",   "TT",   ".",   "",     true,   true,   false,    false,   false,
-                                              "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   "TT#",  ".",   "#",   "TT",   "#",   "",     true,   false,  false,    true,    false,
-                                              "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "TTT",  ".",   "#",   "TTT",  "",    "",     true,   false,  false,    false,   false,
-                                              "",     "",    "",     false,  false,  false,    false,   false   },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
+                //                                           DELIM
+                //----  ------  ----   ----   ------  -----  -----
+                { L_,   "",     ".",   "#",   "",     "",    "",     "",     "",    ""    },
+                { L_,   ".",    ".",   "#",   "",     "",    ".",    "",     "",    ""    },
+                { L_,   "#",    ".",   "#",   "",     "#",   "",     "",     "",    "#"   },
+                { L_,   "T",    ".",   "#",   "T",    "",    "",     "",     "",    ""    },
+                { L_,   "..",   ".",   "#",   "",     "",    "..",   "",     "",    ""    },
+                { L_,   "##",   ".",   "#",   "",     "#",   "",     "",     "#",   "#"   },
+                { L_,   ".#",   ".",   "#",   "",     "#",   ".",    "",     "",    "#"   },
+                { L_,   "#.",   ".",   "#",   "",     "#.",  "",     "",     "",    "#."  },
+                { L_,   ".T",   ".",   "#",   "T",    "",    ".",    "",     "",    ""    },
+                { L_,   "#T",   ".",   "#",   "",     "#",   "",     "T",    "",    "#"   },
+                { L_,   "T.",   ".",   "#",   "T",    ".",   "",     "",     "",    "."   },
+                { L_,   "T#",   ".",   "#",   "T",    "#",   "",     "",     "",    "#"   },
+                { L_,   "TT",   ".",   "#",   "TT",   "",    "",     "",     "",    ""    },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
+                //                                           DELIM
+                //----  ------  ----   ----   ------  -----  -----
+                { L_,   "...",  ".",   "#",   "",     "",    "...",  "",     "",    ""    },
+                { L_,   "..#",  ".",   "#",   "",     "#",   "..",   "",     "",    "#"   },
+                { L_,   "..T",  ".",   "#",   "T",    "",    "..",   "",     "",    ""    },
+                { L_,   ".#.",  ".",   "#",   "",     "#.",  ".",    "",     "",    "#."  },
+                { L_,   ".##",  ".",   "#",   "",     "#",   ".",    "",     "#",   "#"   },
+                { L_,   ".#T",  ".",   "#",   "",     "#",   ".",    "T",    "",    "#"   },
+                { L_,   "#..",  ".",   "#",   "",     "#..", "",     "",     "",    "#.." },
+                { L_,   "#.#",  ".",   "#",   "",     "#.",  "",     "",     "#",   "#."  },
+                { L_,   "#.T",  ".",   "#",   "",     "#.",  "",     "T",    "",    "#."  },
+                { L_,   "T..",  ".",   "#",   "T",    "..",  "",     "",     "",    ".."  },
+                { L_,   "T.#",  ".",   "#",   "T",    ".#",  "",     "",     "",    ".#"  },
+                { L_,   "T.T",  ".",   "#",   "T",    ".",   "",     "T",    "",    "."   },
+                { L_,   "T#.",  ".",   "#",   "T",    "#.",  "",     "",     "",    "#."  },
+                { L_,   "T##",  ".",   "#",   "T",    "#",   "",     "",     "#",   "#"   },
+                { L_,   "T#T",  ".",   "#",   "T",    "#",   "",     "T",    "",    "#"   },
+                { L_,   "TT.",  ".",   "#",   "TT",   ".",   "",     "",     "",    "."   },
+                { L_,   "TT#",  ".",   "#",   "TT",   "#",   "",     "",     "",    "#"   },
+                { L_,   "TTT",  ".",   "#",   "TTT",  "",    "",     "",     "",    ""    },
                 // Extended cases.
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   ".#.#", ".",   "#",   "",     "#.",  ".",    true,   true,   true,     true,    false,
-                                              "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   ".#.T", ".",   "#",   "",     "#.",  ".",    true,   true,   true,     true,    false,
-                                              "T",    "",    "#.",   true,   false,  true,     false,   true    },
-                { L_,   "#.#.", ".",   "#",   "",     "#.",  "",     true,   true,   false,    true,    false,
-                                              "",     "#.",  "#.",   true,   true,   true,     true,    true    },
-                { L_,   "T.##", ".",   "#",   "T",    ".#",  "",     true,   true,   false,    true,    false,
-                                              "",     "#",   ".#",   true,   false,  true,     true,    true    },
-                { L_,   "T.#T", ".",   "#",   "T",    ".#",  "",     true,   true,   false,    true,    false,
-                                              "T",    "",    ".#",   true,   false,  true,     false,   true    },
-                { L_,   "T#.#", ".",   "#",   "T",    "#.",  "",     true,   true,   false,    true,    false,
-                                              "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   "T#.T", ".",   "#",   "T",    "#.",  "",     true,   true,   false,    true,    false,
-                                              "T",    "",    "#.",   true,   false,  true,     false,   true    },
+                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
+                //                                           DELIM
+                //----  ------  ----   ----   ------  -----  -----
+                { L_,   ".#.#", ".",   "#",   "",     "#.",  ".",    "",     "#",   "#."  },
+                { L_,   ".#.T", ".",   "#",   "",     "#.",  ".",    "T",    "",    "#."  },
+                { L_,   "#.#.", ".",   "#",   "",     "#.",  "",     "",     "#.",  "#."  },
+                { L_,   "T.##", ".",   "#",   "T",    ".#",  "",     "",     "#",   ".#"  },
+                { L_,   "T.#T", ".",   "#",   "T",    ".#",  "",     "T",    "",    ".#"  },
+                { L_,   "T#.#", ".",   "#",   "T",    "#.",  "",     "",     "#",   "#."  },
+                { L_,   "T#.T", ".",   "#",   "T",    "#.",  "",     "T",    "",    "#."  },
             };   // end table DATA
+
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < DATA_LEN; ++i) {
@@ -574,43 +592,23 @@ int main(int argc, char **argv)
                 const char      *TOKEN         = DATA[i].d_token;
                 const char      *DELIM         = DATA[i].d_delim;
                 const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-                bool             VALID         = DATA[i].d_isValid;
-                bool             HAS_SOFT      = DATA[i].d_hasSoft;
-                bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
-                bool             IS_HARD       = DATA[i].d_isHard;
-                bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
                 // Expected after operator++()
                 const char      *TOKEN1         = DATA[i].d_token1;
                 const char      *DELIM1         = DATA[i].d_delim1;
                 const char      *PREV_DELIM1    = DATA[i].d_prevDelim1;
-                bool             VALID1         = DATA[i].d_isValid1;
-                bool             HAS_SOFT1      = DATA[i].d_hasSoft1;
-                bool             HAS_PREV_SOFT1 = DATA[i].d_hasPrevSoft1;
-                bool             IS_HARD1       = DATA[i].d_isHard1;
-                bool             IS_PREV_HARD1  = DATA[i].d_isPrevHard1;
 
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, T, VALID      == (!!T));
                 ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
-                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
-                ASSERTV(LINE, IS_HARD       == T.isHard());
-                ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
 
                 ++mT;
 
-                ASSERTV(LINE, T, VALID1      == (!!T));
                 ASSERTV(LINE, DELIM1         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM1    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN1         == T.token());
-                ASSERTV(LINE, HAS_SOFT1      == T.hasSoft());
-                ASSERTV(LINE, HAS_PREV_SOFT1 == T.hasPreviousSoft());
-                ASSERTV(LINE, IS_HARD1       == T.isHard());
-                ASSERTV(LINE, IS_PREV_HARD1  == T.isPreviousHard());
             }
         }
 
