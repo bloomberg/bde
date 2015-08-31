@@ -1,6 +1,9 @@
 // bdlb_printmethods.t.cpp                                            -*-C++-*-
 
 #include <bdlb_printmethods.h>
+#include <bdls_testutil.h>
+//#include <bdlt_date.h>
+
 #include <bslalg_typetraits.h>
 
 #include <bsl_cstring.h>
@@ -12,36 +15,40 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The test plan for this component is fairly straightforward.  After a short
-// breathing test [1], thoroughly test the specialized print method for
-// bsl::vector<char, ALLOC> [2].  Then test each of the print method
-// implementation functions individually [3,4,5,6].  Then thoroughly test the
-// trait detection meta-function to make sure it returns the correct print
-// method selector [7].  Then test the generic print method to make sure it
-// uses the trait detector correctly and calls the correct print implementation
-// method [8].  Then test bsl::vector's '<<' output stream operator to make
-// sure it successfully calls the the print method to print on a single line
-// and suppress indentation [9].  Finally, test the usage example to make sure
-// it compiles and runs [10].
-//-----------------------------------------------------------------------------
+// The test plan for this component is fairly straightforward:
+//
+//: o First do a short breathing test [1].
+//: o Then thoroughly test the specialized print method for
+//:   'bsl::vector<char, ALLOC>' [2].
+//: o Then test each of the 'print' method implementation functions
+//:   individually [3,4,5,6].
+//: o Then thoroughly test the trait detection meta-function to make sure it
+//:   returns the correct print method selector [7].
+//: o Then test the generic print method to make sure it uses the trait
+//:   detector correctly and calls the correct print implementation method [8].
+//: o Then test 'bsl::vector' '<<' output stream operator to make sure it
+//:   successfully calls the the print method to print on a single line and
+//:   suppress indentation [9]
+//: o Finally, test the usage example to make sure it compiles and runs [10].
+// ----------------------------------------------------------------------------
 // [ 4] bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
 // [ 6] bdlb::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
 // [ 5] bdlb::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
 // [ 3] bdlb::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
 // [ 7] bdlb::PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -53,11 +60,31 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
-//=============================================================================
+// ============================================================================
 
 template <class T>
 void printValue(ostream& out, const T& value)
@@ -345,63 +372,9 @@ void printValue(ostream& out, const string& value)
     printValue(out, value.c_str());
 }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 class TestType_PrintMethod {
     // This type is used for testing the component for types that have a
@@ -539,12 +512,16 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 
 }  // close enterprise namespace
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Supplying a 'print' Method for a User-Defined Class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Consider the following value-semantic class that holds an object of
 // parameterized 'TYPE':
 //..
@@ -554,6 +531,8 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 
       // PRIVATE DATA MEMBERS
       TYPE d_obj;  // wrapped object
+
+      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
 
       public:
         // CREATORS
@@ -614,13 +593,13 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 // The solution is to use the 'bdlb::PrintMethods::print' method, which
 // provides generic printing capabilities, as follows:
 //..
-    template <class TYPE>
-    bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
-                                         int           level,
-                                         int           spacesPerLevel) const
-    {
-        return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
-    }
+//  template <class TYPE>
+//  bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
+//                                       int           level,
+//                                       int           spacesPerLevel) const
+//  {
+//      return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
+//  }
 //..
 // One thing missing from the 'MyWrapper' definition above is a declaration of
 // the 'print' method trait.  Since the 'MyWrapper' class has a 'print' method,
@@ -629,69 +608,77 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 // 'bdlb::TypeTraitHasPrintMethod' trait inside the 'MyWrapper' class
 // definition:
 //..
-//  template <typename TYPE>
-//  class MyWrapper {
-//      // An example wrapper for a 'TYPE' object that also declares the
-//      // 'bdlb::TypeTraitHasPrintMethod' trait.
-//
-//      ... private data members ...
-//
-//    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
-//
-//      ... rest of class definition ...
-//  };
+    template <typename TYPE>
+    class MyWrapper2 {
+        // An example wrapper for a 'TYPE' object that also declares the
+        // 'bdlb::TypeTraitHasPrintMethod' trait.
+  
+        // ... private data members ...
+  
+      public:
+        // TRAITS
+        BSLALG_DECLARE_NESTED_TRAITS(MyWrapper2, bdlb::TypeTraitHasPrintMethod);
+  
+        // ... rest of class definition ...
+    };
 //..
-// (See the 'bslalg_typetraits' component for more information about declaring
-// traits for user-defined classes.)
+// (See the {'bslalg_typetraits'} component for more information about
+// declaring traits for user-defined classes.)
 //
 // Now that 'MyWrapper' declares the 'bdlb::TypeTraitHasPrintMethod' trait, it
 // can be reliably used as a template parameter for any other template class,
 // including itself.  For example, the following code works:
 //..
-//  MyWrapper<MyWrapper<int> > myWrappedWrapper;
-//  myWrappedWrapper.print(bsl::cout);
+//  void useMyWrapper()
+//  {
+//      MyWrapper<MyWrapper<int> > myWrappedWrapper;
+//      myWrappedWrapper.print(bsl::cout);
+//      // ...
+//  }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //   This will test the usage example.
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example must compile and run correctly.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example and ensure that it compiles and runs
-        //   correctly.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   Usage Example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
+        if (verbose) cout << "\n" "USAGE EXAMPLE" "\n"
+                                  "=============" "\n";
 
         stringstream ss;
 
+#if 0
         int            myInt = 123;
         MyWrapper<int> myWrapperForInt(myInt);
         myWrapperForInt.print(ss);
+#endif
 
         LOOP_ASSERT(ss.str(), "123\n" == ss.str());
       } break;
@@ -701,24 +688,24 @@ int main(int argc, char *argv[])
         //   This will test the generic 'print' method for arbitrary types.
         //
         // Concerns:
-        //   Since the 'bdeu_PrintMethods_DetectTraitIndex' meta-function and
-        //   each print implementation function has already been thoroughly
-        //   tested, we only need to make sure that the meta-function is used
-        //   correctly and that it correctly forwards arguments to the
-        //   appropriate print implementation function.
+        //: 1 Since the 'bdeu_PrintMethods_DetectTraitIndex' meta-function and
+        //:   each print implementation function has already been thoroughly
+        //:   tested, we only need to make sure that the meta-function is used
+        //:   correctly and that it correctly forwards arguments to the
+        //:   appropriate print implementation function.
         //
         // Plan:
-        //   Use a selection of test data from test cases 3, 4, 5, and 6 and
-        //   exercise this method to make sure the correct traits are detected
-        //   and the correct print implementation function is called with the
-        //   correct arguments.
+        //: 1 Use a selection of test data from test cases 3, 4, 5, and 6 and
+        //:   exercise this method to make sure the correct traits are detected
+        //:   and the correct print implementation function is called with the
+        //:   correct arguments.
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const TYPE&, ...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Generic 'print' Method"
-                          << "\n==============================" << endl;
+        if (verbose) cout << "TESTING GENERIC 'print' METHOD" << endl
+                          << "==============================" << endl;
 
         if (verbose) cout << "\nUsing 'BDEU_STREAM_OPERATOR'." << endl;
         {
@@ -729,37 +716,37 @@ int main(int argc, char *argv[])
                 const char *d_expectedPrefix;
                 const char *d_expectedSuffix;
             } DATA[] = {
-                //line   level   spcs/lvl    prefix    suffix
+                //LINE   LEVEL   SPCS/LVL    PREFIX    SUFFIX
                 //----   -----   --------    ------    ------
                 { L_,    -2,     -2,         "",       ""        },
                 { L_,    -2,     -1,         "",       ""        },
-                { L_,    -2,     0,          "",       "\n"      },
-                { L_,    -2,     1,          "",       "\n"      },
-                { L_,    -2,     2,          "",       "\n"      },
+                { L_,    -2,      0,         "",       "\n"      },
+                { L_,    -2,      1,         "",       "\n"      },
+                { L_,    -2,      2,         "",       "\n"      },
 
                 { L_,    -1,     -2,         "",       ""        },
                 { L_,    -1,     -1,         "",       ""        },
-                { L_,    -1,     0,          "",       "\n"      },
-                { L_,    -1,     1,          "",       "\n"      },
-                { L_,    -1,     2,          "",       "\n"      },
+                { L_,    -1,      0,         "",       "\n"      },
+                { L_,    -1,      1,         "",       "\n"      },
+                { L_,    -1,      2,         "",       "\n"      },
 
-                { L_,    0,      -2,         "",       ""        },
-                { L_,    0,      -1,         "",       ""        },
-                { L_,    0,      0,          "",       "\n"      },
-                { L_,    0,      1,          "",       "\n"      },
-                { L_,    0,      2,          "",       "\n"      },
+                { L_,     0,     -2,         "",       ""        },
+                { L_,     0,     -1,         "",       ""        },
+                { L_,     0,      0,         "",       "\n"      },
+                { L_,     0,      1,         "",       "\n"      },
+                { L_,     0,      2,         "",       "\n"      },
 
-                { L_,    1,      -2,         "  ",     ""        },
-                { L_,    1,      -1,         " ",      ""        },
-                { L_,    1,      0,          "",       "\n"      },
-                { L_,    1,      1,          " ",      "\n"      },
-                { L_,    1,      2,          "  ",     "\n"      },
+                { L_,     1,     -2,         "  ",     ""        },
+                { L_,     1,     -1,         " ",      ""        },
+                { L_,     1,      0,         "",       "\n"      },
+                { L_,     1,      1,         " ",      "\n"      },
+                { L_,     1,      2,         "  ",     "\n"      },
 
-                { L_,    2,      -2,         "    ",   ""        },
-                { L_,    2,      -1,         "  ",     ""        },
-                { L_,    2,      0,          "",       "\n"      },
-                { L_,    2,      1,          "  ",     "\n"      },
-                { L_,    2,      2,          "    ",   "\n"      },
+                { L_,     2,     -2,         "    ",   ""        },
+                { L_,     2,     -1,         "  ",     ""        },
+                { L_,     2,      0,         "",       "\n"      },
+                { L_,     2,      1,         "  ",     "\n"      },
+                { L_,     2,      2,         "    ",   "\n"      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -778,15 +765,15 @@ int main(int argc, char *argv[])
                     const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
 
                     const string EXPECTED_RESULT = EXPECTED_PREFIX
-                                                   + EXPECTED_VALUE
-                                                   + EXPECTED_SUFFIX;
+                                                 + EXPECTED_VALUE
+                                                 + EXPECTED_SUFFIX;
 
                     stringstream ss;
 
                     ostream& ret = bdlb::PrintMethods::print(ss,
-                                                            VALUE,
-                                                            LEVEL,
-                                                            SPACES_PER_LEVEL);
+                                                             VALUE,
+                                                             LEVEL,
+                                                             SPACES_PER_LEVEL);
 
                     LOOP_ASSERT(LINE, &ss == &ret);
                     LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -809,8 +796,8 @@ int main(int argc, char *argv[])
                     const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
 
                     const string EXPECTED_RESULT = EXPECTED_PREFIX
-                                                   + EXPECTED_VALUE
-                                                   + EXPECTED_SUFFIX;
+                                                 + EXPECTED_VALUE
+                                                 + EXPECTED_SUFFIX;
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(EXPECTED_RESULT)
@@ -819,9 +806,9 @@ int main(int argc, char *argv[])
                     stringstream ss;
 
                     ostream& ret = bdlb::PrintMethods::print(ss,
-                                                            VALUE,
-                                                            LEVEL,
-                                                            SPACES_PER_LEVEL);
+                                                             VALUE,
+                                                             LEVEL,
+                                                             SPACES_PER_LEVEL);
 
                     LOOP_ASSERT(LINE, &ss == &ret);
                     LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -872,44 +859,44 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'BdeuPrintMethod'." << endl;
+        if (verbose) cout << "\nUsing 'PrintMethods'." << endl;
         {
             static const struct {
                 int d_lineNum;
                 int d_level;
                 int d_spacesPerLevel;
             } DATA[] = {
-                //line   level   spcs/lvl
+                //LINE   LEVEL   SPCS/LVL
                 //----   -----   --------
-                { L_,    -2,     -2,       },
-                { L_,    -2,     -1,       },
-                { L_,    -2,     0,        },
-                { L_,    -2,     1,        },
-                { L_,    -2,     2,        },
+                { L_,    -2,     -2,     },
+                { L_,    -2,     -1,     },
+                { L_,    -2,      0,     },
+                { L_,    -2,      1,     },
+                { L_,    -2,      2,     },
 
-                { L_,    -1,     -2,       },
-                { L_,    -1,     -1,       },
-                { L_,    -1,     0,        },
-                { L_,    -1,     1,        },
-                { L_,    -1,     2,        },
+                { L_,    -1,     -2,     },
+                { L_,    -1,     -1,     },
+                { L_,    -1,      0,     },
+                { L_,    -1,      1,     },
+                { L_,    -1,      2,     },
 
-                { L_,    0,      -2,       },
-                { L_,    0,      -1,       },
-                { L_,    0,      0,        },
-                { L_,    0,      1,        },
-                { L_,    0,      2,        },
+                { L_,     0,     -2,     },
+                { L_,     0,     -1,     },
+                { L_,     0,      0,     },
+                { L_,     0,      1,     },
+                { L_,     0,      2,     },
 
-                { L_,    1,      -2,       },
-                { L_,    1,      -1,       },
-                { L_,    1,      0,        },
-                { L_,    1,      1,        },
-                { L_,    1,      2,        },
+                { L_,     1,     -2,     },
+                { L_,     1,     -1,     },
+                { L_,     1,      0,     },
+                { L_,     1,      1,     },
+                { L_,     1,      2,     },
 
-                { L_,    2,      -2,       },
-                { L_,    2,      -1,       },
-                { L_,    2,      0,        },
-                { L_,    2,      1,        },
-                { L_,    2,      2,        },
+                { L_,     2,     -2,     },
+                { L_,     2,     -1,     },
+                { L_,     2,      0,     },
+                { L_,     2,      1,     },
+                { L_,     2,      2,     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -925,9 +912,9 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods::print(ss,
-                                                        VALUE,
-                                                        LEVEL,
-                                                        SPACES_PER_LEVEL);
+                                                         VALUE,
+                                                         LEVEL,
+                                                         SPACES_PER_LEVEL);
 
                 LOOP_ASSERT(LINE, &ss == &ret);
                 LOOP_ASSERT(LINE, &ss == VALUE.stream());
@@ -958,15 +945,15 @@ int main(int argc, char *argv[])
                 // level = -2, spacesPerLevel = -2 .. +2
                 { L_,    -2,     -2,         "[ 45 1.23 ]"                   },
                 { L_,    -2,     -1,         "[ 45 1.23 ]"                   },
-                { L_,    -2,     0,          "[\n"
+                { L_,    -2,      0,         "[\n"
                                              "45\n"
                                              "1.23\n"
                                              "]\n"                           },
-                { L_,    -2,     1,          "[\n"
+                { L_,    -2,      1,         "[\n"
                                              "   45\n"
                                              "   1.23\n"
                                              "  ]\n"                         },
-                { L_,    -2,     2,          "[\n"
+                { L_,    -2,      2,         "[\n"
                                              "      45\n"
                                              "      1.23\n"
                                              "    ]\n"                       },
@@ -974,63 +961,63 @@ int main(int argc, char *argv[])
                 // level = -1, spacesPerLevel = -2 .. +2
                 { L_,    -1,     -2,         "[ 45 1.23 ]"                   },
                 { L_,    -1,     -1,         "[ 45 1.23 ]"                   },
-                { L_,    -1,     0,          "[\n"
+                { L_,    -1,      0,         "[\n"
                                              "45\n"
                                              "1.23\n"
                                              "]\n"                           },
-                { L_,    -1,     1,          "[\n"
+                { L_,    -1,      1,         "[\n"
                                              "  45\n"
                                              "  1.23\n"
                                              " ]\n"                          },
-                { L_,    -1,     2,          "[\n"
+                { L_,    -1,      2,         "[\n"
                                              "    45\n"
                                              "    1.23\n"
                                              "  ]\n"                         },
 
                 // level = 0, spacesPerLevel = -2 .. +2
-                { L_,    0,      -2,         "[ 45 1.23 ]"                   },
-                { L_,    0,      -1,         "[ 45 1.23 ]"                   },
-                { L_,    0,      0,          "[\n"
+                { L_,     0,     -2,         "[ 45 1.23 ]"                   },
+                { L_,     0,     -1,         "[ 45 1.23 ]"                   },
+                { L_,     0,      0,         "[\n"
                                              "45\n"
                                              "1.23\n"
                                              "]\n"                           },
-                { L_,    0,      1,          "[\n"
+                { L_,     0,      1,         "[\n"
                                              " 45\n"
                                              " 1.23\n"
                                              "]\n"                           },
-                { L_,    0,      2,          "[\n"
+                { L_,     0,      2,         "[\n"
                                              "  45\n"
                                              "  1.23\n"
                                              "]\n"                           },
 
                 // level = 1, spacesPerLevel = -2 .. +2
-                { L_,    1,      -2,         "  [ 45 1.23 ]"                 },
-                { L_,    1,      -1,         " [ 45 1.23 ]"                  },
-                { L_,    1,      0,          "[\n"
+                { L_,     1,     -2,         "  [ 45 1.23 ]"                 },
+                { L_,     1,     -1,         " [ 45 1.23 ]"                  },
+                { L_,     1,      0,         "[\n"
                                              "45\n"
                                              "1.23\n"
                                              "]\n"                           },
-                { L_,    1,      1,          " [\n"
+                { L_,     1,      1,          " [\n"
                                              "  45\n"
                                              "  1.23\n"
                                              " ]\n"                          },
-                { L_,    1,      2,          "  [\n"
+                { L_,     1,      2,          "  [\n"
                                              "    45\n"
                                              "    1.23\n"
                                              "  ]\n"                         },
 
                 // level = 2, spacesPerLevel = -2 .. +2
-                { L_,    2,      -2,         "    [ 45 1.23 ]"               },
-                { L_,    2,      -1,         "  [ 45 1.23 ]"                 },
-                { L_,    2,      0,          "[\n"
+                { L_,     2,     -2,         "    [ 45 1.23 ]"               },
+                { L_,     2,     -1,         "  [ 45 1.23 ]"                 },
+                { L_,     2,      0,         "[\n"
                                              "45\n"
                                              "1.23\n"
                                              "]\n"                           },
-                { L_,    2,      1,          "  [\n"
+                { L_,     2,      1,         "  [\n"
                                              "   45\n"
                                              "   1.23\n"
                                              "  ]\n"                         },
-                { L_,    2,      2,          "    [\n"
+                { L_,     2,      2,          "    [\n"
                                              "      45\n"
                                              "      1.23\n"
                                              "    ]\n"                       },
@@ -1046,9 +1033,9 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods::print(ss,
-                                                        VALUE,
-                                                        LEVEL,
-                                                        SPACES_PER_LEVEL);
+                                                         VALUE,
+                                                         LEVEL,
+                                                         SPACES_PER_LEVEL);
 
                 LOOP_ASSERT(LINE, &ss == &ret);
                 LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -1165,9 +1152,9 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods::print(ss,
-                                                        VALUE,
-                                                        LEVEL,
-                                                        SPACES_PER_LEVEL);
+                                                         VALUE,
+                                                         LEVEL,
+                                                         SPACES_PER_LEVEL);
 
                 LOOP_ASSERT(LINE, &ss == &ret);
                 LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -1182,25 +1169,24 @@ int main(int argc, char *argv[])
         //   have STL iterators.
         //
         // Concerns:
-        //   Indenting should work as expected.  The appropriate print method
-        //   should be called for each element.   Printing with bad streams
-        //   should be a no-op.
+        //: 1 Indenting should work as expected.
+        //: 2 The appropriate print method should be called for each element.
+        //: 3 Printing with bad streams should be a no-op.
         //
         // Plan:
         //   The test plan is very similar to the test plan for testing the
-        //   'BDEU_PAIR' print implementation function (test case 5).  First,
-        //   test indenting using simple types, like 'vector<int>'.  Next, test
-        //   using vectors of increasing size.  Next, test types that contain
-        //   objects that invoke different print methods, i.e., use the
-        //   following types:
+        //   'BDEU_PAIR' print implementation function (test case 5).
         //
-        //       o vector<vector<char> >
-        //       o vector<vector<int> >
-        //       o vector<pair<int, double> >
-        //       o vector<TestType_PrintMethod>
-        //
-        //   This is to test that this function routes to the correct print
-        //   method for the contained elements.
+        //: 1 First, test indenting using simple types, like 'vector<int>'.
+        //: 2 Then, test using vectors of increasing size.
+        //: 3 Next, to test that this function routes to the correct print
+        //:   method for the contained elements, test types that contain
+        //:   objects that invoke different print methods, i.e., use the
+        //:   following types:
+        //:   o 'vector<vector<char> >'
+        //:   o 'vector<vector<int> >'
+        //:   o 'vector<pair<int, double> >'
+        //:   o 'vector<TestType_PrintMethod>'
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>::print(...);
@@ -1213,9 +1199,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting indentation." << endl;
         {
-            typedef vector<int>                   Type;
+            typedef vector<int> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                BdeuPrintMethod;
 
             const int ELEMENTS[]   = { 45, 123 };
             const int NUM_ELEMENTS = sizeof ELEMENTS / sizeof *ELEMENTS;
@@ -1228,21 +1214,21 @@ int main(int argc, char *argv[])
                 int         d_spacesPerLevel;
                 const char *d_expectedResult;
             } DATA[] = {
-                //line   level   spcs/lvl    expectedResult
-                //----   -----   --------    --------------
+                //LINE   LEVEL   SPCS/LVL    EXPECTED_RESULT
+                //----   -----   --------    ---------------
 
                 // level = -2, spacesPerLevel = -2 .. +2
                 { L_,    -2,     -2,         "[ 45 123 ]"                    },
                 { L_,    -2,     -1,         "[ 45 123 ]"                    },
-                { L_,    -2,     0,          "[\n"
+                { L_,    -2,      0,         "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    -2,     1,          "[\n"
+                { L_,    -2,      1,         "[\n"
                                              "   45\n"
                                              "   123\n"
                                              "  ]\n"                         },
-                { L_,    -2,     2,          "[\n"
+                { L_,    -2,      2,         "[\n"
                                              "      45\n"
                                              "      123\n"
                                              "    ]\n"                       },
@@ -1250,63 +1236,63 @@ int main(int argc, char *argv[])
                 // level = -1, spacesPerLevel = -2 .. +2
                 { L_,    -1,     -2,         "[ 45 123 ]"                    },
                 { L_,    -1,     -1,         "[ 45 123 ]"                    },
-                { L_,    -1,     0,          "[\n"
+                { L_,    -1,      0,         "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    -1,     1,          "[\n"
+                { L_,    -1,      1,         "[\n"
                                              "  45\n"
                                              "  123\n"
                                              " ]\n"                          },
-                { L_,    -1,     2,          "[\n"
+                { L_,    -1,      2,         "[\n"
                                              "    45\n"
                                              "    123\n"
                                              "  ]\n"                         },
 
                 // level = 0, spacesPerLevel = -2 .. +2
-                { L_,    0,      -2,         "[ 45 123 ]"                    },
-                { L_,    0,      -1,         "[ 45 123 ]"                    },
-                { L_,    0,      0,          "[\n"
+                { L_,     0,     -2,         "[ 45 123 ]"                    },
+                { L_,     0,     -1,         "[ 45 123 ]"                    },
+                { L_,     0,      0,         "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    0,      1,          "[\n"
+                { L_,     0,      1,         "[\n"
                                              " 45\n"
                                              " 123\n"
                                              "]\n"                           },
-                { L_,    0,      2,          "[\n"
+                { L_,     0,      2,         "[\n"
                                              "  45\n"
                                              "  123\n"
                                              "]\n"                           },
 
                 // level = 1, spacesPerLevel = -2 .. +2
-                { L_,    1,      -2,         "  [ 45 123 ]"                  },
-                { L_,    1,      -1,         " [ 45 123 ]"                   },
-                { L_,    1,      0,          "[\n"
+                { L_,     1,     -2,         "  [ 45 123 ]"                  },
+                { L_,     1,     -1,         " [ 45 123 ]"                   },
+                { L_,     1,      0,         "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    1,      1,          " [\n"
+                { L_,     1,      1,         " [\n"
                                              "  45\n"
                                              "  123\n"
                                              " ]\n"                          },
-                { L_,    1,      2,          "  [\n"
+                { L_,     1,      2,         "  [\n"
                                              "    45\n"
                                              "    123\n"
                                              "  ]\n"                         },
 
                 // level = 2, spacesPerLevel = -2 .. +2
-                { L_,    2,      -2,         "    [ 45 123 ]"                },
-                { L_,    2,      -1,         "  [ 45 123 ]"                  },
-                { L_,    2,      0,          "[\n"
+                { L_,     2,     -2,         "    [ 45 123 ]"                },
+                { L_,     2,     -1,         "  [ 45 123 ]"                  },
+                { L_,     2,      0,          "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    2,      1,          "  [\n"
+                { L_,     2,      1,         "  [\n"
                                              "   45\n"
                                              "   123\n"
                                              "  ]\n"                         },
-                { L_,    2,      2,          "    [\n"
+                { L_,     2,      2,         "    [\n"
                                              "      45\n"
                                              "      123\n"
                                              "    ]\n"                       },
@@ -1345,8 +1331,8 @@ int main(int argc, char *argv[])
                 const char *d_expectedMultiLineResult;
                 const char *d_expectedSingleLineResult;
             } DATA[] = {
-                //line   elements      numElements     multiLine
-                //----   --------      -----------     ---------
+                //LINE   ELEMENTS      NUM_ELEMENTS    multiLine
+                //----   --------      ------------    ---------
                 //                                     singleLine
                 //                                     ----------
                 { L_,    { },          0,              "[\n]\n",
@@ -1380,10 +1366,11 @@ int main(int argc, char *argv[])
                     stringstream ss;
 
                     ostream& ret = bdlb::PrintMethods_Imp<
-                                        Type,
-                                        BdeuPrintMethod>::print(ss,
-                                                                VALUE,
-                                                                0, 0);
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         0);
 
                     LOOP_ASSERT(LINE, &ss == &ret);
                     LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -1399,10 +1386,11 @@ int main(int argc, char *argv[])
                     stringstream ss;
 
                     ostream& ret = bdlb::PrintMethods_Imp<
-                                        Type,
-                                        BdeuPrintMethod>::print(ss,
-                                                                VALUE,
-                                                                0, -1);
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
                     LOOP_ASSERT(LINE, &ss == &ret);
                     LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
@@ -1413,20 +1401,20 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
-            typedef vector<char>                  ElemType;
-            typedef vector<ElemType>              Type;
+            typedef vector<char>      ElemType;
+            typedef vector<ElemType>  Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                      BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
 
             const ElemType DATA[] = { ElemType(FIRST_DATA,
                                                FIRST_DATA
-                                               + sizeof(FIRST_DATA)-1),
+                                             + sizeof(FIRST_DATA)-1),
                                       ElemType(SECOND_DATA,
                                                SECOND_DATA
-                                               + sizeof(SECOND_DATA)-1) };
+                                             + sizeof(SECOND_DATA)-1) };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1440,11 +1428,12 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                         ss,
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1459,11 +1448,12 @@ int main(int argc, char *argv[])
                                                "]";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1473,24 +1463,24 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
         {
-            typedef vector<int>                   ElemType;
-            typedef vector<ElemType>              Type;
+            typedef vector<int>      ElemType;
+            typedef vector<ElemType> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                     BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
 
-            const int NUM_FIRST_DATA  = sizeof FIRST_DATA / sizeof *FIRST_DATA;
-            const int NUM_SECOND_DATA = sizeof SECOND_DATA
-                                        / sizeof *SECOND_DATA;
+            const int NUM_FIRST_DATA  = sizeof  FIRST_DATA
+                                      / sizeof *FIRST_DATA;
+            const int NUM_SECOND_DATA = sizeof  SECOND_DATA
+                                      / sizeof *SECOND_DATA;
 
             const ElemType DATA[] = { ElemType(FIRST_DATA,
-                                               FIRST_DATA + NUM_FIRST_DATA),
+                                               FIRST_DATA  + NUM_FIRST_DATA),
                                       ElemType(SECOND_DATA,
                                                SECOND_DATA + NUM_SECOND_DATA)
                                     };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const Type VALUE(DATA, DATA + NUM_DATA);
@@ -1510,11 +1500,12 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                         ss,
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1526,11 +1517,12 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 2 6 23 ] [ 54 2 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1540,15 +1532,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'pair<...>' elements." << endl;
         {
-            typedef pair<int, double>             ElemType;
-            typedef vector<ElemType>              Type;
+            typedef pair<int, double> ElemType;
+            typedef vector<ElemType>  Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                      BdeuPrintMethod;
 
-            const ElemType DATA[] = { ElemType(45, 1.23),
-                                      ElemType(21, 97.54) };
-
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const ElemType DATA[]   = { ElemType(45,  1.23),
+                                        ElemType(21, 97.54) };
+            const int      NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const Type VALUE(DATA, DATA + NUM_DATA);
 
@@ -1566,11 +1557,12 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                         ss,
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1582,11 +1574,12 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 45 1.23 ] [ 21 97.54 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+                ostream& ret = bdlb::PrintMethods_Imp<
+                                                 Type,
+                                                 BdeuPrintMethod>::print(ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1597,15 +1590,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'TestType_PrintMethod' elements."
                           << endl;
         {
-            typedef TestType_PrintMethod          ElemType;
-            typedef vector<ElemType>              Type;
+            typedef TestType_PrintMethod ElemType;
+            typedef vector<ElemType>     Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                         BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
                 const TestType_PrintMethod DATA[1];
-                const int NUM_DATA = 1;
+                const int                  NUM_DATA = 1;
 
                 const Type VALUE(DATA, DATA + NUM_DATA);
 
@@ -1618,7 +1611,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1639,20 +1632,20 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tUsing single line output." << endl;
             {
                 const TestType_PrintMethod DATA[1];
-                const int NUM_DATA = 1;
+                const int                  NUM_DATA = 1;
 
                 const Type VALUE(DATA, DATA + NUM_DATA);
 
-                const int LEVEL            = 3;
+                const int LEVEL            =  3;
                 const int SPACES_PER_LEVEL = -8;
 
-                const int EXPECTED_LEVEL            = 0;
+                const int EXPECTED_LEVEL            =  0;
                 const int EXPECTED_SPACES_PER_LEVEL = -1;
 
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1673,9 +1666,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
-            typedef vector<int>                   Type;
+            typedef vector<int> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                BdeuPrintMethod;
+                                BdeuPrintMethod;
 
             const Type VALUE;
 
@@ -1683,9 +1676,12 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret =
-                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                    ss, VALUE, 0, -1);
+            ostream& ret = bdlb::PrintMethods_Imp<Type,
+                                                  BdeuPrintMethod>::print(
+                                                                         ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());
@@ -1697,22 +1693,21 @@ int main(int argc, char *argv[])
         //   This will test the print implementation function for pairs.
         //
         // Concerns:
-        //   Indenting should work as expected.  The appropriate print method
-        //   should be called for each element.   Printing with bad streams
-        //   should be a no-op.
+        //: 1 Indenting should work as expected.
+        //: 2 The appropriate print method should be called for each element.
+        //: 2 Printing with bad streams should be a no-op.
         //
         // Plan:
-        //   First, test indenting using simple types, like 'int' and 'double'.
-        //   Next, test pairs that contain objects that invoke different print
-        //   methods, i.e., use the following pair types:
-        //
-        //       o pair<vector<char>, vector<char> >
-        //       o pair<vector<int>, vector<int> >
-        //       o pair<pair<int, int>, pair<double, double> >
-        //       o pair<TestType_PrintMethod, TestType_PrintMethod>
-        //
-        //   This is to test that this function routes to the correct print
-        //   method for the contained elements.
+        //: 1 First, test indenting using simple types, like 'int' and
+        //:   'double'.
+        //: 2 Then, to test that this function routes to the correct print
+        //:   method for the contained elements, test pairs that contain
+        //:   objects that invoke different print methods, i.e., use the
+        //:   following pair types:
+        //:   o 'pair<vector<char>, vector<char> >'
+        //:   o 'pair<vector<int>, vector<int> >'
+        //:   o 'pair<pair<int, int>, pair<double, double> >'
+        //:   o 'pair<TestType_PrintMethod, TestType_PrintMethod>'
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, BDEU_PAIR>::print(...);
@@ -1729,7 +1724,7 @@ int main(int argc, char *argv[])
                 BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
-            const double DOUBLE_VALUE = 1.23;
+            const double DOUBLE_VALUE =  1.23;
             const Type   VALUE        = Type(INT_VALUE, DOUBLE_VALUE);
 
             static const struct {
@@ -1873,7 +1868,8 @@ int main(int argc, char *argv[])
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1939,7 +1935,8 @@ int main(int argc, char *argv[])
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -1992,7 +1989,8 @@ int main(int argc, char *argv[])
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
-                                                                         0, 0);
+                                                                         0,
+                                                                         0);
 
                 ASSERT(&ss == &ret);
                 LOOP2_ASSERT(EXPECTED_OUTPUT,   ss.str(),
@@ -2129,12 +2127,12 @@ int main(int argc, char *argv[])
         //   object's 'print' method.
         //
         // Concerns:
-        //   The arguments should be passed correctly.
+        //: 1 The arguments should be passed correctly.
         //
         // Plan:
-        //   Use the 'TestType_PrintMethod' class to test the values passed to
-        //   the 'print' method.  Use varying values for 'level' and
-        //   'spacesPerLevel'.
+        //: 1 Use the 'TestType_PrintMethod' class to test the values passed to
+        //:   the 'print' method.
+        //: 2 Use varying values for 'level' and 'spacesPerLevel'.
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, BdeuPrintMethod>::print(...);
@@ -2149,37 +2147,37 @@ int main(int argc, char *argv[])
             int d_level;
             int d_spacesPerLevel;
         } DATA[] = {
-            //line   level   spcs/lvl
+            //LINE   LEVEL   SPCS/LVL
             //----   -----   --------
             { L_,    -2,     -2,       },
             { L_,    -2,     -1,       },
-            { L_,    -2,     0,        },
-            { L_,    -2,     1,        },
-            { L_,    -2,     2,        },
+            { L_,    -2,      0,       },
+            { L_,    -2,      1,       },
+            { L_,    -2,      2,       },
 
             { L_,    -1,     -2,       },
             { L_,    -1,     -1,       },
-            { L_,    -1,     0,        },
-            { L_,    -1,     1,        },
-            { L_,    -1,     2,        },
+            { L_,    -1,      0,       },
+            { L_,    -1,      1,       },
+            { L_,    -1,      2,       },
 
-            { L_,    0,      -2,       },
-            { L_,    0,      -1,       },
-            { L_,    0,      0,        },
-            { L_,    0,      1,        },
-            { L_,    0,      2,        },
+            { L_,     0,      -2,      },
+            { L_,     0,      -1,      },
+            { L_,     0,       0,      },
+            { L_,     0,       1,      },
+            { L_,     0,       2,      },
 
-            { L_,    1,      -2,       },
-            { L_,    1,      -1,       },
-            { L_,    1,      0,        },
-            { L_,    1,      1,        },
-            { L_,    1,      2,        },
+            { L_,     1,      -2,      },
+            { L_,     1,      -1,      },
+            { L_,     1,       0,      },
+            { L_,     1,       1,      },
+            { L_,     1,       2,      },
 
-            { L_,    2,      -2,       },
-            { L_,    2,      -1,       },
-            { L_,    2,      0,        },
-            { L_,    2,      1,        },
-            { L_,    2,      2,        },
+            { L_,     2,      -2,      },
+            { L_,     2,      -1,      },
+            { L_,     2,       0,      },
+            { L_,     2,       1,      },
+            { L_,     2,       2,      },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2188,9 +2186,9 @@ int main(int argc, char *argv[])
             const int LEVEL            = DATA[i].d_level;
             const int SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
 
-            typedef TestType_PrintMethod      Type;
+            typedef TestType_PrintMethod Type;
             typedef bslmf::SelectTraitCase<bdlb::HasPrintMethod>::Type
-                BdeuPrintMethod;
+                                         BdeuPrintMethod;
 
             const Type VALUE;
 
@@ -2215,13 +2213,14 @@ int main(int argc, char *argv[])
         //   '<<' output stream operator.
         //
         // Concerns:
-        //   Indentation should work as expected.  Printing with bad streams
-        //   should be a no-op.
+        //: 1 Indentation should work as expected.
+        //: 2 Printing with bad streams should be a no-op.
         //
         // Plan:
-        //   Using a string stream, test the print implementation method using
-        //   'int', 'double' and 'bsl::string' objects, using varying level &
-        //   spacesPerLevel values.  Check that the results are as expected.
+        //: 1 Using a string stream, test the print implementation method using
+        //:   'int', 'double' and 'bsl::string' objects, using varying
+        //:   level &  spacesPerLevel values.  Check that the results are as
+        //:   expected.
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>::print(...);
@@ -2242,37 +2241,37 @@ int main(int argc, char *argv[])
             const char *d_expectedPrefix;
             const char *d_expectedSuffix;
         } DATA[] = {
-            //line   level   spcs/lvl    prefix    suffix
+            //LINE   LEVEL   SPCS/LVL    PREFIX    SUFFIX
             //----   -----   --------    ------    ------
             { L_,    -2,     -2,         "",       ""        },
             { L_,    -2,     -1,         "",       ""        },
-            { L_,    -2,     0,          "",       "\n"      },
-            { L_,    -2,     1,          "",       "\n"      },
-            { L_,    -2,     2,          "",       "\n"      },
+            { L_,    -2,      0,         "",       "\n"      },
+            { L_,    -2,      1,         "",       "\n"      },
+            { L_,    -2,      2,         "",       "\n"      },
 
             { L_,    -1,     -2,         "",       ""        },
             { L_,    -1,     -1,         "",       ""        },
-            { L_,    -1,     0,          "",       "\n"      },
-            { L_,    -1,     1,          "",       "\n"      },
-            { L_,    -1,     2,          "",       "\n"      },
+            { L_,    -1,      0,         "",       "\n"      },
+            { L_,    -1,      1,         "",       "\n"      },
+            { L_,    -1,      2,         "",       "\n"      },
 
-            { L_,    0,      -2,         "",       ""        },
-            { L_,    0,      -1,         "",       ""        },
-            { L_,    0,      0,          "",       "\n"      },
-            { L_,    0,      1,          "",       "\n"      },
-            { L_,    0,      2,          "",       "\n"      },
+            { L_,     0,     -2,         "",       ""        },
+            { L_,     0,     -1,         "",       ""        },
+            { L_,     0,      0,         "",       "\n"      },
+            { L_,     0,      1,         "",       "\n"      },
+            { L_,     0,      2,         "",       "\n"      },
 
-            { L_,    1,      -2,         "  ",     ""        },
-            { L_,    1,      -1,         " ",      ""        },
-            { L_,    1,      0,          "",       "\n"      },
-            { L_,    1,      1,          " ",      "\n"      },
-            { L_,    1,      2,          "  ",     "\n"      },
+            { L_,     1,     -2,         "  ",     ""        },
+            { L_,     1,     -1,         " ",      ""        },
+            { L_,     1,      0,         "",       "\n"      },
+            { L_,     1,      1,         " ",      "\n"      },
+            { L_,     1,      2,         "  ",     "\n"      },
 
-            { L_,    2,      -2,         "    ",   ""        },
-            { L_,    2,      -1,         "  ",     ""        },
-            { L_,    2,      0,          "",       "\n"      },
-            { L_,    2,      1,          "  ",     "\n"      },
-            { L_,    2,      2,          "    ",   "\n"      },
+            { L_,     2,      -2,        "    ",   ""        },
+            { L_,     2,      -1,        "  ",     ""        },
+            { L_,     2,       0,        "",       "\n"      },
+            { L_,     2,       1,        "  ",     "\n"      },
+            { L_,     2,       2,        "    ",   "\n"      },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2280,7 +2279,7 @@ int main(int argc, char *argv[])
         {
             typedef int Type;
 
-            const Type   VALUE          = 45;
+            const Type   VALUE          =  45;
             const string EXPECTED_VALUE = "45";
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -2291,13 +2290,13 @@ int main(int argc, char *argv[])
                 const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
 
                 const string EXPECTED_RESULT = EXPECTED_PREFIX
-                                               + EXPECTED_VALUE
-                                               + EXPECTED_SUFFIX;
+                                             + EXPECTED_VALUE
+                                             + EXPECTED_SUFFIX;
 
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2313,7 +2312,7 @@ int main(int argc, char *argv[])
         {
             typedef double Type;
 
-            const Type   VALUE          = 45.678;
+            const Type   VALUE          =  45.678;
             const string EXPECTED_VALUE = "45.678";
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -2324,8 +2323,8 @@ int main(int argc, char *argv[])
                 const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
 
                 const string EXPECTED_RESULT = EXPECTED_PREFIX
-                                               + EXPECTED_VALUE
-                                               + EXPECTED_SUFFIX;
+                                             + EXPECTED_VALUE
+                                             + EXPECTED_SUFFIX;
 
                 stringstream ss;
 
@@ -2387,9 +2386,12 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret =
-                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                    ss, VALUE, 0, -1);
+            ostream& ret = bdlb::PrintMethods_Imp<Type,
+                                                  BdeuPrintMethod>::print(
+                                                                         ss,
+                                                                         VALUE,
+                                                                         0,
+                                                                         -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());
@@ -2402,16 +2404,18 @@ int main(int argc, char *argv[])
         //   objects.
         //
         // Concerns:
-        //   Output should be enclosed in double quotes.  Indentation should
-        //   work as expected.  Non-printable characters must be printed using
-        //   their hexadecimal representation.  Interleaved printable and
-        //   non-printable characters must work as expected.  Printing with bad
-        //   streams should be a no-op.
+        //: 1 Output should be enclosed in double quotes.
+        //: 2 Indentation should work as expected.
+        //: 3 Non-printable characters must be printed using their hexadecimal
+        //:   representation.
+        //: 4 Interleaved printable and non-printable characters must work as
+        //:   expected.
+        //: 5 Printing with bad streams should be a no-op.
         //
         // Plan:
-        //   For each vector in an array of 'vector<char>' objects, print the
-        //   vector to a string stream and verify that the results are as
-        //   expected.
+        //: 1 For each vector in an array of 'vector<char>' objects, print the
+        //:   vector to a string stream and verify that the results are as
+        //:   expected.
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
@@ -2427,72 +2431,72 @@ int main(int argc, char *argv[])
             int         d_spacesPerLevel;
             const char *d_expectedResult;
         } DATA[] = {
-            //line   spec          level spcs/lvl   expectedResult
-            //----   ----          ----- --------   --------------
+            //LINE   SPEC          LEVEL SPCS/LVL  EXPECTED_RESULT
+            //----   ----          ----- --------  ---------------
 
             // Indenting & spacing.
-            { L_,    "",             -1,     -2,    "\"\""                   },
-            { L_,    "",             -1,     -1,    "\"\""                   },
-            { L_,    "",             -1,     0,     "\"\"\n"                 },
-            { L_,    "",             -1,     1,     "\"\"\n"                 },
-            { L_,    "",             -1,     2,     "\"\"\n"                 },
-            { L_,    "",             0,      -2,    "\"\""                   },
-            { L_,    "",             0,      -1,    "\"\""                   },
-            { L_,    "",             0,      0,     "\"\"\n"                 },
-            { L_,    "",             0,      1,     "\"\"\n"                 },
-            { L_,    "",             0,      2,     "\"\"\n"                 },
-            { L_,    "",             1,      -2,    "  \"\""                 },
-            { L_,    "",             1,      -1,    " \"\""                  },
-            { L_,    "",             1,      0,     "\"\"\n"                 },
-            { L_,    "",             1,      1,     " \"\"\n"                },
-            { L_,    "",             1,      2,     "  \"\"\n"               },
-            { L_,    "",             2,      -2,    "    \"\""               },
-            { L_,    "",             2,      -1,    "  \"\""                 },
-            { L_,    "",             2,      0,     "\"\"\n"                 },
-            { L_,    "",             2,      1,     "  \"\"\n"               },
-            { L_,    "",             2,      2,     "    \"\"\n"             },
+            { L_,    "",             -1,    -2,    "\"\""                   },
+            { L_,    "",             -1,    -1,    "\"\""                   },
+            { L_,    "",             -1,     0,    "\"\"\n"                 },
+            { L_,    "",             -1,     1,    "\"\"\n"                 },
+            { L_,    "",             -1,     2,    "\"\"\n"                 },
+            { L_,    "",              0,    -2,    "\"\""                   },
+            { L_,    "",              0,    -1,    "\"\""                   },
+            { L_,    "",              0,     0,    "\"\"\n"                 },
+            { L_,    "",              0,     1,    "\"\"\n"                 },
+            { L_,    "",              0,     2,    "\"\"\n"                 },
+            { L_,    "",              1,    -2,    "  \"\""                 },
+            { L_,    "",              1,    -1,    " \"\""                  },
+            { L_,    "",              1,     0,    "\"\"\n"                 },
+            { L_,    "",              1,     1,    " \"\"\n"                },
+            { L_,    "",              1,     2,    "  \"\"\n"               },
+            { L_,    "",              2,    -2,    "    \"\""               },
+            { L_,    "",              2,    -1,    "  \"\""                 },
+            { L_,    "",              2,     0,    "\"\"\n"                 },
+            { L_,    "",              2,     1,    "  \"\"\n"               },
+            { L_,    "",              2,     2,    "    \"\"\n"             },
 
             // Hex conversion.  Note: 0x00 is tested separately below.
-            { L_,    "\x01",         0,      -1,    "\"\\x01\""              },
-            { L_,    "\x02",         0,      -1,    "\"\\x02\""              },
-            { L_,    "\n",           0,      -1,    "\"\\x0A\""              },
-            { L_,    "\r",           0,      -1,    "\"\\x0D\""              },
-            { L_,    "\x7F",         0,      -1,    "\"\\x7F\""              },
-            { L_,    "\x80",         0,      -1,    "\"\\x80\""              },
-            { L_,    "\x81",         0,      -1,    "\"\\x81\""              },
-            { L_,    "\xFE",         0,      -1,    "\"\\xFE\""              },
-            { L_,    "\xFF",         0,      -1,    "\"\\xFF\""              },
+            { L_,    "\x01",          0,    -1,    "\"\\x01\""              },
+            { L_,    "\x02",          0,    -1,    "\"\\x02\""              },
+            { L_,    "\n",            0,    -1,    "\"\\x0A\""              },
+            { L_,    "\r",            0,    -1,    "\"\\x0D\""              },
+            { L_,    "\x7F",          0,    -1,    "\"\\x7F\""              },
+            { L_,    "\x80",          0,    -1,    "\"\\x80\""              },
+            { L_,    "\x81",          0,    -1,    "\"\\x81\""              },
+            { L_,    "\xFE",          0,    -1,    "\"\\xFE\""              },
+            { L_,    "\xFF",          0,    -1,    "\"\\xFF\""              },
 
             // All printable characters, increasing length.
-            { L_,    "a",            0,      -1,    "\"a\""                  },
-            { L_,    "ab",           0,      -1,    "\"ab\""                 },
-            { L_,    "abc",          0,      -1,    "\"abc\""                },
-            { L_,    "abcd",         0,      -1,    "\"abcd\""               },
-            { L_,    "abcde",        0,      -1,    "\"abcde\""              },
+            { L_,    "a",             0,    -1,    "\"a\""                  },
+            { L_,    "ab",            0,    -1,    "\"ab\""                 },
+            { L_,    "abc",           0,    -1,    "\"abc\""                },
+            { L_,    "abcd",          0,    -1,    "\"abcd\""               },
+            { L_,    "abcde",         0,    -1,    "\"abcde\""              },
 
             // Interleaved printable/non-printable.
-            { L_,    "a\rb\nc",      0,      -1,    "\"a\\x0Db\\x0Ac\""      },
-            { L_,    "aA\rbB\ncC",   0,      -1,    "\"aA\\x0DbB\\x0AcC\""   },
+            { L_,    "a\rb\nc",       0,    -1,    "\"a\\x0Db\\x0Ac\""      },
+            { L_,    "aA\rbB\ncC",    0,    -1,    "\"aA\\x0DbB\\x0AcC\""   },
 
-            { L_,    "\r\n",         0,      -1,    "\"\\x0D\\x0A\""         },
-            { L_,    "\r\nz",        0,      -1,    "\"\\x0D\\x0Az\""        },
-            { L_,    "\r\nzy",       0,      -1,    "\"\\x0D\\x0Azy\""       },
-            { L_,    "\r\nzyx",      0,      -1,    "\"\\x0D\\x0Azyx\""      },
+            { L_,    "\r\n",          0,    -1,    "\"\\x0D\\x0A\""         },
+            { L_,    "\r\nz",         0,    -1,    "\"\\x0D\\x0Az\""        },
+            { L_,    "\r\nzy",        0,    -1,    "\"\\x0D\\x0Azy\""       },
+            { L_,    "\r\nzyx",       0,    -1,    "\"\\x0D\\x0Azyx\""      },
 
-            { L_,    "a\r\n",        0,      -1,    "\"a\\x0D\\x0A\""        },
-            { L_,    "a\r\nz",       0,      -1,    "\"a\\x0D\\x0Az\""       },
-            { L_,    "a\r\nzy",      0,      -1,    "\"a\\x0D\\x0Azy\""      },
-            { L_,    "a\r\nzyx",     0,      -1,    "\"a\\x0D\\x0Azyx\""     },
+            { L_,    "a\r\n",         0,    -1,    "\"a\\x0D\\x0A\""        },
+            { L_,    "a\r\nz",        0,    -1,    "\"a\\x0D\\x0Az\""       },
+            { L_,    "a\r\nzy",       0,    -1,    "\"a\\x0D\\x0Azy\""      },
+            { L_,    "a\r\nzyx",      0,    -1,    "\"a\\x0D\\x0Azyx\""     },
 
-            { L_,    "ab\r\n",       0,      -1,    "\"ab\\x0D\\x0A\""       },
-            { L_,    "ab\r\nz",      0,      -1,    "\"ab\\x0D\\x0Az\""      },
-            { L_,    "ab\r\nzy",     0,      -1,    "\"ab\\x0D\\x0Azy\""     },
-            { L_,    "ab\r\nzyx",    0,      -1,    "\"ab\\x0D\\x0Azyx\""    },
+            { L_,    "ab\r\n",        0,    -1,    "\"ab\\x0D\\x0A\""       },
+            { L_,    "ab\r\nz",       0,    -1,    "\"ab\\x0D\\x0Az\""      },
+            { L_,    "ab\r\nzy",      0,    -1,    "\"ab\\x0D\\x0Azy\""     },
+            { L_,    "ab\r\nzyx",     0,    -1,    "\"ab\\x0D\\x0Azyx\""    },
 
-            { L_,    "abc\r\n",      0,      -1,    "\"abc\\x0D\\x0A\""      },
-            { L_,    "abc\r\nz",     0,      -1,    "\"abc\\x0D\\x0Az\""     },
-            { L_,    "abc\r\nzy",    0,      -1,    "\"abc\\x0D\\x0Azy\""    },
-            { L_,    "abc\r\nzyx",   0,      -1,    "\"abc\\x0D\\x0Azyx\""   },
+            { L_,    "abc\r\n",       0,    -1,    "\"abc\\x0D\\x0A\""      },
+            { L_,    "abc\r\nz",      0,    -1,    "\"abc\\x0D\\x0Az\""     },
+            { L_,    "abc\r\nzy",     0,    -1,    "\"abc\\x0D\\x0Azy\""    },
+            { L_,    "abc\r\nzyx",    0,    -1,    "\"abc\\x0D\\x0Azyx\""   },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2559,28 +2563,28 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This test exercises basic functionality, but tests nothing.
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   The print methods should compile and the output should be as
-        //   expected.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Print a selection of different types to an output string stream
-        //   and verify that the results are as expected.
+        //: 1 Print a selection of different types to an output string stream
+        //:   and verify that the results are as expected.
         //
         // Testing:
-        //   This test case exercises basic value-semantic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
+        if (verbose) cout << "\n" "BREATHING TEST" "\n"
+                                  "==============" "\n";
 
         if (verbose) cout << "\nWith Fundamental Types." << endl;
         {
             if (veryVerbose) cout << "\tWith 'int'." << endl;
             {
-                const int  VALUE             = 123;
+                const int  VALUE             =  123;
                 const char EXPECTED_OUTPUT[] = "123";
 
                 stringstream ss;
@@ -2592,7 +2596,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tWith 'double'." << endl;
             {
-                const double VALUE             = 123.456;
+                const double VALUE             =  123.456;
                 const char   EXPECTED_OUTPUT[] = "123.456";
 
                 stringstream ss;
@@ -2641,11 +2645,10 @@ int main(int argc, char *argv[])
             {
                 typedef pair<const string, int> Pair;
 
-                const Pair DATA[] = { Pair("First",   2),
-                                      Pair("Second",  9),
-                                      Pair("Third",  21) };
-
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                const Pair DATA[]   = { Pair("First",   2),
+                                        Pair("Second",  9),
+                                        Pair("Third",  21) };
+                const int  NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 const map<string, int> VALUE(DATA, DATA + NUM_DATA);
                 const char             EXPECTED_OUTPUT[] = "[ [ First 2 ] "
