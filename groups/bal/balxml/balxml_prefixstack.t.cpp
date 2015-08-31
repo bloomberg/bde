@@ -1,5 +1,8 @@
 // balxml_prefixstack.t.cpp                                           -*-C++-*-
 #include <balxml_prefixstack.h>
+
+#include <bdls_testutil.h>
+
 #include <balxml_namespaceregistry.h>
 
 #include <bslma_testallocator.h>
@@ -8,24 +11,25 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                   TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
 // Testing is divided into following two independent parts.
 // (1) Testing 'lookup' in [02].
 //
 // (2) Testing 'pushPrefix', 'lookupByPrefix' and 'popPrefix'.
-// It is further divided into following parts.
+//   It is further divided into following parts.
 //   First the primary manipulator 'pushPrefix' is tested.
 //
 //   The primary manipulator is used to test accessor 'lookupByPrefix'.
 //
 //   The primary manipulator is used to test other manipulator
 //   'popPrefix'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [01] balxml::NamespaceRegistry(bslma::Allocator *allocator = 0);
 // [01] ~balxml::NamespaceRegistry();
@@ -38,68 +42,58 @@ using namespace BloombergLP;
 //
 // ACCESSORS
 // [04] int lookupByPrefix(const bsl::string& prefix) const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [06] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // Allow compilation of individual test-cases (for test drivers that take a
 // very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 // ============================================================================
 //         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
@@ -110,11 +104,11 @@ static int veryVeryVerbose;
 
 typedef balxml::NamespaceRegistry Registry;
 
-//=============================================================================
+// ============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -315,8 +309,8 @@ int main(int argc, char *argv[])
           ASSERT(0 == z.lookupNamespaceId(P));
         }
 
-        // invoke 'pushPrefix(P, N)' when both P and N exist in the
-        // registry and P is associated with N
+        // invoke 'pushPrefix(P, N)' when both P and N exist in the registry
+        // and P is associated with N
         {
           bslma::TestAllocator ta(veryVeryVerbose);
           balxml::NamespaceRegistry x(&ta);
@@ -360,8 +354,8 @@ int main(int argc, char *argv[])
           ASSERT(1 == z.pushPrefix(P, N));
         }
 
-        // invoke 'pushPrefix(P, N)' when P exist in the registry but
-        // is associated with N1
+        // invoke 'pushPrefix(P, N)' when P exist in the registry but is
+        // associated with N1
         {
           bslma::TestAllocator ta(veryVeryVerbose);
           balxml::NamespaceRegistry x(&ta);

@@ -1,59 +1,103 @@
 // balxml_encoder.t.cpp                                               -*-C++-*-
-
 #include <balxml_encoder.h>
+
+#include <bdls_testutil.h>
+
 #include <balxml_decoder.h>
 #include <balxml_minireader.h>
 
-#include <bdlb_printmethods.h>  // for printing vector
+#include <bdlat_attributeinfo.h>
+#include <bdlat_formattingmode.h>
+#include <bdlat_selectioninfo.h>
+#include <bdlat_typetraits.h>
+#include <bdlat_valuetypefunctions.h>
 
-#include <bdlsb_memoutstreambuf.h>
+#include <bdlb_chartype.h>
+#include <bdlb_nullablevalue.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_memoutstreambuf.h>
 
-#include <bslma_allocator.h>
-
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
-#include <bsl_cstdio.h>
+#include <bslalg_typetraits.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::atoi;
-using bsl::flush;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // CREATORS
 //
 // MANIPULATORS
 //
 // ACCESSORS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -366,59 +410,6 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 #endif
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -437,50 +428,16 @@ int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
 // test_mysequence.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCE
-#define INCLUDED_TEST_MYSEQUENCE
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: MySequence
+//@CLASSES:
+//  MySequence: a sequence
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'MySequence'
 
 namespace BloombergLP {
 
@@ -536,16 +493,16 @@ class MySequence {
     // CREATORS
     explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MySequence(const MySequence&  original,
                bslma::Allocator  *basicAllocator = 0);
-        // Create an object of type 'MySequence' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MySequence' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequence();
         // Destroy this object.
@@ -569,19 +526,19 @@ class MySequence {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -640,12 +597,12 @@ class MySequence {
         // class, and -1 otherwise.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bsl::string& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
 };
 
@@ -665,8 +622,8 @@ bool operator!=(const MySequence& lhs, const MySequence& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -760,8 +717,8 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                    const char   *name,
+                                    int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -833,8 +790,8 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequence::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                const char *name,
+                                int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -889,22 +846,11 @@ bsl::ostream& test::operator<<(
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -1055,54 +1001,16 @@ bsl::ostream& MySequence::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHNULLABLES
-#define INCLUDED_TEST_MYSEQUENCEWITHNULLABLES
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: MySequenceWithNullables
+//@CLASSES:
+//  MySequenceWithNullables: a sequence with nullables
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'MySequenceWithNullables'
 
 namespace BloombergLP {
 
@@ -1172,8 +1080,8 @@ class MySequenceWithNullables {
                 bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the value
         // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequenceWithNullables();
         // Destroy this object.
@@ -1197,19 +1105,19 @@ class MySequenceWithNullables {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -1272,16 +1180,16 @@ class MySequenceWithNullables {
         // class, and -1 otherwise.
 
     const bdlb::NullableValue<int>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bdlb::NullableValue<bsl::string>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const bdlb::NullableValue<MySequence>& attribute3() const;
-        // Return a reference to the non-modifiable "Attribute3"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute3" attribute of
+        // this object.
 
 };
 
@@ -1304,8 +1212,8 @@ bool operator!=(const MySequenceWithNullables& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const MySequenceWithNullables&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1314,7 +1222,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
 // CREATORS
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_attribute3(bslma::Default::allocator(basicAllocator))
@@ -1323,8 +1231,8 @@ MySequenceWithNullables::MySequenceWithNullables(
 
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-    const MySequenceWithNullables& original,
-    bslma::Allocator *basicAllocator)
+                                const MySequenceWithNullables&  original,
+                                bslma::Allocator               *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -1417,8 +1325,8 @@ int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
 template <class MANIPULATOR>
 inline
 int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                                 const char   *name,
+                                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -1507,8 +1415,8 @@ int MySequenceWithNullables::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequenceWithNullables::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                             const char *name,
+                                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -1574,23 +1482,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -1765,58 +1661,16 @@ bsl::ostream& MySequenceWithNullables::print(
 // ----------------------------------------------------------------------------
 
 // test_mychoice.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYCHOICE
-#define INCLUDED_TEST_MYCHOICE
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: MyChoice
+//@CLASSES:
+//  MyChoice: a choice class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'MyChoice'
 
 namespace BloombergLP {
 
@@ -1881,16 +1735,16 @@ class MyChoice {
 
     // CREATORS
     explicit MyChoice(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoice' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'MyChoice' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoice' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MyChoice' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MyChoice();
         // Destroy this object.
@@ -1900,8 +1754,8 @@ class MyChoice {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int makeSelection(int selectionId);
         // Set the value of this object to be the default for the selection
@@ -1916,17 +1770,15 @@ class MyChoice {
 
     void makeSelection1();
     void makeSelection1(int value);
-        // Set the value of this object to be a "Selection1" value.
-        // Optionally specify the 'value' of the "Selection1".  If
-        // 'value' is not specified, the default "Selection1" value is
-        // used.
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
 
     void makeSelection2();
     void makeSelection2(const bsl::string& value);
         // Set the value of this object to be a "Selection2" value.
-        // Optionally specify the 'value' of the "Selection2".  If
-        // 'value' is not specified, the default "Selection2" value is
-        // used.
+        // Optionally specify the 'value' of the "Selection2".  If 'value' is
+        // not specified, the default "Selection2" value is used.
 
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
@@ -1937,16 +1789,14 @@ class MyChoice {
         // and -1 otherwise.
 
     int& selection1();
-        // Return a reference to the modifiable "Selection1" selection
-        // of this object if "Selection1" is the current selection.
-        // The behavior is undefined unless "Selection1" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
 
     bsl::string& selection2();
-        // Return a reference to the modifiable "Selection2" selection
-        // of this object if "Selection2" is the current selection.
-        // The behavior is undefined unless "Selection2" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -1976,16 +1826,14 @@ class MyChoice {
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
     const int& selection1() const;
-        // Return a reference to the non-modifiable "Selection1"
-        // selection of this object if "Selection1" is the current
-        // selection.  The behavior is undefined unless "Selection1"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
 
     const bsl::string& selection2() const;
-        // Return a reference to the non-modifiable "Selection2"
-        // selection of this object if "Selection2" is the current
-        // selection.  The behavior is undefined unless "Selection2"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
 
 };
 
@@ -2004,8 +1852,8 @@ bool operator!=(const MyChoice& lhs, const MyChoice& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -2296,22 +2144,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -2472,50 +2309,16 @@ bsl::ostream& MyChoice::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHARRAYS
-#define INCLUDED_TEST_MYSEQUENCEWITHARRAYS
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: MySequenceWithArrays
+//@CLASSES:
+//  MySequenceWithArrays: a sequence with arrays
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
-#endif
+//  todo: provide annotation for 'MySequenceWithArrays'
 
 namespace BloombergLP {
 
@@ -2602,10 +2405,10 @@ class MySequenceWithArrays {
 
     MySequenceWithArrays(const MySequenceWithArrays&  original,
                          bslma::Allocator            *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithArrays' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MySequenceWithArrays' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequenceWithArrays();
         // Destroy this object.
@@ -2615,33 +2418,33 @@ class MySequenceWithArrays {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -2720,32 +2523,32 @@ class MySequenceWithArrays {
         // class, and -1 otherwise.
 
     const bsl::vector<int>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bsl::vector<char>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const bsl::vector<char>& attribute3() const;
-        // Return a reference to the non-modifiable "Attribute3"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute3" attribute of
+        // this object.
 
     const bsl::vector<char>& attribute4() const;
-        // Return a reference to the non-modifiable "Attribute4"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute4" attribute of
+        // this object.
 
     const bsl::vector<char>& attribute5() const;
-        // Return a reference to the non-modifiable "Attribute5"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute5" attribute of
+        // this object.
 
     const bsl::vector<char>& attribute6() const;
-        // Return a reference to the non-modifiable "Attribute6"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute6" attribute of
+        // this object.
 
     const bsl::vector<int>& attribute7() const;
-        // Return a reference to the non-modifiable "Attribute7"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute7" attribute of
+        // this object.
 
 };
 
@@ -2768,8 +2571,8 @@ bool operator!=(const MySequenceWithArrays& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const MySequenceWithArrays&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -2777,7 +2580,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
 // CREATORS
 inline
-MySequenceWithArrays::MySequenceWithArrays(bslma::Allocator  *basicAllocator)
+MySequenceWithArrays::MySequenceWithArrays(bslma::Allocator *basicAllocator)
 : d_attribute1(bslma::Default::allocator(basicAllocator))
 , d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_attribute3(bslma::Default::allocator(basicAllocator))
@@ -2790,8 +2593,8 @@ MySequenceWithArrays::MySequenceWithArrays(bslma::Allocator  *basicAllocator)
 
 inline
 MySequenceWithArrays::MySequenceWithArrays(
-    const MySequenceWithArrays& original,
-    bslma::Allocator  *basicAllocator)
+                                   const MySequenceWithArrays&  original,
+                                   bslma::Allocator            *basicAllocator)
 : d_attribute1(original.d_attribute1,
                bslma::Default::allocator(basicAllocator))
 , d_attribute2(original.d_attribute2,
@@ -2942,8 +2745,8 @@ int MySequenceWithArrays::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MySequenceWithArrays::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                              const char   *name,
+                                              int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3100,8 +2903,8 @@ int MySequenceWithArrays::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequenceWithArrays::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                          const char *name,
+                                          int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3197,22 +3000,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                      stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace test {
@@ -3483,56 +3275,14 @@ bsl::ostream& MySequenceWithArrays::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHANONYMOUSCHOICECHOICE
-#define INCLUDED_TEST_MYSEQUENCEWITHANONYMOUSCHOICECHOICE
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySequenceWithAnonymousChoiceChoice
+//@CLASSES:
+//  test::MySequenceWithAnonymousChoiceChoice: a sequence with anon. choice
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySequenceWithAnonymousChoiceChoice'
 
 namespace BloombergLP {
 
@@ -3637,17 +3387,15 @@ class MySequenceWithAnonymousChoiceChoice {
 
     void makeMyChoice1();
     void makeMyChoice1(int value);
-        // Set the value of this object to be a "MyChoice1" value.
-        // Optionally specify the 'value' of the "MyChoice1".  If
-        // 'value' is not specified, the default "MyChoice1" value is
-        // used.
+        // Set the value of this object to be a "MyChoice1" value.  Optionally
+        // specify the 'value' of the "MyChoice1".  If 'value' is not
+        // specified, the default "MyChoice1" value is used.
 
     void makeMyChoice2();
     void makeMyChoice2(const bsl::string& value);
-        // Set the value of this object to be a "MyChoice2" value.
-        // Optionally specify the 'value' of the "MyChoice2".  If
-        // 'value' is not specified, the default "MyChoice2" value is
-        // used.
+        // Set the value of this object to be a "MyChoice2" value.  Optionally
+        // specify the 'value' of the "MyChoice2".  If 'value' is not
+        // specified, the default "MyChoice2" value is used.
 
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
@@ -3658,16 +3406,14 @@ class MySequenceWithAnonymousChoiceChoice {
         // and -1 otherwise.
 
     int& myChoice1();
-        // Return a reference to the modifiable "MyChoice1" selection
-        // of this object if "MyChoice1" is the current selection.
-        // The behavior is undefined unless "MyChoice1" is the
-        // selection of this object.
+        // Return a reference to the modifiable "MyChoice1" selection of this
+        // object if "MyChoice1" is the current selection.  The behavior is
+        // undefined unless "MyChoice1" is the selection of this object.
 
     bsl::string& myChoice2();
-        // Return a reference to the modifiable "MyChoice2" selection
-        // of this object if "MyChoice2" is the current selection.
-        // The behavior is undefined unless "MyChoice2" is the
-        // selection of this object.
+        // Return a reference to the modifiable "MyChoice2" selection of this
+        // object if "MyChoice2" is the current selection.  The behavior is
+        // undefined unless "MyChoice2" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -3697,16 +3443,14 @@ class MySequenceWithAnonymousChoiceChoice {
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
     const int& myChoice1() const;
-        // Return a reference to the non-modifiable "MyChoice1"
-        // selection of this object if "MyChoice1" is the current
-        // selection.  The behavior is undefined unless "MyChoice1"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "MyChoice1" selection of
+        // this object if "MyChoice1" is the current selection.  The behavior
+        // is undefined unless "MyChoice1" is the selection of this object.
 
     const bsl::string& myChoice2() const;
-        // Return a reference to the non-modifiable "MyChoice2"
-        // selection of this object if "MyChoice2" is the current
-        // selection.  The behavior is undefined unless "MyChoice2"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "MyChoice2" selection of
+        // this object if "MyChoice2" is the current selection.  The behavior
+        // is undefined unless "MyChoice2" is the selection of this object.
 
 };
 
@@ -3715,10 +3459,9 @@ inline
 bool operator==(const MySequenceWithAnonymousChoiceChoice& lhs,
                 const MySequenceWithAnonymousChoiceChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two
-    // 'MySequenceWithAnonymousChoiceChoice' objects have the same value if
-    // either the selections in both objects have the same ids and the same
-    // values, or both selections are undefined.
+    // value, and 'false' otherwise.  Two 'MySequenceWithAnonymousChoiceChoice'
+    // objects have the same value if either the selections in both objects
+    // have the same ids and the same values, or both selections are undefined.
 
 inline
 bool operator!=(const MySequenceWithAnonymousChoiceChoice& lhs,
@@ -3729,8 +3472,8 @@ bool operator!=(const MySequenceWithAnonymousChoiceChoice& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                               stream,
                          const MySequenceWithAnonymousChoiceChoice&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -3812,7 +3555,7 @@ void MySequenceWithAnonymousChoiceChoice::makeMyChoice2(
 // CREATORS
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -3820,8 +3563,8 @@ MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
 
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-    const MySequenceWithAnonymousChoiceChoice& original,
-    bslma::Allocator *basicAllocator)
+                    const MySequenceWithAnonymousChoiceChoice&  original,
+                    bslma::Allocator                           *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -4035,22 +3778,11 @@ bsl::ostream& test::operator<<(
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -4214,48 +3946,14 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHANONYMOUSCHOICE
-#define INCLUDED_TEST_MYSEQUENCEWITHANONYMOUSCHOICE
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySequenceWithAnonymousChoice
+//@CLASSES:
+//  test::MySequenceWithAnonymousChoice: a sequence with anonymous choice
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySequenceWithAnonymousChoice'
 
 namespace BloombergLP {
 
@@ -4353,19 +4051,19 @@ class MySequenceWithAnonymousChoice {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -4428,16 +4126,16 @@ class MySequenceWithAnonymousChoice {
         // class, and -1 otherwise.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const MySequenceWithAnonymousChoiceChoice& theChoice() const;
-        // Return a reference to the non-modifiable "TheChoice"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "TheChoice" attribute of
+        // this object.
 
     const bsl::string& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
 };
 
@@ -4460,8 +4158,8 @@ bool operator!=(const MySequenceWithAnonymousChoice& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                         stream,
                          const MySequenceWithAnonymousChoice&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -4470,7 +4168,7 @@ bsl::ostream& operator<<(bsl::ostream&                         stream,
 // CREATORS
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_theChoice(bslma::Default::allocator(basicAllocator))
 , d_attribute2(bslma::Default::allocator(basicAllocator))
@@ -4479,8 +4177,8 @@ MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
 
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-        const MySequenceWithAnonymousChoice& original,
-        bslma::Allocator *basicAllocator)
+                          const MySequenceWithAnonymousChoice&  original,
+                          bslma::Allocator                     *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_theChoice(original.d_theChoice, bslma::Default::allocator(basicAllocator))
 , d_attribute2(original.d_attribute2,
@@ -4666,9 +4364,10 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&  accessor,
 
 template <class ACCESSOR>
 inline
-int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+int MySequenceWithAnonymousChoice::accessAttribute(
+                                                  ACCESSOR&   accessor,
+                                                  const char *name,
+                                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -4734,22 +4433,11 @@ bsl::ostream& test::operator<<(
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -4937,52 +4625,14 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHATTRIBUTES
-#define INCLUDED_TEST_MYSEQUENCEWITHATTRIBUTES
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySequenceWithAttributes
+//@CLASSES:
+//  test::MySequenceWithAttributes: a sequence with attributes
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySequenceWithAttributes'
 
 namespace BloombergLP {
 
@@ -5057,8 +4707,8 @@ class MySequenceWithAttributes {
                 bslma::Allocator                *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAttributes' having the value
         // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequenceWithAttributes();
         // Destroy this object.
@@ -5068,33 +4718,33 @@ class MySequenceWithAttributes {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -5161,20 +4811,20 @@ class MySequenceWithAttributes {
         // class, and -1 otherwise.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bdlb::NullableValue<bsl::string>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const int& element1() const;
-        // Return a reference to the non-modifiable "Element1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
 
     const bsl::string& element2() const;
-        // Return a reference to the non-modifiable "Element2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
 
 };
 
@@ -5197,8 +4847,8 @@ bool operator!=(const MySequenceWithAttributes& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                    stream,
                          const MySequenceWithAttributes&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -5207,7 +4857,7 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
 // CREATORS
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_element1()
@@ -5217,8 +4867,8 @@ MySequenceWithAttributes::MySequenceWithAttributes(
 
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
-        const MySequenceWithAttributes& original,
-        bslma::Allocator *basicAllocator)
+                               const MySequenceWithAttributes&  original,
+                               bslma::Allocator                *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -5324,8 +4974,8 @@ int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR&  manipulator,
 template <class MANIPULATOR>
 inline
 int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                                  const char   *name,
+                                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -5431,8 +5081,8 @@ int MySequenceWithAttributes::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequenceWithAttributes::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                              const char *name,
+                                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -5505,23 +5155,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                          stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -5733,52 +5371,14 @@ bsl::ostream& MySequenceWithAttributes::print(
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSIMPLECONTENT
-#define INCLUDED_TEST_MYSIMPLECONTENT
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySimpleContent
+//@CLASSES:
+//  test::MySimpleContent: simple content
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySimpleContent'
 
 namespace BloombergLP {
 
@@ -5839,16 +5439,16 @@ class MySimpleContent {
     // CREATORS
     explicit MySimpleContent(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySimpleContent' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MySimpleContent(const MySimpleContent&  original,
                     bslma::Allocator       *basicAllocator = 0);
-        // Create an object of type 'MySimpleContent' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MySimpleContent' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySimpleContent();
         // Destroy this object.
@@ -5872,19 +5472,19 @@ class MySimpleContent {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -5947,16 +5547,16 @@ class MySimpleContent {
         // class, and -1 otherwise.
 
     const bdlb::NullableValue<bool>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bdlb::NullableValue<bsl::string>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const bsl::string& theContent() const;
-        // Return a reference to the non-modifiable "TheContent"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "TheContent" attribute of
+        // this object.
 
 };
 
@@ -5978,8 +5578,8 @@ bool operator!=(const MySimpleContent& lhs,
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySimpleContent& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -5995,9 +5595,8 @@ MySimpleContent::MySimpleContent(bslma::Allocator *basicAllocator)
 }
 
 inline
-MySimpleContent::MySimpleContent(
-        const MySimpleContent& original,
-        bslma::Allocator *basicAllocator)
+MySimpleContent::MySimpleContent(const MySimpleContent&  original,
+                                 bslma::Allocator       *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -6089,8 +5688,8 @@ int MySimpleContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MySimpleContent::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                         const char   *name,
+                                         int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -6179,8 +5778,8 @@ int MySimpleContent::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySimpleContent::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                     const char *name,
+                                     int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -6244,23 +5843,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                 stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -6451,52 +6038,14 @@ bsl::ostream& MySimpleContent::print(
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSIMPLEINTCONTENT
-#define INCLUDED_TEST_MYSIMPLEINTCONTENT
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySimpleIntContent
+//@CLASSES:
+//  test::MySimpleIntContent: simple integer content
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySimpleIntContent'
 
 namespace BloombergLP {
 
@@ -6563,10 +6112,10 @@ class MySimpleIntContent {
 
     MySimpleIntContent(const MySimpleIntContent&  original,
                        bslma::Allocator          *basicAllocator = 0);
-        // Create an object of type 'MySimpleIntContent' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MySimpleIntContent' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySimpleIntContent();
         // Destroy this object.
@@ -6590,19 +6139,19 @@ class MySimpleIntContent {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -6665,16 +6214,16 @@ class MySimpleIntContent {
         // class, and -1 otherwise.
 
     const bdlb::NullableValue<bool>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bdlb::NullableValue<bsl::string>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const int& theContent() const;
-        // Return a reference to the non-modifiable "TheContent"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "TheContent" attribute of
+        // this object.
 
 };
 
@@ -6697,8 +6246,8 @@ bool operator!=(const MySimpleIntContent& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const MySimpleIntContent&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -6715,8 +6264,8 @@ MySimpleIntContent::MySimpleIntContent(bslma::Allocator *basicAllocator)
 
 inline
 MySimpleIntContent::MySimpleIntContent(
-        const MySimpleIntContent& original,
-        bslma::Allocator *basicAllocator)
+                                     const MySimpleIntContent&  original,
+                                     bslma::Allocator          *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -6807,8 +6356,8 @@ int MySimpleIntContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MySimpleIntContent::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                            const char   *name,
+                                            int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -6897,8 +6446,8 @@ int MySimpleIntContent::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySimpleIntContent::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                        const char *name,
+                                        int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -6962,23 +6511,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                    stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -7169,52 +6706,14 @@ bsl::ostream& MySimpleIntContent::print(
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYSEQUENCEWITHNILLABLES
-#define INCLUDED_TEST_MYSEQUENCEWITHNILLABLES
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: test::MySequenceWithNillables
+//@CLASSES:
+//  test::MySequenceWithNillables: a sequence with nillables
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'test::MySequenceWithNillables'
 
 namespace BloombergLP {
 
@@ -7284,8 +6783,8 @@ class MySequenceWithNillables {
             bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillables' having the value
         // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequenceWithNillables();
         // Destroy this object.
@@ -7309,19 +6808,19 @@ class MySequenceWithNillables {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -7384,16 +6883,16 @@ class MySequenceWithNillables {
         // class, and -1 otherwise.
 
     const bdlb::NullableValue<int>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bdlb::NullableValue<bsl::string>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const bdlb::NullableValue<MySequence>& attribute3() const;
-        // Return a reference to the non-modifiable "Attribute3"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute3" attribute of
+        // this object.
 
 };
 
@@ -7416,8 +6915,8 @@ bool operator!=(const MySequenceWithNillables& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const MySequenceWithNillables&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -7426,7 +6925,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
 // CREATORS
 inline
 MySequenceWithNillables::MySequenceWithNillables(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_attribute3(bslma::Default::allocator(basicAllocator))
@@ -7435,8 +6934,8 @@ MySequenceWithNillables::MySequenceWithNillables(
 
 inline
 MySequenceWithNillables::MySequenceWithNillables(
-        const MySequenceWithNillables& original,
-        bslma::Allocator *basicAllocator)
+                                const MySequenceWithNillables&  original,
+                                bslma::Allocator               *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -7529,8 +7028,8 @@ int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
 template <class MANIPULATOR>
 inline
 int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                                 const char   *name,
+                                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -7619,8 +7118,8 @@ int MySequenceWithNillables::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequenceWithNillables::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                             const char *name,
+                                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -7686,23 +7185,11 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -7880,48 +7367,14 @@ bsl::ostream& MySequenceWithNillables::print(
 // ----------------------------------------------------------------------------
 
 // test_address.h   -*-C++-*-
-#ifndef INCLUDED_TEST_ADDRESS
-#define INCLUDED_TEST_ADDRESS
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: Address
+//@CLASSES:
+//  Address: an address class
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'Address'
 
 namespace BloombergLP {
 
@@ -7981,16 +7434,16 @@ class Address {
 
     // CREATORS
     explicit Address(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'Address' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     Address(const Address& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'Address' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~Address();
         // Destroy this object.
@@ -8014,19 +7467,19 @@ class Address {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -8089,16 +7542,16 @@ class Address {
         // class, and -1 otherwise.
 
     const bsl::string& street() const;
-        // Return a reference to the non-modifiable "Street"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Street" attribute of this
+        // object.
 
     const bsl::string& city() const;
-        // Return a reference to the non-modifiable "City"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "City" attribute of this
+        // object.
 
     const bsl::string& state() const;
-        // Return a reference to the non-modifiable "State"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "State" attribute of this
+        // object.
 
 };
 
@@ -8118,8 +7571,8 @@ bool operator!=(const Address& lhs, const Address& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -8227,8 +7680,8 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int Address::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                 const char   *name,
+                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -8312,8 +7765,8 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int Address::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                             const char *name,
+                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -8374,22 +7827,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Address& rhs)
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_address.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -8562,48 +8004,14 @@ bsl::ostream& Address::print(
 // ----------------------------------------------------------------------------
 
 // test_employee.h   -*-C++-*-
-#ifndef INCLUDED_TEST_EMPLOYEE
-#define INCLUDED_TEST_EMPLOYEE
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: Employee
+//@CLASSES:
+//  Employee: an employee class
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'Employee'
 
 namespace BloombergLP {
 
@@ -8663,16 +8071,16 @@ class Employee {
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'Employee' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'Employee' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
@@ -8696,19 +8104,19 @@ class Employee {
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -8770,16 +8178,16 @@ class Employee {
         // class, and -1 otherwise.
 
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Name" attribute of this
+        // object.
 
     const Address& homeAddress() const;
-        // Return a reference to the non-modifiable "HomeAddress"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "HomeAddress" attribute of
+        // this object.
 
     const int& age() const;
-        // Return a reference to the non-modifiable "Age"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Age" attribute of this
+        // object.
 
 };
 
@@ -8799,8 +8207,8 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -8907,8 +8315,8 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -8993,8 +8401,8 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int Employee::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9055,22 +8463,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_employee.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
-#include <bdlat_formattingmode.h>
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -9872,8 +9269,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "PRETTY without object namespace" << endl;
 
-            // Format expected result without object namespace and,
-            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result without object namespace and, therefore,
+            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expResult1, PRETTY_RESULT[i], "",
                          PRETTY_XSI_ATTR, "");
             bsl::sprintf(expResult2, PRETTY_RESULT[i], "",
@@ -9908,8 +9305,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "PRETTY with object namespace" << endl;
 
-            // Format expected result with object namespace and,
-            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result with object namespace and, therefore,
+            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expResult1, PRETTY_RESULT[i],
                          PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
             bsl::sprintf(expResult2, PRETTY_RESULT[i],
@@ -9976,8 +9373,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "COMPACT without object namespace" << endl;
 
-            // Format expected result without object namespace and,
-            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result without object namespace and, therefore,
+            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expResult1, COMPACT_RESULT[i], "",
                          COMPACT_XSI_ATTR, "");
             bsl::sprintf(expResult2, COMPACT_RESULT[i], "", "", "");
@@ -10014,8 +9411,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "COMPACT with object namespace" << endl;
 
-            // Format expected result with object namespace and,
-            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result with object namespace and, therefore,
+            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expResult1, COMPACT_RESULT[i],
                          COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
             bsl::sprintf(expResult2, COMPACT_RESULT[i],
@@ -10187,8 +9584,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "PRETTY without object namespace" << endl;
 
-            // Format expected result without object namespace and,
-            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result without object namespace and, therefore,
+            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, PRETTY_RESULT[i], "",
                          PRETTY_XSI_ATTR, "");
 
@@ -10208,8 +9605,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "PRETTY with object namespace" << endl;
 
-            // Format expected result with object namespace and,
-            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result with object namespace and, therefore,
+            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, PRETTY_RESULT[i],
                          PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
 
@@ -10257,8 +9654,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "COMPACT without object namespace" << endl;
 
-            // Format expected result without object namespace and,
-            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result without object namespace and, therefore,
+            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, COMPACT_RESULT[i], "",
                          COMPACT_XSI_ATTR, "");
 
@@ -10277,8 +9674,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "COMPACT with object namespace" << endl;
 
-            // Format expected result with object namespace and,
-            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // Format expected result with object namespace and, therefore,
+            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, COMPACT_RESULT[i],
                          COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
 

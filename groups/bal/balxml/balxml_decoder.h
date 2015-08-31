@@ -177,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //
 //      options.setSkipUnknownElements(false);
 //      balxml::Decoder decoder(&options, &reader, &errInfo,
-//                             &bsl::cerr, &bsl::cerr);
+//                              &bsl::cerr, &bsl::cerr);
 //      decoder.decode(ss, &bob);
 //
 //      assert(!ss);
@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //      balxml::DecoderOptions options;
 //
 //      balxml::Decoder decoder(&options, &reader, &errInfo,
-//                             &bsl::cerr, &bsl::cerr);
+//                              &bsl::cerr, &bsl::cerr);
 //
 //..
 // Now we open the document, but we don't begin decoding yet:
@@ -251,12 +251,12 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BALXML_DECODEROPTIONS
-#include <balxml_decoderoptions.h>
-#endif
-
 #ifndef INCLUDED_BALXML_BASE64PARSER
 #include <balxml_base64parser.h>
+#endif
+
+#ifndef INCLUDED_BALXML_DECODEROPTIONS
+#include <balxml_decoderoptions.h>
 #endif
 
 #ifndef INCLUDED_BALXML_HEXPARSER
@@ -392,14 +392,15 @@ class Decoder;
 
 class Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This protocol class contain functions related to parsing XML elements.
     // When the Decoder reads the XML document, it forwards the information
     // about the current node as events to this protocol.  There are several
-    // implementations of this protocol, depending on the type of element.
-    // The correct implementation for each type is selected by the
-    // 'Decoder_SelectContext' meta-function.  Each of the functions
-    // take a 'context' parameter, which contains members related to the
-    // context of the decoder.
+    // implementations of this protocol, depending on the type of element.  The
+    // correct implementation for each type is selected by the
+    // 'Decoder_SelectContext' meta-function.  Each of the functions take a
+    // 'context' parameter, which contains members related to the context of
+    // the decoder.
 
   public:
     virtual ~Decoder_ElementContext();
@@ -408,19 +409,18 @@ class Decoder_ElementContext {
     // CALLBACKS
     virtual int startElement(Decoder *decoder) = 0;
 
-    virtual int endElement(Decoder   *decoder) = 0;
+    virtual int endElement(Decoder *decoder) = 0;
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder) = 0;
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder) = 0;
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder) = 0;
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder) = 0;
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder) = 0;
+    virtual int parseSubElement(const char *elementName, Decoder *decoder) = 0;
 
     int beginParse(Decoder *decoder);
 };
@@ -443,9 +443,9 @@ class Decoder {
 
     // PRIVATE TYPES
     class MemOutStream : public bsl::ostream {
-        // This class provides stream for logging using 'bdlsb::MemOutStreamBuf'
-        // as a streambuf.  The logging stream is created on demand, i.e.,
-        // during the first attempt to log message.
+        // This class provides stream for logging using
+        // 'bdlsb::MemOutStreamBuf' as a streambuf.  The logging stream is
+        // created on demand, i.e., during the first attempt to log message.
         bdlsb::MemOutStreamBuf d_sb;
 
         // NOT IMPLEMENTED
@@ -455,7 +455,8 @@ class Decoder {
       public:
         // CREATORS
         MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a new stream using the specified 'basicAllocator'.
+            // Create a new stream using the optionally specified
+            // 'basicAllocator'.
 
         virtual ~MemOutStream();
             // Destroy this stream and release memory back to the allocator.
@@ -486,8 +487,8 @@ class Decoder {
         // placeholder for MemOutStream
 
     MemOutStream                    *d_logStream;
-        // if not zero, log stream was created at the moment of first
-        // logging and must be destroyed
+        // if not zero, log stream was created at the moment of first logging
+        // and must be destroyed
 
     bsl::ostream                    *d_errorStream;    // held, not owned
     bsl::ostream                    *d_warningStream;  // held, not owned
@@ -511,15 +512,14 @@ class Decoder {
   private:
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note the if stream has not
-        // been created yet, it will be created during this call.
+        // Return the stream for logging.  Note the if stream has not been
+        // created yet, it will be created during this call.
 
     void resetErrors();
     int  checkForReaderErrors();
     int  checkForErrors(const ErrorInfo& errInfo);
 
-    void setDecoderError(ErrorInfo::Severity severity,
-                         bslstl::StringRef   msg);
+    void setDecoderError(ErrorInfo::Severity severity, bslstl::StringRef msg);
 
     int  readTopElement();
     int  parse(Decoder_ElementContext *context);
@@ -533,16 +533,16 @@ class Decoder {
   public:
     // CREATORS
     Decoder(const DecoderOptions *options,
-                   Reader               *reader,
-                   ErrorInfo            *errInfo,
-                   bslma::Allocator            *basicAllocator);
+            Reader               *reader,
+            ErrorInfo            *errInfo,
+            bslma::Allocator     *basicAllocator);
 
     Decoder(const DecoderOptions *options,
-                   Reader               *reader,
-                   ErrorInfo            *errInfo = 0,
-                   bsl::ostream                *errorStream = 0,
-                   bsl::ostream                *warningStream = 0,
-                   bslma::Allocator            *basicAllocator = 0);
+            Reader               *reader,
+            ErrorInfo            *errInfo = 0,
+            bsl::ostream         *errorStream = 0,
+            bsl::ostream         *warningStream = 0,
+            bslma::Allocator     *basicAllocator = 0);
         // Construct a decoder object using the specified 'options' and the
         // specified 'reader' to perform the XML-level parsing.  If the
         // (optionally) specified 'errorInfo' is non-null, it is used to store
@@ -559,34 +559,32 @@ class Decoder {
 
     // MANIPULATORS
     void close();
-        // Put the associated 'Reader' object (i.e., the 'reader'
-        // specified at construction) into a closed state.
+        // Put the associated 'Reader' object (i.e., the 'reader' specified at
+        // construction) into a closed state.
 
     int open(bsl::istream& stream, const char *uri = 0);
-        // Open the associated 'Reader' object (see
-        // 'Reader::open') to read XML data from the specified
-        // 'stream'.  The (optionally) specified 'uri' is used for identifying
-        // the input document in error messages.  Return 0 on success and
-        // non-zero otherwise.
+        // Open the associated 'Reader' object (see 'Reader::open') to read XML
+        // data from the specified 'stream'.  The (optionally) specified 'uri'
+        // is used for identifying the input document in error messages.
+        // Return 0 on success and non-zero otherwise.
 
     int open(bsl::streambuf *buffer, const char *uri = 0);
-        // Open the associated 'Reader' object (see
-        // 'Reader::open') to read XML data from the specified stream
-        // 'buffer'.  The (optionally) specified 'uri' is used for identifying
+        // Open the associated 'Reader' object (see 'Reader::open') to read XML
+        // data from the specified stream 'buffer'.  The (optionally) specified
+        // 'uri' is used for identifying the input document in error messages.
+        // Return 0 on success and non-zero otherwise.
+
+    int open(const char *buffer, bsl::size_t length, const char *uri = 0);
+        // Open the associated 'Reader' object (see 'Reader::open') to read XML
+        // data from memory at the specified 'buffer', with the specified
+        // 'length'.  The (optionally) specified 'uri' is used for identifying
         // the input document in error messages.  Return 0 on success and
         // non-zero otherwise.
 
-    int open(const char *buffer, bsl::size_t length, const char *uri = 0);
-        // Open the associated 'Reader' object (see
-        // 'Reader::open') to read XML data from memory at the
-        // specified 'buffer', with the specified 'length'.  The (optionally)
-        // specified 'uri' is used for identifying the input document in error
-        // messages.  Return 0 on success and non-zero otherwise.
-
     int open(const char *filename);
-        // Open the associated 'Reader' object (see
-        // 'Reader::open') to read XML data from the file with the
-        // specified 'filename'.  Return 0 on success and non-zero otherwise.
+        // Open the associated 'Reader' object (see 'Reader::open') to read XML
+        // data from the file with the specified 'filename'.  Return 0 on
+        // success and non-zero otherwise.
 
     template <class TYPE>
     bsl::istream& decode(bsl::istream&  stream,
@@ -602,9 +600,7 @@ class Decoder {
         // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
     template <class TYPE>
-    int decode(bsl::streambuf *buffer,
-               TYPE           *object,
-               const char     *uri = 0);
+    int decode(bsl::streambuf *buffer, TYPE *object, const char *uri = 0);
         // Decode the specified 'object' of parameterized 'TYPE' from the
         // specified stream 'buffer'.  The (optionally) specified 'uri' is
         // used for identifying the input document in error messages.  Return
@@ -656,11 +652,11 @@ class Decoder {
         // Return a pointer to the non-modifiable decoder options provided at
         // construction.
 
-    Reader               *reader() const;
+    Reader *reader() const;
         // Return the a pointer to the modifiable reader associated with this
         // decoder (i.e., the 'reader' pointer provided at construction).
 
-    ErrorInfo            *errorInfo() const;
+    ErrorInfo *errorInfo() const;
         // Return a pointer to the modifiable error-reporting structure
         // associated with this decoder (i.e., the 'errInfo' pointer provided
         // at construction).  The value stored in the error structure is reset
@@ -702,6 +698,7 @@ class Decoder {
 
 class Decoder_ErrorLogger {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This class is used for logging errors and warnings.  The usage of this
     // class is simplified with macros, which are defined below.
 
@@ -717,12 +714,11 @@ class Decoder_ErrorLogger {
 
   public:
     // CREATORS
-    Decoder_ErrorLogger(ErrorInfo::Severity  severity,
-                               Decoder             *decoder)
+    Decoder_ErrorLogger(ErrorInfo::Severity severity, Decoder *decoder)
         // Construct a logger for the specified 'decoder'.
-    : d_stream   (decoder->d_allocator)
-    , d_severity (severity)
-    , d_decoder  (decoder)
+    : d_stream(decoder->d_allocator)
+    , d_severity(severity)
+    , d_decoder(decoder)
     {
     }
 
@@ -797,12 +793,12 @@ class Decoder_StdVectorCharContext;  // proxy context
 template <class TYPE>
 class Decoder_ListParser {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This is a wrapper around 'ListParser<TYPE>'.  The
-    // 'Decoder_PushParserContext' class needs a default constructible
-    // push parser.  However, 'ListParser<TYPE>' is not default
-    // constructible - it requires an 'parseElementCallback'.  This wrapper
-    // provides a default constructor that passes
-    // 'TypesParserUtil::parseDefault' as the callback.
+    // 'Decoder_PushParserContext' class needs a default constructible push
+    // parser.  However, 'ListParser<TYPE>' is not default constructible - it
+    // requires an 'parseElementCallback'.  This wrapper provides a default
+    // constructor that passes 'TypesParserUtil::parseDefault' as the callback.
 
     // PRIVATE TYPES
     typedef typename
@@ -846,7 +842,7 @@ class Decoder_ListParser {
     }
 
     // Using destructor generated by compiler:
-    // ~Decoder_ListParser();
+    //  ~Decoder_ListParser();
 
     // MANIPULATORS
     int beginParse(TYPE *object)
@@ -875,6 +871,7 @@ class Decoder_ListParser {
 namespace balxml {template <class CATEGORY, class TYPE>
 struct Decoder_InstantiateContext;
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This 'struct' instantiates a context for the parameterized 'TYPE' that
     // falls under the parameterized 'CATEGORY'.
 
@@ -882,8 +879,7 @@ template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Array, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    typedef Decoder_PushParserContext<TYPE,
-                                        Decoder_ListParser<TYPE> > Type;
+    typedef Decoder_PushParserContext<TYPE, Decoder_ListParser<TYPE> > Type;
 };
 
 template <>
@@ -928,6 +924,7 @@ struct
 Decoder_InstantiateContext<bdlat_TypeCategory::CustomizedType, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Note: Customized are treated as simple types (i.e., they are parsed by
     // 'TypesParserUtil').
     typedef Decoder_CustomizedContext<TYPE> Type;
@@ -937,6 +934,7 @@ template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Enumeration, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Note: Enums are treated as simple types (i.e., they are parsed by
     // 'TypesParserUtil').
 
@@ -950,6 +948,7 @@ struct Decoder_InstantiateContext<bdlat_TypeCategory::Enumeration, TYPE>
 template <class TYPE>
 struct Decoder_SelectContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This meta-function is used to select a context for the parameterized
     // 'TYPE'.
 
@@ -969,6 +968,7 @@ struct Decoder_SelectContext {
 template <class TYPE>
 class Decoder_ChoiceContext :  public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This is the context for types that fall under
     // 'bdlat_TypeCategory::Choice'.
 
@@ -980,54 +980,51 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_ChoiceContext(const Decoder_ChoiceContext&);
-    Decoder_ChoiceContext& operator=(
-                                 const Decoder_ChoiceContext&);
+    Decoder_ChoiceContext &operator=(const Decoder_ChoiceContext &);
 
   public:
     // CREATORS
     Decoder_ChoiceContext(TYPE *object, int formattingMode);
 
     // Using compiler generated destructor:
-    // ~Decoder_ChoiceContext();
+    //  ~Decoder_ChoiceContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                        // =============================
                        // class Decoder_NillableContext
                        // =============================
 
-class Decoder_NillableContext :  public Decoder_ElementContext {
+class Decoder_NillableContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    // Context for elements that have
-    // 'bdlat_FormattingMode::e_NILLABLE'.  It acts as a proxy and
-    // forwards all callbacks to the held 'd_elementContext_p'.  If
-    // 'endElement' is called directly after 'startElement', then the
-    // 'isNil()' accessor will return true.
+    //
+    // Context for elements that have 'bdlat_FormattingMode::e_NILLABLE'.  It
+    // acts as a proxy and forwards all callbacks to the held
+    // 'd_elementContext_p'.  If 'endElement' is called directly after
+    // 'startElement', then the 'isNil()' accessor will return true.
 
     // DATA
     Decoder_ElementContext *d_elementContext_p;
-    bool                           d_isNil;
+    bool                    d_isNil;
 
     // NOT IMPLEMENTED
     Decoder_NillableContext(const Decoder_NillableContext&);
-    Decoder_NillableContext& operator=(
-                                   const Decoder_NillableContext&);
+    Decoder_NillableContext &operator=(const Decoder_NillableContext &);
 
   public:
     // CREATORS
@@ -1040,17 +1037,16 @@ class Decoder_NillableContext :  public Decoder_ElementContext {
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 
     // MANIPULATORS
     void setElementContext(Decoder_ElementContext *elementContext);
@@ -1070,6 +1066,7 @@ class Decoder_NillableContext :  public Decoder_ElementContext {
 template <class TYPE, class PARSER>
 class Decoder_PushParserContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Context for types that use one of the following push parsers:
     //..
     //    o Base64Parser
@@ -1084,32 +1081,30 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_PushParserContext(const Decoder_PushParserContext&);
-    Decoder_PushParserContext& operator=(
-                                     const Decoder_PushParserContext&);
+    Decoder_PushParserContext &operator=(const Decoder_PushParserContext &);
 
   public:
     // CREATORS
     Decoder_PushParserContext(TYPE *object, int formattingMode);
 
     // Using compiler generated destructor:
-    // ~Decoder_PushParserContext();
+    //  ~Decoder_PushParserContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                     // ===================================
@@ -1119,6 +1114,7 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
 template <class TYPE>
 class Decoder_SequenceContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Context for types that fall under 'bdlat_TypeCategory::Sequence'.
 
     // DATA
@@ -1127,32 +1123,30 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_SequenceContext(const Decoder_SequenceContext&);
-    Decoder_SequenceContext& operator=(
-                                   const Decoder_SequenceContext&);
+    Decoder_SequenceContext &operator=(const Decoder_SequenceContext &);
 
   public:
     // CREATORS
     Decoder_SequenceContext(TYPE *object, int formattingMode);
 
     // Using compiler generated destructor:
-    // ~Decoder_SequenceContext();
+    //  ~Decoder_SequenceContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                      // =================================
@@ -1162,6 +1156,7 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
 template <class TYPE>
 class Decoder_SimpleContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Context for simple types (uses TypesParserUtil).
 
     // DATA
@@ -1171,32 +1166,30 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_SimpleContext(const Decoder_SimpleContext&);
-    Decoder_SimpleContext&
-    operator=(const Decoder_SimpleContext&);
+    Decoder_SimpleContext &operator=(const Decoder_SimpleContext &);
 
   public:
     // CREATORS
     Decoder_SimpleContext(TYPE *object, int formattingMode);
 
     // Using compiler generated destructor:
-    // ~Decoder_SimpleContext();
+    //  ~Decoder_SimpleContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                    // =====================================
@@ -1206,15 +1199,15 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
 template <class TYPE>
 class Decoder_CustomizedContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This is the context for types that fall under
     // 'bdlat_TypeCategory::Customized'.
 
     typedef typename
-    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type         BaseType;
 
-    typedef typename
-    Decoder_InstantiateContext<bdlat_TypeCategory::Simple,
-                                      BaseType>::Type BaseContext;
+    typedef typename Decoder_InstantiateContext<bdlat_TypeCategory::Simple,
+                                                BaseType>::Type BaseContext;
     // DATA
     TYPE       *d_object;
     BaseType    d_baseObj;
@@ -1222,74 +1215,70 @@ class Decoder_CustomizedContext : public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_CustomizedContext(const Decoder_CustomizedContext&);
-    Decoder_CustomizedContext& operator=(
-                                     const Decoder_CustomizedContext&);
+    Decoder_CustomizedContext &operator=(const Decoder_CustomizedContext &);
 
   public:
     // CREATORS
     Decoder_CustomizedContext(TYPE *object, int formattingMode);
 
     // Using compiler generated destructor:
-    // ~Decoder_CustomizedContext();
+    //  ~Decoder_CustomizedContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char    *chars,
-                              unsigned int   length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                     // ===================================
                     // class Decoder_UnknownElementContext
                     // ===================================
 
-class Decoder_UnknownElementContext :
-                                         public Decoder_ElementContext {
+class Decoder_UnknownElementContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Context for unknown elements.  This context is used when an unknown
     // element is found, and the user selected.
 
   private:
     // NOT IMPLEMENTED
-    Decoder_UnknownElementContext(
-                                  const Decoder_UnknownElementContext&);
+    Decoder_UnknownElementContext(const Decoder_UnknownElementContext &);
     Decoder_UnknownElementContext& operator=(
-                                  const Decoder_UnknownElementContext&);
+                                        const Decoder_UnknownElementContext &);
 
   public:
     // CREATORS
     Decoder_UnknownElementContext();
 
     // Using compiler generated destructor:
-    // ~Decoder_UnknownElementContext();
+    //  ~Decoder_UnknownElementContext();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                          // =========================
@@ -1299,6 +1288,7 @@ class Decoder_UnknownElementContext :
 template <class TYPE>
 class Decoder_UTF8Context : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Context for UTF8 strings (i.e., 'bsl::string' and 'bsl::vector<char>').
 
     // DATA
@@ -1313,24 +1303,23 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
     Decoder_UTF8Context(TYPE *object, int formattingMode);
 
     // Generated by compiler:
-    // ~Decoder_UTF8Context();
+    //  ~Decoder_UTF8Context();
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder);
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                        // ==============================
@@ -1339,21 +1328,21 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
 
 class Decoder_StdStringContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Proxy context for 'bsl::string'.  This is just a proxy context.  It will
     // forward all callbacks to the appropriate context, based on the
     // formatting mode.
 
   public:
     // TYPES
+
     // Note that these typedefs need to be made public because Sun compiler
     // complains that they are inaccessible from the union (below).
-    typedef Decoder_PushParserContext<bsl::string,
-                                          Base64Parser<bsl::string> >
-                                                                Base64Context;
-    typedef Decoder_PushParserContext<bsl::string,
-                                          HexParser<bsl::string> >
-                                                                HexContext;
-    typedef Decoder_UTF8Context<bsl::string>             UTF8Context;
+    typedef Decoder_PushParserContext<bsl::string, Base64Parser<bsl::string> >
+                                             Base64Context;
+    typedef Decoder_PushParserContext<bsl::string, HexParser<bsl::string> >
+                                             HexContext;
+    typedef Decoder_UTF8Context<bsl::string> UTF8Context;
 
   private:
     // DATA
@@ -1367,8 +1356,7 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
 
     // NOT IMPLEMENTED
     Decoder_StdStringContext(const Decoder_StdStringContext&);
-    Decoder_StdStringContext& operator=(
-                                    const Decoder_StdStringContext&);
+    Decoder_StdStringContext &operator=(const Decoder_StdStringContext &);
 
   public:
     // CREATORS
@@ -1381,48 +1369,44 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                      // ==================================
                      // class Decoder_StdVectorCharContext
                      // ==================================
 
-class Decoder_StdVectorCharContext :
-                                         public Decoder_ElementContext {
+class Decoder_StdVectorCharContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Proxy context for 'bsl::string'.  This is just a proxy context.  It will
     // forward all callbacks to the appropriate context, based on the
     // formatting mode.
 
   public:
     // TYPES
+
     // Note that these typedefs need to be made public because Sun compiler
     // complains that they are inaccessible from the union (below).
-    typedef Decoder_PushParserContext<
-                                      bsl::vector<char>,
+    typedef Decoder_PushParserContext<bsl::vector<char>,
                                       Base64Parser<bsl::vector<char> > >
-                                                                 Base64Context;
-    typedef Decoder_PushParserContext<
-                                         bsl::vector<char>,
-                                         HexParser<bsl::vector<char> > >
-                                                                 HexContext;
-    typedef
-    Decoder_PushParserContext<
-                                bsl::vector<char>,
-                                Decoder_ListParser<bsl::vector<char> > >
-                                                                 ListContext;
-    typedef Decoder_UTF8Context<bsl::vector<char> >       UTF8Context;
+                                                    Base64Context;
+    typedef Decoder_PushParserContext<bsl::vector<char>,
+                                      HexParser<bsl::vector<char> > >
+                                                    HexContext;
+    typedef Decoder_PushParserContext<bsl::vector<char>,
+                                      Decoder_ListParser<bsl::vector<char> > >
+                                                    ListContext;
+    typedef Decoder_UTF8Context<bsl::vector<char> > UTF8Context;
 
   private:
     // DATA
@@ -1436,15 +1420,14 @@ class Decoder_StdVectorCharContext :
     Decoder_ElementContext *d_context_p;
 
     // NOT IMPLEMENTED
-    Decoder_StdVectorCharContext(
-                                   const Decoder_StdVectorCharContext&);
+    Decoder_StdVectorCharContext(const Decoder_StdVectorCharContext &);
     Decoder_StdVectorCharContext& operator=(
-                                   const Decoder_StdVectorCharContext&);
+                                          const Decoder_StdVectorCharContext&);
 
   public:
     // CREATORS
     Decoder_StdVectorCharContext(bsl::vector<char> *object,
-                                        int                formattingMode);
+                                 int                formattingMode);
 
     virtual ~Decoder_StdVectorCharContext();
 
@@ -1453,17 +1436,16 @@ class Decoder_StdVectorCharContext :
 
     virtual int endElement(Decoder *decoder);
 
-    virtual int addCharacters(const char     *chars,
-                              unsigned int    length,
-                              Decoder *decoder);
+    virtual int addCharacters(const char   *chars,
+                              unsigned int  length,
+                              Decoder      *decoder);
 
-    virtual int parseAttribute(const char     *name,
-                               const char     *value,
-                               bsl::size_t     lenValue,
-                               Decoder *decoder);
+    virtual int parseAttribute(const char  *name,
+                               const char  *value,
+                               bsl::size_t  lenValue,
+                               Decoder     *decoder);
 
-    virtual int parseSubElement(const char     *elementName,
-                                Decoder *decoder);
+    virtual int parseSubElement(const char *elementName, Decoder *decoder);
 };
 
                     // ====================================
@@ -1472,6 +1454,7 @@ class Decoder_StdVectorCharContext :
 
 class Decoder_PrepareSequenceContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This class does one thing:
     //..
     //  o finds an element that has the 'IS_SIMPLE_CONTENT' flag set
@@ -1481,23 +1464,20 @@ class Decoder_PrepareSequenceContext {
     bdlb::NullableValue<int> *d_simpleContentId_p; // held, not owned
 
     // NOT IMPLEMENTED
-    Decoder_PrepareSequenceContext(
-                                 const Decoder_PrepareSequenceContext&);
+    Decoder_PrepareSequenceContext(const Decoder_PrepareSequenceContext &);
     Decoder_PrepareSequenceContext& operator=(
-                                 const Decoder_PrepareSequenceContext&);
+                                        const Decoder_PrepareSequenceContext&);
 
   public:
     // CREATORS
-    Decoder_PrepareSequenceContext(
-                                    bdlb::NullableValue<int> *simpleContentId);
+    Decoder_PrepareSequenceContext(bdlb::NullableValue<int> *simpleContentId);
 
     // Using compiler generated destructor:
-    // ~Decoder_PrepareSequenceContext();
+    //  ~Decoder_PrepareSequenceContext();
 
     // MANIPULATORS
     template <class TYPE, class INFO_TYPE>
-    int operator()(const TYPE&      object,
-                   const INFO_TYPE& info);
+    int operator()(const TYPE &object, const INFO_TYPE &info);
 };
 
                   // ========================================
@@ -1506,29 +1486,29 @@ class Decoder_PrepareSequenceContext {
 
 class Decoder_ParseSequenceSimpleContent {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Parse simple content.
 
     // DATA
     //const bsl::string *d_chars_p;  // content characters
     const char          *d_chars_p;  // content characters
     bsl::size_t          d_len;
-    Decoder      *d_decoder;  // error logger (held)
+    Decoder             *d_decoder;  // error logger (held)
 
     // NOT IMPLEMENTED
     Decoder_ParseSequenceSimpleContent(
-                             const Decoder_ParseSequenceSimpleContent&);
+                                    const Decoder_ParseSequenceSimpleContent&);
     Decoder_ParseSequenceSimpleContent& operator=(
-                             const Decoder_ParseSequenceSimpleContent&);
+                                    const Decoder_ParseSequenceSimpleContent&);
 
   public:
     // CREATORS
-    Decoder_ParseSequenceSimpleContent(Decoder *decoder,
-                                           const char        *chars,
-                                           bsl::size_t        len);
-                                           //const bsl::string         *chars);
+    Decoder_ParseSequenceSimpleContent(Decoder     *decoder,
+                                       const char  *chars,
+                                       bsl::size_t  len);
 
     // Generated by compiler:
-    // ~Decoder_ParseSequenceSimpleContent();
+    //  ~Decoder_ParseSequenceSimpleContent();
 
     // MANIPULATORS
     template <class TYPE, class INFO_TYPE>
@@ -1544,33 +1524,31 @@ class Decoder_ParseSequenceSimpleContent {
 
 class Decoder_ParseSequenceSubElement {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // This is similar to 'Decoder_ParseObject'.
 
     // DATA
-    Decoder *d_decoder;        // held, not owned
-    const char     *d_elementName_p;  // held, not owned
-    bsl::size_t     d_lenName;
+    Decoder     *d_decoder;        // held, not owned
+    const char  *d_elementName_p;  // held, not owned
+    bsl::size_t  d_lenName;
 
     // NOT IMPLEMENTED
-    Decoder_ParseSequenceSubElement(
-                                const Decoder_ParseSequenceSubElement&);
+    Decoder_ParseSequenceSubElement(const Decoder_ParseSequenceSubElement &);
     Decoder_ParseSequenceSubElement& operator=(
-                                const Decoder_ParseSequenceSubElement&);
+                                       const Decoder_ParseSequenceSubElement&);
 
   public:
     // CREATORS
-    Decoder_ParseSequenceSubElement(
-                                     Decoder  *decoder,
-                                     const char      *elementName,
-                                     bsl::size_t      lenName);
+    Decoder_ParseSequenceSubElement(Decoder     *decoder,
+                                    const char  *elementName,
+                                    bsl::size_t  lenName);
 
     // Using compiler-generated destructor:
-    // ~Decoder_ParseSequenceSubElement();
+    //  ~Decoder_ParseSequenceSubElement();
 
     // MANIPULATORS
     template <class TYPE, class INFO_TYPE>
-    int operator()(TYPE             *object,
-                   const INFO_TYPE&  info);
+    int operator()(TYPE *object, const INFO_TYPE &info);
 
     template <class TYPE>
     int execute(TYPE *object, int id, int formattingMode);
@@ -1582,6 +1560,7 @@ class Decoder_ParseSequenceSubElement {
 
 class Decoder_ParseAttribute {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Parse an attribute.
 
     // DATA
@@ -1595,10 +1574,12 @@ class Decoder_ParseAttribute {
   public:
     // IMPLEMENTATION MANIPULATORS
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                              *object,
+                   int                                formattingMode,
                    bdlat_TypeCategory::NullableValue);
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                            *object,
+                   int                              formattingMode,
                    bdlat_TypeCategory::DynamicType);
     template <class TYPE, class ANY_CATEGORY>
     int executeImp(TYPE *object, int formattingMode, ANY_CATEGORY);
@@ -1611,13 +1592,13 @@ class Decoder_ParseAttribute {
 
   public:
     // CREATORS
-    Decoder_ParseAttribute(Decoder *decoder,
-                                  const char     *name,
-                                  const char     *value,
-                                  bsl::size_t     lengthValue);
+    Decoder_ParseAttribute(Decoder     *decoder,
+                           const char  *name,
+                           const char  *value,
+                           bsl::size_t  lengthValue);
 
     // Generated by compiler:
-    // ~Decoder_ParseAttribute();
+    //  ~Decoder_ParseAttribute();
 
     // MANIPULATORS
     template <class TYPE, class INFO_TYPE>
@@ -1636,6 +1617,7 @@ class Decoder_ParseAttribute {
 
 class Decoder_ParseObject {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    //
     // Parse the visited object.
 
     // PRIVATE TYPES
@@ -1653,66 +1635,71 @@ class Decoder_ParseObject {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    int executeImp(bsl::vector<char> *object, int formattingMode,
+    int executeImp(bsl::vector<char>         *object,
+                   int                        formattingMode,
                    bdlat_TypeCategory::Array);
 
     template <class TYPE>
-    int executeImp(bsl::vector<TYPE> *object, int formattingMode,
+    int executeImp(bsl::vector<TYPE>         *object,
+                   int                        formattingMode,
                    bdlat_TypeCategory::Array);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                      *object,
+                   int                        formattingMode,
                    bdlat_TypeCategory::Array);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                         *object,
+                   int                           formattingMode,
                    bdlat_TypeCategory::Sequence);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                       *object,
+                   int                         formattingMode,
                    bdlat_TypeCategory::Choice);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                              *object,
+                   int                                formattingMode,
                    bdlat_TypeCategory::NullableValue);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                               *object,
+                   int                                 formattingMode,
                    bdlat_TypeCategory::CustomizedType);
 
     template <class TYPE>
-    int executeImp(TYPE *object, int formattingMode,
+    int executeImp(TYPE                            *object,
+                   int                              formattingMode,
                    bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    int executeImp(TYPE *object, int formattingMode,
-                   ANY_CATEGORY);
+    int executeImp(TYPE *object, int formattingMode, ANY_CATEGORY);
 
     template <class TYPE>
-    int executeArrayImp(TYPE *object, int formattingMode,
+    int executeArrayImp(TYPE                  *object,
+                        int                    formattingMode,
                         CanBeListOrRepetition);
 
     template <class TYPE>
-    int executeArrayImp(TYPE *object, int formattingMode,
-                        CanBeRepetitionOnly);
+    int executeArrayImp(TYPE *object, int formattingMode, CanBeRepetitionOnly);
 
     template <class TYPE>
     int executeArrayRepetitionImp(TYPE *object, int formattingMode);
 
   public:
     // CREATORS
-    Decoder_ParseObject(
-                            Decoder *decoder,
-                            const char     *elementName,
-                            bsl::size_t     lenName);
+    Decoder_ParseObject(Decoder     *decoder,
+                        const char  *elementName,
+                        bsl::size_t  lenName);
 
     // Using compiler-generated destructor:
-    // ~Decoder_ParseObject();
+    //  ~Decoder_ParseObject();
 
     // MANIPULATORS
     template <class TYPE, class INFO_TYPE>
-    int operator()(TYPE             *object,
-                   const INFO_TYPE&  info);
+    int operator()(TYPE *object, const INFO_TYPE &info);
 
     template <class TYPE>
     int execute(TYPE *object, int formattingMode);
@@ -1726,7 +1713,7 @@ class Decoder_ParseNillableObject {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
-    int                             d_formattingMode;
+    int                      d_formattingMode;
     Decoder_NillableContext  d_nillableContext;
     Decoder                 *d_decoder;
 
@@ -1740,18 +1727,15 @@ class Decoder_ParseNillableObject {
 
   private:
     // NOT IMPLEMENTED
-    Decoder_ParseNillableObject(
-        const Decoder_ParseNillableObject&);
-    Decoder_ParseNillableObject& operator=(
-                                    const Decoder_ParseNillableObject&);
+    Decoder_ParseNillableObject(const Decoder_ParseNillableObject &);
+    Decoder_ParseNillableObject& operator=(const Decoder_ParseNillableObject&);
 
   public:
-    Decoder_ParseNillableObject(Decoder *decoder,
-                                    int                 formattingMode);
+    Decoder_ParseNillableObject(Decoder *decoder, int formattingMode);
         // Construct a functor to parse nillable objects.
 
     // Using compiler-generated destructor:
-    // ~Decoder_ParseNillableObject();
+    //  ~Decoder_ParseNillableObject();
 
     // MANIPULATORS
     template <class TYPE>
@@ -1778,8 +1762,9 @@ struct Decoder_decodeImpProxy {
     Decoder *d_decoder;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1807,11 +1792,12 @@ struct Decoder_ParseAttribute_executeProxy {
 
     // DATA
     Decoder_ParseAttribute *d_instance_p;
-    int                            d_formattingMode;
+    int                     d_formattingMode;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1831,11 +1817,12 @@ struct Decoder_ParseAttribute_executeImpProxy {
 
     // DATA
     Decoder_ParseAttribute *d_instance_p;
-    int                            d_formattingMode;
+    int                     d_formattingMode;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1863,11 +1850,12 @@ struct Decoder_ParseObject_executeProxy {
 
     // DATA
     Decoder_ParseObject *d_instance_p;
-    int                         d_formattingMode;
+    int                  d_formattingMode;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1887,11 +1875,12 @@ struct Decoder_ParseObject_executeImpProxy {
 
     // DATA
     Decoder_ParseObject *d_instance_p;
-    int                      d_formattingMode;
+    int                  d_formattingMode;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1921,8 +1910,9 @@ struct Decoder_ParseNillableObject_executeImpProxy {
     Decoder_ParseNillableObject *d_instance_p;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -1943,7 +1933,7 @@ struct Decoder_ParseNillableObject_executeImpProxy {
 }  // close package namespace
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                     // -----------------------------------
@@ -2047,8 +2037,8 @@ int Decoder::open(bsl::istream& stream, const char *uri)
 
 template <class TYPE>
 bsl::istream& Decoder::decode(bsl::istream&  stream,
-                                     TYPE          *object,
-                                     const char    *uri)
+                              TYPE          *object,
+                              const char    *uri)
 {
     if (!stream.good()) {
 
@@ -2100,9 +2090,9 @@ Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
 
 template <class TYPE>
 int Decoder::decode(const char  *buffer,
-                           bsl::size_t  buflen,
-                           TYPE        *object,
-                           const char  *uri)
+                    bsl::size_t  buflen,
+                    TYPE        *object,
+                    const char  *uri)
 {
     if (this->open(buffer, buflen, uri) != 0) {
 
@@ -2143,8 +2133,7 @@ int Decoder::decode(TYPE *object)
 
 template <class TYPE>
 inline
-int Decoder::decodeImp(TYPE *object,
-                              bdlat_TypeCategory::DynamicType)
+int Decoder::decodeImp(TYPE *object, bdlat_TypeCategory::DynamicType)
 {
     Decoder_decodeImpProxy proxy = { this };
     return bdlat_TypeCategoryUtil::manipulateByCategory(object, proxy);
@@ -2168,9 +2157,8 @@ int Decoder::decodeImp(TYPE *object, ANY_CATEGORY)
 
 template <class TYPE>
 inline
-Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(
-                                                          TYPE *object,
-                                                          int   formattingMode)
+Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(TYPE *object,
+                                                   int   formattingMode)
 : d_isSelectionNameKnown(false)
 , d_object_p(object)
 , d_selectionIsRepeatable(false)
@@ -2210,9 +2198,9 @@ int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
 }
 
 template <class TYPE>
-int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
-                                                   unsigned int length,
-                                                   Decoder *decoder)
+int Decoder_ChoiceContext<TYPE>::addCharacters(const char   *chars,
+                                               unsigned int  length,
+                                               Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -2238,10 +2226,10 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
 
 template <class TYPE>
 inline
-int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
-                                                       const char     *,
-                                                       bsl::size_t     ,
-                                                       Decoder *)
+int Decoder_ChoiceContext<TYPE>::parseAttribute(const char *,
+                                                const char *,
+                                                bsl::size_t,
+                                                Decoder *)
 {
     enum { k_ATTRIBUTE_IGNORED = 0 };
 
@@ -2249,9 +2237,8 @@ int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
 }
 
 template <class TYPE>
-int Decoder_ChoiceContext<TYPE>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+int Decoder_ChoiceContext<TYPE>::parseSubElement(const char *elementName,
+                                                 Decoder    *decoder)
 {
     enum { k_FAILURE = -1 };
 
@@ -2311,19 +2298,17 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
 // CREATORS
 template <class TYPE, class PARSER>
 inline
-Decoder_PushParserContext<TYPE, PARSER>::
-                         Decoder_PushParserContext(TYPE *object,
+Decoder_PushParserContext<TYPE, PARSER>::Decoder_PushParserContext(
+                                                          TYPE *object,
                                                           int   formattingMode)
-: d_formattingMode(formattingMode)
-, d_object_p(object)
+: d_formattingMode(formattingMode), d_object_p(object)
 {
 }
 
 // CALLBACKS
 
 template <class TYPE, class PARSER>
-int Decoder_PushParserContext<TYPE, PARSER>::startElement(
-                                          Decoder *decoder)
+int Decoder_PushParserContext<TYPE, PARSER>::startElement(Decoder *decoder)
 {
     int result = d_parser.beginParse(d_object_p);
 
@@ -2339,8 +2324,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::startElement(
 }
 
 template <class TYPE, class PARSER>
-int Decoder_PushParserContext<TYPE, PARSER>::endElement(
-                                          Decoder *decoder)
+int Decoder_PushParserContext<TYPE, PARSER>::endElement(Decoder *decoder)
 {
     int result = d_parser.endParse();
 
@@ -2356,9 +2340,9 @@ int Decoder_PushParserContext<TYPE, PARSER>::endElement(
 
 template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::addCharacters(
-                                                       const char     *chars,
-                                                       unsigned int    length,
-                                                       Decoder *decoder)
+                                                         const char   *chars,
+                                                         unsigned int  length,
+                                                         Decoder      *decoder)
 {
     const char *begin = chars;
     const char *end   = begin + length;
@@ -2379,11 +2363,10 @@ int Decoder_PushParserContext<TYPE, PARSER>::addCharacters(
 
 template <class TYPE, class PARSER>
 inline
-int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
-                                                      const char     *,
-                                                      const char     *,
-                                                      bsl::size_t     ,
-                                                      Decoder *)
+int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(const char *,
+                                                            const char *,
+                                                            bsl::size_t,
+                                                            Decoder *)
 {
     enum { k_ATTRIBUTE_IGNORED = 0 };
 
@@ -2392,8 +2375,8 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
 
 template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+                                                       const char *elementName,
+                                                       Decoder    *decoder)
 {
     enum { k_FAILURE = -1 };
 
@@ -2413,9 +2396,8 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
 // CREATORS
 template <class TYPE>
 inline
-Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(
-                                                          TYPE *object,
-                                                          int   formattingMode)
+Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(TYPE *object,
+                                                       int   formattingMode)
 : d_object_p(object)
 {
     (void) formattingMode;
@@ -2426,13 +2408,11 @@ Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(
 // CALLBACKS
 
 template <class TYPE>
-int Decoder_SequenceContext<TYPE>::startElement(
-                                          Decoder *decoder)
+int Decoder_SequenceContext<TYPE>::startElement(Decoder *decoder)
 {
     //d_chars.clear();
 
-    Decoder_PrepareSequenceContext prepareSequenceContext(
-                                                           &d_simpleContentId);
+    Decoder_PrepareSequenceContext prepareSequenceContext(&d_simpleContentId);
 
     int ret = bdlat_SequenceFunctions::manipulateAttributes(
                                                        d_object_p,
@@ -2456,10 +2436,9 @@ int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 }
 
 template <class TYPE>
-int Decoder_SequenceContext<TYPE>::addCharacters(
-                                                       const char     *chars,
-                                                       unsigned int    length,
-                                                       Decoder *decoder)
+int Decoder_SequenceContext<TYPE>::addCharacters(const char   *chars,
+                                                 unsigned int  length,
+                                                 Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -2485,21 +2464,20 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
     }
 
     Decoder_ParseSequenceSimpleContent parseSimpleContent(decoder,
-                                                                 chars,
-                                                                 length);
+                                                          chars,
+                                                          length);
 
     return bdlat_SequenceFunctions::manipulateAttribute(
-                                            d_object_p,
-                                            parseSimpleContent,
-                                            d_simpleContentId.value());
+                                                    d_object_p,
+                                                    parseSimpleContent,
+                                                    d_simpleContentId.value());
 }
 
 template <class TYPE>
-int Decoder_SequenceContext<TYPE>::parseAttribute(
-                                                      const char     *name,
-                                                      const char     *value,
-                                                      bsl::size_t     lenValue,
-                                                      Decoder *decoder)
+int Decoder_SequenceContext<TYPE>::parseAttribute(const char  *name,
+                                                  const char  *value,
+                                                  bsl::size_t  lenValue,
+                                                  Decoder     *decoder)
 {
     enum { k_SUCCESS = 0, k_ATTRIBUTE_IGNORED = 0, k_FAILURE = -1 };
 
@@ -2521,9 +2499,8 @@ int Decoder_SequenceContext<TYPE>::parseAttribute(
 }
 
 template <class TYPE>
-int Decoder_SequenceContext<TYPE>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+int Decoder_SequenceContext<TYPE>::parseSubElement(const char *elementName,
+                                                   Decoder    *decoder)
 {
     enum { k_FAILURE = -1 };
 
@@ -2539,9 +2516,7 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
         return unknownElement.beginParse(decoder);                    // RETURN
     }
 
-    Decoder_ParseSequenceSubElement visitor(decoder,
-                                                   elementName,
-                                                   lenName);
+    Decoder_ParseSequenceSubElement visitor(decoder, elementName, lenName);
 
     return bdlat_SequenceFunctions::manipulateAttribute(d_object_p,
                                                         visitor,
@@ -2556,9 +2531,8 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
 // CREATORS
 template <class TYPE>
 inline
-Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(
-                                                          TYPE *object,
-                                                          int   formattingMode)
+Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(TYPE *object,
+                                                   int   formattingMode)
 : d_formattingMode(formattingMode)
 , d_object_p(object)
 {
@@ -2585,9 +2559,9 @@ int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
 }
 
 template <class TYPE>
-int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
-                                                      unsigned int    length,
-                                                      Decoder *decoder)
+int Decoder_SimpleContext<TYPE>::addCharacters(const char   *chars,
+                                               unsigned int  length,
+                                               Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -2597,9 +2571,9 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
     bdlb::String::skipLeadingTrailing(&begin, &end);
 
     if (0 != TypesParserUtil::parse(d_object_p,
-                                           begin,
-                                           static_cast<int>(end - begin),
-                                           d_formattingMode)) {
+                                    begin,
+                                    static_cast<int>(end - begin),
+                                    d_formattingMode)) {
         BALXML_DECODER_LOG_ERROR(decoder)
                     << "Unable to parse \""
                     << bsl::string(begin, end)
@@ -2615,11 +2589,10 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
 
 template <class TYPE>
 inline
-int Decoder_SimpleContext<TYPE>::parseAttribute(
-                                                      const char     *,
-                                                      const char     *,
-                                                      bsl::size_t     ,
-                                                      Decoder *)
+int Decoder_SimpleContext<TYPE>::parseAttribute(const char *,
+                                                const char *,
+                                                bsl::size_t,
+                                                Decoder *)
 {
     enum { k_ATTRIBUTE_IGNORED = 0 };
 
@@ -2627,9 +2600,8 @@ int Decoder_SimpleContext<TYPE>::parseAttribute(
 }
 
 template <class TYPE>
-int Decoder_SimpleContext<TYPE>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+int Decoder_SimpleContext<TYPE>::parseSubElement(const char *elementName,
+                                                 Decoder    *decoder)
 {
     enum { k_FAILURE = -1 };
 
@@ -2662,15 +2634,13 @@ Decoder_CustomizedContext<TYPE>::Decoder_CustomizedContext(
 // CALLBACKS
 
 template <class TYPE>
-int Decoder_CustomizedContext<TYPE>::startElement(
-                                                       Decoder *decoder)
+int Decoder_CustomizedContext<TYPE>::startElement(Decoder *decoder)
 {
     return d_baseContext.startElement (decoder);
 }
 
 template <class TYPE>
-int Decoder_CustomizedContext<TYPE>::endElement(
-                                          Decoder *decoder)
+int Decoder_CustomizedContext<TYPE>::endElement(Decoder *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
     int rc = d_baseContext.endElement(decoder);
@@ -2684,27 +2654,25 @@ int Decoder_CustomizedContext<TYPE>::endElement(
 }
 
 template <class TYPE>
-int Decoder_CustomizedContext<TYPE>::addCharacters(const char *chars,
-                                          unsigned int length,
-                                          Decoder *decoder)
+int Decoder_CustomizedContext<TYPE>::addCharacters(const char   *chars,
+                                                   unsigned int  length,
+                                                   Decoder      *decoder)
 {
     return d_baseContext.addCharacters(chars, length, decoder);
 }
 
 template <class TYPE>
-int Decoder_CustomizedContext<TYPE>::parseAttribute(
-                                                      const char     *name,
-                                                      const char     *value,
-                                                      bsl::size_t     lenValue,
-                                                      Decoder *decoder)
+int Decoder_CustomizedContext<TYPE>::parseAttribute(const char  *name,
+                                                    const char  *value,
+                                                    bsl::size_t  lenValue,
+                                                    Decoder     *decoder)
 {
     return d_baseContext.parseAttribute(name, value, lenValue, decoder);
 }
 
 template <class TYPE>
-int Decoder_CustomizedContext<TYPE>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+int Decoder_CustomizedContext<TYPE>::parseSubElement(const char *elementName,
+                                                     Decoder    *decoder)
 {
     return d_baseContext.parseSubElement(elementName, decoder);
 }
@@ -2716,8 +2684,7 @@ int Decoder_CustomizedContext<TYPE>::parseSubElement(
 // CREATORS
 template <class TYPE>
 inline
-Decoder_UTF8Context<TYPE>::Decoder_UTF8Context(TYPE *object,
-                                                             int   )
+Decoder_UTF8Context<TYPE>::Decoder_UTF8Context(TYPE *object, int)
 : d_object_p(object)
 {
 }
@@ -2745,10 +2712,10 @@ int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
 }
 
 template <class TYPE>
-inline
-int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
-                                          unsigned int length,
-                                          Decoder *)
+inline int
+Decoder_UTF8Context<TYPE>::addCharacters(const char   *chars,
+                                         unsigned int  length,
+                                         Decoder      *)
 {
     enum { k_SUCCESS = 0 };
 
@@ -2759,10 +2726,10 @@ int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
 
 template <class TYPE>
 inline
-int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
-                                                     const char     *,
-                                                     bsl::size_t     ,
-                                                     Decoder *)
+int Decoder_UTF8Context<TYPE>::parseAttribute(const char *,
+                                              const char *,
+                                              bsl::size_t,
+                                              Decoder *)
 {
     enum { k_ATTRIBUTE_IGNORED = 0 };
 
@@ -2770,9 +2737,8 @@ int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
 }
 
 template <class TYPE>
-int Decoder_UTF8Context<TYPE>::parseSubElement(
-                                                   const char     *elementName,
-                                                   Decoder *decoder)
+int Decoder_UTF8Context<TYPE>::parseSubElement(const char *elementName,
+                                               Decoder    *decoder)
 {
     enum { k_FAILURE = -1 };
 
@@ -2800,7 +2766,7 @@ Decoder_PrepareSequenceContext::Decoder_PrepareSequenceContext(
 // MANIPULATORS
 template <class TYPE, class INFO_TYPE>
 int Decoder_PrepareSequenceContext::operator()(const TYPE&,
-                                                      const INFO_TYPE& info)
+                                               const INFO_TYPE& info)
 {
     enum { k_SUCCESS = 0 };
 
@@ -2818,13 +2784,11 @@ int Decoder_PrepareSequenceContext::operator()(const TYPE&,
 
 // CREATORS
 inline
-Decoder_ParseSequenceSimpleContent::
-         Decoder_ParseSequenceSimpleContent(Decoder     *decoder,
-                                                   const char         *chars,
-                                                   bsl::size_t         len)
-: d_chars_p(chars)
-, d_len(len)
-, d_decoder(decoder)
+Decoder_ParseSequenceSimpleContent::Decoder_ParseSequenceSimpleContent(
+                                                          Decoder     *decoder,
+                                                          const char  *chars,
+                                                          bsl::size_t  len)
+: d_chars_p(chars), d_len(len), d_decoder(decoder)
 {
     BSLS_ASSERT_SAFE(d_chars_p);
     BSLS_ASSERT_SAFE(d_decoder);
@@ -2832,9 +2796,8 @@ Decoder_ParseSequenceSimpleContent::
 
 // MANIPULATORS
 template <class TYPE, class INFO_TYPE>
-int Decoder_ParseSequenceSimpleContent::operator()(
-                                                      TYPE             *object,
-                                                      const INFO_TYPE&  info)
+int Decoder_ParseSequenceSimpleContent::operator()(TYPE             *object,
+                                                   const INFO_TYPE&  info)
 {
     BSLS_ASSERT_SAFE(info.formattingMode()
                                  & bdlat_FormattingMode::e_SIMPLE_CONTENT);
@@ -2847,9 +2810,9 @@ int Decoder_ParseSequenceSimpleContent::operator()(
     bdlb::String::skipLeadingTrailing(&begin, &end);
 
     if (0 != TypesParserUtil::parse(object,
-                                           begin,
-                                           static_cast<int>(end - begin),
-                                           info.formattingMode())) {
+                                    begin,
+                                    static_cast<int>(end - begin),
+                                    info.formattingMode())) {
         BALXML_DECODER_LOG_ERROR(d_decoder)
                << "Unable to parse \""
                << bsl::string(begin, end)
@@ -2866,9 +2829,8 @@ int Decoder_ParseSequenceSimpleContent::operator()(
 
 template <class INFO_TYPE>
 inline
-int Decoder_ParseSequenceSimpleContent::operator()(
-                                                      bsl::string      *object,
-                                                      const INFO_TYPE&  info)
+int Decoder_ParseSequenceSimpleContent::operator()(bsl::string      *object,
+                                                   const INFO_TYPE&  info)
 {
     enum { k_SUCCESS = 0 };
 
@@ -2889,34 +2851,29 @@ int Decoder_ParseSequenceSimpleContent::operator()(
 // CREATORS
 inline
 Decoder_ParseSequenceSubElement::Decoder_ParseSequenceSubElement(
-                                                 Decoder *decoder,
-                                                 const char     *elementName,
-                                                 bsl::size_t     lenName)
-: d_decoder(decoder)
-, d_elementName_p(elementName)
-, d_lenName(lenName)
+                                                      Decoder     *decoder,
+                                                      const char  *elementName,
+                                                      bsl::size_t  lenName)
+: d_decoder(decoder), d_elementName_p(elementName), d_lenName(lenName)
 {
 }
 
 // MANIPULATORS
 template <class TYPE, class INFO_TYPE>
 inline
-int Decoder_ParseSequenceSubElement::operator()(
-                                                      TYPE             *object,
-                                                      const INFO_TYPE&  info)
+int Decoder_ParseSequenceSubElement::operator()(TYPE             *object,
+                                                const INFO_TYPE&  info)
 {
     return execute(object, info.id(), info.formattingMode());
 }
 
 template <class TYPE>
 int Decoder_ParseSequenceSubElement::execute(TYPE *object,
-                                                    int   ,
-                                                    int   formattingMode)
+                                             int,
+                                             int   formattingMode)
 {
     enum { k_FAILURE = -1 };
-    Decoder_ParseObject parseObject(d_decoder,
-                                           d_elementName_p,
-                                           d_lenName);
+    Decoder_ParseObject parseObject(d_decoder, d_elementName_p, d_lenName);
 
     return parseObject.execute(object, formattingMode);
 }
@@ -2927,8 +2884,10 @@ int Decoder_ParseSequenceSubElement::execute(TYPE *object,
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
-int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
-                                           bdlat_TypeCategory::NullableValue)
+int Decoder_ParseAttribute::executeImp(
+                             TYPE                              *object,
+                             int                                formattingMode,
+                             bdlat_TypeCategory::NullableValue)
 {
     if (bdlat_NullableValueFunctions::isNull(*object)) {
         bdlat_NullableValueFunctions::makeValue(object);
@@ -2943,8 +2902,10 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 
 template <class TYPE>
 inline
-int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
-                                           bdlat_TypeCategory::DynamicType)
+int Decoder_ParseAttribute::executeImp(
+                               TYPE                            *object,
+                               int                              formattingMode,
+                               bdlat_TypeCategory::DynamicType)
 {
     Decoder_ParseAttribute_executeImpProxy proxy = { this,
                                                          formattingMode };
@@ -2952,8 +2913,9 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 }
 
 template <class TYPE, class ANY_CATEGORY>
-int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
-                                           ANY_CATEGORY)
+int Decoder_ParseAttribute::executeImp(TYPE         *object,
+                                       int           formattingMode,
+                                       ANY_CATEGORY)
 {
     enum { k_SUCCESS = 0, k_FAILURE = - 1 };
 
@@ -2970,9 +2932,9 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
     }
 
     if (0 != TypesParserUtil::parse(object,
-                                           d_value_p,
-                                           static_cast<int>(d_value_length),
-                                           formattingMode)) {
+                                    d_value_p,
+                                    static_cast<int>(d_value_length),
+                                    formattingMode)) {
         BALXML_DECODER_LOG_ERROR(d_decoder)
                    << "Unable to parse \""
                    << bsl::string(d_value_p, d_value_length)
@@ -2991,16 +2953,15 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 
 // CREATORS
 inline
-Decoder_ParseAttribute::Decoder_ParseAttribute(
-                                                      Decoder *decoder,
-                                                      const char     *name,
-                                                      const char     *value,
-                                                      bsl::size_t     lenValue)
+Decoder_ParseAttribute::Decoder_ParseAttribute(Decoder     *decoder,
+                                               const char  *name,
+                                               const char  *value,
+                                               bsl::size_t  lengthValue)
 : d_decoder(decoder)
 , d_failed(false)
 , d_name_p(name)
 , d_value_p(value)
-, d_value_length (lenValue)
+, d_value_length(lengthValue)
 {
     BSLS_ASSERT_SAFE(d_decoder);
     BSLS_ASSERT_SAFE(d_name_p);
@@ -3010,8 +2971,7 @@ Decoder_ParseAttribute::Decoder_ParseAttribute(
 // MANIPULATORS
 template <class TYPE, class INFO_TYPE>
 inline
-int Decoder_ParseAttribute::operator()(TYPE             *object,
-                                              const INFO_TYPE&  info)
+int Decoder_ParseAttribute::operator()(TYPE *object, const INFO_TYPE& info)
 {
     return execute(object, info.formattingMode());
 }
@@ -3040,9 +3000,9 @@ bool Decoder_ParseAttribute::failed() const
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
-int Decoder_ParseObject::executeImp(
-                                 bsl::vector<TYPE> *object, int formattingMode,
-                                 bdlat_TypeCategory::Array)
+int Decoder_ParseObject::executeImp(bsl::vector<TYPE>         *object,
+                                    int                        formattingMode,
+                                    bdlat_TypeCategory::Array)
 {
     typedef bdlat_TypeCategory::Select<TYPE> Selector;
 
@@ -3063,15 +3023,18 @@ int Decoder_ParseObject::executeImp(
 
 template <class TYPE>
 inline
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                        bdlat_TypeCategory::Array)
+int Decoder_ParseObject::executeImp(TYPE                      *object,
+                                    int                        formattingMode,
+                                    bdlat_TypeCategory::Array)
 {
     return executeArrayImp(object, formattingMode, CanBeListOrRepetition());
 }
 
 template <class TYPE>
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                           bdlat_TypeCategory::Sequence)
+int Decoder_ParseObject::executeImp(
+                                  TYPE                         *object,
+                                  int                           formattingMode,
+                                  bdlat_TypeCategory::Sequence)
 {
     enum { k_FAILURE = -1 };
 
@@ -3105,8 +3068,9 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 }
 
 template <class TYPE>
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                        bdlat_TypeCategory::Choice)
+int Decoder_ParseObject::executeImp(TYPE                       *object,
+                                    int                         formattingMode,
+                                    bdlat_TypeCategory::Choice)
 {
     enum { k_FAILURE = -1 };
 
@@ -3151,8 +3115,10 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 }
 
 template <class TYPE>
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                        bdlat_TypeCategory::NullableValue)
+int Decoder_ParseObject::executeImp(
+                             TYPE                              *object,
+                             int                                formattingMode,
+                             bdlat_TypeCategory::NullableValue)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -3163,8 +3129,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     bool isNillable = formattingMode & bdlat_FormattingMode::e_NILLABLE;
 
     if (isNillable) {
-        Decoder_ParseNillableObject parseAsNillable(d_decoder,
-                                                        formattingMode);
+        Decoder_ParseNillableObject parseAsNillable(d_decoder, formattingMode);
 
         if (0 != bdlat_NullableValueFunctions::manipulateValue(
                                                             object,
@@ -3186,8 +3151,10 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 }
 
 template <class TYPE>
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                        bdlat_TypeCategory::CustomizedType)
+int Decoder_ParseObject::executeImp(
+                            TYPE                               *object,
+                            int                                 formattingMode,
+                            bdlat_TypeCategory::CustomizedType)
 {
     typedef typename
     Decoder_InstantiateContext<
@@ -3201,8 +3168,10 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 
 template <class TYPE>
 inline
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                           bdlat_TypeCategory::DynamicType)
+int Decoder_ParseObject::executeImp(
+                               TYPE                            *object,
+                               int                              formattingMode,
+                               bdlat_TypeCategory::DynamicType)
 {
     Decoder_ParseObject_executeImpProxy proxy = {
         this, formattingMode
@@ -3213,8 +3182,9 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
-                                           ANY_CATEGORY)
+int Decoder_ParseObject::executeImp(TYPE         *object,
+                                    int           formattingMode,
+                                    ANY_CATEGORY)
 {
     typedef typename
     Decoder_InstantiateContext<ANY_CATEGORY, TYPE>::Type Context;
@@ -3225,14 +3195,13 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 }
 
 template <class TYPE>
-int Decoder_ParseObject::executeArrayImp(TYPE *object,
-                                                int   formattingMode,
-                                                CanBeListOrRepetition)
+int Decoder_ParseObject::executeArrayImp(TYPE                  *object,
+                                         int                    formattingMode,
+                                         CanBeListOrRepetition)
 {
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
-        typedef Decoder_PushParserContext<TYPE,
-                                              Decoder_ListParser<TYPE> >
-                                                                   ListContext;
+        typedef Decoder_PushParserContext<TYPE, Decoder_ListParser<TYPE> >
+            ListContext;
 
         ListContext listContext(object, formattingMode);
 
@@ -3244,16 +3213,16 @@ int Decoder_ParseObject::executeArrayImp(TYPE *object,
 
 template <class TYPE>
 inline
-int Decoder_ParseObject::executeArrayImp(TYPE *object,
-                                                int   formattingMode,
-                                                CanBeRepetitionOnly)
+int Decoder_ParseObject::executeArrayImp(TYPE                *object,
+                                         int                  formattingMode,
+                                         CanBeRepetitionOnly)
 {
     return executeArrayRepetitionImp(object, formattingMode);
 }
 
 template <class TYPE>
 int Decoder_ParseObject::executeArrayRepetitionImp(TYPE *object,
-                                                          int   formattingMode)
+                                                   int   formattingMode)
 {
     BSLS_ASSERT_SAFE(! (formattingMode & bdlat_FormattingMode::e_TYPE_MASK
                                    & bdlat_FormattingMode::e_LIST));
@@ -3269,10 +3238,9 @@ int Decoder_ParseObject::executeArrayRepetitionImp(TYPE *object,
 
 // CREATORS
 inline
-Decoder_ParseObject::Decoder_ParseObject(
-                                                   Decoder *decoder,
-                                                   const char     *elementName,
-                                                   bsl::size_t     lenName)
+Decoder_ParseObject::Decoder_ParseObject(Decoder     *decoder,
+                                         const char  *elementName,
+                                         bsl::size_t  lenName)
 : d_decoder(decoder)
 , d_elementName_p(elementName)
 , d_lenName(lenName)
@@ -3284,8 +3252,7 @@ Decoder_ParseObject::Decoder_ParseObject(
 // MANIPULATORS
 template <class TYPE, class INFO_TYPE>
 inline
-int Decoder_ParseObject::operator()(TYPE             *object,
-                                           const INFO_TYPE&  info)
+int Decoder_ParseObject::operator()(TYPE *object, const INFO_TYPE &info)
 {
     return execute(object, info.formattingMode());
 }
@@ -3308,8 +3275,8 @@ int Decoder_ParseObject::execute(TYPE *object, int formattingMode)
 template <class TYPE>
 inline
 int Decoder_ParseNillableObject::executeImp(
-                                               TYPE *object,
-                                               bdlat_TypeCategory::DynamicType)
+                                       TYPE                            *object,
+                                       bdlat_TypeCategory::DynamicType)
 {
     Decoder_ParseNillableObject_executeImpProxy proxy = { this };
 
@@ -3332,8 +3299,8 @@ int Decoder_ParseNillableObject::executeImp(TYPE *object, ANY_CATEGORY)
 
 inline
 Decoder_ParseNillableObject::Decoder_ParseNillableObject(
-                                                Decoder *decoder,
-                                                int             formattingMode)
+                                                       Decoder *decoder,
+                                                       int      formattingMode)
 : d_formattingMode(formattingMode)
 , d_nillableContext()
 , d_decoder(decoder)
@@ -3357,8 +3324,8 @@ bool Decoder_ParseNillableObject::isNil() const
 {
     return d_nillableContext.isNil();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

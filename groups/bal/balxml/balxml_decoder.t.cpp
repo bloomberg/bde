@@ -1,79 +1,11 @@
 // balxml_decoder.t.cpp                                               -*-C++-*-
+#include <balxml_decoder.h>
 
-// Working around Linux compiler problem (GCC 3.4.4)
-// =================================================
-// The reason we are not including <balxml_decoder.h> as the first
-// included file in this test driver is because we are working around a problem
-// with this compiler.  The only known workaround (currently) is to change to
-// order of the include files.  Note that the 'balxml_decoder.cpp' file
-// *does* include <balxml_decoder.h> and compiles successfully on all
-// supported compilers.  The problem only occurs in this test driver because of
-// the nature of the tests we are doing.
-//
-// The following snippets of code illustrate the problem:
-//..
-//  struct A { void a() { } };
-//  struct B { void b() { } };
-//
-//  // SECTION 1
-//
-//  namespace funcNamespace {
-//      template <typename TYPE, typename OTHER_TYPE>
-//      void func(TYPE object, OTHER_TYPE other)
-//      {
-//          object.a();
-//      }
-//  }
-//
-//  // SECTION 2
-//
-//  template <typename TYPE>
-//  void invokeFunc(TYPE object)
-//  {
-//      int other;
-//
-//      funcNamespace::func(object, other);
-//  }
-//
-//  // SECTION 3
-//
-//  namespace funcNamespace {
-//      template <typename OTHER_TYPE>
-//      void func(B object, OTHER_TYPE other)
-//      {
-//          object.b();
-//      }
-//  }
-//
-//  // SECTION 4
-//
-//  int main()
-//  {
-//      B object;
-//      invokeFunc(object);     // <-- Point of instantiation
-//  }
-//..
-// In the above program, 'SECTION 1' defines a function parameterized with 2
-// template arguments.  'SECTION 3' defines an *overloaded* (not specialized)
-// function parameterized with 1 template argument.  Both functions are inside
-// 'funcNamespace'.
-//
-// 'SECTION 2' defines an 'invoker' function template that is instantiated in
-// 'SECTION 4'.  Since 'object' is of type 'B', the function in 'SECTION 3'
-// should be selected, however GCC 3.4.4 selects the function in 'SECTION 1',
-// causing a compilation error:
-//..
-//  test.cpp: In function `void funcNamespace::func(TYPE, OTHER_TYPE) [
-//                                                     with TYPE       = B,
-//                                                          OTHER_TYPE = int]':
-//  test.cpp:21:   instantiated from `void invokeFunc(TYPE) [with TYPE = B]'
-//  test.cpp:39:   instantiated from here
-//  test.cpp:10: error: 'struct B' has no member named 'a'
-//..
-// If 'SECTION 3' is placed above 'SECTION 2', the program compiles.
-//
-// To work around this problem in this test driver, we need to rearrange the
-// order of the included files.
+#include <bdls_testutil.h>
+
+#include <balxml_decoderoptions.h>
+#include <balxml_errorinfo.h>
+#include <balxml_minireader.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
@@ -81,36 +13,52 @@
 #include <bdlat_formattingmode.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
+#include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
+
+#include <bdlb_chartype.h>
+#include <bdlb_nullableallocatedvalue.h>
+#include <bdlb_nullablevalue.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
+#include <bdlb_string.h>
+
 #include <bdlde_utf8util.h>
+
+#include <bdls_testutil.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlb_printmethods.h>  // for printing vector
 
-#include <balxml_minireader.h>
+#include <bdlt_datetimetz.h>
 
-#include <bslma_allocator.h>
-#include <bslma_testallocator.h>
-#include <bslmf_issame.h>
-
+#include <bsl_cstddef.h>
 #include <bsl_fstream.h>
+#include <bsl_iomanip.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_memory.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
 
+#include <bslalg_typetraits.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
+#include <bslmf_issame.h>
+
+#include <bsls_assert.h>
+
 using namespace BloombergLP;
+using namespace bsl;
 
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::atoi;
-using bsl::flush;
-
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The component under test is a decoder that decodes XML input to produce a
@@ -126,41 +74,40 @@ using bsl::flush;
 //     - simple types that can be parsed by 'balxml_typesparserutil'.
 //
 // After breathing the component [1], we will first test the internal 'Parser'
-// class through the 'Decoder' interface [2].  The purpose of
-// this test will be to establish that the parser uses the
-// 'Decoder_ElementContext' protocol correctly.  A customized 'TestContext'
-// will be used for this purpose.  Then we will test the
-// 'Decoder_SelectContext' meta-function [3] to check that, given a
-// particular 'TYPE', the meta-function returns an appropriate context type
-// that can be used by the parser to parse that 'TYPE'.
+// class through the 'Decoder' interface [2].  The purpose of this test will be
+// to establish that the parser uses the 'Decoder_ElementContext' protocol
+// correctly.  A customized 'TestContext' will be used for this purpose.  Then
+// we will test the 'Decoder_SelectContext' meta-function [3] to check that,
+// given a particular 'TYPE', the meta-function returns an appropriate context
+// type that can be used by the parser to parse that 'TYPE'.
 //
 // Once we have established that the parser is working correctly, we can start
 // testing the context types defined in this component.  The
-// 'Decoder_UTF8Context' [4] and 'Decoder_Base64Context' [5] context
-// types are tested first, because they are simple and non-templated.  Next,
-// the 'Decoder_SimpleContext<TYPE>' [6] template is tested.
+// 'Decoder_UTF8Context' [4] and 'Decoder_Base64Context' [5] context types are
+// tested first, because they are simple and non-templated.  Next, the
+// 'Decoder_SimpleContext<TYPE>' [6] template is tested.
 //
 // The 'Decoder_SequenceContext<TYPE>' [8] and the
 // 'Decoder_ChoiceContext<TYPE>' [9] templates make use of the
-// 'Decoder_PrepareSubContext' [7] function class.  Therefore, this
-// function class must be tested prior to these two class templates.
+// 'Decoder_PrepareSubContext' [7] function class.  Therefore, this function
+// class must be tested prior to these two class templates.
 //
 // The 'Decoder_VectorContext<TYPE>' [10] test makes use of the
 // 'Decoder_SequenceContext<TYPE>' template, so it must be tested after the
 // sequence test.
 //
 // At this point, the main functionality of this component has been thoroughly
-// tested.  Now we need to test the 4 'decode' functions [11] in the
-// 'Decoder' namespace.  These tests are trivial and only involve testing
-// that the arguments and return values are passed correctly and that the input
-// streams are invalidated if there is an error.
+// tested.  Now we need to test the 4 'decode' functions [11] in the 'Decoder'
+// namespace.  These tests are trivial and only involve testing that the
+// arguments and return values are passed correctly and that the input streams
+// are invalidated if there is an error.
 //
 // Finally, we will test the usage example from the component-level
 // documentation to check that it compiles and runs as expected.
 //
-// Note that the 'Decoder_ErrorReporter' and 'Decoder_ElementContext'
-// protocol classes are tested implicitly in all test cases.
-//-----------------------------------------------------------------------------
+// Note that the 'Decoder_ErrorReporter' and 'Decoder_ElementContext' protocol
+// classes are tested implicitly in all test cases.
+// ----------------------------------------------------------------------------
 // [11] int balxml::Decoder::decode(sbuf*, TYPE, b_A*);
 // [11] int balxml::Decoder::decode(sbuf*, TYPE, ostrm&, ostrm&, b_A*);
 // [11] int balxml::Decoder::decode(istrm&, TYPE, b_A*);
@@ -176,26 +123,54 @@ using bsl::flush;
 // [ 4] balxml::Decoder_UTF8Context
 // [10] baexml_Decoder_VectorContext<TYPE>
 // [ 7] baexml_Decoder_PrepareSubContext
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -205,6 +180,15 @@ template <class T>
 void printValue(bsl::ostream& out, const T& value)
 {
     bdlb::PrintMethods::print(out, value, 0, -1);
+}
+
+template <class T>
+ostream& operator<<(ostream& out, const bsl::vector<T>& value)
+    // Output the specified container 'value' to the specified stream 'out' and
+    // return that stream.
+{
+    printValue(out, value);
+    return out;
 }
 
 static const char *printableCharacters[256]=
@@ -467,7 +451,7 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
-void printValue(bsl::ostream& out, const char* value)
+void printValue(bsl::ostream& out, const char *value)
     // Specialize for char*.  Need to expand \r, \n, \t and surround with
     // DQUOTE characters.
 {
@@ -506,59 +490,6 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 }
 
 #endif
-
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -698,8 +629,8 @@ bool operator!=(const CustomInt& lhs, const CustomInt& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomInt& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -744,10 +675,10 @@ class CustomString {
 
     CustomString(const CustomString&  original,
                  bslma::Allocator    *basicAllocator = 0);
-        // Create an object of type 'CustomString' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'CustomString' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit CustomString(const bsl::string&  value,
                           bslma::Allocator   *basicAllocator = 0);
@@ -764,8 +695,8 @@ class CustomString {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
@@ -807,14 +738,15 @@ bool operator!=(const CustomString& lhs, const CustomString& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomString& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
 // TRAITS
 
-BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::CustomString)
+BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                                          bsctst::CustomString)
 
 namespace bsctst {
 
@@ -854,8 +786,7 @@ struct Enumerated {
         // success, and a non-zero value with no effect on 'result' otherwise
         // (i.e., 'string' does not match any enumerator).
 
-    static int fromString(Value              *result,
-                          const bsl::string&  string);
+    static int fromString(Value *result, const bsl::string& string);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'string' does not match any
@@ -868,16 +799,16 @@ struct Enumerated {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 };
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Enumerated::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -938,8 +869,8 @@ class Sequence3 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -951,8 +882,7 @@ class Sequence3 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence3(const Sequence3&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence3(const Sequence3& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence3' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -969,7 +899,7 @@ class Sequence3 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -978,21 +908,21 @@ class Sequence3 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -1038,7 +968,7 @@ class Sequence3 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -1047,7 +977,7 @@ class Sequence3 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -1055,7 +985,7 @@ class Sequence3 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -1086,7 +1016,8 @@ class Sequence3 {
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
-    const bsl::vector<bdlb::NullableValue<Enumerated::Value> >& element6() const;
+    const bsl::vector<bdlb::NullableValue<Enumerated::Value> >&
+                                                              element6() const;
         // Return a reference to the non-modifiable "Element6" attribute of
         // this object.
 };
@@ -1107,8 +1038,8 @@ bool operator!=(const Sequence3& lhs, const Sequence3& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence3& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -1172,8 +1103,8 @@ class Sequence5 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -1185,8 +1116,7 @@ class Sequence5 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence5(const Sequence5&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence5(const Sequence5& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence5' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1203,7 +1133,7 @@ class Sequence5 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -1212,21 +1142,21 @@ class Sequence5 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -1276,7 +1206,7 @@ class Sequence5 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -1285,7 +1215,7 @@ class Sequence5 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -1293,7 +1223,7 @@ class Sequence5 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -1316,7 +1246,8 @@ class Sequence5 {
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    const bsl::vector<bdlb::NullableValue<bsl::vector<char> > >& element4() const;
+    const bsl::vector<bdlb::NullableValue<bsl::vector<char> > >&
+                                                              element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 
@@ -1324,11 +1255,13 @@ class Sequence5 {
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
-    const bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >& element6() const;
+    const bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >&
+                                                              element6() const;
         // Return a reference to the non-modifiable "Element6" attribute of
         // this object.
 
-    const bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >& element7() const;
+    const bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >&
+                                                              element7() const;
         // Return a reference to the non-modifiable "Element7" attribute of
         // this object.
 };
@@ -1349,8 +1282,8 @@ bool operator!=(const Sequence5& lhs, const Sequence5& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence5& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -1437,8 +1370,8 @@ class Sequence6 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -1450,8 +1383,7 @@ class Sequence6 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence6(const Sequence6&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence6(const Sequence6& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence6' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1468,7 +1400,7 @@ class Sequence6 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -1477,21 +1409,21 @@ class Sequence6 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -1573,7 +1505,7 @@ class Sequence6 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -1582,7 +1514,7 @@ class Sequence6 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -1590,7 +1522,7 @@ class Sequence6 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -1678,8 +1610,8 @@ bool operator!=(const Sequence6& lhs, const Sequence6& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence6& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -1739,8 +1671,8 @@ class Choice3 {
         // specified 'id' if the selection exists, and 0 otherwise.
 
     static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
@@ -1752,8 +1684,7 @@ class Choice3 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Choice3(const Choice3&  original,
-           bslma::Allocator *basicAllocator = 0);
+    Choice3(const Choice3& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Choice3' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1805,7 +1736,7 @@ class Choice3 {
         // specify the 'value' of the "Selection4".  If 'value' is not
         // specified, the default "Selection4" value is used.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
         // selection, supplying 'manipulator' with the corresponding selection
@@ -1853,7 +1784,7 @@ class Choice3 {
         // Return the id of the current selection if the selection is defined,
         // and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' on the non-modifiable selection,
         // supplying 'accessor' with the corresponding selection information
@@ -1919,8 +1850,8 @@ bool operator!=(const Choice3& lhs, const Choice3& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -1980,8 +1911,8 @@ class Choice1 {
         // specified 'id' if the selection exists, and 0 otherwise.
 
     static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
@@ -1993,8 +1924,7 @@ class Choice1 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Choice1(const Choice1&  original,
-           bslma::Allocator *basicAllocator = 0);
+    Choice1(const Choice1& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Choice1' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2046,7 +1976,7 @@ class Choice1 {
         // specify the 'value' of the "Selection4".  If 'value' is not
         // specified, the default "Selection4" value is used.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
         // selection, supplying 'manipulator' with the corresponding selection
@@ -2094,7 +2024,7 @@ class Choice1 {
         // Return the id of the current selection if the selection is defined,
         // and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' on the non-modifiable selection,
         // supplying 'accessor' with the corresponding selection information
@@ -2160,8 +2090,8 @@ bool operator!=(const Choice1& lhs, const Choice1& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice1& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -2221,8 +2151,8 @@ class Choice2 {
         // specified 'id' if the selection exists, and 0 otherwise.
 
     static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
@@ -2234,8 +2164,7 @@ class Choice2 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Choice2(const Choice2&  original,
-           bslma::Allocator *basicAllocator = 0);
+    Choice2(const Choice2& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Choice2' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2287,7 +2216,7 @@ class Choice2 {
         // specify the 'value' of the "Selection4".  If 'value' is not
         // specified, the default "Selection4" value is used.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
         // selection, supplying 'manipulator' with the corresponding selection
@@ -2335,7 +2264,7 @@ class Choice2 {
         // Return the id of the current selection if the selection is defined,
         // and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' on the non-modifiable selection,
         // supplying 'accessor' with the corresponding selection information
@@ -2401,8 +2330,8 @@ bool operator!=(const Choice2& lhs, const Choice2& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice2& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -2501,8 +2430,8 @@ class Sequence4 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -2514,8 +2443,7 @@ class Sequence4 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence4(const Sequence4&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence4(const Sequence4& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence4' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2532,7 +2460,7 @@ class Sequence4 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -2541,21 +2469,21 @@ class Sequence4 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -2653,7 +2581,7 @@ class Sequence4 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -2662,7 +2590,7 @@ class Sequence4 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -2670,7 +2598,7 @@ class Sequence4 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -2774,8 +2702,8 @@ bool operator!=(const Sequence4& lhs, const Sequence4& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence4& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -2833,8 +2761,8 @@ class Sequence1 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -2846,8 +2774,7 @@ class Sequence1 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence1(const Sequence1&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence1(const Sequence1& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence1' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2864,7 +2791,7 @@ class Sequence1 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -2873,21 +2800,21 @@ class Sequence1 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -2929,7 +2856,7 @@ class Sequence1 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -2938,7 +2865,7 @@ class Sequence1 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -2946,7 +2873,7 @@ class Sequence1 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -2994,8 +2921,8 @@ bool operator!=(const Sequence1& lhs, const Sequence1& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence1& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -3058,8 +2985,8 @@ class Sequence2 {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -3071,8 +2998,7 @@ class Sequence2 {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Sequence2(const Sequence2&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Sequence2(const Sequence2& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence2' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3089,7 +3015,7 @@ class Sequence2 {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -3098,21 +3024,21 @@ class Sequence2 {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -3162,7 +3088,7 @@ class Sequence2 {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -3171,7 +3097,7 @@ class Sequence2 {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -3179,7 +3105,7 @@ class Sequence2 {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -3235,8 +3161,8 @@ bool operator!=(const Sequence2& lhs, const Sequence2& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence2& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -3308,8 +3234,8 @@ class Topchoice {
         // specified 'id' if the selection exists, and 0 otherwise.
 
     static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
@@ -3321,8 +3247,7 @@ class Topchoice {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Topchoice(const Topchoice&  original,
-             bslma::Allocator  *basicAllocator = 0);
+    Topchoice(const Topchoice& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Topchoice' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3398,7 +3323,7 @@ class Topchoice {
         // specify the 'value' of the "Selection8".  If 'value' is not
         // specified, the default "Selection8" value is used.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
         // selection, supplying 'manipulator' with the corresponding selection
@@ -3466,7 +3391,7 @@ class Topchoice {
         // Return the id of the current selection if the selection is defined,
         // and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' on the non-modifiable selection,
         // supplying 'accessor' with the corresponding selection information
@@ -3568,8 +3493,8 @@ bool operator!=(const Topchoice& lhs, const Topchoice& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Topchoice& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace bsctst
 
@@ -3654,8 +3579,8 @@ int CustomInt::fromInt(const int& value)
 // ACCESSORS
 inline
 bsl::ostream& CustomInt::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                               int           level,
+                               int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -3727,8 +3652,8 @@ int CustomString::fromString(const bsl::string& value)
 // ACCESSORS
 inline
 bsl::ostream& CustomString::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -3753,8 +3678,8 @@ int Enumerated::fromString(Value *result, const bsl::string& string)
 }
 
 inline
-bsl::ostream& Enumerated::print(bsl::ostream&      stream,
-                                 Enumerated::Value value)
+bsl::ostream& Enumerated::print(bsl::ostream&     stream,
+                                Enumerated::Value value)
 {
     return stream << toString(value);
 }
@@ -3771,32 +3696,38 @@ int Sequence3::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(&d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    ret = manipulator(&d_element6,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -3810,40 +3741,33 @@ int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(&d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return manipulator(&d_element6,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int Sequence3::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence3::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3937,40 +3861,33 @@ int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return accessor(d_element6,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence3::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence3::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -4014,7 +3931,8 @@ const bdlb::NullableAllocatedValue<Sequence5>& Sequence3::element5() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<Enumerated::Value> >& Sequence3::element6() const
+const bsl::vector<bdlb::NullableValue<Enumerated::Value> >&
+Sequence3::element6() const
 {
     return d_element6;
 }
@@ -4031,37 +3949,44 @@ int Sequence5::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(&d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    ret = manipulator(&d_element6,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    ret = manipulator(&d_element7,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4075,44 +4000,36 @@ int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(&d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return manipulator(&d_element6,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return manipulator(&d_element7,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int Sequence5::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence5::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -4173,7 +4090,8 @@ int Sequence5::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = accessor(*d_element1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4217,44 +4135,36 @@ int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(*d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return accessor(d_element6,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return accessor(d_element7,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence5::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence5::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -4286,7 +4196,8 @@ const bsl::vector<bdlb::NullableValue<double> >& Sequence5::element3() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<bsl::vector<char> > >& Sequence5::element4() const
+const bsl::vector<bdlb::NullableValue<bsl::vector<char> > >&
+Sequence5::element4() const
 {
     return d_element4;
 }
@@ -4298,13 +4209,15 @@ const bsl::vector<bdlb::NullableValue<int> >& Sequence5::element5() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >& Sequence5::element6() const
+const bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >&
+Sequence5::element6() const
 {
     return d_element6;
 }
 
 inline
-const bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >& Sequence5::element7() const
+const bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >&
+Sequence5::element7() const
 {
     return d_element7;
 }
@@ -4321,77 +4234,92 @@ int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(&d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    ret = manipulator(&d_element6,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    ret = manipulator(&d_element7,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    ret = manipulator(&d_element8,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    ret = manipulator(&d_element9,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    ret = manipulator(&d_element10,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    ret = manipulator(&d_element11,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    ret = manipulator(&d_element12,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    ret = manipulator(&d_element13,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    ret = manipulator(&d_element14,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    ret = manipulator(&d_element15,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4405,76 +4333,60 @@ int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT8: {
-        return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT9: {
-        return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT10: {
-        return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT11: {
-        return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT12: {
-        return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT13: {
-        return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT14: {
-        return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT15: {
-        return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(&d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return manipulator(&d_element6,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return manipulator(&d_element7,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      case ATTRIBUTE_ID_ELEMENT8:
+        return manipulator(&d_element8,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      case ATTRIBUTE_ID_ELEMENT9:
+        return manipulator(&d_element9,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      case ATTRIBUTE_ID_ELEMENT10:
+        return manipulator(&d_element10,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      case ATTRIBUTE_ID_ELEMENT11:
+        return manipulator(&d_element11,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      case ATTRIBUTE_ID_ELEMENT12:
+        return manipulator(&d_element12,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      case ATTRIBUTE_ID_ELEMENT13:
+        return manipulator(&d_element13,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      case ATTRIBUTE_ID_ELEMENT14:
+        return manipulator(&d_element14,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      case ATTRIBUTE_ID_ELEMENT15:
+        return manipulator(&d_element15,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int Sequence6::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence6::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -4629,32 +4541,38 @@ int Sequence6::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    ret = accessor(d_element10,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    ret = accessor(d_element11,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    ret = accessor(d_element12,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    ret = accessor(d_element13,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    ret = accessor(d_element14,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    ret = accessor(d_element15,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4668,76 +4586,60 @@ int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT8: {
-        return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT9: {
-        return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT10: {
-        return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT11: {
-        return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT12: {
-        return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT13: {
-        return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT14: {
-        return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT15: {
-        return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return accessor(d_element6,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return accessor(d_element7,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      case ATTRIBUTE_ID_ELEMENT8:
+        return accessor(d_element8,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      case ATTRIBUTE_ID_ELEMENT9:
+        return accessor(d_element9,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      case ATTRIBUTE_ID_ELEMENT10:
+        return accessor(d_element10,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      case ATTRIBUTE_ID_ELEMENT11:
+        return accessor(d_element11,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      case ATTRIBUTE_ID_ELEMENT12:
+        return accessor(d_element12,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      case ATTRIBUTE_ID_ELEMENT13:
+        return accessor(d_element13,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      case ATTRIBUTE_ID_ELEMENT14:
+        return accessor(d_element14,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      case ATTRIBUTE_ID_ELEMENT15:
+        return accessor(d_element15,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence6::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence6::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -4823,7 +4725,8 @@ const bsl::vector<unsigned int>& Sequence6::element12() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<unsigned char> >& Sequence6::element13() const
+const bsl::vector<bdlb::NullableValue<unsigned char> >&
+Sequence6::element13() const
 {
     return d_element13;
 }
@@ -4835,7 +4738,8 @@ const bsl::vector<CustomInt>& Sequence6::element14() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<unsigned int> >& Sequence6::element15() const
+const bsl::vector<bdlb::NullableValue<unsigned int> >&
+Sequence6::element15() const
 {
     return d_element15;
 }
@@ -5026,16 +4930,16 @@ int Choice1::manipulateSelection(MANIPULATOR& manipulator)
     switch (d_selectionId) {
       case Choice1::SELECTION_ID_SELECTION1:
         return manipulator(&d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case Choice1::SELECTION_ID_SELECTION2:
         return manipulator(&d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case Choice1::SELECTION_ID_SELECTION3:
         return manipulator(d_selection3,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case Choice1::SELECTION_ID_SELECTION4:
         return manipulator(d_selection4,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice1::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -5083,16 +4987,16 @@ int Choice1::accessSelection(ACCESSOR& accessor) const
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1:
         return accessor(d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case SELECTION_ID_SELECTION2:
         return accessor(d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case SELECTION_ID_SELECTION3:
         return accessor(*d_selection3,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case SELECTION_ID_SELECTION4:
         return accessor(*d_selection4,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -5184,16 +5088,16 @@ int Choice2::manipulateSelection(MANIPULATOR& manipulator)
     switch (d_selectionId) {
       case Choice2::SELECTION_ID_SELECTION1:
         return manipulator(&d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case Choice2::SELECTION_ID_SELECTION2:
         return manipulator(&d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case Choice2::SELECTION_ID_SELECTION3:
         return manipulator(d_selection3,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case Choice2::SELECTION_ID_SELECTION4:
         return manipulator(&d_selection4.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice2::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -5241,16 +5145,16 @@ int Choice2::accessSelection(ACCESSOR& accessor) const
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1:
         return accessor(d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case SELECTION_ID_SELECTION2:
         return accessor(d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case SELECTION_ID_SELECTION3:
         return accessor(*d_selection3,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case SELECTION_ID_SELECTION4:
         return accessor(d_selection4.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -5327,97 +5231,116 @@ int Sequence4::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(&d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    ret = manipulator(&d_element6,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    ret = manipulator(&d_element7,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    ret = manipulator(&d_element8,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    ret = manipulator(&d_element9,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    ret = manipulator(&d_element10,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    ret = manipulator(&d_element11,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    ret = manipulator(&d_element12,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    ret = manipulator(&d_element13,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    ret = manipulator(&d_element14,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    ret = manipulator(&d_element15,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+    ret = manipulator(&d_element16,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+    ret = manipulator(&d_element17,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+    ret = manipulator(&d_element18,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+    ret = manipulator(&d_element19,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5431,93 +5354,72 @@ int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT8: {
-        return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT9: {
-        return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT10: {
-        return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT11: {
-        return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT12: {
-        return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT13: {
-        return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT14: {
-        return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT15: {
-        return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT16: {
-        return manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT17: {
-        return manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT18: {
-        return manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT19: {
-        return manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(&d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return manipulator(&d_element6,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return manipulator(&d_element7,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      case ATTRIBUTE_ID_ELEMENT8:
+        return manipulator(&d_element8,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      case ATTRIBUTE_ID_ELEMENT9:
+        return manipulator(&d_element9,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      case ATTRIBUTE_ID_ELEMENT10:
+        return manipulator(&d_element10,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      case ATTRIBUTE_ID_ELEMENT11:
+        return manipulator(&d_element11,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      case ATTRIBUTE_ID_ELEMENT12:
+        return manipulator(&d_element12,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      case ATTRIBUTE_ID_ELEMENT13:
+        return manipulator(&d_element13,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      case ATTRIBUTE_ID_ELEMENT14:
+        return manipulator(&d_element14,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      case ATTRIBUTE_ID_ELEMENT15:
+        return manipulator(&d_element15,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      case ATTRIBUTE_ID_ELEMENT16:
+        return manipulator(&d_element16,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+      case ATTRIBUTE_ID_ELEMENT17:
+        return manipulator(&d_element17,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+      case ATTRIBUTE_ID_ELEMENT18:
+        return manipulator(&d_element18,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+      case ATTRIBUTE_ID_ELEMENT19:
+        return manipulator(&d_element19,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
-
 template <class MANIPULATOR>
-int Sequence4::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence4::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -5695,52 +5597,62 @@ int Sequence4::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    ret = accessor(d_element10,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    ret = accessor(d_element11,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    ret = accessor(d_element12,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    ret = accessor(d_element13,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    ret = accessor(d_element14,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    ret = accessor(d_element15,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+    ret = accessor(d_element16,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+    ret = accessor(d_element17,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+    ret = accessor(d_element18,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+    ret = accessor(d_element19,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5754,92 +5666,72 @@ int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT8: {
-        return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT9: {
-        return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT10: {
-        return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT11: {
-        return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT12: {
-        return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT13: {
-        return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT14: {
-        return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT15: {
-        return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT16: {
-        return accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT17: {
-        return accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT18: {
-        return accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT19: {
-        return accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return accessor(d_element6,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return accessor(d_element7,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      case ATTRIBUTE_ID_ELEMENT8:
+        return accessor(d_element8,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      case ATTRIBUTE_ID_ELEMENT9:
+        return accessor(d_element9,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      case ATTRIBUTE_ID_ELEMENT10:
+        return accessor(d_element10,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      case ATTRIBUTE_ID_ELEMENT11:
+        return accessor(d_element11,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      case ATTRIBUTE_ID_ELEMENT12:
+        return accessor(d_element12,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      case ATTRIBUTE_ID_ELEMENT13:
+        return accessor(d_element13,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      case ATTRIBUTE_ID_ELEMENT14:
+        return accessor(d_element14,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      case ATTRIBUTE_ID_ELEMENT15:
+        return accessor(d_element15,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      case ATTRIBUTE_ID_ELEMENT16:
+        return accessor(d_element16,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+      case ATTRIBUTE_ID_ELEMENT17:
+        return accessor(d_element17,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+      case ATTRIBUTE_ID_ELEMENT18:
+        return accessor(d_element18,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+      case ATTRIBUTE_ID_ELEMENT19:
+        return accessor(d_element19,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence4::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence4::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -5978,27 +5870,32 @@ int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -6012,36 +5909,30 @@ int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence1::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -6100,7 +5991,8 @@ int Sequence1::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = accessor(*d_element3,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -6124,36 +6016,30 @@ int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(*d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence1::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -6208,37 +6094,44 @@ int Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    ret = manipulator(&d_element2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    ret = manipulator(&d_element3,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    ret = manipulator(&d_element4,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    ret = manipulator(&d_element5,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    ret = manipulator(&d_element6,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    ret = manipulator(&d_element7,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -6252,44 +6145,36 @@ int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return manipulator(&d_element2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return manipulator(&d_element3,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return manipulator(&d_element4,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return manipulator(&d_element5,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return manipulator(&d_element6,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return manipulator(&d_element7,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int Sequence2::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Sequence2::manipulateAttribute(MANIPULATOR&  manipulator,
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -6394,44 +6279,36 @@ int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
-        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT3: {
-        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT4: {
-        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT5: {
-        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT6: {
-        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT7: {
-        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
-                                                                      // RETURN
-      } break;
+      case ATTRIBUTE_ID_ELEMENT1:
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case ATTRIBUTE_ID_ELEMENT2:
+        return accessor(d_element2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      case ATTRIBUTE_ID_ELEMENT3:
+        return accessor(d_element3,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      case ATTRIBUTE_ID_ELEMENT4:
+        return accessor(d_element4,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      case ATTRIBUTE_ID_ELEMENT5:
+        return accessor(d_element5,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      case ATTRIBUTE_ID_ELEMENT6:
+        return accessor(d_element6,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      case ATTRIBUTE_ID_ELEMENT7:
+        return accessor(d_element7,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int Sequence2::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Sequence2::accessAttribute(ACCESSOR&   accessor,
+                               const char *name,
+                               int         nameLength)  const
 {
     enum { NOT_FOUND = -1 };
 
@@ -6475,13 +6352,15 @@ const bdlb::NullableValue<double>& Sequence2::element5() const
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<bsl::string> >& Sequence2::element6() const
+const bsl::vector<bdlb::NullableValue<bsl::string> >&
+Sequence2::element6() const
 {
     return d_element6;
 }
 
 inline
-const bsl::vector<bdlb::NullableValue<CustomString> >& Sequence2::element7() const
+const bsl::vector<bdlb::NullableValue<CustomString> >&
+Sequence2::element7() const
 {
     return d_element7;
 }
@@ -6513,28 +6392,28 @@ int Topchoice::manipulateSelection(MANIPULATOR& manipulator)
     switch (d_selectionId) {
       case Topchoice::SELECTION_ID_SELECTION1:
         return manipulator(&d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case Topchoice::SELECTION_ID_SELECTION2:
         return manipulator(&d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case Topchoice::SELECTION_ID_SELECTION3:
         return manipulator(&d_selection3.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case Topchoice::SELECTION_ID_SELECTION4:
         return manipulator(d_selection4,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       case Topchoice::SELECTION_ID_SELECTION5:
         return manipulator(&d_selection5.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
       case Topchoice::SELECTION_ID_SELECTION6:
         return manipulator(&d_selection6.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
       case Topchoice::SELECTION_ID_SELECTION7:
         return manipulator(&d_selection7.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
       case Topchoice::SELECTION_ID_SELECTION8:
         return manipulator(&d_selection8.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+                           SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(Topchoice::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -6611,28 +6490,28 @@ int Topchoice::accessSelection(ACCESSOR& accessor) const
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1:
         return accessor(d_selection1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
       case SELECTION_ID_SELECTION2:
         return accessor(d_selection2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
       case SELECTION_ID_SELECTION3:
         return accessor(d_selection3.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
       case SELECTION_ID_SELECTION4:
         return accessor(*d_selection4,
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       case SELECTION_ID_SELECTION5:
         return accessor(d_selection5.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
       case SELECTION_ID_SELECTION6:
         return accessor(d_selection6.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
       case SELECTION_ID_SELECTION7:
         return accessor(d_selection7.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
       case SELECTION_ID_SELECTION8:
         return accessor(d_selection8.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+                        SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;                                                    // RETURN
@@ -6753,68 +6632,52 @@ bool Topchoice::isUndefinedValue() const
 // FREE FUNCTIONS
 
 inline
-bool bsctst::operator==(
-        const bsctst::CustomInt& lhs,
-        const bsctst::CustomInt& rhs)
+bool bsctst::operator==(const CustomInt& lhs, const CustomInt& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::CustomInt& lhs,
-        const bsctst::CustomInt& rhs)
+bool bsctst::operator!=(const CustomInt& lhs, const CustomInt& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::CustomInt& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const CustomInt& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::CustomString& lhs,
-        const bsctst::CustomString& rhs)
+bool bsctst::operator==(const CustomString& lhs, const CustomString& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::CustomString& lhs,
-        const bsctst::CustomString& rhs)
+bool bsctst::operator!=(const CustomString& lhs, const CustomString& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::CustomString& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const CustomString& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        bsctst::Enumerated::Value rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, Enumerated::Value rhs)
 {
     return bsctst::Enumerated::print(stream, rhs);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence3& lhs,
-        const bsctst::Sequence3& rhs)
+bool bsctst::operator==(const Sequence3& lhs, const Sequence3& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -6825,9 +6688,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence3& lhs,
-        const bsctst::Sequence3& rhs)
+bool bsctst::operator!=(const Sequence3& lhs, const Sequence3& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -6838,18 +6699,14 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence3& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence3& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence5& lhs,
-        const bsctst::Sequence5& rhs)
+bool bsctst::operator==(const Sequence5& lhs, const Sequence5& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -6861,9 +6718,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence5& lhs,
-        const bsctst::Sequence5& rhs)
+bool bsctst::operator!=(const Sequence5& lhs, const Sequence5& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -6875,18 +6730,14 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence5& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence5& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence6& lhs,
-        const bsctst::Sequence6& rhs)
+bool bsctst::operator==(const Sequence6& lhs, const Sequence6& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -6906,9 +6757,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence6& lhs,
-        const bsctst::Sequence6& rhs)
+bool bsctst::operator!=(const Sequence6& lhs, const Sequence6& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -6928,18 +6777,14 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence6& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence6& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Choice3& lhs,
-        const bsctst::Choice3& rhs)
+bool bsctst::operator==(const Choice3& lhs, const Choice3& rhs)
 {
     typedef bsctst::Choice3 Class;
     if (lhs.selectionId() == rhs.selectionId()) {
@@ -6963,26 +6808,20 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Choice3& lhs,
-        const bsctst::Choice3& rhs)
+bool bsctst::operator!=(const Choice3& lhs, const Choice3& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Choice3& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Choice3& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Choice1& lhs,
-        const bsctst::Choice1& rhs)
+bool bsctst::operator==(const Choice1& lhs, const Choice1& rhs)
 {
     typedef bsctst::Choice1 Class;
     if (lhs.selectionId() == rhs.selectionId()) {
@@ -7006,26 +6845,20 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Choice1& lhs,
-        const bsctst::Choice1& rhs)
+bool bsctst::operator!=(const Choice1& lhs, const Choice1& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Choice1& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Choice1& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Choice2& lhs,
-        const bsctst::Choice2& rhs)
+bool bsctst::operator==(const Choice2& lhs, const Choice2& rhs)
 {
     typedef bsctst::Choice2 Class;
     if (lhs.selectionId() == rhs.selectionId()) {
@@ -7049,26 +6882,20 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Choice2& lhs,
-        const bsctst::Choice2& rhs)
+bool bsctst::operator!=(const Choice2& lhs, const Choice2& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Choice2& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Choice2& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence4& lhs,
-        const bsctst::Sequence4& rhs)
+bool bsctst::operator==(const Sequence4& lhs, const Sequence4& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -7092,9 +6919,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence4& lhs,
-        const bsctst::Sequence4& rhs)
+bool bsctst::operator!=(const Sequence4& lhs, const Sequence4& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -7118,18 +6943,14 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence4& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence4& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence1& lhs,
-        const bsctst::Sequence1& rhs)
+bool bsctst::operator==(const Sequence1& lhs, const Sequence1& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -7139,9 +6960,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence1& lhs,
-        const bsctst::Sequence1& rhs)
+bool bsctst::operator!=(const Sequence1& lhs, const Sequence1& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -7151,18 +6970,13 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence1& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence1& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
-
 inline
-bool bsctst::operator==(
-        const bsctst::Sequence2& lhs,
-        const bsctst::Sequence2& rhs)
+bool bsctst::operator==(const Sequence2& lhs, const Sequence2& rhs)
 {
     return  lhs.element1() == rhs.element1()
          && lhs.element2() == rhs.element2()
@@ -7174,9 +6988,7 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Sequence2& lhs,
-        const bsctst::Sequence2& rhs)
+bool bsctst::operator!=(const Sequence2& lhs, const Sequence2& rhs)
 {
     return  lhs.element1() != rhs.element1()
          || lhs.element2() != rhs.element2()
@@ -7188,18 +7000,14 @@ bool bsctst::operator!=(
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Sequence2& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Sequence2& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 
 inline
-bool bsctst::operator==(
-        const bsctst::Topchoice& lhs,
-        const bsctst::Topchoice& rhs)
+bool bsctst::operator==(const Topchoice& lhs, const Topchoice& rhs)
 {
     typedef bsctst::Topchoice Class;
     if (lhs.selectionId() == rhs.selectionId()) {
@@ -7231,17 +7039,13 @@ bool bsctst::operator==(
 }
 
 inline
-bool bsctst::operator!=(
-        const bsctst::Topchoice& lhs,
-        const bsctst::Topchoice& rhs)
+bool bsctst::operator!=(const Topchoice& lhs, const Topchoice& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bsctst::operator<<(
-        bsl::ostream& stream,
-        const bsctst::Topchoice& rhs)
+bsl::ostream& bsctst::operator<<(bsl::ostream& stream, const Topchoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -7315,19 +7119,19 @@ const char Enumerated::CLASS_NAME[] = "Enumerated";
 
 const bdlat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
     {
-        Enumerated::NEW_YORK,
+        NEW_YORK,
         "NEW_YORK",
         sizeof("NEW_YORK") - 1,
         ""
     },
     {
-        Enumerated::NEW_JERSEY,
+        NEW_JERSEY,
         "NEW_JERSEY",
         sizeof("NEW_JERSEY") - 1,
         ""
     },
     {
-        Enumerated::LONDON,
+        LONDON,
         "LONDON",
         sizeof("LONDON") - 1,
         ""
@@ -7336,25 +7140,23 @@ const bdlat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-int Enumerated::fromInt(Enumerated::Value *result, int number)
+int Enumerated::fromInt(Value *result, int number)
 {
     switch (number) {
-      case Enumerated::NEW_YORK:
-      case Enumerated::NEW_JERSEY:
-      case Enumerated::LONDON:
-        *result = (Enumerated::Value)number;
+      case NEW_YORK:
+      case NEW_JERSEY:
+      case LONDON:
+        *result = (Value)number;
         return 0;                                                     // RETURN
       default:
         return -1;                                                    // RETURN
     }
 }
 
-int Enumerated::fromString(Enumerated::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+int Enumerated::fromString(Value *result, const char *string, int stringLength)
 {
 
-    switch(stringLength) {
+    switch (stringLength) {
         case 6: {
             if (string[0]=='L'
              && string[1]=='O'
@@ -7363,7 +7165,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[4]=='O'
              && string[5]=='N')
             {
-                *result = Enumerated::LONDON;
+                *result = LONDON;
                 return 0;                                             // RETURN
             }
         } break;
@@ -7377,7 +7179,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[6]=='R'
              && string[7]=='K')
             {
-                *result = Enumerated::NEW_YORK;
+                *result = NEW_YORK;
                 return 0;                                             // RETURN
             }
         } break;
@@ -7393,7 +7195,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[8]=='E'
              && string[9]=='Y')
             {
-                *result = Enumerated::NEW_JERSEY;
+                *result = NEW_JERSEY;
                 return 0;                                             // RETURN
             }
         } break;
@@ -7402,7 +7204,7 @@ int Enumerated::fromString(Enumerated::Value *result,
     return -1;
 }
 
-const char *Enumerated::toString(Enumerated::Value value)
+const char *Enumerated::toString(Value value)
 {
     switch (value) {
       case NEW_YORK: {
@@ -7478,47 +7280,35 @@ const bdlat_AttributeInfo Sequence3::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Sequence3::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (name[0]=='e'
+         && name[1]=='l'
+         && name[2]=='e'
+         && name[3]=='m'
+         && name[4]=='e'
+         && name[5]=='n'
+         && name[6]=='t')
+        {
+            switch (name[7]) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+              case '6':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -7572,8 +7362,7 @@ Sequence3::~Sequence3()
 
 // MANIPULATORS
 
-Sequence3&
-Sequence3::operator=(const Sequence3& rhs)
+Sequence3& Sequence3::operator=(const Sequence3& rhs)
 {
     if (this != &rhs) {
         d_element1 = rhs.d_element1;
@@ -7598,10 +7387,9 @@ void Sequence3::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence3::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence3::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -7619,33 +7407,45 @@ bsl::ostream& Sequence3::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -7657,33 +7457,45 @@ bsl::ostream& Sequence3::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -7762,51 +7574,37 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Sequence5::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (name[0]=='e'
+         && name[1]=='l'
+         && name[2]=='e'
+         && name[3]=='m'
+         && name[4]=='e'
+         && name[5]=='n'
+         && name[6]=='t')
+        {
+            switch (name[7]) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+              case '6':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+              case '7':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -7897,10 +7695,9 @@ void Sequence5::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence5::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence5::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -7918,38 +7715,52 @@ bsl::ostream& Sequence5::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, *d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  *d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -7961,38 +7772,52 @@ bsl::ostream& Sequence5::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, *d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  *d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -8124,97 +7949,67 @@ const bdlat_AttributeInfo Sequence6::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Sequence6::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-                                                                      // RETURN
-                    } break;
-                    case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
-                                                                      // RETURN
-                    } break;
-                    case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (name[0] == 'e'
+         && name[1] == 'l'
+         && name[2] == 'e'
+         && name[3] == 'm'
+         && name[4] == 'e'
+         && name[5] == 'n'
+         && name[6] == 't')
+        {
+            switch (name[7]) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+              case '6':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+              case '7':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+              case '8':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+              case '9':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
             }
-        } break;
-        case 9: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t'
-             && name[7]=='1')
-            {
-                switch(name[8]) {
-                    case '0': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
-                                                                      // RETURN
-                    } break;
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
-                                                                      // RETURN
-                    } break;
-                }
+        }
+      } break;
+      case 9: {
+        if (name[0] == 'e'
+         && name[1] == 'l'
+         && name[2] == 'e'
+         && name[3] == 'm'
+         && name[4] == 'e'
+         && name[5] == 'n'
+         && name[6] == 't'
+         && name[7] == '1')
+        {
+            switch (name[8]) {
+              case '0':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -8348,10 +8143,9 @@ void Sequence6::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence6::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence6::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -8369,78 +8163,108 @@ bsl::ostream& Sequence6::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, (int)d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  (int)d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element8 = ";
-        bdlb::PrintMethods::print(stream, d_element8,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element8,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element9 = ";
-        bdlb::PrintMethods::print(stream, d_element9,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element9,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element10 = ";
-        bdlb::PrintMethods::print(stream, d_element10,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element10,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element11 = ";
-        bdlb::PrintMethods::print(stream, d_element11,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element11,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element12 = ";
-        bdlb::PrintMethods::print(stream, d_element12,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element12,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element13 = ";
-        bdlb::PrintMethods::print(stream, d_element13,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element13,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element14 = ";
-        bdlb::PrintMethods::print(stream, d_element14,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element14,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element15 = ";
-        bdlb::PrintMethods::print(stream, d_element15,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element15,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -8452,78 +8276,108 @@ bsl::ostream& Sequence6::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, (int)d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  (int)d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element8 = ";
-        bdlb::PrintMethods::print(stream, d_element8,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element8,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element9 = ";
-        bdlb::PrintMethods::print(stream, d_element9,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element9,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element10 = ";
-        bdlb::PrintMethods::print(stream, d_element10,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element10,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element11 = ";
-        bdlb::PrintMethods::print(stream, d_element11,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element11,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element12 = ";
-        bdlb::PrintMethods::print(stream, d_element12,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element12,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element13 = ";
-        bdlb::PrintMethods::print(stream, d_element13,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element13,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element14 = ";
-        bdlb::PrintMethods::print(stream, d_element14,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element14,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element15 = ";
-        bdlb::PrintMethods::print(stream, d_element15,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element15,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -8574,42 +8428,33 @@ const bdlat_SelectionInfo Choice3::SELECTION_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (name[0]=='s'
-             && name[1]=='e'
-             && name[2]=='l'
-             && name[3]=='e'
-             && name[4]=='c'
-             && name[5]=='t'
-             && name[6]=='i'
-             && name[7]=='o'
-             && name[8]=='n')
-            {
-                switch(name[9]) {
-                    case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (name[0]=='s'
+         && name[1]=='e'
+         && name[2]=='l'
+         && name[3]=='e'
+         && name[4]=='c'
+         && name[5]=='t'
+         && name[6]=='i'
+         && name[7]=='o'
+         && name[8]=='n')
+        {
+            switch (name[9]) {
+              case '1':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+              case '2':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+              case '3':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+              case '4':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -8632,17 +8477,14 @@ const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
 
 // CREATORS
 
-Choice3::Choice3(
-    const Choice3&    original,
-    bslma::Allocator *basicAllocator)
+Choice3::Choice3(const Choice3& original, bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
-            Sequence6(
-                original.d_selection1.object(), d_allocator_p);
+            Sequence6(original.d_selection1.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
@@ -8650,8 +8492,7 @@ Choice3::Choice3(
       } break;
       case SELECTION_ID_SELECTION3: {
         new (d_selection3.buffer())
-            CustomString(
-                original.d_selection3.object(), d_allocator_p);
+            CustomString(original.d_selection3.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION4: {
         new (d_selection4.buffer())
@@ -8664,8 +8505,7 @@ Choice3::Choice3(
 
 // MANIPULATORS
 
-Choice3&
-Choice3::operator=(const Choice3& rhs)
+Choice3& Choice3::operator=(const Choice3& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
@@ -8872,10 +8712,9 @@ CustomInt& Choice3::makeSelection4(const CustomInt& value)
 
 // ACCESSORS
 
-bsl::ostream& Choice3::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Choice3::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -8895,23 +8734,31 @@ bsl::ostream& Choice3::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      (int)d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, d_selection3.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection3.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, d_selection4.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection4.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED\n";
@@ -8927,23 +8774,31 @@ bsl::ostream& Choice3::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      (int)d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, d_selection3.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection3.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, d_selection4.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection4.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED";
@@ -9014,42 +8869,33 @@ const bdlat_SelectionInfo Choice1::SELECTION_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (name[0]=='s'
-             && name[1]=='e'
-             && name[2]=='l'
-             && name[3]=='e'
-             && name[4]=='c'
-             && name[5]=='t'
-             && name[6]=='i'
-             && name[7]=='o'
-             && name[8]=='n')
-            {
-                switch(name[9]) {
-                    case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (name[0]=='s'
+         && name[1]=='e'
+         && name[2]=='l'
+         && name[3]=='e'
+         && name[4]=='c'
+         && name[5]=='t'
+         && name[6]=='i'
+         && name[7]=='o'
+         && name[8]=='n')
+        {
+            switch (name[9]) {
+              case '1':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+              case '2':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+              case '3':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+              case '4':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -9072,9 +8918,7 @@ const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(int id)
 
 // CREATORS
 
-Choice1::Choice1(
-    const Choice1&    original,
-    bslma::Allocator *basicAllocator)
+Choice1::Choice1(const Choice1& original, bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -9310,10 +9154,9 @@ Choice2& Choice1::makeSelection4(const Choice2& value)
 
 // ACCESSORS
 
-bsl::ostream& Choice1::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Choice1::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -9333,23 +9176,31 @@ bsl::ostream& Choice1::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, *d_selection3,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection3,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, *d_selection4,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection4,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED\n";
@@ -9365,23 +9216,31 @@ bsl::ostream& Choice1::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, *d_selection3,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection3,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, *d_selection4,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection4,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED";
@@ -9456,38 +9315,30 @@ const bdlat_SelectionInfo *Choice2::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (name[0]=='s'
-             && name[1]=='e'
-             && name[2]=='l'
-             && name[3]=='e'
-             && name[4]=='c'
-             && name[5]=='t'
-             && name[6]=='i'
-             && name[7]=='o'
-             && name[8]=='n')
-            {
-                switch(name[9]) {
-                    case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (name[0]=='s'
+         && name[1]=='e'
+         && name[2]=='l'
+         && name[3]=='e'
+         && name[4]=='c'
+         && name[5]=='t'
+         && name[6]=='i'
+         && name[7]=='o'
+         && name[8]=='n')
+        {
+            switch (name[9]) {
+              case '1':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+              case '2':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+              case '3':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+              case '4':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -9750,10 +9601,9 @@ unsigned int& Choice2::makeSelection4(unsigned int value)
 
 // ACCESSORS
 
-bsl::ostream& Choice2::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Choice2::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -9773,23 +9623,31 @@ bsl::ostream& Choice2::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, *d_selection3,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection3,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, d_selection4.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection4.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED\n";
@@ -9805,23 +9663,31 @@ bsl::ostream& Choice2::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, *d_selection3,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection3,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, d_selection4.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection4.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED";
@@ -10001,110 +9867,72 @@ const bdlat_AttributeInfo *Sequence4::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-                                                                      // RETURN
-                    } break;
-                    case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
-                                                                      // RETURN
-                    } break;
-                    case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (name[0]=='e'
+         && name[1]=='l'
+         && name[2]=='e'
+         && name[3]=='m'
+         && name[4]=='e'
+         && name[5]=='n'
+         && name[6]=='t')
+        {
+            switch (name[7]) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+              case '6':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+              case '7':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+              case '8':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+              case '9':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
             }
-        } break;
-        case 9: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t'
-             && name[7]=='1')
-            {
-                switch(name[8]) {
-                    case '0': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
-                                                                      // RETURN
-                    } break;
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
-                                                                      // RETURN
-                    } break;
-                    case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
-                                                                      // RETURN
-                    } break;
-                    case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
-                                                                      // RETURN
-                    } break;
-                }
+        }
+      } break;
+      case 9: {
+        if (name[0]=='e'
+         && name[1]=='l'
+         && name[2]=='e'
+         && name[3]=='m'
+         && name[4]=='e'
+         && name[5]=='n'
+         && name[6]=='t'
+         && name[7]=='1')
+        {
+            switch (name[8]) {
+              case '0':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+              case '6':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
+              case '7':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
+              case '8':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
+              case '9':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -10262,10 +10090,9 @@ void Sequence4::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence4::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence4::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -10283,98 +10110,136 @@ bsl::ostream& Sequence4::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element8 = ";
-        bdlb::PrintMethods::print(stream, d_element8,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element8,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element9 = ";
-        bdlb::PrintMethods::print(stream, d_element9,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element9,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element10 = ";
-        bdlb::PrintMethods::print(stream, d_element10,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element10,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element11 = ";
-        bdlb::PrintMethods::print(stream, d_element11,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element11,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element12 = ";
-        bdlb::PrintMethods::print(stream, d_element12,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element12,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element13 = ";
-        bdlb::PrintMethods::print(stream, d_element13,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element13,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element14 = ";
-        bdlb::PrintMethods::print(stream, d_element14,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element14,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element15 = ";
-        bdlb::PrintMethods::print(stream, d_element15,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element15,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element16 = ";
-        bdlb::PrintMethods::print(stream, d_element16,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element16,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element17 = ";
-        bdlb::PrintMethods::print(stream, d_element17,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element17,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element18 = ";
-        bdlb::PrintMethods::print(stream, d_element18,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element18,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element19 = ";
-        bdlb::PrintMethods::print(stream, d_element19,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element19,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -10386,98 +10251,136 @@ bsl::ostream& Sequence4::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element8 = ";
-        bdlb::PrintMethods::print(stream, d_element8,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element8,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element9 = ";
-        bdlb::PrintMethods::print(stream, d_element9,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element9,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element10 = ";
-        bdlb::PrintMethods::print(stream, d_element10,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element10,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element11 = ";
-        bdlb::PrintMethods::print(stream, d_element11,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element11,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element12 = ";
-        bdlb::PrintMethods::print(stream, d_element12,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element12,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element13 = ";
-        bdlb::PrintMethods::print(stream, d_element13,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element13,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element14 = ";
-        bdlb::PrintMethods::print(stream, d_element14,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element14,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element15 = ";
-        bdlb::PrintMethods::print(stream, d_element15,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element15,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element16 = ";
-        bdlb::PrintMethods::print(stream, d_element16,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element16,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element17 = ";
-        bdlb::PrintMethods::print(stream, d_element17,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element17,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element18 = ";
-        bdlb::PrintMethods::print(stream, d_element18,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element18,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element19 = ";
-        bdlb::PrintMethods::print(stream, d_element19,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element19,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -10537,43 +10440,33 @@ const bdlat_AttributeInfo Sequence1::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Sequence1::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (name[0]=='e'
+         && name[1]=='l'
+         && name[2]=='e'
+         && name[3]=='m'
+         && name[4]=='e'
+         && name[5]=='n'
+         && name[6]=='t')
+        {
+            switch (name[7]) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+              case '4':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+              case '5':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -10605,8 +10498,7 @@ Sequence1::Sequence1(bslma::Allocator *basicAllocator)
 , d_element2(basicAllocator)
 , d_element1(basicAllocator)
 {
-    d_element3 = new (*d_allocator_p)
-            Choice2(d_allocator_p);
+    d_element3 = new (*d_allocator_p) Choice2(d_allocator_p);
 }
 
 Sequence1::Sequence1(const Sequence1&  original,
@@ -10652,10 +10544,9 @@ void Sequence1::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence1::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence1::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -10673,28 +10564,38 @@ bsl::ostream& Sequence1::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, *d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  *d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -10706,28 +10607,38 @@ bsl::ostream& Sequence1::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, *d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  *d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -10802,51 +10713,37 @@ const bdlat_AttributeInfo Sequence2::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Sequence2::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (name[0]=='e'
-             && name[1]=='l'
-             && name[2]=='e'
-             && name[3]=='m'
-             && name[4]=='e'
-             && name[5]=='n'
-             && name[6]=='t')
-            {
-                switch(name[7]) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-                                                                      // RETURN
-                    } break;
-                }
-            }
-        } break;
+    switch (nameLength) {
+      case 8: {
+          if (name[0]=='e'
+           && name[1]=='l'
+           && name[2]=='e'
+           && name[3]=='m'
+           && name[4]=='e'
+           && name[5]=='n'
+           && name[6]=='t')
+          {
+              switch (name[7]) {
+                case '1':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                case '2':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                case '3':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                case '4':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                case '5':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                case '6':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                case '7':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+              }
+          }
+      } break;
     }
     return 0;
 }
@@ -10932,10 +10829,9 @@ void Sequence2::reset()
 
 // ACCESSORS
 
-bsl::ostream& Sequence2::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Sequence2::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -10953,38 +10849,52 @@ bsl::ostream& Sequence2::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, (int)d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  (int)d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -10996,38 +10906,52 @@ bsl::ostream& Sequence2::print(
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, (int)d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  (int)d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element3 = ";
-        bdlb::PrintMethods::print(stream, d_element3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element4 = ";
-        bdlb::PrintMethods::print(stream, d_element4,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element4,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element5 = ";
-        bdlb::PrintMethods::print(stream, d_element5,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element5,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element6 = ";
-        bdlb::PrintMethods::print(stream, d_element6,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element6,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element7 = ";
-        bdlb::PrintMethods::print(stream, d_element7,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element7,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -11105,57 +11029,41 @@ const bdlat_SelectionInfo Topchoice::SELECTION_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_SelectionInfo *Topchoice::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (name[0]=='s'
-             && name[1]=='e'
-             && name[2]=='l'
-             && name[3]=='e'
-             && name[4]=='c'
-             && name[5]=='t'
-             && name[6]=='i'
-             && name[7]=='o'
-             && name[8]=='n')
-            {
-                switch(name[9]) {
-                    case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-                                                                      // RETURN
-                    } break;
-                    case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-                                                                      // RETURN
-                    } break;
-                    case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-                                                                      // RETURN
-                    } break;
-                    case '5': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
-                                                                      // RETURN
-                    } break;
-                    case '6': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
-                                                                      // RETURN
-                    } break;
-                    case '7': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
-                                                                      // RETURN
-                    } break;
-                    case '8': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (name[0]=='s'
+         && name[1]=='e'
+         && name[2]=='l'
+         && name[3]=='e'
+         && name[4]=='c'
+         && name[5]=='t'
+         && name[6]=='i'
+         && name[7]=='o'
+         && name[8]=='n')
+        {
+            switch (name[9]) {
+              case '1':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+              case '2':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+              case '3':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+              case '4':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+              case '5':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+              case '6':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+              case '7':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+              case '8':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -11186,31 +11094,27 @@ const bdlat_SelectionInfo *Topchoice::lookupSelectionInfo(int id)
 
 // CREATORS
 
-Topchoice::Topchoice(
-    const Topchoice&  original,
-    bslma::Allocator *basicAllocator)
+Topchoice::Topchoice(const Topchoice&  original,
+                     bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
-            Sequence1(
-                original.d_selection1.object(), d_allocator_p);
+            Sequence1(original.d_selection1.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
-            bsl::vector<char>(
-                original.d_selection2.object(), d_allocator_p);
+            bsl::vector<char>(original.d_selection2.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION3: {
         new (d_selection3.buffer())
-            Sequence2(
-                original.d_selection3.object(), d_allocator_p);
+            Sequence2(original.d_selection3.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION4: {
         d_selection4 = new (*d_allocator_p)
-                Sequence3(*original.d_selection4, d_allocator_p);
+            Sequence3(*original.d_selection4, d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION5: {
         new (d_selection5.buffer())
@@ -11218,8 +11122,7 @@ Topchoice::Topchoice(
       } break;
       case SELECTION_ID_SELECTION6: {
         new (d_selection6.buffer())
-            CustomString(
-                original.d_selection6.object(), d_allocator_p);
+            CustomString(original.d_selection6.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION7: {
         new (d_selection7.buffer())
@@ -11227,8 +11130,7 @@ Topchoice::Topchoice(
       } break;
       case SELECTION_ID_SELECTION8: {
         new (d_selection8.buffer())
-            Choice3(
-                original.d_selection8.object(), d_allocator_p);
+            Choice3(original.d_selection8.object(), d_allocator_p);
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -11237,8 +11139,7 @@ Topchoice::Topchoice(
 
 // MANIPULATORS
 
-Topchoice&
-Topchoice::operator=(const Topchoice& rhs)
+Topchoice& Topchoice::operator=(const Topchoice& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
@@ -11364,8 +11265,7 @@ Sequence1& Topchoice::makeSelection1()
     }
     else {
         reset();
-        new (d_selection1.buffer())
-                Sequence1(d_allocator_p);
+        new (d_selection1.buffer()) Sequence1(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION1;
     }
@@ -11380,8 +11280,7 @@ Sequence1& Topchoice::makeSelection1(const Sequence1& value)
     }
     else {
         reset();
-        new (d_selection1.buffer())
-                Sequence1(value, d_allocator_p);
+        new (d_selection1.buffer()) Sequence1(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION1;
     }
 
@@ -11395,8 +11294,7 @@ bsl::vector<char>& Topchoice::makeSelection2()
     }
     else {
         reset();
-        new (d_selection2.buffer())
-                bsl::vector<char>(d_allocator_p);
+        new (d_selection2.buffer()) bsl::vector<char>(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION2;
     }
@@ -11411,8 +11309,7 @@ bsl::vector<char>& Topchoice::makeSelection2(const bsl::vector<char>& value)
     }
     else {
         reset();
-        new (d_selection2.buffer())
-                bsl::vector<char>(value, d_allocator_p);
+        new (d_selection2.buffer()) bsl::vector<char>(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -11426,8 +11323,7 @@ Sequence2& Topchoice::makeSelection3()
     }
     else {
         reset();
-        new (d_selection3.buffer())
-                Sequence2(d_allocator_p);
+        new (d_selection3.buffer()) Sequence2(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION3;
     }
@@ -11442,8 +11338,7 @@ Sequence2& Topchoice::makeSelection3(const Sequence2& value)
     }
     else {
         reset();
-        new (d_selection3.buffer())
-                Sequence2(value, d_allocator_p);
+        new (d_selection3.buffer()) Sequence2(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION3;
     }
 
@@ -11457,8 +11352,7 @@ Sequence3& Topchoice::makeSelection4()
     }
     else {
         reset();
-        d_selection4 = new (*d_allocator_p)
-                Sequence3(d_allocator_p);
+        d_selection4 = new (*d_allocator_p) Sequence3(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION4;
     }
@@ -11473,8 +11367,7 @@ Sequence3& Topchoice::makeSelection4(const Sequence3& value)
     }
     else {
         reset();
-        d_selection4 = new (*d_allocator_p)
-                Sequence3(value, d_allocator_p);
+        d_selection4 = new (*d_allocator_p) Sequence3(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION4;
     }
 
@@ -11488,8 +11381,7 @@ bdlt::DatetimeTz& Topchoice::makeSelection5()
     }
     else {
         reset();
-        new (d_selection5.buffer())
-            bdlt::DatetimeTz();
+        new (d_selection5.buffer()) bdlt::DatetimeTz();
 
         d_selectionId = SELECTION_ID_SELECTION5;
     }
@@ -11504,8 +11396,7 @@ bdlt::DatetimeTz& Topchoice::makeSelection5(const bdlt::DatetimeTz& value)
     }
     else {
         reset();
-        new (d_selection5.buffer())
-                bdlt::DatetimeTz(value);
+        new (d_selection5.buffer()) bdlt::DatetimeTz(value);
         d_selectionId = SELECTION_ID_SELECTION5;
     }
 
@@ -11519,8 +11410,7 @@ CustomString& Topchoice::makeSelection6()
     }
     else {
         reset();
-        new (d_selection6.buffer())
-                CustomString(d_allocator_p);
+        new (d_selection6.buffer()) CustomString(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION6;
     }
@@ -11535,8 +11425,7 @@ CustomString& Topchoice::makeSelection6(const CustomString& value)
     }
     else {
         reset();
-        new (d_selection6.buffer())
-                CustomString(value, d_allocator_p);
+        new (d_selection6.buffer()) CustomString(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION6;
     }
 
@@ -11551,7 +11440,7 @@ Enumerated::Value& Topchoice::makeSelection7()
     else {
         reset();
         new (d_selection7.buffer())
-                    Enumerated::Value(static_cast<Enumerated::Value>(0));
+            Enumerated::Value(static_cast<Enumerated::Value>(0));
 
         d_selectionId = SELECTION_ID_SELECTION7;
     }
@@ -11566,8 +11455,7 @@ Enumerated::Value& Topchoice::makeSelection7(Enumerated::Value value)
     }
     else {
         reset();
-        new (d_selection7.buffer())
-                Enumerated::Value(value);
+        new (d_selection7.buffer()) Enumerated::Value(value);
         d_selectionId = SELECTION_ID_SELECTION7;
     }
 
@@ -11581,8 +11469,7 @@ Choice3& Topchoice::makeSelection8()
     }
     else {
         reset();
-        new (d_selection8.buffer())
-                Choice3(d_allocator_p);
+        new (d_selection8.buffer()) Choice3(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION8;
     }
@@ -11597,8 +11484,7 @@ Choice3& Topchoice::makeSelection8(const Choice3& value)
     }
     else {
         reset();
-        new (d_selection8.buffer())
-                Choice3(value, d_allocator_p);
+        new (d_selection8.buffer()) Choice3(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION8;
     }
 
@@ -11607,10 +11493,9 @@ Choice3& Topchoice::makeSelection8(const Choice3& value)
 
 // ACCESSORS
 
-bsl::ostream& Topchoice::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Topchoice::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -11630,43 +11515,59 @@ bsl::ostream& Topchoice::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, d_selection3.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection3.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, *d_selection4,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection4,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
-            bdlb::PrintMethods::print(stream, d_selection5.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection5.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
-            bdlb::PrintMethods::print(stream, d_selection6.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection6.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
-            bdlb::PrintMethods::print(stream, d_selection7.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection7.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
-            bdlb::PrintMethods::print(stream, d_selection8.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection8.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED\n";
@@ -11682,43 +11583,59 @@ bsl::ostream& Topchoice::print(
         switch (d_selectionId) {
           case SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
-            bdlb::PrintMethods::print(stream, d_selection1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
-            bdlb::PrintMethods::print(stream, d_selection2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
-            bdlb::PrintMethods::print(stream, d_selection3.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection3.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
-            bdlb::PrintMethods::print(stream, *d_selection4,
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      *d_selection4,
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
-            bdlb::PrintMethods::print(stream, d_selection5.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection5.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
-            bdlb::PrintMethods::print(stream, d_selection6.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection6.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
-            bdlb::PrintMethods::print(stream, d_selection7.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection7.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
-            bdlb::PrintMethods::print(stream, d_selection8.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_selection8.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED";
@@ -11770,9 +11687,90 @@ struct TestSequence0 {
     // A test sequence with 0 attributes.
 };
 
+            // ===================================================
+            // bdlat_SequenceFunctions Overrides For TestSequence0
+            // ===================================================
+
+// MANIPULATORS
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence0 *object,
+                                      MANIPULATOR&   manipulator,
+                                      const char    *attributeName,
+                                      int            attributeNameLength)
+{
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence0 *object,
+                                      MANIPULATOR&   manipulator,
+                                      int            attributeId)
+{
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(TestSequence0 *object,
+                                       MANIPULATOR&   manipulator)
+{
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence0&  object,
+                                  ACCESSOR&             accessor,
+                                  const char           *attributeName,
+                                  int                   attributeNameLength)
+{
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence0& object,
+                                  ACCESSOR&            accessor,
+                                  int                  attributeId)
+{
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence0& object,
+                                  ACCESSOR&            accessor)
+{
+    return -1;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence0&  object,
+                                const char           *attributeName,
+                                int                   attributeNameLength)
+{
+    return false;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence0& object, int attributeId)
+{
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestSequence0;
+
+namespace BloombergLP {
+namespace bdlat_SequenceFunctions {
+    template <>
+    struct IsSequence<TestSequence0> : bslmf::MetaInt<1> {
+    };
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
+
+
                             // ====================
                             // struct TestSequence1
                             // ====================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestSequence1 {
     // A test sequence with 1 attributes.
@@ -11811,9 +11809,130 @@ bdlat_AttributeInfo TestSequence1::ATTRIBUTE_INFO_ARRAY[] = {
 
 const int TestSequence1::DEFAULT_ELEMENT1 = 0x71DEFA17;
 
+            // ===================================================
+            // bdlat_SequenceFunctions Overrides For TestSequence1
+            // ===================================================
+
+// MANIPULATORS
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence1 *object,
+                                      MANIPULATOR&   manipulator,
+                                      const char    *attributeName,
+                                      int            attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength) ==
+                             TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return manipulator(&object->d_element1,
+                           TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);   // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence1 *object,
+                                      MANIPULATOR&   manipulator,
+                                      int            attributeId)
+{
+    if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return manipulator(&object->d_element1,
+                           TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);   // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(TestSequence1 *object,
+                                       MANIPULATOR&   manipulator)
+{
+    if (0 == manipulator(&object->d_element1,
+                         TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence1&  object,
+                                  ACCESSOR&             accessor,
+                                  const char           *attributeName,
+                                  int                   attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength) ==
+                             TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return accessor(object.d_element1,
+                        TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence1& object,
+                                  ACCESSOR&            accessor,
+                                  int                  attributeId)
+{
+    if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return accessor(object.d_element1,
+                        TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence1& object,
+                                  ACCESSOR&            accessor)
+{
+    if (0 == accessor(object.d_element1,
+                      TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence1&  object,
+                                const char           *attributeName,
+                                int                   attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                      == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence1& object, int attributeId)
+{
+    if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+
+using baexml_Decoder_TestNamespace::TestSequence1;
+
+namespace BloombergLP {
+namespace bdlat_SequenceFunctions {
+    template <>
+    struct IsSequence<TestSequence1> : bslmf::MetaInt<1> {
+    };
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
+
+
                             // ====================
                             // struct TestSequence2
                             // ====================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestSequence2 {
     // A test sequence with 2 attributes.
@@ -11821,8 +11940,8 @@ struct TestSequence2 {
     static bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
     // We need default values for elements in 'TestSequence2' because this
-    // class is used when testing the 'Decoder::decode' functions and we
-    // need to test that elements are reset when these functions are called.
+    // class is used when testing the 'Decoder::decode' functions and we need
+    // to test that elements are reset when these functions are called.
 
     static const int         DEFAULT_ELEMENT1;
     static const bsl::string DEFAULT_ELEMENT2;
@@ -11836,8 +11955,7 @@ struct TestSequence2 {
     {
     }
 
-    TestSequence2(int                element1,
-                  const bsl::string& element2)
+    TestSequence2(int element1, const bsl::string& element2)
     : d_element1(element1)
     , d_element2(element2)
     {
@@ -11868,17 +11986,228 @@ const int         TestSequence2::DEFAULT_ELEMENT1
 const bsl::string TestSequence2::DEFAULT_ELEMENT2
                                            = "TestSequence2::DEFAULT_ELEMENT2";
 
+            // ===================================================
+            // bdlat_SequenceFunctions Overrides For TestSequence2
+            // ===================================================
+
+// MANIPULATORS
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence2 *object,
+                                      MANIPULATOR&   manipulator,
+                                      const char    *attributeName,
+                                      int            attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return manipulator(&object->d_element1,
+                           TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);   // RETURN
+    }
+    if (bsl::string(attributeName, attributeNameLength)
+                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
+        return manipulator(&object->d_element2,
+                           TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);   // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequence2 *object,
+                                      MANIPULATOR&   manipulator,
+                                      int            attributeId)
+{
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return manipulator(&object->d_element1,
+                           TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);   // RETURN
+    }
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
+        return manipulator(&object->d_element2,
+                           TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);   // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(TestSequence2 *object,
+                                       MANIPULATOR&   manipulator)
+{
+    if (0 == manipulator(&object->d_element1,
+                         TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
+     && 0 == manipulator(&object->d_element2,
+                         TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence2&  object,
+                                  ACCESSOR&             accessor,
+                                  const char           *attributeName,
+                                  int                   attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return accessor(object.d_element1,
+                        TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);      // RETURN
+    }
+    if (bsl::string(attributeName, attributeNameLength)
+                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
+        return accessor(object.d_element2,
+                        TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence2& object,
+                                  ACCESSOR&            accessor,
+                                  int                  attributeId)
+{
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return accessor(object.d_element1,
+                        TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);      // RETURN
+    }
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
+        return accessor(object.d_element2,
+                        TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequence2& object,
+                                  ACCESSOR&            accessor)
+{
+    if (0 == accessor(object.d_element1,
+                      TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
+     && 0 == accessor(object.d_element2,
+                      TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence2&  object,
+                                const char           *attributeName,
+                                int                   attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                      == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return true;                                                  // RETURN
+    }
+    if (bsl::string(attributeName, attributeNameLength)
+                      == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+bool bdlat_sequenceHasAttribute(const TestSequence2& object, int attributeId)
+{
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return true;                                                  // RETURN
+    }
+    if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestSequence2;
+
+namespace BloombergLP {
+namespace bdlat_SequenceFunctions {
+template <>
+struct IsSequence<TestSequence2>
+: bslmf::MetaInt<1> { };
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
+
+
                              // ==================
                              // struct TestChoice0
                              // ==================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestChoice0 {
     // A test choice with 0 selections.
 };
 
+              // ===============================================
+              // bdlat_ChoiceFunctions Overrides For TestChoice0
+              // ===============================================
+
+// MANIPULATORS
+int bdlat_choiceMakeSelection(TestChoice0 *object, int selectionId)
+{
+    return -1;
+}
+
+int bdlat_choiceMakeSelection(TestChoice0 *object,
+                              const char  *name,
+                              int          nameLength)
+{
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_choiceManipulateSelection(TestChoice0  *object,
+                                    MANIPULATOR&  manipulator)
+{
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_choiceAccessSelection(const TestChoice0& object, ACCESSOR& accessor)
+{
+    return -1;
+}
+
+int bdlat_choiceSelectionId(const TestChoice0& object)
+{
+    return -1;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice0&  object,
+                              const char         *name,
+                              int                 length)
+{
+    return false;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice0& object, int id)
+{
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestChoice0;
+
+namespace BloombergLP {
+namespace bdlat_ChoiceFunctions {
+    template <>
+    struct IsChoice<TestChoice0> : bslmf::MetaInt<1> {
+    };
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
+
                              // ==================
                              // struct TestChoice1
                              // ==================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestChoice1 {
     // A test choice with 1 selection.
@@ -11940,9 +12269,99 @@ const bdlat_SelectionInfo TestChoice1::SELECTION_INFO_ARRAY[] = {
     { 1, "S1", 2, "Selection 1" },
 };
 
+              // ===============================================
+              // bdlat_ChoiceFunctions Overrides For TestChoice1
+              // ===============================================
+
+// MANIPULATORS
+int bdlat_choiceMakeSelection(TestChoice1 *object, int selectionId)
+{
+    ASSERT(1 == selectionId);
+
+    object->d_selection1 = 0;
+    object->d_choice = selectionId - 1;
+
+    return 0;
+}
+
+int bdlat_choiceMakeSelection(TestChoice1 *object,
+                              const char  *name,
+                              int          nameLength)
+{
+    if ("S1" == bsl::string(name, nameLength)) {
+        object->d_selection1 = 0;
+        object->d_choice = 0;
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_choiceManipulateSelection(TestChoice1  *object,
+                                    MANIPULATOR&  manipulator)
+{
+    if (0 == object->d_choice) {
+        return manipulator(&object->d_selection1,
+                           TestChoice1::SELECTION_INFO_ARRAY[0]);     // RETURN
+    }
+
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_choiceAccessSelection(const TestChoice1& object, ACCESSOR& accessor)
+{
+    if (0 == object.d_choice) {
+        return accessor(object.d_selection1,
+                        TestChoice1::SELECTION_INFO_ARRAY[0]);        // RETURN
+    }
+
+    return -1;
+}
+
+int bdlat_choiceSelectionId(const TestChoice1& object)
+{
+    return object.d_choice;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice1&  object,
+                              const char         *name,
+                              int                 nameLength)
+{
+    if ("S1" == bsl::string(name, nameLength)) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice1& object, int id)
+{
+    if (0 == id) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestChoice1;
+
+namespace BloombergLP {
+namespace bdlat_ChoiceFunctions {
+    template <>
+    struct IsChoice<TestChoice1> : bslmf::MetaInt<1> {
+    };
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
+
+
                              // ==================
                              // struct TestChoice2
                              // ==================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestChoice2 {
     // A test choice with 2 selections.
@@ -12020,10 +12439,118 @@ const bdlat_SelectionInfo TestChoice2::SELECTION_INFO_ARRAY[] = {
     { 2, "S2", 2, "Selection 2" },
 };
 
+              // ===============================================
+              // bdlat_ChoiceFunctions Overrides For TestChoice2
+              // ===============================================
+
+// MANIPULATORS
+int bdlat_choiceMakeSelection(TestChoice2 *object, int selectionId)
+{
+    ASSERT(1 == selectionId || 2 == selectionId);
+
+    object->d_selection1 = 0;
+    object->d_selection2 = "";
+    object->d_choice = selectionId - 1;
+
+    return 0;
+}
+
+int bdlat_choiceMakeSelection(TestChoice2 *object,
+                              const char  *name,
+                              int          nameLength)
+{
+    if ("S1" == bsl::string(name, nameLength)) {
+        object->d_selection1 = 0;
+        object->d_choice = 0;
+        return 0;                                                     // RETURN
+    }
+    else if ("S2" == bsl::string(name, nameLength)) {
+        object->d_selection2 = "";
+        object->d_choice = 1;
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_choiceManipulateSelection(TestChoice2  *object,
+                                    MANIPULATOR&  manipulator)
+{
+    if (0 == object->d_choice) {
+        return manipulator(&object->d_selection1,
+                           TestChoice2::SELECTION_INFO_ARRAY[0]);     // RETURN
+    }
+    if (1 == object->d_choice) {
+        return manipulator(&object->d_selection2,
+                           TestChoice2::SELECTION_INFO_ARRAY[1]);     // RETURN
+    }
+
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_choiceAccessSelection(const TestChoice2& object, ACCESSOR& accessor)
+{
+    if (0 == object.d_choice) {
+        return accessor(object.d_selection1,
+                        TestChoice2::SELECTION_INFO_ARRAY[0]);        // RETURN
+    }
+    if (1 == object.d_choice) {
+        return accessor(object.d_selection2,
+                        TestChoice2::SELECTION_INFO_ARRAY[1]);        // RETURN
+    }
+
+    return -1;
+}
+
+int bdlat_choiceSelectionId(const TestChoice2& object)
+{
+    return object.d_choice;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice2&  object,
+                              const char         *name,
+                              int                 nameLength)
+{
+    if ("S1" == bsl::string(name, nameLength)) {
+        return true;                                                  // RETURN
+    }
+    if ("S2" == bsl::string(name, nameLength)) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+bool bdlat_choiceHasSelection(const TestChoice2& object, int id)
+{
+    if (0 == id) {
+        return true;                                                  // RETURN
+    }
+    if (1 == id) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestChoice2;
+
+namespace BloombergLP {
+namespace bdlat_ChoiceFunctions {
+    template <>
+    struct IsChoice<TestChoice2> : bslmf::MetaInt<1> {
+    };
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
 
                           // ========================
                           // class TestVectorElemType
                           // ========================
+
+namespace baexml_Decoder_TestNamespace {
 
 class TestVectorElemType {
     // This class will be used as the element type for the vector inside
@@ -12034,14 +12561,16 @@ class TestVectorElemType {
 
   public:
     // CREATORS
+
     // Generated by compiler:
-    // TestVectorElemType();
-    // TestVectorElemType(const TestVectorElemType&);
-    // ~TestVectorElemType();
+    //  TestVectorElemType();
+    //  TestVectorElemType(const TestVectorElemType&);
+    //  ~TestVectorElemType();
 
     // MANIPULATORS
+
     // Generated by compiler:
-    // TestVectorElemType& operator=(TestVectorElemType&);
+    //  TestVectorElemType& operator=(TestVectorElemType&);
 
     void addCall(const bsl::string& call);
         // Add the specified 'call' to the call sequence for this element.
@@ -12091,9 +12620,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVectorElemType& rhs)
     return stream;
 }
 
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestVectorElemType;
+
                        // =============================
                        // struct TestSequenceWithVector
                        // =============================
+
+namespace baexml_Decoder_TestNamespace {
 
 struct TestSequenceWithVector {
     // A test sequence with 1 vector attribute.
@@ -12120,701 +12655,109 @@ bdlat_AttributeInfo TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[] = {
     { 1, "Elem", 4, "Vector Element" },
 };
 
-}  // close namespace baexml_Decoder_TestNamespace
-
-using baexml_Decoder_TestNamespace::TestSequence0;
-using baexml_Decoder_TestNamespace::TestSequence1;
-using baexml_Decoder_TestNamespace::TestSequence2;
-using baexml_Decoder_TestNamespace::TestChoice0;
-using baexml_Decoder_TestNamespace::TestChoice1;
-using baexml_Decoder_TestNamespace::TestChoice2;
-using baexml_Decoder_TestNamespace::TestVectorElemType;
-using baexml_Decoder_TestNamespace::TestSequenceWithVector;
-
-            // ===================================================
-            // bdlat_SequenceFunctions Overrides For TestSequence0
-            // ===================================================
-
-namespace BloombergLP {
-
-namespace bdlat_SequenceFunctions {
-    template <>
-    struct IsSequence<TestSequence0> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence0 *object,
-                            MANIPULATOR&   manipulator,
-                            const char    *attributeName,
-                            int            attributeNameLength)
-    {
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence0 *object,
-                            MANIPULATOR&   manipulator,
-                            int            attributeId)
-    {
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttributes(TestSequence0 *object,
-                             MANIPULATOR&   manipulator)
-    {
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence0&  object,
-                        ACCESSOR&             accessor,
-                        const char           *attributeName,
-                        int                   attributeNameLength)
-    {
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence0& object,
-                        ACCESSOR&            accessor,
-                        int                  attributeId)
-    {
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttributes(const TestSequence0& object,
-                         ACCESSOR&            accessor)
-    {
-        return -1;
-    }
-
-    bool hasAttribute(const TestSequence0&  object,
-                      const char           *attributeName,
-                      int                   attributeNameLength)
-    {
-        return false;
-    }
-
-    bool hasAttribute(const TestSequence0& object,
-                      int                  attributeId)
-    {
-        return false;
-    }
-
-}  // close namespace bdlat_SequenceFunctions
-}  // close enterprise namespace
-
-            // ===================================================
-            // bdlat_SequenceFunctions Overrides For TestSequence1
-            // ===================================================
-
-namespace BloombergLP {
-
-namespace bdlat_SequenceFunctions {
-    template <>
-    struct IsSequence<TestSequence1> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence1 *object,
-                            MANIPULATOR&   manipulator,
-                            const char    *attributeName,
-                            int            attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return manipulator(&object->d_element1,
-                               TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence1 *object,
-                            MANIPULATOR&   manipulator,
-                            int            attributeId)
-    {
-        if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return manipulator(&object->d_element1,
-                               TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttributes(TestSequence1 *object,
-                             MANIPULATOR&   manipulator)
-    {
-        if (0 == manipulator(&object->d_element1,
-                             TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence1&  object,
-                        ACCESSOR&             accessor,
-                        const char           *attributeName,
-                        int                   attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return accessor(object.d_element1,
-                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence1& object,
-                        ACCESSOR&            accessor,
-                        int                  attributeId)
-    {
-        if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return accessor(object.d_element1,
-                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttributes(const TestSequence1& object,
-                         ACCESSOR&            accessor)
-    {
-        if (0 == accessor(object.d_element1,
-                          TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    bool hasAttribute(const TestSequence1&  object,
-                      const char           *attributeName,
-                      int                   attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-    bool hasAttribute(const TestSequence1& object,
-                      int                  attributeId)
-    {
-        if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-}  // close namespace bdlat_SequenceFunctions
-}  // close enterprise namespace
-
-            // ===================================================
-            // bdlat_SequenceFunctions Overrides For TestSequence2
-            // ===================================================
-
-namespace BloombergLP {
-
-namespace bdlat_SequenceFunctions {
-    template <>
-    struct IsSequence<TestSequence2> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence2 *object,
-                            MANIPULATOR&   manipulator,
-                            const char    *attributeName,
-                            int            attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return manipulator(&object->d_element1,
-                               TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
-            return manipulator(&object->d_element2,
-                               TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequence2 *object,
-                            MANIPULATOR&   manipulator,
-                            int            attributeId)
-    {
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return manipulator(&object->d_element1,
-                               TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
-            return manipulator(&object->d_element2,
-                               TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttributes(TestSequence2 *object,
-                             MANIPULATOR&   manipulator)
-    {
-        if (0 == manipulator(&object->d_element1,
-                             TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
-         && 0 == manipulator(&object->d_element2,
-                             TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence2&  object,
-                        ACCESSOR&             accessor,
-                        const char           *attributeName,
-                        int                   attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return accessor(object.d_element1,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
-        }
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
-            return accessor(object.d_element2,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);  // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequence2& object,
-                        ACCESSOR&            accessor,
-                        int                  attributeId)
-    {
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return accessor(object.d_element1,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
-        }
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
-            return accessor(object.d_element2,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);  // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttributes(const TestSequence2& object,
-                         ACCESSOR&            accessor)
-    {
-        if (0 == accessor(object.d_element1,
-                          TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
-         && 0 == accessor(object.d_element2,
-                          TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    bool hasAttribute(const TestSequence2&  object,
-                      const char           *attributeName,
-                      int                   attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return true;                                              // RETURN
-        }
-        if (bsl::string(attributeName, attributeNameLength)
-                          == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-    bool hasAttribute(const TestSequence2& object,
-                      int                  attributeId)
-    {
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return true;                                              // RETURN
-        }
-        if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-}  // close namespace bdlat_SequenceFunctions
-}  // close enterprise namespace
-
-              // ===============================================
-              // bdlat_ChoiceFunctions Overrides For TestChoice0
-              // ===============================================
-
-namespace BloombergLP {
-
-namespace bdlat_ChoiceFunctions {
-    template <>
-    struct IsChoice<TestChoice0> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    int makeSelection(TestChoice0 *object, int selectionId)
-    {
-        return -1;
-    }
-
-    int makeSelection(TestChoice0 *object, const char *name, int nameLength)
-    {
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateSelection(TestChoice0 *object, MANIPULATOR& manipulator)
-    {
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessSelection(const TestChoice0& object, ACCESSOR& accessor)
-    {
-        return -1;
-    }
-
-    int selectionId(const TestChoice0& object)
-    {
-        return -1;
-    }
-
-    bool hasSelection(const TestChoice0& object, const char *name, int length)
-    {
-        return false;
-    }
-
-    bool hasSelection(const TestChoice0& object, int id)
-    {
-        return false;
-    }
-
-}  // close namespace bdlat_ChoiceFunctions
-}  // close enterprise namespace
-
-              // ===============================================
-              // bdlat_ChoiceFunctions Overrides For TestChoice1
-              // ===============================================
-
-namespace BloombergLP {
-
-namespace bdlat_ChoiceFunctions {
-    template <>
-    struct IsChoice<TestChoice1> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    int makeSelection(TestChoice1 *object, int selectionId)
-    {
-        ASSERT(1 == selectionId);
-
-        object->d_selection1 = 0;
-        object->d_choice = selectionId - 1;
-
-        return 0;
-    }
-
-    int makeSelection(TestChoice1 *object, const char *name, int nameLength)
-    {
-        if ("S1" == bsl::string(name, nameLength)) {
-            object->d_selection1 = 0;
-            object->d_choice = 0;
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateSelection(TestChoice1 *object, MANIPULATOR& manipulator)
-    {
-        if (0 == object->d_choice) {
-            return manipulator(&object->d_selection1,
-                               TestChoice1::SELECTION_INFO_ARRAY[0]); // RETURN
-        }
-
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessSelection(const TestChoice1& object, ACCESSOR& accessor)
-    {
-        if (0 == object.d_choice) {
-            return accessor(object.d_selection1,
-                            TestChoice1::SELECTION_INFO_ARRAY[0]);    // RETURN
-        }
-
-        return -1;
-    }
-
-    int selectionId(const TestChoice1& object)
-    {
-        return object.d_choice;
-    }
-
-    bool hasSelection(const TestChoice1& object, const char *name,
-                                                 int nameLength)
-    {
-        if ("S1" == bsl::string(name, nameLength)) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-    bool hasSelection(const TestChoice1& object, int id)
-    {
-        if (0 == id) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-}  // close namespace bdlat_ChoiceFunctions
-}  // close enterprise namespace
-
-              // ===============================================
-              // bdlat_ChoiceFunctions Overrides For TestChoice2
-              // ===============================================
-
-namespace BloombergLP {
-
-namespace bdlat_ChoiceFunctions {
-    template <>
-    struct IsChoice<TestChoice2> : bslmf::MetaInt<1> {
-    };
-
-    // MANIPULATORS
-    int makeSelection(TestChoice2 *object, int selectionId)
-    {
-        ASSERT(1 == selectionId || 2 == selectionId);
-
-        object->d_selection1 = 0;
-        object->d_selection2 = "";
-        object->d_choice = selectionId - 1;
-
-        return 0;
-    }
-
-    int makeSelection(TestChoice2 *object, const char *name, int nameLength)
-    {
-        if ("S1" == bsl::string(name, nameLength)) {
-            object->d_selection1 = 0;
-            object->d_choice = 0;
-            return 0;                                                 // RETURN
-        }
-        else if ("S2" == bsl::string(name, nameLength)) {
-            object->d_selection2 = "";
-            object->d_choice = 1;
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateSelection(TestChoice2 *object, MANIPULATOR& manipulator)
-    {
-        if (0 == object->d_choice) {
-            return manipulator(&object->d_selection1,
-                               TestChoice2::SELECTION_INFO_ARRAY[0]); // RETURN
-        }
-        if (1 == object->d_choice) {
-            return manipulator(&object->d_selection2,
-                               TestChoice2::SELECTION_INFO_ARRAY[1]); // RETURN
-        }
-
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessSelection(const TestChoice2& object, ACCESSOR& accessor)
-    {
-        if (0 == object.d_choice) {
-            return accessor(object.d_selection1,
-                            TestChoice2::SELECTION_INFO_ARRAY[0]);    // RETURN
-        }
-        if (1 == object.d_choice) {
-            return accessor(object.d_selection2,
-                            TestChoice2::SELECTION_INFO_ARRAY[1]);    // RETURN
-        }
-
-        return -1;
-    }
-
-    int selectionId(const TestChoice2& object)
-    {
-        return object.d_choice;
-    }
-
-    bool hasSelection(const TestChoice2& object, const char *name,
-                                                 int nameLength)
-    {
-        if ("S1" == bsl::string(name, nameLength)) {
-            return true;                                              // RETURN
-        }
-        if ("S2" == bsl::string(name, nameLength)) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-    bool hasSelection(const TestChoice2& object, int id)
-    {
-        if (0 == id) {
-            return true;                                              // RETURN
-        }
-        if (1 == id) {
-            return true;                                              // RETURN
-        }
-        return false;
-    }
-
-}  // close namespace bdlat_ChoiceFunctions
-}  // close enterprise namespace
-
         // ============================================================
         // bdlat_SequenceFunctions Overrides For TestSequenceWithVector
         // ============================================================
 
-namespace BloombergLP {
+// MANIPULATORS
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(
+                                   TestSequenceWithVector *object,
+                                   MANIPULATOR&            manipulator,
+                                   const char             *attributeName,
+                                   int                     attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                 == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return manipulator(&object->d_vector,
+                           TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
+    }
 
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttribute(TestSequenceWithVector *object,
+                                      MANIPULATOR&            manipulator,
+                                      int                     attributeId)
+{
+    if (attributeId == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return manipulator(&object->d_vector,
+                           TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
+    }
+
+    return -1;
+}
+
+template <class MANIPULATOR>
+int bdlat_sequenceManipulateAttributes(TestSequenceWithVector *object,
+                                       MANIPULATOR&            manipulator)
+{
+    if (0 == manipulator(&object->d_vector,
+                         TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(
+                            const TestSequenceWithVector&  object,
+                            ACCESSOR&                      accessor,
+                            const char                    *attributeName,
+                            int                            attributeNameLength)
+{
+    if (bsl::string(attributeName, attributeNameLength)
+                 == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
+        return accessor(object.d_vector,
+                        TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequenceWithVector& object,
+                                  ACCESSOR&                     accessor,
+                                  int                           attributeId)
+{
+    if (attributeId == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_id) {
+        return accessor(object.d_vector,
+                        TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
+    }
+
+    return -1;
+}
+
+template <class ACCESSOR>
+int bdlat_sequenceAccessAttribute(const TestSequenceWithVector& object,
+                                  ACCESSOR&                     accessor)
+{
+    if (0 == accessor(object.d_vector,
+                      TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
+        return 0;                                                     // RETURN
+    }
+
+    return -1;
+}
+
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestSequenceWithVector;
+
+namespace BloombergLP {
 namespace bdlat_SequenceFunctions {
     template <>
     struct IsSequence<TestSequenceWithVector> : bslmf::MetaInt<1> {
     };
-
-    // MANIPULATORS
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequenceWithVector *object,
-                            MANIPULATOR&            manipulator,
-                            const char             *attributeName,
-                            int                     attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                 == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return manipulator(
-                              &object->d_vector,
-                              TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttribute(TestSequenceWithVector *object,
-                            MANIPULATOR&            manipulator,
-                            int                     attributeId)
-    {
-        if (attributeId
-                     == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return manipulator(
-                              &object->d_vector,
-                              TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class MANIPULATOR>
-    int manipulateAttributes(TestSequenceWithVector *object,
-                             MANIPULATOR&            manipulator)
-    {
-        if (0 == manipulator(
-                            &object->d_vector,
-                            TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
-    // ACCESSORS
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequenceWithVector&  object,
-                        ACCESSOR&                      accessor,
-                        const char                    *attributeName,
-                        int                            attributeNameLength)
-    {
-        if (bsl::string(attributeName, attributeNameLength)
-                 == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return accessor(object.d_vector,
-                            TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttribute(const TestSequenceWithVector& object,
-                        ACCESSOR&                     accessor,
-                        int                           attributeId)
-    {
-        if (attributeId
-                     == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return accessor(object.d_vector,
-                            TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
-                                                                      // RETURN
-        }
-
-        return -1;
-    }
-
-    template <class ACCESSOR>
-    int accessAttributes(const TestSequenceWithVector& object,
-                         ACCESSOR&                     accessor)
-    {
-        if (0 == accessor(object.d_vector,
-                          TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;                                                 // RETURN
-        }
-
-        return -1;
-    }
-
 }  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace
-
-#include <balxml_decoder.h>
 
 namespace baexml_Decoder_TestNamespace {
 
@@ -12823,14 +12766,14 @@ namespace baexml_Decoder_TestNamespace {
                              // =================
 
 class TestContext : public balxml::Decoder_ElementContext {
-    // This class implements the 'Decoder_ElementContext' protocol and is
-    // used to test the correct usage of this protocol by the parser.  When a
-    // method from the protocol is called, the method call is recorded by
-    // appending the method's name to the 'd_callSequence' member, along with
-    // the arguments passed (if any).  This test context also checks that the
-    // error stream and warning stream returned by the
-    // 'Decoder_ErrorReporter' object is the same error stream and warning
-    // stream that was passed to the 'Decoder_ParserUtil::parse' function.
+    // This class implements the 'Decoder_ElementContext' protocol and is used
+    // to test the correct usage of this protocol by the parser.  When a method
+    // from the protocol is called, the method call is recorded by appending
+    // the method's name to the 'd_callSequence' member, along with the
+    // arguments passed (if any).  This test context also checks that the error
+    // stream and warning stream returned by the 'Decoder_ErrorReporter' object
+    // is the same error stream and warning stream that was passed to the
+    // 'Decoder_ParserUtil::parse' function.
 
     // PRIVATE DATA MEMBERS
     bsl::ostream&     d_callSequence;     // log of the call sequence
@@ -12847,9 +12790,9 @@ class TestContext : public balxml::Decoder_ElementContext {
 
   public:
     // CREATORS
-    TestContext(bsl::ostream&       callSequence,
-                const char         *elementName,
-                bslma::Allocator   *basicAllocator = 0);
+    TestContext(bsl::ostream&     callSequence,
+                const char       *elementName,
+                bslma::Allocator *basicAllocator = 0);
         // TBD: doc
 
     virtual ~TestContext();
@@ -12865,23 +12808,25 @@ class TestContext : public balxml::Decoder_ElementContext {
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int addCharacters(const char * chars,
-                              unsigned int length,
+    virtual int addCharacters(const char      *chars,
+                              unsigned int     length,
                               balxml::Decoder *decoder);
         // TBD: doc
+        //
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int parseAttribute(const char * name,
-                               const char * value,
-                               size_t       lenValue,
+    virtual int parseAttribute(const char      *name,
+                               const char      *value,
+                               size_t           lenValue,
                                balxml::Decoder *decoder);
         // TBD: doc
 
-    virtual int parseSubElement(const char                 *elementName,
+    virtual int parseSubElement(const char      *elementName,
                                 balxml::Decoder *decoder);
         // TBD: doc
+        //
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
@@ -12893,9 +12838,9 @@ class TestContext : public balxml::Decoder_ElementContext {
 
 // CREATORS
 
-TestContext::TestContext(bsl::ostream&       callSequence,
-                         const char         *elementName,
-                         bslma::Allocator   *basicAllocator)
+TestContext::TestContext(bsl::ostream&     callSequence,
+                         const char       *elementName,
+                         bslma::Allocator *basicAllocator)
 : d_callSequence(callSequence)
 , d_elementName(elementName, basicAllocator)
 , d_isInsideElement(false)
@@ -12940,8 +12885,8 @@ int TestContext::endElement(balxml::Decoder *decoder)
     return 0;
 }
 
-int TestContext::addCharacters(const char                 *chars,
-                               unsigned int                length,
+int TestContext::addCharacters(const char      *chars,
+                               unsigned int     length,
                                balxml::Decoder *decoder)
 {
     ASSERT(d_isInsideElement);
@@ -12958,9 +12903,9 @@ int TestContext::addCharacters(const char                 *chars,
     return 0;
 }
 
-int TestContext::parseAttribute(const char * name,
-                                const char * value,
-                                size_t       lenValue,
+int TestContext::parseAttribute(const char      *name,
+                                const char      *value,
+                                size_t           lenValue,
                                 balxml::Decoder *decoder)
 {
     ASSERT(d_isInsideElement);
@@ -12974,8 +12919,8 @@ int TestContext::parseAttribute(const char * name,
     return 0;
 }
 
-int TestContext::parseSubElement(const char            *elementName,
-                                 balxml::Decoder        *decoder)
+int TestContext::parseSubElement(const char      *elementName,
+                                 balxml::Decoder *decoder)
 {
     ASSERT(d_isInsideElement);
 
@@ -12993,14 +12938,20 @@ int TestContext::parseSubElement(const char            *elementName,
     return subContext.beginParse(decoder);
 }
 
+}  // close namespace baexml_Decoder_TestNamespace
+
+using baexml_Decoder_TestNamespace::TestContext;
+
+namespace baexml_Decoder_TestNamespace {
+
                       // ===============================
                       // class TestVectorElemTypeContext
                       // ===============================
 
 class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
-    // This class implements the 'Decoder_ElementContext' protocol and is
-    // used as the context for the 'TestVectorElemType' class.  Each call back
-    // is recorded in the element object using the object's 'addCall' method.
+    // This class implements the 'Decoder_ElementContext' protocol and is used
+    // as the context for the 'TestVectorElemType' class.  Each call back is
+    // recorded in the element object using the object's 'addCall' method.
 
     // PRIVATE DATA MEMBERS
     int                 d_currentDepth;  // used to keep track of depth so that
@@ -13015,8 +12966,8 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
 
   public:
     // CLASS MEMBERS
-    static bsl::ostream *s_loggingStream;  // stream used to verify logger
-                                           // was passed correctly
+    static bsl::ostream *s_loggingStream;  // stream used to verify logger was
+                                           // passed correctly
 
     // CREATORS
     TestVectorElemTypeContext(TestVectorElemType *object,
@@ -13040,26 +12991,28 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    virtual int addCharacters(const char                 *chars,
-                              unsigned int                length,
+    virtual int addCharacters(const char      *chars,
+                              unsigned int     length,
                               balxml::Decoder *decoder);
 
-    virtual int parseAttribute(const char * name,
-                               const char * value,
-                               size_t       lenValue,
+    virtual int parseAttribute(const char      *name,
+                               const char      *value,
+                               size_t           lenValue,
                                balxml::Decoder *decoder);
 
-    virtual int parseSubElement(const char                 *elementName,
+    virtual int parseSubElement(const char      *elementName,
                                 balxml::Decoder *decoder);
         // TBD: doc
+        //
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
 
-    balxml::Decoder_ElementContext* createSubContext(
-                                  const char                 *elementName,
-                                  balxml::Decoder *decoder);
+    balxml::Decoder_ElementContext *createSubContext(
+                                                  const char      *elementName,
+                                                  balxml::Decoder *decoder);
         // TBD: doc
+        //
         // Behavior is undefined unless the most recent call to 'startElement'
         // was successful and it was not already ended with a successful call
         // to 'endElement'.
@@ -13096,8 +13049,7 @@ void TestVectorElemTypeContext::reassociate(TestVectorElemType *object)
 
 // CALLBACKS
 
-int TestVectorElemTypeContext::startElement(
-                                          balxml::Decoder *decoder)
+int TestVectorElemTypeContext::startElement(balxml::Decoder *decoder)
 {
     d_object_p->addCall("startElement(...)");
 
@@ -13123,8 +13075,8 @@ int TestVectorElemTypeContext::endElement(balxml::Decoder *decoder)
     return 0;
 }
 
-int TestVectorElemTypeContext::addCharacters(const char * chars,
-                                             unsigned int length,
+int TestVectorElemTypeContext::addCharacters(const char      *chars,
+                                             unsigned int     length,
                                              balxml::Decoder *decoder)
 {
     bsl::string strChars(chars, length);
@@ -13138,11 +13090,10 @@ int TestVectorElemTypeContext::addCharacters(const char * chars,
     return 0;
 }
 
-int
-TestVectorElemTypeContext::parseAttribute(const char * name,
-                                const char * value,
-                                size_t       lenValue,
-                                balxml::Decoder *decoder)
+int TestVectorElemTypeContext::parseAttribute(const char      *name,
+                                              const char      *value,
+                                              size_t           lenValue,
+                                              balxml::Decoder *decoder)
 {
     bsl::string strName (name);
     bsl::string strValue (value, lenValue);
@@ -13156,9 +13107,8 @@ TestVectorElemTypeContext::parseAttribute(const char * name,
     return 0;
 }
 
-int
-TestVectorElemTypeContext::parseSubElement(const char       *elementName,
-                                 balxml::Decoder *decoder)
+int TestVectorElemTypeContext::parseSubElement(const char      *elementName,
+                                               balxml::Decoder *decoder)
 {
     bsl::string strElementName (elementName);
 
@@ -13171,9 +13121,9 @@ TestVectorElemTypeContext::parseSubElement(const char       *elementName,
     return 0;
 }
 
-balxml::Decoder_ElementContext*
-TestVectorElemTypeContext::createSubContext(const char      *elementName,
-                                 balxml::Decoder *decoder)
+balxml::Decoder_ElementContext *TestVectorElemTypeContext::createSubContext(
+                                                  const char      *elementName,
+                                                  balxml::Decoder *decoder)
 {
     bsl::string strElementName (elementName);
 
@@ -13188,7 +13138,6 @@ TestVectorElemTypeContext::createSubContext(const char      *elementName,
 
 }  // close namespace baexml_Decoder_TestNamespace
 
-using baexml_Decoder_TestNamespace::TestContext;
 using baexml_Decoder_TestNamespace::TestVectorElemTypeContext;
 
       // ===============================================================
@@ -13368,66 +13317,34 @@ namespace bdlat_CustomizedTypeFunctions {
 // ***** START OF GENERATED CODE ****
 
 // test_messages.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MESSAGES
-#define INCLUDED_TEST_MESSAGES
 
-//@PURPOSE: TBD: Provide purpose
+//@PURPOSE: TBD: Provide purpose.
 //
 //@CLASSES:
-// test::MySequenceWithAttributes: TBD: Provide purpose
-// test::Address: TBD: Provide purpose
-// test::MySequence: TBD: Provide purpose
-// test::MySimpleContent: TBD: Provide purpose
-// test::MySimpleIntContent: TBD: Provide purpose
-// test::MySequenceWithAnonymousChoiceChoice: TBD: Provide purpose
-// test::MySequenceWithNullables: TBD: Provide purpose
-// test::Employee: TBD: Provide purpose
-// test::MySequenceWithAnonymousChoice: TBD: Provide purpose
-// test::MySequenceWithNillables: TBD: Provide purpose
+//  test::MySequenceWithAttributes: TBD: Provide purpose
+//  test::Address: TBD: Provide purpose
+//  test::MySequence: TBD: Provide purpose
+//  test::MySimpleContent: TBD: Provide purpose
+//  test::MySimpleIntContent: TBD: Provide purpose
+//  test::MySequenceWithAnonymousChoiceChoice: TBD: Provide purpose
+//  test::MySequenceWithNullables: TBD: Provide purpose
+//  test::Employee: TBD: Provide purpose
+//  test::MySequenceWithAnonymousChoice: TBD: Provide purpose
+//  test::MySequenceWithNillables: TBD: Provide purpose
 //
 //@AUTHOR: Author Unknown (Unix login: phalpern)
 //
 //@DESCRIPTION:
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
+//  'test::MySequenceWithAttributes'
+//  'test::Address'
+//  'test::MySequence'
+//  'test::MySimpleContent'
+//  'test::MySimpleIntContent'
+//  'test::MySequenceWithAnonymousChoiceChoice'
+//  'test::MySequenceWithNullables'
+//  'test::Employee'
+//  'test::MySequenceWithAnonymousChoice'
+//  'test::MySequenceWithNillables'
 
 namespace BloombergLP {
 
@@ -13503,8 +13420,8 @@ class MySequenceWithAttributes {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -13516,8 +13433,9 @@ class MySequenceWithAttributes {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MySequenceWithAttributes(const MySequenceWithAttributes& original,
-                             bslma::Allocator *basicAllocator = 0);
+    MySequenceWithAttributes(
+                          const MySequenceWithAttributes&  original,
+                          bslma::Allocator                *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAttributes' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -13534,7 +13452,7 @@ class MySequenceWithAttributes {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -13543,21 +13461,21 @@ class MySequenceWithAttributes {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -13595,7 +13513,7 @@ class MySequenceWithAttributes {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -13604,7 +13522,7 @@ class MySequenceWithAttributes {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -13612,7 +13530,7 @@ class MySequenceWithAttributes {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -13657,10 +13575,10 @@ bool operator!=(const MySequenceWithAttributes& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                    stream,
-                         const MySequenceWithAttributes&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream&                   stream,
+                         const MySequenceWithAttributes& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -13724,8 +13642,8 @@ class Address {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -13737,8 +13655,7 @@ class Address {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Address(const Address&    original,
-            bslma::Allocator *basicAllocator = 0);
+    Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -13755,7 +13672,7 @@ class Address {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -13764,21 +13681,21 @@ class Address {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -13812,7 +13729,7 @@ class Address {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -13821,7 +13738,7 @@ class Address {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -13829,7 +13746,7 @@ class Address {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -13869,8 +13786,8 @@ bool operator!=(const Address& lhs, const Address& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -13928,8 +13845,8 @@ class MySequence {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -13959,7 +13876,7 @@ class MySequence {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -13968,21 +13885,21 @@ class MySequence {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -14012,7 +13929,7 @@ class MySequence {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -14021,7 +13938,7 @@ class MySequence {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -14029,7 +13946,7 @@ class MySequence {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -14065,8 +13982,8 @@ bool operator!=(const MySequence& lhs, const MySequence& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -14130,8 +14047,8 @@ class MySimpleContent {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -14161,7 +14078,7 @@ class MySimpleContent {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -14170,21 +14087,21 @@ class MySimpleContent {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -14218,7 +14135,7 @@ class MySimpleContent {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -14227,7 +14144,7 @@ class MySimpleContent {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -14235,7 +14152,7 @@ class MySimpleContent {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -14275,8 +14192,8 @@ bool operator!=(const MySimpleContent& lhs, const MySimpleContent& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySimpleContent& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -14340,8 +14257,8 @@ class MySimpleIntContent {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -14353,8 +14270,8 @@ class MySimpleIntContent {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    MySimpleIntContent(const MySimpleIntContent& original,
-                       bslma::Allocator *basicAllocator = 0);
+    MySimpleIntContent(const MySimpleIntContent&  original,
+                       bslma::Allocator          *basicAllocator = 0);
         // Create an object of type 'MySimpleIntContent' having the value of
         // the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -14371,7 +14288,7 @@ class MySimpleIntContent {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -14380,21 +14297,21 @@ class MySimpleIntContent {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -14428,7 +14345,7 @@ class MySimpleIntContent {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -14437,7 +14354,7 @@ class MySimpleIntContent {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -14445,7 +14362,7 @@ class MySimpleIntContent {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -14485,8 +14402,8 @@ bool operator!=(const MySimpleIntContent& lhs, const MySimpleIntContent& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySimpleIntContent& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -14552,15 +14469,15 @@ class MySequenceWithAnonymousChoiceChoice {
         // specified 'id' if the selection exists, and 0 otherwise.
 
     static const bdlat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit MySequenceWithAnonymousChoiceChoice(
-                    bslma::Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the default value.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -14580,7 +14497,7 @@ class MySequenceWithAnonymousChoiceChoice {
 
     // MANIPULATORS
     MySequenceWithAnonymousChoiceChoice& operator=(
-                    const MySequenceWithAnonymousChoiceChoice& rhs);
+                               const MySequenceWithAnonymousChoiceChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
@@ -14610,7 +14527,7 @@ class MySequenceWithAnonymousChoiceChoice {
         // specify the 'value' of the "MyChoice2".  If 'value' is not
         // specified, the default "MyChoice2" value is used.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
         // selection, supplying 'manipulator' with the corresponding selection
@@ -14648,7 +14565,7 @@ class MySequenceWithAnonymousChoiceChoice {
         // Return the id of the current selection if the selection is defined,
         // and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' on the non-modifiable selection,
         // supplying 'accessor' with the corresponding selection information
@@ -14695,17 +14612,17 @@ bool operator!=(const MySequenceWithAnonymousChoiceChoice& lhs,
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream,
+bsl::ostream& operator<<(bsl::ostream&                              stream,
                          const MySequenceWithAnonymousChoiceChoice& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
 // TRAITS
 
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(
-                test::MySequenceWithAnonymousChoiceChoice)
+                                     test::MySequenceWithAnonymousChoiceChoice)
 
 namespace test {
 
@@ -14763,8 +14680,8 @@ class MySequenceWithNullables {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -14776,8 +14693,9 @@ class MySequenceWithNullables {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MySequenceWithNullables(const MySequenceWithNullables& original,
-                            bslma::Allocator *basicAllocator = 0);
+    MySequenceWithNullables(
+                           const MySequenceWithNullables&  original,
+                           bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -14794,7 +14712,7 @@ class MySequenceWithNullables {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -14803,21 +14721,21 @@ class MySequenceWithNullables {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -14851,7 +14769,7 @@ class MySequenceWithNullables {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -14860,7 +14778,7 @@ class MySequenceWithNullables {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -14868,7 +14786,7 @@ class MySequenceWithNullables {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -14909,10 +14827,10 @@ bool operator!=(const MySequenceWithNullables& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                   stream,
-                         const MySequenceWithNullables&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream&                  stream,
+                         const MySequenceWithNullables& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -14976,8 +14894,8 @@ class Employee {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -14989,8 +14907,7 @@ class Employee {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee&   original,
-             bslma::Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -15007,7 +14924,7 @@ class Employee {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -15016,21 +14933,21 @@ class Employee {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -15063,7 +14980,7 @@ class Employee {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -15072,7 +14989,7 @@ class Employee {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -15080,7 +14997,7 @@ class Employee {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -15120,8 +15037,8 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -15185,23 +15102,23 @@ class MySequenceWithAnonymousChoice {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit MySequenceWithAnonymousChoice(
-                    bslma::Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     MySequenceWithAnonymousChoice(
-                    const MySequenceWithAnonymousChoice&  original,
-                    bslma::Allocator                     *basicAllocator = 0);
+                     const MySequenceWithAnonymousChoice&  original,
+                     bslma::Allocator                     *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -15212,14 +15129,14 @@ class MySequenceWithAnonymousChoice {
 
     // MANIPULATORS
     MySequenceWithAnonymousChoice& operator=(
-                    const MySequenceWithAnonymousChoice& rhs);
+                                     const MySequenceWithAnonymousChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -15228,21 +15145,21 @@ class MySequenceWithAnonymousChoice {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -15276,7 +15193,7 @@ class MySequenceWithAnonymousChoice {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -15285,7 +15202,7 @@ class MySequenceWithAnonymousChoice {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -15293,7 +15210,7 @@ class MySequenceWithAnonymousChoice {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -15335,10 +15252,10 @@ bool operator!=(const MySequenceWithAnonymousChoice& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                         stream,
-                         const MySequenceWithAnonymousChoice&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream&                        stream,
+                         const MySequenceWithAnonymousChoice& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -15402,8 +15319,8 @@ class MySequenceWithNillables {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -15415,8 +15332,9 @@ class MySequenceWithNillables {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MySequenceWithNillables(const MySequenceWithNillables& original,
-                            bslma::Allocator *basicAllocator = 0);
+    MySequenceWithNillables(
+                           const MySequenceWithNillables&  original,
+                           bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillables' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -15433,7 +15351,7 @@ class MySequenceWithNillables {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
@@ -15442,21 +15360,21 @@ class MySequenceWithNillables {
         // last invocation of 'manipulator' (i.e., the invocation that
         // terminated the sequence).
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
-    template<class MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -15490,7 +15408,7 @@ class MySequenceWithNillables {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
         // (non-modifiable) attribute of this object, supplying 'accessor'
@@ -15499,7 +15417,7 @@ class MySequenceWithNillables {
         // last invocation of 'accessor' (i.e., the invocation that terminated
         // the sequence).
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
         // of this object indicated by the specified 'id', supplying 'accessor'
@@ -15507,7 +15425,7 @@ class MySequenceWithNillables {
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
 
-    template<class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -15548,10 +15466,10 @@ bool operator!=(const MySequenceWithNillables& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                   stream,
-                         const MySequenceWithNillables&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream&                  stream,
+                         const MySequenceWithNillables& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -15586,7 +15504,7 @@ namespace test {
 // CREATORS
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 , d_element1()
@@ -15596,8 +15514,8 @@ MySequenceWithAttributes::MySequenceWithAttributes(
 
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
-        const MySequenceWithAttributes& original,
-        bslma::Allocator *basicAllocator)
+                               const MySequenceWithAttributes&  original,
+                               bslma::Allocator                *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 , d_element1(original.d_element1)
@@ -15674,37 +15592,28 @@ int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR& manipulator,
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT1: {
+      case ATTRIBUTE_ID_ELEMENT1:
         return manipulator(&d_element1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
+      case ATTRIBUTE_ID_ELEMENT2:
         return manipulator(&d_element2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithAttributes::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR&  manipulator,
+                                                  const char   *name,
+                                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -15780,37 +15689,28 @@ int MySequenceWithAttributes::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT1: {
+      case ATTRIBUTE_ID_ELEMENT1:
         return accessor(d_element1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ELEMENT2: {
+      case ATTRIBUTE_ID_ELEMENT2:
         return accessor(d_element2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySequenceWithAttributes::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySequenceWithAttributes::accessAttribute(ACCESSOR&   accessor,
+                                              const char *name,
+                                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -15831,7 +15731,7 @@ const int& MySequenceWithAttributes::attribute1() const
 
 inline
 const bdlb::NullableValue<bsl::string>&
-                                   MySequenceWithAttributes::attribute2() const
+MySequenceWithAttributes::attribute2() const
 {
     return d_attribute2;
 }
@@ -15844,7 +15744,7 @@ const bdlb::NullableValue<int>& MySequenceWithAttributes::element1() const
 
 inline
 const bdlb::NullableValue<bsl::string>&
-                                     MySequenceWithAttributes::element2() const
+MySequenceWithAttributes::element2() const
 {
     return d_element2;
 }
@@ -15863,9 +15763,7 @@ Address::Address(bslma::Allocator *basicAllocator)
 }
 
 inline
-Address::Address(
-        const Address&    original,
-        bslma::Allocator *basicAllocator)
+Address::Address(const Address& original, bslma::Allocator *basicAllocator)
 : d_street(original.d_street, basicAllocator)
 , d_city(original.d_city, basicAllocator)
 , d_state(original.d_state, basicAllocator)
@@ -15879,8 +15777,7 @@ Address::~Address()
 
 // MANIPULATORS
 inline
-Address&
-Address::operator=(const Address& rhs)
+Address& Address::operator=(const Address& rhs)
 {
     if (this != &rhs) {
         d_street = rhs.d_street;
@@ -15929,32 +15826,25 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case ATTRIBUTE_ID_STREET:
         return manipulator(&d_street,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_CITY: {
+      case ATTRIBUTE_ID_CITY:
         return manipulator(&d_city,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_STATE: {
+      case ATTRIBUTE_ID_STATE:
         return manipulator(&d_state,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int Address::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Address::manipulateAttribute(MANIPULATOR&  manipulator,
+                                 const char   *name,
+                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -16017,30 +15907,23 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case ATTRIBUTE_ID_STREET:
         return accessor(d_street,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_CITY: {
+      case ATTRIBUTE_ID_CITY:
         return accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_STATE: {
+      case ATTRIBUTE_ID_STATE:
         return accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int Address::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Address::accessAttribute(ACCESSOR&   accessor,
+                             const char *name,
+                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -16084,9 +15967,8 @@ MySequence::MySequence(bslma::Allocator *basicAllocator)
 }
 
 inline
-MySequence::MySequence(
-        const MySequence&  original,
-        bslma::Allocator  *basicAllocator)
+MySequence::MySequence(const MySequence&  original,
+                       bslma::Allocator  *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 {
@@ -16099,8 +15981,7 @@ MySequence::~MySequence()
 
 // MANIPULATORS
 inline
-MySequence&
-MySequence::operator=(const MySequence& rhs)
+MySequence& MySequence::operator=(const MySequence& rhs)
 {
     if (this != &rhs) {
         d_attribute1 = rhs.d_attribute1;
@@ -16144,27 +16025,22 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
+                                    const char   *name,
+                                    int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -16218,27 +16094,22 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySequence::accessAttribute(ACCESSOR&   accessor,
+                                const char *name,
+                                int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -16277,9 +16148,8 @@ MySimpleContent::MySimpleContent(bslma::Allocator *basicAllocator)
 }
 
 inline
-MySimpleContent::MySimpleContent(
-        const MySimpleContent& original,
-        bslma::Allocator *basicAllocator)
+MySimpleContent::MySimpleContent(const MySimpleContent&  original,
+                                 bslma::Allocator       *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 , d_theContent(original.d_theContent, basicAllocator)
@@ -16346,32 +16216,25 @@ int MySimpleContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_THE_CONTENT: {
+      case ATTRIBUTE_ID_THE_CONTENT:
         return manipulator(&d_theContent,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySimpleContent::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySimpleContent::manipulateAttribute(MANIPULATOR&  manipulator,
+                                         const char   *name,
+                                         int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -16437,32 +16300,25 @@ int MySimpleContent::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_THE_CONTENT: {
+      case ATTRIBUTE_ID_THE_CONTENT:
         return accessor(d_theContent,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySimpleContent::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySimpleContent::accessAttribute(ACCESSOR&   accessor,
+                                     const char *name,
+                                     int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -16508,8 +16364,8 @@ MySimpleIntContent::MySimpleIntContent(bslma::Allocator *basicAllocator)
 
 inline
 MySimpleIntContent::MySimpleIntContent(
-        const MySimpleIntContent& original,
-        bslma::Allocator *basicAllocator)
+                                     const MySimpleIntContent&  original,
+                                     bslma::Allocator          *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 , d_theContent(original.d_theContent)
@@ -16576,32 +16432,25 @@ int MySimpleIntContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_THE_CONTENT: {
+      case ATTRIBUTE_ID_THE_CONTENT:
         return manipulator(&d_theContent,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySimpleIntContent::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySimpleIntContent::manipulateAttribute(MANIPULATOR&  manipulator,
+                                            const char   *name,
+                                            int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -16667,32 +16516,25 @@ int MySimpleIntContent::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_THE_CONTENT: {
+      case ATTRIBUTE_ID_THE_CONTENT:
         return accessor(d_theContent,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySimpleIntContent::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySimpleIntContent::accessAttribute(ACCESSOR&   accessor,
+                                        const char *name,
+                                        int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -16730,7 +16572,7 @@ const int& MySimpleIntContent::theContent() const
 // CREATORS
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -16738,8 +16580,8 @@ MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
 
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-    const MySequenceWithAnonymousChoiceChoice& original,
-    bslma::Allocator *basicAllocator)
+                    const MySequenceWithAnonymousChoiceChoice&  original,
+                    bslma::Allocator                           *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -16750,8 +16592,7 @@ MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
       } break;
       case SELECTION_ID_MY_CHOICE2: {
         new (d_myChoice2.buffer())
-            bsl::string(
-                original.d_myChoice2.object(), d_allocator_p);
+            bsl::string(original.d_myChoice2.object(), d_allocator_p);
       } break;
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -16768,7 +16609,7 @@ MySequenceWithAnonymousChoiceChoice::~MySequenceWithAnonymousChoiceChoice()
 inline
 MySequenceWithAnonymousChoiceChoice&
 MySequenceWithAnonymousChoiceChoice::operator=(
-                const MySequenceWithAnonymousChoiceChoice& rhs)
+                                const MySequenceWithAnonymousChoiceChoice& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
@@ -16826,9 +16667,8 @@ int MySequenceWithAnonymousChoiceChoice::makeSelection(int selectionId)
 }
 
 inline
-int MySequenceWithAnonymousChoiceChoice::makeSelection(
-                const char  *name,
-                int          nameLength)
+int MySequenceWithAnonymousChoiceChoice::makeSelection(const char  *name,
+                                                       int          nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -16893,7 +16733,7 @@ bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2()
 
 inline
 bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2(
-                const bsl::string& value)
+                                                      const bsl::string& value)
 {
     if (SELECTION_ID_MY_CHOICE2 == d_selectionId) {
         d_myChoice2.object() = value;
@@ -16911,17 +16751,17 @@ bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2(
 template <class MANIPULATOR>
 inline
 int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
-                MANIPULATOR& manipulator)
+                                                      MANIPULATOR& manipulator)
 {
     enum { FAILURE = -1, SUCCESS = 0 };
 
     switch (d_selectionId) {
       case MySequenceWithAnonymousChoiceChoice::SELECTION_ID_MY_CHOICE1:
         return manipulator(&d_myChoice1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1]);    // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1]);
       case MySequenceWithAnonymousChoiceChoice::SELECTION_ID_MY_CHOICE2:
         return manipulator(&d_myChoice2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);
       default:
         BSLS_ASSERT_SAFE(
                 MySequenceWithAnonymousChoiceChoice::SELECTION_ID_UNDEFINED
@@ -16954,17 +16794,17 @@ int MySequenceWithAnonymousChoiceChoice::selectionId() const
 template <class ACCESSOR>
 inline
 int MySequenceWithAnonymousChoiceChoice::accessSelection(
-                ACCESSOR& accessor) const
+                                                      ACCESSOR& accessor) const
 {
     enum { FAILURE = -1, SUCCESS = 0 };
 
     switch (d_selectionId) {
       case SELECTION_ID_MY_CHOICE1:
         return accessor(d_myChoice1.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1]);    // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1]);
       case SELECTION_ID_MY_CHOICE2:
         return accessor(d_myChoice2.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
@@ -17010,7 +16850,7 @@ bool MySequenceWithAnonymousChoiceChoice::isUndefinedValue() const
 // CREATORS
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 , d_attribute3(basicAllocator)
@@ -17019,8 +16859,8 @@ MySequenceWithNullables::MySequenceWithNullables(
 
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-        const MySequenceWithNullables& original,
-        bslma::Allocator *basicAllocator)
+                                const MySequenceWithNullables&  original,
+                                bslma::Allocator               *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 , d_attribute3(original.d_attribute3, basicAllocator)
@@ -17088,32 +16928,25 @@ int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE3: {
+      case ATTRIBUTE_ID_ATTRIBUTE3:
         return manipulator(&d_attribute3,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithNullables::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
+                                                 const char   *name,
+                                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -17179,32 +17012,25 @@ int MySequenceWithNullables::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE3: {
+      case ATTRIBUTE_ID_ATTRIBUTE3:
         return accessor(d_attribute3,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySequenceWithNullables::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySequenceWithNullables::accessAttribute(ACCESSOR&   accessor,
+                                             const char *name,
+                                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -17251,9 +17077,8 @@ Employee::Employee(bslma::Allocator *basicAllocator)
 }
 
 inline
-Employee::Employee(
-        const Employee&   original,
-        bslma::Allocator *basicAllocator)
+Employee::Employee(const Employee&   original,
+                   bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_homeAddress(original.d_homeAddress, basicAllocator)
 , d_age(original.d_age)
@@ -17267,8 +17092,7 @@ Employee::~Employee()
 
 // MANIPULATORS
 inline
-Employee&
-Employee::operator=(const Employee& rhs)
+Employee& Employee::operator=(const Employee& rhs)
 {
     if (this != &rhs) {
         d_name = rhs.d_name;
@@ -17318,31 +17142,24 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
+      case ATTRIBUTE_ID_NAME:
         return manipulator(&d_name,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
+      case ATTRIBUTE_ID_HOME_ADDRESS:
         return manipulator(&d_homeAddress,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_AGE: {
+      case ATTRIBUTE_ID_AGE:
         return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int Employee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -17406,30 +17223,23 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
+      case ATTRIBUTE_ID_NAME:
         return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
+      case ATTRIBUTE_ID_HOME_ADDRESS:
         return accessor(d_homeAddress,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_AGE: {
+      case ATTRIBUTE_ID_AGE:
         return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int Employee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Employee::accessAttribute(ACCESSOR&   accessor,
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -17467,7 +17277,7 @@ const int& Employee::age() const
 // CREATORS
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_mySequenceWithAnonymousChoiceChoice(basicAllocator)
 , d_attribute2(basicAllocator)
@@ -17476,12 +17286,12 @@ MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
 
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-        const MySequenceWithAnonymousChoice& original,
-        bslma::Allocator *basicAllocator)
+                          const MySequenceWithAnonymousChoice&  original,
+                          bslma::Allocator                     *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_mySequenceWithAnonymousChoiceChoice(
-                original.d_mySequenceWithAnonymousChoiceChoice,
-                basicAllocator)
+                                original.d_mySequenceWithAnonymousChoiceChoice,
+                                basicAllocator)
 , d_attribute2(original.d_attribute2, basicAllocator)
 {
 }
@@ -17495,7 +17305,7 @@ MySequenceWithAnonymousChoice::~MySequenceWithAnonymousChoice()
 inline
 MySequenceWithAnonymousChoice&
 MySequenceWithAnonymousChoice::operator=(
-                const MySequenceWithAnonymousChoice& rhs)
+                                      const MySequenceWithAnonymousChoice& rhs)
 {
     if (this != &rhs) {
         d_attribute1 = rhs.d_attribute1;
@@ -17517,7 +17327,7 @@ void MySequenceWithAnonymousChoice::reset()
 template <class MANIPULATOR>
 inline
 int MySequenceWithAnonymousChoice::manipulateAttributes(
-                MANIPULATOR& manipulator)
+                                                      MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -17547,40 +17357,34 @@ int MySequenceWithAnonymousChoice::manipulateAttributes(
 template <class MANIPULATOR>
 inline
 int MySequenceWithAnonymousChoice::manipulateAttribute(
-                MANIPULATOR&  manipulator,
-                int           id)
+                                                     MANIPULATOR&  manipulator,
+                                                     int           id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE: {
+      case ATTRIBUTE_ID_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE:
         return manipulator(&d_mySequenceWithAnonymousChoiceChoice,
-                  ATTRIBUTE_INFO_ARRAY[
-                      ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-                  ]);                                                 // RETURN
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+                           ATTRIBUTE_INFO_ARRAY[
+                       ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
+                           ]);
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
 int MySequenceWithAnonymousChoice::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+                                                     MANIPULATOR&  manipulator,
+                                                     const char   *name,
+                                                     int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -17650,34 +17454,28 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&  accessor,
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE: {
+      case ATTRIBUTE_ID_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE:
         return accessor(d_mySequenceWithAnonymousChoiceChoice,
-              ATTRIBUTE_INFO_ARRAY[
-                  ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-              ]);                                                     // RETURN
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+                        ATTRIBUTE_INFO_ARRAY[
+                       ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
+                        ]);
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
 int MySequenceWithAnonymousChoice::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+                                                  ACCESSOR&   accessor,
+                                                  const char *name,
+                                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -17718,7 +17516,7 @@ const bdlb::NullableValue<bsl::string>&
 // CREATORS
 inline
 MySequenceWithNillables::MySequenceWithNillables(
-                bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 , d_attribute3(basicAllocator)
@@ -17727,8 +17525,8 @@ MySequenceWithNillables::MySequenceWithNillables(
 
 inline
 MySequenceWithNillables::MySequenceWithNillables(
-        const MySequenceWithNillables& original,
-        bslma::Allocator *basicAllocator)
+                                const MySequenceWithNillables&  original,
+                                bslma::Allocator               *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 , d_attribute3(original.d_attribute3, basicAllocator)
@@ -17796,32 +17594,25 @@ int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE3: {
+      case ATTRIBUTE_ID_ATTRIBUTE3:
         return manipulator(&d_attribute3,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithNillables::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
+                                                 const char   *name,
+                                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -17887,32 +17678,25 @@ int MySequenceWithNillables::accessAttribute(ACCESSOR& accessor, int id) const
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ATTRIBUTE1: {
+      case ATTRIBUTE_ID_ATTRIBUTE1:
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE2: {
+      case ATTRIBUTE_ID_ATTRIBUTE2:
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                      // RETURN
-      } break;
-      case ATTRIBUTE_ID_ATTRIBUTE3: {
+      case ATTRIBUTE_ID_ATTRIBUTE3:
         return accessor(d_attribute3,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                      // RETURN
-      } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int MySequenceWithNillables::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int MySequenceWithNillables::accessAttribute(ACCESSOR&   accessor,
+                                             const char *name,
+                                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -17950,9 +17734,8 @@ const bdlb::NullableValue<MySequence>&
 // FREE FUNCTIONS
 
 inline
-bool test::operator==(
-        const test::MySequenceWithAttributes& lhs,
-        const test::MySequenceWithAttributes& rhs)
+bool test::operator==(const MySequenceWithAttributes& lhs,
+                      const MySequenceWithAttributes& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2()
@@ -17961,9 +17744,8 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySequenceWithAttributes& lhs,
-        const test::MySequenceWithAttributes& rhs)
+bool test::operator!=(const MySequenceWithAttributes& lhs,
+                      const MySequenceWithAttributes& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2()
@@ -17972,17 +17754,14 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequenceWithAttributes& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&                   stream,
+                               const MySequenceWithAttributes& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::Address& lhs,
-        const test::Address& rhs)
+bool test::operator==(const Address& lhs, const Address& rhs)
 {
     return  lhs.street() == rhs.street()
          && lhs.city() == rhs.city()
@@ -17990,9 +17769,7 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::Address& lhs,
-        const test::Address& rhs)
+bool test::operator!=(const Address& lhs, const Address& rhs)
 {
     return  lhs.street() != rhs.street()
          || lhs.city() != rhs.city()
@@ -18000,43 +17777,33 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::Address& rhs)
+bsl::ostream& test::operator<<(bsl::ostream& stream, const Address& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySequence& lhs,
-        const test::MySequence& rhs)
+bool test::operator==(const MySequence& lhs, const MySequence& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2();
 }
 
 inline
-bool test::operator!=(
-        const test::MySequence& lhs,
-        const test::MySequence& rhs)
+bool test::operator!=(const MySequence& lhs, const MySequence& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2();
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequence& rhs)
+bsl::ostream& test::operator<<(bsl::ostream& stream, const MySequence& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySimpleContent& lhs,
-        const test::MySimpleContent& rhs)
+bool test::operator==(const MySimpleContent& lhs, const MySimpleContent& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2()
@@ -18044,9 +17811,7 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySimpleContent& lhs,
-        const test::MySimpleContent& rhs)
+bool test::operator!=(const MySimpleContent& lhs, const MySimpleContent& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2()
@@ -18054,17 +17819,15 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySimpleContent& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&          stream,
+                               const MySimpleContent& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySimpleIntContent& lhs,
-        const test::MySimpleIntContent& rhs)
+bool test::operator==(const MySimpleIntContent& lhs,
+                      const MySimpleIntContent& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2()
@@ -18072,9 +17835,8 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySimpleIntContent& lhs,
-        const test::MySimpleIntContent& rhs)
+bool test::operator!=(const MySimpleIntContent& lhs,
+                      const MySimpleIntContent& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2()
@@ -18082,27 +17844,25 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySimpleIntContent& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&             stream,
+                               const MySimpleIntContent& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySequenceWithAnonymousChoiceChoice& lhs,
-        const test::MySequenceWithAnonymousChoiceChoice& rhs)
+bool test::operator==(const MySequenceWithAnonymousChoiceChoice& lhs,
+                      const MySequenceWithAnonymousChoiceChoice& rhs)
 {
     typedef test::MySequenceWithAnonymousChoiceChoice Class;
     if (lhs.selectionId() == rhs.selectionId()) {
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_MY_CHOICE1:
             return lhs.myChoice1() == rhs.myChoice1();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_MY_CHOICE2:
             return lhs.myChoice2() == rhs.myChoice2();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                               == rhs.selectionId());
@@ -18115,25 +17875,23 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySequenceWithAnonymousChoiceChoice& lhs,
-        const test::MySequenceWithAnonymousChoiceChoice& rhs)
+bool test::operator!=(const MySequenceWithAnonymousChoiceChoice& lhs,
+                      const MySequenceWithAnonymousChoiceChoice& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
 bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequenceWithAnonymousChoiceChoice& rhs)
+                             bsl::ostream&                              stream,
+                             const MySequenceWithAnonymousChoiceChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySequenceWithNullables& lhs,
-        const test::MySequenceWithNullables& rhs)
+bool test::operator==(const MySequenceWithNullables& lhs,
+                      const MySequenceWithNullables& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2()
@@ -18141,9 +17899,8 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySequenceWithNullables& lhs,
-        const test::MySequenceWithNullables& rhs)
+bool test::operator!=(const MySequenceWithNullables& lhs,
+                      const MySequenceWithNullables& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2()
@@ -18151,17 +17908,14 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequenceWithNullables& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&                  stream,
+                               const MySequenceWithNullables& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::Employee& lhs,
-        const test::Employee& rhs)
+bool test::operator==(const Employee& lhs, const Employee& rhs)
 {
     return  lhs.name() == rhs.name()
          && lhs.homeAddress() == rhs.homeAddress()
@@ -18169,9 +17923,7 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::Employee& lhs,
-        const test::Employee& rhs)
+bool test::operator!=(const Employee& lhs, const Employee& rhs)
 {
     return  lhs.name() != rhs.name()
          || lhs.homeAddress() != rhs.homeAddress()
@@ -18179,17 +17931,14 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::Employee& rhs)
+bsl::ostream& test::operator<<(bsl::ostream& stream, const Employee& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySequenceWithAnonymousChoice& lhs,
-        const test::MySequenceWithAnonymousChoice& rhs)
+bool test::operator==(const MySequenceWithAnonymousChoice& lhs,
+                      const MySequenceWithAnonymousChoice& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          &&    lhs.mySequenceWithAnonymousChoiceChoice()
@@ -18198,9 +17947,8 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySequenceWithAnonymousChoice& lhs,
-        const test::MySequenceWithAnonymousChoice& rhs)
+bool test::operator!=(const MySequenceWithAnonymousChoice& lhs,
+                      const MySequenceWithAnonymousChoice& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          ||     lhs.mySequenceWithAnonymousChoiceChoice()
@@ -18209,17 +17957,15 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequenceWithAnonymousChoice& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&                        stream,
+                               const MySequenceWithAnonymousChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 inline
-bool test::operator==(
-        const test::MySequenceWithNillables& lhs,
-        const test::MySequenceWithNillables& rhs)
+bool test::operator==(const MySequenceWithNillables& lhs,
+                      const MySequenceWithNillables& rhs)
 {
     return  lhs.attribute1() == rhs.attribute1()
          && lhs.attribute2() == rhs.attribute2()
@@ -18227,9 +17973,8 @@ bool test::operator==(
 }
 
 inline
-bool test::operator!=(
-        const test::MySequenceWithNillables& lhs,
-        const test::MySequenceWithNillables& rhs)
+bool test::operator!=(const MySequenceWithNillables& lhs,
+                      const MySequenceWithNillables& rhs)
 {
     return  lhs.attribute1() != rhs.attribute1()
          || lhs.attribute2() != rhs.attribute2()
@@ -18237,15 +17982,13 @@ bool test::operator!=(
 }
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        const test::MySequenceWithNillables& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&                  stream,
+                               const MySequenceWithNillables& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
-#endif
 
 // GENERATED BY BLP_BAS_CODEGEN_2.0.2_DEV_LATEST Thu Dec 28 20:58:29 2006
 // ----------------------------------------------------------------------------
@@ -18253,21 +17996,6 @@ bsl::ostream& test::operator<<(
 // ----------------------------------------------------------------------------
 
 // test_messages.cpp   -*-C++-*-
-
-// #include <test_messages.h>
-#include <bdlb_nullablevalue.h>
-#include <bsl_string.h>
-
-#include <bdlat_formattingmode.h>
-
-#include <bsls_assert.h>
-#include <bdlb_chartype.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_string.h>
-
-#include <bsl_ostream.h>
-#include <bsl_iomanip.h>
 
 namespace BloombergLP {
 namespace test {
@@ -18317,62 +18045,52 @@ const bdlat_AttributeInfo MySequenceWithAttributes::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 8: {
-            if (bdlb::CharType::toUpper(name[0])=='E'
-             && bdlb::CharType::toUpper(name[1])=='L'
-             && bdlb::CharType::toUpper(name[2])=='E'
-             && bdlb::CharType::toUpper(name[3])=='M'
-             && bdlb::CharType::toUpper(name[4])=='E'
-             && bdlb::CharType::toUpper(name[5])=='N'
-             && bdlb::CharType::toUpper(name[6])=='T')
-            {
-                switch(bdlb::CharType::toUpper(name[7])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-                                                                      // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-                                                                      // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 8: {
+        if (bdlb::CharType::toUpper(name[0])=='E'
+         && bdlb::CharType::toUpper(name[1])=='L'
+         && bdlb::CharType::toUpper(name[2])=='E'
+         && bdlb::CharType::toUpper(name[3])=='M'
+         && bdlb::CharType::toUpper(name[4])=='E'
+         && bdlb::CharType::toUpper(name[5])=='N'
+         && bdlb::CharType::toUpper(name[6])=='T')
+        {
+            switch (bdlb::CharType::toUpper(name[7])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
             }
-        } break;
-        case 10: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='R'
-             && bdlb::CharType::toUpper(name[4])=='I'
-             && bdlb::CharType::toUpper(name[5])=='B'
-             && bdlb::CharType::toUpper(name[6])=='U'
-             && bdlb::CharType::toUpper(name[7])=='T'
-             && bdlb::CharType::toUpper(name[8])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[9])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];                                     // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];                                     // RETURN
-                    } break;
-                }
+        }
+      } break;
+      case 10: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='R'
+         && bdlb::CharType::toUpper(name[4])=='I'
+         && bdlb::CharType::toUpper(name[5])=='B'
+         && bdlb::CharType::toUpper(name[6])=='U'
+         && bdlb::CharType::toUpper(name[7])=='T'
+         && bdlb::CharType::toUpper(name[8])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[9])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
 
 const bdlat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
-                int id)
+                                                                        int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -18391,9 +18109,9 @@ const bdlat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
 // ACCESSORS
 
 bsl::ostream& MySequenceWithAttributes::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -18411,23 +18129,31 @@ bsl::ostream& MySequenceWithAttributes::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -18439,23 +18165,31 @@ bsl::ostream& MySequenceWithAttributes::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Element2 = ";
-        bdlb::PrintMethods::print(stream, d_element2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -18498,41 +18232,40 @@ const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_AttributeInfo *Address::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 4: {
-            if (bdlb::CharType::toUpper(name[0])=='C'
-             && bdlb::CharType::toUpper(name[1])=='I'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='Y')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
-            }
-        } break;
-        case 5: {
-            if (bdlb::CharType::toUpper(name[0])=='S'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='A'
-             && bdlb::CharType::toUpper(name[3])=='T'
-             && bdlb::CharType::toUpper(name[4])=='E')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
-            }
-        } break;
-        case 6: {
-            if (bdlb::CharType::toUpper(name[0])=='S'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='R'
-             && bdlb::CharType::toUpper(name[3])=='E'
-             && bdlb::CharType::toUpper(name[4])=='E'
-             && bdlb::CharType::toUpper(name[5])=='T')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
-            }
-        } break;
+    switch (nameLength) {
+      case 4: {
+        if (bdlb::CharType::toUpper(name[0])=='C'
+         && bdlb::CharType::toUpper(name[1])=='I'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='Y')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];       // RETURN
+        }
+      } break;
+      case 5: {
+        if (bdlb::CharType::toUpper(name[0])=='S'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='A'
+         && bdlb::CharType::toUpper(name[3])=='T'
+         && bdlb::CharType::toUpper(name[4])=='E')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];      // RETURN
+        }
+      } break;
+      case 6: {
+        if (bdlb::CharType::toUpper(name[0])=='S'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='R'
+         && bdlb::CharType::toUpper(name[3])=='E'
+         && bdlb::CharType::toUpper(name[4])=='E'
+         && bdlb::CharType::toUpper(name[5])=='T')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];     // RETURN
+        }
+      } break;
     }
     return 0;
 }
@@ -18553,10 +18286,9 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Address::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Address::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -18574,18 +18306,24 @@ bsl::ostream& Address::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Street = ";
-        bdlb::PrintMethods::print(stream, d_street,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_street,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "City = ";
-        bdlb::PrintMethods::print(stream, d_city,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_city,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "State = ";
-        bdlb::PrintMethods::print(stream, d_state,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_state,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -18597,18 +18335,24 @@ bsl::ostream& Address::print(
 
         stream << ' ';
         stream << "Street = ";
-        bdlb::PrintMethods::print(stream, d_street,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_street,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "City = ";
-        bdlb::PrintMethods::print(stream, d_city,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_city,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "State = ";
-        bdlb::PrintMethods::print(stream, d_state,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_state,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -18645,35 +18389,29 @@ const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='R'
-             && bdlb::CharType::toUpper(name[4])=='I'
-             && bdlb::CharType::toUpper(name[5])=='B'
-             && bdlb::CharType::toUpper(name[6])=='U'
-             && bdlb::CharType::toUpper(name[7])=='T'
-             && bdlb::CharType::toUpper(name[8])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[9])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                            ATTRIBUTE_INDEX_ATTRIBUTE1
-                        ];                                            // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                            ATTRIBUTE_INDEX_ATTRIBUTE2
-                        ];                                            // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='R'
+         && bdlb::CharType::toUpper(name[4])=='I'
+         && bdlb::CharType::toUpper(name[5])=='B'
+         && bdlb::CharType::toUpper(name[6])=='U'
+         && bdlb::CharType::toUpper(name[7])=='T'
+         && bdlb::CharType::toUpper(name[8])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[9])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -18692,10 +18430,9 @@ const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& MySequence::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MySequence::print(bsl::ostream& stream,
+                                int           level,
+                                int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -18713,13 +18450,17 @@ bsl::ostream& MySequence::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -18731,13 +18472,17 @@ bsl::ostream& MySequence::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -18784,54 +18529,47 @@ const bdlat_AttributeInfo MySimpleContent::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            switch(bdlb::CharType::toUpper(name[0])) {
-                case 'A': {
-                    if (bdlb::CharType::toUpper(name[1])=='T'
-                     && bdlb::CharType::toUpper(name[2])=='T'
-                     && bdlb::CharType::toUpper(name[3])=='R'
-                     && bdlb::CharType::toUpper(name[4])=='I'
-                     && bdlb::CharType::toUpper(name[5])=='B'
-                     && bdlb::CharType::toUpper(name[6])=='U'
-                     && bdlb::CharType::toUpper(name[7])=='T'
-                     && bdlb::CharType::toUpper(name[8])=='E')
-                    {
-                        switch(bdlb::CharType::toUpper(name[9])) {
-                            case '1': {
-                                return &ATTRIBUTE_INFO_ARRAY[
-                                            ATTRIBUTE_INDEX_ATTRIBUTE1
-                                       ];                             // RETURN
-                            } break;
-                            case '2': {
-                                return &ATTRIBUTE_INFO_ARRAY[
-                                            ATTRIBUTE_INDEX_ATTRIBUTE2
-                                       ];                             // RETURN
-                            } break;
-                        }
-                    }
-                } break;
-                case 'T': {
-                    if (bdlb::CharType::toUpper(name[1])=='H'
-                     && bdlb::CharType::toUpper(name[2])=='E'
-                     && bdlb::CharType::toUpper(name[3])=='C'
-                     && bdlb::CharType::toUpper(name[4])=='O'
-                     && bdlb::CharType::toUpper(name[5])=='N'
-                     && bdlb::CharType::toUpper(name[6])=='T'
-                     && bdlb::CharType::toUpper(name[7])=='E'
-                     && bdlb::CharType::toUpper(name[8])=='N'
-                     && bdlb::CharType::toUpper(name[9])=='T')
-                    {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_THE_CONTENT
-                               ];                                     // RETURN
-                    }
-                } break;
+    switch (nameLength) {
+      case 10: {
+        switch (bdlb::CharType::toUpper(name[0])) {
+          case 'A': {
+            if (bdlb::CharType::toUpper(name[1])=='T'
+             && bdlb::CharType::toUpper(name[2])=='T'
+             && bdlb::CharType::toUpper(name[3])=='R'
+             && bdlb::CharType::toUpper(name[4])=='I'
+             && bdlb::CharType::toUpper(name[5])=='B'
+             && bdlb::CharType::toUpper(name[6])=='U'
+             && bdlb::CharType::toUpper(name[7])=='T'
+             && bdlb::CharType::toUpper(name[8])=='E')
+            {
+                switch (bdlb::CharType::toUpper(name[9])) {
+                  case '1':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                  case '2':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                }
             }
-        } break;
+          } break;
+          case 'T': {
+            if (bdlb::CharType::toUpper(name[1])=='H'
+             && bdlb::CharType::toUpper(name[2])=='E'
+             && bdlb::CharType::toUpper(name[3])=='C'
+             && bdlb::CharType::toUpper(name[4])=='O'
+             && bdlb::CharType::toUpper(name[5])=='N'
+             && bdlb::CharType::toUpper(name[6])=='T'
+             && bdlb::CharType::toUpper(name[7])=='E'
+             && bdlb::CharType::toUpper(name[8])=='N'
+             && bdlb::CharType::toUpper(name[9])=='T')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT];
+                                                                      // RETURN
+            }
+          } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -18852,10 +18590,9 @@ const bdlat_AttributeInfo *MySimpleContent::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& MySimpleContent::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MySimpleContent::print(bsl::ostream& stream,
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -18873,18 +18610,24 @@ bsl::ostream& MySimpleContent::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "TheContent = ";
-        bdlb::PrintMethods::print(stream, d_theContent,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_theContent,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -18896,18 +18639,24 @@ bsl::ostream& MySimpleContent::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "TheContent = ";
-        bdlb::PrintMethods::print(stream, d_theContent,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_theContent,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -18954,54 +18703,47 @@ const bdlat_AttributeInfo MySimpleIntContent::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            switch(bdlb::CharType::toUpper(name[0])) {
-                case 'A': {
-                    if (bdlb::CharType::toUpper(name[1])=='T'
-                     && bdlb::CharType::toUpper(name[2])=='T'
-                     && bdlb::CharType::toUpper(name[3])=='R'
-                     && bdlb::CharType::toUpper(name[4])=='I'
-                     && bdlb::CharType::toUpper(name[5])=='B'
-                     && bdlb::CharType::toUpper(name[6])=='U'
-                     && bdlb::CharType::toUpper(name[7])=='T'
-                     && bdlb::CharType::toUpper(name[8])=='E')
-                    {
-                        switch(bdlb::CharType::toUpper(name[9])) {
-                            case '1': {
-                                return &ATTRIBUTE_INFO_ARRAY[
-                                            ATTRIBUTE_INDEX_ATTRIBUTE1
-                                       ];                             // RETURN
-                            } break;
-                            case '2': {
-                                return &ATTRIBUTE_INFO_ARRAY[
-                                            ATTRIBUTE_INDEX_ATTRIBUTE2
-                                       ];                             // RETURN
-                            } break;
-                        }
-                    }
-                } break;
-                case 'T': {
-                    if (bdlb::CharType::toUpper(name[1])=='H'
-                     && bdlb::CharType::toUpper(name[2])=='E'
-                     && bdlb::CharType::toUpper(name[3])=='C'
-                     && bdlb::CharType::toUpper(name[4])=='O'
-                     && bdlb::CharType::toUpper(name[5])=='N'
-                     && bdlb::CharType::toUpper(name[6])=='T'
-                     && bdlb::CharType::toUpper(name[7])=='E'
-                     && bdlb::CharType::toUpper(name[8])=='N'
-                     && bdlb::CharType::toUpper(name[9])=='T')
-                    {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_THE_CONTENT
-                               ];                                     // RETURN
-                    }
-                } break;
+    switch (nameLength) {
+      case 10: {
+        switch (bdlb::CharType::toUpper(name[0])) {
+          case 'A': {
+            if (bdlb::CharType::toUpper(name[1])=='T'
+             && bdlb::CharType::toUpper(name[2])=='T'
+             && bdlb::CharType::toUpper(name[3])=='R'
+             && bdlb::CharType::toUpper(name[4])=='I'
+             && bdlb::CharType::toUpper(name[5])=='B'
+             && bdlb::CharType::toUpper(name[6])=='U'
+             && bdlb::CharType::toUpper(name[7])=='T'
+             && bdlb::CharType::toUpper(name[8])=='E')
+            {
+                switch (bdlb::CharType::toUpper(name[9])) {
+                  case '1':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                  case '2':
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                }
             }
-        } break;
+          } break;
+          case 'T': {
+            if (bdlb::CharType::toUpper(name[1])=='H'
+             && bdlb::CharType::toUpper(name[2])=='E'
+             && bdlb::CharType::toUpper(name[3])=='C'
+             && bdlb::CharType::toUpper(name[4])=='O'
+             && bdlb::CharType::toUpper(name[5])=='N'
+             && bdlb::CharType::toUpper(name[6])=='T'
+             && bdlb::CharType::toUpper(name[7])=='E'
+             && bdlb::CharType::toUpper(name[8])=='N'
+             && bdlb::CharType::toUpper(name[9])=='T')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THE_CONTENT];
+                                                                      // RETURN
+            }
+          } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -19022,10 +18764,9 @@ const bdlat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& MySimpleIntContent::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MySimpleIntContent::print(bsl::ostream& stream,
+                                        int           level,
+                                        int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19043,18 +18784,24 @@ bsl::ostream& MySimpleIntContent::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "TheContent = ";
-        bdlb::PrintMethods::print(stream, d_theContent,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_theContent,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -19066,18 +18813,24 @@ bsl::ostream& MySimpleIntContent::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "TheContent = ";
-        bdlb::PrintMethods::print(stream, d_theContent,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_theContent,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -19117,34 +18870,28 @@ const bdlat_SelectionInfo
 
 const bdlat_SelectionInfo *
 MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 9: {
-            if (bdlb::CharType::toUpper(name[0])=='M'
-             && bdlb::CharType::toUpper(name[1])=='Y'
-             && bdlb::CharType::toUpper(name[2])=='C'
-             && bdlb::CharType::toUpper(name[3])=='H'
-             && bdlb::CharType::toUpper(name[4])=='O'
-             && bdlb::CharType::toUpper(name[5])=='I'
-             && bdlb::CharType::toUpper(name[6])=='C'
-             && bdlb::CharType::toUpper(name[7])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[8])) {
-                    case '1': {
-                        return &SELECTION_INFO_ARRAY[
-                                    SELECTION_INDEX_MY_CHOICE1
-                               ];                                     // RETURN
-                    } break;
-                    case '2': {
-                        return &SELECTION_INFO_ARRAY[
-                                    SELECTION_INDEX_MY_CHOICE2
-                               ];                                     // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 9: {
+        if (bdlb::CharType::toUpper(name[0])=='M'
+         && bdlb::CharType::toUpper(name[1])=='Y'
+         && bdlb::CharType::toUpper(name[2])=='C'
+         && bdlb::CharType::toUpper(name[3])=='H'
+         && bdlb::CharType::toUpper(name[4])=='O'
+         && bdlb::CharType::toUpper(name[5])=='I'
+         && bdlb::CharType::toUpper(name[6])=='C'
+         && bdlb::CharType::toUpper(name[7])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[8])) {
+              case '1':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1];
+              case '2':
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -19165,9 +18912,9 @@ MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(int id)
 // ACCESSORS
 
 bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19187,13 +18934,17 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
         switch (d_selectionId) {
           case SELECTION_ID_MY_CHOICE1: {
             stream << "MyChoice1 = ";
-            bdlb::PrintMethods::print(stream, d_myChoice1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_myChoice1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_MY_CHOICE2: {
             stream << "MyChoice2 = ";
-            bdlb::PrintMethods::print(stream, d_myChoice2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_myChoice2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED\n";
@@ -19209,13 +18960,17 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
         switch (d_selectionId) {
           case SELECTION_ID_MY_CHOICE1: {
             stream << "MyChoice1 = ";
-            bdlb::PrintMethods::print(stream, d_myChoice1.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_myChoice1.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           case SELECTION_ID_MY_CHOICE2: {
             stream << "MyChoice2 = ";
-            bdlb::PrintMethods::print(stream, d_myChoice2.object(),
-                                     -levelPlus1, spacesPerLevel);
+            bdlb::PrintMethods::print(stream,
+                                      d_myChoice2.object(),
+                                      -levelPlus1,
+                                      spacesPerLevel);
           } break;
           default:
             stream << "SELECTION UNDEFINED";
@@ -19263,40 +19018,31 @@ const bdlat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='R'
-             && bdlb::CharType::toUpper(name[4])=='I'
-             && bdlb::CharType::toUpper(name[5])=='B'
-             && bdlb::CharType::toUpper(name[6])=='U'
-             && bdlb::CharType::toUpper(name[7])=='T'
-             && bdlb::CharType::toUpper(name[8])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[9])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];                                     // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];                                     // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE3
-                               ];                                     // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='R'
+         && bdlb::CharType::toUpper(name[4])=='I'
+         && bdlb::CharType::toUpper(name[5])=='B'
+         && bdlb::CharType::toUpper(name[6])=='U'
+         && bdlb::CharType::toUpper(name[7])=='T'
+         && bdlb::CharType::toUpper(name[8])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[9])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -19318,9 +19064,9 @@ const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(int id)
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNullables::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19338,18 +19084,24 @@ bsl::ostream& MySequenceWithNullables::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute3 = ";
-        bdlb::PrintMethods::print(stream, d_attribute3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -19361,18 +19113,24 @@ bsl::ostream& MySequenceWithNullables::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute3 = ";
-        bdlb::PrintMethods::print(stream, d_attribute3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -19416,44 +19174,44 @@ const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 3: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='G'
-             && bdlb::CharType::toUpper(name[2])=='E')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
-            }
-        } break;
-        case 4: {
-            if (bdlb::CharType::toUpper(name[0])=='N'
-             && bdlb::CharType::toUpper(name[1])=='A'
-             && bdlb::CharType::toUpper(name[2])=='M'
-             && bdlb::CharType::toUpper(name[3])=='E')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
-            }
-        } break;
-        case 11: {
-            if (bdlb::CharType::toUpper(name[0])=='H'
-             && bdlb::CharType::toUpper(name[1])=='O'
-             && bdlb::CharType::toUpper(name[2])=='M'
-             && bdlb::CharType::toUpper(name[3])=='E'
-             && bdlb::CharType::toUpper(name[4])=='A'
-             && bdlb::CharType::toUpper(name[5])=='D'
-             && bdlb::CharType::toUpper(name[6])=='D'
-             && bdlb::CharType::toUpper(name[7])=='R'
-             && bdlb::CharType::toUpper(name[8])=='E'
-             && bdlb::CharType::toUpper(name[9])=='S'
-             && bdlb::CharType::toUpper(name[10])=='S')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+    switch (nameLength) {
+      case 3: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='G'
+         && bdlb::CharType::toUpper(name[2])=='E')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];        // RETURN
+        }
+      } break;
+      case 4: {
+        if (bdlb::CharType::toUpper(name[0])=='N'
+         && bdlb::CharType::toUpper(name[1])=='A'
+         && bdlb::CharType::toUpper(name[2])=='M'
+         && bdlb::CharType::toUpper(name[3])=='E')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];       // RETURN
+        }
+      } break;
+      case 11: {
+        if (bdlb::CharType::toUpper(name[0])=='H'
+         && bdlb::CharType::toUpper(name[1])=='O'
+         && bdlb::CharType::toUpper(name[2])=='M'
+         && bdlb::CharType::toUpper(name[3])=='E'
+         && bdlb::CharType::toUpper(name[4])=='A'
+         && bdlb::CharType::toUpper(name[5])=='D'
+         && bdlb::CharType::toUpper(name[6])=='D'
+         && bdlb::CharType::toUpper(name[7])=='R'
+         && bdlb::CharType::toUpper(name[8])=='E'
+         && bdlb::CharType::toUpper(name[9])=='S'
+         && bdlb::CharType::toUpper(name[10])=='S')
+        {
+            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
                                                                       // RETURN
-            }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -19474,10 +19232,9 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Employee::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Employee::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19495,18 +19252,24 @@ bsl::ostream& Employee::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Name = ";
-        bdlb::PrintMethods::print(stream, d_name,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_name,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "HomeAddress = ";
-        bdlb::PrintMethods::print(stream, d_homeAddress,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_homeAddress,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Age = ";
-        bdlb::PrintMethods::print(stream, d_age,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_age,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -19518,18 +19281,24 @@ bsl::ostream& Employee::print(
 
         stream << ' ';
         stream << "Name = ";
-        bdlb::PrintMethods::print(stream, d_name,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_name,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "HomeAddress = ";
-        bdlb::PrintMethods::print(stream, d_homeAddress,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_homeAddress,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Age = ";
-        bdlb::PrintMethods::print(stream, d_age,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_age,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -19577,8 +19346,8 @@ const bdlat_AttributeInfo
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     if (bdlb::String::areEqualCaseless("MyChoice1", name, nameLength)) {
         return &ATTRIBUTE_INFO_ARRAY[
@@ -19592,75 +19361,69 @@ const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
                ];                                                     // RETURN
     }
 
-    switch(nameLength) {
-        case 10: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='R'
-             && bdlb::CharType::toUpper(name[4])=='I'
-             && bdlb::CharType::toUpper(name[5])=='B'
-             && bdlb::CharType::toUpper(name[6])=='U'
-             && bdlb::CharType::toUpper(name[7])=='T'
-             && bdlb::CharType::toUpper(name[8])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[9])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];                                     // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];                                     // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='R'
+         && bdlb::CharType::toUpper(name[4])=='I'
+         && bdlb::CharType::toUpper(name[5])=='B'
+         && bdlb::CharType::toUpper(name[6])=='U'
+         && bdlb::CharType::toUpper(name[7])=='T'
+         && bdlb::CharType::toUpper(name[8])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[9])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
             }
-        } break;
-        case 35: {
-            if (bdlb::CharType::toUpper(name[0])=='M'
-             && bdlb::CharType::toUpper(name[1])=='Y'
-             && bdlb::CharType::toUpper(name[2])=='S'
-             && bdlb::CharType::toUpper(name[3])=='E'
-             && bdlb::CharType::toUpper(name[4])=='Q'
-             && bdlb::CharType::toUpper(name[5])=='U'
-             && bdlb::CharType::toUpper(name[6])=='E'
-             && bdlb::CharType::toUpper(name[7])=='N'
-             && bdlb::CharType::toUpper(name[8])=='C'
-             && bdlb::CharType::toUpper(name[9])=='E'
-             && bdlb::CharType::toUpper(name[10])=='W'
-             && bdlb::CharType::toUpper(name[11])=='I'
-             && bdlb::CharType::toUpper(name[12])=='T'
-             && bdlb::CharType::toUpper(name[13])=='H'
-             && bdlb::CharType::toUpper(name[14])=='A'
-             && bdlb::CharType::toUpper(name[15])=='N'
-             && bdlb::CharType::toUpper(name[16])=='O'
-             && bdlb::CharType::toUpper(name[17])=='N'
-             && bdlb::CharType::toUpper(name[18])=='Y'
-             && bdlb::CharType::toUpper(name[19])=='M'
-             && bdlb::CharType::toUpper(name[20])=='O'
-             && bdlb::CharType::toUpper(name[21])=='U'
-             && bdlb::CharType::toUpper(name[22])=='S'
-             && bdlb::CharType::toUpper(name[23])=='C'
-             && bdlb::CharType::toUpper(name[24])=='H'
-             && bdlb::CharType::toUpper(name[25])=='O'
-             && bdlb::CharType::toUpper(name[26])=='I'
-             && bdlb::CharType::toUpper(name[27])=='C'
-             && bdlb::CharType::toUpper(name[28])=='E'
-             && bdlb::CharType::toUpper(name[29])=='C'
-             && bdlb::CharType::toUpper(name[30])=='H'
-             && bdlb::CharType::toUpper(name[31])=='O'
-             && bdlb::CharType::toUpper(name[32])=='I'
-             && bdlb::CharType::toUpper(name[33])=='C'
-             && bdlb::CharType::toUpper(name[34])=='E')
-            {
-                return
-                    &ATTRIBUTE_INFO_ARRAY[
-                       ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-                    ];                                                // RETURN
-            }
-        } break;
+        }
+      } break;
+      case 35: {
+        if (bdlb::CharType::toUpper(name[0])=='M'
+         && bdlb::CharType::toUpper(name[1])=='Y'
+         && bdlb::CharType::toUpper(name[2])=='S'
+         && bdlb::CharType::toUpper(name[3])=='E'
+         && bdlb::CharType::toUpper(name[4])=='Q'
+         && bdlb::CharType::toUpper(name[5])=='U'
+         && bdlb::CharType::toUpper(name[6])=='E'
+         && bdlb::CharType::toUpper(name[7])=='N'
+         && bdlb::CharType::toUpper(name[8])=='C'
+         && bdlb::CharType::toUpper(name[9])=='E'
+         && bdlb::CharType::toUpper(name[10])=='W'
+         && bdlb::CharType::toUpper(name[11])=='I'
+         && bdlb::CharType::toUpper(name[12])=='T'
+         && bdlb::CharType::toUpper(name[13])=='H'
+         && bdlb::CharType::toUpper(name[14])=='A'
+         && bdlb::CharType::toUpper(name[15])=='N'
+         && bdlb::CharType::toUpper(name[16])=='O'
+         && bdlb::CharType::toUpper(name[17])=='N'
+         && bdlb::CharType::toUpper(name[18])=='Y'
+         && bdlb::CharType::toUpper(name[19])=='M'
+         && bdlb::CharType::toUpper(name[20])=='O'
+         && bdlb::CharType::toUpper(name[21])=='U'
+         && bdlb::CharType::toUpper(name[22])=='S'
+         && bdlb::CharType::toUpper(name[23])=='C'
+         && bdlb::CharType::toUpper(name[24])=='H'
+         && bdlb::CharType::toUpper(name[25])=='O'
+         && bdlb::CharType::toUpper(name[26])=='I'
+         && bdlb::CharType::toUpper(name[27])=='C'
+         && bdlb::CharType::toUpper(name[28])=='E'
+         && bdlb::CharType::toUpper(name[29])=='C'
+         && bdlb::CharType::toUpper(name[30])=='H'
+         && bdlb::CharType::toUpper(name[31])=='O'
+         && bdlb::CharType::toUpper(name[32])=='I'
+         && bdlb::CharType::toUpper(name[33])=='C'
+         && bdlb::CharType::toUpper(name[34])=='E')
+        {
+            return
+                &ATTRIBUTE_INFO_ARRAY[
+                   ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
+                ];                                                    // RETURN
+        }
+      } break;
     }
     return 0;
 }
@@ -19685,9 +19448,9 @@ MySequenceWithAnonymousChoice::lookupAttributeInfo(int id)
 // ACCESSORS
 
 bsl::ostream& MySequenceWithAnonymousChoice::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19705,18 +19468,24 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "MySequenceWithAnonymousChoiceChoice = ";
-        bdlb::PrintMethods::print(stream, d_mySequenceWithAnonymousChoiceChoice,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_mySequenceWithAnonymousChoiceChoice,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -19728,18 +19497,24 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "MySequenceWithAnonymousChoiceChoice = ";
-        bdlb::PrintMethods::print(stream, d_mySequenceWithAnonymousChoiceChoice,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_mySequenceWithAnonymousChoiceChoice,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -19786,40 +19561,31 @@ const bdlat_AttributeInfo MySequenceWithNillables::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
-    switch(nameLength) {
-        case 10: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='T'
-             && bdlb::CharType::toUpper(name[2])=='T'
-             && bdlb::CharType::toUpper(name[3])=='R'
-             && bdlb::CharType::toUpper(name[4])=='I'
-             && bdlb::CharType::toUpper(name[5])=='B'
-             && bdlb::CharType::toUpper(name[6])=='U'
-             && bdlb::CharType::toUpper(name[7])=='T'
-             && bdlb::CharType::toUpper(name[8])=='E')
-            {
-                switch(bdlb::CharType::toUpper(name[9])) {
-                    case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];                                     // RETURN
-                    } break;
-                    case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];                                     // RETURN
-                    } break;
-                    case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[
-                                    ATTRIBUTE_INDEX_ATTRIBUTE3
-                               ];                                     // RETURN
-                    } break;
-                }
+    switch (nameLength) {
+      case 10: {
+        if (bdlb::CharType::toUpper(name[0])=='A'
+         && bdlb::CharType::toUpper(name[1])=='T'
+         && bdlb::CharType::toUpper(name[2])=='T'
+         && bdlb::CharType::toUpper(name[3])=='R'
+         && bdlb::CharType::toUpper(name[4])=='I'
+         && bdlb::CharType::toUpper(name[5])=='B'
+         && bdlb::CharType::toUpper(name[6])=='U'
+         && bdlb::CharType::toUpper(name[7])=='T'
+         && bdlb::CharType::toUpper(name[8])=='E')
+        {
+            switch (bdlb::CharType::toUpper(name[9])) {
+              case '1':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+              case '2':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+              case '3':
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3];
             }
-        } break;
+        }
+      } break;
     }
     return 0;
 }
@@ -19841,9 +19607,9 @@ const bdlat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(int id)
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillables::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -19861,18 +19627,24 @@ bsl::ostream& MySequenceWithNillables::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute3 = ";
-        bdlb::PrintMethods::print(stream, d_attribute3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -19884,18 +19656,24 @@ bsl::ostream& MySequenceWithNillables::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute3 = ";
-        bdlb::PrintMethods::print(stream, d_attribute3,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute3,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -19961,12 +19739,6 @@ bsl::ostream& MySequenceWithNillables::print(
 //..
 //  #include <test_employee.h>
 
-    #include <balxml_decoder.h>
-    #include <balxml_decoderoptions.h>
-    #include <balxml_errorinfo.h>
-    #include <balxml_minireader.h>
-    #include <bsl_sstream.h>
-
     using namespace BloombergLP;
 
     int usageExample1()
@@ -20015,12 +19787,6 @@ bsl::ostream& MySequenceWithNillables::print(
 //..
 //  #include <test_employee.h>
 
-    #include <balxml_decoder.h>
-    #include <balxml_decoderoptions.h>
-    #include <balxml_errorinfo.h>
-    #include <balxml_minireader.h>
-    #include <bsl_sstream.h>
-
     using namespace BloombergLP;
 
     int usageExample2()
@@ -20046,8 +19812,11 @@ bsl::ostream& MySequenceWithNillables::print(
         balxml::ErrorInfo      errInfo;
 
         options.setSkipUnknownElements(false);
-        balxml::Decoder decoder(&options, &reader, &errInfo,
-                               &bsl::cerr, &bsl::cerr);
+        balxml::Decoder decoder(&options,
+                                &reader,
+                                &errInfo,
+                                &bsl::cerr,
+                                &bsl::cerr);
         decoder.decode(ss, &bob, "employee.xml");
 
         ASSERT(!ss);
@@ -20084,8 +19853,11 @@ bsl::ostream& MySequenceWithNillables::print(
         balxml::ErrorInfo      errInfo;
         balxml::DecoderOptions options;
 
-        balxml::Decoder decoder(&options, &reader, &errInfo,
-                               &bsl::cerr, &bsl::cerr);
+        balxml::Decoder decoder(&options,
+                                &reader,
+                                &errInfo,
+                                &bsl::cerr,
+                                &bsl::cerr);
 
 //..
 // Now we open the document, but we don't begin decoding yet:
@@ -27343,8 +27115,8 @@ int main(int argc, char *argv[])
         "                    <element4>FF0001</element4>\n"
         "                    <element5>-980123</element5>\n"
         "                    <element5>-980123</element5>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
         "                  </element5>\n"
         "                  <element6>LONDON</element6>\n"
         "                  <element6>LONDON</element6>\n"
@@ -27397,8 +27169,8 @@ int main(int argc, char *argv[])
         "                    <element4>FF0001</element4>\n"
         "                    <element5>-980123</element5>\n"
         "                    <element5>-980123</element5>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
         "                  </element5>\n"
         "                  <element6>LONDON</element6>\n"
         "                  <element6>LONDON</element6>\n"
@@ -27471,8 +27243,8 @@ int main(int argc, char *argv[])
         "                    <element4>FF0001</element4>\n"
         "                    <element5>-980123</element5>\n"
         "                    <element5>-980123</element5>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
         "                  </element5>\n"
         "                  <element6>LONDON</element6>\n"
         "                  <element6>LONDON</element6>\n"
@@ -27525,8 +27297,8 @@ int main(int argc, char *argv[])
         "                    <element4>FF0001</element4>\n"
         "                    <element5>-980123</element5>\n"
         "                    <element5>-980123</element5>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
-        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+     "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
         "                  </element5>\n"
         "                  <element6>LONDON</element6>\n"
         "                  <element6>LONDON</element6>\n"
@@ -28279,8 +28051,11 @@ int main(int argc, char *argv[])
             balxml::ErrorInfo  errInfo;
             balxml::DecoderOptions    options;
 
-            balxml::Decoder mX(&options, &reader, &errInfo,
-                              &bsl::cerr, &bsl::cerr);
+            balxml::Decoder mX(&options,
+                               &reader,
+                               &errInfo,
+                               &bsl::cerr,
+                               &bsl::cerr);
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
@@ -28314,8 +28089,11 @@ int main(int argc, char *argv[])
             balxml::ErrorInfo  errInfo;
             balxml::DecoderOptions    options;
 
-            balxml::Decoder mX(&options, &reader, &errInfo,
-                              &bsl::cerr, &bsl::cerr);
+            balxml::Decoder mX(&options,
+                               &reader,
+                               &errInfo,
+                               &bsl::cerr,
+                               &bsl::cerr);
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
@@ -28346,8 +28124,11 @@ int main(int argc, char *argv[])
             balxml::ErrorInfo  errInfo;
             balxml::DecoderOptions    options;
 
-            balxml::Decoder mX(&options, &reader, &errInfo,
-                              &bsl::cerr, &bsl::cerr);
+            balxml::Decoder mX(&options,
+                               &reader,
+                               &errInfo,
+                               &bsl::cerr,
+                               &bsl::cerr);
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
@@ -28379,8 +28160,11 @@ int main(int argc, char *argv[])
             balxml::ErrorInfo      errInfo;
             balxml::DecoderOptions options;
 
-            balxml::Decoder mX(&options, &reader, &errInfo,
-                              &bsl::cerr, &bsl::cerr);
+            balxml::Decoder mX(&options,
+                               &reader,
+                               &errInfo,
+                               &bsl::cerr,
+                               &bsl::cerr);
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
@@ -28510,8 +28294,11 @@ int main(int argc, char *argv[])
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
                 ASSERT(0 == decoder.numUnknownElementsSkipped());
 
                 Type obj; const Type& OBJ = obj;
@@ -28666,8 +28453,11 @@ int main(int argc, char *argv[])
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
                 ASSERT(0 == decoder.numUnknownElementsSkipped());
 
                 Type obj; const Type& OBJ = obj;
@@ -28839,8 +28629,11 @@ int main(int argc, char *argv[])
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
 
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &outStream, &outStream);
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &outStream,
+                                    &outStream);
 
             int retCode = decoder.decode(input.rdbuf(), &result);
 
@@ -28930,8 +28723,12 @@ int main(int argc, char *argv[])
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
-            balxml::Decoder  decoder(&options, &reader, &errInfo,
-                                    &outStream, &outStream);
+
+            balxml::Decoder  decoder(&options,
+                                     &reader,
+                                     &errInfo,
+                                     &outStream,
+                                     &outStream);
             decoder.decode(input, &result);
 
             if (0 == EXPECTED_RET_CODE) {
@@ -29014,12 +28811,15 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream input(INPUT[i]);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mX);
 
@@ -29071,12 +28871,15 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream input(INPUT[i]);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mX);
 
@@ -29178,12 +28981,15 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream input(INPUT[i]);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mX);
 
@@ -29281,12 +29087,15 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream input(INPUT[i]);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mX);
 
@@ -29391,12 +29200,15 @@ int main(int argc, char *argv[])
             options.setMaxDepth(MAX_DEPTH);
 
             balxml::Decoder_StdVectorCharContext context(&result1,
-                                                     FORMATTING_MODE);
+                                                         FORMATTING_MODE);
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
-            balxml::Decoder    decoder(&options, &reader, &errInfo,
-                 &outStream, &outStream);
+            balxml::Decoder    decoder(&options,
+                                       &reader,
+                                       &errInfo,
+                                       &outStream,
+                                       &outStream);
 
             decoder.open(ss.rdbuf());
             int retCode = context.beginParse(&decoder);;
@@ -29500,12 +29312,15 @@ int main(int argc, char *argv[])
             options.setMaxDepth(MAX_DEPTH);
 
             balxml::Decoder_StdStringContext context(&result1,
-                                                 FORMATTING_MODE);
+                                                     FORMATTING_MODE);
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
-            balxml::Decoder    decoder(&options, &reader, &errInfo,
-                 &outStream, &outStream);
+            balxml::Decoder    decoder(&options,
+                                       &reader,
+                                       &errInfo,
+                                       &outStream,
+                                       &outStream);
 
             decoder.open(ss.rdbuf());
             int retCode = context.beginParse(&decoder);;
@@ -29560,9 +29375,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice0." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class
-            // template using a choice with 0 selections.  We cannot really
-            // test much here.  We can only test the following errors:
+            // Here we will test the 'Decoder_ChoiceContext' class template
+            // using a choice with 0 selections.  We cannot really test much
+            // here.  We can only test the following errors:
             //     - invalid characters (i.e., non-whitespace).
             //     - invalid selections.
             // Note that this is a very trivial test.  We cannot test the value
@@ -29633,8 +29448,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -29651,9 +29469,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice1." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class
-            // template using a choice with 1 selection.  We will test the
-            // following errors:
+            // Here we will test the 'Decoder_ChoiceContext' class template
+            // using a choice with 1 selection.  We will test the following
+            // errors:
             //     - no choices made
             //     - more then 1 choice made
             //     - invalid characters
@@ -29764,8 +29582,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -29787,9 +29608,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice2." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class
-            // template using a choice with 2 selections.  We will test the
-            // following errors:
+            // Here we will test the 'Decoder_ChoiceContext' class template
+            // using a choice with 2 selections.  We will test the following
+            // errors:
             //     - no choices made
             //     - more then 1 choice made
             //     - invalid characters
@@ -29949,8 +29770,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -30016,9 +29840,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence0." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class
-            // template using a sequence with 0 attributes.  We cannot really
-            // test min/max occurrences here.  We can only test the following
+            // Here we will test the 'Decoder_SequenceContext' class template
+            // using a sequence with 0 attributes.  We cannot really test
+            // min/max occurrences here.  We can only test the following
             // errors:
             //     - invalid characters (i.e., non-whitespace).
             //     - invalid sub-elements.
@@ -30090,8 +29914,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -30108,9 +29935,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence1." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class
-            // template using a sequence with 1 attribute.  We will test the
-            // following errors:
+            // Here we will test the 'Decoder_SequenceContext' class template
+            // using a sequence with 1 attribute.  We will test the following
+            // errors:
             //     - insufficient occurrences
             //       (i.e., num occurrences < min occurrences).
             //     - excessive occurrences
@@ -30228,8 +30055,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -30251,9 +30081,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence2." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class
-            // template using a sequence with 2 attributes.  We will test the
-            // following errors:
+            // Here we will test the 'Decoder_SequenceContext' class template
+            // using a sequence with 2 attributes.  We will test the following
+            // errors:
             //     - insufficient occurrences
             //       (i.e., num occurrences < min occurrences).
             //     - excessive occurrences
@@ -30446,8 +30276,11 @@ int main(int argc, char *argv[])
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                     &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -30532,12 +30365,15 @@ int main(int argc, char *argv[])
                 Type mY;  const Type& Y = mY;
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mY);
 
@@ -30613,12 +30449,15 @@ int main(int argc, char *argv[])
                 Type mY;  const Type& Y = mY;
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                balxml::MiniReader reader;
-                balxml::ErrorInfo  errInfo;
-                balxml::DecoderOptions    options;
+                balxml::MiniReader     reader;
+                balxml::ErrorInfo      errInfo;
+                balxml::DecoderOptions options;
 
-                balxml::Decoder decoder(&options, &reader, &errInfo,
-                                       &bsl::cerr, &bsl::cerr);
+                balxml::Decoder decoder(&options,
+                                        &reader,
+                                        &errInfo,
+                                        &bsl::cerr,
+                                        &bsl::cerr);
 
                 decoder.decode(input, &mY);
 
@@ -30882,13 +30721,16 @@ int main(int argc, char *argv[])
                                 : nullStream;
 
             balxml::Decoder_SimpleContext<int> context(
-                                          &result1,
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                              &result1,
+                                              bdlat_FormattingMode::e_DEFAULT);
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
-            balxml::Decoder    decoder(&options, &reader, &errInfo,
-                    &outStream, &outStream);
+            balxml::Decoder    decoder(&options,
+                                       &reader,
+                                       &errInfo,
+                                       &outStream,
+                                       &outStream);
 
             decoder.open(ss.rdbuf());
             int retCode = context.beginParse(&decoder);;
@@ -31023,12 +30865,15 @@ int main(int argc, char *argv[])
                                 : nullStream;
 
                 balxml::Decoder_UTF8Context<Type> context(
-                                          &result1,
-                                          bdlat_FormattingMode::e_DEFAULT);
+                                              &result1,
+                                              bdlat_FormattingMode::e_DEFAULT);
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                        &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -31073,13 +30918,16 @@ int main(int argc, char *argv[])
                 options.setMaxDepth(MAX_DEPTH);
 
                 balxml::Decoder_UTF8Context<Type> context(
-                                             &result1,
-                                             bdlat_FormattingMode::e_TEXT);
+                                                 &result1,
+                                                 bdlat_FormattingMode::e_TEXT);
 
                 balxml::MiniReader reader;
                 balxml::ErrorInfo  errInfo;
-                balxml::Decoder    decoder(&options, &reader, &errInfo,
-                        &outStream, &outStream);
+                balxml::Decoder    decoder(&options,
+                                           &reader,
+                                           &errInfo,
+                                           &outStream,
+                                           &outStream);
 
                 decoder.open(ss.rdbuf());
                 int retCode = context.beginParse(&decoder);;
@@ -31604,8 +31452,11 @@ int main(int argc, char *argv[])
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
-            balxml::Decoder    decoder(&options, &reader, &errInfo,
-                    &errorStream, &warningStream);
+            balxml::Decoder    decoder(&options,
+                                       &reader,
+                                       &errInfo,
+                                       &errorStream,
+                                       &warningStream);
 
             decoder.open(ss.rdbuf());
             int retCode = context.beginParse(&decoder);;
@@ -31667,12 +31518,15 @@ int main(int argc, char *argv[])
 
             int i;
 
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
 
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &bsl::cerr,
+                                    &bsl::cerr);
 
            int ret = decoder.decode(ss.rdbuf(), &i);
 
@@ -31694,12 +31548,15 @@ int main(int argc, char *argv[])
 
             bsl::string s;
 
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
 
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &bsl::cerr,
+                                    &bsl::cerr);
 
             int ret = decoder.decode(ss.rdbuf(), &s);
 
@@ -31722,12 +31579,15 @@ int main(int argc, char *argv[])
 
             TestSequence2 ts;
 
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
 
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &bsl::cerr,
+                                    &bsl::cerr);
 
             decoder.decode(ss, &ts);
 
@@ -31749,12 +31609,15 @@ int main(int argc, char *argv[])
 
             TestChoice2 tc;
 
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
 
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &bsl::cerr,
+                                    &bsl::cerr);
 
             decoder.decode(ss, &tc);
 

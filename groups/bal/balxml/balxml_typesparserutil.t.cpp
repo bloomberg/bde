@@ -1,52 +1,91 @@
 // balxml_typesparserutil.t.cpp                                       -*-C++-*-
-
 #include <balxml_typesparserutil.h>
+
+#include <bdls_testutil.h>
 
 #include <balxml_typesprintutil.h>  // for testing only
 
+#include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
-#include <bdlt_datetime.h>
-#include <bdlb_printmethods.h>  // for printing vector
+#include <bdlat_typetraits.h>
+#include <bdlat_valuetypefunctions.h>
 
+#include <bdlb_chartype.h>
 #include <bdlb_float.h>  // for printing vector
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
+
+#include <bdlt_datetime.h>
+
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iosfwd.h>
+#include <bsl_iostream.h>
+#include <bsl_limits.h>
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
+
+#include <bslalg_typetraits.h>
 
 #include <bslma_allocator.h>
 
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-#include <bsl_limits.h>
-
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::atoi;
-using bsl::endl;
-using bsl::flush;
-
-//=============================================================================
-//                             TEST PLAN
-//-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-//-----------------------------------------------------------------------------
+using namespace bsl;
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                             TEST PLAN
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
+//                              Overview
+//                              --------
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -56,6 +95,15 @@ template <class T>
 void printValue(bsl::ostream& out, const T& value)
 {
     bdlb::PrintMethods::print(out, value, 0, -1);
+}
+
+template <class T>
+ostream& operator<<(ostream& out, const bsl::vector<T>& value)
+    // Output the specified container 'value' to the specified stream 'out' and
+    // return that stream.
+{
+    printValue(out, value);
+    return out;
 }
 
 static const char *printableCharacters[256]=
@@ -339,59 +387,6 @@ void printValue(bsl::ostream& out, const bsl::string& value)
 }
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -442,16 +437,18 @@ namespace bdlat_EnumFunctions {
     };
 
     template <>
-    int fromInt<TestEnum::Value>(TestEnum::Value *result,
-                                 int              value)
+    int fromInt<TestEnum::Value>(TestEnum::Value *result, int number)
     {
-        switch (value) {
-          case TestEnum::VALUE1: *result = TestEnum::VALUE1; return 0;
-                                                                      // RETURN
-          case TestEnum::VALUE2: *result = TestEnum::VALUE2; return 0;
-                                                                      // RETURN
-          case TestEnum::VALUE3: *result = TestEnum::VALUE3; return 0;
-                                                                      // RETURN
+        switch (number) {
+          case TestEnum::VALUE1:
+            *result = TestEnum::VALUE1;
+            return 0;                                                 // RETURN
+          case TestEnum::VALUE2:
+            *result = TestEnum::VALUE2;
+            return 0;                                                 // RETURN
+          case TestEnum::VALUE3:
+            *result = TestEnum::VALUE3;
+            return 0;                                                 // RETURN
         }
 
         return -1;
@@ -459,20 +456,20 @@ namespace bdlat_EnumFunctions {
 
     template <>
     int fromString<TestEnum::Value>(TestEnum::Value *result,
-                                    const char      *input,
-                                    int              inputLength)
+                                    const char      *string,
+                                    int              stringLength)
     {
-        if ("VALUE1" == bsl::string(input, inputLength)) {
+        if ("VALUE1" == bsl::string(string, stringLength)) {
             *result = TestEnum::VALUE1;
             return 0;                                                 // RETURN
         }
 
-        if ("VALUE2" == bsl::string(input, inputLength)) {
+        if ("VALUE2" == bsl::string(string, stringLength)) {
             *result = TestEnum::VALUE2;
             return 0;                                                 // RETURN
         }
 
-        if ("VALUE3" == bsl::string(input, inputLength)) {
+        if ("VALUE3" == bsl::string(string, stringLength)) {
             *result = TestEnum::VALUE3;
             return 0;                                                 // RETURN
         }
@@ -484,38 +481,16 @@ namespace bdlat_EnumFunctions {
 }  // close enterprise namespace
 
 // test_myenumeration.h   -*-C++-*-
-#ifndef INCLUDED_TEST_MYENUMERATION
-#define INCLUDED_TEST_MYENUMERATION
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: MyEnumeration
+//@CLASSES:
+//  MyEnumeration: an enumeration
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMERATORINFO
-#include <bdlat_enumeratorinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
+//  todo: provide annotation for 'MyEnumeration'
 
 namespace BloombergLP {
 
@@ -564,16 +539,16 @@ struct MyEnumeration {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 };
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -595,8 +570,8 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
 }
 
 inline
-bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
-                                 MyEnumeration::Value value)
+bsl::ostream& MyEnumeration::print(bsl::ostream&        stream,
+                                   MyEnumeration::Value value)
 {
     return stream << toString(value);
 }
@@ -628,28 +603,18 @@ BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
 
 // FREE OPERATORS
 inline
-bsl::ostream& test::operator<<(bsl::ostream&              stream,
-                               test::MyEnumeration::Value rhs)
+bsl::ostream &test::operator<<(bsl::ostream &stream, MyEnumeration::Value rhs)
 {
     return test::MyEnumeration::print(stream, rhs);
 }
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
-
-#include <bsl_iostream.h>
-
-#include <bsls_assert.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_chartype.h>
 
 namespace BloombergLP {
 namespace test {
@@ -680,9 +645,9 @@ const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-int MyEnumeration::fromString(MyEnumeration::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+int MyEnumeration::fromString(Value      *result,
+                              const char *string,
+                              int         stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -696,11 +661,11 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
              && bdlb::CharType::toUpper(string[4])=='E') {
                 switch(bdlb::CharType::toUpper(string[5])) {
                     case '1': {
-                        *result = MyEnumeration::VALUE1;
+                        *result = VALUE1;
                         return SUCCESS;                               // RETURN
                     } break;
                     case '2': {
-                        *result = MyEnumeration::VALUE2;
+                        *result = VALUE2;
                         return SUCCESS;                               // RETURN
                     } break;
                 }
@@ -732,42 +697,16 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 // ----------------------------------------------------------------------------
 
 // test_customizedint.h   -*-C++-*-
-#ifndef INCLUDED_TEST_CUSTOMIZEDINT
-#define INCLUDED_TEST_CUSTOMIZEDINT
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: CustomizedInt
+//@CLASSES:
+//  CustomizedInt: a customized integer
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
+//  todo: provide annotation for 'CustomizedInt'
 
 namespace BloombergLP {
 
@@ -796,8 +735,8 @@ class CustomizedInt {
         // Create an object of type 'CustomizedInt' having the default value.
 
     CustomizedInt(const CustomizedInt& original);
-        // Create an object of type 'CustomizedInt' having the value
-        // of the specified 'original' object.
+        // Create an object of type 'CustomizedInt' having the value of the
+        // specified 'original' object.
 
     explicit CustomizedInt(int value);
         // Create an object of type 'CustomizedInt' having the specified
@@ -854,8 +793,8 @@ bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -918,8 +857,8 @@ int CustomizedInt::fromInt(int value)
 
 inline
 bsl::ostream& CustomizedInt::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -939,29 +878,24 @@ BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::CustomizedInt)
 // FREE OPERATORS
 
 inline
-bool test::operator==(const test::CustomizedInt& lhs,
-                                 const test::CustomizedInt& rhs)
+bool test::operator==(const CustomizedInt& lhs, const CustomizedInt& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
-bool test::operator!=(const test::CustomizedInt& lhs,
-                                 const test::CustomizedInt& rhs)
+bool test::operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
-                                          const test::CustomizedInt& rhs)
+bsl::ostream& test::operator<<(bsl::ostream& stream, const CustomizedInt& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
-
-#endif
 
 // ----------------------------------------------------------------------------
 //                       *End-of-file Block removed.*
@@ -1003,46 +937,16 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 // ----------------------------------------------------------------------------
 
 // test_customizedstring.h   -*-C++-*-
-#ifndef INCLUDED_TEST_CUSTOMIZEDSTRING
-#define INCLUDED_TEST_CUSTOMIZEDSTRING
 
-//@PURPOSE:
-//  todo: provide purpose
+//@PURPOSE: todo: provide purpose.
 //
-//@CLASSES: CustomizedString
+//@CLASSES:
+//  CustomizedString: a customized string
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  todo: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  todo: provide annotation for 'CustomizedString'
 
 namespace BloombergLP {
 
@@ -1077,10 +981,10 @@ class CustomizedString {
 
     CustomizedString(const CustomizedString&  original,
                      bslma::Allocator        *basicAllocator = 0);
-        // Create an object of type 'CustomizedString' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'CustomizedString' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit CustomizedString(const bsl::string&  value,
                               bslma::Allocator   *basicAllocator = 0);
@@ -1139,8 +1043,8 @@ bool operator!=(const CustomizedString& lhs, const CustomizedString& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1206,8 +1110,8 @@ int CustomizedString::fromString(const bsl::string& value)
 
 inline
 bsl::ostream& CustomizedString::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -1227,37 +1131,31 @@ BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::CustomizedString)
 // FREE OPERATORS
 
 inline
-bool test::operator==(const test::CustomizedString& lhs,
-                                 const test::CustomizedString& rhs)
+bool test::operator==(const CustomizedString& lhs, const CustomizedString& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
-bool test::operator!=(const test::CustomizedString& lhs,
-                                 const test::CustomizedString& rhs)
+bool test::operator!=(const CustomizedString& lhs, const CustomizedString& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
-                                          const test::CustomizedString& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&           stream,
+                               const CustomizedString& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
 
-#endif
-
 // ----------------------------------------------------------------------------
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedstring.cpp  -*-C++-*-
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -1314,8 +1212,8 @@ void usageExample()
     bsl::vector<char> vec;
 
     int retCode = balxml::TypesParserUtil::parseBase64(&vec,
-                                                      INPUT,
-                                                      INPUT_LENGTH);
+                                                       INPUT,
+                                                       INPUT_LENGTH);
 
     ASSERT(0   == retCode);
     ASSERT(4   == vec.size());
@@ -1345,6 +1243,7 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -1360,6 +1259,7 @@ int main(int argc, char *argv[])
         // TESTING 'parse' FUNCTION
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -1396,7 +1296,9 @@ int main(int argc, char *argv[])
 
                 Type mX;  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_BASE64);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1428,7 +1330,9 @@ int main(int argc, char *argv[])
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_DEC);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1460,7 +1364,9 @@ int main(int argc, char *argv[])
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1497,7 +1403,9 @@ int main(int argc, char *argv[])
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1535,7 +1443,9 @@ int main(int argc, char *argv[])
 
                 Type mX;  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_HEX);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1577,13 +1487,17 @@ int main(int argc, char *argv[])
                 Type mX;  const Type& X = mX;
                 Type mY;  const Type& Y = mY;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_LIST);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
 
-                retCode = Util::parse(&mY, INPUT, INPUT_LENGTH,
+                retCode = Util::parse(&mY,
+                                      INPUT,
+                                      INPUT_LENGTH,
                                       bdlat_FormattingMode::e_LIST
                                     | bdlat_FormattingMode::e_DEC);
 
@@ -1616,7 +1530,9 @@ int main(int argc, char *argv[])
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
-                int retCode = Util::parse(&mX, INPUT, INPUT_LENGTH,
+                int retCode = Util::parse(&mX,
+                                          INPUT,
+                                          INPUT_LENGTH,
                                           bdlat_FormattingMode::e_TEXT);
 
                 LOOP2_ASSERT(LINE, retCode, 0               == retCode);
@@ -1631,6 +1547,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseDefault' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -1787,13 +1704,13 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input                    result
                 //----    -----                    ------
-                { L_,     "-9223372036854775808X",  -9223372036854775808LL, },
-                { L_,     "-9223372036854775807X",  -9223372036854775807LL, },
-                { L_,     "-1X",                    -1LL,                   },
-                { L_,     "0X",                     0LL,                    },
-                { L_,     "1X",                     1LL,                    },
-                { L_,     "9223372036854775806X",   9223372036854775806LL,  },
-                { L_,     "9223372036854775807X",   9223372036854775807LL,  },
+                { L_,     "-9223372036854775808X",  -9223372036854775808ULL, },
+                { L_,     "-9223372036854775807X",  -9223372036854775807LL,  },
+                { L_,     "-1X",                    -1LL,                    },
+                { L_,     "0X",                     0LL,                     },
+                { L_,     "1X",                     1LL,                     },
+                { L_,     "9223372036854775806X",   9223372036854775806LL,   },
+                { L_,     "9223372036854775807X",   9223372036854775807LL,   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2224,6 +2141,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseText' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -2495,6 +2413,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseList' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -2548,6 +2467,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseHex' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -2620,6 +2540,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseDecimal' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -2776,7 +2697,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input                     result
                 //----    -----                     ------
-                { L_,     "-9223372036854775808X",  -9223372036854775808LL   },
+                { L_,     "-9223372036854775808X",  -9223372036854775808ULL  },
                 { L_,     "-9223372036854775807X",  -9223372036854775807LL   },
                 { L_,     "-1X",                    -1LL                     },
                 { L_,     "0X",                     0LL                      },
@@ -3186,6 +3107,7 @@ int main(int argc, char *argv[])
         // TESTING 'parseBase64' FUNCTIONS
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -3258,6 +3180,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
         if (verbose) {
@@ -3308,12 +3231,11 @@ int main(int argc, char *argv[])
         {
             bdlt::Datetime dateTime;
             bsl::string str = "2005-01-31T08:59:59.123456-04:00";
-            int ret =
-                balxml::TypesParserUtil::parse(
-                                          &dateTime,
-                                          str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+            int ret = balxml::TypesParserUtil::parse(
+                                              &dateTime,
+                                              str.data(),
+                                              str.length(),
+                                              bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
               T_ P(dateTime);
@@ -3323,12 +3245,11 @@ int main(int argc, char *argv[])
         {
             bdlt::Time timeValue;
             bsl::string str = "08:59:59.123456-04:00";
-            int ret =
-                balxml::TypesParserUtil::parse(
-                                          &timeValue,
-                                          str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+            int ret = balxml::TypesParserUtil::parse(
+                                              &timeValue,
+                                              str.data(),
+                                              str.length(),
+                                              bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
                 T_ P(timeValue);
@@ -3338,12 +3259,11 @@ int main(int argc, char *argv[])
         {
             bdlt::Date dateValue;
             bsl::string str = "2005-01-31-04:00";
-            int ret =
-                balxml::TypesParserUtil::parse(
-                                          &dateValue,
-                                          str.data(),
-                                          str.length(),
-                                          bdlat_FormattingMode::e_DEFAULT);
+            int ret = balxml::TypesParserUtil::parse(
+                                              &dateValue,
+                                              str.data(),
+                                              str.length(),
+                                              bdlat_FormattingMode::e_DEFAULT);
             LOOP_ASSERT(ret, 0 == ret);
             if (veryVerbose) {
                 T_ P(dateValue);

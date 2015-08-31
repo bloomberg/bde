@@ -1,6 +1,8 @@
 // balxml_reader.t.cpp                                                -*-C++-*-
-
 #include <balxml_reader.h>
+
+#include <bdls_testutil.h>
+
 #include <balxml_errorinfo.h>
 #include <balxml_namespaceregistry.h>
 #include <balxml_prefixstack.h>
@@ -12,65 +14,63 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-
-//=============================================================================
-//                                 TEST PLAN
-//-----------------------------------------------------------------------------
-//                                 Overview
-//                                 --------
-//-----------------------------------------------------------------------------
-// FREE OPERATORS
-// [ 2] bsl::ostream& operator(bsl::ostream&, balxml::Reader::NodeType);
-//-----------------------------------------------------------------------------
-// [ 3] USAGE EXMAPLE
-//-----------------------------------------------------------------------------
+using namespace bsl;
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
+//                                 Overview
+//                                 --------
+// ----------------------------------------------------------------------------
+// FREE OPERATORS
+// [ 2] bsl::ostream& operator(bsl::ostream&, balxml::Reader::NodeType);
+// ----------------------------------------------------------------------------
+// [ 3] USAGE EXMAPLE
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
-#define NL "\n"
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -99,12 +99,12 @@ typedef balxml::Reader Obj;
 struct TestNode {
     // TestNode is a struct that contains information capable of describing an
     // XML node.
-    Obj::NodeType  d_type;        // Describes the type of the XML node
-    const char    *d_qname;       // Name qualified name the XML node
-    const char    *d_nodeValue;   // Value of the the XML node
-                                  // if null, then hasValue() returns false
-    int            d_depthChange; // Used to adjust the 'TestReader' depth
-                                  // level, valid values are -1, 0 or 1
+    Obj::NodeType  d_type;           // Describes the type of the XML node
+    const char    *d_qname;          // Name qualified name the XML node
+    const char    *d_nodeValue;      // Value of the the XML node if null, then
+                                     // hasValue() returns false
+    int            d_depthChange;    // Used to adjust the 'TestReader' depth
+                                     // level, valid values are -1, 0 or 1
     bool           d_isEmptyElement;
     struct {
         const char *d_qname; // Qualified name of the attribute
@@ -164,7 +164,7 @@ class TestReader : public balxml::Reader
 
 private:
     balxml::ErrorInfo    d_errorInfo; // Contains the current error information
-    balxml::PrefixStack *d_prefixes;  // The prefix stack used by the TestReader
+    balxml::PrefixStack *d_prefixes; // The prefix stack used by the TestReader
     XmlResolverFunctor  d_resolver;  // Just a place holder, not actually used
                                      // while looking up XML information
     bool                d_isOpen;    // Keeps track if the reader is open
@@ -188,8 +188,7 @@ public:
     virtual void setPrefixStack(balxml::PrefixStack *prefixes);
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-    virtual int open(const char *filename,
-                     const char *encoding = 0);
+    virtual int open(const char *filename, const char *encoding = 0);
     virtual int open(const char *buffer,
                      size_t      size,
                      const char *url = 0,
@@ -203,13 +202,13 @@ public:
     virtual int advanceToNextNode();
 
     virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                      index) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+                                int                       index) const;
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *qname) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 const char               *namespaceUri) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 int                       namespaceId) const;
 
@@ -242,7 +241,7 @@ public:
 //..
 int advancePastWhiteSpace(balxml::Reader& reader) {
     const char *whiteSpace = "\n\r\t ";
-    const char *value = '\0';
+    const char *value = 0;
     int         type = 0;
     int         rc = 0;
 
@@ -250,10 +249,9 @@ int advancePastWhiteSpace(balxml::Reader& reader) {
         rc    = reader.advanceToNextNode();
         value = reader.nodeValue();
         type  = reader.nodeType();
-    } while(0 == rc &&
-            type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
-            (type == balxml::Reader::e_NODE_TYPE_TEXT &&
-             bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
+    } while ((0 == rc && type == balxml::Reader::e_NODE_TYPE_WHITESPACE) ||
+             (type == balxml::Reader::e_NODE_TYPE_TEXT &&
+              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
     ASSERT( reader.nodeType() != balxml::Reader::e_NODE_TYPE_WHITESPACE);
 
@@ -528,8 +526,8 @@ void TestReader::setPrefixStack(balxml::PrefixStack *prefixes) {
 }
 
 // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-int TestReader::open(const char *filename,
-                     const char *encoding) {
+int TestReader::open(const char *filename, const char *encoding)
+{
     if (d_isOpen) {
         return false;                                                 // RETURN
     }
@@ -603,10 +601,10 @@ int TestReader::advanceToNextNode() {
 
     if (d_prefixes && 1 == d_nodeDepth) {
         // The 'TestReader' only recognizes namespace URIs with the prefix
-        // (xmlns:) on the top level element, these URIs will be added to
-        // the prefix stack.  Namespace URI declarations on any other
-        // elements will be treated like normal attributes.  The prefix
-        // stack will be reset once the top level element is closed.
+        // (xmlns:) on the top level element, these URIs will be added to the
+        // prefix stack.  Namespace URI declarations on any other elements will
+        // be treated like normal attributes.  The prefix stack will be reset
+        // once the top level element is closed.
         adjustPrefixStack();
     }
 
@@ -616,7 +614,7 @@ int TestReader::advanceToNextNode() {
 }
 
 int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                      index) const {
+                                int                       index) const {
     if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
         return 1;                                                     // RETURN
     }
@@ -626,12 +624,13 @@ int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
         return 1;                                                     // RETURN
     }
 
-    attribute->reset(d_prefixes, qname,
+    attribute->reset(d_prefixes,
+                     qname,
                      d_currentNode->d_attributes[index].d_value);
     return 0;
 }
 
-int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
+int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *qname) const {
     if (!d_currentNode) {
         return 1;                                                     // RETURN
@@ -641,7 +640,8 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
         const char *currentQName = d_currentNode->d_attributes[index].d_qname;
 
         if (!bsl::strcmp(currentQName, qname)) {
-            attribute->reset(d_prefixes, qname,
+            attribute->reset(d_prefixes,
+                             qname,
                              d_currentNode->d_attributes[index].d_value);
             return 0;                                                 // RETURN
         }
@@ -650,7 +650,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
     return 1;
 }
 
-int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
+int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 const char               *namespaceUri) const {
     if (!d_currentNode) {
@@ -678,7 +678,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
     return 1;
 }
 
-int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
+int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 int                       namespaceId) const {
     if (!d_currentNode) {
@@ -739,7 +739,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return e_NODE_TYPE_NONE;                                 // RETURN
+        return e_NODE_TYPE_NONE;                                      // RETURN
     }
 
     return d_currentNode->d_type;
