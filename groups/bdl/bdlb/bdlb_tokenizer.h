@@ -425,7 +425,7 @@ namespace bdlb {
                         // private class Tokenizer_Data
                         // ============================
 
-struct Tokenizer_Data {
+class Tokenizer_Data {
     // This component-private 'struct' is used to hold delimiter information.
     // Each 'Tokenizer' object will have, as a private data member, an object
     // of this 'struct',  and will pass the address of that member to the
@@ -456,6 +456,12 @@ struct Tokenizer_Data {
 
     char d_charTypes[k_MAX_CHARS];  // table of SOFT / HARD / TOKEN characters
 
+  private:
+    // NOT IMPLEMENTED
+    Tokenizer_Data(const Tokenizer_Data&);
+    Tokenizer_Data& operator=(const Tokenizer_Data&);
+
+  public:
     // CREATORS
     Tokenizer_Data(const bslstl::StringRef& softDelimiters);
     Tokenizer_Data(const bslstl::StringRef& softDelimiters,
@@ -477,7 +483,13 @@ struct Tokenizer_Data {
         // note that it is entirely reasonable to state, in any public
         // interface, that the behavior is undefined unless the characters in
         // the union of the two delimiter sequences are unique.
+
+    // ACCESSORS
+    int toInputType(char character) const;
+        // Return the input type of the specified 'character': 0 for token,
+        // 1 for soft delimiter, 2 for hard delimiter.
 };
+
                         // =======================
                         // class TokenizerIterator
                         // =======================
@@ -493,32 +505,31 @@ class TokenizerIterator {
     // parent 'Tokenizer' change.
 
     // DATA
-    const char           *d_cursor_p;      // pointer to tail of parsed data
+    const Tokenizer_Data *d_sharedData_p;  // (read-only) character-type map
     const char           *d_token_p;       // pointer to current token
-    const char           *d_postDelim_p;   // pointer to post delimiter
-    const char           *d_end_p;         // pointer to the end of input
-                                           // null if working with const char *
-
-    bool                  d_isEnd;         // iterator end flag
-
-    const Tokenizer_Data *d_tokenizerData_p; // pointer to the input mapper
+    const char           *d_delimiter_p;   // current (trailing) delimiter
+    const char           *d_input_p;       // remaining input
+    const char           *d_end_p;         // one-past input; 0 for '(char *)'
+    bool                  d_endFlag;       // iterator end flag
 
 
     // FRIENDS
     friend class Tokenizer;
+    friend bool operator==(const TokenizerIterator&, const TokenizerIterator&);
+    friend bool operator!=(const TokenizerIterator&, const TokenizerIterator&);
 
     // PRIVATE CREATORS
-    TokenizerIterator();
-    TokenizerIterator(const char               *input,
-                      const char               *end,
-                      const Tokenizer_Data     *tokenizerData);
+    TokenizerIterator(const char           *input,
+                      const char           *end,
+                      const Tokenizer_Data *tokenizerData);
 
-    // ACCESSORS
+    // PRIVATE ACCESSORS
     bool isEos() const;
     bool isEqual(const TokenizerIterator& other) const;
 
   public:
     // CREATORS
+    TokenizerIterator();
     TokenizerIterator(const TokenizerIterator& other);
 
     // MANIPULATORS
@@ -526,21 +537,12 @@ class TokenizerIterator {
     TokenizerIterator& operator++();
 
     // ACCESSORS
-    bslstl::StringRef  operator*() const;
-
-    //FRIENDS
-    friend bool operator==(const TokenizerIterator& lhs,
-                           const TokenizerIterator& rhs);
-
-    friend bool operator!=(const TokenizerIterator& lhs,
-                           const TokenizerIterator& rhs);
+    bslstl::StringRef operator*() const;
 };
 
 // FREE OPERATORS
 bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
-
 bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
-
 const TokenizerIterator operator++(TokenizerIterator& object, int);
 
 
@@ -556,45 +558,39 @@ class Tokenizer {
     // is provided efficiently via 'bslstl::StringRef'.
 
     // DATA
-    const char     *d_cursor_p;      // pointer to tail of parsed input
-    const char     *d_prevDelim_p;   // pointer to previous delimiter
-    const char     *d_token_p;       // pointer to current token
-    const char     *d_postDelim_p;   // pointer to current (trailing) delimiter
-    const char     *d_end_p;         // pointer to the end of the string;
-                                     // null if working with const char *
-    const char     *d_input_p;       // pointer to the original input
-
-    bool            d_isEnd;         // tokenizer end flag
-
     Tokenizer_Data  d_tokenizerData; // delimiter/token character categories
+    const char     *d_previous_p;    // previous delimiter
+    const char     *d_token_p;       // current token
+    const char     *d_delimiter_p;   // current (trailing) delimiter
+    const char     *d_input_p;       // remaining input
+    const char     *d_end_p;         // one past end of input; 0 for '(char *)'
+    bool            d_endFlag;       // current token/delimiter are accessible
 
-
-    // Safe bool - related
-    typedef void (Tokenizer::*bool_type)() const;
-    void internal_not_comparable() const {}
+    // TYPES
+    typedef void (Tokenizer::*UnspecifiedBoolType)() const;
 
   private:
+    // PRIVATE ACCESSORS
+    bool isEos() const;
+
+    // PRIVATE MANIPULATORS
+    void resetImplementation(const char *input, const char *endOfInput);
+    void internalNotComparable() const;
+
     // NOT IMPLEMENTED
     Tokenizer(const Tokenizer&);
     Tokenizer& operator=(const Tokenizer&);
 
-    // ACCESSORS
-    bool isEos() const;
-
-    // MANIPULATORS
-    void resetImpl(const char* input, const char* end = NULL);
-
   public:
     // TYPES
-    typedef TokenizerIterator  iterator;
+    typedef TokenizerIterator iterator;
 
     // CREATORS
-    Tokenizer(const char               *input, const bslstl::StringRef&  soft);
+    Tokenizer(const char               *input, const bslstl::StringRef& soft);
+    Tokenizer(const bslstl::StringRef&  input, const bslstl::StringRef& soft);
     Tokenizer(const char               *input,
               const bslstl::StringRef&  soft,
               const bslstl::StringRef&  hard);
-
-    Tokenizer(const bslstl::StringRef&  input, const bslstl::StringRef&  soft);
     Tokenizer(const bslstl::StringRef&  input,
               const bslstl::StringRef&  soft,
               const bslstl::StringRef&  hard);
@@ -652,7 +648,7 @@ class Tokenizer {
         // modified.
 
     // ACCESSORS
-    operator bool_type() const;
+    operator UnspecifiedBoolType() const;
         // Return 'true' (as an unspecified 'bool') if the iteration state of
         // this object is valid, and 'false' otherwise.  Note that the behavior
         // of advancing the iteration state as well as accessing the current
@@ -722,17 +718,26 @@ class Tokenizer {
 };
 
 // FREE OPERATORS
-const Tokenizer operator++(Tokenizer& lhs, int unused);
-
 template <class T>
 bool  operator!=(const Tokenizer& lhs, const T& rhs);
 
 template <class T>
 bool  operator==(const Tokenizer& lhs, const T& rhs);
 
+const Tokenizer operator++(Tokenizer& lhs, int);
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+                        // --------------------------
+                        // class bdlb::Tokenizer_Data
+                        // --------------------------
+// ACCESSORS
+inline
+int Tokenizer_Data::toInputType(char character) const
+{
+    return d_charTypes[(unsigned char)character];
+}
 
                         // -----------------------------
                         // class bdlb::TokenizerIterator
@@ -741,71 +746,53 @@ bool  operator==(const Tokenizer& lhs, const T& rhs);
 inline
 bool bdlb::TokenizerIterator::isEos() const
 {
-    return d_end_p ? (d_end_p == d_cursor_p) : (0 == *d_cursor_p);
-}
-
-inline
-bool TokenizerIterator::isEqual(const TokenizerIterator& other) const
-{
-    // Fast path decision
-    if (d_isEnd != other.d_isEnd) {
-        return false;                                                 // RETURN
-    }
-
-    // Comparing end iterators
-    if ( d_isEnd && other.d_isEnd ) {
-           return true;                                               // RETURN
-    }
-
-    return (    (d_cursor_p        == other.d_cursor_p)
-             && (d_token_p         == other.d_token_p)
-             && (d_postDelim_p     == other.d_postDelim_p)
-             && (d_tokenizerData_p == other.d_tokenizerData_p)
-             && (d_end_p           == other.d_end_p) );
+    return d_end_p ? d_end_p == d_input_p : 0 == *d_input_p;
 }
 
 inline
 bslstl::StringRef TokenizerIterator::operator*() const
 {
-    return bslstl::StringRef(d_token_p, d_postDelim_p);
+    return bslstl::StringRef(d_token_p, d_delimiter_p);
 }
-
 
                         // ---------------------
                         // class bdlb::Tokenizer
                         // ---------------------
-
-//MANIPULATORS
+// PRIVATE ACCESSORS
+inline
+void Tokenizer::internalNotComparable() const
+{
+}
 
 // ACCESSORS
 inline
 bool bdlb::Tokenizer::isEos() const
 {
-    return d_end_p ? (d_end_p == d_cursor_p) : (0 == *d_cursor_p);
+    return d_end_p ? d_end_p == d_input_p : 0 == *d_input_p;
 }
 
 inline
-bdlb::Tokenizer::operator bool_type() const
+bdlb::Tokenizer::operator UnspecifiedBoolType() const
 {
-    return (!d_isEnd) ? &Tokenizer::internal_not_comparable : 0;
+    return (!d_endFlag) ? &Tokenizer::internalNotComparable : 0;
 }
 
 inline
 bslstl::StringRef Tokenizer::delimiter() const
 {
-    return bslstl::StringRef(d_postDelim_p, d_cursor_p);
+    return bslstl::StringRef(d_delimiter_p, d_input_p);
 }
 
 inline
 bslstl::StringRef Tokenizer::previousDelimiter() const
 {
-    return bslstl::StringRef(d_prevDelim_p, d_token_p);
+    return bslstl::StringRef(d_previous_p, d_token_p);
 }
 
 inline
 bslstl::StringRef Tokenizer::token() const
 {
-    return bslstl::StringRef(d_token_p, d_postDelim_p);
+    return bslstl::StringRef(d_token_p, d_delimiter_p);
 }
 
 }  // package namespace
@@ -839,7 +826,7 @@ template <class T>
 inline
 bool  bdlb::operator!=(const bdlb::Tokenizer& lhs, const T& rhs)
 {
-    lhs.internal_not_comparable();
+    lhs.internalNotComparable();
     return false;
 }
 
@@ -847,7 +834,7 @@ template <class T>
 inline
 bool  bdlb::operator==(const bdlb::Tokenizer& lhs, const T& rhs)
 {
-    lhs.internal_not_comparable();
+    lhs.internalNotComparable();
     return false;
 }
 
