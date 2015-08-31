@@ -745,8 +745,8 @@ BSLS_IDENT("$Id: $")
     if (balm::DefaultMetricsManager::instance()) {                            \
         balm::CollectorRepository& repository =                               \
              balm::DefaultMetricsManager::instance()->collectorRepository();  \
-        balm::Collector *collector = repository.getDefaultCollector((CATEGORY)\
-                                                                   (METRIC)); \
+        balm::Collector *collector = repository.getDefaultCollector(          \
+                                                        (CATEGORY), (METRIC));\
         if (collector->metricId().category()->enabled()) {                    \
             collector->update((VALUE));                                       \
         }                                                                     \
