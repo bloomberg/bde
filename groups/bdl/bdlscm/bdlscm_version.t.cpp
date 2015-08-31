@@ -5,31 +5,36 @@
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>
-#include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
@@ -38,28 +43,27 @@ static void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLIM_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  USAGE EXAMPLE HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      USAGE EXAMPLE HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool verbose = argc > 2;
     bool veryVerbose = argc > 3;
 
-    bsl::printf("TEST %s CASE %d\n", __FILE__, test);
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 1: {
@@ -78,26 +82,29 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         //--------------------------------------------------------------------
 
-        if (verbose) bsl::printf("\nTEST USAGE EXAMPLE"
-                                 "\n==================\n");
+        if (verbose) cout << endl
+                          << "TEST USAGE EXAMPLE" << endl
+                          << "==================" << endl;
 
-// If a program wants to display the version of BDL used to build the
-// current executable, it can simply print the version string returned by
-// 'bdlscm::Version::version()':
+        if (verbose) {
+///Usage
+///-----
+// A program can display the version of BDL that was used to build it by
+// printing the version string returned by 'bdlscm::Version::version()' to
+// 'stdout' as follows:
 //..
-    if (verbose) bsl::printf("BDL version: %s\n",
-                             bdlscm::Version::version());
+    bsl::cout << "BDL version: " <<  bdlscm::Version::version() << bsl::endl;
 //..
+        }
       } break;
       default: {
-        bsl::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        bsl::fprintf(stderr, "Error, non-zero test status = %d.\n",
-                     testStatus);
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
     return testStatus;
 }

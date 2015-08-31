@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // printing the version string returned by 'bdlscm::Version::version()' to
 // 'stdout' as follows:
 //..
-//  bsl::printf("BDL version: %s\n", bdlscm::Version::version());
+//  bsl::cout << "BDL version: " <<  bdlscm::Version::version() << bsl::endl;
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -85,7 +85,7 @@ struct Version {
 };
 
 // ============================================================================
-//                        INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 inline
