@@ -6,10 +6,12 @@ BSLS_IDENT_RCSID(bdlscm_version_cpp,"$Id$ $CSID$")
 
 #include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
 
+#include <bslscm_versiontag.h>
+
 namespace BloombergLP {
 
 // 'bdl' is maintained in sync with 'bsl', so they share a patch version.
-//
+
 #define BDL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
 
 #define STRINGIFY2(a) #a

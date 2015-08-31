@@ -10,8 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-//  balscm::Version: namespace for RCS and SCCS versioning information for
-//  'bal'
+//  balscm::Version: namespace for versioning information for 'bal'
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
@@ -44,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Output similar to the following will be printed to 'stdout':
 //..
-//        BAL version: BLP_LIB_BAL_BAL_0.01.0
+//        BAL version: BLP_LIB_BDE_BAL_0.01.0
 //..
 // The "0.01.0" portion of the string distinguishes different versions of the
 // 'bal' package group.
@@ -56,22 +55,18 @@ BSLS_IDENT("$Id: $")
 //..
 //        $ ident a.out
 //        a.out:
-//             $Id: BLP_LIB_BAL_BAL_0.01.0 $
+//             $Id: BLP_LIB_BDE_BAL_0.01.0 $
 //
 //        $ what a.out | grep BAL
-//                BLP_LIB_BAL_BAL_0.01.0
+//                BLP_LIB_BDE_BAL_0.01.0
 //
 //        $ strings a.out | grep BAL
-//        $Id: BLP_LIB_BAL_BAL_0.01.0 $
-//        @(#)BLP_LIB_BAL_BAL_0.01.0
-//        BLP_LIB_BAL_BAL_0.01.0
+//        $Id: BLP_LIB_BDE_BAL_0.01.0 $
+//        @(#)BLP_LIB_BDE_BAL_0.01.0
+//        BLP_LIB_BDE_BAL_0.01.0
 //..
 // Note that 'ident' and 'what' typically will display many version strings
 // unrelated to 'bal' depending on the libraries used by 'a.out'.
-
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -113,7 +108,7 @@ struct Version {
 };
 
 // ============================================================================
-//                        INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CLASS METHODS
