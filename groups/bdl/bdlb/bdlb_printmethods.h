@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::PrintMethods: templates for uniform printing of value-semantic types
 //  bdlb::HasPrintMethod: trait indicating existence of 'print' method
-//  bdlb::TypeTraitHasPrintMethod: Old-style version of 'bdlb::HasPrintMethod'
+//  bdlb::TypeTraitHasPrintMethod: old-style version of 'bdlb::HasPrintMethod'
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //

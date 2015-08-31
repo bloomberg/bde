@@ -424,7 +424,7 @@ class TestType_PrintMethod {
     }
 };
 
-class TestType_PrintMethod_STLIterators {
+class TestType_PrintMethod_StlIterators {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdlb::TypeTraitHasPrintMethod' and
     // 'bslalg::TypeTraitHasStlIterators'.  Note that the traits just need to
@@ -440,7 +440,7 @@ class TestType_PrintMethod_Pair {
     // not be used at run-time in this test driver.
 };
 
-class TestType_PrintMethod_STLIterators_Pair {
+class TestType_PrintMethod_StlIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdlb::TypeTraitHasPrintMethod',
     // 'bslalg::TypeTraitHasStlIterators', and 'bslalg::TypeTraitPair'.  Note
@@ -448,14 +448,14 @@ class TestType_PrintMethod_STLIterators_Pair {
     // need to be implemented, because they will not be used at run-time.
 };
 
-class TestType_STLIterators {
+class TestType_StlIterators {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bslalg::TypeTraitHasStlIterators'.  Note that the traits
     // just need to be declared but the functionality does not need to be
     // implemented, because they will not be used at run-time.
 };
 
-class TestType_STLIterators_Pair {
+class TestType_StlIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bslalg::TypeTraitHasStlIterators' and
     // 'bslalg::TypeTraitPair'.  Note that the traits just need to be declared
@@ -485,28 +485,28 @@ template <> struct HasPrintMethod<TestType_PrintMethod> :
     bsl::true_type { };
 template <> struct HasPrintMethod<TestType_PrintMethod_Pair> :
     bsl::true_type { };
-template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators> :
+template <> struct HasPrintMethod<TestType_PrintMethod_StlIterators> :
     bsl::true_type { };
-template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
+template <> struct HasPrintMethod<TestType_PrintMethod_StlIterators_Pair>:
     bsl::true_type { };
 }  // close package namespace
 
 namespace bslalg {
-template <> struct HasStlIterators<TestType_STLIterators> :
+template <> struct HasStlIterators<TestType_StlIterators> :
     bsl::true_type { };
-template <> struct HasStlIterators<TestType_STLIterators_Pair> :
+template <> struct HasStlIterators<TestType_StlIterators_Pair> :
     bsl::true_type { };
-template <> struct HasStlIterators<TestType_PrintMethod_STLIterators> :
+template <> struct HasStlIterators<TestType_PrintMethod_StlIterators> :
     bsl::true_type { };
-template <> struct HasStlIterators<TestType_PrintMethod_STLIterators_Pair> :
+template <> struct HasStlIterators<TestType_PrintMethod_StlIterators_Pair> :
     bsl::true_type { };
 }  // close namespace bslalg
 
 namespace bslmf {
 template <> struct IsPair<TestType_Pair> : bsl::true_type { };
-template <> struct IsPair<TestType_STLIterators_Pair> : bsl::true_type { };
+template <> struct IsPair<TestType_StlIterators_Pair> : bsl::true_type { };
 template <> struct IsPair<TestType_PrintMethod_Pair> : bsl::true_type { };
-template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
+template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
     bsl::true_type { };
 }  // close namespace bslmf
 
@@ -688,11 +688,11 @@ int main(int argc, char *argv[])
         //   This will test the generic 'print' method for arbitrary types.
         //
         // Concerns:
-        //: 1 Since the 'bdeu_PrintMethods_DetectTraitIndex' meta-function and
-        //:   each print implementation function has already been thoroughly
-        //:   tested, we only need to make sure that the meta-function is used
-        //:   correctly and that it correctly forwards arguments to the
-        //:   appropriate print implementation function.
+        //: 1 Since each 'bdlb' has-trait meta-function and each print
+        //:   implementation function have already been thoroughly tested, we
+        //:   only need to make sure that the meta-function is used correctly
+        //:   and that it correctly forwards arguments to the appropriate print
+        //:   implementation function.
         //
         // Plan:
         //: 1 Use a selection of test data from test cases 3, 4, 5, and 6 and
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING GENERIC 'print' METHOD" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "\nUsing 'BDEU_STREAM_OPERATOR'." << endl;
+        if (verbose) cout << "\nUsing 'operator<<'." << endl;
         {
             static const struct {
                 int         d_lineNum;
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
             {
                 typedef int Type;
 
-                const Type   VALUE          = 45;
+                const Type   VALUE          =  45;
                 const string EXPECTED_VALUE = "45";
 
                 for (int i = 0; i < NUM_DATA; ++i) {
@@ -925,12 +925,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'BDEU_PAIR'." << endl;
+        if (verbose) cout << "\nUsing 'bsl::pair'." << endl;
         {
             typedef pair<int, double> Type;
 
             const int    INT_VALUE    = 45;
-            const double DOUBLE_VALUE = 1.23;
+            const double DOUBLE_VALUE =  1.23;
             const Type   VALUE        = Type(INT_VALUE, DOUBLE_VALUE);
 
             static const struct {
@@ -939,8 +939,8 @@ int main(int argc, char *argv[])
                 int         d_spacesPerLevel;
                 const char *d_expectedResult;
             } DATA[] = {
-                //line   level   spcs/lvl    expectedResult
-                //----   -----   --------    --------------
+                //LINE   LEVEL   SPCS/LVL    EXPECTED_RESULT
+                //----   -----   --------    ---------------
 
                 // level = -2, spacesPerLevel = -2 .. +2
                 { L_,    -2,     -2,         "[ 45 1.23 ]"                   },
@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'BDEU_STL_ITERATORS'." << endl;
+        if (verbose) cout << "\nUsing 'Using Standard Iterators'." << endl;
         {
             typedef vector<int> Type;
 
@@ -1058,8 +1058,8 @@ int main(int argc, char *argv[])
                 int         d_spacesPerLevel;
                 const char *d_expectedResult;
             } DATA[] = {
-                //line   level   spcs/lvl    expectedResult
-                //----   -----   --------    --------------
+                //LINE   LEVEl   SPCS/LVL    EXPECTED_RESULT
+                //----   -----   --------    ---------------
 
                 // level = -2, spacesPerLevel = -2 .. +2
                 { L_,    -2,     -2,         "[ 45 123 ]"                    },
@@ -1072,7 +1072,7 @@ int main(int argc, char *argv[])
                                              "   45\n"
                                              "   123\n"
                                              "  ]\n"                         },
-                { L_,    -2,     2,          "[\n"
+                { L_,    -2,      2,         "[\n"
                                              "      45\n"
                                              "      123\n"
                                              "    ]\n"                       },
@@ -1080,66 +1080,66 @@ int main(int argc, char *argv[])
                 // level = -1, spacesPerLevel = -2 .. +2
                 { L_,    -1,     -2,         "[ 45 123 ]"                    },
                 { L_,    -1,     -1,         "[ 45 123 ]"                    },
-                { L_,    -1,     0,          "[\n"
+                { L_,    -1,      0,         "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    -1,     1,          "[\n"
+                { L_,    -1,      1,         "[\n"
                                              "  45\n"
                                              "  123\n"
                                              " ]\n"                          },
-                { L_,    -1,     2,          "[\n"
+                { L_,    -1,      2,         "[\n"
                                              "    45\n"
                                              "    123\n"
                                              "  ]\n"                         },
 
                 // level = 0, spacesPerLevel = -2 .. +2
-                { L_,    0,      -2,         "[ 45 123 ]"                    },
-                { L_,    0,      -1,         "[ 45 123 ]"                    },
-                { L_,    0,      0,          "[\n"
+                { L_,     0,      -2,        "[ 45 123 ]"                    },
+                { L_,     0,      -1,        "[ 45 123 ]"                    },
+                { L_,     0,       0,        "[\n"
                                              "45\n"
                                              "123\n"
                                              "]\n"                           },
-                { L_,    0,      1,          "[\n"
+                { L_,     0,       1,        "[\n"
                                              " 45\n"
                                              " 123\n"
                                              "]\n"                           },
-                { L_,    0,      2,          "[\n"
+                { L_,     0,       2,        "[\n"
                                              "  45\n"
                                              "  123\n"
                                              "]\n"                           },
 
                 // level = 1, spacesPerLevel = -2 .. +2
-                { L_,    1,      -2,         "  [ 45 123 ]"                  },
-                { L_,    1,      -1,         " [ 45 123 ]"                   },
-                { L_,    1,      0,          "[\n"
-                                             "45\n"
-                                             "123\n"
-                                             "]\n"                           },
-                { L_,    1,      1,          " [\n"
-                                             "  45\n"
-                                             "  123\n"
-                                             " ]\n"                          },
-                { L_,    1,      2,          "  [\n"
-                                             "    45\n"
-                                             "    123\n"
-                                             "  ]\n"                         },
+                { L_,     1,      -2,       "  [ 45 123 ]"                  },
+                { L_,     1,      -1,       " [ 45 123 ]"                   },
+                { L_,     1,       0,       "[\n"
+                                            "45\n"
+                                            "123\n"
+                                            "]\n"                           },
+                { L_,     1,       1,       " [\n"
+                                            "  45\n"
+                                            "  123\n"
+                                            " ]\n"                          },
+                { L_,     1,       2,       "  [\n"
+                                            "    45\n"
+                                            "    123\n"
+                                            "  ]\n"                         },
 
                 // level = 2, spacesPerLevel = -2 .. +2
-                { L_,    2,      -2,         "    [ 45 123 ]"                },
-                { L_,    2,      -1,         "  [ 45 123 ]"                  },
-                { L_,    2,      0,          "[\n"
-                                             "45\n"
-                                             "123\n"
-                                             "]\n"                           },
-                { L_,    2,      1,          "  [\n"
-                                             "   45\n"
-                                             "   123\n"
-                                             "  ]\n"                         },
-                { L_,    2,      2,          "    [\n"
-                                             "      45\n"
-                                             "      123\n"
-                                             "    ]\n"                       },
+                { L_,     2,      -2,       "    [ 45 123 ]"                },
+                { L_,     2,      -1,       "  [ 45 123 ]"                  },
+                { L_,     2,       0,       "[\n"
+                                            "45\n"
+                                            "123\n"
+                                            "]\n"                           },
+                { L_,     2,       1,       "  [\n"
+                                            "   45\n"
+                                            "   123\n"
+                                            "  ]\n"                         },
+                { L_,     2,       2,       "    [\n"
+                                            "      45\n"
+                                            "      123\n"
+                                            "    ]\n"                       },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1164,7 +1164,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'BDEU_STL_ITERATORS' PRINT IMPLEMENTATION
+        // TESTING 'HasStlIterators' PRINT IMPLEMENTATION
         //   This will test the print implementation function for types that
         //   have STL iterators.
         //
@@ -1175,7 +1175,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   The test plan is very similar to the test plan for testing the
-        //   'BDEU_PAIR' print implementation function (test case 5).
+        //   'IsPair' print implementation function (test case 5).
         //
         //: 1 First, test indenting using simple types, like 'vector<int>'.
         //: 2 Then, test using vectors of increasing size.
@@ -1189,19 +1189,19 @@ int main(int argc, char *argv[])
         //:   o 'vector<TestType_PrintMethod>'
         //
         // Testing:
-        //   bdlb::PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'BDEU_STL_ITERATORS' Print Implementation"
-                 << "\n================================================="
+            cout << "\nTESTING 'HasStlIterators' PRINT IMPLEMENTATION"
+                 << "\n=============================================="
                  << endl;
 
         if (verbose) cout << "\nTesting indentation." << endl;
         {
             typedef vector<int> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                BdeuPrintMethod;
+                                BdlbPrintMethod;
 
             const int ELEMENTS[]   = { 45, 123 };
             const int NUM_ELEMENTS = sizeof ELEMENTS / sizeof *ELEMENTS;
@@ -1308,7 +1308,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1351,9 +1351,9 @@ int main(int argc, char *argv[])
                 const int *ELEMENTS     = DATA[i].d_elements;
                 const int  NUM_ELEMENTS = DATA[i].d_numElements;
 
-                typedef vector<int>                   Type;
+                typedef vector<int> Type;
                 typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                    BdeuPrintMethod;
+                                    BdlbPrintMethod;
 
                 const Type VALUE(ELEMENTS, ELEMENTS + NUM_ELEMENTS);
 
@@ -1367,7 +1367,7 @@ int main(int argc, char *argv[])
 
                     ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          0);
@@ -1387,7 +1387,7 @@ int main(int argc, char *argv[])
 
                     ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          -1);
@@ -1401,10 +1401,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
-            typedef vector<char>      ElemType;
-            typedef vector<ElemType>  Type;
+            typedef vector<char>     ElemType;
+            typedef vector<ElemType> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                      BdeuPrintMethod;
+                                     BdlbPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1428,9 +1428,10 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          0);
@@ -1448,9 +1449,10 @@ int main(int argc, char *argv[])
                                                "]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          -1);
@@ -1466,7 +1468,7 @@ int main(int argc, char *argv[])
             typedef vector<int>      ElemType;
             typedef vector<ElemType> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                     BdeuPrintMethod;
+                                     BdlbPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1500,9 +1502,10 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          0);
@@ -1517,9 +1520,10 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 2 6 23 ] [ 54 2 ] ]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          -1);
@@ -1535,7 +1539,7 @@ int main(int argc, char *argv[])
             typedef pair<int, double> ElemType;
             typedef vector<ElemType>  Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                      BdeuPrintMethod;
+                                      BdlbPrintMethod;
 
             const ElemType DATA[]   = { ElemType(45,  1.23),
                                         ElemType(21, 97.54) };
@@ -1557,9 +1561,10 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          0);
@@ -1574,9 +1579,10 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 45 1.23 ] [ 21 97.54 ] ]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<
                                                  Type,
-                                                 BdeuPrintMethod>::print(ss,
+                                                 BdlbPrintMethod>::print(ss,
                                                                          VALUE,
                                                                          0,
                                                                          -1);
@@ -1591,9 +1597,9 @@ int main(int argc, char *argv[])
                           << endl;
         {
             typedef TestType_PrintMethod ElemType;
-            typedef vector<ElemType>     Type;
+            typedef vector<ElemType> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                         BdeuPrintMethod;
+                                     BdlbPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -1611,7 +1617,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                      BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1645,7 +1651,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                      BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1668,7 +1674,7 @@ int main(int argc, char *argv[])
         {
             typedef vector<int> Type;
             typedef bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
-                                BdeuPrintMethod;
+                                BdlbPrintMethod;
 
             const Type VALUE;
 
@@ -1677,7 +1683,7 @@ int main(int argc, char *argv[])
             ss.setstate(ios_base::badbit);
 
             ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                  BdeuPrintMethod>::print(
+                                                  BdlbPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0,
@@ -1689,7 +1695,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'BDEU_PAIR' PRINT IMPLEMENTATION
+        // TESTING 'IsPair' PRINT IMPLEMENTATION
         //   This will test the print implementation function for pairs.
         //
         // Concerns:
@@ -1710,18 +1716,18 @@ int main(int argc, char *argv[])
         //:   o 'pair<TestType_PrintMethod, TestType_PrintMethod>'
         //
         // Testing:
-        //   bdlb::PrintMethods_Imp<TYPE, BDEU_PAIR>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'BDEU_PAIR' Print Implementation"
-                          << "\n========================================"
+        if (verbose) cout << "\nTESTING 'IsPair' PRINT IMPLEMENTATION"
+                          << "\n====================================="
                           << endl;
 
         if (verbose) cout << "\nTesting indentation." << endl;
         {
-            typedef pair<int, double>    Type;
+            typedef pair<int, double> Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                      BdlbPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE =  1.23;
@@ -1733,8 +1739,8 @@ int main(int argc, char *argv[])
                 int         d_spacesPerLevel;
                 const char *d_expectedResult;
             } DATA[] = {
-                //line   level   spcs/lvl    expectedResult
-                //----   -----   --------    --------------
+                //LINE   LEVEL   SPCS/LVL    EXPECTED_RESULT
+                //----   -----   --------    ---------------
 
                 // level = -2, spacesPerLevel = -2 .. +2
                 { L_,    -2,     -2,         "[ 45 1.23 ]"                   },
@@ -1827,7 +1833,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -1843,7 +1849,7 @@ int main(int argc, char *argv[])
         {
             typedef pair<vector<char>, vector<char> > Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                                      BdlbPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1864,8 +1870,9 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0,
@@ -1884,8 +1891,9 @@ int main(int argc, char *argv[])
                                                "]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1900,7 +1908,7 @@ int main(int argc, char *argv[])
         {
             typedef pair<vector<int>, vector<int> > Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                                    BdlbPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1931,8 +1939,9 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0,
@@ -1948,8 +1957,9 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 2 6 23 ] [ 54 2 ] ]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -1966,7 +1976,7 @@ int main(int argc, char *argv[])
             typedef pair<double, double>      DoublePair;
             typedef pair<IntPair, DoublePair> Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                              BdlbPrintMethod;
 
             const Type VALUE = Type(IntPair(45, 21),
                                     DoublePair(1.23, 97.54));
@@ -1985,8 +1995,9 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0,
@@ -2002,8 +2013,9 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 45 21 ] [ 1.23 97.54 ] ]";
 
                 stringstream ss;
+
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
                                                                         0, -1);
@@ -2019,7 +2031,7 @@ int main(int argc, char *argv[])
         {
             typedef pair<TestType_PrintMethod, TestType_PrintMethod> Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                                               BdlbPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -2034,7 +2046,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2072,7 +2084,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2100,9 +2112,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
-            typedef pair<int, double>   Type;
+            typedef pair<int, double> Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
-                BdeuPrintMethod;
+                                      BdlbPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -2112,9 +2124,8 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret =
-                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                    ss, VALUE, 0, -1);
+            ostream& ret = bdlb::PrintMethods_Imp<Type, BdlbPrintMethod>::
+                                                       print(ss, VALUE, 0, -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());
@@ -2122,7 +2133,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'BdeuPrintMethod' PRINT IMPLEMENTATION
+        // TESTING 'HasPrintMethod' PRINT IMPLEMENTATION
         //   This will test the print implementation function that uses the
         //   object's 'print' method.
         //
@@ -2135,10 +2146,10 @@ int main(int argc, char *argv[])
         //: 2 Use varying values for 'level' and 'spacesPerLevel'.
         //
         // Testing:
-        //   bdlb::PrintMethods_Imp<TYPE, BdeuPrintMethod>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'BdeuPrintMethod' Print Implementation"
+        if (verbose) cout << "\nTESTING 'HasPrintMethod' PRINT IMPLEMENTATION"
                           << "\n=============================================="
                           << endl;
 
@@ -2188,15 +2199,14 @@ int main(int argc, char *argv[])
 
             typedef TestType_PrintMethod Type;
             typedef bslmf::SelectTraitCase<bdlb::HasPrintMethod>::Type
-                                         BdeuPrintMethod;
+                                         BdlbPrintMethod;
 
             const Type VALUE;
 
             stringstream ss;
 
-            ostream& ret =
-                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                    ss, VALUE, LEVEL, SPACES_PER_LEVEL);
+            ostream& ret = bdlb::PrintMethods_Imp<Type, BdlbPrintMethod>::
+                                     print(ss, VALUE, LEVEL, SPACES_PER_LEVEL);
 
             LOOP_ASSERT(LINE, &ss == &ret);
             LOOP_ASSERT(LINE, &ss == VALUE.stream());
@@ -2208,7 +2218,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'BDEU_STREAM_OPERATOR' PRINT IMPLEMENTATION
+        // TESTING 'operator<<'-BASED PRINT IMPLEMENTATION
         //   This will test the print implementation function that uses the
         //   '<<' output stream operator.
         //
@@ -2223,16 +2233,16 @@ int main(int argc, char *argv[])
         //:   expected.
         //
         // Testing:
-        //   bdlb::PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'BDEU_STREAM_OPERATOR' Print Implementation"
-                 << "\n==================================================="
+            cout << "\nTESTING 'operator<<'-BASED PRINT IMPLEMENTATION"
+                 << "\n==============================================="
                  << endl;
 
         // false_type == Default == stream operator
-        typedef bslmf::SelectTraitCase<>::Type BdeuPrintMethod;
+        typedef bslmf::SelectTraitCase<>::Type BdlbPrintMethod;
 
         static const struct {
             int         d_lineNum;
@@ -2296,7 +2306,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                      BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2329,7 +2339,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2363,7 +2373,7 @@ int main(int argc, char *argv[])
                 stringstream ss;
 
                 ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                     BdeuPrintMethod>::print(
+                                                      BdlbPrintMethod>::print(
                                                              ss,
                                                              VALUE,
                                                              LEVEL,
@@ -2387,7 +2397,7 @@ int main(int argc, char *argv[])
             ss.setstate(ios_base::badbit);
 
             ostream& ret = bdlb::PrintMethods_Imp<Type,
-                                                  BdeuPrintMethod>::print(
+                                                  BdlbPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
                                                                          0,
@@ -2536,9 +2546,9 @@ int main(int argc, char *argv[])
             ss.setstate(ios_base::badbit);
 
             ostream& ret = bdlb::PrintMethods::print(ss,
-                                                    VALUE,
-                                                    LEVEL,
-                                                    SPACES_PER_LEVEL);
+                                                     VALUE,
+                                                     LEVEL,
+                                                     SPACES_PER_LEVEL);
 
             LOOP_ASSERT(LINE, &ss == &ret);
             LOOP2_ASSERT(LINE, ss.str(),
