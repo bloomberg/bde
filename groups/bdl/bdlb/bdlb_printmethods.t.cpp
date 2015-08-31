@@ -356,13 +356,13 @@ static const char *printableCharacters[256]=
 };
 
 void printValue(ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
+    // Specialize for 'char *'.  Need to expand '\r', '\n', '\t' and surround
+    // with 'DQUOTE' characters.
 {
     out << '"';
 
     while (*value) {
-        out << printableCharacters[(unsigned)*value];
+        out << printableCharacters[static_cast<unsigned>(*value)];
         ++value;
     }
 
@@ -370,7 +370,7 @@ void printValue(ostream& out, const char* value)
 }
 
 void printValue(ostream& out, const string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
+    // Need to expand '\r', '\n', '\t' and surround with 'DQUOTE' characters.
 {
     printValue(out, value.c_str());
 }
@@ -408,7 +408,7 @@ class TestType_PrintMethod {
         d_level          = level;
         d_spacesPerLevel = spacesPerLevel;
 
-       return stream;
+        return stream;
     }
 
     bsl::ostream* stream() const
@@ -525,11 +525,12 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 
 class MyDate
 {
-    // This class is used as an example of a conventional BDE value-semantic  
-    // type.  Accordingly, this type implements a 'print' method; albeit
-    // a stub function.
+    // This class is used as an example of a conventional BDE value-semantic
+    // type.  Accordingly, this type implements a 'print' method; albeit a stub
+    // function.
 
   public:
+    // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MyDate, bdlb::TypeTraitHasPrintMethod);
 
     // CREATOR
@@ -538,7 +539,9 @@ class MyDate
     // ...
 
     // ACCESSORS
+
                         // Aspects
+
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -562,6 +565,7 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
                             int           ,
                             int           ) const
 {
+    stream << "01JAN0001\n";
     return stream;
 }
 
@@ -569,10 +573,13 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Supplying a 'print' Method for a User-Defined Class
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Consider the following value-semantic class that holds an object of
-// parameterized 'TYPE':
+///Example 1: Supplying a 'print' Method for a Parameterized Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we must create a value-semantic class that holds an object of
+// parameterized 'TYPE' and, per BDE convention for VSTs, provides a 'print'
+// method that shows the value in some human-readable format.
+//
+// First, we define the wrapper class:
 //..
     template <class TYPE>
     class MyWrapper {
@@ -581,11 +588,12 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
       // PRIVATE DATA MEMBERS
       TYPE d_obj;  // wrapped object
 
-      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
-
       public:
+        // TRAITS
+        BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
+
         // CREATORS
-        // ...
+        MyWrapper(): d_obj() {};
         MyWrapper(const TYPE& value) : d_obj(value) { }
         // ... other constructors and destructor ...
 
@@ -608,94 +616,64 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
             // this operation has no effect.
     };
 //..
-// This class contains a standard BDE 'print' method for value-semantic
-// components.  Ideally, the implementation of 'MyWrapper<TYPE>::print' would
-// delegate the task of printing to the corresponding 'print' method of
-// 'd_obj':
+// Now, we implement the 'print' method of 'MyWrapper' using the
+// 'bdlb::PrintMethods' utility.  Doing so gives us a method that produces
+// results both when 'TYPE' defines a 'print' method and when it does not.  In
+// the latter case 'TYPE::operator<<' is used.
 //..
-    template <typename TYPE>
+    template <class TYPE>
     bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
     {
-        return d_obj.print(stream, level, spacesPerLevel);
+        return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
     }
 //..
-// This method will work fine when 'TYPE' is a conventional BDE value-semantic
-// component (e.g., 'MyDate'):
+// Finally, we exercise our 'MyWrapper' class using several representative
+// types, starting with 'MyDate' (not shown) a class that implements a 'print'
+// method.
 //..
-    static void usingMyDateViaMyWrapper()
+    static void usingMyWrapper()
     {
-        BSLMF_ASSERT(
-               (bslalg::HasTrait<MyDate, bdlb::TypeTraitHasPrintMethod>::VALUE)
-        );
+        BSLMF_ASSERT(bdlb::HasPrintMethod<MyDate>::value);
 
         MyDate            myDate;
         MyWrapper<MyDate> myWrapperForMyDate(myDate);
-        cout << "hello" << endl;
+
+        BSLMF_ASSERT(!bdlb::HasPrintMethod<int>::value);
+
+        bsl::ostringstream oss1;
+        myWrapperForMyDate.print(oss1); // No problem expected since
+                                        // 'bsls::TimeInterval' has a 'print'
+                                        // method.
+        ASSERT("01JAN0001\n" == oss1.str());
+//..
+// Using an 'int' type shows how 'bdlb::PrintMethods::print' transparently
+// handles types that do not provide 'print' methods:
+//..
+        int            myInt = 123;
+        MyWrapper<int> myWrapperForInt(myInt);
+
+        bsl::ostringstream oss2;
+        myWrapperForInt.print(oss2);    // 'int' has no 'print' method.
+                                        // Problem?
+        ASSERT("123\n" == oss2.str());  // No problem!
+//..
+// Lastly, since 'MyWrapper' itself is a type that implements 'print' -- and
+// sets the 'bdlb::TypeTraitHasPrintMethod' trait -- one instance of the
+// 'MyWrapper' type can be wrapped by another.
+//..
+        BSLMF_ASSERT(bdlb::HasPrintMethod<MyWrapper<int> >::value);
+
+        MyWrapper<MyWrapper<int> > myWrappedWrapper;
+
+        bsl::ostringstream oss3;
+        myWrappedWrapper.print(oss3);
+        ASSERT("0\n" == oss3.str());
     }
-#if 0
-    myWrapperForMyDate.print(bsl::cout); // No problem: 'bsls::TimeInterval'
-
-                                         // has a corresponding 'print' method.
-#endif 
 //..
-// However, when 'TYPE' is not a standard BDE value-semantic component (e.g.,
-// suppose 'TYPE' does not have the standard BDE 'print' method -- for example,
-// fundamental types, enumerations, pointers, and 'bsl::vector'), the 'print'
-// method defined above will not work:
-//..
-//  int            myInt = 123;
-//  MyWrapper<int> myWrapperForInt(myInt);
-//  myWrapperForInt.print(bsl::cout);  // Error: 'int' has no corresponding
-//                                     // 'print' method.
-//..
-// The solution is to use the 'bdlb::PrintMethods::print' method, which
-// provides generic printing capabilities, as follows:
-//..
-//  template <class TYPE>
-//  bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
-//                                       int           level,
-//                                       int           spacesPerLevel) const
-//  {
-//      return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
-//  }
-//..
-// One thing missing from the 'MyWrapper' definition above is a declaration of
-// the 'print' method trait.  Since the 'MyWrapper' class has a 'print' method,
-// it is desirable to make it programmatically detectable that the 'print'
-// method is available.  This is done by declaring the
-// 'bdlb::TypeTraitHasPrintMethod' trait inside the 'MyWrapper' class
-// definition:
-//..
-    template <typename TYPE>
-    class MyWrapper2 {
-        // An example wrapper for a 'TYPE' object that also declares the
-        // 'bdlb::TypeTraitHasPrintMethod' trait.
-
-        // ... private data members ...
-
-      public:
-        // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(MyWrapper2, bdlb::TypeTraitHasPrintMethod);
-
-        // ... rest of class definition ...
-    };
-//..
-// (See the {'bslalg_typetraits'} component for more information about
-// declaring traits for user-defined classes.)
-//
-// Now that 'MyWrapper' declares the 'bdlb::TypeTraitHasPrintMethod' trait, it
-// can be reliably used as a template parameter for any other template class,
-// including itself.  For example, the following code works:
-//..
-//  void useMyWrapper()
-//  {
-//      MyWrapper<MyWrapper<int> > myWrappedWrapper;
-//      myWrappedWrapper.print(bsl::cout);
-//      // ...
-//  }
-//..
+// See the {'bslalg_typetraits'} component for more information about
+// declaring traits for user-defined classes.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -731,16 +709,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n" "USAGE EXAMPLE" "\n"
                                   "=============" "\n";
+        usingMyWrapper();
 
-        stringstream ss;
-
-#if 0
-        int            myInt = 123;
-        MyWrapper<int> myWrapperForInt(myInt);
-        myWrapperForInt.print(ss);
-
-        LOOP_ASSERT(ss.str(), "123\n" == ss.str());
-#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1226,7 +1196,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'HasStlIterators' PRINT IMPLEMENTATION
         //   This will test the print implementation function for types that
-        //   have STL iterators.
+        //   have STL iterators.  The test plan is very similar to the test
+        //   plan for testing the 'IsPair' print implementation function (test
+        //   case 5).
         //
         // Concerns:
         //: 1 Indenting should work as expected.
@@ -1234,10 +1206,7 @@ int main(int argc, char *argv[])
         //: 3 Printing with bad streams should be a no-op.
         //
         // Plan:
-        //   The test plan is very similar to the test plan for testing the
-        //   'IsPair' print implementation function (test case 5).
-        //
-        //: 1 First, test indenting using simple types, like 'vector<int>'.
+        //: 1 First, test indenting using simple types such as 'vector<int>'.
         //: 2 Then, test using vectors of increasing size.
         //: 3 Next, to test that this function routes to the correct print
         //:   method for the contained elements, test types that contain
@@ -1253,8 +1222,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'HasStlIterators' PRINT IMPLEMENTATION"
-                 << "\n=============================================="
+            cout << "\n" "TESTING 'HasStlIterators' PRINT IMPLEMENTATION"
+                 << "\n" "=============================================="
                  << endl;
 
         if (verbose) cout << "\nTesting indentation." << endl;
@@ -1779,8 +1748,8 @@ int main(int argc, char *argv[])
         //   bdlb::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'IsPair' PRINT IMPLEMENTATION"
-                          << "\n====================================="
+        if (verbose) cout << "\n" "TESTING 'IsPair' PRINT IMPLEMENTATION"
+                          << "\n" "====================================="
                           << endl;
 
         if (verbose) cout << "\nTesting indentation." << endl;
@@ -2209,9 +2178,10 @@ int main(int argc, char *argv[])
         //   bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'HasPrintMethod' PRINT IMPLEMENTATION"
-                          << "\n=============================================="
-                          << endl;
+        if (verbose) cout
+                        << "\n" "TESTING 'HasPrintMethod' PRINT IMPLEMENTATION"
+                        << "\n" "============================================="
+                        << endl;
 
         static const struct {
             int d_lineNum;
@@ -2297,8 +2267,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'operator<<'-BASED PRINT IMPLEMENTATION"
-                 << "\n==============================================="
+            cout << "\n" "TESTING 'operator<<'-BASED PRINT IMPLEMENTATION"
+                 << "\n" "==============================================="
                  << endl;
 
         // false_type == Default == stream operator
@@ -2469,7 +2439,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING vector<char> 'print' METHOD
+        // TESTING 'vector<char>' 'print' METHOD
         //   This will test the specialized 'print' method for 'vector<char>'
         //   objects.
         //
@@ -2491,8 +2461,9 @@ int main(int argc, char *argv[])
         //   bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting vector<char> 'print' Method"
-                          << "\n===================================" << endl;
+        if (verbose) cout << "\n" "TESTING 'vector<char>' 'print' METHOD"
+                          << "\n" "====================================="
+                          << endl;
 
         static const struct {
             int         d_lineNum;
