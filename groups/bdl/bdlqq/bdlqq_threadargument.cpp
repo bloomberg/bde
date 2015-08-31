@@ -4,6 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP {
+    
+void *bdlqq_ThreadArgument_invoker(void* argument) {
+    bdlqq::ThreadArgument_Base* threadArg = 
+        (bdlqq::ThreadArgument_Base*)argument;
+    threadArg->function()(argument);
+    return 0;
+}
+
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

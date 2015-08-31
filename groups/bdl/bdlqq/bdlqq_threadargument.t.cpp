@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
         };
         {
             bsltf::AllocTestType data(TEST_VALUE, &testAllocator);
-            bdlqq::ThreadArgument<bsltf::AllocTestType> mX(data,
+            bdlqq::ThreadArgument<bsltf::AllocTestType> mX(data, 0,
                                                           &testAllocator);
             const bdlqq::ThreadArgument<bsltf::AllocTestType>& X = mX;
             
@@ -144,7 +144,8 @@ int main(int argc, char *argv[])
         };
         bsltf::SimpleTestType data(TEST_VALUE);
         
-        bdlqq::ThreadArgument<bsltf::SimpleTestType> mX(data, &testAllocator);
+        bdlqq::ThreadArgument<bsltf::SimpleTestType> mX(data, 0, 
+                                                        &testAllocator);
         const bdlqq::ThreadArgument<bsltf::SimpleTestType>& X = mX;
 
         ASSERTV(X.object()->data(),
