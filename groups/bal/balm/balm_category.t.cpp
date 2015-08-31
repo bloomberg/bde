@@ -62,11 +62,15 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
@@ -172,9 +176,9 @@ int main(int argc, char *argv[])
 //..
 // The console output will look like:
 //..
-// categoryA: [ A ENABLED ]
-// categoryB: [ B DISABLED ]
-// categoryC: [ C DISABLED ]
+//  categoryA: [ A ENABLED ]
+//  categoryB: [ B DISABLED ]
+//  categoryC: [ C DISABLED ]
 //..
       } break;
       case 6: {
@@ -303,7 +307,7 @@ int main(int argc, char *argv[])
         //   value in the set 'S'.
         //
         // Testing:
-        // void setName(const char *name);
+        //   void setName(const char *name);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Manipulators" << endl;
@@ -360,9 +364,9 @@ int main(int argc, char *argv[])
         //   on each configuration as the object being tested leaves scope.
         //
         // Testing:
-        // explicit balm::Category(const char *name, bool enabled = true);
-        // const char *name() const;
-        // bool enabled() const;
+        //   explicit balm::Category(const char *name, bool enabled = true);
+        //   const char *name() const;
+        //   bool enabled() const;
         // --------------------------------------------------------------------
           {
               if (veryVerbose) cout << "\tTest constructor default args."
@@ -483,7 +487,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tTest manipulators" << bsl::endl;
             for (int i = 0; i < NUM_VALUES; ++i) {
-                Holder mX = { 0,  false, 0 }; const Holder& MX = mX;
+                Holder mX = { false, 0, 0 }; const Holder& MX = mX;
 
                 ASSERT(0     == MX.category());
                 ASSERT(false == MX.enabled());

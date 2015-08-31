@@ -70,9 +70,9 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //..
 // With the resulting console output:
 //..
-// categoryA: [ A ENABLED ]
-// categoryB: [ B DISABLED ]
-// categoryC: [ C DISABLED ]
+//  categoryA: [ A ENABLED ]
+//  categoryB: [ B DISABLED ]
+//  categoryC: [ C DISABLED ]
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -86,7 +86,9 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 
-namespace balm {class CategoryHolder;
+namespace balm {
+
+class CategoryHolder;
 
                                // ==============
                                // class Category
@@ -201,7 +203,7 @@ class CategoryHolder {
   public:
 
     // PUBLIC DATA MEMBERS
-    bool                 d_enabled;     // whether the category is enabled
+    bool            d_enabled;     // whether the category is enabled
     const Category *d_category_p;  // held category (not owned)
     CategoryHolder *d_next_p;      // next category holder in linked list
 
