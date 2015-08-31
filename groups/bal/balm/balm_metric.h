@@ -190,9 +190,9 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 namespace BloombergLP {
 
 namespace balm {
-                         // =================
-                         // class Metric
-                         // =================
+                                // ============
+                                // class Metric
+                                // ============
 
 class Metric {
     // This class provides an in-core value semantic type for recording and
@@ -346,7 +346,7 @@ class Metric {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -364,9 +364,9 @@ bool operator!=(const Metric& lhs, const Metric& rhs);
     // value if they record measurements using different collector objects or
     // if one, but not both, have a null collector (i.e., 'collector()' is 0).
 
-                      // ==========================
-                      // class Metric_MacroImp
-                      // ==========================
+                           // =====================
+                           // class Metric_MacroImp
+                           // =====================
 
 struct Metric_MacroImp {
     // This structure provides a namespace for functions used to implement the
@@ -404,12 +404,12 @@ struct Metric_MacroImp {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // -----------------
-                         // class Metric
-                         // -----------------
+                                // ------------
+                                // class Metric
+                                // ------------
 
 // CLASS METHODS
 inline

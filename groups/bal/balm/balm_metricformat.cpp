@@ -17,9 +17,9 @@ BSLS_IDENT_RCSID(balm_metricformat_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                      // ---------------------------
-                      // class balm::MetricFormatSpec
-                      // ---------------------------
+                        // ----------------------------
+                        // class balm::MetricFormatSpec
+                        // ----------------------------
 
 // PRIVATE CONSTANTS
 const char *balm::MetricFormatSpec::k_DEFAULT_FORMAT = "%f";
@@ -70,9 +70,9 @@ bsl::ostream& MetricFormatSpec::print(bsl::ostream& stream) const
     return stream;
 }
 
-                          // -----------------------
-                          // class MetricFormat
-                          // -----------------------
+                             // ------------------
+                             // class MetricFormat
+                             // ------------------
 
 // MANIPULATORS
 void MetricFormat::clearFormatSpec(

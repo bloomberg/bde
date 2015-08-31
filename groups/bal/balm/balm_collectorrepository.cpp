@@ -37,9 +37,9 @@ void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
 
 }  // close unnamed namespace
 
-              // =========================================
-              // class balm::CollectorRepository_Collectors
-              // =========================================
+                 // ==========================================
+                 // class balm::CollectorRepository_Collectors
+                 // ==========================================
 
 namespace balm {
 
@@ -142,9 +142,9 @@ class CollectorRepository_Collectors {
         // are collecting values.
 };
 
-              // -------------------------------------------------
-              // class balm::CollectorRepository_CollectorContainer
-              // -------------------------------------------------
+             // --------------------------------------------------
+             // class balm::CollectorRepository_CollectorContainer
+             // --------------------------------------------------
 
 // CREATORS
 template <class COLLECTOR>
@@ -242,9 +242,9 @@ CollectorRepository_Collectors<COLLECTOR>::metricId() const
     return d_defaultCollector.metricId();
 }
 
-           // ===============================================
-           // class CollectorRepository_MetricCollectors
-           // ===============================================
+                 // ==========================================
+                 // class CollectorRepository_MetricCollectors
+                 // ==========================================
 
 class CollectorRepository_MetricCollectors {
     // This implementation class provides a container mechanism for managing
@@ -332,9 +332,9 @@ class CollectorRepository_MetricCollectors {
         // are collecting values.
 };
 
-              // -----------------------------------------------
-              // class CollectorRepository_MetricCollectors
-              // -----------------------------------------------
+                 // ------------------------------------------
+                 // class CollectorRepository_MetricCollectors
+                 // ------------------------------------------
 
 // CREATORS
 inline
@@ -407,9 +407,9 @@ CollectorRepository_MetricCollectors::metricId() const
     return d_collectors.metricId();
 }
 
-                          // ------------------------------
-                          // class CollectorRepository
-                          // ------------------------------
+                         // -------------------------
+                         // class CollectorRepository
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 CollectorRepository::MetricCollectors&

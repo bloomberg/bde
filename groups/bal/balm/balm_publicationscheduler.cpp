@@ -31,7 +31,7 @@ namespace balm {
 namespace {
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 inline
@@ -89,9 +89,9 @@ bsl::ostream& printCategorySet(
 
 }  // close unnamed namespace
 
-               // ==========================================
-               // struct PublicationScheduler_ClockData
-               // ==========================================
+                   // =====================================
+                   // struct PublicationScheduler_ClockData
+                   // =====================================
 
 class PublicationScheduler_ClockData {
     // The 'PublicationScheduler_ClockData' class implements an unconstrained
@@ -183,9 +183,9 @@ class PublicationScheduler_ClockData {
         // this property is undefined and the value must be an empty set.
 };
 
-               // ------------------------------------------
-               // struct PublicationScheduler_ClockData
-               // ------------------------------------------
+                   // -------------------------------------
+                   // struct PublicationScheduler_ClockData
+                   // -------------------------------------
 
 // CREATORS
 PublicationScheduler_ClockData::PublicationScheduler_ClockData(
@@ -234,9 +234,9 @@ PublicationScheduler_ClockData::nonDefaultCategories()
     return d_nonDefaultCategories;
 }
 
-               // ========================================
-               // struct PublicationScheduler_Proctor
-               // ========================================
+                    // ===================================
+                    // struct PublicationScheduler_Proctor
+                    // ===================================
 
 class PublicationScheduler_Proctor {
    // This class implements a proctor that, unless 'release()' is called, sets
@@ -282,9 +282,9 @@ class PublicationScheduler_Proctor {
        // destructor will have no effect.
 };
 
-               // ----------------------------------------
-               // struct PublicationScheduler_Proctor
-               // ----------------------------------------
+                    // -----------------------------------
+                    // struct PublicationScheduler_Proctor
+                    // -----------------------------------
 
 // CREATORS
 inline
@@ -323,9 +323,9 @@ void PublicationScheduler_Proctor::release()
     d_scheduler_p = 0;
 }
 
-                   // -------------------------------
-                   // class PublicationScheduler
-                   // -------------------------------
+                         // --------------------------
+                         // class PublicationScheduler
+                         // --------------------------
 
 // PRIVATE MANIPULATORS
 void PublicationScheduler::publish(bsl::shared_ptr<ClockData> clockData)

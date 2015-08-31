@@ -49,9 +49,9 @@ BSLS_IDENT_PRAGMA_ONCE
 namespace BloombergLP {
 
 namespace balm {
-                           // ==========================
+                           // =====================
                            // class PublicationType
-                           // ==========================
+                           // =====================
 
 struct PublicationType {
     // This class defines an enumeration of aggregation type that can be used
@@ -157,12 +157,12 @@ BDLAT_DECL_ENUMERATION_TRAITS(balm::PublicationType)
 namespace balm {
 
 // ============================================================================
-//                         INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // --------------------------
+                           // ---------------------
                            // class PublicationType
-                           // --------------------------
+                           // ---------------------
 
 // CLASS METHODS
 inline

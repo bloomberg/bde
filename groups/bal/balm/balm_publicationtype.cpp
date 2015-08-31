@@ -18,9 +18,9 @@ BSLS_IDENT_RCSID(balm_publicationtype_cpp,"$Id$ $CSID$ $CCId$")
 namespace BloombergLP {
 
 namespace balm {
-                           // --------------------------
+                           // ---------------------
                            // class PublicationType
-                           // --------------------------
+                           // ---------------------
 
 // CONSTANTS
 

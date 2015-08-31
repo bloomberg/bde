@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(balm_publisher_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                      // --------------------
-                      // class Publisher
-                      // --------------------
+                              // ---------------
+                              // class Publisher
+                              // ---------------
 
 // CREATORS
 Publisher::~Publisher()

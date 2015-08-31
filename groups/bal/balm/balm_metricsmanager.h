@@ -435,9 +435,9 @@ class MetricsManager_PublisherRegistry;  // defined in implementation
 class MetricsManager_CallbackRegistry;   // defined in implementation
 struct MetricsManager_PublicationHelper;  // defined in implementation
 
-                   // =========================
-                   // class MetricsManager
-                   // =========================
+                            // ====================
+                            // class MetricsManager
+                            // ====================
 
 class MetricsManager {
     // This class implements a manager for the recording and publishing of
@@ -855,12 +855,12 @@ class MetricsManager {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                   // -------------------------
-                   // class MetricsManager
-                   // -------------------------
+                            // --------------------
+                            // class MetricsManager
+                            // --------------------
 
 // MANIPULATORS
 inline

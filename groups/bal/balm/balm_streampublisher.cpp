@@ -167,9 +167,9 @@ void publishRecord(bsl::ostream&             stream,
 }  // close unnamed namespace
 
 namespace balm {
-                      // --------------------------
-                      // class StreamPublisher
-                      // --------------------------
+                           // ---------------------
+                           // class StreamPublisher
+                           // ---------------------
 
 // CREATORS
 StreamPublisher::~StreamPublisher()

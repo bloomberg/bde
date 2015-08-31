@@ -153,9 +153,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                        // ============================
-                        // class MetricSampleGroup
-                        // ============================
+                          // =======================
+                          // class MetricSampleGroup
+                          // =======================
 
 class MetricSampleGroup {
     // This class provides an *in-core* value-semantic representation of a
@@ -282,9 +282,9 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     // Write a formatted description of the specified 'rhs' to the specified
     // 'stream' and return a reference to the modifiable 'stream'.
 
-                        // =======================
-                        // class MetricSample
-                        // =======================
+                             // ==================
+                             // class MetricSample
+                             // ==================
 
 class MetricSample {
     // This class provides an *in-core* value-semantic representation of a
@@ -455,12 +455,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MetricSample& rhs);
     // 'stream' and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
-                        // class MetricSampleGroup
-                        // ----------------------------
+                          // -----------------------
+                          // class MetricSampleGroup
+                          // -----------------------
 
 // CREATORS
 inline
@@ -570,9 +570,9 @@ bsl::ostream& balm::operator<<(bsl::ostream&            stream,
 }
 
 namespace balm {
-                         // -----------------------
-                         // class MetricSample
-                         // -----------------------
+                             // ------------------
+                             // class MetricSample
+                             // ------------------
 
 // CREATORS
 inline

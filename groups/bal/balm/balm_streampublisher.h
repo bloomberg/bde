@@ -95,9 +95,9 @@ namespace BloombergLP {
 
 namespace balm {class MetricSample;
 
-                      // ==========================
-                      // class StreamPublisher
-                      // ==========================
+                           // =====================
+                           // class StreamPublisher
+                           // =====================
 
 class StreamPublisher : public Publisher {
     // This class provides an implementation of the 'Publisher' protocol.
@@ -127,12 +127,12 @@ class StreamPublisher : public Publisher {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // --------------------------
-                          // class StreamPublisher
-                          // --------------------------
+                           // ---------------------
+                           // class StreamPublisher
+                           // ---------------------
 
 // CREATORS
 inline

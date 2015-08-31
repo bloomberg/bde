@@ -163,9 +163,9 @@ namespace balm {
 
 class MetricFormat;
 
-                      // =========================
-                      // class balm::MetricRegistry
-                      // =========================
+                         // ==========================
+                         // class balm::MetricRegistry
+                         // ==========================
 
 class MetricRegistry {
     // The class defines a thread-aware mechanism for registering metrics and
@@ -474,12 +474,12 @@ class MetricRegistry {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -------------------------
-                          // class balm::MetricRegistry
-                          // -------------------------
+                         // --------------------------
+                         // class balm::MetricRegistry
+                         // --------------------------
 
 }  // close enterprise namespace
 

@@ -215,9 +215,9 @@ namespace BloombergLP {
 
 namespace balm {class MetricSample;
 
-                      // ====================
-                      // class Publisher
-                      // ====================
+                              // ===============
+                              // class Publisher
+                              // ===============
 
 class Publisher {
     // This protocol class provides a 'publish' method to publish collected
@@ -239,12 +239,12 @@ class Publisher {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      // --------------------
-                      // class balm::Publisher
-                      // --------------------
+                           // ---------------------
+                           // class balm::Publisher
+                           // ---------------------
 
 }  // close enterprise namespace
 

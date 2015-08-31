@@ -185,9 +185,9 @@ namespace balm {class Category;
 class PublicationScheduler_ClockData;  // defined in implementation
 class PublicationScheduler_Proctor;    // defined in implementation
 
-                   // ===============================
-                   // class PublicationScheduler
-                   // ===============================
+                         // ==========================
+                         // class PublicationScheduler
+                         // ==========================
 
 class PublicationScheduler {
     // This class defines a mechanism for scheduling the periodic publication
@@ -448,12 +448,12 @@ class PublicationScheduler {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                   // -------------------------------
-                   // class PublicationScheduler
-                   // -------------------------------
+                         // --------------------------
+                         // class PublicationScheduler
+                         // --------------------------
 
 // MANIPULATORS
 inline

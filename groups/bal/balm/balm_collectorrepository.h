@@ -156,9 +156,9 @@ namespace balm {class Category;
 
 class CollectorRepository_MetricCollectors;  // defined in implementation
 
-                    // ==============================
-                    // class CollectorRepository
-                    // ==============================
+                         // =========================
+                         // class CollectorRepository
+                         // =========================
 
 class CollectorRepository {
     // This class defines a fully thread-safe repository mechanism for
@@ -351,12 +351,12 @@ class CollectorRepository {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                       // ------------------------------
-                       // class CollectorRepository
-                       // ------------------------------
+                         // -------------------------
+                         // class CollectorRepository
+                         // -------------------------
 
 // CREATORS
 inline

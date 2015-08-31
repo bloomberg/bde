@@ -6,17 +6,17 @@ BSLS_IDENT_RCSID(balm_integermetric_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // ------------------------
-                          // class balm::IntegerMetric
-                          // ------------------------
+                         // -------------------------
+                         // class balm::IntegerMetric
+                         // -------------------------
 
 // PRIVATE CONSTANTS
 const bool balm::IntegerMetric::k_NOT_ACTIVE = false;
 
 namespace balm {
-                      // ---------------------------------
-                      // class IntegerMetric_MacroImp
-                      // ---------------------------------
+                        // ----------------------------
+                        // class IntegerMetric_MacroImp
+                        // ----------------------------
 
 // CLASS METHODS
 void IntegerMetric_MacroImp::getCollector(IntegerCollector **collector,

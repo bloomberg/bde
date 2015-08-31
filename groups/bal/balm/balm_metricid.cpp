@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(balm_metricid_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                   // -------------------
-                   // class MetricId
-                   // -------------------
+                               // --------------
+                               // class MetricId
+                               // --------------
 
 // ACCESSORS
 bsl::ostream& MetricId::print(bsl::ostream& stream) const

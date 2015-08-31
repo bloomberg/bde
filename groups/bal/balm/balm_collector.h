@@ -100,9 +100,9 @@ namespace BloombergLP {
 
 namespace balm {
 
-                      // ====================
-                      // class Collector
-                      // ====================
+                              // ===============
+                              // class Collector
+                              // ===============
 
 class Collector {
     // This class provides a mechanism for collecting and aggregating the
@@ -185,12 +185,12 @@ class Collector {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // --------------------
-                          // class Collector
-                          // --------------------
+                              // ---------------
+                              // class Collector
+                              // ---------------
 
 // CREATORS
 inline

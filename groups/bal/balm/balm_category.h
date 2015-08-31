@@ -88,9 +88,9 @@ namespace BloombergLP {
 
 namespace balm {class CategoryHolder;
 
-                          // ===================
-                          // class Category
-                          // ===================
+                               // ==============
+                               // class Category
+                               // ==============
 
 class Category {
     // This class provides a mechanism for representing a category.  A category
@@ -167,7 +167,7 @@ class Category {
 };
 
 // ============================================================================
-//                 INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -176,9 +176,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Category& rhs);
     // Output a formatted description of the specified 'rhs' category to the
     // specified 'stream', and return the modifiable 'stream'.
 
-                        // =========================
-                        // class CategoryHolder
-                        // =========================
+                            // ====================
+                            // class CategoryHolder
+                            // ====================
 
 class CategoryHolder {
     // This class, informally referred to as a "category holder" (or simply
@@ -243,12 +243,12 @@ class CategoryHolder {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -------------------
-                          // class Category
-                          // -------------------
+                               // --------------
+                               // class Category
+                               // --------------
 
 // CREATORS
 inline
@@ -279,9 +279,9 @@ const bool& Category::enabled() const
     return d_enabled;
 }
 
-                        // -------------------------
-                        // class CategoryHolder
-                        // -------------------------
+                            // --------------------
+                            // class CategoryHolder
+                            // --------------------
 
 // MANIPULATORS
 inline

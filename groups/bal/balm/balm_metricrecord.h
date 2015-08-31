@@ -152,9 +152,9 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 namespace balm {
-                      // =======================
-                      // class MetricRecord
-                      // =======================
+                             // ==================
+                             // class MetricRecord
+                             // ==================
 
 class MetricRecord {
     // Each instance of this class represents the aggregated value of a metric.
@@ -269,7 +269,7 @@ class MetricRecord {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -295,12 +295,12 @@ bsl::ostream& operator<<(bsl::ostream&       stream,
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // class MetricRecord
-                          // -----------------------
+                             // ------------------
+                             // class MetricRecord
+                             // ------------------
 
 // CREATORS
 inline

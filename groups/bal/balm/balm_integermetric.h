@@ -166,9 +166,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                         // ========================
-                         // class IntegerMetric
-                         // ========================
+                            // ===================
+                            // class IntegerMetric
+                            // ===================
 
 class IntegerMetric {
     // This class provides an in-core value semantic type for recording and
@@ -328,7 +328,7 @@ class IntegerMetric {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -347,9 +347,9 @@ bool operator!=(const IntegerMetric& lhs, const IntegerMetric& rhs);
     // collector objects or if one, but not both, have a null collector (i.e.,
     // 'collector()' is 0).
 
-                   // =================================
-                   // class IntegerMetric_MacroImp
-                   // =================================
+                        // ============================
+                        // class IntegerMetric_MacroImp
+                        // ============================
 
 struct IntegerMetric_MacroImp {
     // This structure provides a namespace for functions used to implement the
@@ -388,12 +388,12 @@ struct IntegerMetric_MacroImp {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ------------------------
-                         // class IntegerMetric
-                         // ------------------------
+                            // -------------------
+                            // class IntegerMetric
+                            // -------------------
 
 // CLASS METHODS
 inline

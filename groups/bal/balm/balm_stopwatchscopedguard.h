@@ -178,9 +178,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                     // ===============================
-                     // class StopwatchScopedGuard
-                     // ===============================
+                         // ==========================
+                         // class StopwatchScopedGuard
+                         // ==========================
 
 class StopwatchScopedGuard {
     // This class provides a mechanism for recording, to a metric, the elapsed
@@ -320,12 +320,12 @@ class StopwatchScopedGuard {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                    // -------------------------------
-                    // class StopwatchScopedGuard
-                    // -------------------------------
+                         // --------------------------
+                         // class StopwatchScopedGuard
+                         // --------------------------
 
 // CREATORS
 inline

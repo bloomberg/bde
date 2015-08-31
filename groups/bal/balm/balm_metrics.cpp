@@ -20,9 +20,9 @@ const char *k_TYPE_STRING[] = { "category", "metric", };
 
 }  // close unnamed namespace
 
-                          // ------------------
-                          // class Metrics
-                          // ------------------
+                               // -------------
+                               // class Metrics
+                               // -------------
 
 // CLASS METHODS
 void Metrics_Helper::logEmptyName(const char *name,

@@ -148,9 +148,9 @@ struct MetricsManager_PublicationHelper {
         // members of 'manager'.
 };
 
-                          // ================
-                          // class MapProctor
-                          // ================
+                              // ================
+                              // class MapProctor
+                              // ================
 
 template <class CONTAINER>
 class MapProctor {
@@ -219,9 +219,9 @@ class MapProctor {
         // this object will have no effect on the map supplied at construction.
 };
 
-               // ===========================================
-               // class MetricsManager_PublisherRegistry
-               // ===========================================
+                   // ======================================
+                   // class MetricsManager_PublisherRegistry
+                   // ======================================
 
 class MetricsManager_PublisherRegistry {
     // This class provides a mechanism for associating a 'Publisher' object
@@ -368,9 +368,9 @@ class MetricsManager_PublisherRegistry {
         // general publishers).
 };
 
-               // ==========================================
-               // class MetricsManager_CallbackRegistry
-               // ==========================================
+                   // =====================================
+                   // class MetricsManager_CallbackRegistry
+                   // =====================================
 
 class MetricsManager_CallbackRegistry {
     // This class provides a mechanism for associating a
@@ -467,9 +467,9 @@ class MetricsManager_CallbackRegistry {
 //                           FUNCTION DEFINITIONS
 // ============================================================================
 
-                // --------------------------------------------
-                // struct MetricsManager_PublicationHelper
-                // --------------------------------------------
+                  // ---------------------------------------
+                  // struct MetricsManager_PublicationHelper
+                  // ---------------------------------------
 
 void MetricsManager_PublicationHelper::updateSampleCache(
                                 SampleCache                       *sampleCache,
@@ -630,9 +630,9 @@ void MetricsManager_PublicationHelper::publish(
     }
 }
 
-                          // ----------------
-                          // class MapProctor
-                          // ----------------
+                              // ----------------
+                              // class MapProctor
+                              // ----------------
 
 // CREATORS
 template <class CONTAINER>
@@ -672,9 +672,9 @@ void MapProctor<CONTAINER>::release()
     d_map = 0;
 }
 
-               // -------------------------------------------
-               // class MetricsManager_PublisherRegistry
-               // -------------------------------------------
+                   // --------------------------------------
+                   // class MetricsManager_PublisherRegistry
+                   // --------------------------------------
 
 MetricsManager_PublisherRegistry::MetricsManager_PublisherRegistry(
                                               bslma::Allocator *basicAllocator)
@@ -862,9 +862,9 @@ int MetricsManager_PublisherRegistry::findSpecificPublishers(
     return count;
 }
 
-               // ------------------------------------------
-               // class MetricsManager_CallbackRegistry
-               // ------------------------------------------
+                   // -------------------------------------
+                   // class MetricsManager_CallbackRegistry
+                   // -------------------------------------
 
 // CREATORS
 MetricsManager_CallbackRegistry::MetricsManager_CallbackRegistry(
@@ -957,9 +957,9 @@ int MetricsManager_CallbackRegistry::findCallbacks(
     return count;
 }
 
-                         // -------------------------
-                         // class MetricsManager
-                         // -------------------------
+                            // --------------------
+                            // class MetricsManager
+                            // --------------------
 
 // CREATORS
 MetricsManager::MetricsManager(bslma::Allocator *basicAllocator)

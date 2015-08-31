@@ -110,9 +110,9 @@ namespace BloombergLP {
 namespace balm {class Category;
 class MetricFormat;
 
-                          // ============================
+                          // =======================
                           // class MetricDescription
-                          // ============================
+                          // =======================
 
 class MetricDescription {
     // This class provides a mechanism for describing a metric.  A
@@ -251,12 +251,12 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     // modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                       // ----------------------------
-                       // class MetricDescription
-                       // ----------------------------
+                          // -----------------------
+                          // class MetricDescription
+                          // -----------------------
 
 // CREATORS
 inline

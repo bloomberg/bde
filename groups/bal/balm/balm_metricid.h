@@ -102,9 +102,9 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 namespace balm {
-                          // ===================
-                          // class MetricId
-                          // ===================
+                               // ==============
+                               // class MetricId
+                               // ==============
 
 class MetricId {
     // This class defines an in-core value-semantic type used to identify a
@@ -188,7 +188,7 @@ class MetricId {
 };
 
 // ============================================================================
-//                 INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -223,12 +223,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MetricId& rhs);
     // modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -------------------
-                          // class MetricId
-                          // -------------------
+                               // --------------
+                               // class MetricId
+                               // --------------
 
 // CREATORS
 inline

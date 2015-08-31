@@ -101,9 +101,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                       // ===========================
-                       // class IntegerCollector
-                       // ===========================
+                           // ======================
+                           // class IntegerCollector
+                           // ======================
 
 class IntegerCollector {
     // This class provides a mechanism for collecting and aggregating the
@@ -205,12 +205,12 @@ class IntegerCollector {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // ---------------------------
-                          // class IntegerCollector
-                          // ---------------------------
+                           // ----------------------
+                           // class IntegerCollector
+                           // ----------------------
 
 // CREATORS
 inline

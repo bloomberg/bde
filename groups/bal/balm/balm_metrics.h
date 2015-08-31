@@ -1151,9 +1151,9 @@ do {                                                                          \
 namespace BloombergLP {
 
 namespace balm {
-                        // ==========================
-                        // struct Metrics_Helper
-                        // ==========================
+                           // =====================
+                           // struct Metrics_Helper
+                           // =====================
 
 struct Metrics_Helper {
     // This 'struct' provides a namespace for a suite of functions used in the
@@ -1216,12 +1216,12 @@ struct Metrics_Helper {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // --------------------------
-                      // struct Metrics_Helper
-                      // --------------------------
+                           // ---------------------
+                           // struct Metrics_Helper
+                           // ---------------------
 
 // CLASS METHODS
 inline

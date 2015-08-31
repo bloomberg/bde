@@ -136,9 +136,9 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 namespace balm {
-                      // ===========================
-                      // class MetricFormatSpec
-                      // ===========================
+                           // ======================
+                           // class MetricFormatSpec
+                           // ======================
 
 class MetricFormatSpec {
     // This class provides a value-semantic representation of the formatting
@@ -223,7 +223,7 @@ class MetricFormatSpec {
 };
 
 // ============================================================================
-//                 INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -249,9 +249,9 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // Write a formatted description of the specified 'rhs' format spec to the
     // specified 'stream', and return a reference to the modifiable 'stream'.
 
-                      // =======================
-                      // class MetricFormat
-                      // =======================
+                             // ==================
+                             // class MetricFormat
+                             // ==================
 
 class MetricFormat {
     // This class provides a value-semantic description for the formatting of a
@@ -368,12 +368,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MetricFormat& rhs);
     // 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------
-                      // class MetricFormatSpec
-                      // ---------------------------
+                           // ----------------------
+                           // class MetricFormatSpec
+                           // ----------------------
 
 // CREATORS
 inline
@@ -458,9 +458,9 @@ bsl::ostream& balm::operator<<(bsl::ostream&           stream,
 }
 
 namespace balm {
-                        // -----------------------
-                        // class MetricFormat
-                        // -----------------------
+                             // ------------------
+                             // class MetricFormat
+                             // ------------------
 
 // CREATORS
 inline

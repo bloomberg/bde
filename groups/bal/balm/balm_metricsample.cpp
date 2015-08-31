@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(balm_metricsample_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                        // ----------------------------
-                        // class MetricSampleGroup
-                        // ----------------------------
+                          // -----------------------
+                          // class MetricSampleGroup
+                          // -----------------------
 
 // ACCESSORS
 bsl::ostream&
@@ -42,9 +42,9 @@ MetricSampleGroup::print(bsl::ostream& stream,
     return stream;
 }
 
-                       // -----------------------
-                       // class MetricSample
-                       // -----------------------
+                             // ------------------
+                             // class MetricSample
+                             // ------------------
 
 // CREATORS
 MetricSample::MetricSample(const MetricSample& original,

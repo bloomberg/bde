@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(balm_metricrecord_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // -----------------------
+                          // ------------------------
                           // class balm::MetricRecord
-                          // -----------------------
+                          // ------------------------
 
 // PUBLIC CONSTANTS
 const double balm::MetricRecord::k_DEFAULT_MIN = 1.0/0;

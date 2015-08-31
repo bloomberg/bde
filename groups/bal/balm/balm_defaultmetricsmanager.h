@@ -109,9 +109,9 @@ namespace BloombergLP {
 
 
 namespace balm {class MetricsManager;
-                   // =================================
-                   // struct DefaultMetricsManager
-                   // =================================
+                        // ============================
+                        // struct DefaultMetricsManager
+                        // ============================
 
 struct DefaultMetricsManager {
     // This struct provides a namespace for static functions that create,
@@ -177,9 +177,9 @@ struct DefaultMetricsManager {
         // manager instance (i.e., this method is *not* thread-safe).
 };
 
-               // ===========================================
-               // class DefaultMetricsManagerScopedGuard
-               // ===========================================
+                   // ======================================
+                   // class DefaultMetricsManagerScopedGuard
+                   // ======================================
 
 class DefaultMetricsManagerScopedGuard {
     // This class implements a scoped guard that, on construction, creates the
@@ -234,12 +234,12 @@ class DefaultMetricsManagerScopedGuard {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                   // --------------------------------
-                   // class DefaultMetricsManager
-                   // --------------------------------
+                        // ---------------------------
+                        // class DefaultMetricsManager
+                        // ---------------------------
 
 // CLASS METHODS
 inline
@@ -255,9 +255,9 @@ MetricsManager *DefaultMetricsManager::manager(
     return manager ? manager : s_singleton_p;
 }
 
-               // -------------------------------------------
-               // class DefaultMetricsManagerScopedGuard
-               // -------------------------------------------
+                   // --------------------------------------
+                   // class DefaultMetricsManagerScopedGuard
+                   // --------------------------------------
 
 // CREATORS
 inline

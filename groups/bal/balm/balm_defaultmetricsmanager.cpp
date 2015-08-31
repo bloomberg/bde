@@ -21,9 +21,9 @@ namespace BloombergLP {
 namespace balm {class Publisher;
 }  // close package namespace
 
-                     // --------------------------------
+                     // ---------------------------------
                      // class balm::DefaultMetricsManager
-                     // --------------------------------
+                     // ---------------------------------
 
 // CLASS DATA
 balm::MetricsManager *balm::DefaultMetricsManager::s_singleton_p = 0;

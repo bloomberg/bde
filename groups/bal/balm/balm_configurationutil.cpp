@@ -21,9 +21,9 @@ BSLS_IDENT_RCSID(balm_configurationutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                      // -----------------------------
-                      // struct ConfigurationUtil
-                      // -----------------------------
+                          // ------------------------
+                          // struct ConfigurationUtil
+                          // ------------------------
 
 // CLASS METHODS
 int ConfigurationUtil::setFormat(const char          *category,

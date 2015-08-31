@@ -250,9 +250,9 @@ namespace balm {class MetricFormat;
 class MetricFormatSpec;
 class MetricsManager;
 
-                      // =============================
-                      // struct ConfigurationUtil
-                      // =============================
+                          // ========================
+                          // struct ConfigurationUtil
+                          // ========================
 
 struct ConfigurationUtil {
     // This 'struct' provides utilities for configuring metrics.
@@ -370,7 +370,7 @@ struct ConfigurationUtil {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 }  // close enterprise namespace

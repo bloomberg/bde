@@ -33,7 +33,7 @@
 #define snprintf _snprintf_s
 #endif
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 
@@ -96,9 +96,9 @@ using bsl::flush;
 // [12] CONCURRENCY TEST
 // [13] USAGE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(bool b, const char *s, int i)
@@ -109,30 +109,30 @@ static void aSsErT(bool b, const char *s, int i)
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                *NON* STANDARD BAEM TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      *NON* STANDARD BAEM TEST MACROS
+// ----------------------------------------------------------------------------
 
 // Code defined between the 'BAEM_BEGIN_RETRY_TEST' and 'BAEM_END_RETRY_TEST'
 // macros will executed once, and, if there is a test failure, executed again
@@ -175,9 +175,9 @@ static void aSsErT(bool b, const char *s, int i)
     }                                                                         \
 }
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::PublicationScheduler        Obj;
 typedef bsl::pair<const balm::Category *,
@@ -202,9 +202,9 @@ enum {
     MICROSECS_PER_MILLISEC = 1000         // one thousand
 };
 
-//=============================================================================
-//                 NON-STANDARD BAEM EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  NON-STANDARD BAEM EXCEPTION TEST MACROS
+// ----------------------------------------------------------------------------
 
 // Note that the following exception test macros are similar to the standard
 // 'BSLMA_EXCEPTION_TEST' macros but, perform additional tests to verify the
@@ -270,9 +270,9 @@ enum {
 #define END_BAEM_EXCEPTION_TEST
 #endif
 
-//=============================================================================
-//                      CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 // from 'bdlmt_timereventscheduler.t.cpp'.
 void microSleep(int microSeconds, int seconds)
@@ -308,9 +308,9 @@ bool withinWindow(const bsls::TimeInterval& value,
     return withinWindow;
 }
 
-                      // ===================
-                      // class TestPublisher
-                      // ===================
+                            // ===================
+                            // class TestPublisher
+                            // ===================
 
 class TestPublisher : public balm::Publisher {
     // This class defines a test implementation of the 'balm::Publisher'
@@ -465,9 +465,9 @@ class TestPublisher : public balm::Publisher {
 
 };
 
-                      // --------------------------------------
-                      // class TestPublisher::InvocationSummary
-                      // --------------------------------------
+                   // --------------------------------------
+                   // class TestPublisher::InvocationSummary
+                   // --------------------------------------
 
 // CREATORS
 inline
@@ -477,9 +477,9 @@ TestPublisher::InvocationSummary::InvocationSummary()
 , d_elapsedTime()
 {
 }
-                      // -------------------------------------
-                      // class TestPublisher::InvocationIdLess
-                      // -------------------------------------
+                   // -------------------------------------
+                   // class TestPublisher::InvocationIdLess
+                   // -------------------------------------
 
 // ACCESSORS
 bool TestPublisher::InvocationIdLess::operator()(
@@ -501,9 +501,9 @@ bool TestPublisher::InvocationIdLess::operator()(
     return false;
 }
 
-                      // -------------------
-                      // class TestPublisher
-                      // -------------------
+                            // -------------------
+                            // class TestPublisher
+                            // -------------------
 
 // CREATORS
 inline
@@ -617,9 +617,9 @@ bsl::ostream& TestPublisher::print(bsl::ostream&   stream,
     return stream;
 }
 
-                        // ============
-                        // class Action
-                        // ============
+                                // ============
+                                // class Action
+                                // ============
 
 class Action {
      // This class defines a value semantic type used to describe a
@@ -738,9 +738,9 @@ int Action::interval() const
     return d_interval;
 }
 
-                      // =====================
-                      // class ConcurrencyTest
-                      // =====================
+                           // =====================
+                           // class ConcurrencyTest
+                           // =====================
 
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
@@ -980,9 +980,9 @@ void ConcurrencyTest::runTest()
     d_pool.drain();
 }
 
-//=============================================================================
-//                              Helper Functions
-//=============================================================================
+// ============================================================================
+//                             Helper Functions
+// ============================================================================
 
 inline bsls::TimeInterval invalidInterval()
     // Return the value used to indicate an invalid schedule interval.
@@ -1137,9 +1137,9 @@ void gg(bsl::vector<Action>  *actions,
     }
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // SimpleStreamPublisher was defined in 'balm_publisher.h'.
 
@@ -1213,9 +1213,9 @@ void gg(bsl::vector<Action>  *actions,
         }
     }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

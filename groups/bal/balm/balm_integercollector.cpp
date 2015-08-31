@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(balm_integercollector_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // ---------------------------
-                          // class balm::IntegerCollector
-                          // ---------------------------
+                        // ----------------------------
+                        // class balm::IntegerCollector
+                        // ----------------------------
 
 // PUBLIC CONSTANTS
 const int balm::IntegerCollector::k_DEFAULT_MIN = INT_MAX;

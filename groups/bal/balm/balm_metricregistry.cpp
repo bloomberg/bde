@@ -57,9 +57,9 @@ bool isPrefix(const char *candidatePrefix, const char *string)
 
 }  // close unnamed namespace
 
-                          // -------------------------
-                          // class balm::MetricRegistry
-                          // -------------------------
+                         // --------------------------
+                         // class balm::MetricRegistry
+                         // --------------------------
 
 namespace balm {
 
