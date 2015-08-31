@@ -2,9 +2,12 @@
 
 #include <bdlb_printmethods.h>
 #include <bdls_testutil.h>
-//#include <bdlt_date.h>
 
 #include <bslalg_typetraits.h>
+#include <bslmf_assert.h>
+#include <bslalg_hastrait.h>
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -516,6 +519,52 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+                        // ============
+                        // class MyDate
+                        // ============
+
+class MyDate
+{
+    // This class is used as an example of a conventional BDE value-semantic  
+    // type.  Accordingly, this type implements a 'print' method; albeit
+    // a stub function.
+
+  public:
+    BSLALG_DECLARE_NESTED_TRAITS(MyDate, bdlb::TypeTraitHasPrintMethod);
+
+    // CREATOR
+    MyDate();
+    MyDate(const MyDate& original);
+    // ...
+
+    // ACCESSORS
+                        // Aspects
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+};
+
+                        // ------------
+                        // class MyDate
+                        // ------------
+
+// CREATORS
+MyDate::MyDate()
+{
+}
+
+MyDate::MyDate(const MyDate& )
+{
+}
+
+// ACCESSORS
+bsl::ostream& MyDate::print(bsl::ostream& stream,
+                            int           ,
+                            int           ) const
+{
+    return stream;
+}
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -536,12 +585,12 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 
       public:
         // CREATORS
-        MyWrapper() { }
-        MyWrapper(const TYPE& original) : d_obj(original) { }
-            // ... other constructors and destructor ...
+        // ...
+        MyWrapper(const TYPE& value) : d_obj(value) { }
+        // ... other constructors and destructor ...
 
         // MANIPULATORS
-            // ... assignment operator, etc. ...
+        // ... assignment operator, etc. ...
 
         // ACCESSORS
         bsl::ostream& print(bsl::ostream& stream,
@@ -564,21 +613,32 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 // delegate the task of printing to the corresponding 'print' method of
 // 'd_obj':
 //..
-//  template <typename TYPE>
-//  bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
-//                                       int           level,
-//                                       int           spacesPerLevel) const
-//  {
-//      return d_obj.print(stream, level, spacesPerLevel);
-//  }
+    template <typename TYPE>
+    bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
+                                         int           level,
+                                         int           spacesPerLevel) const
+    {
+        return d_obj.print(stream, level, spacesPerLevel);
+    }
 //..
-// This method will work fine when 'TYPE' is a standard BDE value-semantic
-// component (e.g., 'bdlt::Date'):
+// This method will work fine when 'TYPE' is a conventional BDE value-semantic
+// component (e.g., 'MyDate'):
 //..
-//  bdlt::Date            myDate;
-//  MyWrapper<bdlt::Date> myWrapperForDate(myDate);
-//  myWrapperForDate.print(bsl::cout);  // No problem: 'bdlt::Date' has a
-//                                      // corresponding 'print' method.
+    static void usingMyDateViaMyWrapper()
+    {
+        BSLMF_ASSERT(
+               (bslalg::HasTrait<MyDate, bdlb::TypeTraitHasPrintMethod>::VALUE)
+        );
+
+        MyDate            myDate;
+        MyWrapper<MyDate> myWrapperForMyDate(myDate);
+        cout << "hello" << endl;
+    }
+#if 0
+    myWrapperForMyDate.print(bsl::cout); // No problem: 'bsls::TimeInterval'
+
+                                         // has a corresponding 'print' method.
+#endif 
 //..
 // However, when 'TYPE' is not a standard BDE value-semantic component (e.g.,
 // suppose 'TYPE' does not have the standard BDE 'print' method -- for example,
@@ -612,13 +672,13 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
     class MyWrapper2 {
         // An example wrapper for a 'TYPE' object that also declares the
         // 'bdlb::TypeTraitHasPrintMethod' trait.
-  
+
         // ... private data members ...
-  
+
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(MyWrapper2, bdlb::TypeTraitHasPrintMethod);
-  
+
         // ... rest of class definition ...
     };
 //..
@@ -678,9 +738,9 @@ int main(int argc, char *argv[])
         int            myInt = 123;
         MyWrapper<int> myWrapperForInt(myInt);
         myWrapperForInt.print(ss);
-#endif
 
         LOOP_ASSERT(ss.str(), "123\n" == ss.str());
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
