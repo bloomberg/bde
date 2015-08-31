@@ -5,6 +5,9 @@
 #include <ball_userfields.h>                                // for testing only
 #include <ball_userfieldsschema.h>
 
+#include <bslim_testutil.h>
+#include <bsls_assert.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -37,14 +40,14 @@ using namespace bsl;  // automatically added by script
 //..
 //-----------------------------------------------------------------------------
 // [ 1] ball::LoggerManagerConfiguration();
-// [ 1] ball::LoggerManagerConfiguration(const ball::LoggerManagerConfiguration&)
+// [ 1] ball::LoggerManagerConfiguration(const LoggerManagerConfiguration&)
 // [ 1] ~ball::LoggerManagerConfiguration();
 //
 // [ 1] bael::LMC& operator=(const ball::LoggerManagerConfiguration& rhs);
 // [ 1] void setDefaultValues(const bael::LMD& defaults);
 // [ 5] void setLogOrder(LogOrder value);
 // [ 6] void setTriggerMarkers(TriggerMarkers value);
-// [ 1] void setUserFieldsSchema(const Schema& schema, const Populator& populator);
+// [ 1] void setUserFieldsSchema(const Schema& , const Populator& );
 // [ 1] void setCategoryNameFilterCallback(const CNF& nameFilter);
 // [ 1] void setDefaultThresholdLevelsCallback(const DTC& );
 // [ 2] void setDefaultThresholdLevelsIfValid(int)
@@ -64,44 +67,60 @@ using namespace bsl;  // automatically added by script
 // [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -109,7 +128,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef ball::LoggerManagerConfiguration Obj;
 typedef ball::LoggerManagerDefaults      Defs;
-typedef ball::UserFieldsSchema       Descriptors;
+typedef ball::UserFieldsSchema           Descriptors;
 
 
 // Functor typedefs
@@ -127,13 +146,13 @@ typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerConfiguration' object.  
+// 'ball::LoggerManagerConfiguration' object.
 //
 // First we define a simple function that will serve as a
 // 'UserFieldsPopulatorCallback', a callback that will be invoked for each
 // logged message to populate user defined fields for the log record:
 //..
-    void exampleCallback(ball::UserFields              *fields, 
+    void exampleCallback(ball::UserFields              *fields,
                          const ball::UserFieldsSchema&  schema)
     {
       // Verify the schema matches this callbacks expectations.
@@ -146,11 +165,11 @@ typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
     }
 //..
 // Next, we define a function 'inititialize' in which we will create and
-// configure a 'ball::LoggerManagerConfiguration' object (see 
+// configure a 'ball::LoggerManagerConfiguration' object (see
 // {'ball_loggermanager'} for an example of how to create the logger-manager
 // singleton object):
 //..
-    void initializeConfiguration(bool verbose) 
+    void initializeConfiguration(bool verbose)
     {
       ball::LoggerManagerConfiguration config;
 //
@@ -432,7 +451,7 @@ int main(int argc, char *argv[])
         //:   configuration and the return value is 0.  (C-1, C-2)
         //:
         //: 2 Manually call method with invalid values and verify the
-        //:   configuraiton is not changed and the method is not 0.  (C-3)
+        //:   configuration is not changed and the method is not 0.  (C-3)
         //
         // Testing:
         //   int setDefaultThresholdLevels(int);

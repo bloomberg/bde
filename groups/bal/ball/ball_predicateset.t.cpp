@@ -8,8 +8,10 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslim_testutil.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -51,48 +53,61 @@ using namespace bsl;  // automatically added by script
 // [ 3] PRIMITIVE TEST APPARATUS: 'gg' and 'hh'
 // [ 8] UNUSED
 // [14] USAGE EXAMPLE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n"               \
-                     << #L << ": " << L << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -103,15 +118,6 @@ typedef ball::DefaultAttributeContainer AttributeSet;
 
 typedef bsls::Types::Int64             Int64;
 
-ball::Predicate A0("", "12345678");
-ball::Predicate A1("", 12345678);
-ball::Predicate A2("", (Int64)12345678);
-ball::Predicate A3("uuid", "12345678");
-ball::Predicate A4("uuid", 12345678);
-ball::Predicate A5("uuid", (Int64)12345678);
-ball::Predicate A6("UUID", "12345678");
-ball::Predicate A7("UUID", 12345678);
-ball::Predicate A8("UUID", (Int64)12345678);
 
 const char* NAMES[] = { "",                                       // A
                         "A",                                      // B
@@ -141,14 +147,15 @@ int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool compareText(bslstl::StringRef lhs, 
+bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
-   // Return 'true' if the specified 'lhs' has the same value as the specified'
-   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-   // which, if 'lhs' and 'rhs' are not the same', a description of how the
-   // two strings differ will be written.  If 'errorStream' is not supplied,
-   // 'stdout' will be used to report an error description.
+    // Return 'true' if the specified 'lhs' has the same value as the
+    // specified' rhs' and 'false' otherwise.  Optionally specify a
+    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
+    // description of how the two strings differ will be written.  If
+    // 'errorStream' is not supplied, 'stdout' will be used to report an error
+    // description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -186,7 +193,6 @@ bool compareText(bslstl::StringRef lhs,
     return true;
 
 }
-
 
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING
@@ -315,6 +321,16 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    ball::Predicate A0("", "12345678");
+    ball::Predicate A1("", 12345678);
+    ball::Predicate A2("", (Int64)12345678);
+    ball::Predicate A3("uuid", "12345678");
+    ball::Predicate A4("uuid", 12345678);
+    ball::Predicate A5("uuid", (Int64)12345678);
+    ball::Predicate A6("UUID", "12345678");
+    ball::Predicate A7("UUID", 12345678);
+    ball::Predicate A8("UUID", (Int64)12345678);
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
@@ -337,21 +353,35 @@ int main(int argc, char *argv[])
                           << "\n====================="
                           << endl;
 
-        ball::PredicateSet predicateSet;
-
-        ball::Predicate p1("uuid", 4044457);
-        predicateSet.addPredicate(p1);
-        ASSERT(1 == predicateSet.addPredicate(ball::Predicate("uuid",
-                                                             3133246)));
-
-        ASSERT(true == predicateSet.isMember(p1));
-        ASSERT(true == predicateSet.isMember(ball::Predicate("uuid", 3133246)));
-
-        ASSERT(0 == predicateSet.addPredicate(ball::Predicate("uuid",
-                                                             3133246)));
-
-        ASSERT(1 == predicateSet.removePredicate(p1));
-        ASSERT(false == predicateSet.isMember(p1));
+///Usage
+///-----
+// The following code fragments illustrate how to work with a predicate set.
+//
+// We first create an empty predicate set:
+//..
+    ball::PredicateSet predicateSet;
+//..
+// We then add two predicates to the predicate set:
+//..
+    ball::Predicate p1("uuid", 4044457);
+    ASSERT(1 == predicateSet.addPredicate(p1));
+    ASSERT(1 == predicateSet.addPredicate(ball::Predicate("uuid", 3133246)));
+//..
+// Predicates can be looked up (by value) via the 'isMember' method:
+//..
+    ASSERT(true == predicateSet.isMember(p1));
+    ASSERT(true == predicateSet.isMember(ball::Predicate("uuid", 3133246)));
+//..
+// Predicate values in a predicate set are unique:
+//..
+    ASSERT(0 == predicateSet.addPredicate(ball::Predicate("uuid", 3133246)));
+//..
+// Predicates can also be removed from the predicate set by the
+// 'removePredicate' method:
+//..
+    ASSERT(1 == predicateSet.removePredicate(p1));
+    ASSERT(false == predicateSet.isMember(p1));
+//..
 
       } break;
       case 13: {

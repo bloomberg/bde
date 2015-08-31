@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a predicate object that consists of a name/value pair.
 //
 //@CLASSES:
-//    ball::Predicate: a predicate in the form of an attribute name/value pair
+//  ball::Predicate: a predicate in the form of an attribute name/value pair
 //
 //@SEE_ALSO: ball_predicateset, ball_rule
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component implements a value-semantic predicate object
-// that consists of a name and a value.  The value can be an 'int', a 64-bit
-// integer, or a 'bsl::string'.  Both the name and value are managed by this
-// object.
+//@DESCRIPTION: This component implements a value-semantic predicate object,
+// 'ball::Predicate', that consists of a name and a value.  The value can be an
+// 'int', a 64-bit integer, or a 'bsl::string'.  Both the name and value are
+// managed by this object.
 //
 ///Usage
 ///-----
@@ -71,9 +71,20 @@ BSLS_IDENT("$Id: $")
 #include <ball_attribute.h>
 #endif
 
+#ifndef INCLUDED_BDLB_VARIANT
+#include <bdlb_variant.h>
+#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -87,23 +98,23 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                         // ====================
+                         // ===============
                          // class Predicate
-                         // ====================
+                         // ===============
 
 class Predicate {
     // This class contains an attribute name and an attribute value, both of
-    // which are managed.  A 'Predicate' object contains a
-    // 'Attribute' subobject, so that an equivalent 'Attribute'
-    // object can be obtained without any overhead when needed.  Since the
-    // 'Attribute' subobject does not manage the attribute name,
-    // 'Predicate' stores the attribute name in another member variable.
+    // which are managed.  A 'Predicate' object contains a 'Attribute'
+    // subobject, so that an equivalent 'Attribute' object can be obtained
+    // without any overhead when needed.  Since the 'Attribute' subobject does
+    // not manage the attribute name, 'Predicate' stores the attribute name in
+    // another member variable.
 
     // DATA
-    bsl::string     d_nameStr;    // the attribute name
+    bsl::string d_nameStr;    // the attribute name
 
-    Attribute  d_attribute;  // the 'Attribute' subobject, whose
-                                  // attribute name points to 'd_nameStr'
+    Attribute   d_attribute;  // the 'Attribute' subobject, whose attribute
+                              // name points to 'd_nameStr'
 
     // FRIENDS
     friend bool operator==(const Predicate&, const Predicate&);
@@ -111,6 +122,9 @@ class Predicate {
     friend bsl::ostream& operator<<(bsl::ostream&, const Predicate&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Predicate, bslma::UsesBslmaAllocator);
+
     // CLASS METHODS
     static int hash(const Predicate& predicate, int size);
         // Return a hash value calculated from the specified 'predicate' using
@@ -119,39 +133,39 @@ class Predicate {
 
     // CREATORS
     Predicate(const bslstl::StringRef&  name,
-                   int                     value,
-                   bslma::Allocator       *basicAllocator = 0 );
-        // Create a 'Predicate' object having the specified 'name' and
-        // 32-bit integer 'value'.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+              int                       value,
+              bslma::Allocator         *basicAllocator = 0 );
+        // Create a 'Predicate' object having the specified 'name' and 32-bit
+        // integer 'value'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     Predicate(const bslstl::StringRef&  name,
-                   bsls::Types::Int64      value,
-                   bslma::Allocator       *basicAllocator = 0 );
-        // Create a 'Predicate' object having the specified 'name' and
-        // 64-bit integer 'value'.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+              bsls::Types::Int64        value,
+              bslma::Allocator         *basicAllocator = 0 );
+        // Create a 'Predicate' object having the specified 'name' and 64-bit
+        // integer 'value'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     Predicate(const bslstl::StringRef&  name,
-                   const char             *value,
-                   bslma::Allocator       *basicAllocator = 0 );
+              const char               *value,
+              bslma::Allocator         *basicAllocator = 0 );
         // Create a 'Predicate' object having the specified 'name' and
         // character string 'value'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Predicate(const bslstl::StringRef&        name,
-                   const Attribute::Value&  value,
-                   bslma::Allocator             *basicAllocator = 0 );
-        // Create a 'Attribute' object having the specified (literal)
-        // 'name' and 'value'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+    Predicate(const bslstl::StringRef&  name,
+              const Attribute::Value&   value,
+              bslma::Allocator         *basicAllocator = 0 );
+        // Create a 'Attribute' object having the specified (literal) 'name'
+        // and 'value'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
     Predicate(const Predicate&  original,
-                   bslma::Allocator      *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
         // Create a 'Predicate' object having the same name and attribute
         // value as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -199,29 +213,29 @@ class Predicate {
 // FREE OPERATORS
 bool operator==(const Predicate& lhs, const Predicate& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Predicate' objects have the
-    // same value if they have the same name (but not necessarily the
-    // identical representation in memory), the same attribute value type, and
-    // the same attribute value.
+    // value, and 'false' otherwise.  Two 'Predicate' objects have the same
+    // value if they have the same name (but not necessarily the identical
+    // representation in memory), the same attribute value type, and the same
+    // attribute value.
 
 bool operator!=(const Predicate& lhs, const Predicate& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Predicate' objects do not
-    // have the same value if any of their respective names (value, not
-    // address), attribute value types, or attribute values differ.
+    // same value, and 'false' otherwise.  Two 'Predicate' objects do not have
+    // the same value if any of their respective names (value, not address),
+    // attribute value types, or attribute values differ.
 
-bsl::ostream& operator<<(bsl::ostream&         stream,
-                         const Predicate& attribute);
-    // Write the value of the specified 'attribute' to the specified output
+bsl::ostream& operator<<(bsl::ostream&    stream,
+                         const Predicate& predicate);
+    // Write the value of the specified 'predicate' to the specified output
     // 'stream', and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------
+                         // ---------------
                          // class Predicate
-                         // --------------------
+                         // ---------------
 
 //CLASS METHODS
 inline
@@ -233,8 +247,8 @@ int Predicate::hash(const Predicate& predicate, int size)
 // CREATORS
 inline
 Predicate::Predicate(const bslstl::StringRef&  name,
-                               int                     value,
-                               bslma::Allocator       *basicAllocator)
+                     int                       value,
+                     bslma::Allocator         *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -242,8 +256,8 @@ Predicate::Predicate(const bslstl::StringRef&  name,
 
 inline
 Predicate::Predicate(const bslstl::StringRef&  name,
-                               bsls::Types::Int64      value,
-                               bslma::Allocator       *basicAllocator)
+                     bsls::Types::Int64        value,
+                     bslma::Allocator         *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -251,17 +265,17 @@ Predicate::Predicate(const bslstl::StringRef&  name,
 
 inline
 Predicate::Predicate(const bslstl::StringRef&  name,
-                               const char             *value,
-                               bslma::Allocator       *basicAllocator)
+                     const char               *value,
+                     bslma::Allocator         *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
 }
 
 inline
-Predicate::Predicate(const bslstl::StringRef&        name,
-                               const Attribute::Value&  value,
-                               bslma::Allocator             *basicAllocator)
+Predicate::Predicate(const bslstl::StringRef&  name,
+                     const Attribute::Value&   value,
+                     bslma::Allocator         *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
 , d_attribute(d_nameStr.c_str(), value, basicAllocator)
 {
@@ -269,7 +283,7 @@ Predicate::Predicate(const bslstl::StringRef&        name,
 
 inline
 Predicate::Predicate(const Predicate&  original,
-                               bslma::Allocator      *basicAllocator)
+                     bslma::Allocator *basicAllocator)
 : d_nameStr(original.d_nameStr, basicAllocator)
 , d_attribute(d_nameStr.c_str(), original.d_attribute.value(), basicAllocator)
 {
@@ -335,7 +349,8 @@ bool ball::operator!=(const Predicate& lhs, const Predicate& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream& stream, const Predicate& predicate)
+bsl::ostream& ball::operator<<(bsl::ostream&    stream,
+                               const Predicate& predicate)
 {
     return predicate.print(stream, 0, -1);
 }

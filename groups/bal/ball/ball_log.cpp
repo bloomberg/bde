@@ -22,6 +22,7 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <bsl_cstdarg.h>
 #include <bsl_new.h>
 #include <bsl_ostream.h>
+#include <bsl_cstdio.h>
 #include <stdio.h>  // *NOT* <bsl_cstdio.h>, which does not declare 'vsnprintf'
 
 // See the end of this file for implementation notes.
@@ -29,15 +30,15 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                         // ---------------
+                         // ----------
                          // struct Log
-                         // ---------------
+                         // ----------
 
 // CLASS METHODS
 int Log::format(char        *buffer,
-                     bsl::size_t  numBytes,
-                     const char  *format,
-                     ...)
+                bsl::size_t  numBytes,
+                const char  *format,
+                             ...)
 {
     bsl::va_list args;
     va_start(args, format);
@@ -56,8 +57,8 @@ int Log::format(char        *buffer,
 }
 
 Record *Log::getRecord(const Category *category,
-                                 const char          *file,
-                                 int                  line)
+                       const char     *file,
+                       int             line)
 {
     if (category) {
         return LoggerManager::singleton().getLogger().getRecord(file,
@@ -70,10 +71,10 @@ Record *Log::getRecord(const Category *category,
 }
 
 void Log::logMessage(const Category *category,
-                          int                  severity,
-                          const char          *fileName,
-                          int                  lineNumber,
-                          const char          *message)
+                     int             severity,
+                     const char     *fileName,
+                     int             lineNumber,
+                     const char     *message)
 {
     BSLS_ASSERT(1 <= severity);  BSLS_ASSERT(severity <= 255);
     BSLS_ASSERT(fileName);
@@ -81,16 +82,16 @@ void Log::logMessage(const Category *category,
 
     if (category) {
         LoggerManager::singleton().getLogger().logMessage(*category,
-                                                               severity,
-                                                               fileName,
-                                                               lineNumber,
-                                                               message);
+                                                          severity,
+                                                          fileName,
+                                                          lineNumber,
+                                                          message);
     }
 }
 
 void Log::logMessage(const Category *category,
-                          int                  severity,
-                          Record         *record)
+                     int             severity,
+                     Record         *record)
 {
     BSLS_ASSERT(1 <= severity);  BSLS_ASSERT(severity <= 255);
 
@@ -133,24 +134,24 @@ const Category *Log::setCategory(const char *categoryName)
 }
 
 void Log::setCategory(CategoryHolder *categoryHolder,
-                           const char          *categoryName)
+                      const char     *categoryName)
 {
     BSLS_ASSERT(categoryName);
 
     if (LoggerManager::isInitialized()) {
         LoggerManager::singleton().setCategory(categoryHolder,
-                                                    categoryName);
+                                               categoryName);
     }
 }
 
 bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
-                                 int                        severity)
+                            int                   severity)
 {
     BSLS_ASSERT(categoryHolder);
 
     if (CategoryHolder::e_UNINITIALIZED_CATEGORY ==
                                               categoryHolder->threshold() ||
-        !LoggerManager::isInitialized()                              ||
+        !LoggerManager::isInitialized()                                   ||
         !categoryHolder->category()) {
 
         // If the category is uninitialized (i.e., the category holder is
@@ -158,7 +159,7 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
         // category is 0) then simply test whether the severity is greater than
         // the WARNING level.
 
-        return Severity::e_WARN >= severity;                       // RETURN
+        return Severity::e_WARN >= severity;                          // RETURN
     }
 
     return LoggerManager::singleton().isCategoryEnabled(
@@ -166,15 +167,15 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
                                                    severity);
 }
 
-                     // ---------------------
+                     // ----------------
                      // class Log_Stream
-                     // ---------------------
+                     // ----------------
 
 // CREATORS
 Log_Stream::Log_Stream(const Category *category,
-                                 const char          *fileName,
-                                 int                  lineNumber,
-                                 int                  severity)
+                       const char     *fileName,
+                       int             lineNumber,
+                       int             severity)
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
@@ -187,15 +188,15 @@ Log_Stream::~Log_Stream()
     Log::logMessage(d_category_p, d_severity, d_record_p);
 }
 
-                     // ------------------------
+                     // -------------------
                      // class Log_Formatter
-                     // ------------------------
+                     // -------------------
 
 // CREATORS
 Log_Formatter::Log_Formatter(const Category *category,
-                                       const char          *fileName,
-                                       int                  lineNumber,
-                                       int                  severity)
+                             const char     *fileName,
+                             int             lineNumber,
+                             int             severity)
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
@@ -211,6 +212,7 @@ Log_Formatter::~Log_Formatter()
     d_record_p->fixedFields().setMessage(d_buffer_p);
     Log::logMessage(d_category_p, d_severity, d_record_p);
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace
@@ -220,13 +222,13 @@ Log_Formatter::~Log_Formatter()
 // The stream-style logging macro (without a callback) is reproduced here:
 //..
 //#define BALL_LOG_STREAM(BAEL_SEVERITY) {                                   \@
-//    using BloombergLP::ball::Log;                                           \@
-//    using BloombergLP::ball::Log_Stream;                                    \@
-//    using BloombergLP::ball::Severity;                                      \@
+//    using BloombergLP::ball::Log;                                          \@
+//    using BloombergLP::ball::Log_Stream;                                   \@
+//    using BloombergLP::ball::Severity;                                     \@
 //    if (BALL_LOG_THRESHOLD >= BAEL_SEVERITY) {                             \@
-//        if (ball::Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER,          \@
+//        if (ball::Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER,         \@
 //                                        BAEL_SEVERITY)) {                  \@
-//            ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__, \@
+//            ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,\@
 //                                              __LINE__, BAEL_SEVERITY);    \@
 //            BAEL_STREAM
 //..
@@ -250,10 +252,10 @@ Log_Formatter::~Log_Formatter()
 // 'ball::CategoryHolder::BAEL_UNINITIALIZED_CATEGORY'.  The thresholds of
 // category holders corresponding to "dynamic" categories
 // ('BALL_LOG_SET_DYNAMIC_CATEGORY' macro) are initialized to
-// 'ball::CategoryHolder::DYNAMIC_CATEGORY'.  The threshold of a static category
-// holder is updated by 'ball::Log::setCategory' *if* the logger manager has
-// been initialized and not yet destroyed.  The thresholds of dynamic category
-// holders never change from their initial value.
+// 'ball::CategoryHolder::DYNAMIC_CATEGORY'.  The threshold of a static
+// category holder is updated by 'ball::Log::setCategory' *if* the logger
+// manager has been initialized and not yet destroyed.  The thresholds of
+// dynamic category holders never change from their initial value.
 //
 // The general idea is that the condition:
 //..
@@ -287,7 +289,7 @@ Log_Formatter::~Log_Formatter()
 // use of the utility functions is *strongly* discouraged:
 //..
 //      static const BloombergLP::ball::Category *category =
-//                                   ball::Log::setCategory("EQUITY.NASD.SUNW");
+//                                  ball::Log::setCategory("EQUITY.NASD.SUNW");
 //      {
 //          using BloombergLP::ball::Log;
 //          using BloombergLP::ball::Severity;

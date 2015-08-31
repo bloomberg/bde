@@ -9,13 +9,14 @@ BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsl_iostream.h>
+#include <bsl_climits.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
-                   // -----------------------
+                   // ------------------------
                    // class ball::PredicateSet
-                   // -----------------------
+                   // ------------------------
 
 // CLASS MEMBER
 int ball::PredicateSet::s_initialSize = 8;
@@ -24,11 +25,11 @@ int ball::PredicateSet::PredicateHash::s_hashtableSize = INT_MAX;
 
 namespace ball {
 // CREATE METHOD
-int PredicateSet::hash(const PredicateSet& predicateSet, int size)
+int PredicateSet::hash(const PredicateSet& set, int size)
 {
     const_iterator iter;
     int hashValue = 0;
-    for (iter = predicateSet.begin(); iter != predicateSet.end(); ++iter) {
+    for (iter = set.begin(); iter != set.end(); ++iter) {
         hashValue += Predicate::hash(*iter, size);
     }
     hashValue &= INT_MAX; // clear bit sign
@@ -37,8 +38,7 @@ int PredicateSet::hash(const PredicateSet& predicateSet, int size)
 }
 
 // MANIPULATORS
-PredicateSet&
-PredicateSet::operator=(const PredicateSet& rhs)
+PredicateSet& PredicateSet::operator=(const PredicateSet& rhs)
 {
     if (this != &rhs) {
 
@@ -53,8 +53,7 @@ PredicateSet::operator=(const PredicateSet& rhs)
 }
 
 // ACCESSORS
-bool PredicateSet::evaluate(
-                        const AttributeContainerList& containerList) const
+bool PredicateSet::evaluate(const AttributeContainerList& containerList) const
 {
     for (const_iterator iter = begin(); iter != end(); ++iter) {
         if (!containerList.hasValue(iter->attribute())) {

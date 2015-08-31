@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of useful logger manager functor payloads.
 //
 //@CLASSES
-//    ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
+//  ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
 //
 //@SEE_ALSO: ball_loggermanager, ball_categorymanager
 //
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 // These signatures match the five 'typedef' definitions used in the
 // 'ball_loggermanager' component, as shown below.  Note that
 // 'ball::LoggerManager::PublishAllCallback' is just an alias for
-// 'ball::Logger::PublishAllCallback', which is itself an alias for a particular
-// 'bdlf::Function' specialization.
+// 'ball::Logger::PublishAllCallback', which is itself an alias for a
+// particular 'bdlf::Function' specialization.
 //..
 //  ball::Logger Functors
 //  --------------------
@@ -210,9 +210,9 @@ BSLS_IDENT("$Id: $")
 //       manager.setCategory("EQUITY");                                  // (6)
 //..
 // Note that all six calls to 'setCategory' will succeed in adding new
-// categories to the registry.  Calls (1)-(5) will "find" their parent's
-// names and "inherit" the parent's levels.  Call (6), however, will not find
-// a parent category, and so will receive the default threshold levels, just as
+// categories to the registry.  Calls (1)-(5) will "find" their parent's names
+// and "inherit" the parent's levels.  Call (6), however, will not find a
+// parent category, and so will receive the default threshold levels, just as
 // if there were no callback installed.
 //
 // Note also that, although in this "static" (i.e., unadministered) example
@@ -260,9 +260,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                    // =================================
+                    // ============================
                     // struct LoggerFunctorPayloads
-                    // =================================
+                    // ============================
 
 struct LoggerFunctorPayloads {
     // This 'struct' provides a namespace for a suite of utility functions,

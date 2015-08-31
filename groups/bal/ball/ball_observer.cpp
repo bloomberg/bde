@@ -4,19 +4,21 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_observer_cpp,"$Id$ $CSID$")
 
-#ifdef BDE_FOR_TESTING_ONLY
-#include <ball_context.h>              // for testing only
-#include <ball_countingallocator.h>    // for testing only
-#include <ball_record.h>               // for testing only
-#include <ball_transmission.h>         // for testing only
-#endif
+#include <ball_recordattributes.h>              // for testing only
+#include <ball_record.h>                        // for testing only
+#include <ball_context.h>                       // for testing only
+#include <ball_transmission.h>                  // for testing only
+#include <ball_userfields.h>                    // for testing only
+
+#include <bslmf_assert.h>
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 
 namespace ball {
-                           // -------------------
+                           // --------------
                            // class Observer
-                           // -------------------
+                           // --------------
 
 // CREATORS
 Observer::~Observer()
@@ -30,14 +32,13 @@ Observer::~Observer()
 }
 
 // MANIPULATORS
-void Observer::publish(const Record&  ,
-                            const Context& )
+void Observer::publish(const Record& , const Context& )
 {
     BSLS_ASSERT_OPT(false);  // Should not be called
 }
 
 void Observer::publish(const bsl::shared_ptr<const Record>& record,
-                            const Context&                       context)
+                       const Context&                       context)
 {
     publish(*record, context);
 }

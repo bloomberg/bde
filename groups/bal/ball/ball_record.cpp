@@ -4,9 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_record_cpp,"$Id$ $CSID$")
 
-#ifdef BDE_FOR_TESTING_ONLY
 #include <ball_severity.h>       // for testing only
-#endif
 
 #include <bdlb_print.h>
 
@@ -15,14 +13,14 @@ BSLS_IDENT_RCSID(ball_record_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                           // -----------------
+                           // ------------
                            // class Record
-                           // -----------------
+                           // ------------
 
 // ACCESSORS
 bsl::ostream& Record::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                            int           level,
+                            int           spacesPerLevel) const
 {
     if (0 <= spacesPerLevel) {
         bdlb::Print::indent(stream, level, spacesPerLevel);
@@ -67,6 +65,7 @@ bsl::ostream& Record::print(bsl::ostream& stream,
 
     return stream << bsl::flush;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

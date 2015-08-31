@@ -8,14 +8,15 @@ BSLS_IDENT_RCSID(ball_multiplexobserver_cpp,"$Id$ $CSID$")
 #include <ball_defaultobserver.h>        // for testing only
 #include <ball_testobserver.h>           // for testing only
 #include <bsls_assert.h>
+
 #include <bsl_iostream.h>                // for warning print only
 
 namespace BloombergLP {
 
 namespace ball {
-                         // ----------------------------
+                         // -----------------------
                          // class MultiplexObserver
-                         // ----------------------------
+                         // -----------------------
 
 // CREATORS
 MultiplexObserver::~MultiplexObserver()
@@ -24,8 +25,7 @@ MultiplexObserver::~MultiplexObserver()
 }
 
 // MANIPULATORS
-void MultiplexObserver::publish(const Record&  record,
-                                     const Context& context)
+void MultiplexObserver::publish(const Record& record, const Context& context)
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
 
@@ -62,6 +62,7 @@ void MultiplexObserver::releaseRecords()
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
 
     bsl::set<Observer *>::const_iterator it = d_observerSet.begin();
+
     for (; it != d_observerSet.end(); ++it) {
         // TBD: Remove this test once the observer changes in BDE 2.12 have
         // stabilized.
@@ -104,6 +105,7 @@ int MultiplexObserver::deregisterObserver(Observer *observer)
 
     return !isRegistered;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

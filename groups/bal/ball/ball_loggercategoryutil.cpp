@@ -43,7 +43,7 @@ static void setThesholdIfMatchingCategoryPrefix(
                                           triggerAllLevel);
         BSLS_ASSERT(0 == s);
         ++(*matchCount);
-    }   
+    }
 }
 
 static void isLongerPrefixCategory(const Category **result,
@@ -53,19 +53,19 @@ static void isLongerPrefixCategory(const Category **result,
 
     // If the specified 'category' has a name that is a prefix of
     // 'categoryName' longer than 'minPrefixLength', then populate 'result with
-    // 'category, and popuate 'minPrefixLength' with length of 'category'.
+    // 'category, and populate 'minPrefixLength' with length of 'category'.
     // This operation has no effect if the name of 'category' is not a prefix
     // of 'categoryName' longer than the supplied 'minPrefixLength'.
 
 {
     int length = bsl::strlen(category->categoryName());
-    if (*minPrefixLength < length && 
+    if (*minPrefixLength < length &&
         0 == bsl::strncmp(category->categoryName(), categoryName, length)) {
         *result          = category;
         *minPrefixLength = length;
-    }    
+    }
 }
-            
+
 
                             // -------------------------
                             // struct LoggerCategoryUtil
@@ -87,7 +87,7 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
     int             longestPrefixLength   = -1;
 
 
-    using namespace bdlf::PlaceHolders;    
+    using namespace bdlf::PlaceHolders;
     loggerManager->visitCategories(bdlf::BindUtil::bind(isLongerPrefixCategory,
                                                         &longestPrefixCategory,
                                                         &longestPrefixLength,
@@ -113,7 +113,7 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
 
     return category;
 }
-                                        
+
 int LoggerCategoryUtil::setThresholdLevelsHierarchically(
                                             LoggerManager *loggerManager,
                                             const char    *categoryNamePrefix,
@@ -133,10 +133,10 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
         return -1;                                                    // RETURN
     }
 
-    
+
     int matchCount = 0;
 
-    using namespace bdlf::PlaceHolders;    
+    using namespace bdlf::PlaceHolders;
     loggerManager->visitCategories(
         bdlf::BindUtil::bind(setThesholdIfMatchingCategoryPrefix,
                              _1,
@@ -149,6 +149,7 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
     return matchCount;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
                                            const char    *regularExpression,
                                            int            recordLevel,
@@ -189,8 +190,9 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
                                             recordLevel,
                                             passLevel,
                                             triggerLevel,
-                                            triggerAllLevel);   
+                                            triggerAllLevel);
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 

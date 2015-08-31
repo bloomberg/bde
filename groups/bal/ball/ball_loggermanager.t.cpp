@@ -6,34 +6,43 @@
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_loggermanagerdefaults.h>
+#include <ball_rule.h>
 #include <ball_userfieldtype.h>
 #include <ball_userfields.h>
 #include <ball_userfieldsschema.h>
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bdlqq_barrier.h>                      // for testing only
-#include <bdlqq_threadutil.h>                       // for testing only
+#include <bdlqq_condition.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_threadutil.h>
 
-#include <bslma_testallocator.h>                // for testing only
+#include <bslma_testallocator.h>
 
-#include <bdlf_bind.h>                          // for testing only
-#include <bdlf_placeholder.h>                   // for testing only
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
-#include <bdlt_currenttime.h>                   // for testing only
+#include <bdlt_currenttime.h>
 
-#include <bslma_default.h>                      // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
+#include <bslim_testutil.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
+#include <bsls_atomic.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bslstl_stringref.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_cctype.h>
+#include <bsl_climits.h>
+#include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
@@ -122,11 +131,11 @@ using namespace bdlf::PlaceHolders;
 // [ 2] static ball::LoggerManager& singleton();
 // [24] static ball::Record *getRecord(const char *file, int line);
 // [24] static void logMessage(int severity, ball::Record *record);
-// [10] ball::LoggerManager(Obs*, const ball::LoggerManagerConfiguration&,*ba=0);
+// [10] ball::LoggerManager(Obs*, const LoggerManagerConfiguration&,*ba=0);
 // [10] ~ball::LoggerManager();
 // [10] static void initSingleton(Obs*, const Configuration&);
-// [14] ball::Logger *allocateLogger(ball::RecordBuffer *buffer)
-// [14] ball::Logger *allocateLogger(ball::RecordBuffer *buffer, int msgBufSize);
+// [14] ball::Logger *allocateLogger(RecordBuffer *buffer)
+// [14] ball::Logger *allocateLogger(RecordBuffer *buffer, int msgBufSize);
 // [14] void deallocateLogger(ball::Logger *logger);
 // [14] void setLogger(ball::Logger *logger);
 // [14] ball::Logger& getLogger();
@@ -169,46 +178,63 @@ using namespace bdlf::PlaceHolders;
 // [20] TESTING CONCURRENT ACCESS TO 'ball::LoggerManager::lookupCategory'
 // [31] USAGE EXAMPLE #1
 // [32] USAGE EXAMPLE #2
-// [33] USAGE EXAMPLE #4
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// [33] USAGE EXAMPLE #3
+// [34] USAGE EXAMPLE #4
 
-void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define F_ __FILE__                           // current source file name
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -225,8 +251,8 @@ typedef ball::RecordAttributes           Attr;
 typedef ball::RecordBuffer               RecBuf;
 
 typedef ball::UserFieldType              FieldType;
-typedef ball::UserFields            FieldValues;
-typedef ball::UserFieldsSchema       Descriptors;
+typedef ball::UserFields                 FieldValues;
+typedef ball::UserFieldsSchema           Descriptors;
 
 typedef ball::ThresholdAggregate            Thresholds;
 typedef Logger::PublishAllTriggerCallback   Pac;
@@ -236,13 +262,13 @@ typedef Obj::CategoryNameFilterCallback     Cnf;
 typedef Obj::DefaultThresholdLevelsCallback Dtc;
 typedef Obj::FactoryDefaultThresholds       Fdt;
 
+
+#define F_ __FILE__                           // current source file name
+#define L_ __LINE__                           // current Line number
+
+
 const int NUM_LOGGERS = 10;
 const int BUF_SIZE    = 32768;
-
-// Note: when this buffer is declared local to 'main', an "unknown software
-// exception" is triggered on Windows (presumably due to the buffer's size).
-// *** no more needed
-// char *globalBuffer[NUM_LOGGERS][BUF_SIZE];
 
 const char *NAMES[] = {  // test category names
     "A",
@@ -262,12 +288,12 @@ const int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
 
 struct my_Severity {
     enum Level {
-        BAEL_FATAL =  32,
-        BAEL_ERROR =  64,
-        BAEL_WARN  =  96,
-        BAEL_INFO  = 128,
-        BAEL_DEBUG = 160,
-        BAEL_TRACE = 192
+        e_FATAL =  32,
+        e_ERROR =  64,
+        e_WARN  =  96,
+        e_INFO  = 128,
+        e_DEBUG = 160,
+        e_TRACE = 192
     };
 };
 
@@ -282,9 +308,9 @@ const unsigned char FACTORY_TRIGGER    =  0;
 const unsigned char FACTORY_TRIGGERALL =  0;
 
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
+    // Create the specified 'numThreads', each executing the specified 'func'.
+    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
+    // to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -300,24 +326,425 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     delete [] threads;
 }
 
-//=============================================================================
-//                         CASE 32 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_32 {
-class Information {
-  private:
-    bsl::string d_heading;
-    bsl::string d_contents;
 
-  public:
-    Information(const char *heading, const char *contents);
-    const bsl::string& heading() const;
-    const bsl::string& contents() const;
-};
+//=============================================================================
+//                               USAGE EXAMPLE 1
+//-----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
+
+///Usage 1 -- Initialization #1
+///- - - - - - - - - - - - - -
+// Clients that perform logging must first instantiate the singleton logger
+// manager using the 'ball::LoggerManagerScopedGuard' class.  This example
+// shows how to create a logger manager with the most basic "default behavior".
+// Subsequent examples will show more customized behavior.  Note that a
+// 'ball::Observer' (which will receive the records that are published) is a
+// required argument; we will use a 'ball::DefaultObserver' here.
+//
+// The following snippets of code illustrate the initialization sequence
+// (typically performed near the top of 'main').
+//
+// First, we create a 'ball::DefaultObserver' object 'observer' that will
+// publish records to 'stdout':
+//..
+//    // myApp.cpp
+//
+      int main()
+      {
+//
+          // ...
+//
+          static ball::DefaultObserver observer(bsl::cout);
+//..
+// Next, we create a 'ball::LoggerManagerConfiguration' object,
+// 'configuration', and set the logging "pass-through" level -- the level at
+// which log records are published to registered observers -- to 'WARN' (see
+// {'Categories, Severities, and Threshold Levels'}):
+//..
+          ball::LoggerManagerConfiguration configuration;
+          configuration.setDefaultThresholdLevelsIfValid(
+                                                     ball::Severity::e_WARN);
+//..
+// We next create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// takes the observer and configuration object just created.  The guard will
+// initialize the logger manager singleton on creation and destroy the
+// singleton upon destruction.  This guarantees that any resources used by the
+// logger manager will be properly released when they are not needed:
+//..
+          ball::LoggerManagerScopedGuard guard(&observer, configuration);
+//..
+// The application is now prepared to log messages using the 'bael' logging
+// subsystem:
+//..
+          // ...
+
+          return 0;
+      }
+//..
+
+}  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1
+
+//=============================================================================
+//                               USAGE EXAMPLE 2
+//-----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
+
+///Usage 2 -- Initialization #2
+/// - - - - - - - - - - - - - -
+// In this example, we demonstrate a more elaborate initial configuration for
+// the logger manager.  In particular, we create the singleton logger manager
+// with a configuration that has a category name filter functor, a
+// 'DefaultThresholdLevelsCallback' functor, and user-chosen values for the
+// "factory default" threshold levels.
+//
+// First we define three 'static' functions that are employed by the two
+// functors.  The 'toLower' function implements our category name filter.  It
+// is wrapped within a functor object and maps category names to lower-case:
+//..
+      static
+      void toLower(bsl::string *buffer, const char *s)
+      {
+          ASSERT(buffer);
+          ASSERT(s);
+//
+          buffer->clear();
+          while (*s) {
+              buffer->push_back(bsl::tolower(static_cast<unsigned char>(*s)));
+              ++s;
+          }
+          buffer->push_back(0);
+      }
+//..
+// The following two functions provide the implementation for our
+// 'DefaultThresholdLevelsCallback' functor.  The 'inheritThresholdLevels'
+// function is wrapped within a functor object; the 'getDefaultThresholdLevels'
+// function is a helper that does the hard work.  We assume a hierarchical
+// category naming scheme that uses '.' to delimit the constituents of names.
+// For example, the three categories named "x", "x.y", and "x.y.z" are related
+// in the sense that "x" is an ancestor of both "x.y" and "x.y.z", and "x.y" is
+// an ancestor "x.y.z".  Suppose that "x" is added to the registry first.  If
+// "x.y" is then added to the registry by calling 'setCategory(const char *)',
+// it would "inherit" threshold level values from "x".  Similarly, when "x.y.z"
+// is added to the registry by calling the 1-argument 'setCategory' method, it
+// inherits threshold level values from "x.y" (i.e., a category inherits from
+// its nearest ancestor that exists in the registry when it is added).  Note
+// that a category named "xx.y" (for example) is not related to either of "x",
+// "x.y", or "x.y.z":
+//..
+      static
+      int getDefaultThresholdLevels(
+                                   int                        *recordLevel,
+                                   int                        *passLevel,
+                                   int                        *triggerLevel,
+                                   int                        *triggerAllLevel,
+                                   char                        delimiter,
+                                   const ball::LoggerManager&  loggerManager,
+                                   const char                 *categoryName)
+          // Obtain appropriate threshold levels for the category having the
+          // specified 'categoryName' by searching the registry of the
+          // specified 'loggerManager', and store the resulting values at the
+          // specified 'recordLevel', 'passLevel', 'triggerLevel', and
+          // 'triggerAllLevel' addresses.  A hierarchical category naming
+          // scheme is assumed that employs the specified 'delimiter' to
+          // separate the components of category names.  Return 0 on success,
+          // and a non-zero value otherwise.  The behavior is undefined unless
+          // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
+          // are non-null, and 'categoryName' is null-terminated.
+      {
+          ASSERT(recordLevel);
+          ASSERT(passLevel);
+          ASSERT(triggerLevel);
+          ASSERT(triggerAllLevel);
+          ASSERT(categoryName);
+//
+          enum { SUCCESS = 0, FAILURE = -1 };
+//
+          bsl::string buffer(categoryName);
+          while (1) {
+              const ball::Category *category =
+                                 loggerManager.lookupCategory(buffer.c_str());
+              if (0 != category) {
+                  *recordLevel     = category->recordLevel();
+                  *passLevel       = category->passLevel();
+                  *triggerLevel    = category->triggerLevel();
+                  *triggerAllLevel = category->triggerAllLevel();
+                  return SUCCESS;                                     // RETURN
+              }
+
+              const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
+              if (0 == newEnd) {
+                  return FAILURE;                                     // RETURN
+              }
+              buffer.resize(newEnd - buffer.data());
+          }
+      }
+//
+      static
+      void inheritThresholdLevels(int        *recordLevel,
+                                  int        *passLevel,
+                                  int        *triggerLevel,
+                                  int        *triggerAllLevel,
+                                  const char *categoryName)
+          // Obtain appropriate threshold levels for the category having the
+          // specified 'categoryName', and store the resulting values at the
+          // specified 'recordLevel', 'passLevel', 'triggerLevel', and
+          // 'triggerAllLevel' addresses.  The behavior is undefined unless
+          // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
+          // are non-null, and 'categoryName' is null-terminated.
+      {
+          ASSERT(recordLevel);
+          ASSERT(passLevel);
+          ASSERT(triggerLevel);
+          ASSERT(triggerAllLevel);
+          ASSERT(categoryName);
+//
+          const ball::LoggerManager& manager =
+                                              ball::LoggerManager::singleton();
+          if (0 != getDefaultThresholdLevels(recordLevel,
+                                             passLevel,
+                                             triggerLevel,
+                                             triggerAllLevel,
+                                             '.',
+                                             manager,
+                                             categoryName)) {
+              *recordLevel     = manager.defaultRecordThresholdLevel();
+              *passLevel       = manager.defaultPassThresholdLevel();
+              *triggerLevel    = manager.defaultTriggerThresholdLevel();
+              *triggerAllLevel = manager.defaultTriggerAllThresholdLevel();
+          }
+      }
+//..
+// As in "Usage 1" above, we assume that the initialization sequence occurs
+// somewhere near the top of 'main', and again we use a 'ball::DefaultObserver'
+// to publish to 'stdout':
+//..
+      // myApp2.cpp
+//
+      int main() {
+//
+          // ...
+//
+          static ball::DefaultObserver observer(bsl::cout);
+//..
+// The following wraps the 'toLower' category name filter within a
+// 'bdlf::Function' functor:
+//..
+          ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
+//..
+// and the following wraps the 'inheritThresholdLevels' function within a
+// 'bdlf::Function' functor:
+//..
+          ball::LoggerManager::DefaultThresholdLevelsCallback
+                                   thresholdsCallback(&inheritThresholdLevels);
+//..
+// Next we define four values for our custom "factory default" thresholds.
+// These values will be stored within the logger manager and will be available
+// to all users whenever the "factory defaults" are needed, for the life of the
+// logger manager.  In this example, however, we will also be installing the
+// 'thresholdsCallback' defined above, so unless that functor is un-installed
+// (by a call to 'setDefaultThresholdLevelsCallback'), these four "factory
+// defaults" will have no practical effect, since the callback mechanism "steps
+// in front of" the default values:
+//..
+          int recordLevel     = 125;
+          int passLevel       = 100;
+          int triggerLevel    =  75;
+          int triggerAllLevel =  50;
+//..
+// Now we can configure a 'ball::LoggerManagerDefaults' object, 'defaults',
+// with these four threshold values.  'defaults' can then be used to configure
+// the 'ball::LoggerManagerConfiguration' object that will be passed to the
+// 'ball::LoggerManagerScopedGuard' constructor (below):
+//..
+          ball::LoggerManagerDefaults defaults;
+          defaults.setDefaultThresholdLevelsIfValid(recordLevel,
+                                                    passLevel,
+                                                    triggerLevel,
+                                                    triggerAllLevel);
+//..
+// With 'defaults' and the callback functors defined above, we can now create
+// and set the 'ball::LoggerManagerConfiguration' object, 'configuration', that
+// will describe our desired configuration:
+//..
+          ball::LoggerManagerConfiguration configuration;
+          configuration.setDefaultValues(defaults);
+          configuration.setCategoryNameFilterCallback(nameFilter);
+          configuration.setDefaultThresholdLevelsCallback(thresholdsCallback);
+//..
+// Finally, we can instantiate the singleton logger manager, passing in the
+// 'observer' and 'configuration' that we have just created:
+//..
+          ball::LoggerManagerScopedGuard guard(&observer, configuration);
+          ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// The application is now prepared to log messages using the 'bael' logging
+// subsystem, but first we will demonstrate the functors and client-supplied
+// default threshold overrides.
+//
+// First, assume that we are not in the same lexical scope, and so we cannot
+// see 'manager' above.  We must therefore obtain a reference to the singleton
+// logger manager:
+//..
+          ball::LoggerManager& loggerManager =
+                                              ball::LoggerManager::singleton();
+//..
+// Next obtain a reference to the *Default* *Category* and 'ASSERT' that its
+// threshold levels match the client-supplied values that overrode the
+// "factory-supplied" default values:
+//..
+          const ball::Category& defaultCategory =
+                                               loggerManager.defaultCategory();
+          ASSERT(125 == defaultCategory.recordLevel());
+          ASSERT(100 == defaultCategory.passLevel());
+          ASSERT( 75 == defaultCategory.triggerLevel());
+          ASSERT( 50 == defaultCategory.triggerAllLevel());
+//..
+// Next add a category named "BloombergLP" (by calling 'addCategory').  Note
+// that the logger manager invokes the supplied category name filter to map
+// the category name to lower-case before the new category is added to the
+// category registry.  The name filter is also invoked by 'lookupCategory'
+// whenever a category is searched for (i.e., by name) in the registry:
+//..
+          const ball::Category *blpCategory =
+                     loggerManager.addCategory("BloombergLP", 128, 96, 64, 32);
+          ASSERT(blpCategory == loggerManager.lookupCategory("BLOOMBERGLP"));
+          ASSERT(  0 == bsl::strcmp("bloomberglp",
+                                    blpCategory->categoryName()));
+          ASSERT(128 == blpCategory->recordLevel());
+          ASSERT( 96 == blpCategory->passLevel());
+          ASSERT( 64 == blpCategory->triggerLevel());
+          ASSERT( 32 == blpCategory->triggerAllLevel());
+//..
+// Next add a second category named "BloombergLP.bae.bael" (by calling
+// 'setCategory') and 'ASSERT' that the threshold levels are "inherited" from
+// category "BloombergLP":
+//..
+          const ball::Category *baelCategory =
+                             loggerManager.setCategory("BloombergLP.bae.bael");
+          ASSERT(baelCategory ==
+                         loggerManager.lookupCategory("bloomberglp.bae.bael"));
+          ASSERT(  0 == bsl::strcmp("bloomberglp.bae.bael",
+                                    baelCategory->categoryName()));
+          ASSERT(128 == baelCategory->recordLevel());
+          ASSERT( 96 == baelCategory->passLevel());
+          ASSERT( 64 == baelCategory->triggerLevel());
+          ASSERT( 32 == baelCategory->triggerAllLevel());
+//..
+// Finally add a third category named "Other.equities", again by calling
+// 'setCategory'.  This category has no ancestor currently in the registry, so
+// its threshold levels match those of the *Default* *Category*:
+//..
+          const ball::Category *equitiesCategory =
+                             loggerManager.setCategory("Other.equities");
+          ASSERT(equitiesCategory ==
+                         loggerManager.lookupCategory("OTHER.EQUITIES"));
+          ASSERT(  0 == bsl::strcmp("other.equities",
+                                    equitiesCategory->categoryName()));
+          ASSERT(125 == equitiesCategory->recordLevel());
+          ASSERT(100 == equitiesCategory->passLevel());
+          ASSERT( 75 == equitiesCategory->triggerLevel());
+          ASSERT( 50 == equitiesCategory->triggerAllLevel());
+//
+          // ...
+
+          return 0;
+      }
+//..
+}  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2
+
+//=============================================================================
+//                               USAGE EXAMPLE 3
+//-----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3 {
+
+///Usage 3 -- Efficient Logging of 'ostream'-able Objects
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates how instances of a class supporting
+// streaming to 'bsl::ostream' (via overloaded 'operator<<') can be logged.  It
+// also demonstrates how to use the 'logMessage' method to log messages to a
+// logger.  Suppose we want to *efficiently* log instances of the following
+// class:
+//..
+      class Information {
+          // This (incomplete) class is a simple aggregate of a "heading" and
+          // "contents" pertaining to that heading.  It serves to illustrate
+          // how to log the string representation of an object.
+//
+          bsl::string d_heading;
+          bsl::string d_contents;
+//
+        public:
+          Information(const char *heading, const char *contents);
+          ~Information();
+          const bsl::string& heading() const;
+          const bsl::string& contents() const;
+      };
+//..
+// In addition, we define the following free operator for streaming instances
+// of 'Information' to an 'bsl::ostream':
+//..
+      bsl::ostream& operator<<(bsl::ostream&      stream,
+                               const Information& information)
+      {
+          stream << information.heading()  << bsl::endl;
+          stream << ": ";
+          stream << information.contents() << bsl::endl;
+          return stream;
+      }
+//..
+// The following function logs an 'Information' object to the specified
+// 'logger':
+//..
+      void logInformation(ball::Logger          *logger,
+                          const Information&     information,
+                          ball::Severity::Level  severity,
+                          const ball::Category&  category,
+                          const char            *fileName,
+                          int                    lineNumber)
+      {
+//..
+// First, obtain a record that has its 'fileName' and 'lineNumber' attributes
+// set:
+//..
+          ball::Record *record = logger->getRecord(fileName, lineNumber);
+//..
+// Next, get a modifiable reference to the fixed fields of 'record':
+//..
+          ball::RecordAttributes& attributes = record->fixedFields();
+//..
+// Create a 'bsl::ostream' to which the string representation 'information' can
+// be output.  Note that 'stream' is supplied with the stream buffer of
+// 'record':
+//..
+          bsl::ostream stream(&attributes.messageStreamBuf());
+//..
+// Now stream 'information' into our output 'stream'.  This will set the
+// message attribute of 'record' to the streamed data:
+//..
+          stream << information;
+//..
+// Finally, log 'record' using 'logger':
+//..
+          logger->logMessage(category, severity, record);
+      }
+//..
+// Notice that we did not need to allocate a scratch buffer to stream the
+// object contents into.  That would have required an extra copy and the cost
+// of allocation and deallocation, and thus would have been more inefficient.
+
+
+        //  Elided function defintions
 
 Information::Information(const char *heading, const char *contents)
 : d_heading(heading)
 , d_contents(contents)
+{
+}
+
+Information::~Information()
 {
 }
 
@@ -331,38 +758,282 @@ const bsl::string& Information::contents() const
     return d_contents;
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream,
-                         const Information& information)
+}  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3
+
+
+//=============================================================================
+//                               USAGE EXAMPLE # 4
+//-----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4 {
+
+///Usage 4 -- Logging using a 'ball::Logger'
+///- - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using the a 'ball::Logger' directly to log
+// messages.  In practice, clients are encouraged to use the logging macros
+// (see {'ball_log'}, which cannot be shown here for dependency reasons.  The
+// following example assumes logging has been correctly initialized (see prior
+// examples).
+//
+// The following simple 'factorial' function takes and returns values of type
+// 'int'.  Note that this function has a very limited range of input, namely
+// integers in the range '[0 .. 13]'.  This limited range serves to illustrate
+// a usage pattern of the logger, namely to log "warnings" whenever a key
+// function is given bad input.
+//
+// For this example, it is sufficient to use the severity levels defined in the
+// 'ball::Severity::Level' enumeration:
+//..
+      enum Level {
+          OFF   =   0,  // disable generation of corresponding message
+          FATAL =  32,  // a condition that will (likely) cause a *crash*
+          ERROR =  64,  // a condition that *will* cause incorrect behavior
+          WARN  =  96,  // a *potentially* problematic condition
+          INFO  = 128,  // data about the running process
+          DEBUG = 160,  // information useful while debugging
+          TRACE = 192   // execution trace data
+      };
+//..
+// Note that the intervals left between enumerator values allow applications
+// to define additional values in case there is a desire to log with more
+// finely-graduated levels of severity.  We will not need that granularity
+// here; 'ball::Severity::e_WARN' is appropriate to log a warning message if
+// the input argument to our factorial function is not in this range of values.
+//
+// We will register a unique category for this function, so that logged
+// messages from our function will be identified in the published output.
+// Also, with a unique category name, the logging behavior of this function can
+// be administered by resetting the various threshold levels for the category.
+// In this example, we will accept the default thresholds.
+//
+// The 'setCategory' method accepts a name and returns the address of a
+// 'ball::Category' with that name or, in some circumstances, the address of
+// the *Default* *Category* (see the function-level documentation of
+// 'setCategory' for details).  The address returned by 'setCategory' is stored
+// in a function-static pointer variable (i.e., it is fetched only once upon
+// first use).  In this example, we assume that we are writing a function for
+// Equities Graphics that will live in that group's Math library.  The dot
+// "delimiters" ('.') have no particular significance to the logger, but may be
+// used by the administration methods to "induce" a hierarchical behavior on
+// our category, should that be useful.  See, e.g., the callback functor
+// 'ball::LoggerManager::DefaultThresholdLevelsCallback' and its documentation,
+// and Usage Example 2 above for information on how to use category names to
+// customize logger behavior:
+//..
+     int factorial(int n)
+         // Return the factorial of the specified value 'n' if the factorial
+         // can be represented as an 'int', and a negative value otherwise.
+     {
+         static const ball::Category *factorialCategory =
+             ball::LoggerManager::singleton().setCategory(
+                                           "equities.graphics.math.factorial");
+//..
+// We must also obtain a reference to a logger by calling the logger manager
+// 'getLogger' method.  Note that this logger may not safely be cached as a
+// function 'static' variable since our function may be called in different
+// threads having different loggers.  Even in a single-threaded program, the
+// owner of 'main' is free to install new loggers at any point, so a
+// statically-cached logger would be a problem:
+//..
+         ball::Logger& logger = ball::LoggerManager::singleton().getLogger();
+//..
+// Now we validate the input value 'n'.  If 'n' is either negative or too
+// large, we will log a warning message (at severity level
+// 'ball::Severity::e_WARN') and return a negative value.  Note that calls to
+// 'logMessage' have no run-time overhead (beyond the execution of a simple
+// 'if' test) unless 'ball::Severity::e_WARN' is at least as severe as one of
+// the threshold levels of 'factorialCategory':
+//..
+         if (0 > n) {
+             logger.logMessage(*factorialCategory,
+                               ball::Severity::e_WARN,
+                               __FILE__,
+                               __LINE__,
+                               "Attempt to take factorial of negative value.");
+             return n;
+         }
+//
+         enum { MAX_ARGUMENT = 13 };  // maximum value accepted by 'factorial'
+//
+         if (MAX_ARGUMENT < n) {
+             logger.logMessage(*factorialCategory,
+                               ball::Severity::e_WARN,
+                               __FILE__,
+                               __LINE__,
+                               "Result too large for 'int'.");
+             return -n;
+         }
+//..
+// The remaining code proceeds mostly as expected, but adds one last message
+// that tracks control flow when 'ball::Severity::e_TRACE' is at least as
+// severe as one of the threshold levels of 'factorialCategory' (e.g., as
+// might be the case during debugging):
+//..
+         int product = 1;
+         while (1 < n) {
+             product *= n;
+             --n;
+         }
+//
+         logger.logMessage(*factorialCategory,
+                           ball::Severity::e_TRACE,
+                           __FILE__,
+                           __LINE__,
+                           "Exiting 'factorial' successfully.");
+//
+         return product;
+     }
+//..
+
+}  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4
+
+//=============================================================================
+//                         CASE 12 RELATED ENTITIES
+//-----------------------------------------------------------------------------
+
+static
+int getDefaultThresholdLevels(int                        *recordLevel,
+                              int                        *passLevel,
+                              int                        *triggerLevel,
+                              int                        *triggerAllLevel,
+                              char                        delimiter,
+                              const ball::LoggerManager&  loggerManager,
+                              const char                 *categoryName)
 {
-    stream << information.heading() << endl;
-    stream << '\t';
-    stream << information.contents() << endl;
-    return stream;
+    ASSERT(recordLevel);
+    ASSERT(passLevel);
+    ASSERT(triggerLevel);    ASSERT(triggerAllLevel);
+    ASSERT(categoryName);
+
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    bsl::string buffer(categoryName);
+
+    while (1) {
+        const ball::Category *category =
+                                 loggerManager.lookupCategory(buffer.c_str());
+        if (0 != category) {
+                *recordLevel     = category->recordLevel();
+                *passLevel       = category->passLevel();
+                *triggerLevel    = category->triggerLevel();
+                *triggerAllLevel = category->triggerAllLevel();
+                return SUCCESS;                                       // RETURN
+        }
+
+        const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
+        if (0 == newEnd) {
+            return FAILURE;                                           // RETURN
+        }
+        buffer.resize(newEnd - buffer.data());
+    }
 }
 
-void logInformation(ball::Logger *logger,
-                    const Information& information,
-                    ball::Severity::Level severity,
-                    const ball::Category& category,
-                    const char* fileName,
-                    int lineNumber)
+static Obj* g_overrideManager;
+
+static
+void inheritThresholdLevelsUsingManager(
+                                   int                       *recordLevel,
+                                   int                       *passLevel,
+                                   int                       *triggerLevel,
+                                   int                       *triggerAllLevel,
+                                   const char                *categoryName,
+                                   const ball::LoggerManager *lm)
 {
-    ball::Record *record = logger->getRecord(fileName,lineNumber);
-    ball::RecordAttributes& attributes = record->fixedFields();
+    ASSERT(recordLevel);
+    ASSERT(passLevel);
+    ASSERT(triggerLevel);
+    ASSERT(triggerAllLevel);
+    ASSERT(categoryName);
 
-    attributes.setFileName(fileName);
-    attributes.setLineNumber(lineNumber);
+    if (0 == lm) {
+        lm = g_overrideManager;
+    }
 
-    ostream os(&attributes.messageStreamBuf());
-    os << information;
-    logger->logMessage(category, severity, record);
+    if (0 != getDefaultThresholdLevels(recordLevel,
+                                       passLevel,
+                                       triggerLevel,
+                                       triggerAllLevel,
+                                       '.',
+                                       *lm,
+                                       categoryName)) {
+        *recordLevel     = lm->defaultRecordThresholdLevel();
+        *passLevel       = lm->defaultPassThresholdLevel();
+        *triggerLevel    = lm->defaultTriggerThresholdLevel();
+        *triggerAllLevel = lm->defaultTriggerAllThresholdLevel();
+    }
 }
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_32
+
+static
+void inheritThresholdLevels(int        *recordLevel,
+                            int        *passLevel,
+                            int        *triggerLevel,
+                            int        *triggerAllLevel,
+                            const char *categoryName)
+{
+    const ball::LoggerManager& lm = ball::LoggerManager::singleton();
+    inheritThresholdLevelsUsingManager(recordLevel, passLevel,
+                                       triggerLevel, triggerAllLevel,
+                                       categoryName, &lm);
+}
+
+static int globalFactorialArgument;  // TBD kludge
+
+static
+void myPopulator(ball::UserFields              *list,
+                 const ball::UserFieldsSchema&  descriptors)
+{
+    ASSERT(1                  == descriptors.length());
+    ASSERT(0                  == descriptors.indexOf("n!"));
+    ASSERT(FieldType::e_INT64 == descriptors.type(0));
+    ASSERT("n!"               == descriptors.name(0));
+
+    list->appendInt64(globalFactorialArgument);
+}
+
+//=============================================================================
+//                         CASE 15 RELATED ENTITIES
+//-----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_TEST_CASE_15 {
+
+class MyObserver : public ball::Observer {
+    // This concrete implementation of 'ball::Observer' maintains a count of
+    // the number of messages published to it and gives access to that count
+    // through 'publishCount'.
+
+    int                 d_publishCount;
+    bsl::ostream&       d_stream;
+
+  public:
+    // CREATORS
+    MyObserver(bsl::ostream& stream) : d_publishCount(0), d_stream(stream)
+    {
+    }
+
+    // MANIPULATORS
+    void publish(const ball::Record& record, const ball::Context& context)
+    {
+        ++d_publishCount;
+        d_stream << "Log " << context.recordIndex() + 1
+                 << " of " << context.sequenceLength()
+                 << " : "  << record.fixedFields().message()
+                 << "\n"   << bsl::flush;
+    }
+
+    // ACCESSORS
+    int publishCount() const
+    {
+        return d_publishCount;
+    }
+};
+
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_15
+
 
 // ============================================================================
 //                         CASE 29 RELATED ENTITIES
 // ----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_29 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_29 {
 class TestDestroyObserver : public ball::Observer {
     int d_releaseCnt;
 public:
@@ -379,12 +1050,12 @@ public:
         return d_releaseCnt;
     }
 };
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_29
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_29
 
 //=============================================================================
 //                         CASE 22 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_22 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_22 {
 enum {
     NUM_THREADS = 4 // number of threads
 };
@@ -418,12 +1089,12 @@ extern "C" {
         return 0;
     }
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_22
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_22
 
 //=============================================================================
 //                         CASE 21 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_21 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_21 {
 enum {
     NUM_THREADS = 4 // number of threads
 };
@@ -456,12 +1127,12 @@ extern "C" {
         return 0;
     }
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_21
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_21
 
 //=============================================================================
 //                         CASE 20 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_20 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_20 {
 enum {
     NUM_THREADS = 4 // number of threads
 };
@@ -474,18 +1145,20 @@ extern "C" {
         return 0;
     }
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_20
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_20
 
 //=============================================================================
 //                         CASE 19 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_19 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_19 {
 enum {
     NUM_THREADS = 2,        // number of threads
     NUM_ITERATIONS = 1000   // number of iterations
 };
 ball::LoggerManager *manager;
+
 enum { MAX_LIMIT = 32 * 1024 };
+
 ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
 
 bdlqq::Barrier barrier(NUM_THREADS);
@@ -513,21 +1186,22 @@ extern "C" {
         return 0;
     }
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_19
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_19
 
 //=============================================================================
 //                         CASE 18 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_18 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_18 {
 enum {
     NUM_THREADS = 3,        // number of threads
     NUM_ITERATIONS = 10000  // number of iterations
 };
 
 class my_publishCountingObserver : public ball::Observer {
-    // This concrete implementation of 'ball::Observer' maintains a count
-    // of the number of messages published to it and gives access to that
-    // count through 'publishCount'.
+    // This concrete implementation of 'ball::Observer' maintains a count of
+    // the number of messages published to it and gives access to that count
+    // through 'publishCount'.
+
     bsls::AtomicInt d_publishCount;
   public:
     // CONSTRUCTORS
@@ -574,200 +1248,13 @@ extern "C" {
     }
 
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_18
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_18
 
-//=============================================================================
-//                         CASE 15 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_15 {
-
-class MyObserver : public ball::Observer {
-    // This concrete implementation of 'ball::Observer' maintains a count
-    // of the number of messages published to it and gives access to that
-    // count through 'publishCount'.
-
-    int                 d_publishCount;
-    bsl::ostream&       d_stream;
-
-  public:
-    // CREATORS
-    MyObserver(bsl::ostream& stream) : d_publishCount(0), d_stream(stream)
-    {
-    }
-
-    // MANIPULATORS
-    void publish(const ball::Record& record, const ball::Context& context)
-    {
-        ++d_publishCount;
-        d_stream << "Log " << context.recordIndex() + 1
-                 << " of " << context.sequenceLength()
-                 << " : "  << record.fixedFields().message()
-                 << "\n"   << bsl::flush;
-    }
-
-    // ACCESSORS
-    int publishCount() const
-    {
-        return d_publishCount;
-    }
-};
-
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_15
-
-//=============================================================================
-//                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-static
-int factorial(int n)
-    // Return the factorial of the specified value 'n' if n! can be
-    // represented as an 'int', and a negative value otherwise.
-{
-    static ball::Logger& logger = ball::LoggerManager::singleton().getLogger();
-    static const ball::Category *factorialCategory =
-                         ball::LoggerManager::singleton().setCategory(
-                                           "EQUITIES.GRAPHICS.MATH.FACTORIAL");
-    if (0 > n) {
-        logger.logMessage(*factorialCategory,
-                          my_Severity::BAEL_WARN,
-                          __FILE__,
-                          __LINE__,
-                          "Attempt to take factorial of negative value.");
-        return n;                                                     // RETURN
-    }
-
-    // maximum value accepted by 'factorial'
-    enum { MAX_ARGUMENT = 13 };
-
-    if (MAX_ARGUMENT < n) {
-        logger.logMessage(*factorialCategory,
-                          my_Severity::BAEL_WARN,
-                          __FILE__,
-                          __LINE__,
-                          "Result too large for 'int'.");
-        return -n;                                                    // RETURN
-    }
-    int product = 1;
-    while (1 < n) {
-       product *= n;
-       --n;
-    }
-
-    logger.logMessage(*factorialCategory,
-                      my_Severity::BAEL_TRACE,
-                      __FILE__,
-                      __LINE__,
-                      "Exiting 'factorial' successfully.");
-
-    return product;
-}
-
-//=============================================================================
-//                               USAGE EXAMPLE 3
-//-----------------------------------------------------------------------------
-
-static
-int getDefaultThresholdLevels(int                        *recordLevel,
-                              int                        *passLevel,
-                              int                        *triggerLevel,
-                              int                        *triggerAllLevel,
-                              char                        delimiter,
-                              const ball::LoggerManager&  loggerManager,
-                              const char                 *categoryName)
-{
-    ASSERT(recordLevel);
-    ASSERT(passLevel);
-    ASSERT(triggerLevel);    ASSERT(triggerAllLevel);
-    ASSERT(categoryName);
-
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    bsl::string buffer(categoryName);
-
-    while (1) {
-        const ball::Category *category = 
-                                 loggerManager.lookupCategory(buffer.c_str());
-        if (0 != category) {
-                *recordLevel     = category->recordLevel();
-                *passLevel       = category->passLevel();
-                *triggerLevel    = category->triggerLevel();
-                *triggerAllLevel = category->triggerAllLevel();
-                return SUCCESS;                                       // RETURN
-        }
-        
-        const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
-        if (0 == newEnd) {
-            return FAILURE;                                           // RETURN
-        }
-        buffer.resize(newEnd - buffer.data());
-    }
-}
-
-static Obj* g_overrideManager;
-
-static
-void inheritThresholdLevelsUsingManager(int        *recordLevel,
-                                        int        *passLevel,
-                                        int        *triggerLevel,
-                                        int        *triggerAllLevel,
-                                        const char *categoryName,
-                                        const ball::LoggerManager *lm)
-{
-    ASSERT(recordLevel);
-    ASSERT(passLevel);
-    ASSERT(triggerLevel);
-    ASSERT(triggerAllLevel);
-    ASSERT(categoryName);
-
-    if (0 == lm) {
-        lm = g_overrideManager;
-    }
-
-    if (0 != getDefaultThresholdLevels(recordLevel,
-                                       passLevel,
-                                       triggerLevel,
-                                       triggerAllLevel,
-                                       '.',
-                                       *lm,
-                                       categoryName)) {
-        *recordLevel     = lm->defaultRecordThresholdLevel();
-        *passLevel       = lm->defaultPassThresholdLevel();
-        *triggerLevel    = lm->defaultTriggerThresholdLevel();
-        *triggerAllLevel = lm->defaultTriggerAllThresholdLevel();
-    }
-}
-
-static
-void inheritThresholdLevels(int        *recordLevel,
-                            int        *passLevel,
-                            int        *triggerLevel,
-                            int        *triggerAllLevel,
-                            const char *categoryName)
-{
-    const ball::LoggerManager& lm = ball::LoggerManager::singleton();
-    inheritThresholdLevelsUsingManager(recordLevel, passLevel,
-                                       triggerLevel, triggerAllLevel,
-                                       categoryName, &lm);
-}
-
-static int globalFactorialArgument;  // TBD kludge
-
-static
-void myPopulator(ball::UserFields             *list,
-                 const ball::UserFieldsSchema&  descriptors)
-{
-    ASSERT(1                  == descriptors.length());
-    ASSERT(0                  == descriptors.indexOf("n!"));
-    ASSERT(FieldType::e_INT64 == descriptors.type(0));
-    ASSERT("n!"               == descriptors.name(0));
-
-    list->appendInt64(globalFactorialArgument);
-}
 
 // ============================================================================
 //                         CASE 30 RELATED ENTITIES
 // ----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_30 {
+namespace BALL_LOGGERMANAGER_TEST_CASE_30 {
 enum {
     NUM_THREADS = 4 // number of threads
 };
@@ -808,7 +1295,7 @@ extern "C" {
         return 0;
     }
 }  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_30
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_30
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -842,7 +1329,7 @@ void simpleThresholdLevels(int        *recordLevel,
 }
 
 static
-void simplePopulator(ball::UserFields             *list,
+void simplePopulator(ball::UserFields              *list,
                      const ball::UserFieldsSchema&  schema)
 {
     list->appendInt64(1066);
@@ -863,7 +1350,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #4
         //
@@ -882,7 +1369,43 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example 4" << endl
                                   << "=======================" << endl;
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_32;
+        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
+
+        ball::DefaultObserver observer(cout);
+        ball::LoggerManagerConfiguration configuration;
+        ball::LoggerManagerScopedGuard guard(&observer, configuration);
+        ball::LoggerManager& mLM = ball::LoggerManager::singleton();
+        ball::Category *cat = mLM.addCategory("test-category",
+                                             ball::Severity::e_INFO,
+                                             ball::Severity::e_WARN,
+                                             ball::Severity::e_ERROR,
+                                             ball::Severity::e_FATAL);
+
+        if (verbose) {
+            factorial(10);
+        }
+
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE #3
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE #3
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "Testing Usage Example 3" << endl
+                                  << "=======================" << endl;
+
+        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
 
         ball::DefaultObserver observer(cout);
         ball::LoggerManagerConfiguration configuration;
@@ -927,67 +1450,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example 2" << endl
                                   << "=======================" << endl;
 
-        ball::DefaultObserver observer(cout);
-
-        ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
-
-        ball::LoggerManager::DefaultThresholdLevelsCallback
-            thresholdsCallback(&inheritThresholdLevels);
-
-        int recordLevel     = 125;
-        int passLevel       = 100;
-        int triggerLevel    =  75;
-        int triggerAllLevel =  50;
-
-        ball::LoggerManagerDefaults defaults;
-        defaults.setDefaultThresholdLevelsIfValid(recordLevel,
-                                                  passLevel,
-                                                  triggerLevel,
-                                                  triggerAllLevel);
-
-        ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultValues(defaults);
-        configuration.setCategoryNameFilterCallback(nameFilter);
-        configuration.setDefaultThresholdLevelsCallback(thresholdsCallback);
-
-        ball::LoggerManagerScopedGuard guard(&observer, configuration);
-
-        ball::LoggerManager& loggerManager = ball::LoggerManager::singleton();
-
-        const ball::Category& defaultCat = loggerManager.defaultCategory();
-        ASSERT(125 == defaultCat.recordLevel());
-        ASSERT(100 == defaultCat.passLevel());
-        ASSERT( 75 == defaultCat.triggerLevel());
-        ASSERT( 50 == defaultCat.triggerAllLevel());
-
-        const ball::Category *cat1 =
-                     loggerManager.addCategory("BloombergLP", 128, 96, 64, 32);
-        ASSERT(cat1 == loggerManager.lookupCategory("BLOOMBERGLP"));
-        ASSERT(   0 == bsl::strcmp("bloomberglp", cat1->categoryName()));
-        ASSERT( 128 == cat1->recordLevel());
-        ASSERT(  96 == cat1->passLevel());
-        ASSERT(  64 == cat1->triggerLevel());
-        ASSERT(  32 == cat1->triggerAllLevel());
-
-        const ball::Category *cat2 =
-                             loggerManager.setCategory("BloombergLP.bae.bael");
-        ASSERT(cat2 == loggerManager.lookupCategory("bloomberglp.bae.bael"));
-        ASSERT(   0 == bsl::strcmp("bloomberglp.bae.bael",
-                                   cat2->categoryName()));
-        ASSERT( 128 == cat2->recordLevel());
-        ASSERT(  96 == cat2->passLevel());
-        ASSERT(  64 == cat2->triggerLevel());
-        ASSERT(  32 == cat2->triggerAllLevel());
-
-        const ball::Category *cat3 =
-                               loggerManager.setCategory("Bloomberg.equities");
-        ASSERT(cat3 == loggerManager.lookupCategory("BLOOMBERG.EQUITIES"));
-        ASSERT(   0 == bsl::strcmp("bloomberg.equities",
-                                   cat3->categoryName()));
-        ASSERT( 125 == cat3->recordLevel());
-        ASSERT( 100 == cat3->passLevel());
-        ASSERT(  75 == cat3->triggerLevel());
-        ASSERT(  50 == cat3->triggerAllLevel());
+        BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
 
       } break;
       case 31: {
@@ -1009,45 +1472,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example 1" << endl
                                   << "=======================" << endl;
 
-        ball::TestObserver observer(cout);
-
-        ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(
-                                                   ball::Severity::e_WARN);
-
-
-        ball::LoggerManagerScopedGuard guard(&observer, configuration);
-
-        ball::LoggerManager::singleton().addCategory("equities",
-                                                    my_Severity::BAEL_DEBUG,
-                                                    my_Severity::BAEL_WARN,
-                                                    my_Severity::BAEL_ERROR,
-                                                    my_Severity::BAEL_FATAL);
-
-        if (veryVerbose) observer.setVerbose(1);
-        globalFactorialArgument = 0;
-        factorial(0);
-        if (veryVerbose && observer.numPublishedRecords()) {
-            cout << observer.lastPublishedRecord() << endl;
-        }
-
-        globalFactorialArgument = -1;
-        factorial(-1);
-        if (veryVerbose && observer.numPublishedRecords()) {
-            cout << observer.lastPublishedRecord() << endl;
-        }
-
-        globalFactorialArgument = 10;
-        factorial(10);
-        if (veryVerbose && observer.numPublishedRecords()) {
-            cout << observer.lastPublishedRecord() << endl;
-        }
-
-        globalFactorialArgument = 20;
-        factorial(20);
-        if (veryVerbose && observer.numPublishedRecords()) {
-            cout << observer.lastPublishedRecord() << endl;
-        }
+        BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
 
       } break;
       case 30: {
@@ -1060,7 +1485,7 @@ int main(int argc, char *argv[])
         //: 1 The method returns 0 if no records have been obtained through a
         //:   call to 'getRecord'.
         //:
-        //: 2 The number of records reproted increases by 1 for every call to
+        //: 2 The number of records reported increases by 1 for every call to
         //:   'getRecord', and decreases by 1 for every call to 'logRecord'.
         //:
         //
@@ -1129,7 +1554,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // That multiple threads can safely invoke
-        // 'setDefaultThresholdLevelsCallback' with the same callback argument.
+        // 'setDefaultThresholdLevelsCallback' with the same callback
+        // argument.
         //
         // Plan:
         // Create several threads, each of which invoke
@@ -1148,7 +1574,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_30;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_30;
 
         ball::DefaultObserver observer(cout);
         ball::LoggerManagerConfiguration configuration;
@@ -1163,7 +1589,7 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING: 'ball::LoggerManager' calls 'ball::Observer::releaseRecords'
+        // TESTING: 'ball::LoggerManager' calls 'Observer::releaseRecords'
         //          on destruction.
         //
         // Concerns:
@@ -1187,7 +1613,7 @@ int main(int argc, char *argv[])
                  << "Testing 'releaseRecords' calling on destruction" << endl
                  << "===============================================" << endl;
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_29;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_29;
         TestDestroyObserver testObserver;
 
         ASSERT(0 == testObserver.getReleaseCnt());
@@ -1347,7 +1773,8 @@ int main(int argc, char *argv[])
                                thresholds[j].triggerAllLevel());
                 manager.addRule(rule);
                 for (int k = 0; k < NUM_VALUES; ++k) {
-                    ball::Record *record = manager.getLogger().getRecord("X",1);
+                    ball::Record *record =
+                        manager.getLogger().getRecord("X",1);
 
                     // Each level is the minimum severity (maximum value)
                     // between the rule's threshold and the categories
@@ -1671,8 +2098,8 @@ int main(int argc, char *argv[])
         //: 3 No 'publish' message needs to be called for low-level logs to be
         //:   passed to the observer
         //:
-        //: 4 Destruction of the 'ball::LoggerManagerScopedGuard' results in the
-        //:   original low-level handler being installed
+        //: 4 Destruction of the 'ball::LoggerManagerScopedGuard' results in
+        //:   the original low-level handler being installed.
         //
         // Plan:
         //: 1 Create a scoped guard
@@ -1718,8 +2145,8 @@ int main(int argc, char *argv[])
             ball::LoggerManagerConfiguration configuration;
             ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
 
-            const int oldNumCategories
-                             = ball::LoggerManager::singleton().numCategories();
+            const int oldNumCategories =
+                          ball::LoggerManager::singleton().numCategories();
 
             if (verbose) cout << "\tConfirm new low-level handler." << endl;
             ASSERT(bsls::Log::logMessageHandler() != oldBslsHandler);
@@ -1734,7 +2161,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(oldNumCategories + 1,
                          ball::LoggerManager::singleton().numCategories(),
                          oldNumCategories + 1
-                           == ball::LoggerManager::singleton().numCategories());
+                          == ball::LoggerManager::singleton().numCategories());
 
             if(verbose) cout << "\tConfirm record passed directly." << endl;
             LOOP_ASSERT(testObserver.numPublishedRecords(),
@@ -1747,9 +2174,9 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT("BSLS.LOG", attributes.category(),
                         0 == strcmp("BSLS.LOG", attributes.category()));
 
-            LOOP2_ASSERT(ball::Severity::BAEL_ERROR,
+            LOOP2_ASSERT(ball::Severity::e_ERROR,
                          attributes.severity(),
-                         ball::Severity::BAEL_ERROR == attributes.severity());
+                         ball::Severity::e_ERROR == attributes.severity());
 
             LOOP2_ASSERT(file,
                          attributes.fileName(),
@@ -2022,7 +2449,7 @@ int main(int argc, char *argv[])
                  << "============================================" << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_22;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_22;
 
         ball::DefaultObserver observer(cout);
         ball::LoggerManagerConfiguration configuration;
@@ -2083,7 +2510,7 @@ int main(int argc, char *argv[])
                  << "===========================================" << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_21;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_21;
 
         ThreadData data[NUM_THREADS];
 
@@ -2152,7 +2579,7 @@ int main(int argc, char *argv[])
                  << "==========================================" << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_20;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_20;
 
         ball::DefaultObserver observer(cout);
         ball::LoggerManagerConfiguration configuration;
@@ -2197,7 +2624,7 @@ int main(int argc, char *argv[])
                  << "===============================================" << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_19;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_19;
 
         ball::DefaultObserver            observer(cout);
         ball::LoggerManagerConfiguration configuration;
@@ -2246,7 +2673,7 @@ int main(int argc, char *argv[])
                  << "========================================" << endl;
         }
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_18;
+        using namespace BALL_LOGGERMANAGER_TEST_CASE_18;
 
         my_publishCountingObserver      observer;
         ball::LoggerManagerConfiguration configuration;
@@ -2258,8 +2685,9 @@ int main(int argc, char *argv[])
         Obj& localManager = Obj::singleton();
         manager = &localManager;
 
-        // for simplicity we log the messages with severity, that will
-        // cause *record* followed by *trigger-all*.
+        // For simplicity we log the messages with severity, that will cause
+        // *record* followed by *trigger-all*.
+
         cat = localManager.addCategory("test-category",
                                   ball::Severity::e_ERROR,  // record
                                   ball::Severity::e_FATAL,  // passthrough
@@ -2271,9 +2699,10 @@ int main(int argc, char *argv[])
 
         // there are 'NUM_THREADS', each of which logs 'NUM_ITERATIONS'
         // messages.  Also note that each logged message is eventually
-        // published (either by trigger-all caused by the same thread or
-        // by different thread).  Thus the publish count should be equal to
+        // published (either by trigger-all caused by the same thread or by
+        // different thread).  Thus the publish count should be equal to
         // 'NUM_THREADS * NUM_ITERATIONS'.
+
         LOOP_ASSERT(c, c == NUM_THREADS * NUM_ITERATIONS);
 
       } break;
@@ -2640,7 +3069,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsl::stringstream outStream;
-                BAEL_LOGGERMANAGER_TEST_CASE_15::MyObserver testObserver(
+                BALL_LOGGERMANAGER_TEST_CASE_15::MyObserver testObserver(
                                                                     outStream);
 
                 ball::LoggerManagerConfiguration mLMC;
@@ -2808,7 +3237,8 @@ int main(int argc, char *argv[])
             Cnf nameFilter(&toLower);
 
             ball::UserFieldsSchema descriptors;
-            descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
+            descriptors.appendFieldDescription("n!",
+                                               ball::UserFieldType::e_INT64);
 
             ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
@@ -3609,7 +4039,8 @@ int main(int argc, char *argv[])
             descriptors.appendFieldDescription("string", FieldType::e_STRING);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator, OA);
+            ball::Logger::UserFieldsPopulatorCallback populator(
+                                                       &simplePopulator, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::LoggerManagerDefaults mLMD;
@@ -4854,7 +5285,7 @@ int main(int argc, char *argv[])
             int         trigger      = cat1->triggerLevel();
             int         triggerAll   = cat1->triggerAllLevel();
             P(categoryName);
-            T_(); P_(record); P_(pass); P_(trigger); P(triggerAll);
+            T_; P_(record); P_(pass); P_(trigger); P(triggerAll);
 
             categoryName = cat2->categoryName();
             record       = cat2->recordLevel();
@@ -4862,7 +5293,7 @@ int main(int argc, char *argv[])
             trigger      = cat2->triggerLevel();
             triggerAll   = cat2->triggerAllLevel();
             P(categoryName);
-            T_(); P_(record); P_(pass); P_(trigger); P(triggerAll);
+            T_; P_(record); P_(pass); P_(trigger); P(triggerAll);
 
             categoryName = cat3->categoryName();
             record       = cat3->recordLevel();
@@ -4870,7 +5301,7 @@ int main(int argc, char *argv[])
             trigger      = cat3->triggerLevel();
             triggerAll   = cat3->triggerAllLevel();
             P(categoryName);
-            T_(); P_(record); P_(pass); P_(trigger); P(triggerAll);
+            T_; P_(record); P_(pass); P_(trigger); P(triggerAll);
 
             categoryName = cat4->categoryName();
             record       = cat4->recordLevel();
@@ -4878,7 +5309,7 @@ int main(int argc, char *argv[])
             trigger      = cat4->triggerLevel();
             triggerAll   = cat4->triggerAllLevel();
             P(categoryName);
-            T_(); P_(record); P_(pass); P_(trigger); P(triggerAll);
+            T_; P_(record); P_(pass); P_(trigger); P(triggerAll);
         }
 
         ball::Logger& lgr = mLM.getLogger();
@@ -4887,28 +5318,28 @@ int main(int argc, char *argv[])
         lgr.logMessage(*cat1, 64, __FILE__, __LINE__,
                        "First attempt to log to cat1.");
 
-        lgr.logMessage(*cat2, my_Severity::BAEL_WARN, __FILE__, __LINE__,
+        lgr.logMessage(*cat2, my_Severity::e_WARN, __FILE__, __LINE__,
                        "First attempt to log to cat2.");
 
-        lgr.logMessage(*cat3, my_Severity::BAEL_WARN, __FILE__, __LINE__,
+        lgr.logMessage(*cat3, my_Severity::e_WARN, __FILE__, __LINE__,
                        "First attempt to log to cat3.");
 
-        cat4->setLevels(my_Severity::BAEL_TRACE,
-                        my_Severity::BAEL_WARN,
-                        my_Severity::BAEL_ERROR,
-                        my_Severity::BAEL_FATAL);
-        ASSERT(my_Severity::BAEL_TRACE == cat4->recordLevel());
-        ASSERT(my_Severity::BAEL_WARN  == cat4->passLevel());
-        ASSERT(my_Severity::BAEL_ERROR == cat4->triggerLevel());
-        ASSERT(my_Severity::BAEL_FATAL == cat4->triggerAllLevel());
+        cat4->setLevels(my_Severity::e_TRACE,
+                        my_Severity::e_WARN,
+                        my_Severity::e_ERROR,
+                        my_Severity::e_FATAL);
+        ASSERT(my_Severity::e_TRACE == cat4->recordLevel());
+        ASSERT(my_Severity::e_WARN  == cat4->passLevel());
+        ASSERT(my_Severity::e_ERROR == cat4->triggerLevel());
+        ASSERT(my_Severity::e_FATAL == cat4->triggerAllLevel());
 
-        lgr.logMessage(*cat4, my_Severity::BAEL_WARN, __FILE__, __LINE__,
+        lgr.logMessage(*cat4, my_Severity::e_WARN, __FILE__, __LINE__,
                        "First attempt to log to cat4.");
 
-        lgr.logMessage(*cat1, my_Severity::BAEL_WARN, __FILE__, __LINE__,
+        lgr.logMessage(*cat1, my_Severity::e_WARN, __FILE__, __LINE__,
                        "Second attempt to log to cat1.");
 
-        lgr.logMessage(*cat4, my_Severity::BAEL_ERROR, __FILE__, __LINE__,
+        lgr.logMessage(*cat4, my_Severity::e_ERROR, __FILE__, __LINE__,
                        "Second attempt to log to cat4.");
 
       } break;

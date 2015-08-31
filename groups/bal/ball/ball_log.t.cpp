@@ -2,15 +2,19 @@
 #include <ball_log.h>
 
 #include <ball_administration.h>
-#include <ball_defaultattributecontainer.h>
-#include <ball_attributecontainer.h>  // for testing
-#include <ball_attributecontext.h>
 #include <ball_attribute.h>           // for testing
+#include <ball_attributecontainer.h>  // for testing
+#include <ball_attributecontainerlist.h>
+#include <ball_attributecontext.h>
+#include <ball_defaultattributecontainer.h>
 #include <ball_defaultobserver.h>
 #include <ball_categorymanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_record.h>
+#include <ball_rule.h>
+#include <ball_predicate.h>
 #include <ball_testobserver.h>
+#include <ball_thresholdaggregate.h>
 #include <ball_userfields.h>
 
 #include <bslma_testallocator.h>
@@ -20,6 +24,7 @@
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
+#include <bdlf_placeholder.h>
 
 #include <bdlsb_memoutstreambuf.h>
 
@@ -27,17 +32,22 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
+#include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>    // atoi()
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>    // strlen(), strcmp(), memset(), memcpy(), memcmp()
-
+#include <bsl_cstddef.h>
+#include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 #include <bsl_sstream.h>
@@ -62,9 +72,15 @@
 #endif
 
 // Warning: the following 'using' declarations interfere with the testing of
-// the macros defined in this component.  Please do not uncomment them.
+// the macros defined in this component.  Please do not un-comment them.
+//
 // using namespace BloombergLP;
 // using namespace bsl;
+using bsl::cout;
+using bsl::endl;
+using bsl::flush;
+
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -124,49 +140,60 @@
 // [28] USAGE EXAMPLE
 // [29] RULE-BASED LOGGING USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)"       << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); \
-             } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\t" << #K << ": " << K << "\n"; \
-              aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print identifier
-                                                        // and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote identifier
-                                                        // literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", "<<bsl::flush; // P(X) without
-                                                                // '\n'
-#define L_ __LINE__                           // current line number
-#define T_() bsl::cout << "\t" << flush;      // Print tab w/o newline.
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -177,7 +204,7 @@ typedef BloombergLP::ball::Severity           Sev;
 typedef BloombergLP::ball::Category           Cat;
 typedef BloombergLP::ball::CategoryHolder     Holder;
 typedef BloombergLP::ball::Log_Stream         LogStream;
-typedef BloombergLP::bslma::TestAllocator    TestAllocator;
+typedef BloombergLP::bslma::TestAllocator     TestAllocator;
 typedef BloombergLP::ball::CategoryManager    CategoryManager;
 typedef BloombergLP::ball::ThresholdAggregate Thresholds;
 
@@ -194,15 +221,15 @@ const int OFF   = Sev::e_OFF;
 //-----------------------------------------------------------------------------
 
 void executeInParallel(
-                      int                                           numThreads,
-                      BloombergLP::bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing 'i'
-   // to i'th thread.  Finally join all the threads.
+                     int                                            numThreads,
+                     BloombergLP::bdlqq::ThreadUtil::ThreadFunction func)
+    // Create the specified 'numThreads', each executing the specified 'func'.
+    // Number each thread (sequentially from 0 to 'numThreads-1') by passing
+    // 'i' to i'th thread.  Finally join all the threads.
 {
     using namespace BloombergLP;
     bdlqq::ThreadUtil::Handle *threads =
-                                      new bdlqq::ThreadUtil::Handle[numThreads];
+                                     new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
@@ -263,10 +290,10 @@ static int isBufferScribbled()
 
 static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
                         const BloombergLP::ball::Category      *category,
-                        int                                    severity,
-                        const char                            *fileName,
-                        int                                    lineNumber,
-                        const char                            *message)
+                        int                                     severity,
+                        const char                             *fileName,
+                        int                                     lineNumber,
+                        const char                             *message)
     // Return 1 if the last record published to the specified 'observer'
     // includes the name of the specified 'category' and the specified
     // 'severity', 'fileName', 'lineNumber', and 'message', and 0 otherwise.
@@ -320,8 +347,8 @@ class Point {
 ///- - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to register a logging callback.  The
 // C++ stream-based macros that take a callback are particularly useful to
-// seamlessly populate the user fields of a record, thus simplying the
-// logging line.
+// seamlessly populate the user fields of a record, thus simplying the logging
+// line.
 //
 // We define a callback function 'populateUsingPoint' that appends to the
 // specified 'fields' the attributes of the 'point' to log:
@@ -438,7 +465,7 @@ int veryVeryVerbose;
 //=============================================================================
 //                         CASE 24 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_24 {
+namespace BALL_LOG_TEST_CASE_24 {
 
 enum {
     NUM_THREADS = 10
@@ -465,12 +492,12 @@ void *workerThread24(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_24
+}  // close namespace BALL_LOG_TEST_CASE_24
 
 //=============================================================================
 //                         CASE 23 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_23 {
+namespace BALL_LOG_TEST_CASE_23 {
 
 enum {
     NUM_THREADS = 10
@@ -497,12 +524,12 @@ void *workerThread23(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_23
+}  // close namespace BALL_LOG_TEST_CASE_23
 
 //=============================================================================
 //                         CASE 22 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_22 {
+namespace BALL_LOG_TEST_CASE_22 {
 
 enum {
     NUM_THREADS = 10
@@ -527,12 +554,12 @@ void *workerThread22(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_22
+}  // close namespace BALL_LOG_TEST_CASE_22
 
 //=============================================================================
 //                         CASE 21 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_21 {
+namespace BALL_LOG_TEST_CASE_21 {
 
 enum {
     NUM_THREADS = 10
@@ -557,12 +584,12 @@ void *workerThread21(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_21
+}  // close namespace BALL_LOG_TEST_CASE_21
 
 //=============================================================================
 //                         CASE 18 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_18 {
+namespace BALL_LOG_TEST_CASE_18 {
 
 enum {
     NUM_THREADS  = 4,
@@ -591,17 +618,19 @@ void *workerThread18(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_18
+}  // close namespace BALL_LOG_TEST_CASE_18
 //=============================================================================
 //                         CASE 15 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_15 {
+namespace BALL_LOG_TEST_CASE_15 {
 
 class my_PublishCountingObserver : public BloombergLP::ball::Observer {
-    // This concrete implementation of 'ball::Observer' maintains a count
-    // of the number of messages published to it and gives access to that
-    // count through 'publishCount'.
+    // This concrete implementation of 'ball::Observer' maintains a count of
+    // the number of messages published to it and gives access to that count
+    // through 'publishCount'.
+
     int d_publishCount;
+
   public:
     // CONSTRUCTORS
     my_PublishCountingObserver() : d_publishCount(0)
@@ -626,11 +655,11 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     }
 };
 
-}  // close namespace BAEL_LOG_TEST_CASE_15
+}  // close namespace BALL_LOG_TEST_CASE_15
 //=============================================================================
 //                         CASE 13 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_13 {
+namespace BALL_LOG_TEST_CASE_13 {
 
 enum {
     NUM_THREADS  = 1,      // don't change
@@ -657,11 +686,11 @@ void *workerThread13(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_13
+}  // close namespace BALL_LOG_TEST_CASE_13
 //=============================================================================
 //                         CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_12 {
+namespace BALL_LOG_TEST_CASE_12 {
 
 enum {
     NUM_THREADS  = 4,
@@ -687,11 +716,11 @@ void *workerThread12(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_12
+}  // close namespace BALL_LOG_TEST_CASE_12
 //=============================================================================
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_11 {
+namespace BALL_LOG_TEST_CASE_11 {
 
 enum {
     NUM_THREADS  = 1,
@@ -717,11 +746,11 @@ void *workerThread11(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_11
+}  // close namespace BALL_LOG_TEST_CASE_11
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_10 {
+namespace BALL_LOG_TEST_CASE_10 {
 
 enum {
     NUM_THREADS  = 4,
@@ -748,60 +777,60 @@ void *workerThread10(void *arg)
 }
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_10
+}  // close namespace BALL_LOG_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_9 {
+namespace BALL_LOG_TEST_CASE_9 {
 
 enum {
     NUM_THREADS = 4,       // number of threads
 
     N_TOTAL     = 1000,    // total number of message logged by each thread
 
-    N_PUBLISH   = 10,      // frequency of messages that will cause
-                           // a *publish* event (see the documentation for
+    N_PUBLISH   = 10,      // frequency of messages that will cause a
+                           // *publish* event (see the documentation for
                            // 'workerThread9')
 
-    N_TRIGGER   = 100,     // frequency of messages that will cause
-                           // a *trigger* event (see the documentation for
+    N_TRIGGER   = 100,     // frequency of messages that will cause a
+                           // *trigger* event (see the documentation for
                            // 'workerThread9')
 
-    // number of messages published to the observer, that were logged with
-    // a severity causing a *Record* event.  Note that we need to do
-    // multiplication by 2, because such messages are published twice
-    // to the observer.  Also the value is per thread.
+    // number of messages published to the observer, that were logged with a
+    // severity causing a *Record* event.  Note that we need to do
+    // multiplication by 2, because such messages are published twice to the
+    // observer.  Also the value is per thread.
     EXP_N_RECORD  = N_TOTAL - N_TOTAL/N_PUBLISH,
 
-    // number of messages published to the observer, that were logged with
-    // a severity causing a *Publish* event.  Note that we need to do
-    // multiplication by 2, because such messages are published twice
-    // to the observer.  Also the value is per thread.
+    // number of messages published to the observer, that were logged with a
+    // severity causing a *Publish* event.  Note that we need to do
+    // multiplication by 2, because such messages are published twice to the
+    // observer.  Also the value is per thread.
     EXP_N_PUBLISH = 2 * (N_TOTAL/N_PUBLISH - N_TOTAL/N_TRIGGER),
 
-    // number of messages published to the observer, that were logged with
-    // a severity causing a *Trigger* event.  Note that we need to do
-    // multiplication by 2, because such messages are published twice to
-    // the observer.  Also the value is per thread.
+    // number of messages published to the observer, that were logged with a
+    // severity causing a *Trigger* event.  Note that we need to do
+    // multiplication by 2, because such messages are published twice to the
+    // observer.  Also the value is per thread.
     EXP_N_TRIGGER = 2 * N_TOTAL/N_TRIGGER,
 
     // total number of messages published to the observer by one thread
     EXP_N_TOTAL   = N_TOTAL + N_TOTAL/N_PUBLISH,
     // note that EXP_N_TOTAL = EXP_N_RECORD + EXP_N_PUBLISH + EXP_N_TRIGGER'
 
-    // fixed record buffer limit.  The limit is big enough to accommodate
-    // all the records logged to the buffer.  400 accounts *roughly* for
-    // dynamic memory allocated for each record and memory required by
-    // buffer to accommodate the record handles.
+    // fixed record buffer limit.  The limit is big enough to accommodate all
+    // the records logged to the buffer.  400 accounts *roughly* for dynamic
+    // memory allocated for each record and memory required by buffer to
+    // accommodate the record handles.
     REC_BUF_LIMIT = NUM_THREADS * EXP_N_TOTAL *
                                  (sizeof (BloombergLP::ball::Record) + 400)
 };
 
 enum { RECORD, PUBLISH, TRIGGER };
 class my_Observer : public BloombergLP::ball::Observer {
-    // This thread-safe, concrete implementation of 'ball::Observer' stores
-    // all the messages published to it in a vector and provide access to
-    // the vector by 'get' method.
+    // This thread-safe, concrete implementation of 'ball::Observer' stores all
+    // the messages published to it in a vector and provide access to the
+    // vector by 'get' method.
 
     // DATA
     bsl::vector<bsl::string> d_publishedMessages;
@@ -814,7 +843,7 @@ class my_Observer : public BloombergLP::ball::Observer {
 
     //MANIPULATORS
     void publish(const BloombergLP::ball::Record&  record,
-                                     const BloombergLP::ball::Context& context)
+                 const BloombergLP::ball::Context& context)
     {
         d_mutex.lock();
         d_publishedMessages.push_back(record.fixedFields().message());
@@ -840,7 +869,8 @@ BloombergLP::bdlqq::Mutex categoryMutex;
 extern "C" {
 void *workerThread9(void *arg)
 {
-    // Log 'N_TOTAL' messages using a loop as following.
+    // Log 'N_TOTAL' messages using a loop as following:
+    //
     // (a) Every 'N_TRIGGER'th message is logged with a severity that will
     //     cause a *Trigger* event.
     // (b) Every 'N_PUBLISH'th message except those described in (a), is
@@ -884,12 +914,12 @@ void *workerThread9(void *arg)
 
 }  // extern "C"
 
-}  // close namespace BAEL_LOG_TEST_CASE_9
+}  // close namespace BALL_LOG_TEST_CASE_9
 
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOG_TEST_CASE_6 {
+namespace BALL_LOG_TEST_CASE_6 {
 
 const char *message1 = "MESSAGE-1";
 const char *message2 = "MESSAGE-2";
@@ -901,13 +931,13 @@ const char *f()
     return message2;
 }
 
-}  // close namespace BAEL_LOG_TEST_CASE_6
+}  // close namespace BALL_LOG_TEST_CASE_6
 
 //=============================================================================
 //                         CASE -1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BAEL_LOG_TEST_CASE_MINUS_1 {
+namespace BALL_LOG_TEST_CASE_MINUS_1 {
 
 using namespace BloombergLP;
 
@@ -916,7 +946,7 @@ struct ThreadFunctor {
         BALL_LOG_SET_CATEGORY( "CATEGORY_5" );
 
         bsls::Types::Int64 id =
-                               (bsls::Types::Int64) bdlqq::ThreadUtil::selfId();
+                              (bsls::Types::Int64) bdlqq::ThreadUtil::selfId();
 
         while( true )
         {
@@ -925,7 +955,7 @@ struct ThreadFunctor {
     }
 };
 
-}  // close namespace BAEL_LOG_TEST_CASE_MINUS_1
+}  // close namespace BALL_LOG_TEST_CASE_MINUS_1
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1104,14 +1134,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) P(messageBuffer());
         }
 
-        // Note that the following Usage example was moved from the .h file
-        // to the .cpp file so as not to encourage direct use of the utility
+        // Note that the following Usage example was moved from the .h file to
+        // the .cpp file so as not to encourage direct use of the utility
         // functions.
 
         if (verbose) bsl::cout << "Utility usage" << bsl::endl;
         {
             static const BloombergLP::ball::Category *category =
-                        BloombergLP::ball::Log::setCategory("EQUITY.NASD.SUNW");
+                       BloombergLP::ball::Log::setCategory("EQUITY.NASD.SUNW");
             {
                 using BloombergLP::ball::Log;
                 using BloombergLP::ball::Severity;
@@ -1130,7 +1160,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "callback macro usage (example 6)" 
+        if (verbose) bsl::cout << "callback macro usage (example 6)"
                                << bsl::endl;
         {
             using namespace BloombergLP;
@@ -1174,7 +1204,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << "\nBAEL_LOG_IS_ENABLED(SEVERITY)\n"
+            bsl::cout << "\nBALL_LOG_IS_ENABLED(SEVERITY)\n"
                       << "\n=============================\n";
 
         if (verbose) bsl::cout << "\tTest without a logger manager.\n";
@@ -1373,13 +1403,14 @@ int main(int argc, char *argv[])
             for (int j = 0; j < (int) thresholds.size(); ++j) {
                 manager.removeAllRules();
                 ball::Rule rule("Test*",
-                               thresholds[j].recordLevel(),
-                               thresholds[j].passLevel(),
-                               thresholds[j].triggerLevel(),
-                               thresholds[j].triggerAllLevel());
+                                thresholds[j].recordLevel(),
+                                thresholds[j].passLevel(),
+                                thresholds[j].triggerLevel(),
+                                thresholds[j].triggerAllLevel());
                 manager.addRule(rule);
                 for (int k = 0; k < NUM_VALUES; ++k) {
-                    ball::Record *record = manager.getLogger().getRecord("X",1);
+                    ball::Record *record = 
+                                         manager.getLogger().getRecord("X",1);
 
                     // Each level is the minimum severity (maximum value)
                     // between the rule's threshold and the categories
@@ -1575,7 +1606,7 @@ int main(int argc, char *argv[])
                       << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
                       << "=====================================\n";
 
-        using namespace BAEL_LOG_TEST_CASE_24;
+        using namespace BALL_LOG_TEST_CASE_24;
 
         numIterations = 10;
         arg1          = -99.244;
@@ -1646,7 +1677,7 @@ int main(int argc, char *argv[])
                       << "Testing BALL_LOG_SET_CATEGORY\n"
                       << "=============================\n";
 
-        using namespace BAEL_LOG_TEST_CASE_23;
+        using namespace BALL_LOG_TEST_CASE_23;
 
         numIterations = 10;
         arg1          = -99.234;
@@ -1718,7 +1749,7 @@ int main(int argc, char *argv[])
                       << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
                       << "=====================================\n";
 
-        using namespace BAEL_LOG_TEST_CASE_22;
+        using namespace BALL_LOG_TEST_CASE_22;
 
         numIterations = 10;
         if (verbose)
@@ -1786,7 +1817,7 @@ int main(int argc, char *argv[])
                       << "Testing BALL_LOG_SET_CATEGORY\n"
                       << "=============================\n";
 
-        using namespace BAEL_LOG_TEST_CASE_21;
+        using namespace BALL_LOG_TEST_CASE_21;
 
         numIterations = 10;
         if (verbose)
@@ -2092,7 +2123,7 @@ int main(int argc, char *argv[])
                       << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
                       << "=====================================\n";
 
-        using namespace BAEL_LOG_TEST_CASE_18;
+        using namespace BALL_LOG_TEST_CASE_18;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -2350,8 +2381,8 @@ int main(int argc, char *argv[])
                       << "Testing callback macro safety w/o LoggerManager\n"
                       << "===============================================\n";
 
-        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFields *)> callback
-                                                                = &incCallback;
+        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFields *)>
+                                                       callback = &incCallback;
 
         numIncCallback = 0;
 
@@ -2714,7 +2745,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        using namespace BAEL_LOG_TEST_CASE_15;
+        using namespace BALL_LOG_TEST_CASE_15;
 
         if (verbose)
             bsl::cout << bsl::endl << "STRESS TEST"
@@ -2742,7 +2773,7 @@ int main(int argc, char *argv[])
         if (verbose) P(observer.publishCount());
 
         ASSERT(observer.publishCount() > 1); // because the triggering message
-                                             // is alwayed published
+                                             // is always published
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -2794,12 +2825,12 @@ int main(int argc, char *argv[])
 
             BALL_LOG_TRACE << "This will load the category" << BALL_LOG_END
 
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
                                 BloombergLP::ball::Severity::e_WARN,
@@ -2807,12 +2838,12 @@ int main(int argc, char *argv[])
                                 BloombergLP::ball::Severity::e_FATAL,
                                 BloombergLP::ball::Severity::e_FATAL);
 
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
                                 BloombergLP::ball::Severity::e_OFF,
@@ -2820,12 +2851,12 @@ int main(int argc, char *argv[])
                                 BloombergLP::ball::Severity::e_OFF,
                                 BloombergLP::ball::Severity::e_OFF);
 
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(!BALL_LOG_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
         }
       } break;
@@ -2853,7 +2884,7 @@ int main(int argc, char *argv[])
                       << "============================================"
                       << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_13;
+        using namespace BALL_LOG_TEST_CASE_13;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -2918,7 +2949,7 @@ int main(int argc, char *argv[])
                       << "==================================================="
                       << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_12;
+        using namespace BALL_LOG_TEST_CASE_12;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -2982,7 +3013,7 @@ int main(int argc, char *argv[])
                       << "========================================="
                       << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_11;
+        using namespace BALL_LOG_TEST_CASE_11;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -3047,7 +3078,7 @@ int main(int argc, char *argv[])
                       << "================================================"
                       << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_10;
+        using namespace BALL_LOG_TEST_CASE_10;
 
         int i;
         for (i = 0; i < MAX_MSG_SIZE; ++i) {
@@ -3111,7 +3142,7 @@ int main(int argc, char *argv[])
                       << "CONCURRENT LOGGING TEST:" << bsl::endl
                       << "========================" << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_9;
+        using namespace BALL_LOG_TEST_CASE_9;
 
         ASSERT(EXP_N_TOTAL == EXP_N_RECORD + EXP_N_PUBLISH + EXP_N_TRIGGER);
 
@@ -3191,8 +3222,9 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
 
-        // for simplicity we keep the passthrough level to be 'FATAL',
-        // so that on trigger event, the message is published only once.
+        // for simplicity we keep the passthrough level to be 'FATAL', so that
+        // on trigger event, the message is published only once.
+
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
                   BloombergLP::ball::Severity::e_FATAL,  // passthrough level
@@ -3253,8 +3285,9 @@ int main(int argc, char *argv[])
         configuration.setLogOrder(
                   BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
 
-        // for simplicity we keep the passthrough level to be 'FATAL',
-        // so that on trigger event, the message is published only once.
+        // for simplicity we keep the passthrough level to be 'FATAL', so that
+        // on trigger event, the message is published only once.
+
         configuration.setDefaultThresholdLevelsIfValid(
               BloombergLP::ball::Severity::e_TRACE,  // record level
               BloombergLP::ball::Severity::e_FATAL,  // passthrough level
@@ -3293,7 +3326,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   Suppose a function 'f()' logs some data (say "message1")
         //   using c++ macro, and return some data (say "message2"), then
-        //   'BAEL_LOG_SEVERITY << f() << BAEL_END' should result in
+        //   'BALL_LOG_SEVERITY << f() << BAEL_END' should result in
         //   logging "message1" followed by "message2".
         //
         // Plan:
@@ -3310,7 +3343,7 @@ int main(int argc, char *argv[])
                       << "RETURNED VALUE OF A FUNCTION"         << bsl::endl
                       << "====================================" << bsl::endl;
 
-        using namespace BAEL_LOG_TEST_CASE_6;
+        using namespace BALL_LOG_TEST_CASE_6;
 
         bsl::ostrstream os;
         BloombergLP::ball::DefaultObserver observer(os);
@@ -3793,13 +3826,13 @@ int main(int argc, char *argv[])
         // TBD doc
         //
         // Testing:
-        //   BAEL_LOG[0-9]
-        //   BAEL_LOG[0-9]_TRACE
-        //   BAEL_LOG[0-9]_DEBUG
-        //   BAEL_LOG[0-9]_INFO
-        //   BAEL_LOG[0-9]_WARN
-        //   BAEL_LOG[0-9]_ERROR
-        //   BAEL_LOG[0-9]_FATAL
+        //   BALL_LOG[0-9]
+        //   BALL_LOG[0-9]_TRACE
+        //   BALL_LOG[0-9]_DEBUG
+        //   BALL_LOG[0-9]_INFO
+        //   BALL_LOG[0-9]_WARN
+        //   BALL_LOG[0-9]_ERROR
+        //   BALL_LOG[0-9]_FATAL
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
@@ -5728,7 +5761,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING BAEL_LOG_* MACROS
+        // TESTING BALL_LOG_* MACROS
         //
         // Concerns:
         // TBD doc
@@ -5744,7 +5777,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             bsl::cout << bsl::endl
-            << "Testing BAEL_LOG_* Macros" << bsl::endl
+            << "Testing BALL_LOG_* Macros" << bsl::endl
             << "=========================" << bsl::endl;
         }
 
@@ -5775,9 +5808,9 @@ int main(int argc, char *argv[])
                 const int  THRESHOLD = DATA[i].d_threshold;
                 const Cat *CATEGORY  = DATA[i].d_category;
 
-                Holder BAEL_LOG_CATEGORYHOLDER = {
-                    THRESHOLD, 
-                    const_cast<Cat *>(CATEGORY), 
+                Holder BALL_LOG_CATEGORYHOLDER = {
+                    THRESHOLD,
+                    const_cast<Cat *>(CATEGORY),
                     0
                 };
 
@@ -5795,14 +5828,14 @@ int main(int argc, char *argv[])
             const char *CATEGORY_NAME1 = "EQUITY.NASD";
             BALL_LOG_SET_CATEGORY(CATEGORY_NAME1)  // creates new category
 
-            const Cat  *CATEGORY1  = BAEL_LOG_CATEGORYHOLDER.category();
+            const Cat  *CATEGORY1  = BALL_LOG_CATEGORYHOLDER.category();
             const int   MAX_LEVEL1 = CATEGORY1->maxLevel();
 
             LOOP2_ASSERT(CATEGORY_NAME1, CATEGORY1->categoryName(),
                          0 == bsl::strcmp(CATEGORY_NAME1,
                                           CATEGORY1->categoryName()));
-            LOOP2_ASSERT(MAX_LEVEL1, BAEL_LOG_CATEGORYHOLDER.threshold(),
-                         MAX_LEVEL1 == BAEL_LOG_CATEGORYHOLDER.threshold());
+            LOOP2_ASSERT(MAX_LEVEL1, BALL_LOG_CATEGORYHOLDER.threshold(),
+                         MAX_LEVEL1 == BALL_LOG_CATEGORYHOLDER.threshold());
 
             BALL_LOG_TRACE << "This will load the category" << BALL_LOG_END
 
@@ -5812,14 +5845,14 @@ int main(int argc, char *argv[])
                 const char *CATEGORY_NAME2 = "EQUITY.NYSE";
                 BALL_LOG_SET_CATEGORY(CATEGORY_NAME2)
 
-                const Cat  *CATEGORY2  = BAEL_LOG_CATEGORYHOLDER.category();
+                const Cat  *CATEGORY2  = BALL_LOG_CATEGORYHOLDER.category();
                 const int   MAX_LEVEL2 = CATEGORY2->maxLevel();
 
                 LOOP2_ASSERT(CATEGORY_NAME2, CATEGORY2->categoryName(),
                              0 == bsl::strcmp(CATEGORY_NAME2,
                                           CATEGORY2->categoryName()));
-                LOOP2_ASSERT(MAX_LEVEL2, BAEL_LOG_CATEGORYHOLDER.threshold(),
-                            MAX_LEVEL2 == BAEL_LOG_CATEGORYHOLDER.threshold());
+                LOOP2_ASSERT(MAX_LEVEL2, BALL_LOG_CATEGORYHOLDER.threshold(),
+                            MAX_LEVEL2 == BALL_LOG_CATEGORYHOLDER.threshold());
                 ASSERT(0 == bsl::strcmp(CATEGORY_NAME2,
                                         BALL_LOG_CATEGORY->categoryName()));
                 ASSERT(0 != bsl::strcmp(CATEGORY_NAME1,
@@ -5832,15 +5865,15 @@ int main(int argc, char *argv[])
                     const char *CATEGORY_NAME3 = "EQUITY.DOW";
                     BALL_LOG_SET_CATEGORY(CATEGORY_NAME3)
 
-                    const Cat *CATEGORY3  = BAEL_LOG_CATEGORYHOLDER.category();
+                    const Cat *CATEGORY3  = BALL_LOG_CATEGORYHOLDER.category();
                     const int  MAX_LEVEL3 = CATEGORY3->maxLevel();
 
                     LOOP2_ASSERT(CATEGORY_NAME3, CATEGORY3->categoryName(),
                                  0 != bsl::strcmp(CATEGORY_NAME3,
                                                   CATEGORY3->categoryName()));
                     LOOP2_ASSERT(MAX_LEVEL3,
-                            BAEL_LOG_CATEGORYHOLDER.threshold(),
-                            MAX_LEVEL3 == BAEL_LOG_CATEGORYHOLDER.threshold());
+                            BALL_LOG_CATEGORYHOLDER.threshold(),
+                            MAX_LEVEL3 == BALL_LOG_CATEGORYHOLDER.threshold());
                     ASSERT(0 != bsl::strcmp(CATEGORY_NAME3,
                                            BALL_LOG_CATEGORY->categoryName()));
                     ASSERT(0 != bsl::strcmp(CATEGORY_NAME2,
@@ -5899,11 +5932,11 @@ int main(int argc, char *argv[])
         //       'messageBufferSize' bytes may be overwritten
         //
         // Testing:
-        //   static void logMessage(*category, severity, *file, line, *msg);
-        //   static char *messageBuffer();
-        //   static int messageBufferSize();
-        //   static const ball::Category *setCategory(Holder *, const char *);
-        //   static const ball::Category *setCategory(const char *categoryName);
+        //   void logMessage(*category, severity, *file, line, *msg);
+        //   char *messageBuffer();
+        //   int messageBufferSize();
+        //   const ball::Category *setCategory(Holder *, const char *);
+        //   const ball::Category *setCategory(const char *categoryName);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl << "Testing Utility Functions"
@@ -5926,13 +5959,13 @@ int main(int argc, char *argv[])
         {
             lm.setDefaultThresholdLevels(192, 96, 64, 32);
             const ball::Category *category;
-            category = ball::Log::setCategory("EQUITY.NASD");  // creates new
+            category = ball::Log::setCategory("EQUITY.NASD"); // creates new
                                                               // category
             ASSERT(0 == bsl::strcmp("EQUITY.NASD", category->categoryName()));
 
             ball::Administration::setMaxNumCategories(2);
             ASSERT(2 == ball::Administration::maxNumCategories());
-            category = ball::Log::setCategory("EQUITY.NYSE");  // gets *Default*
+            category = ball::Log::setCategory("EQUITY.NYSE"); // gets *Default*
                                                               // *Category*
             ASSERT(0 != bsl::strcmp("EQUITY.NYSE", category->categoryName()));
             ASSERT(0 != bsl::strcmp("EQUITY.NASD", category->categoryName()));
@@ -5951,7 +5984,7 @@ int main(int argc, char *argv[])
 
             ball::Administration::setMaxNumCategories(2);
             ASSERT(2 == ball::Administration::maxNumCategories());
-            category = ball::Log::setCategory("EQUITY.NYSE");  // gets *Default*
+            category = ball::Log::setCategory("EQUITY.NYSE"); // gets *Default*
                                                               // *Category*
             ASSERT(0 != bsl::strcmp("EQUITY.NYSE", category->categoryName()));
             ASSERT(0 != bsl::strcmp("EQUITY.NASD", category->categoryName()));
@@ -5994,7 +6027,7 @@ int main(int argc, char *argv[])
         //   crashes.  This test need only be performed on ibm.
         // --------------------------------------------------------------------
 
-        using namespace BAEL_LOG_TEST_CASE_MINUS_1;
+        using namespace BALL_LOG_TEST_CASE_MINUS_1;
 
         ball::DefaultObserver observer(bsl::cout);
         ball::LoggerManager::initSingleton( &observer, 0 );
@@ -6002,7 +6035,9 @@ int main(int argc, char *argv[])
         bdlqq::ThreadAttributes attributes;
         bdlqq::ThreadUtil::Handle handles[10];
         for (int i = 0; i < 10; ++i) {
-            bdlqq::ThreadUtil::create(&handles[i], attributes, ThreadFunctor());
+            bdlqq::ThreadUtil::create(&handles[i],
+                                      attributes,
+                                      ThreadFunctor());
         }
 
         char buffer[256];

@@ -255,8 +255,7 @@ bool operator!=(const Attribute& lhs, const Attribute& rhs);
     // the same value if any of their respective names (value, not address),
     // attribute value types, or attribute values differ.
 
-bsl::ostream& operator<<(bsl::ostream&    output,
-                         const Attribute& attribute);
+bsl::ostream& operator<<(bsl::ostream& output, const Attribute& attribute);
     // Write the value of the specified 'attribute' to the specified 'output'
     // stream.  Return the specified 'output' stream.
 

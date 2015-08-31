@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for predicates.
 //
 //@CLASSES:
-//    ball::PredicateSet: a container for predicates
+//  ball::PredicateSet: a container for predicates
 //
 //@SEE_ALSO: ball_predicate, ball_rule
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component implements a value-semantic container class
-// that manages a set of 'ball::Predicate' objects.
+//@DESCRIPTION: This component implements a value-semantic container class,
+// 'ball::PredicateSet', that manages a set of 'ball::Predicate' objects.
 //
 ///Usage
 ///-----
@@ -65,6 +65,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -75,12 +83,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class AttributeContainerList;
+class AttributeContainerList;
 
-                   // =======================
-                   // class PredicateSet
-                   // =======================
+                       // ==================
+                       // class PredicateSet
+                       // ==================
 
 class PredicateSet {
     // This class implements a value-semantic collection of unique predicates.
@@ -107,9 +116,10 @@ class PredicateSet {
     typedef bsl::unordered_set<Predicate, PredicateHash> SetType;
 
     // PRIVATE MEMBERS
-    static int               s_initialSize;     // the initial size of the set
+    static int s_initialSize;     // the initial size of the set
 
-    SetType                  d_predicateSet;    // the set of predicates
+    // DATA
+    SetType    d_predicateSet;    // the set of predicates
 
     // FRIENDS
     friend bool operator==(const PredicateSet&, const PredicateSet&);
@@ -117,6 +127,9 @@ class PredicateSet {
     friend bsl::ostream& operator<<(bsl::ostream&, const PredicateSet&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(PredicateSet, bslma::UsesBslmaAllocator);
+
     // CLASS METHODS
     static int hash(const PredicateSet& set, int size);
         // Return a hash value calculated from the specified 'set' using the
@@ -128,12 +141,12 @@ class PredicateSet {
 
     // CREATORS
     explicit PredicateSet(bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'PredicateSet' object.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator will be used.
+        // Create an empty 'PredicateSet' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator will be used.
 
     PredicateSet(const PredicateSet&  original,
-                      bslma::Allocator         *basicAllocator = 0);
+                 bslma::Allocator    *basicAllocator = 0);
         // Create a 'PredicateSet' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -154,8 +167,8 @@ class PredicateSet {
     int removePredicate(const Predicate& value);
         // Remove the predicate having the specified 'value' from this object.
         // Return the number of predicates being removed (i.e., 1 on success
-        // and 0 if the predicate having the specified 'value' does not exist
-        // in this object).
+        // and 0 if the predicate having 'value' does not exist in this
+        // object).
 
     void removeAllPredicates();
         // Remove every predicate in this predicate set.
@@ -185,53 +198,49 @@ class PredicateSet {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
-
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
 };
 
 // FREE OPERATORS
-bool operator==(const PredicateSet& lhs,
-                const PredicateSet& rhs);
+bool operator==(const PredicateSet& lhs, const PredicateSet& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'PredicateSet' objects have the
-    // same value if they have the same number of predicates and every
-    // predicate value that appears in one object also appears in the other.
+    // value, and 'false' otherwise.  Two 'PredicateSet' objects have the same
+    // value if they have the same number of predicates and every predicate
+    // value that appears in one object also appears in the other.
 
-bool operator!=(const PredicateSet& lhs,
-                const PredicateSet& rhs);
+bool operator!=(const PredicateSet& lhs, const PredicateSet& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'PredicateSet' objects do
-    // not have the same value if they do not have the same number of
-    // predicates or there is at least one predicate value that appears in
-    // one object, but not in the other.
+    // same value, and 'false' otherwise.  Two 'PredicateSet' objects do not
+    // have the same value if they do not have the same number of predicates or
+    // there is at least one predicate value that appears in one object, but
+    // not in the other.
 
-bsl::ostream& operator<<(bsl::ostream&            output,
+bsl::ostream& operator<<(bsl::ostream&       output,
                          const PredicateSet& predicateSet);
     // Write the value of the specified 'predicateSet' to the specified
     // 'output' stream.  Return the specified 'output' stream.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                   // -----------------------
-                   // class PredicateSet
-                   // -----------------------
+                       // ------------------
+                       // class PredicateSet
+                       // ------------------
 
 // CREATORS
 inline
 PredicateSet::PredicateSet(bslma::Allocator *basicAllocator)
-: d_predicateSet(s_initialSize,                        // initial size
-                 PredicateHash(),                      // hash functor
+: d_predicateSet(s_initialSize,                   // initial size
+                 PredicateHash(),                 // hash functor
                  bsl::equal_to<Predicate>(),      // equal functor
                  basicAllocator)
 {
@@ -239,7 +248,7 @@ PredicateSet::PredicateSet(bslma::Allocator *basicAllocator)
 
 inline
 PredicateSet::PredicateSet(const PredicateSet&  original,
-                                     bslma::Allocator         *basicAllocator)
+                           bslma::Allocator    *basicAllocator)
 : d_predicateSet(original.d_predicateSet, basicAllocator)
 {
 }
@@ -299,8 +308,8 @@ PredicateSet::const_iterator PredicateSet::end() const
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&            output,
-                         const PredicateSet& predicateSet)
+bsl::ostream& ball::operator<<(bsl::ostream&       output,
+                               const PredicateSet& predicateSet)
 {
     predicateSet.print(output, 0, -1);
     return output;

@@ -5,20 +5,26 @@
 #include <ball_severity.h>                                 // for testing only
 #include <ball_userfields.h>
 
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
+#include <bdlqq_threadutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
 #include <bdls_processutil.h>
 
+#include <bslim_testutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-
+#include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -42,15 +48,15 @@ using namespace bsl;  // automatically added by script
 // memory required to hold the current instance, which is implemented with a
 // tested component (ball_countingallocator).  Our concerns regarding the
 // implementation of this component are that (1) all the standard
-// value-semantic methods are implemented correctly (2) the bookkeeping of
-// the dynamically allocated memory are done correctly and (3) the bookkeeping
-// is done correctly when exception are thrown.
+// value-semantic methods are implemented correctly (2) the bookkeeping of the
+// dynamically allocated memory are done correctly and (3) the bookkeeping is
+// done correctly when exception are thrown.
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 2] ball::Record(bslma::Allocator *ba = 0);
-// [ 2] ball::Record(const ball::RecordAttributes&, const ball::UserFields&, *ba = 0);
+// [ 2] ball::Record(const RecordAttributes&, const UserFields&, *ba = 0);
 // [ 7] ball::Record(const ball::Record& original, *ba = 0);
 // [ 2] ~ball::Record();
 // [ 8] ball::Record& operator=(const ball::Record& rhs);
@@ -71,61 +77,61 @@ using namespace bsl;  // automatically added by script
 // [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFields')
 // [10] USAGE EXAMPLE 1
 // [11] USAGE EXAMPLE 2
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -255,6 +261,50 @@ int main(int argc, char *argv[])
                                   << "=======================" << endl;
 
 
+///Usage
+///------
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::Record'
+/// - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates how to create and set the properties of
+// a 'ball::Record'.  Note that users of the 'ball' logging subsystem are not
+// expected to create records directly.
+//
+// First we default create a 'ball::Record', 'record', and verify it has a
+// default set of attributes:
+//..
+    ball::Record record;
+
+    ASSERT(ball::RecordAttributes() == record.fixedFields());
+    ASSERT(0                        == record.userFields().length());
+//..
+// Then, we set the fixed fields of the record to contain a simple message:
+//..
+    int                 processId = bdlsu::ProcessUtil::getProcessId();
+    bsls::Types::Uint64 threadId  = bdlqq::ThreadUtil::selfIdAsUint64();
+
+    ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
+                                      processId,                // process id
+                                      threadId,                 // thread id
+                                      __FILE__,                 // filename
+                                      __LINE__,                 // line number
+                                      "ExampleCategory",        // category
+                                      ball::Severity::e_WARN,   // severity
+                                      "Simple Test Message");   // message
+    record.setFixedFields(attributes);
+
+    ASSERT(attributes == record.fixedFields());
+//..
+// Finally, we write the record to a stream:
+//..
+    bsl::ostringstream output;
+    output << record << bsl::endl;
+//..
+    if (verbose) {
+        bsl::cout << output.str() << bsl::endl;
+    }
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -270,9 +320,10 @@ int main(int argc, char *argv[])
         //   int numAllocatedBytes() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-            "\nTesting 'numAllocatedBytes'." << endl
-          << "=======================================================" << endl;
+        if (verbose) {
+            cout << "\nTesting 'numAllocatedBytes'." << endl
+                 << "==============================" << endl;
+        }
 
         const Obj VU(AU, VALUES_A);
         const Obj VA(AA, VALUES_B);
@@ -334,7 +385,7 @@ int main(int argc, char *argv[])
                     int jj = j % NUM_VALUES_DATA;
                     u.setFixedFields(REC_ATTRS[j]);
                     u.setUserFields(*VALUES_DATA[jj]);
-                    if (veryVerbose) { T_();  P_(V);  P_(U); }
+                    if (veryVerbose) { T_;  P_(V);  P_(U); }
                     Obj w(V);  const Obj &W = w;          // control
                     u = V;
                     if (veryVerbose) P(U);
@@ -353,7 +404,7 @@ int main(int argc, char *argv[])
                 u.setUserFields(*VALUES_DATA[ii]);
                 Obj w(U);  const Obj &W = w;              // control
                 u = u;
-                if (veryVerbose) { T_();  P_(U);  P(W); }
+                if (veryVerbose) { T_;  P_(U);  P(W); }
                 LOOP_ASSERT(i, W == U);
             }
         }
@@ -376,6 +427,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   ball::Record(const ball::Record&);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
         {
@@ -392,7 +444,7 @@ int main(int argc, char *argv[])
                 x.setUserFields(*VALUES_DATA[j]);
 
                 Obj y(X);  const Obj &Y = y;
-                if (veryVerbose) { T_();  P_(W);  P_(X);  P(Y); }
+                if (veryVerbose) { T_;  P_(W);  P_(X);  P(Y); }
                 LOOP_ASSERT(i, X == W);  LOOP_ASSERT(i, Y == W);
             }
         }
@@ -430,7 +482,7 @@ int main(int argc, char *argv[])
                     v.setFixedFields(REC_ATTRS[j]);
                     v.setUserFields(*VALUES_DATA[j]);
                     int isSame = i == j;
-                    if (veryVerbose) { T_();  P_(i);  P_(j);  P_(U);  P(V); }
+                    if (veryVerbose) { T_;  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
                     LOOP2_ASSERT(i, j, !isSame == (U != V));
                     LOOP2_ASSERT(i, j,  isSame == (V == U));
@@ -509,7 +561,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ball::UserFields& gg(ball::UserFields *address, const char *spec);
-        //   int ggg(ball::UserFields *address, const char *spec, int showErrorFlag);
+        //   int ggg(UserFields *address, const char *spec, int showErrorFlag);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
             << "Testing 'gg' and 'ggg' generator functions" << endl
@@ -525,7 +577,7 @@ int main(int argc, char *argv[])
         //   the member fields correctly.
         //
         // Plan:
-        //   Create three ball::RecordAttributes and ball::UserFields objects with
+        //   Create three RecordAttributes and UserFields objects with
         //   different values - one unset value and two distinct values.
         //   Construct ball::Record objects with these values and with default
         //   constructor, verify the values with the basic accessors, verify
@@ -535,7 +587,7 @@ int main(int argc, char *argv[])
         //   scope.
         //
         // Testing:
-        //   ball::Record(const ball::RecordAttributes &, const ball::UserFields &);
+        //   ball::Record(const RecordAttributes &, const UserFields &);
         //   ball::Record();
         //   void setFixedFields(const ball::RecordAttributes &);
         //   void setUserFields(const ball::UserFields &);
@@ -783,15 +835,16 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create list FA and FB with different schemas.  Create record
         //   attributes UA and UB with different values.  Instantiate test
-        //   objects RA from FA and UA and RB from FB and UB.  Use accessors
-        //   to verify the correct values.  Copy construct RC from RA, verify
+        //   objects RA from FA and UA and RB from FB and UB.  Use accessors to
+        //   verify the correct values.  Copy construct RC from RA, verify
         //   their equality.  Use manipulators to set RA to values hold by RB,
         //   verify RA's inequality with RC, and equality with RB.  Reset RA
-        //   original values.  Get the dynamic memory usage.  To test
-        //   non-const versions of the 'userFields' and 'fixedFields' methods,
-        //   create a record RA from FA and *VALUES_DATA[1], get modifiables references
-        //   to fixed field and user field and assign them FB and *VALUES_DATA[2] and
-        //   finally verify that record is appropriately modified.
+        //   original values.  Get the dynamic memory usage.  To test non-const
+        //   versions of the 'userFields' and 'fixedFields' methods, create a
+        //   record RA from FA and *VALUES_DATA[1], get modifiables references
+        //   to fixed field and user field and assign them FB and
+        //   *VALUES_DATA[2] and finally verify that record is appropriately
+        //   modified.
         //
         // Testing:
         //   This "test" *exercises* basic functionality, but *tests* nothing.

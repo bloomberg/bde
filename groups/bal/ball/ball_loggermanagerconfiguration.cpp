@@ -16,28 +16,25 @@ BSLS_IDENT_RCSID(ball_loggermanagerconfiguration_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                    // -------------------------------------
+                    // --------------------------------
                     // class LoggerManagerConfiguration
-                    // -------------------------------------
+                    // --------------------------------
 
 // CLASS METHODS
 bool
 LoggerManagerConfiguration::isValidDefaultRecordBufferSize(int numBytes)
 {
-    return LoggerManagerDefaults::isValidDefaultRecordBufferSize(
-                                                                     numBytes);
+    return LoggerManagerDefaults::isValidDefaultRecordBufferSize(numBytes);
 }
 
 bool
 LoggerManagerConfiguration::isValidDefaultLoggerBufferSize(int numBytes)
 {
-    return LoggerManagerDefaults::isValidDefaultLoggerBufferSize(
-                                                                     numBytes);
+    return LoggerManagerDefaults::isValidDefaultLoggerBufferSize(numBytes);
 }
 
 bool
-LoggerManagerConfiguration::areValidDefaultThresholdLevels(
-                                                           int recordLevel,
+LoggerManagerConfiguration::areValidDefaultThresholdLevels(int recordLevel,
                                                            int passLevel,
                                                            int triggerLevel,
                                                            int triggerAllLevel)
@@ -64,8 +61,8 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
 }
 
 LoggerManagerConfiguration::LoggerManagerConfiguration(
-                        const LoggerManagerConfiguration&  original,
-                        bslma::Allocator                       *basicAllocator)
+                             const LoggerManagerConfiguration&  original,
+                             bslma::Allocator                  *basicAllocator)
 : d_defaults(original.d_defaults)
 , d_userFieldsSchema(original.d_userFieldsSchema, basicAllocator)
 , d_userPopulator(original.d_userPopulator, basicAllocator)
@@ -83,16 +80,15 @@ LoggerManagerConfiguration::~LoggerManagerConfiguration()
 
 // MANIPULATORS
 LoggerManagerConfiguration&
-LoggerManagerConfiguration::operator=(
-                                    const LoggerManagerConfiguration& rhs)
+LoggerManagerConfiguration::operator=(const LoggerManagerConfiguration& rhs)
 {
-    d_defaults              = rhs.d_defaults;
-    d_userFieldsSchema  = rhs.d_userFieldsSchema;
-    d_userPopulator         = rhs.d_userPopulator;
-    d_categoryNameFilter    = rhs.d_categoryNameFilter;
-    d_defaultThresholdsCb   = rhs.d_defaultThresholdsCb;
-    d_logOrder              = rhs.d_logOrder;
-    d_triggerMarkers        = rhs.d_triggerMarkers;
+    d_defaults            = rhs.d_defaults;
+    d_userFieldsSchema    = rhs.d_userFieldsSchema;
+    d_userPopulator       = rhs.d_userPopulator;
+    d_categoryNameFilter  = rhs.d_categoryNameFilter;
+    d_defaultThresholdsCb = rhs.d_defaultThresholdsCb;
+    d_logOrder            = rhs.d_logOrder;
+    d_triggerMarkers      = rhs.d_triggerMarkers;
 
     return *this;
 }
@@ -103,21 +99,19 @@ void LoggerManagerConfiguration::setDefaultValues(
     d_defaults = defaults;
 }
 
-int LoggerManagerConfiguration::setDefaultRecordBufferSizeIfValid(
-                                                                  int numBytes)
+int LoggerManagerConfiguration::setDefaultRecordBufferSizeIfValid(int numBytes)
 {
     return d_defaults.setDefaultRecordBufferSizeIfValid(numBytes);
 }
 
-int LoggerManagerConfiguration::setDefaultLoggerBufferSizeIfValid(
-                                                                  int numBytes)
+int LoggerManagerConfiguration::setDefaultLoggerBufferSizeIfValid(int numBytes)
 {
     return d_defaults.setDefaultLoggerBufferSizeIfValid(numBytes);
 }
 
 
-int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(
-                                                               int passLevel) {
+int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(int passLevel)
+{
     return d_defaults.setDefaultThresholdLevelsIfValid(passLevel);
 }
 
@@ -134,7 +128,7 @@ int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(
 }
 
 void LoggerManagerConfiguration::setUserFieldsSchema(
-                          const ball::UserFieldsSchema   fieldDescriptions,
+                          const ball::UserFieldsSchema       fieldDescriptions,
                           const UserFieldsPopulatorCallback& populatorCallback)
 
 {
@@ -239,8 +233,8 @@ LoggerManagerConfiguration::triggerMarkers() const
 
 bsl::ostream&
 LoggerManagerConfiguration::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -294,9 +288,11 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bool operator==(const ball::LoggerManagerConfiguration& lhs,
-                const ball::LoggerManagerConfiguration& rhs)
+bool ball::operator==(const ball::LoggerManagerConfiguration& lhs,
+                      const ball::LoggerManagerConfiguration& rhs)
 {   // TBD: Note that we are casting the three 'bdlf::Function' data members to
     // 'bool' and comparing the boolean values as this was the accidental
     // behavior present in 'bdlf::Function'.  Now that 'bdlf::Function' has
@@ -313,19 +309,19 @@ bool operator==(const ball::LoggerManagerConfiguration& lhs,
         && lhs.d_triggerMarkers            == rhs.d_triggerMarkers;
 }
 
-bool operator!=(const ball::LoggerManagerConfiguration& lhs,
-                const ball::LoggerManagerConfiguration& rhs)
+bool ball::operator!=(const ball::LoggerManagerConfiguration& lhs,
+                      const ball::LoggerManagerConfiguration& rhs)
 {
     return !(lhs == rhs);
 }
 
-bsl::ostream& operator<<(bsl::ostream&                          stream,
+bsl::ostream& ball::operator<<(
+                         bsl::ostream&                           stream,
                          const ball::LoggerManagerConfiguration& configuration)
 {
     return configuration.print(stream);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 

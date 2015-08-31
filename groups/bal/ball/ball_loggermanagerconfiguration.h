@@ -246,6 +246,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -305,9 +313,9 @@ class LoggerManagerConfiguration {
         // registry by the 'setCategory(const char *)' method.
 
     enum LogOrder {
-        // The 'LogOrder' enumeration defines the order in which messages
-        // will be published to the underlying observer in the case of
-        // Trigger and Trigger-All events.
+        // The 'LogOrder' enumeration defines the order in which messages will
+        // be published to the underlying observer in the case of Trigger and
+        // Trigger-All events.
 
         e_FIFO,  // oldest logged messages are published first
         e_LIFO   // newest logged messages are published first
@@ -344,8 +352,7 @@ class LoggerManagerConfiguration {
 
   private:
     // DATA
-    LoggerManagerDefaults
-                          d_defaults;             // default buffer size for
+    LoggerManagerDefaults d_defaults;             // default buffer size for
                                                   // logger (for macros) and
                                                   // set of constrained default
                                                   // severity threshold levels
@@ -406,17 +413,20 @@ class LoggerManagerConfiguration {
         // severity threshold level, and 'false' otherwise.  Valid severity
         // threshold levels are in the range '[0 .. 255]'.
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(LoggerManagerConfiguration,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    explicit LoggerManagerConfiguration(
-                                         bslma::Allocator *basicAllocator = 0);
+    explicit LoggerManagerConfiguration(bslma::Allocator *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having valid default values for all attributes.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     LoggerManagerConfiguration(
-                   const LoggerManagerConfiguration&  original,
-                   bslma::Allocator                       *basicAllocator = 0);
+                        const LoggerManagerConfiguration&  original,
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having the in-core value of the specified 'original' object.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -440,23 +450,23 @@ class LoggerManagerConfiguration {
 
     int setDefaultRecordBufferSizeIfValid(int numBytes);
         // Set the default-logger record-buffer size attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'numBytes' if '0 < numBytes'.  Return 0 on success, and a
-        // non-zero value otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'numBytes' if '0 < numBytes'.  Return 0 on success, and a non-zero
+        // value otherwise with no effect on this object.
 
     int setDefaultLoggerBufferSizeIfValid(int numBytes);
         // Set the default logger-message-buffer size attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'numBytes' if '0 < numBytes'.  Return 0 on success, and a
-        // non-zero value otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'numBytes' if '0 < numBytes'.  Return 0 on success, and a non-zero
+        // value otherwise with no effect on this object.
 
     int setDefaultThresholdLevelsIfValid(int passLevel);
         // Set the passthrough severity threshold level attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'passLevel', if it is in the range '[0 .. 255]', and set
-        // all the other threshold levels (recordLevel, triggerLevel,
-        // triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
-        // otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'passLevel', if it is in the range '[0 .. 255]', and set all the
+        // other threshold levels (recordLevel, triggerLevel, triggerAllLevel)
+        // to 0.  Return 0 on success, and a non-zero value otherwise with no
+        // effect on this object.
 
     int setDefaultThresholdLevelsIfValid(int recordLevel,
                                          int passLevel,
@@ -470,14 +480,14 @@ class LoggerManagerConfiguration {
         // on this object.
 
     void setUserFieldsSchema(
-                       const ball::UserFieldsSchema   fieldDescriptions,
+                       const ball::UserFieldsSchema       fieldDescriptions,
                        const UserFieldsPopulatorCallback& populatorCallback);
         // Set the user-defined-fields attributes of this object such that the
         // specified 'populatorCallback' will be invoked and supplied the
-        // specified 'fieldDescriptions'.  Note that this method cannot
-        // fail per se, but it is the user's responsibility to make sure that
-        // 'populatorCallback' can populate a 'ball::UserFields' object
-        // in a way consistent with the 'fieldDescriptions'.
+        // specified 'fieldDescriptions'.  Note that this method cannot fail
+        // per se, but it is the user's responsibility to make sure that
+        // 'populatorCallback' can populate a 'ball::UserFields' object in a
+        // way consistent with the 'fieldDescriptions'.
 
     void setCategoryNameFilterCallback(
                                  const CategoryNameFilterCallback& nameFilter);
@@ -589,17 +599,17 @@ bool operator!=(const LoggerManagerConfiguration& lhs,
     // have different in-core values if their representations are not
     // identical.
 
-bsl::ostream& operator<<(bsl::ostream&                          stream,
+bsl::ostream& operator<<(bsl::ostream&                     stream,
                          const LoggerManagerConfiguration& configuration);
-}  // close package namespace
     // Write a reasonable representation of the specified 'configuration'
     // object to the specified output 'stream', indicating whether the
     // contained functors are or are not "null".
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

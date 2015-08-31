@@ -5,12 +5,13 @@
 #include <ball_loggermanager.h>                 // for testing only
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-
 #include <bdlf_function.h>                      // for testing only
 #include <bdlf_bind.h>                          // for testing only
 #include <bdlf_placeholder.h>                   // for testing only
+
+#include <bslim_testutil.h>
+#include <bslma_testallocator.h>                // for testing only
+#include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -38,40 +39,60 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -144,7 +165,8 @@ int main(int argc, char *argv[])
            manager.addCategory("EQUITY.GRAPHICS", 129, 97, 65, 33);
 
            const ball::Category *p1 = manager.lookupCategory("EQUITY.MARKET");
-           const ball::Category *p2 = manager.lookupCategory("EQUITY.GRAPHICS");
+           const ball::Category *p2 =
+                                    manager.lookupCategory("EQUITY.GRAPHICS");
 
                ASSERT(127 == p1->recordLevel());
                ASSERT( 95 == p1->passLevel());
@@ -194,7 +216,7 @@ int main(int argc, char *argv[])
         // TESTING 'loadParentCategoryThresholdValues'
         //
         // Concerns:
-        //   The method under test relies on the services of the 'bael' logger,
+        //   The method under test relies on the services of the 'ball' logger,
         //   but does not modify the state of the logger.  The concerns are
         //   that, given known "parent" categories already registered in the
         //   logger, that the method can "find" the proximate parent as
@@ -338,8 +360,8 @@ int main(int argc, char *argv[])
             const int   EXP_TRIGGERALL = DATA[ti].d_expTriggerAll;
 
             if (veryVerbose) {
-                T_();             P_(NAME);
-                T_();             P_(DELIM);
+                T_;               P_(NAME);
+                T_;               P_(DELIM);
                 P_(EXP_RECORD);   P_(EXP_PASS);
                 P_(EXP_TRIGGER);  P(EXP_TRIGGERALL);
             }
@@ -352,8 +374,8 @@ int main(int argc, char *argv[])
                                                     DELIM);
 
             if (veryVeryVerbose) {
-                T_();              P_(NAME);
-                T_();              P_(DELIM);
+                T_;                P_(NAME);
+                T_;                P_(DELIM);
                 P_(recordLevel);   P_(passLevel);
                 P_(triggerLevel);  P(triggerAllLevel);
             }

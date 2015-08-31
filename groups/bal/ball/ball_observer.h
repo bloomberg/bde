@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@DESCRIPTION: This component defines the base-level protocol for receiving
-// and processing log records.  Concrete types derived from this protocol,
-// receive log records, and process them in a manner defined by the derived
-// class author.
+//@DESCRIPTION: This component defines the base-level protocol,
+// 'ball::Observer', for receiving and processing log records.  Concrete types
+// derived from this protocol, receive log records, and process them in a
+// manner defined by the derived class author.
 //
 ///Usage
 ///-----
@@ -41,8 +41,8 @@ BSLS_IDENT("$Id: $")
 // information is used to generate an appropriate heading for each log record
 // that is printed to the observer's 'ostream'.
 //
-// We first define the (derived) 'my_OstreamObserver' class and implement
-// its simple constructor inline (for convenience, directly within the
+// We first define the (derived) 'my_OstreamObserver' class and implement its
+// simple constructor inline (for convenience, directly within the
 // derived-class definition):
 //..
 //     // my_ostreamobserver.h
@@ -121,9 +121,9 @@ BSLS_IDENT("$Id: $")
 // 'recordPublisher', which generates the relevant fields of four dummy
 // records.  The first record is published singly (i.e., as a "Pass-through"
 // record).  Note that we call the observer's 'publish' method with a
-// 'ball::Context' object appropriately initialized for a "Pass-through".
-// The last three records are published as a sequence of "Triggered" records.
-// Note that, in the sequenced output, the 'publish' method is called with a
+// 'ball::Context' object appropriately initialized for a "Pass-through".  The
+// last three records are published as a sequence of "Triggered" records.  Note
+// that, in the sequenced output, the 'publish' method is called with a
 // zero-based 'index' attribute; in this example, the 'publish' implementation
 // will print a natural-number message count equal to index + 1:
 //..
@@ -189,13 +189,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Record;
+class Record;
 class Context;
 
-                           // ===================
+                           // ==============
                            // class Observer
-                           // ===================
+                           // ==============
 
 class Observer {
     // This class provides a protocol for receiving and processing log record
@@ -223,11 +224,12 @@ class Observer {
         // distributed in a human or machine readable form.
 
     virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was
-        // supplied to the 'publish' method, and is held by this observer.
-        // Note that this operation should be called if resources underlying
-        // the previously provided shared-pointers must be released.
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method, and is held by this observer.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

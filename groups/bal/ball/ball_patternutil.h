@@ -11,12 +11,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility class for string pattern matching.
 //
 //@CLASSES:
-//        ball::PatternUtil: utility class for string pattern matching
+//  ball::PatternUtil: utility class for string pattern matching
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component provides utility functions for matching input
-// strings to a given pattern based on wild-card and simple escape sequences.
+//@DESCRIPTION: This component defines a namespace, 'ball::PatternUtil', that
+// provides utility functions for matching input strings to a given pattern
+// based on wild-card and simple escape sequences.
 //
 ///Usage
 ///-----
@@ -68,17 +69,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                        // ======================
+                        // =================
                         // class PatternUtil
-                        // ======================
+                        // =================
 
 struct PatternUtil {
     // This utility class provides functions relating to pattern matching for
     // strings.
 
     // CLASS METHODS
-    static bool isMatch(const char *inputString,
-                        const char *pattern);
+    static bool isMatch(const char *inputString, const char *pattern);
         // Return 'true' if the specified 'pattern' matches the specified
         // 'inputString', and 'false' if the pattern does not match or is
         // invalid.  There are two types of escape sequences that are allowed
@@ -102,6 +102,7 @@ struct PatternUtil {
         // unescaped '*' not at the end may someday be considered a valid
         // pattern.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace
