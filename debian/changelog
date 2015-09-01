@@ -1,5 +1,18 @@
-bsl-internal (2.24.0.3) unstable; urgency=low
+bsl-internal (2.24.0.4) unstable; urgency=low
 
+  * af5c333 [APPROVAL] OSS review/fix_gcc_intializer_list_header_drqs70629193 to releases/2.24.x
+  * 3d314b1 [APPROVAL] review/fix_gcc_intializer_list_header_drqs70629193 to releases/2.24.x
+  * cb066bd Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * dd0b3c6 [APPROVAL] INTERNAL remove-a-trailing-space-to-update-oss-2.24-branch to releases/2.24.x
+  * c83f1dc [APPROVAL] remove-a-trailing-space-to-update-oss-2.24-branch to releases/2.24.x
+  * 01fe448 [APPROVAL] INTERNAL review/bslim_testutil-create-component-drqs-68761302 to master
+  * 1b1d730 [APPROVAL] INTERNAL review/ajm_reviews_pablos_bsl_allocatorargt to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 1 Sep 2015 14:45:52 -0400
+
+bsl-internal (2.24.0.3) git; urgency=low
+
+  * 96deef8 Changelog for version 2.24.0.3
   * 90726a1 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 9bc2166 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 2570d3b [APPROVAL] add-thirdparty-deps to master
@@ -654,7 +667,7 @@ bsl-internal (2.24.0.3) unstable; urgency=low
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 13 Aug 2015 10:40:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 18 Aug 2015 10:03:00 -0400
 
 bsl-internal (2.20.2.2) git; urgency=low
 
