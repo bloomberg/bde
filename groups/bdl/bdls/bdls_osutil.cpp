@@ -1,15 +1,15 @@
-// bdlsu_osutil.cpp                                                   -*-C++-*-
-#include <bdlsu_osutil.h>
+// bdls_osutil.cpp                                                    -*-C++-*-
+#include <bdls_osutil.h>
 
-#include <bdlsu_processutil.h>
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
+
+#include <bdls_processutil.h>
 
 #include <bsl_cstring.h>
 #include <bsl_sstream.h>
 
 #include <bsls_platform.h>
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_osutil_cpp, "$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -24,16 +24,16 @@ BSLS_IDENT_RCSID(bdlsu_osutil_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
                             // --------------------
-                            // struct bdlsu::OsUtil
+                            // struct bdls::OsUtil
                             // --------------------
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-namespace bdlsu {
+namespace bdls {
 int OsUtil::getOsInfo(bsl::string *osName,
-                            bsl::string *osVersion,
-                            bsl::string *osPatch)
+                      bsl::string *osVersion,
+                      bsl::string *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);
@@ -63,10 +63,10 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
 #else
 
-namespace bdlsu {
+namespace bdls {
 int OsUtil::getOsInfo(bsl::string *osName,
-                            bsl::string *osVersion,
-                            bsl::string *osPatch)
+                      bsl::string *osVersion,
+                      bsl::string *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);

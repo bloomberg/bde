@@ -1,2 +1,9 @@
+bdls_fdstreambuf
+bdls_filedescriptorguard
+bdls_filesystemutil
+bdls_memoryutil
+bdls_osutil
+bdls_pathutil
+bdls_pipeutil
+bdls_processutil
 bdls_testutil
-

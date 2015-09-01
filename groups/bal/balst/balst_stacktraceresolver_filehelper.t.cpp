@@ -1,7 +1,7 @@
 // balst_stacktraceresolver_filehelper.t.cpp                          -*-C++-*-
 #include <balst_stacktraceresolver_filehelper.h>
 
-#include <bdlsu_filesystemutil.h>
+#include <bdls_filesystemutil.h>
 #include <balst_objectfileformat.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -15,7 +15,7 @@
 #include <bsl_string.h>
 
 // The following is added so that this component does not need a dependency
-// on bdlsu_processutil, since 'getProcessId' is only used to create unique
+// on bdls_processutil, since 'getProcessId' is only used to create unique
 // file names.
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <unistd.h>
@@ -95,7 +95,7 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::FilesystemUtil                FilesystemUtil;
+typedef bdls::FilesystemUtil                 FilesystemUtil;
 typedef FilesystemUtil::FileDescriptor       FdType;    // shorthand for file
                                                         // descriptor
 typedef balst::StackTraceResolver_FileHelper Obj;
@@ -133,7 +133,7 @@ class FileGuard {
     ~FileGuard()
         // delete the file named 'd_fileName'
     {
-        bdlsu::FilesystemUtil::remove(d_fileName);
+        bdls::FilesystemUtil::remove(d_fileName);
     }
 };
 
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 //..
 // Make sure file does not already exist.
 //..
-    bdlsu::FilesystemUtil::remove(fileNameBuffer);
+    bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 // Next, Create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 //..
         ta.deallocate(result);
     }
-    bdlsu::FilesystemUtil::remove(fileNameBuffer);
+    bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
       }  break;
       case 5: {
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
@@ -631,7 +631,7 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
@@ -750,7 +750,7 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
@@ -812,7 +812,7 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously

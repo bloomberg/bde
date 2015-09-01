@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#include <bdlsu_filesystemutil.h>
+#include <bdls_filesystemutil.h>
 #include <bdlb_string.h>
 
 #include <bslma_allocator.h>
@@ -30,10 +30,10 @@ StackTraceResolver_FileHelper::StackTraceResolver_FileHelper(
 {
     BSLS_ASSERT(fileName);
 
-    d_fd = bdlsu::FilesystemUtil::open(
+    d_fd = bdls::FilesystemUtil::open(
                         fileName,
-                        bdlsu::FilesystemUtil::e_OPEN,        // already exists
-                        bdlsu::FilesystemUtil::e_READ_ONLY);  // not writable
+                        bdls::FilesystemUtil::e_OPEN,        // already exists
+                        bdls::FilesystemUtil::e_READ_ONLY);  // not writable
     BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
 }
 
@@ -41,7 +41,7 @@ StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 {
     BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
 
-    bdlsu::FilesystemUtil::close(d_fd);
+    bdls::FilesystemUtil::close(d_fd);
 }
 
 // ACCESSORS

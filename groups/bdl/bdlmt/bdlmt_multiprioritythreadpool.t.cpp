@@ -12,8 +12,6 @@
 #include <bdlqq_mutex.h>
 #include <bdlqq_qlock.h>
 
-#include <bdlsu_pathutil.h>
-
 #include <bdlt_currenttime.h>
 
 #include <bsl_algorithm.h>

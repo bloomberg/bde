@@ -15,7 +15,7 @@
 #include <bdlqq_barrier.h>
 #include <bdlqq_threadgroup.h>
 
-#include <bdlsu_pipeutil.h>
+#include <bdls_pipeutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -203,7 +203,7 @@ static void threadSend(const bsl::string& pipeName,
                        int                numIterations)
 {
     for (int i = 0; i < numIterations; ++i) {
-        bdlsu::PipeUtil::send(pipeName.c_str(), message);
+        bdls::PipeUtil::send(pipeName.c_str(), message);
     }
 }
 
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 
         bsl::string pipeName;
 
-        ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                (&pipeName, "ctrl.pcctest10"));
 
         char buffer[512];
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        ASSERT(0 == bdlsu::PipeUtil::send(pipeName, "QUICKBROWNFOX_CASE10\n"));
+        ASSERT(0 == bdls::PipeUtil::send(pipeName, "QUICKBROWNFOX_CASE10\n"));
         ASSERT(0 == pclose(childFD));
 
 #endif
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
 
         bsl::string pipeName;
 
-        ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                (&pipeName, "ctrl.safttest9"));
 
         char buffer[512];
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 
         bsl::string pipeName;
 
-        ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                (&pipeName, "ctrl.restarttest8"));
 
         char buffer[512];
@@ -652,11 +652,11 @@ int main(int argc, char *argv[])
             const char MSG0[]  = "this is the first message";
             const char MSG1[]  = "this is the second message";
 
-            rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
+            rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
             ASSERT(0 == rc);
-            rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
+            rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
             ASSERT(0 == rc);
-            rc = bdlsu::PipeUtil::send(pipeName, "EXIT\n");
+            rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
             ASSERT(0 == rc);
 
             server.stop();  // blocks until shutdown
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
 // Now, construct and run the server using a canonical name for the pipe:
 //..
      bsl::string pipeName;
-     bdlsu::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
+     bdls::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
 //
      ControlServer server;
 //
@@ -713,11 +713,11 @@ int main(int argc, char *argv[])
      const char MSG0[]  = "this is the first message";
      const char MSG1[]  = "this is the second message";
 //
-     rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
+     rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
      ASSERT(0 == rc);
-     rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
+     rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
      ASSERT(0 == rc);
-     rc = bdlsu::PipeUtil::send(pipeName, "EXIT\n");
+     rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
      ASSERT(0 == rc);
 //..
 // The server shuts down once it processes the "EXIT" control message.
@@ -767,7 +767,7 @@ int main(int argc, char *argv[])
         {
             bsl::string pipeName;
 
-            ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest6"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
         {
             bsl::string pipeName;
 
-            ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest5"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
@@ -873,7 +873,7 @@ int main(int argc, char *argv[])
             int rc = channel.start(pipeName);
             ASSERT(0 == rc);
 
-            bdlsu::PipeUtil::send(pipeName, bsl::string(MESSAGE) + "\n");
+            bdls::PipeUtil::send(pipeName, bsl::string(MESSAGE) + "\n");
             barrier.wait();
 
             channel.shutdown();
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
         {
             bsl::string pipeName;
 
-            ASSERT(0 == bdlsu::PipeUtil::makeCanonicalName
+            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest4"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());

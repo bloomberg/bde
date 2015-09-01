@@ -22,8 +22,8 @@
 #include <bdlt_localtimeoffset.h>
 #include <bdlf_function.h>
 #include <bdls_testutil.h>
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_processutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlqq_threadutil.h>
 
@@ -178,8 +178,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef ball::FileObserver    Obj;
-typedef bdlsu::FilesystemUtil FileUtil;
+typedef ball::FileObserver   Obj;
+typedef bdls::FilesystemUtil FileUtil;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -298,7 +298,7 @@ bsl::string readPartialFile(bsl::string& fileName, int startOffset)
     // indicated by the specified 'fileName' and return it as a string.
 {
     bsl::string result;
-    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1
+    result.reserve(FileUtil::getFileSize(fileName) + 1
                    - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
                                               originalLocalTimeOffsetCallback);
 
         mX.disableFileLogging();
-        bdlsu::FilesystemUtil::remove(logfilename.c_str());
+        FileUtil::remove(logfilename.c_str());
 
       } break;
       case 6: {
@@ -1041,7 +1041,7 @@ int main(int argc, char *argv[])
 
             // Ensure log file did not exist
 
-            bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+            FileUtil::remove(BASENAME.c_str());
 
             bdlt::Datetime refTime = bdlt::CurrentTime::local();
             refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
@@ -1056,7 +1056,7 @@ int main(int argc, char *argv[])
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(
+            ASSERT(1 == FileUtil::exists(
                                                 cb.rotatedFileName().c_str()));
         }
 
@@ -1769,8 +1769,8 @@ int main(int argc, char *argv[])
             fflush(stdout);
         }
 
-        ASSERT(bdlsu::FilesystemUtil::exists(fileName));
-        ASSERT(0 == bdlsu::FilesystemUtil::getFileSize(fileName));
+        ASSERT(FileUtil::exists(fileName));
+        ASSERT(0 == FileUtil::getFileSize(fileName));
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && \
    (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
@@ -2398,7 +2398,7 @@ int main(int argc, char *argv[])
             fnOs << bsl::setw(2) << bsl::setfill('0')
                      << startDatetime.second();
             fnOs << "-";
-            fnOs << bdlsu::ProcessUtil::getProcessId();
+            fnOs << bdls::ProcessUtil::getProcessId();
 
             // look for the file with the constructed name
             glob_t globbuf;

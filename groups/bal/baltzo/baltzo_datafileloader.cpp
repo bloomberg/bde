@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_pathutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 #include <bdlb_strtokenrefiter.h>
 
 #include <bslmf_assert.h>
@@ -48,7 +48,7 @@ void concatenatePath(bsl::string *result,
 
     *result = rootPath;
     for (bdlb::StrTokenRefIter it(timeZoneId, "/"); it; ++it) {
-        bdlsu::PathUtil::appendIfValid(result, it());
+        bdls::PathUtil::appendIfValid(result, it());
     }
 }
 
@@ -92,7 +92,7 @@ bool baltzo::DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
-    if (!bdlsu::FilesystemUtil::isDirectory(path, true)) {
+    if (!bdls::FilesystemUtil::isDirectory(path, true)) {
         return false;                                                 // RETURN
     }
 
@@ -102,7 +102,7 @@ bool baltzo::DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
     // If 'path' is a valid directory, appending "GMT" to it must result in a
     // valid path.
 
-    return bdlsu::FilesystemUtil::isRegularFile(gmtPath.c_str(), true);
+    return bdls::FilesystemUtil::isRegularFile(gmtPath.c_str(), true);
 }
 
 // CREATORS

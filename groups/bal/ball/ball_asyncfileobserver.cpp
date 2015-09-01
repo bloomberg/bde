@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bslma_default.h>
@@ -188,7 +188,7 @@ void AsyncFileObserver::construct()
     d_droppedRecordWarning.fixedFields().setSeverity(
                                           Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
-                                          bdlsu::ProcessUtil::getProcessId());
+                                            bdls::ProcessUtil::getProcessId());
 }
 
 // CREATORS

@@ -1,6 +1,6 @@
-// bdlsu_pathutil.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLSU_PATHUTIL
-#define INCLUDED_BDLSU_PATHUTIL
+// bdls_pathutil.h                                                    -*-C++-*-
+#ifndef INCLUDED_BDLS_PATHUTIL
+#define INCLUDED_BDLS_PATHUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,15 +10,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide portable file path manipulation.
 //
 //@CLASSES:
-//  bdlsu::PathUtil: Portable utility methods for manipulating paths
+//  bdls::PathUtil: Portable utility methods for manipulating paths
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@SEE_ALSO: bdlsu_filesystemutil
+//@SEE_ALSO: bdls_filesystemutil
 //
 //@DESCRIPTION: This component provides utility methods for manipulating
 // strings that represent paths in the filesystem.  Class methods of
-// 'bdlsu::PathUtil' include platform-independent operations to add or remove
+// 'bdls::PathUtil' include platform-independent operations to add or remove
 // filenames or relative paths at the end of a path string (by "filenames" we
 // are referring to the names of any filesystem item, including regular files
 // and directories).  There are also methods to parse the path to delimit the
@@ -59,21 +59,21 @@ BSLS_IDENT("$Id: $")
 // 'tempPath' is an absolute path, since it has a root.  It also has a leaf
 // element ("temp"):
 //..
-//  assert(false == bdlsu::PathUtil::isRelative(tempPath));
-//  assert(true  == bdlsu::PathUtil::isAbsolute(tempPath));
-//  assert(true  == bdlsu::PathUtil::hasLeaf(tempPath));
+//  assert(false == bdls::PathUtil::isRelative(tempPath));
+//  assert(true  == bdls::PathUtil::isAbsolute(tempPath));
+//  assert(true  == bdls::PathUtil::hasLeaf(tempPath));
 //..
 // We can add filenames to the path one at a time, or we can add another path
-// if is relative.  We can also remove filenames from the end of the path
-// one at a time:
+// if is relative.  We can also remove filenames from the end of the path one
+// at a time:
 //..
-//  bdlsu::PathUtil::appendRaw(&tempPath, "myApp");
-//  bdlsu::PathUtil::appendRaw(&tempPath, "logs");
-//  assert(true == bdlsu::PathUtil::isRelative(otherPath));
-//  assert(0 == bdlsu::PathUtil::appendIfValid(&tempPath, otherPath));
-//  assert(true == bdlsu::PathUtil::hasLeaf(tempPath));
-//  bdlsu::PathUtil::popLeaf(tempPath);
-//  bdlsu::PathUtil::appendRaw(&tempPath, "log2.txt");
+//  bdls::PathUtil::appendRaw(&tempPath, "myApp");
+//  bdls::PathUtil::appendRaw(&tempPath, "logs");
+//  assert(true == bdls::PathUtil::isRelative(otherPath));
+//  assert(0 == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
+//  assert(true == bdls::PathUtil::hasLeaf(tempPath));
+//  bdls::PathUtil::popLeaf(tempPath);
+//  bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
 //
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //      assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 // A relative path may be appended to any other path, even itself.  An absolute
 // path may not be appended to any path, or undefined behavior will result:
 //..
-//   assert(0 == bdlsu::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
-//   /* bdlsu::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
+//   assert(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
+//   /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
 //..
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
                               // ===============
                               // struct PathUtil
                               // ===============
@@ -120,7 +120,7 @@ struct PathUtil {
     // any filesystem operations.
 
     // CLASS METHODS
-    static int appendIfValid(bsl::string            *path,
+    static int appendIfValid(bsl::string              *path,
                              const bslstl::StringRef&  filename);
         // Append the specified 'filename' to the end of the specified 'path'
         // if 'filename' represents a relative path.  Return 0 on success, and
@@ -128,9 +128,9 @@ struct PathUtil {
         // characters at the end of 'filename' or 'path' will be discarded.
 
     static void appendRaw(bsl::string *path,
-                            const char  *filename,
-                            int          length  = -1,
-                            int          rootEnd = -1);
+                          const char  *filename,
+                          int          length = -1,
+                          int          rootEnd = -1);
         // Append the specified 'filename' up to the optionally specified
         // 'length' to the end of the specified 'path'.  If 'length' is
         // negative, append the entire string.  If the optionally specified
@@ -142,27 +142,27 @@ struct PathUtil {
         // 'path' (i.e., 'filename' may not be an alias for 'path').
 
     static int popLeaf(bsl::string *path, int rootEnd = -1);
-        // Remove from 'path' the rightmost filename following the root; that
-        // is, remove the leaf element.  If the optionally specified 'rootEnd'
-        // offset is non-negative, it is taken as the position in 'path' of the
-        // character following the root.  Return 0 on success, and a nonzero
-        // value otherwise; in particular, return a nonzero value if 'path'
-        // does not have a leaf.
+        // Remove from the specified 'path' the rightmost filename following
+        // the root; that is, remove the leaf element.  If the optionally
+        // specified 'rootEnd' offset is non-negative, it is taken as the
+        // position in 'path' of the character following the root.  Return 0 on
+        // success, and a nonzero value otherwise; in particular, return a
+        // nonzero value if 'path' does not have a leaf.
 
-    static int getBasename(bsl::string            *leaf,
+    static int getBasename(bsl::string              *leaf,
                            const bslstl::StringRef&  path,
-                           int                     rootEnd = -1);
-        // Load into the specified 'leaf' the value of the rightmost
-        // filename in 'path' that follows the root; that is, the leaf element.
-        // If the optionally specified 'rootEnd' offset is non-negative, it is
-        // taken as the position in 'path' of the character following the root.
-        // Return 0 on success, and a non-zero value otherwise; in particular,
-        // return nonzero if 'path' does not have a leaf.  Note that
-        // 'getBasename' is a synonym for 'getLeaf'.
+                           int                       rootEnd = -1);
+        // Load into the specified 'leaf' the value of the rightmost filename
+        // in the specified 'path' that follows the root; that is, the leaf
+        // element.  If the optionally specified 'rootEnd' offset is
+        // non-negative, it is taken as the position in 'path' of the character
+        // following the root.  Return 0 on success, and a non-zero value
+        // otherwise; in particular, return nonzero if 'path' does not have a
+        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.
 
-    static int getDirname(bsl::string            *dirname,
+    static int getDirname(bsl::string              *dirname,
                           const bslstl::StringRef&  path,
-                          int                     rootEnd = -1);
+                          int                       rootEnd = -1);
         // Load into the specified 'dirname' the value of the directory part
         // of the specified 'path', that is, the root if it exists and all the
         // filenames except the last one (the leaf).  If the optionally
@@ -173,20 +173,20 @@ struct PathUtil {
         // case of a relative path with a single filename, the function will
         // succeed and 'dirname' will be the empty string.
 
-    static int getLeaf(bsl::string            *leaf,
+    static int getLeaf(bsl::string              *leaf,
                        const bslstl::StringRef&  path,
-                       int                     rootEnd = -1);
-        // Load into the specified 'leaf' the value of the rightmost
-        // filename in 'path' that follows the root; that is, the leaf element.
-        // If the optionally specified 'rootEnd' offset is non-negative, it is
-        // taken as the position in 'path' of the character following the root.
-        // Return 0 on success, and a non-zero value otherwise; in particular,
-        // return nonzero if 'path' does not have a leaf.  Note that
-        // 'getBasename' is a synonym for 'getLeaf'.
+                       int                       rootEnd = -1);
+        // Load into the specified 'leaf' the value of the rightmost filename
+        // in the specified 'path' that follows the root; that is, the leaf
+        // element.  If the optionally specified 'rootEnd' offset is
+        // non-negative, it is taken as the position in 'path' of the character
+        // following the root.  Return 0 on success, and a non-zero value
+        // otherwise; in particular, return nonzero if 'path' does not have a
+        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.
 
-    static int getRoot(bsl::string            *root,
+    static int getRoot(bsl::string              *root,
                        const bslstl::StringRef&  path,
-                       int                     rootEnd = -1);
+                       int                       rootEnd = -1);
         // Load into the specified 'root' the value of the root part of the
         // specified 'path'.  If the optionally specified 'rootEnd' offset is
         // non-negative, it is taken as the position in 'path' of the character
@@ -196,10 +196,10 @@ struct PathUtil {
         // platform-dependent.
 
     static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
-        // Return 'true' if the specified 'path' is absolute (has a root),
-        // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
-        // is non-negative, it is taken as the position in 'path' of the
-        // character following the root.
+        // Return 'true' if the specified 'path' is absolute (has a root), and
+        // 'false' otherwise.  If the optionally specified 'rootEnd' offset is
+        // non-negative, it is taken as the position in 'path' of the character
+        // following the root.
 
     static bool isRelative(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is relative (lacks a root),
@@ -208,18 +208,19 @@ struct PathUtil {
         // character following the root.
 
     static bool hasLeaf(const bslstl::StringRef& path, int rootEnd = -1);
-        // Return 'true' if the specified path has a filename following the
+        // Return 'true' if the specified 'path' has a filename following the
         // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
         // offset is non-negative, it is taken as the position in 'path' of
         // the character following the root.
 
     static int getRootEnd(const bslstl::StringRef& path);
-        // Return the 0-based position in 'path' of the character following
-        // the root.  Note that a return value of 0 indicates a relative path.
+        // Return the 0-based position in the specified 'path' of the character
+        // following the root.  Note that a return value of 0 indicates a
+        // relative path.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                                // --------------
@@ -228,9 +229,9 @@ struct PathUtil {
 
 // CLASS METHODS
 inline
-int PathUtil::getBasename(bsl::string            *leaf,
+int PathUtil::getBasename(bsl::string                    *leaf,
                                 const bslstl::StringRef&  path,
-                                int                     rootEnd)
+                                int                       rootEnd)
 {
     BSLS_ASSERT_SAFE(leaf);
 

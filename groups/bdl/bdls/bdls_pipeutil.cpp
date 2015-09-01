@@ -1,12 +1,12 @@
-// bdlsu_pipeutil.cpp                                                 -*-C++-*-
-#include <bdlsu_pipeutil.h>
+// bdls_pipeutil.cpp                                                  -*-C++-*-
+#include <bdls_pipeutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_pipeutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_pipeutil_cpp,"$Id$ $CSID$")
 
-#include <bdlsu_filedescriptorguard.h>
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_pathutil.h>
+#include <bdls_filedescriptorguard.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -47,7 +47,7 @@ void getPipeDir(bsl::string *dir)
         dir->assign(tmpdir);
     }
     else {
-        int rc = bdlsu::FilesystemUtil::getWorkingDirectory(dir);
+        int rc = bdls::FilesystemUtil::getWorkingDirectory(dir);
         BSLS_ASSERT(0 == rc);
     }
 }
@@ -64,15 +64,14 @@ void getPipeDir(bsl::string *dir)
 
 #endif
 
-namespace bdlsu {
+namespace bdls {
                               // ---------------
                               // struct PipeUtil
                               // ---------------
 
 // CLASS METHODS
-int
-PipeUtil::makeCanonicalName(bsl::string           *pipeName,
-                                  const bslstl::StringRef& baseName)
+int PipeUtil::makeCanonicalName(bsl::string              *pipeName,
+                                const bslstl::StringRef&  baseName)
 {
     BSLS_ASSERT(pipeName);
 
@@ -92,10 +91,9 @@ PipeUtil::makeCanonicalName(bsl::string           *pipeName,
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-namespace bdlsu {
-int
-PipeUtil::send(const bslstl::StringRef& pipeName,
-                     const bslstl::StringRef& message)
+namespace bdls {
+int PipeUtil::send(const bslstl::StringRef& pipeName,
+                   const bslstl::StringRef& message)
 {
     HANDLE pipe;
     do {
@@ -144,10 +142,9 @@ PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 
 #else // UNIX implementation
 
-namespace bdlsu {
-int
-PipeUtil::send(const bslstl::StringRef& pipeName,
-                     const bslstl::StringRef& message)
+namespace bdls {
+int PipeUtil::send(const bslstl::StringRef& pipeName,
+                   const bslstl::StringRef& message)
 {
     int pipe = open(pipeName.data(), O_WRONLY);
     if (-1 == pipe) {

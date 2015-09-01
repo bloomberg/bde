@@ -1,7 +1,9 @@
-// bdlsu_filedescriptorguard.t.cpp                                    -*-C++-*-
-#include <bdlsu_filedescriptorguard.h>
+// bdls_filedescriptorguard.t.cpp                                     -*-C++-*-
+#include <bdls_filedescriptorguard.h>
 
-#include <bdlsu_pathutil.h>
+#include <bslim_testutil.h>
+
+#include <bdls_pathutil.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>    // atoi
@@ -32,44 +34,48 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -86,8 +92,8 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::FileDescriptorGuard Obj;
-typedef bdlsu::FilesystemUtil      Util;
+typedef bdls::FileDescriptorGuard Obj;
+typedef bdls::FilesystemUtil      Util;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 enum { PLAT_WINDOWS = 1 };
@@ -111,9 +117,10 @@ int localGetPId()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-//  int veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -129,20 +136,20 @@ int main(int argc, char *argv[])
 #endif
         bsl::ostringstream oss;
         oss << (PLAT_WINDOWS ? "temp." : "tmp.");
-        oss << "bdlsu_filedescriptorguard.";
+        oss << "bdls_filedescriptorguard.";
         oss << test << '.' << host << '.' << localGetPId();
         rootPath = oss.str();
     }
     Util::remove(rootPath, true);
     bsl::string logPath = rootPath;
-    bdlsu::PathUtil::appendRaw(&logPath, "log");
+    bdls::PathUtil::appendRaw(&logPath, "log");
     ASSERT(0 == Util::createDirectories(logPath, true));
 
     ASSERT(Util::exists(     logPath));
     ASSERT(Util::isDirectory(logPath));
 
     bsl::string fileName(logPath);
-    bdlsu::PathUtil::appendRaw(&fileName, "out.txt");
+    bdls::PathUtil::appendRaw(&fileName, "out.txt");
 
     if (veryVerbose) P(fileName);
 
@@ -156,7 +163,7 @@ int main(int argc, char *argv[])
                              "=====================\n";
 
 // Suppose we want to open a file and perform some I/O operations.  We use an
-// object of type 'bdlsu::FileDescriptorGuard' to ensure this handle is closed
+// object of type 'bdls::FileDescriptorGuard' to ensure this handle is closed
 // after the operations are complete.
 //
 // First, we create a name for our temporary file name and a few local
@@ -175,7 +182,7 @@ int main(int argc, char *argv[])
 // Next, we enter a lexical scope and create a guard object to manage 'fd':
 
     {
-        bdlsu::FileDescriptorGuard guard(fd);
+        bdls::FileDescriptorGuard guard(fd);
 
 // Then, we declare an essay we would like to write to the file:
 

@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //  const char *TEST_DIRECTORY = "test/Asia";
 //  const char *TEST_FILE      = "test/Asia/Bangkok";
 //  #endif
-//  int rc = bdlsu::FileUtil::createDirectories(TEST_DIRECTORY, true);
+//  int rc = bdls::FileUtil::createDirectories(TEST_DIRECTORY, true);
 //  assert(0 == rc);
 //..
 // Now we create a file for Bangkok and write the binary time-zone data to that
@@ -190,7 +190,7 @@ BSLS_IDENT("$Id: $")
 // The file hierarchy we created Example 1 solely for Example 2, is no longer
 // needed, and is removed by:
 //..
-//  int rc = bdlsu::FileUtil::remove(TEST_DIRECTORY, true);
+//  int rc = bdls::FileUtil::remove(TEST_DIRECTORY, true);
 //  assert(0 == rc);
 //..
 

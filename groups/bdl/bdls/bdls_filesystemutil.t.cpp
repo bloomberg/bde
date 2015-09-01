@@ -1,14 +1,14 @@
-// bdlsu_filesystemutil.t.cpp                                         -*-C++-*-
-#include <bdlsu_filesystemutil.h>
+// bdls_filesystemutil.t.cpp                                          -*-C++-*-
+#include <bdls_filesystemutil.h>
 
-#include <bdlsu_memoryutil.h>
-#include <bdlsu_pathutil.h>
+#include <bslim_testutil.h>
+
+#include <bdls_memoryutil.h>
+#include <bdls_pathutil.h>
 #include <bdlde_charconvertutf16.h>
 #include <bdlf_bind.h>
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
-
-#include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -162,7 +162,7 @@ static const size_t NUM_VALID_NAMES = NUM_NAMES;
 //                 GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::FilesystemUtil Obj;
+typedef bdls::FilesystemUtil Obj;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
@@ -289,12 +289,10 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
-static
-bsl::string tempFileName(int         testCase,
-                         const char *fnTemplate = 0)
-    // Return a temporary file name, with 'testCase' being part of the file
-    // name, with with 'fnTemplate', if specified, also being part of the file
-    // name.
+static bsl::string tempFileName(int testCase, const char *fnTemplate = 0)
+    // Return a temporary file name, with the specified 'testCase' being part
+    // of the file name, and with the optionally specified 'fnTemplate', if
+    // specified, also being part of the file name.
 {
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -401,9 +399,9 @@ void NoOpAssertHandler(const char *, const char *, int)
 
 namespace UsageExample2 {
 
-///Example 2: Using 'bdlsu::FilesystemUtil::visitPaths'
+///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsu::FilesystemUtil::visitPaths' enables clients to define a functor to
+// 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
@@ -412,12 +410,12 @@ namespace UsageExample2 {
 //..
     void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
                                  const char               *item,
-                                 const bdlt::Datetime&      start,
-                                 const bdlt::Datetime&      end)
+                                 const bdlt::Datetime&     start,
+                                 const bdlt::Datetime&     end)
     {
         bdlt::Datetime datetime;
-        int ret = bdlsu::FilesystemUtil::getLastModificationTime(&datetime,
-                                                                 item);
+        int ret = bdls::FilesystemUtil::getLastModificationTime(&datetime,
+                                                                item);
 
         if (ret) {
             return;                                                   // RETURN
@@ -430,20 +428,20 @@ namespace UsageExample2 {
         vector->push_back(item);
     }
 //..
-// Then, with the help of 'bdlsu::FilesystemUtil::visitPaths' and
+// Then, with the help of 'bdls::FilesystemUtil::visitPaths' and
 // 'bdlf::BindUtil::bind', we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
 // start and end time (both specified as a 'bdlt::Datetime'):
 //..
     void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
                                       const char               *pattern,
-                                      const bdlt::Datetime&      start,
-                                      const bdlt::Datetime&      end)
+                                      const bdlt::Datetime&     start,
+                                      const bdlt::Datetime&     end)
     {
         result->clear();
-        bdlsu::FilesystemUtil::visitPaths(
-                                  pattern,
-                                  bdlf::BindUtil::bind(&getFilesWithinTimeframe,
+        bdls::FilesystemUtil::visitPaths(
+                                 pattern,
+                                 bdlf::BindUtil::bind(&getFilesWithinTimeframe,
                                                       result,
                                                       bdlf::PlaceHolders::_1,
                                                       start,
@@ -460,9 +458,10 @@ namespace UsageExample2 {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -481,8 +480,8 @@ int main(int argc, char *argv[])
     bsl::string tmpWorkingDir;
     {
         // Must not call 'tempFileName' here, because 'tempFileName' would
-        // create a plain file with the result name, and the attempt to
-        // create the directory would fail.
+        // create a plain file with the result name, and the attempt to create
+        // the directory would fail.
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         char host[80];
@@ -538,15 +537,14 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdlsu::FilesystemUtil::remove("bdlsu_filesystemutil.temp.2", true);
+        Obj::remove("bdls_filesystemutil.temp.2", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "bdlsu_filesystemutil.temp.temp.2\\logs2\\";
+        bsl::string logPath =  "bdls_filesystemutil.temp.temp.2\\logs2\\";
 #else
-        bsl::string logPath =  "bdlsu_filesystemutil.temp.temp.2/logs2/";
+        bsl::string logPath =  "bdls_filesystemutil.temp.temp.2/logs2/";
 #endif
 
-        ASSERT(0 == bdlsu::FilesystemUtil::createDirectories(logPath.c_str(),
-                                                          true));
+        ASSERT(0 == Obj::createDirectories(logPath.c_str(), true));
         const int TESTSIZE = 10;
         bdlt::Datetime modTime[TESTSIZE];
 
@@ -558,17 +556,16 @@ int main(int argc, char *argv[])
                 cout << "Creating file: " << s.str() << endl;
             }
 
-            bdlsu::FilesystemUtil::FileDescriptor fd
-                         = bdlsu::FilesystemUtil::open(s.str(),
-                                                      Obj::e_OPEN_OR_CREATE,
-                                                      Obj::e_READ_WRITE);
-            ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
+            Obj::FileDescriptor fd = Obj::open(s.str(),
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
+            ASSERT(Obj::k_INVALID_FD != fd);
 
             const char buffer[] = "testing";
             int bytes           = sizeof buffer;
 
-            bdlsu::FilesystemUtil::write(fd, buffer, bytes);
-            bdlsu::FilesystemUtil::close(fd);
+            Obj::write(fd, buffer, bytes);
+            Obj::close(fd);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             Sleep(1000);  // 'Sleep' is in milliseconds on Windows.
@@ -576,8 +573,7 @@ int main(int argc, char *argv[])
             sleep(1);
 #endif
 
-            bdlsu::FilesystemUtil::getLastModificationTime(&modTime[i],
-                                                           s.str());
+            Obj::getLastModificationTime(&modTime[i], s.str());
             if (veryVerbose) {
                 cout << "\tLast modification time: " << modTime[i] << endl;
             }
@@ -600,8 +596,8 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(results.size() == END - START + 1);
-        ASSERT(0 == bdlsu::PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdlsu::FilesystemUtil::remove(logPath.c_str(), true));
+        ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
+        ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -620,7 +616,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdlsu::FilesystemUtil::remove("bdlsu_filesystemutil.temp.temp.1");
+        bdls::FilesystemUtil::remove("bdls_filesystemutil.temp.temp.1");
 
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
@@ -628,9 +624,9 @@ int main(int argc, char *argv[])
 // containing log files:
 //..
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-      bsl::string logPath = "bdlsu_filesystemutil.temp.temp.1\\logs";
+      bsl::string logPath = "bdls_filesystemutil.temp.temp.1\\logs";
     #else
-      bsl::string logPath = "bdlsu_filesystemutil.temp.temp.1/logs";
+      bsl::string logPath = "bdls_filesystemutil.temp.temp.1/logs";
     #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -638,19 +634,19 @@ int main(int argc, char *argv[])
 // locations, and create the directories if they do not exist:
 //..
     bsl::string oldPath(logPath), newPath(logPath);
-    bdlsu::PathUtil::appendRaw(&oldPath, "old");
-    bdlsu::PathUtil::appendRaw(&newPath, "new");
-    int rc = bdlsu::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+    bdls::PathUtil::appendRaw(&oldPath, "old");
+    bdls::PathUtil::appendRaw(&newPath, "new");
+    int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
     ASSERT(0 == rc);
-    rc = bdlsu::FilesystemUtil::createDirectories(newPath.c_str(), true);
+    rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
     ASSERT(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
 // for all such files in the log directory:
 //..
-    bdlsu::PathUtil::appendRaw(&logPath, "*.log");
+    bdls::PathUtil::appendRaw(&logPath, "*.log");
     bsl::vector<bsl::string> logFiles;
-    bdlsu::FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
+    bdls::FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
 //..
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
@@ -660,17 +656,17 @@ int main(int argc, char *argv[])
     bsl::string   fileName;
     for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
                                                   it != logFiles.end(); ++it) {
-      ASSERT(0 == bdlsu::FilesystemUtil::getLastModificationTime(&modTime,
+      ASSERT(0 == bdls::FilesystemUtil::getLastModificationTime(&modTime,
                                                                 *it));
-      ASSERT(0 == bdlsu::PathUtil::getLeaf(&fileName, *it));
+      ASSERT(0 == bdls::PathUtil::getLeaf(&fileName, *it));
       bsl::string *whichDirectory =
                   2 < (bdlt::CurrentTime::utc() - modTime).totalDays()
                   ? &oldPath
                   : &newPath;
-      bdlsu::PathUtil::appendRaw(whichDirectory, fileName.c_str());
-      ASSERT(0 == bdlsu::FilesystemUtil::move(it->c_str(),
+      bdls::PathUtil::appendRaw(whichDirectory, fileName.c_str());
+      ASSERT(0 == bdls::FilesystemUtil::move(it->c_str(),
                                              whichDirectory->c_str()));
-      bdlsu::PathUtil::popLeaf(whichDirectory);
+      bdls::PathUtil::popLeaf(whichDirectory);
     }
 //..
 
@@ -678,28 +674,28 @@ int main(int argc, char *argv[])
         // file i/o
 
         // create a new file
-        bdlsu::FilesystemUtil::FileDescriptor fd = bdlsu::FilesystemUtil::open(
+        bdls::FilesystemUtil::FileDescriptor fd = bdls::FilesystemUtil::open(
                                                          "tempfile",.
                                                          Obj::e_OPEN_OR_CREATE,
                                                          Obj::e_READ_WRITE);
-        ASSERT(fd != bdlsu::FilesystemUtil::k_INVALID_FD);
+        ASSERT(fd != bdls::FilesystemUtil::k_INVALID_FD);
         // allocate a buffer with the size equal to memory page size and
         // fill with some data
-        int size = bdlsu::FilesystemUtil::pageSize();
+        int size = bdls::FilesystemUtil::pageSize();
         char* buf = new char[size];
         for(int i=0; i<size; ++i) {
             buf[i] = i & 0xFF;
         }
 
         // write data to the file
-        bdlsu::FilesystemUtil::seek(fd, size,
-                                         bdlsu::FilesystemUtil::FROM_BEGINNING);
-        int rc = bdlsu::FilesystemUtil::write(fd, buf, size);
+        bdls::FilesystemUtil::seek(fd, size,
+                                         bdls::FilesystemUtil::FROM_BEGINNING);
+        int rc = bdls::FilesystemUtil::write(fd, buf, size);
         ASSERT(rc == size);
 
         // map the data page into memory
         char* data;
-        rc = bdlsu::FilesystemUtil::map(fd, (void**)&data, 0, size, true);
+        rc = bdls::FilesystemUtil::map(fd, (void**)&data, 0, size, true);
         ASSERT(0 == rc);
 
         // verify the data is equal to what we have written
@@ -707,17 +703,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == memcmp(buf, data, size));
 
         // unmap the page, delete the buffer and close the file
-        rc = bdlsu::FilesystemUtil::unmap(data, size);
+        rc = bdls::FilesystemUtil::unmap(data, size);
         ASSERT(0 == rc);
         delete[] buf;
-        bdlsu::FilesystemUtil::close(fd);
+        bdls::FilesystemUtil::close(fd);
 #endif
 
         // NOT IN USAGE EXAMPLE: CLEAN UP
 
-        ASSERT(0 == bdlsu::PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdlsu::PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdlsu::FilesystemUtil::remove(logPath.c_str(), true));
+        ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
+        ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
+        ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -732,7 +728,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 We can convert from wchar_t to utf-8 filenames and then back
         //:   again, getting back the original wchar_t name.  Note that this
-        //:   does not test 'bdlsu::FilesystemUtil' functionality, but is
+        //:   does not test 'bdls::FilesystemUtil' functionality, but is
         //:   necessary for further testing.
         //:
         //: 2 We can create files using the utf-8 names.
@@ -748,7 +744,7 @@ int main(int argc, char *argv[])
         //: 2 Create each of the files using its utf-8 name, write to it, and
         //:   close it, checking for failures.  (C-2)
         //:
-        //: 3 Use 'bdlsu::FilesystemUtil::findMatchingPaths' to look up the
+        //: 3 Use 'bdls::FilesystemUtil::findMatchingPaths' to look up the
         //:   names we just created and verify that the returned names are the
         //:   full set of utf-8 names we created.  (C-3)
         //:
@@ -780,11 +776,11 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bsl::string dir = "bdlsu_filesystemutil.temp.17";
+        bsl::string dir = "bdls_filesystemutil.temp.17";
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
-        bdlsu::PathUtil::appendRaw(&logPath, "logs2");
+        bdls::PathUtil::appendRaw(&logPath, "logs2");
 
         ASSERT(0 == Obj::createDirectories(logPath.c_str(), true));
 
@@ -816,7 +812,7 @@ int main(int argc, char *argv[])
             ASSERT(bsl::wstring(NAME) == wide);
 
             bsl::string name = logPath;
-            bdlsu::PathUtil::appendRaw(&name, (narrow + ".log").c_str());
+            bdls::PathUtil::appendRaw(&name, (narrow + ".log").c_str());
 
             if (veryVerbose) { T_; cout << "Creating file: "; P(name); }
 
@@ -834,7 +830,7 @@ int main(int argc, char *argv[])
             const char *const NAME = NAMES[ni];
 
             bsl::string name = logPath;
-            bdlsu::PathUtil::appendRaw(&name, NAME);
+            bdls::PathUtil::appendRaw(&name, NAME);
             name += ".log";
 
             if (veryVerbose) { T_; cout << "Creating file: "; P(name); }
@@ -859,7 +855,7 @@ int main(int argc, char *argv[])
         bsl::vector<bsl::string> results;
         bsl::string              pattern = logPath;
 
-        bdlsu::PathUtil::appendRaw(&pattern, "*.log");
+        bdls::PathUtil::appendRaw(&pattern, "*.log");
         Obj::findMatchingPaths(&results, pattern.c_str());
 
         LOOP_ASSERT(results.size(),
@@ -873,7 +869,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
             const bsl::wstring path =
-                            L"bdlsu_filesystemutil.temp.17\\logs2\\" + name;
+                            L"bdls_filesystemutil.temp.17\\logs2\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -897,7 +893,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
             const bsl::string path =
-                           "bdlsu_filesystemutil.temp.17" PS "logs2" PS + name;
+                           "bdls_filesystemutil.temp.17" PS "logs2" PS + name;
 
             if (veryVerbose) { T_; P_(i); P(name); }
 
@@ -935,7 +931,7 @@ int main(int argc, char *argv[])
             bsl::string name;
 
             bdlde::CharConvertUtf16::utf16ToUtf8(&name, filenames[i]);
-            bdlsu::PathUtil::appendRaw(&path, (name + ".log").c_str());
+            bdls::PathUtil::appendRaw(&path, (name + ".log").c_str());
 
             // Decrement count for each file expected.
 
@@ -963,7 +959,7 @@ int main(int argc, char *argv[])
             }
 #endif
 
-            bdlsu::PathUtil::appendRaw(&path, (name + ".log").c_str());
+            bdls::PathUtil::appendRaw(&path, (name + ".log").c_str());
 
             // Decrement count for each file expected.
 
@@ -1060,9 +1056,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
-                                         "tmp.bdlsu_filesystemutil_16.mkdir1");
+                                         "tmp.bdls_filesystemutil_16.mkdir1");
             bsl::string fullPath = testBaseDir;
-            bdlsu::PathUtil::appendRaw(&fullPath, "dir2");
+            bdls::PathUtil::appendRaw(&fullPath, "dir2");
 
             if (veryVerbose) { P(fullPath); }
 
@@ -1147,7 +1143,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = ::tempFileName(test,
-                                       "tmp.bdlsu_filesystemutil_15.open.txt");
+                                       "tmp.bdls_filesystemutil_15.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -1201,9 +1197,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdlsu_filesystemutil_13.append.txt";
-        const char *tag1     = "tmp.bdlsu_filesystemutil_13.tag.1.txt";
-        const char *success  = "tmp.bdlsu_filesystemutil_13.success.txt";
+        const char *testFile = "tmp.bdls_filesystemutil_13.append.txt";
+        const char *tag1     = "tmp.bdls_filesystemutil_13.tag.1.txt";
+        const char *success  = "tmp.bdls_filesystemutil_13.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -1411,9 +1407,9 @@ int main(int argc, char *argv[])
         // underlying system call is called with the appropriate arguments (it
         // is not a test of the operating system behavior).
         //
-        // Unfortunately, I been unable to find an effective test for
-        // concerns  1, 2, and 3, since I've been unable to observe memory
-        // pages *not* synchronized to disk.
+        // Unfortunately, I been unable to find an effective test for concerns
+        // 1, 2, and 3, since I've been unable to observe memory pages *not*
+        // synchronized to disk.
         //
         // Concerns:
         //: 1 On success the mapped bytes are synchronized with their values
@@ -1453,11 +1449,11 @@ int main(int argc, char *argv[])
         // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
         // on AIX.
 
-        const int MYPAGESIZE = bdlsu::MemoryUtil::pageSize();
+        const int MYPAGESIZE = bdls::MemoryUtil::pageSize();
         const int SIZE       = MYPAGESIZE;
-        const int READ       = bdlsu::MemoryUtil::k_ACCESS_READ;
-        const int READ_WRITE = bdlsu::MemoryUtil::k_ACCESS_READ |
-                               bdlsu::MemoryUtil::k_ACCESS_WRITE;
+        const int READ       = bdls::MemoryUtil::k_ACCESS_READ;
+        const int READ_WRITE = bdls::MemoryUtil::k_ACCESS_READ |
+                               bdls::MemoryUtil::k_ACCESS_WRITE;
         int         rc     = 0;
         Obj::Offset offset = 0;
 
@@ -1704,8 +1700,8 @@ int main(int argc, char *argv[])
             if (verbose) cout << "TRYLOCK TEST -- PARENT FINISHED\n"
                                  "===============================\n";
 
-            // No need to clean up tmp files, the directory they're in will
-            // be cleaned up at the end of 'main'.
+            // No need to clean up tmp files, the directory they're in will be
+            // cleaned up at the end of 'main'.
         }
         else {
             // child process
@@ -1895,7 +1891,8 @@ int main(int argc, char *argv[])
         // SIMPLE MATCHING TEST
         //
         // Concerns:
-        // Unix "glob()", which is called by bdlsu::FilesystemUtil::visitPaths,
+        //
+        // Unix "glob()", which is called by bdls::FilesystemUtil::visitPaths,
         // is failing on ibm 64 bit, unfortunately the test driver has not
         // detected or reproduced this error.  This test case is an attempt to
         // get this test driver reproducing the problem.
@@ -2071,7 +2068,7 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // Concern 4
-        // No symbolic links on windows.
+        //: No symbolic links on windows.
 
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
@@ -2297,11 +2294,11 @@ int main(int argc, char *argv[])
 
         bsl::string absolute;
         ASSERT(0 == Obj::getWorkingDirectory(&absolute));
-        bdlsu::PathUtil::appendRaw(&absolute, r.good);
+        bdls::PathUtil::appendRaw(&absolute, r.good);
 
         bsl::string link = absolute;
-        bdlsu::PathUtil::popLeaf(&link);
-        bdlsu::PathUtil::appendRaw(&link, "link_rg");
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rg");
         int rc = symlink(absolute.c_str(), link.c_str());
 
         // test invariant:
@@ -2312,8 +2309,8 @@ int main(int argc, char *argv[])
         ASSERT(true  == Obj::isRegularFile(link.c_str(), true));
 
         bsl::string link2 = r.good;
-        bdlsu::PathUtil::popLeaf(&link2);
-        bdlsu::PathUtil::appendRaw(&link2, "link_rg2");
+        bdls::PathUtil::popLeaf(&link2);
+        bdls::PathUtil::appendRaw(&link2, "link_rg2");
         rc = symlink(link.c_str(), link2.c_str());
 
         // test invariant:
@@ -2323,11 +2320,11 @@ int main(int argc, char *argv[])
         ASSERT(false == Obj::isRegularFile(link2));
         ASSERT(true  == Obj::isRegularFile(link2, true));
 
-        bdlsu::PathUtil::popLeaf(&link);
-        bdlsu::PathUtil::appendRaw(&link, "link_rbw");
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::appendRaw(&absolute, r.badWrongType);
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rbw");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, r.badWrongType);
         rc = symlink(absolute.c_str(), link.c_str());
 
         // test invariant:
@@ -2337,11 +2334,11 @@ int main(int argc, char *argv[])
         ASSERT(false == Obj::isRegularFile(link));
         ASSERT(false == Obj::isRegularFile(link, true));
 
-        bdlsu::PathUtil::popLeaf(&link);
-        bdlsu::PathUtil::appendRaw(&link, "link_rbn");
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::appendRaw(&absolute, r.badNoExist);
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_rbn");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, r.badNoExist);
         rc = symlink(absolute.c_str(), link.c_str());
 
         // test invariant:
@@ -2351,11 +2348,11 @@ int main(int argc, char *argv[])
         ASSERT(false == Obj::isRegularFile(link));
         ASSERT(false == Obj::isRegularFile(link, true));
 
-        bdlsu::PathUtil::popLeaf(&link);
-        bdlsu::PathUtil::appendRaw(&link, "link_dg");
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::popLeaf(&absolute);
-        bdlsu::PathUtil::appendRaw(&absolute, d.good);
+        bdls::PathUtil::popLeaf(&link);
+        bdls::PathUtil::appendRaw(&link, "link_dg");
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::popLeaf(&absolute);
+        bdls::PathUtil::appendRaw(&absolute, d.good);
         rc = symlink(absolute.c_str(), link.c_str());
 
         // test invariant:
@@ -2367,8 +2364,8 @@ int main(int argc, char *argv[])
         ASSERT(true  == Obj::isDirectory(link, true));
         ASSERT(false == Obj::isRegularFile(link, true));
 
-        bdlsu::PathUtil::popLeaf(&link2);
-        bdlsu::PathUtil::appendRaw(&link2, "link_dg2");
+        bdls::PathUtil::popLeaf(&link2);
+        bdls::PathUtil::appendRaw(&link2, "link_dg2");
         rc = symlink(link.c_str(), link2.c_str());
 
         // test invariant:
@@ -2445,22 +2442,15 @@ int main(int argc, char *argv[])
            "abc.def",
         };
 
-#define PATH  "bdlsu_filesystemutil.temp.3.futc3"
-#define PATHQ "bdlsu_filesystemutil.temp.3.futc?"
+#define PATH  "bdls_filesystemutil.temp.3.futc3"
+#define PATHQ "bdls_filesystemutil.temp.3.futc?"
 
         bsl::string path(PATH);
 
         ASSERT(Obj::remove(path.c_str(), true));
 
-        // The string literal "futc3/b???/*d*" seems to confuse the
-        // Sun compiler, which complains about the character sequence "\*".
-        // So let's hard-code it.
-
-        const char tripleQMarkLiteral[] = {'b','d','l','s','u','_','f','i','l',
-                                           'e','s','y','s','t','e','m','u','t',
-                                           'i','l','.','t','e','m','p','.','3',
-                                           '.','f','u','t','c','3','/','b',
-                                           '?','?','?','/','*','d','*', 0};
+        const char tripleQMarkLiteral[] = "bdls_filesystemutil.temp.3.futc3/b"
+                                          "???" "/*d*";
 
         struct Parameters {
             int         line;
@@ -2498,13 +2488,13 @@ int main(int argc, char *argv[])
 
         const int numFiles = sizeof(filenames) / sizeof(*filenames);
 
-        bdlsu::PathUtil::appendRaw(&path, "alpha");
+        bdls::PathUtil::appendRaw(&path, "alpha");
 
         if (veryVerbose) { T_; cout << "Creating directory "; P(path); }
 
         ASSERT(0 == Obj::createDirectories(path.c_str(), true));
         for (int i = 0; i < numFiles; ++i) {
-            bdlsu::PathUtil::appendRaw(&path, filenames[i]);
+            bdls::PathUtil::appendRaw(&path, filenames[i]);
 
             if (veryVerbose) { T_; T_; cout << "Creating file "; P(path); }
 
@@ -2524,17 +2514,17 @@ int main(int argc, char *argv[])
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
-            bdlsu::PathUtil::popLeaf(&path);
+            bdls::PathUtil::popLeaf(&path);
         }
-        bdlsu::PathUtil::popLeaf(&path);
+        bdls::PathUtil::popLeaf(&path);
 
-        bdlsu::PathUtil::appendRaw(&path, "beta");
+        bdls::PathUtil::appendRaw(&path, "beta");
 
         if (veryVerbose) { T_; cout << "Creating directory "; P(path); }
 
         ASSERT(0 == Obj::createDirectories(path.c_str(), true));
         for (int i = 0; i < numFiles; ++i) {
-            bdlsu::PathUtil::appendRaw(&path, filenames[i]);
+            bdls::PathUtil::appendRaw(&path, filenames[i]);
 
             if (veryVerbose) { T_; T_; cout << "Creating file "; P(path); }
 
@@ -2554,9 +2544,9 @@ int main(int argc, char *argv[])
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
-            bdlsu::PathUtil::popLeaf(&path);
+            bdls::PathUtil::popLeaf(&path);
         }
-        bdlsu::PathUtil::popLeaf(&path);
+        bdls::PathUtil::popLeaf(&path);
 
         vector<bsl::string> resultPaths;
         enum { NUM_PARAMETERS = sizeof(parameters) / sizeof(*parameters) };
@@ -4359,18 +4349,19 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; P_(ni); P(NAME); }
 
             bsl::wstring wide;
-            int          rc = bdlde::CharConvertUtf16::utf8ToUtf16(&wide, NAME);
+
+            int rc = bdlde::CharConvertUtf16::utf8ToUtf16(&wide, NAME);
 
             LOOP2_ASSERT(ni, rc, ni == NAME_ANSI ? rc != 0 : rc == 0);
 
             bsl::string logPath = NAME;
 
             Obj::remove(logPath.c_str(), true);
-            bdlsu::PathUtil::appendRaw(&logPath, "logs");
+            bdls::PathUtil::appendRaw(&logPath, "logs");
 
             bsl::string oldPath(logPath), newPath(logPath);
-            bdlsu::PathUtil::appendRaw(&oldPath, "old");
-            bdlsu::PathUtil::appendRaw(&newPath, "new");
+            bdls::PathUtil::appendRaw(&oldPath, "old");
+            bdls::PathUtil::appendRaw(&newPath, "new");
             LOOP_ASSERT(oldPath,
                            0 == Obj::createDirectories(oldPath.c_str(), true));
             LOOP_ASSERT(newPath,
@@ -4387,7 +4378,7 @@ int main(int argc, char *argv[])
 
             // TBD: When SetFileInformationByHandle() is available, then we
             // should write a setModificationTime() method and use it here (see
-            // bdlsu_filesystemutil.h).  Until then, we use utime() on POSIX
+            // bdls_filesystemutil.h).  Until then, we use utime() on POSIX
             // directly and we do not attempt to "touch" Windows files.
 
             enum {
@@ -4407,7 +4398,7 @@ int main(int argc, char *argv[])
                                              "filesystemutil%02d_%c.log", i,
                                              isOld ? 'o' : 'n');
 
-                ASSERT(0 == bdlsu::PathUtil::appendIfValid(&logPath,
+                ASSERT(0 == bdls::PathUtil::appendIfValid(&logPath,
                             filenameBuffer));
 
                 if (Obj::exists(logPath.c_str())) {
@@ -4439,13 +4430,13 @@ int main(int argc, char *argv[])
                     ASSERT(0 == utime(logPath.c_str(), &timeInfo));
                 }
 #endif
-                bdlsu::PathUtil::popLeaf(&logPath);
+                bdls::PathUtil::popLeaf(&logPath);
             }
 
-            bdlsu::PathUtil::appendRaw(&logPath, "*.log");
+            bdls::PathUtil::appendRaw(&logPath, "*.log");
             vector<bsl::string> logFiles;
             Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            bdlsu::PathUtil::popLeaf(&logPath);
+            bdls::PathUtil::popLeaf(&logPath);
 
             bdlt::Datetime modTime;
             string        fileName;
@@ -4454,32 +4445,32 @@ int main(int argc, char *argv[])
                     it != logFiles.end(); ++it) {
                 ASSERT(0 == Obj::getLastModificationTime(&modTime,
                             it->c_str()));
-                bdlsu::PathUtil::getLeaf(&fileName, *it);
+                bdls::PathUtil::getLeaf(&fileName, *it);
                 bsl::string* whichDirectory =
                      2 < (nowTime - modTime).totalDays() ? &oldPath : &newPath;
-                bdlsu::PathUtil::appendRaw(whichDirectory, fileName.c_str());
+                bdls::PathUtil::appendRaw(whichDirectory, fileName.c_str());
                 ASSERT(0 == Obj::move(it->c_str(),
                             whichDirectory->c_str()));
-                bdlsu::PathUtil::popLeaf(whichDirectory);
+                bdls::PathUtil::popLeaf(whichDirectory);
             }
 
             // Now validate
 
-            bdlsu::PathUtil::appendRaw(&logPath, "*");
-            bdlsu::PathUtil::appendRaw(&logPath, "*o*.log");
+            bdls::PathUtil::appendRaw(&logPath, "*");
+            bdls::PathUtil::appendRaw(&logPath, "*o*.log");
             Obj::findMatchingPaths(&logFiles, logPath.c_str());
             ASSERT(NUM_OLD_FILES == logFiles.size());
-            bdlsu::PathUtil::popLeaf(&logPath);
+            bdls::PathUtil::popLeaf(&logPath);
 
-            bdlsu::PathUtil::appendRaw(&logPath, "*n*.log");
+            bdls::PathUtil::appendRaw(&logPath, "*n*.log");
             Obj::findMatchingPaths(&logFiles, logPath.c_str());
             ASSERT(NUM_NEW_FILES == logFiles.size());
-            bdlsu::PathUtil::popLeaf(&logPath);
-            bdlsu::PathUtil::popLeaf(&logPath);
+            bdls::PathUtil::popLeaf(&logPath);
+            bdls::PathUtil::popLeaf(&logPath);
 
             // Clean up
 
-            ASSERT(0 == bdlsu::PathUtil::popLeaf(&logPath));
+            ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
             ASSERT(0 == Obj::remove(logPath.c_str(), true));
         }
       } break;
@@ -4538,11 +4529,11 @@ int main(int argc, char *argv[])
         Obj::FileDescriptor fd = Obj::open(foo,
                                            Obj::e_OPEN_OR_CREATE,
                                            Obj::e_READ_WRITE);
-        int pageSize = bdlsu::MemoryUtil::pageSize();
+        int pageSize = bdls::MemoryUtil::pageSize();
         Obj::growFile(fd, pageSize, true);
         int *p;
         ASSERT(0 == Obj::map(fd, (void**)&p, 0, pageSize,
-                                   bdlsu::MemoryUtil::k_ACCESS_READ_WRITE));
+                                   bdls::MemoryUtil::k_ACCESS_READ_WRITE));
         printf("mapped at %p\n", p);
         for (int i = 0; i < 10000; ++i) {
           ASSERT(0 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
@@ -4567,7 +4558,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                bdlsu::FilesystemUtilMapping fm =
+                bdls::FilesystemUtilMapping fm =
                                     Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);
@@ -4587,7 +4578,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "SIMPLE 5 GIGABYTE FILE TEST CASE\n"
                              "================================\n";
 
-        typedef bdlsu::FilesystemUtil Util;
+        typedef bdls::FilesystemUtil Util;
 
 #if 1
         const bsls::Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
@@ -4705,8 +4696,8 @@ int main(int argc, char *argv[])
     // mysteriously get created in the directory.  Leave the directory behind
     // and move on.  Also remove twice, because sometimes the first 'remove'
     // 'sorta' fails -- it returns a negative status after successfully killing
-    // the gremlin file.  Worst case, leave the file there to be cleaned up
-    // in a sweep later.
+    // the gremlin file.  Worst case, leave the file there to be cleaned up in
+    // a sweep later.
 
     Obj::remove(tmpWorkingDir, true);
     Obj::remove(tmpWorkingDir, true);

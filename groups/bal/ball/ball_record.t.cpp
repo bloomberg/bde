@@ -11,7 +11,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
 
         Record_Attr FA;
         Record_Attr FB(bdlt::Datetime(2004, 1, 21, 12, 30, 25, 150),
-                       bdlsu::ProcessUtil::getProcessId(),
+                       bdls::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__,
                        __LINE__,
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
                        ball::Severity::e_INFO,
                        "Distinct Message 1");
         Record_Attr FC(bdlt::Datetime(2000, 2, 29, 10, 13, 55, 111),
-                       bdlsu::ProcessUtil::getProcessId(),
+                       bdls::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__,
                        __LINE__,
@@ -804,7 +804,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         Record_Attr FA(bdlt::Datetime(),
-                       bdlsu::ProcessUtil::getProcessId(),
+                       bdls::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__, __LINE__,
                        "EQUITY.NASD",
@@ -821,7 +821,7 @@ int main(int argc, char *argv[])
         ASSERT(*VALUES_DATA[1] == RA.userFields());
 
         Record_Attr FB(bdlt::Datetime(),
-                       bdlsu::ProcessUtil::getProcessId(),
+                       bdls::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__, __LINE__,
                        "USER_SESSION",

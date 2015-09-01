@@ -8,7 +8,7 @@
 #include <bdlqq_threadutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
-#include <bdlsu_filesystemutil.h>
+#include <bdls_filesystemutil.h>
 #include <bdlb_random.h>
 #include <bdlb_string.h>
 
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
 // of the code shows that we neglected to free 'd_cook' in the destructor and
 // we can now easily fix our leak.
 
-        bdlsu::FilesystemUtil::remove("shipscrew.txt");
+        bdls::FilesystemUtil::remove("shipscrew.txt");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         // 'remove' above uses the default allocator on Windows, so suppress

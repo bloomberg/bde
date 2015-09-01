@@ -1,6 +1,8 @@
-// bdlsu_memoryutil.t.cpp                                             -*-C++-*-
+// bdls_memoryutil.t.cpp                                              -*-C++-*-
 
-#include <bdlsu_memoryutil.h>
+#include <bdls_memoryutil.h>
+
+#include <bslim_testutil.h>
 
 // TBD: this needs to test setting memory to executable
 
@@ -22,45 +24,49 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-static int testStatus = 0;
-static int verbose, veryVerbose, veryVeryVerbose;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                    << L << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -69,9 +75,10 @@ static void aSsErT(int c, const char *s, int i)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+//  bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
@@ -92,29 +99,27 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
-        //----------------------------------------------------------------
+        // ---------------------------------------------------------------
         // Concern: functionality of protect()
         //
-        // Test plan: enumerate all possible access mode combinations and
-        // try reading, writing and executing the memory with these
-        // protection modes.  Verify the actual protection modes match the
-        // specified ones.
-        //----------------------------------------------------------------
+        // Test plan: enumerate all possible access mode combinations and try
+        // reading, writing and executing the memory with these protection
+        // modes.  Verify the actual protection modes match the specified ones.
+        // ---------------------------------------------------------------
 
-        // this test expects BDESU_ACCESS_READ==1, BDESU_ACCESS_WRITE==2,
-        // BDESU_ACCESS_EXECUTE==4
+        // this test expects k_ACCESS_READ==1, k_ACCESS_WRITE==2,
+        // k_ACCESS_EXECUTE==4
 
-        ASSERT(bdlsu::MemoryUtil::k_ACCESS_READ == 1);
-        ASSERT(bdlsu::MemoryUtil::k_ACCESS_WRITE == 2);
-        ASSERT(bdlsu::MemoryUtil::k_ACCESS_EXECUTE == 4);
+        ASSERT(bdls::MemoryUtil::k_ACCESS_READ == 1);
+        ASSERT(bdls::MemoryUtil::k_ACCESS_WRITE == 2);
+        ASSERT(bdls::MemoryUtil::k_ACCESS_EXECUTE == 4);
 
         static const char*const operations[] = { "read", "write" };
-        static const char*const modes[] = {
-            "BDESU_ACCESS_NONE", "BDESU_ACCESS_READ",
-            "BDESU_ACCESS_WRITE", "BDESU_ACCESS_READ_WRITE",
-            "BDESU_ACCESS_EXECUTE",
-            "BDESU_ACCESS_READ_EXECUTE", "BDESU_ACCESS_WRITE_EXECUTE",
-            "BDESU_ACCESS_READ_WRITE_EXECUTE"
+        static const char* const modes[] = {
+            "k_ACCESS_NONE",          "k_ACCESS_READ",
+            "k_ACCESS_WRITE",         "k_ACCESS_READ_WRITE",
+            "k_ACCESS_EXECUTE",       "k_ACCESS_READ_EXECUTE",
+            "k_ACCESS_WRITE_EXECUTE", "k_ACCESS_READ_WRITE_EXECUTE",
         };
 
         // test all 8 modes
@@ -122,7 +127,7 @@ int main(int argc, char *argv[])
         for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
 #ifdef BSLS_PLATFORM_OS_HPUX
-            if (mode & bdlsu::MemoryUtil::k_ACCESS_EXECUTE) {
+            if (mode & bdls::MemoryUtil::k_ACCESS_EXECUTE) {
                 continue;
             }
 #endif
@@ -132,12 +137,12 @@ int main(int argc, char *argv[])
                 op<sizeof(operations)/sizeof(*operations);
                 ++op)
             {
-                if (op == 0 && mode != bdlsu::MemoryUtil::k_ACCESS_NONE
-                    && !(mode & bdlsu::MemoryUtil::k_ACCESS_READ))
+                if (op == 0 && mode != bdls::MemoryUtil::k_ACCESS_NONE
+                    && !(mode & bdls::MemoryUtil::k_ACCESS_READ))
                 {
-                    // do not test disabled read with write/execute
-                    // allowed: most platforms do not have fine-grained
-                    // read access control
+                    // do not test disabled read with write/execute allowed:
+                    // most platforms do not have fine-grained read access
+                    // control
 
                     if (verbose) cout << "Skipping op:" << operations[op]
                                       << ", mode:" << modes[mode] << bsl::endl;
@@ -175,8 +180,8 @@ int main(int argc, char *argv[])
         //
         // First, allocate one page of memory.
 
-        int pageSize = bdlsu::MemoryUtil::pageSize();
-        char* data = (char*)bdlsu::MemoryUtil::allocate(pageSize);
+        int pageSize = bdls::MemoryUtil::pageSize();
+        char* data = (char*)bdls::MemoryUtil::allocate(pageSize);
 
         // Write into the allocated buffer.
 
@@ -184,30 +189,28 @@ int main(int argc, char *argv[])
 
         // Make the memory write protected
 
-        bdlsu::MemoryUtil::protect(data, pageSize,
-                                  bdlsu::MemoryUtil::k_ACCESS_READ);
+        bdls::MemoryUtil::protect(data, pageSize,
+                                  bdls::MemoryUtil::k_ACCESS_READ);
 
         // Once again, try writing into the buffer.  This should crash our
         // process.
 
         // data[0] = 2;
 
-        // Restore read/write access and free the allocated memory.
-        // Actually, this will never be executed, as the process has already
-        // crashed.
+        // Restore read/write access and free the allocated memory.  Actually,
+        // this will never be executed, as the process has already crashed.
 
-        bdlsu::MemoryUtil::protect(data, pageSize,
-                                  bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
-        bdlsu::MemoryUtil::deallocate(data);
+        bdls::MemoryUtil::protect(data, pageSize,
+                                  bdls::MemoryUtil::k_ACCESS_READ_WRITE);
+        bdls::MemoryUtil::deallocate(data);
       } break;
       case -1: {
-        //--------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Helper test case for case 2
         //
-        // This case implements the system command, it allows case 2
-        // to call system within system, and thereby make abort
-        // messages redirectable.
-        //--------------------------------------------------------------
+        // This case implements the system command, it allows case 2 to call
+        // system within system, and thereby make abort messages redirectable.
+        // --------------------------------------------------------------------
 
         char buffer[1000];
         buffer[0] = 0;
@@ -222,48 +225,48 @@ int main(int argc, char *argv[])
         return !!system(buffer);                                      // RETURN
       } break;
       case -10: {
-        //--------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Helper test case for case 2
         //
-        // Plan: allocate some memory with protection mode specified in
-        // argv[2] and verify it is readable.  Note that it is normal for
-        // this test case to fail for some values of argv[2].
-        //--------------------------------------------------------------
+        // Plan: allocate some memory with protection mode specified in argv[2]
+        // and verify it is readable.  Note that it is normal for this test
+        // case to fail for some values of argv[2].
+        // --------------------------------------------------------------------
 
-        int size = bdlsu::MemoryUtil::pageSize();
-        char* ptr = (char*) bdlsu::MemoryUtil::allocate(size);
+        int size = bdls::MemoryUtil::pageSize();
+        char* ptr = (char*) bdls::MemoryUtil::allocate(size);
         memset(ptr, 0x55, size);
-        int rc = bdlsu::MemoryUtil::protect(ptr, size, atoi(argv[2]));
+        int rc = bdls::MemoryUtil::protect(ptr, size, atoi(argv[2]));
         ASSERT(0 == rc);
         for(int i=0; i<size; ++i) {
             ASSERT(((volatile char*)ptr)[i] == 0x55);
         }
-        rc = bdlsu::MemoryUtil::protect(ptr, size,
-                                    bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
+        rc = bdls::MemoryUtil::protect(ptr, size,
+                                    bdls::MemoryUtil::k_ACCESS_READ_WRITE);
         ASSERT(0 == rc);
-        rc = bdlsu::MemoryUtil::deallocate(ptr);
+        rc = bdls::MemoryUtil::deallocate(ptr);
         ASSERT(0 == rc);
       } break;
       case -11: {
-        //--------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Helper test case for case 2
         //
-        // Plan: allocate some memory with protection mode specified in
-        // argv[2] and verify it is writable.  Note that it is normal for
-        // this test case to fail for some values of argv[2].
-        //--------------------------------------------------------------
+        // Plan: allocate some memory with protection mode specified in argv[2]
+        // and verify it is writable.  Note that it is normal for this test
+        // case to fail for some values of argv[2].
+        // --------------------------------------------------------------------
 
-        int size = bdlsu::MemoryUtil::pageSize();
-        char* ptr = (char*) bdlsu::MemoryUtil::allocate(size);
-        int rc = bdlsu::MemoryUtil::protect(ptr, size, atoi(argv[2]));
+        int size = bdls::MemoryUtil::pageSize();
+        char* ptr = (char*) bdls::MemoryUtil::allocate(size);
+        int rc = bdls::MemoryUtil::protect(ptr, size, atoi(argv[2]));
         ASSERT(0 == rc);
         for(int i=0; i<size; ++i) {
             ((volatile char*)ptr)[i] = 0x55;
         }
-        rc = bdlsu::MemoryUtil::protect(ptr, size,
-                                    bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
+        rc = bdls::MemoryUtil::protect(ptr, size,
+                                    bdls::MemoryUtil::k_ACCESS_READ_WRITE);
         ASSERT(0 == rc);
-        rc = bdlsu::MemoryUtil::deallocate(ptr);
+        rc = bdls::MemoryUtil::deallocate(ptr);
         ASSERT(0 == rc);
       } break;
       default: {

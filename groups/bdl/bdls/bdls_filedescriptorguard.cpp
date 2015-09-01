@@ -1,12 +1,12 @@
-// bdlsu_filedescriptorguard.cpp                                      -*-C++-*-
-#include <bdlsu_filedescriptorguard.h>
+// bdls_filedescriptorguard.cpp                                       -*-C++-*-
+#include <bdls_filedescriptorguard.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdesu_filecloseproctor_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_filedescriptorguard_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
 // MANIPULATORS
 void FileDescriptorGuard::closeAndRelease()
 {

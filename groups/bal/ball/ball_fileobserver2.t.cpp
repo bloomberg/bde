@@ -17,8 +17,8 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_processutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_processutil.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -183,8 +183,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef ball::FileObserver2   Obj;
-typedef bdlsu::FilesystemUtil FileUtil;
+typedef ball::FileObserver2  Obj;
+typedef bdls::FilesystemUtil FileUtil;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Test infrastructure setup." << endl;
 
-        const int processId = bdlsu::ProcessUtil::getProcessId();
+        const int processId = bdls::ProcessUtil::getProcessId();
 
         if (veryVeryVerbose) { P(processId) }
 
