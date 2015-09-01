@@ -1,6 +1,6 @@
-// bdlsu_pipeutil.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLSU_PIPEUTIL
-#define INCLUDED_BDLSU_PIPEUTIL
+// bdls_pipeutil.h                                                    -*-C++-*-
+#ifndef INCLUDED_BDLS_PIPEUTIL
+#define INCLUDED_BDLS_PIPEUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide basic portable named-pipe utilities.
 //
 //@CLASSES:
-//  bdlsu::PipeUtil: Portable utility methods for naming and accessing pipes
+//  bdls::PipeUtil: Portable utility methods for naming and accessing pipes
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides portable utility methods for named
-// pipes.
+//@DESCRIPTION: This component, 'bdls::PipeUtil', provides portable utility
+// methods for named pipes.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -30,15 +30,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
                               // ===============
                               // struct PipeUtil
                               // ===============
 struct PipeUtil {
-    // This struct contains utility methods for platform-independent
-    // named pipe operations.
+    // This struct contains utility methods for platform-independent named pipe
+    // operations.
 
-    static int makeCanonicalName(bsl::string            *pipeName,
+    static int makeCanonicalName(bsl::string              *pipeName,
                                  const bslstl::StringRef&  baseName);
         // Load into the specified 'pipeName' the system-dependent canonical
         // pipe name corresponding to the specified 'baseName'.  On Unix
@@ -56,8 +56,8 @@ struct PipeUtil {
         // is currently open for reading by some process, and 'false'
         // otherwise.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

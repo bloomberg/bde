@@ -12,7 +12,7 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeinterval.h>
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 
             balb::PerformanceMonitor perfmon(&ta);
 
-            int pid = bdlsu::ProcessUtil::getProcessId();
+            int pid = bdls::ProcessUtil::getProcessId();
 
             int rc = perfmon.registerPid(pid, "perfmon");
             ASSERT(0 == rc);

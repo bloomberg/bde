@@ -1,26 +1,26 @@
-// bdlsu_fdstreambuf.cpp                                              -*-C++-*-
-#include <bdlsu_fdstreambuf.h>
+// bdls_fdstreambuf.cpp                                               -*-C++-*-
+#include <bdls_fdstreambuf.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_fdstreambuf_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_fdstreambuf_cpp,"$Id$ $CSID$")
 
 ///IMPLEMENTATION NOTES
 ///--------------------
-// This code was ported from STLport.  The class 'bdlsu::FdStreamBuf' was
-// created from 'bsl::filebuf', and the class 'bdlsu::FdStreamBuf_FileHandler'
+// This code was ported from STLport.  The class 'bdls::FdStreamBuf' was
+// created from 'bsl::filebuf', and the class 'bdls::FdStreamBuf_FileHandler'
 // was created from 'bsl::filebuf_base'.
 //
-// bdlsu::FdStreamBuf_FileHandler: this is a helper class that is a thin layer
-// on top of component 'bdlsu::FilesystemUtil', the main additional
+// bdls::FdStreamBuf_FileHandler: this is a helper class that is a thin layer
+// on top of component 'bdls::FilesystemUtil', the main additional
 // functionality it provides is the translation between '\n's and '\r\n'
 // sequences in Windows text mode.
 //
-// bdlsu::FdStreamBuf: inherits from 'bsl::streambuf', is meant to be a form of
+// bdls::FdStreamBuf: inherits from 'bsl::streambuf', is meant to be a form of
 // streambuf that can be initialized or attached to a file descriptor, that
 // will then perform standard streambuf actions on that file descriptor.
 
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_memoryutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_memoryutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -56,14 +56,14 @@ namespace BloombergLP {
                               // local typedef
                               // -------------
 
-typedef bdlsu::FilesystemUtil FileUtil;
+typedef bdls::FilesystemUtil FileUtil;
 
                               // ---------------
                               // local functions
                               // ---------------
 
 static
-bool getRegularFileInfo(bdlsu::FilesystemUtil::FileDescriptor fd)
+bool getRegularFileInfo(bdls::FilesystemUtil::FileDescriptor fd)
     // Return 'true' if the specified file descriptor 'fd' refers to a regular
     // file and 'false' otherwise.  Note that a regular file is a file and not
     // a directory, pipe, printer, keyboard or other device.
@@ -78,20 +78,22 @@ bool getRegularFileInfo(bdlsu::FilesystemUtil::FileDescriptor fd)
     // it's mappable, but we can at least try a seek, which will fail on a pipe
     // and many other non-file device types.
 
-    bdlsu::FilesystemUtil::Offset offset = bdlsu::FilesystemUtil::seek(
-                         fd, 0, bdlsu::FilesystemUtil::e_SEEK_FROM_CURRENT);
+    bdls::FilesystemUtil::Offset offset = bdls::FilesystemUtil::seek(
+                                    fd,
+                                    0,
+                                    bdls::FilesystemUtil::e_SEEK_FROM_CURRENT);
     return 0 <= offset;
 #endif
 }
 
                     // ====================================
-                    // class bdlsu::FdStreamBuf_FileHandler
+                    // class bdls::FdStreamBuf_FileHandler
                     // ====================================
 
 bsls::AtomicOperations::AtomicTypes::Int
-                               bdlsu::FdStreamBuf_FileHandler::s_pageSize = {0};
+                               bdls::FdStreamBuf_FileHandler::s_pageSize = {0};
 
-namespace bdlsu {
+namespace bdls {
 // CREATORS
 FdStreamBuf_FileHandler::FdStreamBuf_FileHandler()
 : d_fileId(FilesystemUtil::k_INVALID_FD)
@@ -114,10 +116,10 @@ FdStreamBuf_FileHandler::~FdStreamBuf_FileHandler()
 
 // MANIPULATORS
 int FdStreamBuf_FileHandler::reset(
-                     FilesystemUtil::FileDescriptor fileDescriptor,
-                     bool                                 writableFlag,
-                     bool                                 willCloseOnResetFlag,
-                     bool                                 binaryFile)
+                           FilesystemUtil::FileDescriptor fileDescriptor,
+                           bool                           writableFlag,
+                           bool                           willCloseOnResetFlag,
+                           bool                           binaryModeFlag)
 {
     const bsl::ios_base::openmode iosBaseZero = (bsl::ios_base::openmode) 0;
 
@@ -146,13 +148,13 @@ int FdStreamBuf_FileHandler::reset(
     d_openModeFlags    = bsl::ios_base::in;
     d_openModeFlags   |= writableFlag ? bsl::ios_base::out : iosBaseZero;
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    (void) binaryFile;    // suppress unused warning
+    (void) binaryModeFlag;    // suppress unused warning
 
     d_openModeFlags   |= bsl::ios_base::binary;
 # else
     // Windows
 
-    d_openModeFlags   |= binaryFile ? bsl::ios_base::binary : iosBaseZero;
+    d_openModeFlags   |= binaryModeFlag ? bsl::ios_base::binary : iosBaseZero;
 # endif
 
     d_willCloseOnResetFlag = willCloseOnResetFlag;
@@ -210,9 +212,10 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
                     }
                 }
                 else {
-                    unsigned numberOfBytesPeeked;
-                    numberOfBytesPeeked = FileUtil::read(
-                                          d_fileId, (void *) &d_peekBuffer, 1);
+                    unsigned numberOfBytesPeeked = FileUtil::read(
+                                                         d_fileId,
+                                                         (void *)&d_peekBuffer,
+                                                         1);
                     if (numberOfBytesPeeked) {
                         if (d_peekBuffer != '\n') {
                             // not a '\r\n'
@@ -249,8 +252,9 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-namespace bdlsu {int FdStreamBuf_FileHandler::windowsWriteText(const char *buffer,
-                                                    int         numChars)
+namespace bdls {
+
+int FdStreamBuf_FileHandler::windowsWriteText(const char *buffer, int numChars)
 {
     BSLS_ASSERT(0 <= numChars);
 
@@ -303,7 +307,8 @@ namespace bdlsu {int FdStreamBuf_FileHandler::windowsWriteText(const char *buffe
     int numBytesToWrite = ptrOutBuf - outBuf;
     while (numBytesToWrite) {
         int bytesWritten = FileUtil::write(d_fileId,
-                                           writeOutBuf, numBytesToWrite);
+                                           writeOutBuf,
+                                           numBytesToWrite);
         if (0 == bytesWritten) {
             // error - write shortfall
 
@@ -320,7 +325,7 @@ namespace bdlsu {int FdStreamBuf_FileHandler::windowsWriteText(const char *buffe
 }  // close package namespace
 #endif
 
-namespace bdlsu {
+namespace bdls {
 int FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
 {
     BSLS_ASSERT_OPT(0 <= numBytes);
@@ -367,9 +372,8 @@ int FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
     }
 }
 
-bsl::streampos FdStreamBuf_FileHandler::seek(
-                                           bsl::streamoff               offset,
-                                           FilesystemUtil::Whence dir)
+bsl::streampos FdStreamBuf_FileHandler::seek(bsl::streamoff         offset,
+                                             FilesystemUtil::Whence dir)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     if (d_peekBufferFlag) {
@@ -402,16 +406,15 @@ bsl::streampos FdStreamBuf_FileHandler::seek(
 }
 
 void *FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
-                                          bsl::streamoff len)
+                                    bsl::streamoff length)
 {
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(0 <= length);
 
     void *ret;
 
     d_peekBufferFlag = false;
 
-    FilesystemUtil::Offset cur = seek(0,
-                                            FileUtil::e_SEEK_FROM_CURRENT);
+    FilesystemUtil::Offset cur = seek(0, FileUtil::e_SEEK_FROM_CURRENT);
     if (0 > cur) {
         // not seekable, won't be mappable
 
@@ -421,7 +424,7 @@ void *FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
     if (0 != FileUtil::map(d_fileId,
                            &ret,
                            offset,
-                           static_cast<int>(len),
+                           static_cast<int>(length),
                            MemoryUtil::k_ACCESS_READ)) {
         // error -- device is not mappable
 
@@ -432,25 +435,25 @@ void *FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
     // Move the cursor at the end of the mapped area; 'FileUtil::map()' was
     // leaving it at 0.
 
-    if (0 > this->seek(offset + len, FileUtil::e_SEEK_FROM_BEGINNING)) {
-        // error -- device not seekable
-        // this really should not happen -- the first seek succeeded
+    if (0 > this->seek(offset + length, FileUtil::e_SEEK_FROM_BEGINNING)) {
+        //  error -- device not seekable
+        //  this really should not happen -- the first seek succeeded
 
-        FileUtil::unmap(ret, static_cast<int>(len));
+        FileUtil::unmap(ret, static_cast<int>(length));
         return 0;                                                     // RETURN
     }
 
     return ret;
 }
 
-void FdStreamBuf_FileHandler::unmap(void *base, bsl::streamoff len)
+void FdStreamBuf_FileHandler::unmap(void *mappedMemory, bsl::streamoff length)
 {
-    // 'base' must have been previously mmapped with length 'len'.
+    // 'mappedMemory' must have been previously mmapped with length 'len'.
 
-    BSLS_ASSERT(base);
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(mappedMemory);
+    BSLS_ASSERT(0 <= length);
 
-    FileUtil::unmap(base, static_cast<int>(len));
+    FileUtil::unmap(mappedMemory, static_cast<int>(length));
 }
 
 // ACCESSORS
@@ -484,12 +487,11 @@ FdStreamBuf_FileHandler::fileSize() const
                              // -----------------
 
 // CREATORS
-FdStreamBuf::FdStreamBuf(
-                    FilesystemUtil::FileDescriptor  fileDescriptor,
-                    bool                                  writableFlag,
-                    bool                                  willCloseOnResetFlag,
-                    bool                                  binaryModeFlag,
-                    bslma::Allocator                     *basicAllocator)
+FdStreamBuf::FdStreamBuf(FilesystemUtil::FileDescriptor  fileDescriptor,
+                         bool                            writableFlag,
+                         bool                            willCloseOnResetFlag,
+                         bool                            binaryModeFlag,
+                         bslma::Allocator               *basicAllocator)
 : bsl::streambuf()
 , d_fileHandler()
 , d_mode(e_NULL_MODE)
@@ -590,8 +592,7 @@ int FdStreamBuf::exitInputMode(bool correctSeek)
     d_mmapBase_p = 0;
 
     if (adjust) {
-        if (0 > d_fileHandler.seek(-adjust,
-                                   FileUtil::e_SEEK_FROM_CURRENT)) {
+        if (0 > d_fileHandler.seek(-adjust, FileUtil::e_SEEK_FROM_CURRENT)) {
             // non-seekable device
 
             return -1;                                                // RETURN
@@ -659,8 +660,8 @@ int FdStreamBuf::underflowRead()
     bsl::ptrdiff_t bytesRead = d_fileHandler.read(d_buf_p,
                                                   d_bufEOS_p - d_buf_p);
 
-    // Don't enter error mode for a failed read.  Error mode is sticky,
-    // and we might succeed if we try again.
+    // Don't enter error mode for a failed read.  Error mode is sticky, and we
+    // might succeed if we try again.
 
     if (bytesRead <= 0) {
         return traits_type::eof();                                    // RETURN
@@ -820,8 +821,8 @@ FdStreamBuf::underflow()
     }
 
     // If it's a disk file, and if the internal and external character
-    // sequences are guaranteed to be identical, then try to use memory
-    // mapped I/O.  Otherwise, revert to ordinary read.
+    // sequences are guaranteed to be identical, then try to use memory mapped
+    // I/O.  Otherwise, revert to ordinary read.
 
     if (d_fileHandler.isRegularFile() && d_fileHandler.isInBinaryMode()) {
         // If we have mapped part of the file already, then unmap it.
@@ -832,11 +833,12 @@ FdStreamBuf::underflow()
         d_mmapBase_p = 0;
         d_mmapLen    = 0;
 
-        // Determine the position where we start mapping.  It has to be
-        // a multiple of the page size.
+        // Determine the position where we start mapping.  It has to be a
+        // multiple of the page size.
 
         bsl::streamoff cur = d_fileHandler.seek(
-                            0,  FilesystemUtil::e_SEEK_FROM_CURRENT);
+                                          0,
+                                          FilesystemUtil::e_SEEK_FROM_CURRENT);
 
         bsl::streamoff sz = d_fileHandler.fileSize();
         if (sz > 0 && cur >= 0 && cur < sz) {
@@ -861,12 +863,12 @@ FdStreamBuf::underflow()
                 return traits_type::to_int_type(*gptr());             // RETURN
             }
 
-            // mmap or subsequent seek failed, we may have lost our
-            // position in the file -- recover it before falling through to
-            // underflowRead
+            // mmap or subsequent seek failed, we may have lost our position in
+            // the file -- recover it before falling through to underflowRead
 
             if (cur != d_fileHandler.seek(
-                       cur, FilesystemUtil::e_SEEK_FROM_BEGINNING)) {
+                                      cur,
+                                      FilesystemUtil::e_SEEK_FROM_BEGINNING)) {
                 // we're beyond recovering
 
                 return inputError();                                  // RETURN
@@ -956,11 +958,11 @@ FdStreamBuf::pbackfail(int_type c)
 bsl::streambuf::int_type
 FdStreamBuf::overflow(int_type c)
 {
-    // Invariant: we always leave room in the buffer for one character
-    // more than the base class knows about, this is so that there is always
-    // room for this method to stuff a character onto the end of the buffer.
-    // This method sees the buffer as '[d_buf_p, d_bufEOS_p)', but the rest of
-    // this class, during output, only sees '[d_buf_p, d_bufEOS_p - 1)'.
+    // Invariant: we always leave room in the buffer for one character more
+    // than the base class knows about, this is so that there is always room
+    // for this method to stuff a character onto the end of the buffer.  This
+    // method sees the buffer as '[d_buf_p, d_bufEOS_p)', but the rest of this
+    // class, during output, only sees '[d_buf_p, d_bufEOS_p - 1)'.
 
     // Switch to output mode, if necessary.
 
@@ -984,8 +986,7 @@ FdStreamBuf::overflow(int_type c)
     return ret;
 }
 
-FdStreamBuf *FdStreamBuf::setbuf(char            *buffer,
-                                             bsl::streamsize  numBytes)
+FdStreamBuf *FdStreamBuf::setbuf(char *buffer, bsl::streamsize numBytes)
     // 'buffer == 0 && n == 0' means to make this object have a 1 byte buffer.
     // 'buffer != 0 && n > 0' means to use 'buffer' as this object's internal
     // buffer, rather than the buffer that would otherwise be allocated
@@ -1001,10 +1002,9 @@ FdStreamBuf *FdStreamBuf::setbuf(char            *buffer,
     return this;
 }
 
-bsl::streambuf::pos_type
-FdStreamBuf::seekoff(off_type               offset,
-                           bsl::ios_base::seekdir whence,
-                           bsl::ios_base::openmode)
+bsl::streambuf::pos_type FdStreamBuf::seekoff(off_type                offset,
+                                              bsl::ios_base::seekdir  whence,
+                                              bsl::ios_base::openmode)
 {
     const FilesystemUtil::Whence CUR = FileUtil::e_SEEK_FROM_CURRENT;
 
@@ -1047,9 +1047,9 @@ FdStreamBuf::seekoff(off_type               offset,
 
     BSLS_ASSERT((e_INPUT_MODE == d_mode) | (e_NULL_MODE == d_mode));
 
-    // Note that 'seekReturn' will put us into 'e_NULL_MODE' and release
-    // our pointers into the buffer.  We need to call it if we're  changing our
-    // file position.
+    // Note that 'seekReturn' will put us into 'e_NULL_MODE' and release our
+    // pointers into the buffer.  We need to call it if we're changing our file
+    // position.
 
     // Seek relative to beginning or end, regardless of whether we're in input
     // mode.
@@ -1105,13 +1105,11 @@ FdStreamBuf::seekoff(off_type               offset,
 }
 
 bsl::streambuf::pos_type
-FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode)
+FdStreamBuf::seekpos(pos_type offset, bsl::ios_base::openmode)
 {
-    bsl::streamoff offset = off_type(pos);
-
     if (offset >= 0 && isOpened() && 0 == seekInit()) {
-        return seekReturn(d_fileHandler.seek(offset,                  // RETURN
-                                         FileUtil::e_SEEK_FROM_BEGINNING));
+        return seekReturn(d_fileHandler.seek(off_type(offset),
+                                             FileUtil::e_SEEK_FROM_BEGINNING));
                                                                       // RETURN
     }
 
@@ -1163,21 +1161,19 @@ bsl::streamsize FdStreamBuf::showmanyc()
         return egptr() - gptr();                                      // RETURN
     }
 
-    // We are assuming here that 'showmanyc()' is called by 'in_avail()'
-    // only when 'gptr() >= egptr()', meaning that the position of the file
+    // We are assuming here that 'showmanyc()' is called by 'in_avail()' only
+    // when 'gptr() >= egptr()', meaning that the position of the file
     // descriptor matches the position the caller perceives this object as
     // being at.  We are also assuming that if the file descriptor is not
     // associated with a file, the seek will return -1.
 
-    bsl::streamoff pos = d_fileHandler.seek(0,
-                                            FileUtil::e_SEEK_FROM_CURRENT);
+    bsl::streamoff pos = d_fileHandler.seek(0, FileUtil::e_SEEK_FROM_CURRENT);
     bsl::streamoff sz  = d_fileHandler.fileSize();
 
     return static_cast<bsl::streamsize>(pos >= 0 && sz > pos ? sz - pos : 0);
 }
 
-bsl::streamsize FdStreamBuf::xsgetn(char            *buffer,
-                                          bsl::streamsize  numBytes)
+bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
 
@@ -1212,7 +1208,7 @@ bsl::streamsize FdStreamBuf::xsgetn(char            *buffer,
 }
 
 bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
-                                          bsl::streamsize  numBytes)
+                                    bsl::streamsize  numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
 
@@ -1251,8 +1247,8 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 
 //-----------------------------------------------------------------------------
 // Adapted to bde from STLport, 2009
-//     'bdlsu::FdStreamBuf' from 'bsl::filebuf'
-//     'bdlsu::FdStreamBuf_FileHandler' from 'bsl::_Filebuf_base'
+//     'bdls::FdStreamBuf' from 'bsl::filebuf'
+//     'bdls::FdStreamBuf_FileHandler' from 'bsl::_Filebuf_base'
 //
 // Copyright (c) 1996,1997,1999
 // Silicon Graphics Computer Systems, Inc.

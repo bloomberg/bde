@@ -213,9 +213,9 @@ BSLS_IDENT("$Id: $")
                aSsErT(1, #X, __LINE__); }
 
 
-// The 'BDLS_TESTUTIL_EXPAND' macro is required to workaround a
-// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BDLS_TESTUTIL_NUM_ARGS'
+// The 'BDLS_TESTUTIL_EXPAND' macro is required to workaround a pre-processor
+// issue on windows that prevents __VA_ARGS__ to be expanded in the definition
+// of 'BDLS_TESTUTIL_NUM_ARGS'
 #define BDLS_TESTUTIL_EXPAND(X)                                               \
     X
 
@@ -277,20 +277,22 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonTypicalOverloadsTestType&     obj);
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonAssignableTestType&           obj);
-// bsl::ostream& operator<<(bsl::ostream&                          stream,
-//                          const NonCopyConstructibleTestType&    obj);
+#if 0
+bsl::ostream& operator<<(bsl::ostream&                          stream,
+                         const NonCopyConstructibleTestType&    obj);
+#endif
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonDefaultConstructibleTestType& obj);
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonEqualComparableTestType&      obj);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -350,12 +352,14 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
 }
 
-// inline
-// bsl::ostream& operator<<(bsl::ostream&                       stream,
-//                          const NonCopyConstructibleTestType& obj)
-// {
-//     return stream << obj.data();
-// }
+#if 0
+inline
+bsl::ostream& operator<<(bsl::ostream&                       stream,
+                         const NonCopyConstructibleTestType& obj)
+{
+    return stream << obj.data();
+}
+#endif
 
 inline
 bsl::ostream& operator<<(bsl::ostream&                          stream,

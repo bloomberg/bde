@@ -1,5 +1,7 @@
-// bdlsu_pathutil.t.cpp                                               -*-C++-*-
-#include <bdlsu_pathutil.h>
+// bdls_pathutil.t.cpp                                                -*-C++-*-
+#include <bdls_pathutil.h>
+
+#include <bslim_testutil.h>
 
 #include <bsls_platform.h>
 
@@ -10,50 +12,49 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-static int verbose, veryVerbose, veryVeryVerbose;
-
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_  cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -69,7 +70,7 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::PathUtil Obj;
+typedef bdls::PathUtil Obj;
 
 struct Parameters {
     int d_line;
@@ -191,7 +192,7 @@ struct Parameters {
 };
 
 void convertToWindowsSeparator(bsl::string *path)
-   // Replace each occurance of '/' with '\\' in the specified 'path'.
+    // Replace each occurance of '/' with '\\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('/');
     for ( ; position != bsl::string::npos; position = path->find('/')) {
@@ -200,7 +201,7 @@ void convertToWindowsSeparator(bsl::string *path)
 }
 
 void convertToUnixSeparator(bsl::string *path)
-   // Replace each occurance of '\\' with '\' in the specified 'path'.
+    // Replace each occurance of '\\' with '\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('\\');
     for ( ;
@@ -214,9 +215,10 @@ void convertToUnixSeparator(bsl::string *path)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     switch(test) { case 0:
       case 5: {
@@ -439,30 +441,31 @@ int main(int argc, char *argv[])
 
       } break;
       case 4: {
-        /////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
         // Special path parsing test
         //
         // Concern: "root-end" determination for certain paths (WIN)
+        //
         // Plan: Using the getRootEnd method, check parsing correctness
         //       for a few specific paths which caused issues during
         //       development
-        /////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
 
         if (verbose) {
             cout << "Special path parsing test" << endl;
         }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        int rootEnd = bdlsu::PathUtil::getRootEnd("\\\\machine\\dir\\");
+        int rootEnd = bdls::PathUtil::getRootEnd("\\\\machine\\dir\\");
         LOOP_ASSERT(rootEnd, 14 == rootEnd);
 #endif
       } break;
       case 3: {
-        /////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
         // Leafless append test
         //
-        // Concern: Appending to the end of a path will not add a
-        // separator iff there are no leaves.
-        /////////////////////////////////////////////////////////////
+        // Concern: Appending to the end of a path will not add a separator iff
+        // there are no leaves.
+        ///////////////////////////////////////////////////////////////////////
 
         if (verbose) {
            cout << "Leafless Append Test" << endl;
@@ -502,11 +505,11 @@ int main(int argc, char *argv[])
         const char** arrays[] = {absolute, relative};
         for (int i = 0; i < 2; ++i) {
            string leaf(arrays[i][LEAF_ORIGINAL]);
-           bdlsu::PathUtil::appendRaw(&leaf, "hello");
+           bdls::PathUtil::appendRaw(&leaf, "hello");
            ASSERT(leaf == string(arrays[i][LEAF_EXPECTED]));
 
            string leafless(arrays[i][LEAFLESS_ORIGINAL]);
-           bdlsu::PathUtil::appendRaw(&leafless, "hello");
+           bdls::PathUtil::appendRaw(&leafless, "hello");
            LOOP3_ASSERT(
                   arrays[i][LEAFLESS_ORIGINAL],
                   arrays[i][LEAFLESS_EXPECTED],
@@ -517,10 +520,10 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         leafless2 = "\\\\.\\pipe";
 #else
-        leafless2 = "/var/tmp/"; // not really leafless but let's do
-                                 // SOMEthing on unix for this part
+        leafless2 = "/var/tmp/"; // not really leafless but let's do SOMEthing
+                                 // on unix for this part
 #endif
-        ASSERT( 0 == bdlsu::PathUtil::appendIfValid(&leafless2, "hello") );
+        ASSERT( 0 == bdls::PathUtil::appendIfValid(&leafless2, "hello") );
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(leafless2, "\\\\.\\pipe\\hello" == leafless2);
 #else
@@ -528,16 +531,16 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 2: {
-        ////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////
         // Native Parsing Test
         //
         // Concerns: Functionality of native path parsing logic
         //
         // Plan: Construct objects from various native paths and verify
-        // properties.  Also verify the parser by invoking it through
-        // the appendIfValid code path in addition to the assignment path.
-        // Also verify correct parsing of the root.
-        ////////////////////////////////////////////////////////////
+        // properties.  Also verify the parser by invoking it through the
+        // appendIfValid code path in addition to the assignment path.  Also
+        // verify correct parsing of the root.
+        //////////////////////////////////////////////////////////////////////
 
         if (verbose) {
             cout << "Native Parsing Test" << endl;
@@ -552,10 +555,10 @@ int main(int argc, char *argv[])
 
             bsl::string root;
             if (pi.d_isRelative) {
-                ASSERT(0 != bdlsu::PathUtil::getRoot(&root, iTest));
+                ASSERT(0 != bdls::PathUtil::getRoot(&root, iTest));
             }
             else {
-                ASSERT(0 == bdlsu::PathUtil::getRoot(&root, iTest));
+                ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
                 ASSERT(root == pi.d_root);
             }
 
@@ -563,8 +566,8 @@ int main(int argc, char *argv[])
 
             bsl::string basename, dirname;
             if (pi.d_numLeaves) {
-                ASSERT(0 == bdlsu::PathUtil::getLeaf(&basename, iTest));
-                ASSERT(0 == bdlsu::PathUtil::getDirname(&dirname, iTest));
+                ASSERT(0 == bdls::PathUtil::getLeaf(&basename, iTest));
+                ASSERT(0 == bdls::PathUtil::getDirname(&dirname, iTest));
 
                 //test invariant:
 
@@ -574,8 +577,8 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(pi.d_line, dirname, dirname == pi.d_dirName);
             }
             else {
-                ASSERT(0 != bdlsu::PathUtil::getLeaf(&basename, iTest));
-                ASSERT(0 != bdlsu::PathUtil::getDirname(&dirname, iTest));
+                ASSERT(0 != bdls::PathUtil::getLeaf(&basename, iTest));
+                ASSERT(0 != bdls::PathUtil::getDirname(&dirname, iTest));
             }
 
             // Count leaves by removing them iteratively...When we're done,
@@ -584,14 +587,14 @@ int main(int argc, char *argv[])
 
             int count;
             for (count = 0;
-                 bdlsu::PathUtil::hasLeaf(iTest);
+                 bdls::PathUtil::hasLeaf(iTest);
                  ++count) {
-                bdlsu::PathUtil::popLeaf(&iTest);
+                bdls::PathUtil::popLeaf(&iTest);
             }
             LOOP2_ASSERT(pi.d_line, count, count == pi.d_numLeaves);
-            ASSERT(bdlsu::PathUtil::isRelative(iTest) == pi.d_isRelative);
+            ASSERT(bdls::PathUtil::isRelative(iTest) == pi.d_isRelative);
             if (!pi.d_isRelative) {
-                ASSERT(0 == bdlsu::PathUtil::getRoot(&root, iTest));
+                ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
                 LOOP_ASSERT(root, root == pi.d_root);
             }
 
@@ -601,31 +604,31 @@ int main(int argc, char *argv[])
                 int referenceCount;
                 if (pj.d_isRelative) {
                     ASSERT(0 ==
-                             bdlsu::PathUtil::appendIfValid(&iTest, pj.d_path));
+                             bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
                     referenceCount = pj.d_numLeaves;
                 }
                 else {
                     ASSERT(0 !=
-                             bdlsu::PathUtil::appendIfValid(&iTest, pj.d_path));
+                             bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
                     referenceCount = 0;
                 }
                 for (count = 0;
-                     bdlsu::PathUtil::hasLeaf(iTest);
+                     bdls::PathUtil::hasLeaf(iTest);
                      ++count) {
-                    bdlsu::PathUtil::popLeaf(&iTest);
+                    bdls::PathUtil::popLeaf(&iTest);
                 }
                 LOOP2_ASSERT(pi.d_path, pj.d_path, count == referenceCount);
                 LOOP2_ASSERT(pi.d_path, iTest,
-                           bdlsu::PathUtil::isRelative(iTest)==pi.d_isRelative);
+                           bdls::PathUtil::isRelative(iTest)==pi.d_isRelative);
             }
         }
       } break;
       case 1: {
-        ////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////
         // Usage Example Test
         //
         // Concern: The component's Usage Example compiles and runs
-        ////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////
 
         if (verbose) {
            cout << "Usage Example Test" << endl;
@@ -638,17 +641,17 @@ int main(int argc, char *argv[])
         bsl::string otherPath = "22jan08/log.txt";
 #endif
 
-        ASSERT(false == bdlsu::PathUtil::isRelative(tempPath));
-        ASSERT(true  == bdlsu::PathUtil::isAbsolute(tempPath));
-        ASSERT(true  == bdlsu::PathUtil::hasLeaf(tempPath));
+        ASSERT(false == bdls::PathUtil::isRelative(tempPath));
+        ASSERT(true  == bdls::PathUtil::isAbsolute(tempPath));
+        ASSERT(true  == bdls::PathUtil::hasLeaf(tempPath));
 
-        bdlsu::PathUtil::appendRaw(&tempPath, "myApp");
-        bdlsu::PathUtil::appendRaw(&tempPath, "logs");
-        ASSERT(true == bdlsu::PathUtil::isRelative(otherPath));
-        ASSERT(0 == bdlsu::PathUtil::appendIfValid(&tempPath, otherPath));
-        ASSERT(true == bdlsu::PathUtil::hasLeaf(tempPath));
-        bdlsu::PathUtil::popLeaf(&tempPath);
-        bdlsu::PathUtil::appendRaw(&tempPath, "log2.txt");
+        bdls::PathUtil::appendRaw(&tempPath, "myApp");
+        bdls::PathUtil::appendRaw(&tempPath, "logs");
+        ASSERT(true == bdls::PathUtil::isRelative(otherPath));
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
+        ASSERT(true == bdls::PathUtil::hasLeaf(tempPath));
+        bdls::PathUtil::popLeaf(&tempPath);
+        bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
@@ -658,11 +661,9 @@ int main(int argc, char *argv[])
                 tempPath);
 #endif
 
-        ASSERT(0 == bdlsu::PathUtil::appendIfValid(&otherPath, otherPath));
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));
 
-        // OK
-        // bdlsu::PathUtil::append(&otherPath, tempPath);
-        // UNDEFINED BEHAVIOR!
+        // OK bdls::PathUtil::append(&otherPath, tempPath); UNDEFINED BEHAVIOR!
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,
@@ -672,7 +673,7 @@ int main(int argc, char *argv[])
                      "22jan08/log.txt/22jan08/log.txt" == otherPath);
 #endif
 
-        ASSERT(0 == bdlsu::PathUtil::appendIfValid(&otherPath,
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath,
                                                    otherPath.c_str()));
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,
@@ -688,7 +689,7 @@ int main(int argc, char *argv[])
                    "22jan08/log.txt" == otherPath);
 #endif
 
-        ASSERT(0 == bdlsu::PathUtil::appendIfValid(&otherPath,
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath,
                                                    otherPath.c_str() + 56));
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,

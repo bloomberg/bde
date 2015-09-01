@@ -22,7 +22,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 #include <bdlt_datetime.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_datetimeutil.h>
@@ -303,7 +303,7 @@ void Logger::logMessage(const Category&            category,
     record->fixedFields().setCategory(category.categoryName());
     record->fixedFields().setSeverity(severity);
 
-    static int pid = bdlsu::ProcessUtil::getProcessId();
+    static int pid = bdls::ProcessUtil::getProcessId();
     record->fixedFields().setProcessID(pid);
 
     record->fixedFields().setThreadID(bdlqq::ThreadUtil::selfIdAsUint64());
@@ -709,7 +709,7 @@ void LoggerManager::logMessage(int severity, Record *record)
     bsl::ostringstream datetimeStream;
     datetimeStream << bdlt::CurrentTime::utc();
 
-    static int pid = bdlsu::ProcessUtil::getProcessId();
+    static int pid = bdls::ProcessUtil::getProcessId();
 
     Severity::Level severityLevel = (Severity::Level)severity;
 

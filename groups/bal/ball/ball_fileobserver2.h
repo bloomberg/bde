@@ -224,8 +224,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_FDSTREAMBUF
-#include <bdlsu_fdstreambuf.h>
+#ifndef INCLUDED_BDLS_FDSTREAMBUF
+#include <bdls_fdstreambuf.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIME
@@ -307,7 +307,7 @@ class FileObserver2 : public Observer {
 
   private:
     // DATA
-    bdlsu::FdStreamBuf     d_logStreamBuf;             // stream buffer for
+    bdls::FdStreamBuf      d_logStreamBuf;             // stream buffer for
                                                        // file logging
 
     bsl::ostream           d_logOutStream;             // output stream for

@@ -1,11 +1,11 @@
-// bdlsu_filesystemutil.cpp                                           -*-C++-*-
-#include <bdlsu_filesystemutil.h>
+// bdls_filesystemutil.cpp                                            -*-C++-*-
+#include <bdls_filesystemutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_filesystemutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 
-#include <bdlsu_memoryutil.h>
-#include <bdlsu_pathutil.h>
+#include <bdls_memoryutil.h>
+#include <bdls_pathutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -111,8 +111,8 @@ namespace BloombergLP {
 
 static
 void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
-    // A 'thunk' to be bound to a vector that can be called to push an item to
-    // the vector.
+    // A 'thunk' to be bound to the specified 'vector' that can be called to
+    // push the specified 'item' to the 'vector'.
 {
     BSLS_ASSERT(vector);
 
@@ -300,8 +300,8 @@ int makeDirectory(const char *path)
 
 static inline
 int removeDirectory(const char *path)
-    // Remove directory 'path'.  Return 0 on success and a non-zero value
-    // otherwise.
+    // Remove the specified directory 'path'.  Return 0 on success and a
+    // non-zero value otherwise.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -319,20 +319,20 @@ int removeFile(const char *path)
 #endif
 
                         // ----------------------------
-                        // struct bdlsu::FilesystemUtil
+                        // struct bdls::FilesystemUtil
                         // ----------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-const bdlsu::FilesystemUtil::FileDescriptor bdlsu::FilesystemUtil::k_INVALID_FD =
+const bdls::FilesystemUtil::FileDescriptor bdls::FilesystemUtil::k_INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
-namespace bdlsu {
-FilesystemUtil::FileDescriptor
-FilesystemUtil::open(const char         *pathName,
-                           FileOpenPolicy      openPolicy,
-                           FileIOPolicy        ioPolicy,
-                           FileTruncatePolicy  truncatePolicy)
+namespace bdls {
+FilesystemUtil::FileDescriptor FilesystemUtil::open(
+                                            const char         *pathName,
+                                            FileOpenPolicy      openPolicy,
+                                            FileIOPolicy        ioPolicy,
+                                            FileTruncatePolicy  truncatePolicy)
 {
     BSLS_ASSERT(pathName);
 
@@ -459,10 +459,9 @@ int FilesystemUtil::remove(const char *fileToRemove, bool recursive)
     }
 }
 
-FilesystemUtil::Offset
-FilesystemUtil::seek(FileDescriptor               descriptor,
-                           FilesystemUtil::Offset offset,
-                           int                          whence)
+FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor         descriptor,
+                                            FilesystemUtil::Offset offset,
+                                            int                    whence)
 {
     switch (whence) {
       case e_SEEK_FROM_BEGINNING: {
@@ -489,8 +488,8 @@ FilesystemUtil::seek(FileDescriptor               descriptor,
 }
 
 int FilesystemUtil::read(FileDescriptor  descriptor,
-                               void           *buffer,
-                               int             numBytesToRead)
+                         void           *buffer,
+                         int             numBytesToRead)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytesToRead);
@@ -500,8 +499,8 @@ int FilesystemUtil::read(FileDescriptor  descriptor,
 }
 
 int FilesystemUtil::write(FileDescriptor  descriptor,
-                                const void     *buffer,
-                                int             numBytesToWrite)
+                          const void     *buffer,
+                          int             numBytesToWrite)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytesToWrite);
@@ -511,10 +510,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 }
 
 int FilesystemUtil::map(FileDescriptor   descriptor,
-                              void           **address,
-                              Offset           offset,
-                              int              len,
-                              int              mode)
+                        void           **address,
+                        Offset           offset,
+                        int              len,
+                        int              mode)
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 <= len);
@@ -551,10 +550,10 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     }
 
     *address = MapViewOfFile(hMap,
-                          protectAccess[mode][1],
-                          (DWORD)(offset>>32),
-                          (DWORD)(offset&0xFFFFFFFF),
-                          len);
+                             protectAccess[mode][1],
+                             (DWORD)(offset >> 32),
+                             (DWORD)(offset & 0xFFFFFFFF),
+                             len);
     CloseHandle(hMap);
     if (!*address) {
         return -1;                                                    // RETURN
@@ -578,9 +577,8 @@ int FilesystemUtil::sync(char *address, int numBytes, bool)
     BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
                      MemoryUtil::pageSize());
 
-    // The meaning of the 'sync' flag (cause this function to be
-    // synchronous vs. asynchronous) does not appear to be supported by
-    // 'FlushViewOfFile'.
+    // The meaning of the 'sync' flag (cause this function to be synchronous
+    // vs. asynchronous) does not appear to be supported by 'FlushViewOfFile'.
 
     return FlushViewOfFile(address, numBytes) ? 0 : -1;
 }
@@ -589,17 +587,25 @@ int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
-    return !LockFileEx(descriptor, lockWrite ? LOCKFILE_EXCLUSIVE_LOCK
-                                             : 0, 0, 1, 0, &overlapped);
+    return !LockFileEx(descriptor,
+                       lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0,
+                       0,
+                       1,
+                       0,
+                       &overlapped);
 }
 
 int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
-    bool success = LockFileEx(descriptor, LOCKFILE_FAIL_IMMEDIATELY |
-                              (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
-                              0, 1, 0, &overlapped);
+    bool success = LockFileEx(
+         descriptor,
+         LOCKFILE_FAIL_IMMEDIATELY | (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
+         0,
+         1,
+         0,
+         &overlapped);
     return success ? 0
                    : ERROR_LOCK_VIOLATION == GetLastError()
                      ? k_ERROR_LOCKING_CONFLICT
@@ -652,7 +658,7 @@ bool FilesystemUtil::exists(const char *pathName)
 }
 
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
-                                                  const char    *path)
+                                            const char     *path)
     // Set the value of specified 'time' to the last modification time of the
     // file at the specified 'path'.  Return 0 on success and non-zero
     // otherwise.
@@ -700,8 +706,8 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 }
 
 void FilesystemUtil::visitPaths(
-                        const char                                 *patternStr,
-                        const bdlf::Function<void(*)(const char*)>&  visitor)
+                       const char                                  *patternStr,
+                       const bdlf::Function<void(*)(const char*)>&  visitor)
 {
     // Windows 'FindFirstFileW' function only looks at pattern characters ('*'
     // and '?') in the leaf element of the path.  Therefore we must first
@@ -714,8 +720,8 @@ void FilesystemUtil::visitPaths(
 
     bsl::string dirName;
     if (0 != PathUtil::getDirname(&dirName, patternStr)) {
-        // There is no leaf, therefore there can be nothing to do (but
-        // not an error)
+        // There is no leaf, therefore there can be nothing to do (but not an
+        // error)
 
         return;                                                       // RETURN
     }
@@ -750,8 +756,9 @@ void FilesystemUtil::visitPaths(
                 for (it = workingPaths.begin(); it != workingPaths.end();
                                                                         ++it) {
                     visitPaths(it->c_str(), bdlf::BindUtil::bind(
-                                               &pushBackWrapper,
-                                               &paths, bdlf::PlaceHolders::_1));
+                                                      &pushBackWrapper,
+                                                      &paths,
+                                                      bdlf::PlaceHolders::_1));
                 }
             }
             leaves.pop_back();
@@ -798,8 +805,7 @@ void FilesystemUtil::visitPaths(
             if (dot == narrowName || dotdot == narrowName) {
                 // Do nothing
             }
-            else if (0 != PathUtil::appendIfValid(&dirNamePath,
-                                                                 narrowName)) {
+            else if (0 != PathUtil::appendIfValid(&dirNamePath, narrowName)) {
                 // Can't happen: 'findData.cFileName' will never be an absolute
                 // path.
 
@@ -887,11 +893,11 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
     } FILE_FS_SIZE_INFORMATION;
 
     typedef LONG __stdcall NTQUERYVOLUMEINFORMATIONFILE(
-        HANDLE FileHandle,
-        IO_STATUS_BLOCK *IoStatusBlock,
-        PVOID FileInformation,
-        ULONG Length,
-        INT FileInformationClass);
+                                        HANDLE           FileHandle,
+                                        IO_STATUS_BLOCK *IoStatusBlock,
+                                        PVOID            FileInformation,
+                                        ULONG            Length,
+                                        INT              FileInformationClass);
 
     static HMODULE hNtDll = LoadLibrary("ntdll.dll");
     static NTQUERYVOLUMEINFORMATIONFILE *pNQVIF =
@@ -906,8 +912,11 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
         fileFsSizeInformation = 3
     };
     FILE_FS_SIZE_INFORMATION sizeInfo;
-    LONG rc = pNQVIF(descriptor, &ioStatusBlock, &sizeInfo, sizeof(sizeInfo),
-        fileFsSizeInformation);
+    LONG rc = pNQVIF(descriptor,
+                     &ioStatusBlock,
+                     &sizeInfo,
+                     sizeof(sizeInfo),
+                     fileFsSizeInformation);
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -916,8 +925,7 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
         * sizeInfo.BytesPerSector;
 }
 
-FilesystemUtil::Offset FilesystemUtil::getFileSize(
-                                                              const char *path)
+FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -982,15 +990,15 @@ int FilesystemUtil::setWorkingDirectory(const char *path)
 #else
 // unix specific implementation
 
-const bdlsu::FilesystemUtil::FileDescriptor
-                                       bdlsu::FilesystemUtil::k_INVALID_FD = -1;
+const bdls::FilesystemUtil::FileDescriptor
+                                       bdls::FilesystemUtil::k_INVALID_FD = -1;
 
-namespace bdlsu {
-FilesystemUtil::FileDescriptor
-FilesystemUtil::open(const char         *path,
-                           FileOpenPolicy      openPolicy,
-                           FileIOPolicy        ioPolicy,
-                           FileTruncatePolicy  truncatePolicy)
+namespace bdls {
+FilesystemUtil::FileDescriptor FilesystemUtil::open(
+                                            const char         *path,
+                                            FileOpenPolicy      openPolicy,
+                                            FileIOPolicy        ioPolicy,
+                                            FileTruncatePolicy  truncatePolicy)
 {
     BSLS_ASSERT(path);
 
@@ -1084,10 +1092,9 @@ int FilesystemUtil::close(FileDescriptor descriptor)
                             : int(k_UNKNOWN_ERROR);
 }
 
-FilesystemUtil::Offset
-FilesystemUtil::seek(FileDescriptor descriptor,
-                           Offset         offset,
-                           int            whence)
+FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor descriptor,
+                                            Offset         offset,
+                                            int            whence)
 {
     switch (whence) {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
@@ -1118,12 +1125,12 @@ FilesystemUtil::seek(FileDescriptor descriptor,
     }
 }
 
-int FilesystemUtil::remove(const char *path, bool recursive)
+int FilesystemUtil::remove(const char *path, bool recursiveFlag)
 {
    BSLS_ASSERT(path);
 
    if (isDirectory(path)) {
-      if (recursive) {
+      if (recursiveFlag) {
          // What we'd LIKE to do here is findMatchingPaths("path/*") and delete
          // each one.  But glob(), on which findMatchingPaths() is built, will
          // not include the name of a symbolic link if there is no file
@@ -1183,9 +1190,7 @@ int FilesystemUtil::remove(const char *path, bool recursive)
    }
 }
 
-int FilesystemUtil::read(FileDescriptor  descriptor,
-                               void           *buffer,
-                               int             numBytes)
+int FilesystemUtil::read(FileDescriptor descriptor, void *buffer, int numBytes)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytes);
@@ -1194,8 +1199,8 @@ int FilesystemUtil::read(FileDescriptor  descriptor,
 }
 
 int FilesystemUtil::write(FileDescriptor  descriptor,
-                                const void     *buffer,
-                                int             numBytes)
+                          const void     *buffer,
+                          int             numBytes)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytes);
@@ -1204,10 +1209,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 }
 
 int FilesystemUtil::map(FileDescriptor   descriptor,
-                              void           **address,
-                              Offset           offset,
-                              int              size,
-                              int              mode)
+                        void           **address,
+                        Offset           offset,
+                        int              size,
+                        int              mode)
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 <= size);
@@ -1248,7 +1253,7 @@ int  FilesystemUtil::unmap(void *address, int size)
     return rc;
 }
 
-int FilesystemUtil::sync(char *address, int numBytes, bool sync)
+int FilesystemUtil::sync(char *address, int numBytes, bool syncFlag)
 {
     BSLS_ASSERT(0 != address);
     BSLS_ASSERT(0 <= numBytes);
@@ -1256,7 +1261,7 @@ int FilesystemUtil::sync(char *address, int numBytes, bool sync)
     BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
                      MemoryUtil::pageSize());
 
-    int rc = ::msync(address, numBytes, sync ? MS_SYNC : MS_ASYNC);
+    int rc = ::msync(address, numBytes, syncFlag ? MS_SYNC : MS_ASYNC);
 
     // We do not contractually offer meaningful return codes (providing status
     // in a cross-platform way is problematic); however, the returned value may
@@ -1265,19 +1270,21 @@ int FilesystemUtil::sync(char *address, int numBytes, bool sync)
     return 0 == rc ? 0 : errno;
 }
 
-int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWrite)
+int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWriteFlag)
 {
-    int rc =
-            localFcntlLock(descriptor, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
+    int rc = localFcntlLock(descriptor,
+                            F_SETLK,
+                            lockWriteFlag ? F_WRLCK : F_RDLCK);
     return -1 != rc                           ? 0
          : EAGAIN == errno || EACCES == errno ? k_ERROR_LOCKING_CONFLICT
          :                                      -1;
 }
 
-int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
+int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWriteFlag)
 {
-    int rc =
-           localFcntlLock(descriptor, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK);
+    int rc = localFcntlLock(descriptor,
+                            F_SETLKW,
+                            lockWriteFlag ? F_WRLCK : F_RDLCK);
     return -1 == rc ? -1 : 0;
 }
 
@@ -1301,26 +1308,26 @@ bool FilesystemUtil::exists(const char *path)
     return 0 == access(path, F_OK);
 }
 
-bool FilesystemUtil::isRegularFile(const char *path, bool followLinks)
+bool FilesystemUtil::isRegularFile(const char *path, bool followLinksFlag)
 {
     BSLS_ASSERT(path);
 
     StatResult fileStats;
 
-    if (0 != ::performStat(path, &fileStats, followLinks)) {
+    if (0 != ::performStat(path, &fileStats, followLinksFlag)) {
         return false;                                                 // RETURN
     }
 
     return S_ISREG(fileStats.st_mode);
 }
 
-bool FilesystemUtil::isDirectory(const char *path, bool followLinks)
+bool FilesystemUtil::isDirectory(const char *path, bool followLinksFlag)
 {
     BSLS_ASSERT(path);
 
     StatResult fileStats;
 
-    if (0 != ::performStat(path, &fileStats, followLinks)) {
+    if (0 != ::performStat(path, &fileStats, followLinksFlag)) {
         return false;                                                 // RETURN
     }
 
@@ -1328,7 +1335,7 @@ bool FilesystemUtil::isDirectory(const char *path, bool followLinks)
 }
 
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
-                                                  const char    *path)
+                                            const char     *path)
 {
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
@@ -1345,8 +1352,8 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 }
 
 void FilesystemUtil::visitPaths(
-                          const char                                  *pattern,
-                          const bdlf::Function<void(*)(const char *)>&  visitor)
+                         const char                                   *pattern,
+                         const bdlf::Function<void(*)(const char *)>&  visitor)
 {
     BSLS_ASSERT(pattern);
 
@@ -1386,8 +1393,8 @@ FilesystemUtil::getAvailableSpace(const char *path)
         return -1;                                                    // RETURN
     }
     else {
-        // Cast arguments to Offset since the f_bavail and f_frsize fields
-        // can be 32-bits, leading to overflow on even small disks.
+        // Cast arguments to Offset since the f_bavail and f_frsize fields can
+        // be 32-bits, leading to overflow on even small disks.
         return Offset(buffer.f_bavail) * Offset(buffer.f_frsize);     // RETURN
     }
 }
@@ -1407,14 +1414,13 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
         return -1;                                                    // RETURN
     }
     else {
-        // Cast arguments to Offset since the f_bavail and f_frsize fields
-        // can be 32-bits, leading to overflow on even small disks.
+        // Cast arguments to Offset since the f_bavail and f_frsize fields can
+        // be 32-bits, leading to overflow on even small disks.
         return Offset(buffer.f_bavail) * Offset(buffer.f_frsize);     // RETURN
     }
 }
 
-FilesystemUtil::Offset FilesystemUtil::getFileSize(
-                                                              const char *path)
+FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 {
     StatResult fileStats;
 
@@ -1436,9 +1442,9 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     int rc = getrlimit64(RLIMIT_FSIZE, &rl);
 #endif
 
-    // Often, 'rl.rlim_cur' is an unsigned 64 bit, while 'Offset' is signed,
-    // so 'rl.rlim_cur' may have a larger value than can be represented by
-    // an 'Offset'.
+    // Often, 'rl.rlim_cur' is an unsigned 64 bit, while 'Offset' is signed, so
+    // 'rl.rlim_cur' may have a larger value than can be represented by an
+    // 'Offset'.
 
     rlMax.rlim_cur = k_OFFSET_MAX;
     rlInf.rlim_cur = RLIM_INFINITY;
@@ -1482,13 +1488,13 @@ int FilesystemUtil::setWorkingDirectory(const char *path)
 
 #endif  // non-Windows (POSIX)
 
-namespace bdlsu {
+namespace bdls {
 /////////////////////////////////////
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
 
 int FilesystemUtil::createDirectories(const char *path,
-                                            bool        leafIsDirectory)
+                                      bool        isLeafDirectoryFlag)
 {
     // Implementation note: some Unix platforms may have mkdirp, which does
     // what this function does.  But not all do, and hyper-fast performance is
@@ -1496,7 +1502,7 @@ int FilesystemUtil::createDirectories(const char *path,
     // ensure maximum portability.
     //
     // Not to mention that we have to do at least a little parsing anyway,
-    // since even mkdirp does not provide anything like 'leafIsDirectory'.
+    // since even mkdirp does not provide anything like 'isLeafDirectoryFlag'.
 
     // Let's first give at least a nod to efficiency and see if we don't need
     // to do anything at all.
@@ -1509,7 +1515,7 @@ int FilesystemUtil::createDirectories(const char *path,
 
     bsl::string workingPath(path);
     bsl::vector<bsl::string> directoryStack;
-    if (!leafIsDirectory && PathUtil::hasLeaf(workingPath)) {
+    if (!isLeafDirectoryFlag && PathUtil::hasLeaf(workingPath)) {
         PathUtil::popLeaf(&workingPath);
     }
 
@@ -1522,9 +1528,8 @@ int FilesystemUtil::createDirectories(const char *path,
 
     while (!directoryStack.empty()) {
         PathUtil::appendRaw(&workingPath,
-                                  directoryStack.back().c_str(),
-                                  static_cast<int>(
-                                      directoryStack.back().length()));
+                            directoryStack.back().c_str(),
+                            static_cast<int>(directoryStack.back().length()));
         if (!exists(workingPath.c_str())) {
             if (0 != makeDirectory(workingPath.c_str())) {
                 return -1;                                            // RETURN
@@ -1536,7 +1541,7 @@ int FilesystemUtil::createDirectories(const char *path,
 }
 
 void FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
-                                             const char               *pattern)
+                                       const char               *pattern)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(pattern);
@@ -1544,7 +1549,8 @@ void FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
     result->clear();
     visitPaths(pattern,
                bdlf::BindUtil::bind(&pushBackWrapper,
-                                   result, bdlf::PlaceHolders::_1));
+                                    result,
+                                    bdlf::PlaceHolders::_1));
 }
 }  // close package namespace
 
@@ -1560,11 +1566,11 @@ int posix_fallocate(...)
 }  // close unnamed namespace
 #endif
 
-namespace bdlsu {
-int FilesystemUtil::growFile(FileDescriptor                descriptor,
-                                   FilesystemUtil::Offset  size,
-                                   bool                          reserve,
-                                   bsl::size_t                   bufferSize)
+namespace bdls {
+int FilesystemUtil::growFile(FileDescriptor         descriptor,
+                             FilesystemUtil::Offset size,
+                             bool                   reserveFlag,
+                             bsl::size_t            increment)
 {
     bslma::Allocator *allocator_p = bslma::Default::defaultAllocator();
     Offset currentSize = seek(descriptor, 0, e_SEEK_FROM_END);
@@ -1579,12 +1585,12 @@ int FilesystemUtil::growFile(FileDescriptor                descriptor,
     // TBD.  See mqbs_filestoreutil.cpp for details.
 #endif
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-    if (reserve) {
+    if (reserveFlag) {
         if (size != seek(descriptor, size, e_SEEK_FROM_BEGINNING)) {
             return -1;                                                // RETURN
         }
         if (0 != SetEndOfFile(descriptor)) {
-            reserve = false;  //  File space has been allocated
+            reserveFlag = false;  //  File space has been allocated
         }
         else {
             // Undo the seek to 'size'.
@@ -1597,18 +1603,18 @@ int FilesystemUtil::growFile(FileDescriptor                descriptor,
 #if defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
     defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
     defined(BSLS_PLATFORM_OS_AIX)
-    if (reserve && 0 == posix_fallocate(descriptor, 0, size)) {
-        reserve = false;  //  File space has been allocated
+    if (reserveFlag && 0 == posix_fallocate(descriptor, 0, size)) {
+        reserveFlag = false;  //  File space has been allocated
     }
 #endif
-    if (reserve) {
+    if (reserveFlag) {
         // Reserve space the old-fashioned way.
-        char *buffer = static_cast<char*>(allocator_p->allocate(bufferSize));
-        bsl::memset(buffer, 1, bufferSize);
+        char *buffer = static_cast<char*>(allocator_p->allocate(increment));
+        bsl::memset(buffer, 1, increment);
         Offset bytesToGrow = size - currentSize;
         while (bytesToGrow > 0) {
             int nBytes = static_cast<int>(
-                       bsl::min(bytesToGrow, static_cast<Offset>(bufferSize)));
+                       bsl::min(bytesToGrow, static_cast<Offset>(increment)));
             int rc = write(descriptor, buffer, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buffer);
@@ -1649,7 +1655,8 @@ int FilesystemUtil::rollFileChain(const char *path, int maxSuffix)
             if (exists(fromName) && 0 != move(fromName, toName)) {
                 break;
             }
-            bsl::swap(toName, fromName);
+            using bsl::swap;
+            swap(toName, fromName);
         }
 
         if (0 == maxSuffix && exists(path) && 0 != move(path, toName)) {

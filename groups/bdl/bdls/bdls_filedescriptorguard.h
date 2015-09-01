@@ -1,6 +1,6 @@
-// bdlsu_filedescriptorguard.h                                        -*-C++-*-
-#ifndef INCLUDED_BDESU_FILEDESCIPTORGUARD
-#define INCLUDED_BDESU_FILEDESCIPTORGUARD
+// bdls_filedescriptorguard.h                                         -*-C++-*-
+#ifndef INCLUDED_BDLS_FILEDESCRIPTORGUARD
+#define INCLUDED_BDLS_FILEDESCRIPTORGUARD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a RAII guard class used to close files.
 //
 //@CLASSES:
-//  bdlsu::FileDescriptorGuard: RAII guard class used to close files
+//  bdls::FileDescriptorGuard: RAII guard class used to close files
 //
-//@SEE_ALSO: bdlsu_filesystemutil
+//@SEE_ALSO: bdls_filesystemutil
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component defines a class, 'bdlsu::FileDescriptorGuard', an
+//@DESCRIPTION: This component defines a class, 'bdls::FileDescriptorGuard', an
 // object of which manages an open file descriptor, and closes it when the
 // guard goes out of scope and is destroyed.  A 'release' method is provided,
 // which will release the descriptor from management by the guard.  When a
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Close a File Descriptor
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to open a file and perform some I/O operations.  We use an
-// object of type 'bdlsu::FileDescriptorGuard' to ensure this handle is closed
+// object of type 'bdls::FileDescriptorGuard' to ensure this handle is closed
 // after the operations are complete.
 //
 // First, we create a name for our temporary file name and a few local
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // Next, we enter a lexical scope and create a guard object to manage 'fd':
 //..
 //  {
-//      bdlsu::FileDescriptorGuard guard(fd);
+//      bdls::FileDescriptorGuard guard(fd);
 //..
 // Then, we declare an essay we would like to write to the file:
 //..
@@ -91,8 +91,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_FILESYSTEMUTIL
-#include <bdlsu_filesystemutil.h>
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include <bdls_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
                          // ==========================
                          // struct FileDescriptorGuard
                          // ==========================
@@ -126,8 +126,8 @@ struct FileDescriptorGuard {
         // Create a guard object that will manage the specified 'descriptor',
         // closing it upon destruction (unless either 'realease' or
         // 'closeAndRelease' has been called).  It is permissible for
-        // 'descriptor' to be 'FilesystemUtil::k_INVALID_FD', in which
-        // case the guard created will not manage anything.
+        // 'descriptor' to be 'FilesystemUtil::k_INVALID_FD', in which case the
+        // guard created will not manage anything.
 
     ~FileDescriptorGuard();
         // If this guard object manages a file, close that file.
@@ -139,19 +139,19 @@ struct FileDescriptorGuard {
         // object is managing a file.
 
     FilesystemUtil::FileDescriptor release();
-        // Release the file from management by this object (without closing
-        // it) and return the formerly managed descriptor.  The behavior is
+        // Release the file from management by this object (without closing it)
+        // and return the formerly managed descriptor.  The behavior is
         // undefined unless this object is managing a file.
 
     // ACCESSORS
     FilesystemUtil::FileDescriptor descriptor() const;
         // If this guard is managing a file, return the file descriptor
-        // referring to that file, and return
-        // 'FilesystemUtil::k_INVALID_FD' otherwise.
+        // referring to that file, and return 'FilesystemUtil::k_INVALID_FD'
+        // otherwise.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -189,8 +189,8 @@ FilesystemUtil::FileDescriptor FileDescriptorGuard::descriptor()
 {
     return d_descriptor;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

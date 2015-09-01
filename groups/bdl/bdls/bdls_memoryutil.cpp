@@ -1,8 +1,8 @@
-// bdlsu_memoryutil.cpp                                               -*-C++-*-
-#include <bdlsu_memoryutil.h>
+// bdls_memoryutil.cpp                                                -*-C++-*-
+#include <bdls_memoryutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_memoryutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_memoryutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -24,7 +24,7 @@ namespace BloombergLP {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-namespace bdlsu {
+namespace bdls {
 // Windows-specific implementations
 
 int MemoryUtil::protect(void *address, int numBytes, int mode)
@@ -37,15 +37,15 @@ int MemoryUtil::protect(void *address, int numBytes, int mode)
     // permissions are granted.
 
     static const DWORD nativeMode[] = {
-        PAGE_NOACCESS,          // BDESU_ACCESS_NONE
-        PAGE_READONLY,          // BDESU_ACCESS_READ
-        PAGE_READWRITE,         // BDESU_ACCESS_WRITE
-        PAGE_READWRITE,         // BDESU_ACCESS_WRITE | BDESU_ACCESS_READ
-        PAGE_EXECUTE,           // BDESU_ACCESS_EXECUTE
-        PAGE_EXECUTE_READ,      // BDESU_ACCESS_EXECUTE | BDESU_ACCESS_READ
-        PAGE_EXECUTE_READWRITE, // BDESU_ACCESS_EXECUTE | BDESU_ACCESS_WRITE
-        PAGE_EXECUTE_READWRITE  // BDESU_ACCESS_EXECUTE | BDESU_ACCESS_WRITE
-                                //                      | BDESU_ACCESS_READ
+        PAGE_NOACCESS,          // k_ACCESS_NONE
+        PAGE_READONLY,          // k_ACCESS_READ
+        PAGE_READWRITE,         // k_ACCESS_WRITE
+        PAGE_READWRITE,         // k_ACCESS_WRITE   | k_ACCESS_READ
+        PAGE_EXECUTE,           // k_ACCESS_EXECUTE
+        PAGE_EXECUTE_READ,      // k_ACCESS_EXECUTE | k_ACCESS_READ
+        PAGE_EXECUTE_READWRITE, // k_ACCESS_EXECUTE | k_ACCESS_WRITE
+        PAGE_EXECUTE_READWRITE  // k_ACCESS_EXECUTE | k_ACCESS_WRITE
+                                //                  | k_ACCESS_READ
     };
 
     DWORD oldProtectMode;
@@ -80,7 +80,7 @@ int MemoryUtil::deallocate(void *address)
 
 #else
 
-namespace bdlsu {
+namespace bdls {
 // UNIX-specific implementations
 
 int MemoryUtil::pageSize()
