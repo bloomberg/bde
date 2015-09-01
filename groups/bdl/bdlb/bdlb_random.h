@@ -10,45 +10,55 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of procedures for random-number generation.
 //
 //@CLASSES:
-// bdlb::Random: namespace for a suite of random-number generation procedures
-//
-//@SEE_ALSO:
+//  bdlb::Random: namespace for a suite of random-number generation procedures
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch)
 //
-//@DESCRIPTION: This component provides a namespace for a suite of pure
-// procedures used to generate random numbers efficiently over a specific
-// range of values.  The seed (or current state) is maintained externally.
-// Two variants of each random number generator are provided: one has
-// a single [in/out] seed parameter, which is first used then updated; the
-// other takes the current seed as an [input] parameter, and stores a new
-// seed in an [output] parameter.
+//@DESCRIPTION: This component provides a utility 'struct', 'bdlb::Random',
+// that is a namespace for a suite of function used to efficiently generate
+// random numbers over a specific range of values.  The seed (or current state)
+// is maintained externally.  Two variants of each random number generator are
+// provided: one has a single [in/out] seed parameter, which is first used then
+// updated; the other takes the current seed as an [input] parameter, and
+// stores a new seed in an [output] parameter.
 //
 ///Usage
 ///-----
-// This example shows how one might use 'bdlb::Random' to create and use a class
-// to simulate the roll of a single die in a game, such as craps, that uses
-// dice.  First we create the 'Die' class itself:
+// This section illustrates intended use of this component.
+//
+///Example 1: Simulating a Pair of Dice
+/// - - - - - - - - - - - - - - - - - -
+// This example shows how one might use 'bdlb::Random' to create and use a
+// class to simulate the roll of a single die in a game, such as craps, that
+// uses dice.
+//
+// First, we define the 'Die' class itself:
 //..
-//  // die.h
-//  // ...
+//                      // =========
+//                      // class Die
+//                      // =========
 //
 //  class Die {
+//
 //      // DATA
 //      int d_seed;  // current state, used to generate next role of this die
 //
 //    public:
 //      // CREATORS
 //      Die(int initialSeed);
-//        // Create an object used to simulate a single die, using the
-//        // specified 'initialSeed'.
+//          // Create an object used to simulate a single die, using the
+//          // specified 'initialSeed'.
 //
 //      // MANIPULATORS
 //      int roll();
-//        // Return the next pseudo-random value in the range '[1 .. 6]', based
-//        // on the sequence of values established by the initial seed value
-//        // supplied at construction.
+//          // Return the next pseudo-random value in the range '[1 .. 6]',
+//          // based on the sequence of values established by the initial seed
+//          // value supplied at construction.
 //  };
+//
+//                      // ---------
+//                      // class Die
+//                      // ---------
 //
 //  // CREATORS
 //  inline
@@ -69,37 +79,49 @@ BSLS_IDENT("$Id: $")
 //      return result + 1;
 //  }
 //..
-// For a game such as craps, that requires two dice, we can either instantiate
-// a single 'Die' and role it twice:
-//..
-//  Die a(123);
+// Now, we can use our 'Dice' class to get the random numbers needed to
+// simulate a game of craps.  Note that the game of craps requires two dice.
 //
-//  int d1 = a.roll();
-//  int d2 = a.roll();
-//
-//  cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 5
+// We can instantiate a single 'Die' and role it twice,
 //..
-// Or we could instantiate two instances of 'Die', with separate initial
+//  void rollOneDieTwice()
+//  {
+//      Die a(123);
+//
+//      int d1 = a.roll();
+//      int d2 = a.roll();
+//
+//      cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 5
+//  }
+//..
+// Alternatively, we could create two instances of 'Die', with separate initial
 // seeds, and role each one once:
 //..
-//  Die a(123);
-//  Die b(456);
+//  void rollTwoDice()
+//  {
+//      Die a(123);
+//      Die b(456);
 //
-//  int d1 = a.roll();
-//  int d2 = b.roll();
+//      int d1 = a.roll();
+//      int d2 = b.roll();
 //
-//  cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 1
+//      cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 1
+//  }
 //..
-// Had we specified the same seed for both instances, however, the two dice
-// would always produce the same sequence of values:
+// Note that the specification of separate seeds is important to produce a
+// proper distribution for our game.  If we had shared the seed value each die
+// would always produce the same sequence of values as the other.
 //..
-//  Die a(123);
-//  Die b(123);
+//  void shareSeed()
+//  {
+//      Die a(123);  // BAD IDEA
+//      Die b(123);  // BAD IDEA
 //
-//  int d1 = a.roll();
-//  int d2 = b.roll();
+//      int d1 = a.roll();
+//      int d2 = b.roll();
+//      assert(d2 == d1);
 //
-//  cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 3
+//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -111,15 +133,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlb {
-                        // ==================
-                        // struct Random
-                        // ==================
+                               // =============
+                               // struct Random
+                               // =============
 
 struct Random {
-    // This 'struct' provides a namespace for a suite of pure procedures used
-    // for random-number generation.
+    // This 'struct' provides a namespace for a suite of functions used for
+    // random-number generation.
 
     // CLASS METHODS
     static int generate15(int *nextSeed, int seed);
@@ -134,12 +155,12 @@ struct Random {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------
-                        // struct Random
-                        // ------------------
+                               // -------------
+                               // struct Random
+                               // -------------
 
 // CLASS METHODS
 inline
@@ -164,8 +185,8 @@ int Random::generate15(int *seed)
 
     return generate15(seed, *seed);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
@@ -173,15 +194,15 @@ int Random::generate15(int *seed)
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
