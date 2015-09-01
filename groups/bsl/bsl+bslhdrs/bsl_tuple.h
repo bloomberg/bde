@@ -43,7 +43,9 @@ namespace bsl {
     !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES))
     using native_std::tuple;
     using native_std::make_tuple;
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40600)
     using native_std::forward_as_tuple;
+#endif
     using native_std::tie;
     using native_std::tuple_cat;
     using native_std::get;
