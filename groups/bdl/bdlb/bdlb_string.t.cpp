@@ -1,24 +1,25 @@
 // bdlb_string.t.cpp                                                  -*-C++-*-
 
 #include <bdlb_string.h>
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
-#include <bsl_algorithm.h>    // transform()
+#include <bsl_algorithm.h>   // 'bsl::transform'
 
-#include <bsl_cctype.h>      // tolower()
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstdio.h>      // sprintf()
-#include <bsl_cstring.h>     // strcmp(), memset()
+#include <bsl_cctype.h>      // 'bsl::tolower'
+#include <bsl_cstdlib.h>     // 'bsl::atoi'
+#include <bsl_cstdio.h>      // 'bsl::sprintf'
+#include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#include <bsl_c_string.h>    // _stricmp(), _strnicmp()
+#include <bsl_c_string.h>    // 'bsl::_stricmp', 'bsl::_strnicmp'
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #else
-#include <strings.h>   // strcasecmp(), strncasecmp()
+#include <strings.h>         // 'bsl::strcasecmp', 'bsl::strncasecmp'
 #endif
 
 using namespace BloombergLP;
@@ -27,29 +28,70 @@ using bsl::cout; using bsl::flush; using bsl::endl; using bsl::cerr;
 // ============================================================================
 //                                   TEST PLAN
 // ----------------------------------------------------------------------------
-// The component under test is a Utility component.
+//                                   Overview
+//                                   --------
+// The component under test is a utility component.  The functions will be
+// tested individually.
+//-----------------------------------------------------------------------------
+// [ 3] areEqualCaseless(cchar *lhs, cchar *rhs);
+// [ 3] areEqualCaseless(cchar *lhs, cchar *rhs, int rhsL);
+// [ 3] areEqualCaseless(cchar *lhs, cBslStr& rhs);
+// [ 3] areEqualCaseless(cchar *lhs, int lshL, cchar *rhs);
+// [ 3] areEqualCaseless(cchar *lhs, int lshL, cchar *rhs, int rhsL);
+// [ 3] areEqualCaseless(cchar *lhs, int lshL, cBslStr& rhs);
+// [ 3] areEqualCaseless(cBslStr& lhs, cchar *rhs);
+// [ 3] areEqualCaseless(cBslStr& lhs, cchar *rhs, int rhsL);
+// [ 3] areEqualCaseless(cBslStr& lhs, cBslStr& rhs);
+// [11] copy(cchar *string, bslma::Allocator *basicAllocator);
+// [11] copy(cchar *string, int length, bslma::Allocator *basicAllocator);
+// [11] copy(cBslStr& string, bslma::Allocator *basicAllocator);
+// [ 4] lowerCaseCmp(cchar *lhsStr, cchar *rhsStr);
+// [ 4] lowerCaseCmp(cchar *lhsStr, cchar *rhsStr, int rhsL);
+// [ 4] lowerCaseCmp(cchar *lhsStr, cBslStr& rhsStr);
+// [ 4] lowerCaseCmp(cchar *lhsStr, int lshL, cchar *rhsStr);
+// [ 4] lowerCaseCmp(cchar *lhsStr, int lshL, cchar *rhsStr, int rhsL);
+// [ 4] lowerCaseCmp(cchar *lhsStr, int lshL, cBslStr& rhsStr);
+// [ 4] lowerCaseCmp(cBslStr& lhsStr, cchar *rhsStr);
+// [ 4] lowerCaseCmp(cBslStr& lhsStr, cchar *rhsStr, int rhsL);
+// [ 4] lowerCaseCmp(cBslStr& lhsStr, cBslStr& rhsStr);
+// [ 5] ltrim(char *str);
+// [ 5] ltrim(char *str, int *L);
+// [ 5] ltrim(bsl::str *str);
+// [ 6] pad(bsl::str *str, int numChars, char padChar = ' ');
+// [ 5] rtrim(char *str);
+// [ 5] rtrim(bsl::str *str);
+// [ 5] rtrim(cchar *str, int *L);
+// [ 9] strstr(cchar *str, int strL, cchar *subStr, int subStrL);
+// [ 9] strstrCaseless(cchar *str, int strL, cchar *subStr, int subStrL);
+// [ 9] strrstr(cchar *str, int strL, cchar *subStr, int subStrL);
+// [ 9] strrstrCaseless(cchar *str, int strL, cchar *subStr, int subStrL);
+// [ 7] strnlen(cchar *str, int maximumLength);
+// [ 8] toFixedLength(char *d, int dL, cchar *s, int sL, char pad= ' ');
+// [ 2] toLower(char *string);
+// [ 2] toLower(char *string, int length);
+// [ 2] toLower(bsl::string *string);
+// [ 2] toUpper(char *string);
+// [ 2] toUpper(char *string, int length);
+// [ 2] toUpper(bsl::string *string);
+// [ 5] trim(char *string);
+// [ 5] trim(char *string, int *length);
+// [ 5] trim(bsl::string *string);
+// [10] skipLeadingTrailing(cchar **begin, cchar **end);
+// [ 4] upperCaseCmp(cchar *lhs, cchar *rhs);
+// [ 4] upperCaseCmp(cchar *lhs, cchar *rhs, int rhsL);
+// [ 4] upperCaseCmp(cchar *lhs, cBslStr& rhs);
+// [ 4] upperCaseCmp(cchar *lhs, int lhsL, cchar *rhs);
+// [ 4] upperCaseCmp(cchar *lhs, int lhsL, cchar *rhs, int rhsL);
+// [ 4] upperCaseCmp(cchar *lhs, int lhsL, cBslStr& rhs);
+// [ 4] upperCaseCmp(cBslStr& lhs, cchar *rhs);
+// [ 4] upperCaseCmp(cBslStr& lhs, cchar *rhs, int rhsL);
+// [ 4] upperCaseCmp(cBslStr& lhs, cBslStr& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] void toLower()
-// [ 2] void toUpper()
-// [ 3] bool areEqualCaseless()
-// [ 3] bool isNoCaseEqual()
-// [ 4] int lowerCaseCmp()
-// [ 4] int upperCaseCmp()
-// [ 5] void ltrim()
-// [ 5] void rtrim()
-// [ 5] void trim()
-// [ 6] void pad()
-// [ 7] int strnlen()
-// [ 8] void toFixedLength()
-// [ 9] const char *strstr()
-// [ 9] const char *strstrCaseless()
-// [ 9] const char *strrstr()
-// [ 9] const char *strrstrCaseless()
-// [10] void skipLeadingTrailing(const char **begin, const char **end)
-//=============================================================================
+
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -61,36 +103,32 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
 typedef bdlb::String Util;
 
 // The following two functions enable us to test that functions can take a null
@@ -114,16 +152,16 @@ int nneg(int len)
     return len < 0 ? 0 : len;
 }
 
-//=============================================================================
-//                             MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -133,11 +171,19 @@ int main(int argc, char *argv[])
         // TESTING 'copy'
         //
         // Concerns:
-        //  That the 3 'copy' methods work as specified in the doc.
+        //: 1  That the three 'copy' methods work as specified in the doc.
+        //
+        // Plan:
+        //: 1  TBD
+        //
+        // Testing:
+        //  copy(cchar *string, bslma::Allocator *basicAllocator);
+        //  copy(cchar *string, int length, bslma::Allocator *basicAllocator);
+        //  copy(cBslStr& string, bslma::Allocator *basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'copy'\n"
-                               "==============\n";
+        if (verbose) cout << "\n" "TESTING 'copy'" "\n"
+                                  "==============" "\n";
 
         bslma::TestAllocator ta;
 
@@ -223,26 +269,26 @@ int main(int argc, char *argv[])
         // TESTING 'skipLeadingTrailing'
         //
         // Concerns:
-        //  1) Correctly handles leading and/or trailing spaces.
-        //
-        //  2) Correctly adjust only the 'end' pointer when the entire
-        //     string is whitespace.
-        //
-        //  3) '*begin' is adjusted at most to the '*end - 1'th position.
-        //
-        //  4) Nothing happens when '*begin == *end'.
+        //: 1 Correctly handles leading and/or trailing spaces.
+        //:
+        //: 2 Correctly adjust only the 'end' pointer when the entire string is
+        //:   whitespace.
+        //:
+        //: 3 '*begin' is adjusted at most to the '*end - 1'th position.
+        //:
+        //: 4 Nothing happens when '*begin == *end'.
         //
         // Plan:
-        //   Pass the end points of a variety of strings covering all 4
-        //   concerns.  In each case, observe where the end points wind up and
-        //   confirm they are as expected.
+        //: 1 Pass the end points of a variety of strings covering all 4
+        //:   concerns.  In each case, observe where the end points wind up and
+        //:   confirm they are as expected.
         //
-        // Testing
-        //   void skipLeadingTrailing(const char **begin, const char **end);
+        // Testing:
+        //  skipLeadingTrailing(cchar **begin, cchar **end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'skipLeadingTrailing'\n"
-                             "=============================\n";
+        if (verbose) cout << "\n" "TESTING 'skipLeadingTrailing'" "\n"
+                                  "=============================" "\n";
 
         static const struct {
             const int   d_lineNumber;  // line number
@@ -330,7 +376,7 @@ int main(int argc, char *argv[])
             bdlb::String::skipLeadingTrailing(&begin, &end);
 
             const int RESBEGIN = begin - STRING;
-            const int RESEND   = end - STRING;
+            const int RESEND   = end   - STRING;
 
             LOOP2_ASSERT(RESBEGIN, EXPBEGIN, STRING + EXPBEGIN == begin);
             LOOP2_ASSERT(RESEND,   EXPEND,   STRING + EXPEND   == end);
@@ -339,71 +385,66 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless':
+        // TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless'
         //
         // Concerns:
-        //  1.  Forward-search correctly returns the position of the first
-        //      found substring or '0' if not found.
-        //  2.  Forward-search correctly returns the starting position of the
-        //      string when an empty substring is passed in.
-        //  3.  Reverse-search correctly returns the position of the last
-        //      found substring or '0' if not found.
-        //  4.  Reverse-search correctly returns the starting position of the
-        //      string when an empty substring is passed in.
+        //: 1 Forward-search correctly returns the position of the first found
+        //:   substring or '0' if not found.
+        //:
+        //: 2 Forward-search correctly returns the starting position of the
+        //:   string when an empty substring is passed in.
+        //:
+        //: 3 Reverse-search correctly returns the position of the last found
+        //:   substring or '0' if not found.
+        //:
+        //: 4 Reverse-search correctly returns the starting position of the
+        //:   string when an empty substring is passed in.
         //
         // Plan:
-        //  To address concerns 1, 2, 3, and 4 we enumerate through different
-        //  lengths of substrings (0 to 2) and match them against different
-        //  lengths of original strings (0 to substring length + 2).  The case
-        //  of both the substrings and the original strings are also permuted.
-        //  The resulting address returned from 'strstr', 'strstrCaseless',
-        //  'strrstr', and 'strrstrCaseless' is compared against the expected
-        //  offset from the original string to make sure concerns 1, 2, 3, and
-        //  4 are addressed.
+        //: 1 To address concerns 1, 2, 3, and 4 we enumerate through different
+        //:   lengths of substrings (0 to 2) and match them against different
+        //:   lengths of original strings (0 to substring length + 2).  The
+        //:   case of both the substrings and the original strings are also
+        //:   permuted.  The resulting address returned from 'strstr',
+        //:   'strstrCaseless', 'strrstr', and 'strrstrCaseless' is compared
+        //:   against the expected offset from the original string to make sure
+        //:   concerns 1, 2, 3, and 4 are addressed.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method (original string)
         //      - Depth First Enumeration (substring)
         //
         // Testing:
-        //      - const char *strstr()
-        //      - const char *strstrCaseless()
-        //      - const char *strrstr()
-        //      - const char *strrstrCaseless()
+        //  strstr(cchar *str, int strL, cchar *subStr, int subStrL);
+        //  strstrCaseless(cchar *str, int strL, cchar *subStr, int subStrL);
+        //  strrstr(cchar *str, int strL, cchar *subStr, int subStrL);
+        //  strrstrCaseless(cchar *str, int strL, cchar *subStr, int subStrL);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'strstr', 'strstrCaseless, "
-                             "'strrstr', and 'strrstrCaseless" << endl
-                          << "==================================="
-                             "===============================" << endl;
+        if (verbose) cout << "\n"
+       //-------------------------^
+       "TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless'" "\n"
+       "================================================================" "\n";
+       //-------------------------v
 
         static const struct {
             const int   d_lineNumber;
-
             const char *d_string;
-
             const int   d_stringLen;
-
             const char *d_subString;
-
             const int   d_subStringLen;
-
             const int   d_result;         // Result will be the position of the
                                           // substring relative to the starting
                                           // position of the string.  Returns
                                           // -1 if not found.
-
             const int   d_resultCaseless; // Result will be the position of the
                                           // substring relative to the starting
                                           // position of the string.  Returns
                                           // -1 if not found.
-
             const int   d_resultReverse;  // Result will be the position of the
                                           // substring relative to the starting
                                           // position of the string.  Returns
                                           // -1 if not found.
-
             const int   d_resultReverseCaseless; // Result will be the position
                                                  // of the substring relative
                                                  // to the starting position of
@@ -616,7 +657,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            if (veryVerbose) { T_; P(i); }
+            if (veryVerbose) { T_ P(i) }
             const char *STRING         = DATA[i].d_string;
             const int   STRINGLEN      = DATA[i].d_stringLen;
             const char *SUBSTRING      = DATA[i].d_subString;
@@ -629,20 +670,21 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) {
                 if (STRING) {
-                    T_; T_; P(STRING);
+                    T_ T_ P(STRING)
                 }
-                T_; T_; P(STRINGLEN);
+                T_ T_ P(STRINGLEN)
                 if (SUBSTRING) {
-                    T_; T_; P(SUBSTRING);
+                    T_ T_ P(SUBSTRING)
                 }
-                T_; T_; P(SUBSTRINGLEN);
-                T_; T_; P(RESULT);
-                T_; T_; P(RESULTCASELESS);
-                T_; T_; P(RESULTREVERSE);
-                T_; T_; P(RESULTREVERSECASELESS);
+                T_ T_ P(SUBSTRINGLEN)
+                T_ T_ P(RESULT)
+                T_ T_ P(RESULTCASELESS)
+                T_ T_ P(RESULTREVERSE)
+                T_ T_ P(RESULTREVERSECASELESS)
             }
 
-            // Run strstr, strstrCaseless, strrstr, and strrstrCaseless
+            // Run 'strstr', 'strstrCaseless', 'strrstr', and
+            // 'strrstrCaseless'.
             const char* strstrResult = Util::strstr(ns(STRING, STRINGLEN),
                                                     nneg(STRINGLEN),
                                                     ns(SUBSTRING,
@@ -672,17 +714,17 @@ int main(int argc, char *argv[])
             }
             else {
                 if (veryVeryVerbose) {
-                    T_; T_; P(RESULT);
-                    T_; T_; bsl::cout << "STRING + RESULT: "
-                                      << bsl::hex
-                                      << (const void*) (STRING + RESULT)
-                                      << bsl::dec << bsl::endl;
-                    T_; T_; bsl::cout << "STRSTRRESULT: "
-                                      << bsl::hex
-                                      << (const void*) strstrResult
-                                      << bsl::dec << bsl::endl;
+                    T_ T_ P(RESULT)
+                    T_ T_ bsl::cout << "STRING + RESULT: "
+                                    << bsl::hex
+                                    << (const void *) (STRING + RESULT)
+                                    << bsl::dec << bsl::endl;
+                    T_ T_ bsl::cout << "STRSTRRESULT: "
+                                    << bsl::hex
+                                    << (const void *) strstrResult
+                                    << bsl::dec << bsl::endl;
                 }
-                ASSERT(strstrResult == (-1 == STRINGLEN
+                ASSERT(strstrResult == ( -1 == STRINGLEN
                                         ? 0
                                         : STRING + RESULT));
             }
@@ -692,15 +734,15 @@ int main(int argc, char *argv[])
             }
             else {
                 if (veryVeryVerbose) {
-                    T_; T_; P(RESULTCASELESS);
-                    T_; T_; bsl::cout << "STRING + RESULTCASELESS: "
-                                      << bsl::hex
-                                      << (const void*) (STRING+RESULTCASELESS)
-                                      << bsl::dec << bsl::endl;
-                    T_; T_; bsl::cout << "STRSTRCASELESSRESULT: "
-                                      << bsl::hex
-                                      << (const void*) strstrCaselessResult
-                                      << bsl::dec << bsl::endl;
+                    T_ T_ P(RESULTCASELESS)
+                    T_ T_ bsl::cout << "STRING + RESULTCASELESS: "
+                                    << bsl::hex
+                                    << (const void *) (STRING+RESULTCASELESS)
+                                    << bsl::dec << bsl::endl;
+                    T_ T_ bsl::cout << "STRSTRCASELESSRESULT: "
+                                    << bsl::hex
+                                    << (const void *) strstrCaselessResult
+                                    << bsl::dec << bsl::endl;
                 }
                 ASSERT(strstrCaselessResult == (-1 != STRINGLEN
                                                ? STRING + RESULTCASELESS
@@ -712,15 +754,15 @@ int main(int argc, char *argv[])
             }
             else {
                 if (veryVeryVerbose) {
-                    T_; T_; P(RESULT);
-                    T_; T_; bsl::cout << "STRING + RESULTREVERSE: "
-                                      << bsl::hex
-                                      << (const void*) (STRING + RESULTREVERSE)
-                                      << bsl::dec << bsl::endl;
-                    T_; T_; bsl::cout << "STRRSTRRESULT: "
-                                      << bsl::hex
-                                      << (const void*) strrstrResult
-                                      << bsl::dec << bsl::endl;
+                    T_ T_ P(RESULT)
+                    T_ T_ bsl::cout << "STRING + RESULTREVERSE: "
+                                    << bsl::hex
+                                    << (const void *) (STRING + RESULTREVERSE)
+                                    << bsl::dec << bsl::endl;
+                    T_ T_ bsl::cout << "STRRSTRRESULT: "
+                                    << bsl::hex
+                                    << (const void *) strrstrResult
+                                    << bsl::dec << bsl::endl;
                 }
                 ASSERT(strrstrResult == (-1 != STRINGLEN
                                         ? STRING + RESULTREVERSE
@@ -732,16 +774,16 @@ int main(int argc, char *argv[])
             }
             else {
                 if (veryVeryVerbose) {
-                    T_; T_; P(RESULTREVERSECASELESS);
-                    T_; T_; bsl::cout << "STRING + RESULTREVERSECASELESS: "
-                                      << bsl::hex
-                                      << (const void*)
+                    T_ T_ P(RESULTREVERSECASELESS)
+                    T_ T_ bsl::cout << "STRING + RESULTREVERSECASELESS: "
+                                    << bsl::hex
+                                    << (const void *)
                                                  (STRING+RESULTREVERSECASELESS)
-                                      << bsl::dec << bsl::endl;
-                    T_; T_; bsl::cout << "STRRSTRCASELESSRESULT: "
-                                      << bsl::hex
-                                      << (const void*) strrstrCaselessResult
-                                      << bsl::dec << bsl::endl;
+                                    << bsl::dec << bsl::endl;
+                    T_ T_ bsl::cout << "STRRSTRCASELESSRESULT: "
+                                    << bsl::hex
+                                    << (const void *) strrstrCaselessResult
+                                    << bsl::dec << bsl::endl;
                 }
                 ASSERT (strrstrCaselessResult == (-1 != STRINGLEN
                                                  ? STRING +
@@ -752,37 +794,37 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'toFixedLength':
+        // TESTING 'toFixedLength'
         //
         // Concerns:
-        //  1.  The correct content from the source string is copied into the
-        //      destination string.  The number of characters copied is at most
-        //      'dstLength' (i.e., the length of the destination string).
-        //  2.  If the length of the source string ('srcLength') is less than
-        //      'dstLength', the destination string is padded with the
-        //      specified character to the length 'dstLength'.
+        //: 1 The correct content from the source string is copied into the
+        //:   destination string.  The number of characters copied is at most
+        //:   'dstLength' (i.e., the length of the destination string).
+        //:
+        //: 2 If the length of the source string ('srcLength') is less than
+        //:   'dstLength', the destination string is padded with the specified
+        //:   character to the length 'dstLength'.
         //
         // Plan:
-        //  To address concerns 1 and 2, we arbitrarily select a set of strings
-        //  as source strings.  We generate a string S for each of these source
-        //  strings for verification purpose.  The length of S is always
-        //  'dstLength'.  If 'srcLength < dstLength', S contains the entire
-        //  source string plus the correct padding at the end.  Otherwise, S
-        //  contains the first 'dstLength' characters of the source string.
-        //  Then we compare S with the destination string after 'toFixedLength'
-        //  is invoked and make sure they are equal.
+        //: 1 To address concerns 1 and 2, we arbitrarily select a set of
+        //:   strings as source strings.  We generate a string S for each of
+        //:   these source strings for verification purpose.  The length of S
+        //:   is always 'dstLength'.  If 'srcLength < dstLength', S contains
+        //:   the entire source string plus the correct padding at the end.
+        //:   Otherwise, S contains the first 'dstLength' characters of the
+        //:   source string.  Then we compare S with the destination string
+        //:   after 'toFixedLength' is invoked and make sure they are equal.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Array-Based Implementation Technique
         //
         // Testing:
-        //      - void bdlb::String::toFixedLength()
+        //  toFixedLength(char *d, int dL, cchar *s, int sL, char pad= ' ');
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'toFixedLength'" << endl
-                          << "=======================" << endl;
+        if (verbose) cout << "\n" "TESTING 'toFixedLength'" "\n"
+                                  "=======================" "\n";
 
         static const char *STRINGS[] = {
             // strings of length 0 or 1
@@ -805,13 +847,13 @@ int main(int argc, char *argv[])
             "1234567890123456789012345678901234567890123456789",
         0};
 
-        static const char CHARS[] = {' ', '\t', '0'};
-        static const int NUM_CHARS = sizeof(CHARS) / sizeof(char);
+        static const char CHARS[]   = {' ', '\t', '0'};
+        static const int  NUM_CHARS = sizeof CHARS / sizeof *CHARS;
 
         char destBuf[32];
         for (int strIdx = 0; STRINGS[strIdx]; ++strIdx) {
             const char *SRC = STRINGS[strIdx];
-            const int LEN = bsl::strlen(SRC);
+            const int   LEN = bsl::strlen(SRC);
 
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
@@ -819,8 +861,8 @@ int main(int argc, char *argv[])
                 // Call 'toFixedLength' with various lengths for both source
                 // and destination string.
 
-                for (int destLen = 0;
-                     destLen < (int) sizeof(destBuf);
+                for (bsl::size_t destLen = 0;
+                     destLen <  sizeof destBuf;
                      ++destLen) {
                     for (int srcLen = -1; srcLen < LEN; ++srcLen) {
                         bsl::memset(destBuf, 0, sizeof(destBuf));
@@ -832,8 +874,11 @@ int main(int argc, char *argv[])
 
                         // Generating the expected result string.
 
-                        bsl::string result(SRC, 0, bsl::min(nneg(srcLen),
-                                                            destLen));
+                        bsl::string result(SRC,
+                                           0,
+                                           bsl::min(static_cast<bsl::size_t>(
+                                                                 nneg(srcLen)),
+                                           destLen));
                         if (nneg(srcLen) < destLen) {
                             result.append(destLen - nneg(srcLen), PADCHAR);
                         }
@@ -849,31 +894,29 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'strnlen':
+        // TESTING 'strnlen'
         //
         // Concern:
-        //  1.  We want to verify that 'strnlen' returns the minimum of the
-        //      length of the specified string and the specified maximum
-        //      length.
+        //: 1 We want to verify that 'strnlen' returns the minimum of the
+        //:   length of the specified string and the specified maximum length.
         //
         // Plan:
-        //  We first select an arbitrary set of strings.  For each of these
-        //  strings, we vary the maximum length from 0 to two times the
-        //  actually string length.  We then use the string and maximum length
-        //  as inputs to 'strnlen' and verify its return value equals the
-        //  minimum of result of 'strlen' and the maximum length.
+        //: 1 We first select an arbitrary set of strings.  For each of these
+        //:   strings, we vary the maximum length from 0 to two times the
+        //:   actually string length.  We then use the string and maximum
+        //:   length as inputs to 'strnlen' and verify its return value equals
+        //:   the minimum of result of 'strlen' and the maximum length.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Array-Based Implementation Technique
         //
         // Testing:
-        //      - int bdlb::String::strnlen()
+        //  strnlen(cchar *str, int maximumLength);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'strnlen'" << endl
-                          << "=================" << endl;
+        if (verbose) cout << "\n" "TESTING 'strnlen'" "\n"
+                                  "=================" "\n";
 
         static const char *STRINGS[] = {
             // strings of length 0 and 1
@@ -902,34 +945,34 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'pad':
+        // TESTING 'pad'
         //
         // Concerns:
-        //  1.  The 'pad' method properly pads the input string with the
-        //      character provided to the specified number if the number is
-        //      greater than the original length of the string.
-        //  2.  The 'pad' method will no alter the input string if the length
-        //      specified is less than or equal to the length of the input
-        //      string.
+        //: 1 The 'pad' method properly pads the input string with the
+        //:   character provided to the specified number if the number is
+        //:   greater than the original length of the string.
+        //:
+        //: 2 The 'pad' method will no alter the input string if the length
+        //:   specified is less than or equal to the length of the input
+        //:   string.
         //
         // Plan:
-        //  To address concern 1 and 2, we call 'pad' with an arbitrarily
-        //  selected set of data.  Then we verify that if the length specified
-        //  does not exceed the string's original length, the string is
-        //  unmodified.  Otherwise, the string is padded with the supplied
-        //  character up to the specified length.
+        //: 1 To address concern 1 and 2, we call 'pad' with an arbitrarily
+        //:   selected set of data.  Then we verify that if the length
+        //:   specified does not exceed the string's original length, the
+        //:   string is unmodified.  Otherwise, the string is padded with the
+        //:   supplied character up to the specified length.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Table-Driven Implementation Technique
         //
         // Testing:
-        //      - void bdlb::String::pad()
+        //  pad(bsl::str *str, int numChars, char padChar = ' ');
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'pad'" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\n" "TESTING 'pad'" "\n"
+                                  "=============" "\n";
 
         static const char *STRINGS[] = {
             // strings of length 0 or 1
@@ -945,14 +988,14 @@ int main(int argc, char *argv[])
             "Test string", " Bloomberg LP. ",
         0};
 
-        static const char CHARS[] = {
+        static const char CHARS[]   = {
             ' ', '\0', '\t', '\n', '.', '0', 'Z',
         };
-        static const int NUM_CHARS = sizeof(CHARS) / sizeof(char);
+        static const int  NUM_CHARS = sizeof CHARS / sizeof *CHARS;
 
         for (int strIdx = 0; STRINGS[strIdx]; ++strIdx) {
-            const char *STRING  = STRINGS[strIdx];
-            const int LEN = bsl::strlen(STRING);
+            const char *STRING = STRINGS[strIdx];
+            const int   LEN    = bsl::strlen(STRING);
 
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
@@ -981,58 +1024,65 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'ltrim', 'rtrim' and 'trim':
+        // TESTING 'ltrim', 'rtrim', 'trim'
         //
         // Concerns:
-        //  1.  All of the 'ltrim', 'rtrim', and 'trim' methods properly trim
-        //      the input strings of various types ('bsl::string',
-        //      null-terminated C-style, and a non-null-terminated 'const char
-        //      *' with an 'int' length specifier).
-        //  2.  Specifically the methods that take a non-null-terminated
-        //      'const char *' strings as input will not read pass the end of
-        //      these strings.
+        //: 1 All of the 'ltrim', 'rtrim', and 'trim' methods properly trim the
+        //:   input strings of various types ('bsl::string', null-terminated
+        //:   C-style, and a non-null-terminated 'const char      *' with an
+        //:   'int' length specifier).
+        //:
+        //: 2 Specifically the methods that take a non-null-terminated
+        //:   'const char *' strings as input will not read pass the end of
+        //:   these strings.
         //
         // Plan:
-        //  To address concern 1, we arbitrarily select a set S of strings with
-        //  no whitespace characters as their beginning or ending characters.
-        //  Then we append whitespace characters before and after them and
-        //  apply 'ltrim', 'rtrim', and 'trim' methods to them.  We verify that
-        //  the result from the 'trim' methods equal the original string; that
-        //  the result from the 'ltrim' methods equal the original string with
-        //  the whitespace appended at the end; and that the result from the
-        //  'rtrim' methods equal the original string with the whitespace
-        //  prepended at the beginning.  For each string s in the set S, we
-        //  generate all 3 types of strings for it, then pass them to the
-        //  corresponding methods and verify the results.
-        //
-        //  To address concern 2, we create a non-null-terminated string for
-        //  each string s by copying s into a buffer pre-filled with non-zero
-        //  content.  This will cause incorrect compare results if any of these
-        //  'ltrim', 'rtrim' or 'trim' methods read pass the end of these
-        //  strings.
+        //: 1 To address concern 1, we arbitrarily select a set S of strings
+        //:   with no whitespace characters as their beginning or ending
+        //:   characters.  Then we append whitespace characters before and
+        //:   after them and apply 'ltrim', 'rtrim', and 'trim' methods to
+        //:   them.  We verify that the result from the 'trim' methods equal
+        //:   the original string; that the result from the 'ltrim' methods
+        //:   equal the original string with the whitespace appended at the
+        //:   end; and that the result from the 'rtrim' methods equal the
+        //:   original string with the whitespace prepended at the beginning.
+        //:   For each string s in the set S, we generate all 3 types of
+        //:   strings for it, then pass them to the corresponding methods and
+        //:   verify the results.
+        //:
+        //: 2 To address concern 2, we create a non-null-terminated string for
+        //:   each string s by copying s into a buffer pre-filled with non-zero
+        //:   content.  This will cause incorrect compare results if any of
+        //:   these 'ltrim', 'rtrim' or 'trim' methods read pass the end of
+        //:   these strings.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Table-Driven Implementation Technique
         //
         // Testing:
-        //      - void bdlb::String::ltrim()
-        //      - void bdlb::String::rtrim()
-        //      - void bdlb::String::trim()
+        //  ltrim(char *str);
+        //  ltrim(char *str, int *L);
+        //  ltrim(bsl::str *str);
+        //  rtrim(char *str);
+        //  rtrim(bsl::str *str);
+        //  rtrim(cchar *str, int *L);
+        //  trim(char *string);
+        //  trim(char *string, int *length);
+        //  trim(bsl::string *string);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'ltrim', 'rtrim' and 'trim'" << endl
-                          << "===================================" << endl;
+        if (verbose) cout << "\n" "TESTING 'ltrim', 'rtrim', 'trim'" "\n"
+                                  "================================" "\n";
 
-        static const char *STRINGS[] = {
+        static const char *STRINGS[]    = {
             "", "t", "test", "test  test",
         0};
-        const char padChars[] = {' ', '\n', '\t'};
-        const int NUM_PADCHARS = sizeof(padChars) / sizeof(char);
+        const char         padChars[]   = {' ', '\n', '\t'};
+        const int          NUM_PADCHARS = sizeof padChars  / sizeof *padChars;
 
         for (int i = 0; STRINGS[i]; ++i) {
-            if (veryVerbose) { T_; P(i); }
+            if (veryVerbose) { T_ P(i) }
             char cstring[64];
             char nonNullString[sizeof(cstring)];
 
@@ -1139,53 +1189,69 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lowerCaseCmp' and 'upperCaseCmp':
+        // TESTING 'lowerCaseCmp' AND 'upperCaseCmp'
         //
         // Concerns:
-        //  1.  All of the 'lowerCaseCmp' and 'upperCaseCmp' methods return
-        //      the correct results when comparing two strings of various types
-        //      ('bsl::string', null-terminated C-style, and a
-        //      non-null-terminated 'const char *' with an 'int' length
-        //      specifier).
-        //  2.  Specifically the methods that take a non-null-terminated
-        //      'const char *' strings as input will not read pass the
-        //      end of these strings.
-        //  3.  The algorithm performs coherently with extended ASCII
-        //      characters (128-255).
+        //: 1 All of the 'lowerCaseCmp' and 'upperCaseCmp' methods return the
+        //:   correct results when comparing two strings of various types
+        //:   ('bsl::string', null-terminated C-style, and a
+        //:   non-null-terminated 'const char *' with an 'int' length
+        //:   specifier).
+        //:
+        //: 2 Specifically the methods that take a non-null-terminated
+        //:   'const char *' strings as input will not read pass the end of
+        //:   these strings.
+        //:
+        //: 3 The algorithm performs coherently with extended ASCII characters
+        //:   (128-255).
         //
         // Plan:
-        //  To address concern 1, we arbitrarily select a set S of string pairs
-        //  and exercise all the 'lowerCaseCmp' and 'upperCaseCmp' methods and
-        //  then verify the results by converting these strings to upper/lower
-        //  cases.  These strings contain letters, digits, symbols, and special
-        //  characters such as '\t' or '\n'.  For each pair of strings (s1, s2)
-        //  in the set S, we generate all 3 types of strings for both s1 and
-        //  s2, then pass them to the corresponding methods in the order of
-        //  both (s1, s2) and (s2, s1) and verify the results.  Specifically
-        //  for the non-null-terminated 'const char *' strings, we will vary
-        //  the length of these strings while comparing against other strings
-        //  using one of the above methods.
-        //
-        //  To address concern 2, we create a pair of non-null-terminated
-        //  strings for each string pair (s1, s2) by copying s1 and s2 into two
-        //  buffers pre-filled with non-zero content.  This will cause
-        //  incorrect compare results if any of these 'lowerCaseCmp' or
-        //  'upperCaseCmp' methods read pass the end of these strings.
+        //: 1 To address concern 1, we arbitrarily select a set S of string
+        //:   pairs and exercise all the 'lowerCaseCmp' and 'upperCaseCmp'
+        //:   methods and then verify the results by converting these strings
+        //:   to upper/lower cases.  These strings contain letters, digits,
+        //:   symbols, and special characters such as '\t' or '\n'.  For each
+        //:   pair of strings (s1, s2) in the set S, we generate all 3 types of
+        //:   strings for both s1 and s2, then pass them to the corresponding
+        //:   methods in the order of both (s1, s2) and (s2, s1) and verify the
+        //:   results.  Specifically for the non-null-terminated 'const char *'
+        //:   strings, we will vary the length of these strings while comparing
+        //:   against other strings using one of the above methods.
+        //:
+        //: 2 To address concern 2, we create a pair of non-null-terminated
+        //:   strings for each string pair (s1, s2) by copying s1 and s2 into
+        //:   two buffers pre-filled with non-zero content.  This will cause
+        //:   incorrect compare results if any of these 'lowerCaseCmp' or
+        //:   'upperCaseCmp' methods read pass the end of these strings.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Table-Driven Implementation Technique
         //
         // Testing:
-        //      - int bdlb::String::lowerCaseCmp()
-        //      - int bdlb::String::upperCaseCmp()
+        //  lowerCaseCmp(cchar *lhsStr, cchar *rhsStr);
+        //  lowerCaseCmp(cchar *lhsStr, cchar *rhsStr, int rhsL);
+        //  lowerCaseCmp(cchar *lhsStr, cBslStr& rhsStr);
+        //  lowerCaseCmp(cchar *lhsStr, int lshL, cchar *rhsStr);
+        //  lowerCaseCmp(cchar *lhsStr, int lshL, cchar *rhsStr, int rhsL);
+        //  lowerCaseCmp(cchar *lhsStr, int lshL, cBslStr& rhsStr);
+        //  lowerCaseCmp(cBslStr& lhsStr, cchar *rhsStr);
+        //  lowerCaseCmp(cBslStr& lhsStr, cchar *rhsStr, int rhsL);
+        //  lowerCaseCmp(cBslStr& lhsStr, cBslStr& rhsStr);
+        //  upperCaseCmp(cchar *lhs, cchar *rhs);
+        //  upperCaseCmp(cchar *lhs, cchar *rhs, int rhsL);
+        //  upperCaseCmp(cchar *lhs, cBslStr& rhs);
+        //  upperCaseCmp(cchar *lhs, int lhsL, cchar *rhs);
+        //  upperCaseCmp(cchar *lhs, int lhsL, cchar *rhs, int rhsL);
+        //  upperCaseCmp(cchar *lhs, int lhsL, cBslStr& rhs);
+        //  upperCaseCmp(cBslStr& lhs, cchar *rhs);
+        //  upperCaseCmp(cBslStr& lhs, cchar *rhs, int rhsL);
+        //  upperCaseCmp(cBslStr& lhs, cBslStr& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'lowerCaseCmp' and 'upperCaseCmp'"
-                          << endl
-                          << "========================================="
-                          << endl;
+        if (verbose) cout <<
+                         "\n" "TESTING 'lowerCaseCmp' AND 'upperCaseCmp'" "\n"
+                              "=========================================" "\n";
 
         static const struct {
             const int   d_lineNumber;
@@ -1319,19 +1385,21 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int nb = 0; nb < NUM_DATA; ++nb) {
-            if (veryVerbose) { T_; P(nb); }
+            if (veryVerbose) { T_ P(nb) }
             const char *STRING1 = DATA[nb].d_string1;
             const char *STRING2 = DATA[nb].d_string2;
 
             if (veryVeryVerbose) {
-                T_; T_; P(STRING1);
-                T_; T_; P(STRING2);
+                T_ T_ P(STRING1)
+                T_ T_ P(STRING2)
             }
 
             // Compare string 1 to string 2, then string 2 to string 1.
 
-            for (int i = 0; i < 2; ++i)
-            {
+            for (int i = 0; i < 2; ++i) {
+
+                if (veryVerbose) { T_ P(i) }
+
                 const char *cstring1, *cstring2;
 
                 if (0 == i) {
@@ -1365,9 +1433,9 @@ int main(int argc, char *argv[])
                                          Util::lowerCaseCmp(string1, string2));
 
                 char nonNullString1[64], nonNullString2[64];
-                int length1 = string1.size();
+                int  length1 = string1.size();
                 LOOP2_ASSERT(nb, i, length1 < (int) sizeof(nonNullString1));
-                int length2 = string2.size();
+                int  length2 = string2.size();
                 LOOP2_ASSERT(nb, i, length2 < (int) sizeof(nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
@@ -1379,6 +1447,9 @@ int main(int argc, char *argv[])
                 // their first argument.
 
                 for (int len = -1; len <= length1; ++len) {
+
+                    if (veryVerbose) { T_ P(len) }
+
                     result = lowerStr1.compare(0, nneg(len), lowerStr2);
                     result = result > 0 ? 1 : (result < 0 ? -1 : 0);
                     LOOP_ASSERT(nb, result ==
@@ -1395,6 +1466,9 @@ int main(int argc, char *argv[])
                 // their second argument.
 
                 for (int len = -1; len <= length2; ++len) {
+
+                    if (veryVerbose) { T_ P(len) }
+
                     result = lowerStr2.compare(0, nneg(len), lowerStr1);
                     result = result > 0 ? -1 : (result < 0 ? 1 : 0);
                     LOOP_ASSERT(nb, result ==
@@ -1496,46 +1570,49 @@ int main(int argc, char *argv[])
         // TESTING 'areEqualCaseless'
         //
         // Concerns:
-        //  1.  All of the 'areEqualCaseless' methods return the correct
-        //      results when comparing two strings of various types
-        //      ('bsl::string', null-terminated C-style, and a
-        //      non-null-terminated 'const char *' with an 'int' length
-        //      specifier).
-        //
-        //  2.  Specifically the methods that take non-null-terminated
-        //      'const char *' strings as input will not read pass the end of
-        //      these strings.
+        //: 1 All of the 'areEqualCaseless' methods return the correct results
+        //:   when comparing two strings of various types ('bsl::string',
+        //:   null-terminated C-style, and a non-null-terminated 'const char *'
+        //:   with an 'int' length specifier).
+        //:
+        //: 2 Specifically the methods that take non-null-terminated
+        //:   'const char *' strings as input will not read pass the end of
+        //:   these strings.
         //
         // Plan:
-        //  To address concern 1, we arbitrarily select a set of strings and
-        //  use the 'areEqualCaseless' methods to compare these strings against
-        //  each other and verify the results against the ones returned by
-        //  'strcasecmp' or 'strncasecmp'.  These strings contain letters,
-        //  digits, symbols, and special characters such as '\t' or '\n'.
-        //  Specifically for the non-null-terminated 'const char *' strings, we
-        //  will vary the length of these strings while comparing against other
-        //  strings using one of the above methods.
-        //
-        //  To address concern 2, we create the non-null-terminated strings by
-        //  copying the original string without the null character into a
-        //  buffer prefilled with non-zero content.  This will cause incorrect
-        //  compare results if any of these 'areEqualCaseless' methods read
-        //  pass the end of these strings.
+        //: 1 To address concern 1, we arbitrarily select a set of strings and
+        //:   use the 'areEqualCaseless' methods to compare these strings
+        //:   against each other and verify the results against the ones
+        //:   returned by 'strcasecmp' or 'strncasecmp'.  These strings contain
+        //:   letters, digits, symbols, and special characters such as '\t' or
+        //:   '\n'.  Specifically for the non-null-terminated 'const char *'
+        //:   strings, we will vary the length of these strings while comparing
+        //:   against other strings using one of the above methods.
+        //:
+        //: 2 To address concern 2, we create the non-null-terminated strings
+        //:   by copying the original string without the null character into a
+        //:   buffer pre-filled with non-zero content.  This will cause
+        //:   incorrect compare results if any of these 'areEqualCaseless'
+        //:   methods read pass the end of these strings.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Array-Based Implementation Technique
         //
         // Testing:
-        //      - bool areEqualCaseless()
-        //      - bool isNoCaseEqual()
+        //  areEqualCaseless(cchar *lhs, cchar *rhs, int rhsL);
+        //  areEqualCaseless(cchar *lhs, cBslStr& rhs);
+        //  areEqualCaseless(cchar *lhs, int lshL, cchar *rhs);
+        //  areEqualCaseless(cchar *lhs, int lshL, cchar *rhs, int rhsL);
+        //  areEqualCaseless(cchar *lhs, int lshL, cBslStr& rhs);
+        //  areEqualCaseless(cBslStr& lhs, cchar *rhs);
+        //  areEqualCaseless(cBslStr& lhs, cchar *rhs, int rhsL);
+        //  areEqualCaseless(cBslStr& lhs, cBslStr& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'areEqualCaseless' and 'isNoCaseEqual'"
-                          << endl
-                          << "=============================================="
-                          << endl;
+        if (verbose) cout <<
+                    "\n" "TESTING 'areEqualCaseless' AND 'isNoCaseEqual'" "\n"
+                         "==============================================" "\n";
 
         static const char *STRINGS[] = {
             // strings of length 0 or 1
@@ -1566,7 +1643,13 @@ int main(int argc, char *argv[])
         0};
 
         for (int i = 0; STRINGS[i]; ++i) {
+
+                if (veryVerbose) { T_ P(i) }
+
             for (int j = 0; STRINGS[j]; ++j) {
+
+                if (veryVerbose) { T_ T_ P_(i) P(j) }
+
                 const char *cstring1, *cstring2;
 
                 cstring1 = STRINGS[i];
@@ -1590,9 +1673,9 @@ int main(int argc, char *argv[])
                 // Concern 2
 
                 char nonNullString1[64], nonNullString2[64];
-                int length1 = string1.size();
+                int  length1 = string1.size();
                 LOOP2_ASSERT(i, j, length1 < (int) sizeof(nonNullString1));
-                int length2 = string2.size();
+                int  length2 = string2.size();
                 LOOP2_ASSERT(i, j, length2 < (int) sizeof(nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
@@ -1604,6 +1687,8 @@ int main(int argc, char *argv[])
                 // their first argument.
 
                 for (int len = -1; len <= length1; ++len) {
+
+                    if (veryVerbose) { T_ P(len) }
 
                     // We need to compare the lengths because 'strncasecmp'
                     // compares only the first 'len' characters and return 0 if
@@ -1630,6 +1715,8 @@ int main(int argc, char *argv[])
 
                 for (int len = -1; len <= length2; ++len) {
 
+                    if (veryVerbose) { T_ P(len) }
+
                     // We need to compare the lengths because 'strncasecmp'
                     // compares only the first 'len' characters and return 0 if
                     // they match, even though the string lengths might be
@@ -1654,7 +1741,12 @@ int main(int argc, char *argv[])
                 // both of their arguments.
 
                 for (int len1 = -1; len1 <= length1; ++len1) {
+
+                    if (veryVerbose) { T_ P(len1) }
+
                     for (int len2 = -1; len2 <= length2; ++len2) {
+
+                        if (veryVerbose) { T_ T_ P_(len1) P(len2) }
 
                         // We need to compare the lengths because 'strncasecmp'
                         // compares only the first 'len' characters and return
@@ -1677,38 +1769,43 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'toLower' and 'toUpper':
+        // TESTING 'toLower' AND 'toUpper'
         //
         // Concerns:
-        //  1.  These methods properly convert input strings to lower/upper
-        //      cases.
-        //  2.  If the string supplied is a non-null-terminated 'const char *'
-        //      with an 'int' length specifier, the corresponding methods won't
-        //      go beyond the end of the string.
+        //: 1 These methods properly convert input strings to lower/upper
+        //:   cases.
+        //:
+        //: 2 If the string supplied is a non-null-terminated 'const char *'
+        //:   with an 'int' length specifier, the corresponding methods won't
+        //:   go beyond the end of the string.
         //
         // Plan:
-        //  To address concern 1, we use 'bsl::tolower' or 'bsl::toupper' to
-        //  convert the supplied test strings to lower/upper cases.  Then we
-        //  compare them with the results of 'toLower' and 'toUpper' to make
-        //  sure they match.
-        //
-        //  To address concern 2, we create the non-null-terminated 'const char
-        //  *' string in a buffer prefilled with non-null data.  Then we verify
-        //  that after the corresponding methods are invoked, the content in
-        //  the buffer beyond the valid range of the string is unmodified.
+        //: 1 To address concern 1, we use 'bsl::tolower' or 'bsl::toupper' to
+        //:   convert the supplied test strings to lower/upper cases.  Then we
+        //:   compare them with the results of 'toLower' and 'toUpper' to make
+        //:   sure they match.
+        //:
+        //: 2 To address concern 2, we create the non-null-terminated
+        //:   'const char  *' string in a buffer pre-filled with non-null data.
+        //:   Then we verify that after the corresponding methods are invoked,
+        //:   the content in the buffer beyond the valid range of the string is
+        //:   unmodified.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method
         //      - Array-Based Implementation Technique
         //
         // Testing:
-        //      - void bdlb::String::toLower()
-        //      - void bdlb::String::toUpper()
+        //  toLower(char *string);
+        //  toLower(char *string, int length);
+        //  toLower(bsl::string *string);
+        //  toUpper(char *string);
+        //  toUpper(char *string, int length);
+        //  toUpper(bsl::string *string);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'toLower' and 'toUpper'" << endl
-                          << "===============================" << endl;
+        if (verbose) cout << "\n" "TESTING 'toLower' AND 'toUpper'" "\n"
+                                  "===============================" "\n";
 
         static const char *STRINGS[] = {
             // strings of length 0 or 1
@@ -1739,6 +1836,9 @@ int main(int argc, char *argv[])
         0};
 
         for (int i = 0; STRINGS[i]; ++i) {
+
+            if (veryVerbose) { T_ P(i) }
+
             {
                 // Testing 'toLower'.
 
@@ -1747,7 +1847,7 @@ int main(int argc, char *argv[])
                 unsigned int length = bsl::strlen(cstring);
                 LOOP_ASSERT(i, length < sizeof(cstring));
                 bsl::string stdString(cstring);
-                char nonNullString[sizeof(cstring)];
+                char        nonNullString[sizeof(cstring)];
                 bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
                 bsl::memcpy(nonNullString, cstring, length);
 
@@ -1774,7 +1874,7 @@ int main(int argc, char *argv[])
                 unsigned int length = bsl::strlen(cstring);
                 LOOP_ASSERT(i, length < sizeof(cstring));
                 bsl::string stdString(cstring);
-                char nonNullString[sizeof(cstring)];
+                char        nonNullString[sizeof(cstring)];
                 bsl::memset(nonNullString, 'z', sizeof(nonNullString));
                 bsl::memcpy(nonNullString, cstring, length);
 
@@ -1797,25 +1897,24 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   Exercise each method lightly.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Create several strings and use them to test various methods
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Brute-Force Implementation Technique
+        //: 1 Using the Ad-Hoc Data Selection Method and the Brute-Force
+        //:   Implementation Technique, create several strings and use them to
+        //:   test various methods.
         //
         // Testing:
-        //   This Test Case exercises basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\n" "BREATHING TEST" "\n"
+                                  "==============" "\n";
 
         bsl::string  s1  = "hello";
         bsl::string  s2  = "Hello";
@@ -2005,12 +2104,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting 'toLower' and 'toUpper'" << endl;
 
-        char  csLower[] = "Hello123";
-        char  csUpper[] = "Hello123";
+        char        csLower[] = "Hello123";
+        char        csUpper[] = "Hello123";
         bsl::string strLower(csLower);
         bsl::string strUpper(csUpper);
-        int   lenLower = strLower.size();
-        int   lenUpper = strUpper.size();
+        int         lenLower = strLower.size();
+        int         lenUpper = strUpper.size();
 
         Util::toLower(csLower);
         ASSERT(strcmp(csLower, "hello123") == 0);
@@ -2033,9 +2132,9 @@ int main(int argc, char *argv[])
         ASSERT(strncmp(csUpper, "HELLO123", 8) == 0);
 
       } break;
-      default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+        default: {
+          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+          testStatus = -1;
       }
     }
 
