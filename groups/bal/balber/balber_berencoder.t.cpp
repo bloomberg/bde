@@ -12,6 +12,8 @@
 
 #include <bdlt_serialdateimputil.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 
@@ -67,46 +69,27 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
-
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -858,20 +841,23 @@ class MySequenceWithNullable {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithNullable& lhs, const MySequenceWithNullable& rhs);
+bool operator==(const MySequenceWithNullable& lhs,
+                const MySequenceWithNullable& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithNullable& lhs, const MySequenceWithNullable& rhs);
+bool operator!=(const MySequenceWithNullable& lhs,
+                const MySequenceWithNullable& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNullable& rhs);
+bsl::ostream& operator<<(bsl::ostream&                 stream,
+                         const MySequenceWithNullable& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1466,20 +1452,23 @@ class MySequenceWithNillable {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithNillable& lhs, const MySequenceWithNillable& rhs);
+bool operator==(const MySequenceWithNillable& lhs,
+                const MySequenceWithNillable& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithNillable& lhs, const MySequenceWithNillable& rhs);
+bool operator!=(const MySequenceWithNillable& lhs,
+                const MySequenceWithNillable& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillable& rhs);
+bsl::ostream& operator<<(bsl::ostream&                 stream,
+                         const MySequenceWithNillable& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1744,8 +1733,10 @@ class CustomizedString {
     bsl::string d_value;  // stored value
 
     // FRIENDS
-    friend bool operator==(const CustomizedString& lhs, const CustomizedString& rhs);
-    friend bool operator!=(const CustomizedString& lhs, const CustomizedString& rhs);
+    friend bool operator==(const CustomizedString& lhs,
+                           const CustomizedString& rhs);
+    friend bool operator!=(const CustomizedString& lhs,
+                           const CustomizedString& rhs);
 
     // PRIVATE CLASS METHODS
     static int checkRestrictions(const bsl::string& value);
@@ -2229,13 +2220,15 @@ class MySequenceWithArray {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithArray& lhs, const MySequenceWithArray& rhs);
+bool operator==(const MySequenceWithArray& lhs,
+                const MySequenceWithArray& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithArray& lhs, const MySequenceWithArray& rhs);
+bool operator!=(const MySequenceWithArray& lhs,
+                const MySequenceWithArray& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
@@ -2314,14 +2307,16 @@ class MySequenceWithAnonymousChoiceChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithAnonymousChoiceChoice(bslma::Allocator *basicAllocator = 0);
+    explicit MySequenceWithAnonymousChoiceChoice(
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the default value.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
-    MySequenceWithAnonymousChoiceChoice(const MySequenceWithAnonymousChoiceChoice& original,
-                                       bslma::Allocator *basicAllocator = 0);
+    MySequenceWithAnonymousChoiceChoice(
+               const MySequenceWithAnonymousChoiceChoice&  original,
+               bslma::Allocator                           *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the value of the specified 'original' object.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
@@ -2332,7 +2327,8 @@ class MySequenceWithAnonymousChoiceChoice {
         // Destroy this object.
 
     // MANIPULATORS
-    MySequenceWithAnonymousChoiceChoice& operator=(const MySequenceWithAnonymousChoiceChoice& rhs);
+    MySequenceWithAnonymousChoiceChoice& operator=(
+                               const MySequenceWithAnonymousChoiceChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
@@ -2432,19 +2428,22 @@ class MySequenceWithAnonymousChoiceChoice {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithAnonymousChoiceChoice& lhs, const MySequenceWithAnonymousChoiceChoice& rhs);
+bool operator==(const MySequenceWithAnonymousChoiceChoice& lhs,
+                const MySequenceWithAnonymousChoiceChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MySequenceWithAnonymousChoiceChoice' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
+    // value, and 'false' otherwise.  Two 'MySequenceWithAnonymousChoiceChoice'
+    // objects have the same value if either the selections in both objects
+    // have the same ids and the same values, or both selections are undefined.
 
 inline
-bool operator!=(const MySequenceWithAnonymousChoiceChoice& lhs, const MySequenceWithAnonymousChoiceChoice& rhs);
+bool operator!=(const MySequenceWithAnonymousChoiceChoice& lhs,
+                const MySequenceWithAnonymousChoiceChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithAnonymousChoiceChoice& rhs);
+bsl::ostream& operator<<(bsl::ostream&                              stream,
+                         const MySequenceWithAnonymousChoiceChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -2452,7 +2451,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithAnonymousChoi
 
 // TRAITS
 
-BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(test::MySequenceWithAnonymousChoiceChoice)
+BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(
+                                     test::MySequenceWithAnonymousChoiceChoice)
 
 namespace test {
 
@@ -2914,14 +2914,16 @@ class MySequenceWithAnonymousChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithAnonymousChoice(bslma::Allocator *basicAllocator = 0);
+    explicit MySequenceWithAnonymousChoice(
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    MySequenceWithAnonymousChoice(const MySequenceWithAnonymousChoice& original,
-                                  bslma::Allocator *basicAllocator = 0);
+    MySequenceWithAnonymousChoice(
+                     const MySequenceWithAnonymousChoice&  original,
+                     bslma::Allocator                     *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -2931,7 +2933,8 @@ class MySequenceWithAnonymousChoice {
         // Destroy this object.
 
     // MANIPULATORS
-    MySequenceWithAnonymousChoice& operator=(const MySequenceWithAnonymousChoice& rhs);
+    MySequenceWithAnonymousChoice& operator=(
+                                     const MySequenceWithAnonymousChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
@@ -3038,20 +3041,23 @@ class MySequenceWithAnonymousChoice {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithAnonymousChoice& lhs, const MySequenceWithAnonymousChoice& rhs);
+bool operator==(const MySequenceWithAnonymousChoice& lhs,
+                const MySequenceWithAnonymousChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithAnonymousChoice& lhs, const MySequenceWithAnonymousChoice& rhs);
+bool operator!=(const MySequenceWithAnonymousChoice& lhs,
+                const MySequenceWithAnonymousChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithAnonymousChoice& rhs);
+bsl::ostream& operator<<(bsl::ostream&                        stream,
+                         const MySequenceWithAnonymousChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -3585,7 +3591,8 @@ bool MyChoice::isUndefinedValue() const
 
 // CREATORS
 inline
-MySequenceWithNullable::MySequenceWithNullable(bslma::Allocator *basicAllocator)
+MySequenceWithNullable::MySequenceWithNullable(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 {
@@ -3630,12 +3637,14 @@ int MySequenceWithNullable::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -3645,17 +3654,20 @@ int MySequenceWithNullable::manipulateAttributes(MANIPULATOR& manipulator)
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithNullable::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int MySequenceWithNullable::manipulateAttribute(MANIPULATOR& manipulator,
+                                                int          id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -3700,12 +3712,14 @@ int MySequenceWithNullable::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -3721,11 +3735,13 @@ int MySequenceWithNullable::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -3758,7 +3774,8 @@ const int& MySequenceWithNullable::attribute1() const
 }
 
 inline
-const bdlb::NullableValue<bsl::string>& MySequenceWithNullable::attribute2() const
+const bdlb::NullableValue<bsl::string>& MySequenceWithNullable::attribute2()
+                                                                          const
 {
     return d_attribute2;
 }
@@ -3844,15 +3861,18 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_STREET: {
-        return manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+        return manipulator(&d_street,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_CITY: {
-        return manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+        return manipulator(&d_city,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_STATE: {
-        return manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+        return manipulator(&d_state,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
                                                                       // RETURN
       } break;
       default:
@@ -3929,7 +3949,8 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_STREET: {
-        return accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+        return accessor(d_street,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_CITY: {
@@ -4032,12 +4053,14 @@ int MySequence::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4053,11 +4076,13 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -4102,12 +4127,14 @@ int MySequence::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4123,11 +4150,13 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -4171,7 +4200,8 @@ const bsl::string& MySequence::attribute2() const
 
 // CREATORS
 inline
-MySequenceWithNillable::MySequenceWithNillable(bslma::Allocator *basicAllocator)
+MySequenceWithNillable::MySequenceWithNillable(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_myNillable(basicAllocator)
 , d_attribute2(basicAllocator)
@@ -4220,17 +4250,20 @@ int MySequenceWithNillable::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_myNillable, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
+    ret = manipulator(&d_myNillable,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4240,21 +4273,25 @@ int MySequenceWithNillable::manipulateAttributes(MANIPULATOR& manipulator)
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithNillable::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int MySequenceWithNillable::manipulateAttribute(MANIPULATOR& manipulator,
+                                                int          id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_MY_NILLABLE: {
-        return manipulator(&d_myNillable, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
+        return manipulator(&d_myNillable,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -4305,17 +4342,20 @@ int MySequenceWithNillable::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_myNillable, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
+    ret = accessor(d_myNillable,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4331,15 +4371,18 @@ int MySequenceWithNillable::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_MY_NILLABLE: {
-        return accessor(d_myNillable, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
+        return accessor(d_myNillable,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -4372,7 +4415,8 @@ const int& MySequenceWithNillable::attribute1() const
 }
 
 inline
-const bdlb::NullableValue<bsl::string>& MySequenceWithNillable::myNillable() const
+const bdlb::NullableValue<bsl::string>& MySequenceWithNillable::myNillable()
+                                                                          const
 {
     return d_myNillable;
 }
@@ -4488,7 +4532,8 @@ int Sqrt::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_VALUE: {
-        return manipulator(&d_value, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALUE]);
+        return manipulator(&d_value,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALUE]);
                                                                       // RETURN
       } break;
       default:
@@ -4599,13 +4644,15 @@ CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
 }
 
 inline
-CustomizedString::CustomizedString(const CustomizedString& original, bslma::Allocator *basicAllocator)
+CustomizedString::CustomizedString(const CustomizedString&  original,
+                                   bslma::Allocator        *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-CustomizedString::CustomizedString(const bsl::string& value, bslma::Allocator *basicAllocator)
+CustomizedString::CustomizedString(const bsl::string&  value,
+                                   bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
     BSLS_ASSERT_SAFE(checkRestrictions(value) == 0);
@@ -4959,12 +5006,14 @@ int MySequenceWithArray::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -4980,11 +5029,13 @@ int MySequenceWithArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -5029,12 +5080,14 @@ int MySequenceWithArray::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5050,11 +5103,13 @@ int MySequenceWithArray::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -5098,7 +5153,8 @@ const bsl::vector<bsl::string>& MySequenceWithArray::attribute2() const
 
 // CREATORS
 inline
-MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(bslma::Allocator *basicAllocator)
+MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
+                                              bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -5135,7 +5191,8 @@ MySequenceWithAnonymousChoiceChoice::~MySequenceWithAnonymousChoiceChoice()
 // MANIPULATORS
 inline
 MySequenceWithAnonymousChoiceChoice&
-MySequenceWithAnonymousChoiceChoice::operator=(const MySequenceWithAnonymousChoiceChoice& rhs)
+MySequenceWithAnonymousChoiceChoice::operator=(
+                                const MySequenceWithAnonymousChoiceChoice& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
@@ -5193,7 +5250,8 @@ int MySequenceWithAnonymousChoiceChoice::makeSelection(int selectionId)
 }
 
 inline
-int MySequenceWithAnonymousChoiceChoice::makeSelection(const char *name, int nameLength)
+int MySequenceWithAnonymousChoiceChoice::makeSelection(const char *name,
+                                                       int         nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -5257,7 +5315,8 @@ bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2()
 }
 
 inline
-bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2(const bsl::string& value)
+bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2(
+                                                      const bsl::string& value)
 {
     if (SELECTION_ID_MY_CHOICE2 == d_selectionId) {
         d_myChoice2.object() = value;
@@ -5274,7 +5333,8 @@ bsl::string& MySequenceWithAnonymousChoiceChoice::makeMyChoice2(const bsl::strin
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithAnonymousChoiceChoice::manipulateSelection(MANIPULATOR& manipulator)
+int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
+                                                      MANIPULATOR& manipulator)
 {
     enum { FAILURE = -1, SUCCESS = 0 };
 
@@ -5286,7 +5346,8 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(MANIPULATOR& manipu
         return manipulator(&d_myChoice2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
       default:
-        BSLS_ASSERT_SAFE(MySequenceWithAnonymousChoiceChoice::SELECTION_ID_UNDEFINED ==
+        BSLS_ASSERT_SAFE(MySequenceWithAnonymousChoiceChoice::
+                                                      SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
     }
@@ -5315,7 +5376,8 @@ int MySequenceWithAnonymousChoiceChoice::selectionId() const
 
 template <class ACCESSOR>
 inline
-int MySequenceWithAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor) const
+int MySequenceWithAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor)
+                                                                          const
 {
     enum { FAILURE = -1, SUCCESS = 0 };
 
@@ -5424,7 +5486,8 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+    ret = manipulator(&d_homeAddress,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5445,11 +5508,13 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_NAME: {
-        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+        return manipulator(&d_name,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return manipulator(&d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+        return manipulator(&d_homeAddress,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
@@ -5509,7 +5574,8 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+    ret = accessor(d_homeAddress,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5534,7 +5600,8 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return accessor(d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+        return accessor(d_homeAddress,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
@@ -5654,11 +5721,13 @@ int BigRecord::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_NAME: {
-        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+        return manipulator(&d_name,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ARRAY: {
-        return manipulator(&d_array, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY]);
+        return manipulator(&d_array,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY]);
                                                                       // RETURN
       } break;
       default:
@@ -5772,7 +5841,8 @@ const bsl::vector<BasicRecord>& BigRecord::array() const
 
 // CREATORS
 inline
-MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(bslma::Allocator *basicAllocator)
+MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_choice(basicAllocator)
 , d_attribute2(basicAllocator)
@@ -5797,7 +5867,8 @@ MySequenceWithAnonymousChoice::~MySequenceWithAnonymousChoice()
 // MANIPULATORS
 inline
 MySequenceWithAnonymousChoice&
-MySequenceWithAnonymousChoice::operator=(const MySequenceWithAnonymousChoice& rhs)
+MySequenceWithAnonymousChoice::operator=(
+                                      const MySequenceWithAnonymousChoice& rhs)
 {
     if (this != &rhs) {
         d_attribute1 = rhs.d_attribute1;
@@ -5817,11 +5888,13 @@ void MySequenceWithAnonymousChoice::reset()
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithAnonymousChoice::manipulateAttributes(MANIPULATOR& manipulator)
+int MySequenceWithAnonymousChoice::manipulateAttributes(
+                                                      MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = manipulator(&d_attribute1,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5831,7 +5904,8 @@ int MySequenceWithAnonymousChoice::manipulateAttributes(MANIPULATOR& manipulator
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = manipulator(&d_attribute2,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5841,21 +5915,25 @@ int MySequenceWithAnonymousChoice::manipulateAttributes(MANIPULATOR& manipulator
 
 template <class MANIPULATOR>
 inline
-int MySequenceWithAnonymousChoice::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int MySequenceWithAnonymousChoice::manipulateAttribute(
+                                              MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return manipulator(&d_attribute1,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE: {
-        return manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+        return manipulator(&d_choice,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return manipulator(&d_attribute2,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -5906,7 +5984,8 @@ int MySequenceWithAnonymousChoice::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    ret = accessor(d_attribute1,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5916,7 +5995,8 @@ int MySequenceWithAnonymousChoice::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    ret = accessor(d_attribute2,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -5926,21 +6006,25 @@ int MySequenceWithAnonymousChoice::accessAttributes(ACCESSOR& accessor) const
 
 template <class ACCESSOR>
 inline
-int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR& accessor, int id) const
+int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR& accessor, int id)
+                                                                          const
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1: {
-        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+        return accessor(d_attribute1,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE: {
-        return accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+        return accessor(d_choice,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
-        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+        return accessor(d_attribute2,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
                                                                       // RETURN
       } break;
       default:
@@ -5973,7 +6057,8 @@ const int& MySequenceWithAnonymousChoice::attribute1() const
 }
 
 inline
-const MySequenceWithAnonymousChoiceChoice& MySequenceWithAnonymousChoice::choice() const
+const MySequenceWithAnonymousChoiceChoice& MySequenceWithAnonymousChoice::
+                                                                 choice() const
 {
     return d_choice;
 }
@@ -6840,11 +6925,13 @@ const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
             {
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[
+                                                   SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[
+                                                   SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                 }
@@ -6977,11 +7064,13 @@ const bdlat_AttributeInfo *MySequenceWithNullable::lookupAttributeInfo(
             {
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE2];
                                                                       // RETURN
                     } break;
                 }
@@ -7257,11 +7346,13 @@ const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
             {
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE2];
                                                                       // RETURN
                     } break;
                 }
@@ -7393,11 +7484,13 @@ const bdlat_AttributeInfo *MySequenceWithNillable::lookupAttributeInfo(
                     {
                         switch(bdlb::CharType::toUpper(name[9])) {
                             case '1': {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                return &ATTRIBUTE_INFO_ARRAY
+                                                  [ATTRIBUTE_INDEX_ATTRIBUTE1];
                                                                       // RETURN
                             } break;
                             case '2': {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE2];
                                                                       // RETURN
                             } break;
                         }
@@ -7414,7 +7507,8 @@ const bdlat_AttributeInfo *MySequenceWithNillable::lookupAttributeInfo(
                      && bdlb::CharType::toUpper(name[8])=='L'
                      && bdlb::CharType::toUpper(name[9])=='E')
                     {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                  ATTRIBUTE_INDEX_MY_NILLABLE];
                                                                       // RETURN
                     }
                 } break;
@@ -7882,11 +7976,13 @@ const bdlat_AttributeInfo *MySequenceWithArray::lookupAttributeInfo(
             {
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE2];
                                                                       // RETURN
                     } break;
                 }
@@ -7969,10 +8065,12 @@ bsl::ostream& MySequenceWithArray::print(
 
 // CONSTANTS
 
-const char MySequenceWithAnonymousChoiceChoice::CLASS_NAME[] = "MySequenceWithAnonymousChoiceChoice";
+const char MySequenceWithAnonymousChoiceChoice::CLASS_NAME[] =
+                                         "MySequenceWithAnonymousChoiceChoice";
     // the name of this class
 
-const bdlat_SelectionInfo MySequenceWithAnonymousChoiceChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MySequenceWithAnonymousChoiceChoice::
+                                                     SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_MY_CHOICE1,
         "myChoice1",               // name
@@ -7991,7 +8089,8 @@ const bdlat_SelectionInfo MySequenceWithAnonymousChoiceChoice::SELECTION_INFO_AR
 
 // CLASS METHODS
 
-const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::
+                                                           lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -8008,11 +8107,13 @@ const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::lookupSelectionI
             {
                 switch(bdlb::CharType::toUpper(name[8])) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1];
+                        return &SELECTION_INFO_ARRAY[
+                                                   SELECTION_INDEX_MY_CHOICE1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2];
+                        return &SELECTION_INFO_ARRAY[
+                                                   SELECTION_INDEX_MY_CHOICE2];
                                                                       // RETURN
                     } break;
                 }
@@ -8022,7 +8123,8 @@ const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::lookupSelectionI
     return 0;
 }
 
-const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MySequenceWithAnonymousChoiceChoice::
+                                                    lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_MY_CHOICE1:
@@ -8385,10 +8487,12 @@ bsl::ostream& BigRecord::print(
 
 // CONSTANTS
 
-const char MySequenceWithAnonymousChoice::CLASS_NAME[] = "MySequenceWithAnonymousChoice";
+const char MySequenceWithAnonymousChoice::CLASS_NAME[] =
+                                               "MySequenceWithAnonymousChoice";
     // the name of this class
 
-const bdlat_AttributeInfo MySequenceWithAnonymousChoice::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithAnonymousChoice::
+                                                     ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "attribute1",             // name
@@ -8452,11 +8556,13 @@ const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
             {
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                        return &ATTRIBUTE_INFO_ARRAY[
+                                                   ATTRIBUTE_INDEX_ATTRIBUTE2];
                                                                       // RETURN
                     } break;
                 }
@@ -8466,7 +8572,8 @@ const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
     return 0;
 }
 
-const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
+                                                                        int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -10812,9 +10919,9 @@ int main(int argc, char *argv[])
         //:   encoder options object unmodified.
         //:
         //: 2 Create four 'balber::BerEncoder' objects passing the three
-        //:   'balber::BerEncoderOptions' objects created in step 1 to the first
-        //:   three encoder objects.  The fourth encoder object is not passed
-        //:   any encoder options.
+        //:   'balber::BerEncoderOptions' objects created in step 1 to the
+        //:   first three encoder objects.  The fourth encoder object is not
+        //:   passed any encoder options.
         //:
         //: 3 Create four 'bdlsb::MemOutStreamBuf' objects.
         //:
