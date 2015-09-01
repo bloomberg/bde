@@ -1018,9 +1018,9 @@ template <class FUNC, class ARGS, int INDEX, int OFFSET>
                                              struct Bind_MapParameter;
 template <class RET, class FUNC, class LIST> struct Bind_ImplSelector;
 
-                          // ==========================
-                          // class Bind_BoundTupleValue
-                          // ==========================
+                         // ==========================
+                         // class Bind_BoundTupleValue
+                         // ==========================
 
 // IMPLEMENTATION NOTE: This class template, as well as the
 // 'bind_BoundTuple[0-14]' class templates, are always instantiated with
@@ -1125,9 +1125,9 @@ struct Bind_BoundTuple1 : public bslmf::TypeList1<A1>
     }
 };
 
-                           // ==========
-                           // class Bind
-                           // ==========
+                                 // ==========
+                                 // class Bind
+                                 // ==========
 
 template <class RET, class FUNC, class LIST>
 class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
@@ -1162,9 +1162,9 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
     }
 };
 
-                        // =================
-                        // class BindWrapper
-                        // =================
+                             // =================
+                             // class BindWrapper
+                             // =================
 
 template <class RET, class FUNC, class TUPLE>
 class BindWrapper {
@@ -1596,9 +1596,9 @@ class BindWrapper {
     }
 };
 
-                           // ==============
-                           // class BindUtil
-                           // ==============
+                               // ==============
+                               // class BindUtil
+                               // ==============
 
 struct BindUtil {
     // This 'struct' provides a namespace for utility functions used to
@@ -2781,9 +2781,9 @@ struct BindUtil {
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                          // ==========================
-                          // class Bind_TupleValue
-                          // ==========================
+                           // =====================
+                           // class Bind_TupleValue
+                           // =====================
 
 template <class TYPE>
 class Bind_TupleValue {
@@ -2894,9 +2894,9 @@ class Bind_TupleValue<TYPE const&> {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-                           // ======================
-                           // class Bind_Tuple*
-                           // ======================
+                             // =================
+                             // class Bind_Tuple*
+                             // =================
 
 struct Bind_Tuple0 : public bslmf::TypeList0
 {
@@ -3625,9 +3625,9 @@ struct Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     }
 };
 
-                          // ===============
-                          // class Bind_Impl
-                          // ===============
+                              // ===============
+                              // class Bind_Impl
+                              // ===============
 
 template <class RET, class FUNC, class LIST>
 class Bind_Impl {
@@ -4153,9 +4153,9 @@ class Bind_Impl {
     }
 };
 
-                          // ============================
+                          // =======================
                           // class Bind_ImplExplicit
-                          // ============================
+                          // =======================
 
 template <class RET, class FUNC, class LIST>
 class Bind_ImplExplicit {
@@ -4503,9 +4503,9 @@ struct Bind_ImplSelector {
 // presented in the reverse order to eliminate an AIX failure due to the order
 // of templates, even if those have been forward-declared.
 
-                          // ==================================
-                          // class Bind_FuncTraitsHasNoEllipsis
-                          // ==================================
+                     // ==================================
+                     // class Bind_FuncTraitsHasNoEllipsis
+                     // ==================================
 
 template <class FUNC>
 struct Bind_FuncTraitsHasNoEllipsis {
@@ -4645,9 +4645,9 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 };
 }  // close package namespace
 
-                          // ===================
-                          // class FuncTraitsImp
-                          // ===================
+                            // ===================
+                            // class FuncTraitsImp
+                            // ===================
 
 
 namespace bdlf {
@@ -4865,9 +4865,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     typedef typename FUNC::ResultType ResultType;
 };
 
-                          // ================
-                          // class FuncTraits
-                          // ================
+                              // ================
+                              // class FuncTraits
+                              // ================
 
 template <class RET, class FUNC>
 struct Bind_FuncTraits
@@ -4930,9 +4930,9 @@ struct Bind_FuncTraits
     //    ellipsis in non-member functions.
 };
 
-                           // =======================
-                           // class Bind_ArgumentMask
-                           // =======================
+                          // =======================
+                          // class Bind_ArgumentMask
+                          // =======================
 
 template <class TYPE>
 struct Bind_ArgumentMask {
@@ -4986,9 +4986,9 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
 };
 
 
-                          // =========================
-                          // class Bind_ArgumentNumber
-                          // =========================
+                         // =========================
+                         // class Bind_ArgumentNumber
+                         // =========================
 
 template <class TYPE>
 struct Bind_ArgumentNumber {
@@ -5053,9 +5053,9 @@ class Bind_MemFnObjectWrapper {
 
 };
 
-                           // =======================
-                           // class Bind_MapParameter
-                           // =======================
+                          // =======================
+                          // class Bind_MapParameter
+                          // =======================
 
 template <class FUNC, class ARGS, int INDEX, int OFFSET>
 struct Bind_MapParameter {
@@ -5096,9 +5096,9 @@ struct Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
 };
 }  // close package namespace
 
-                           // =================================
-                           // class bdlf::Bind_CalcParameterMask
-                           // =================================
+                     // ==================================
+                     // class bdlf::Bind_CalcParameterMask
+                     // ==================================
 
 // The following macro is used to compute the index of place holders within a
 // parameter list and its corresponding mapping to the place holder values.
@@ -6263,9 +6263,9 @@ struct Bind_Invoker<void, 14> {
 #undef BDLF_BIND_EVAL
 
 namespace bdlf {
-                          // ====================
-                          // class Bind_Evaluator
-                          // ====================
+                            // ====================
+                            // class Bind_Evaluator
+                            // ====================
 
 template <class ARG, class LIST>
 struct Bind_Evaluator {

@@ -6,10 +6,8 @@ BSLS_IDENT_RCSID(ball_fixedsizerecordbuffer_cpp,"$Id$ $CSID$")
 
 #include <bsls_alignmentutil.h>
 
-#if 0
-#include <ball_severity.h>
-#include <bdlqq_barrier.h>
-#endif
+#include <bdlqq_lockguard.h>
+#include <bdlqq_recursivemutex.h>
 
 namespace BloombergLP {
 

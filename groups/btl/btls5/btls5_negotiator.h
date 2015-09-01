@@ -162,9 +162,9 @@ namespace btls5 {
 
 class Negotiator_Negotiation;
 
-                        // ================
-                        // class Negotiator
-                        // ================
+                              // ================
+                              // class Negotiator
+                              // ================
 
 class Negotiator {
     // This mechanism class negotiates connections to TCP destinations using

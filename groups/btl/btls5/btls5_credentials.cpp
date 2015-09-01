@@ -33,9 +33,9 @@ static bool areValidCredentials(const bslstl::StringRef& username,
 
 }  // close unnamed namespace
 
-                         // -----------------
-                         // class Credentials
-                         // -----------------
+                             // -----------------
+                             // class Credentials
+                             // -----------------
 
 // MANIPULATORS
 void Credentials::set(const bslstl::StringRef& username,

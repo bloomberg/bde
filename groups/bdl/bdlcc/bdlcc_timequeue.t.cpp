@@ -2,7 +2,7 @@
 
 #include <bdlcc_timequeue.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_lockguard.h>
@@ -14,7 +14,10 @@
 #include <bdlqq_threadgroup.h>
 
 #include <bdlf_bind.h>
+#include <bdlf_function.h>
+
 #include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -23,7 +26,9 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_sstream.h>
@@ -76,9 +81,9 @@ using namespace bsl;  // automatically added by script
 // [13] CONCERN: Memory Pooling
 // [14] Usage example
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -95,32 +100,32 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 bdlqq::Mutex coutMutex;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -128,9 +133,9 @@ static int veryVeryVerbose;
 typedef bdlcc::TimeQueue<const char*> Obj;
 typedef bdlcc::TimeQueueItem<const char*> Item;
 
-                             // ================
-                             // class TestString
-                             // ================
+                              // ================
+                              // class TestString
+                              // ================
 
 class TestString {
     // This class is a string with allocation, except that a
@@ -140,7 +145,10 @@ class TestString {
     bslma::Allocator *d_allocator_p;  // held, not owned
     bsl::string      *d_string_p;     // owned
 
-    static bsl::string s_emptyString;
+  private:
+    // Not implemented:
+    TestString(const TestString&);
+
   public:
     // TYPES
     BSLALG_DECLARE_NESTED_TRAITS(TestString,
@@ -150,9 +158,10 @@ class TestString {
     explicit TestString(bslma::Allocator *allocator = 0);
     explicit TestString(const char *s, bslma::Allocator *allocator = 0);
     explicit TestString(const bsl::string& s, bslma::Allocator *allocator = 0);
-        // Create a string, optionally initialized with 's', using 'allocator'
-        // to supply memory.  If allocator is null, the currently-installed
-        // default allocator is used.
+        // Create a string, optionally initialized with the optionally
+        // specified 's', using the optionally specified 'allocator' to supply
+        // memory.  If allocator is null, the currently-installed default
+        // allocator is used.
 
     ~TestString();
         // Destroy this string object.
@@ -179,28 +188,25 @@ bool operator!=(const TestString& lhs, const TestString& rhs);
     // Return 0 whether the specified strings 's1' and 's2' do not hold the
     // same C++ string and 1 if they do.
 
-                             // ----------------
-                             // class TestString
-                             // ----------------
-
-// CLASS MEMBERS
-bsl::string TestString::s_emptyString; // default-initialized
+                              // ----------------
+                              // class TestString
+                              // ----------------
 
 // CREATORS
-TestString::TestString(bslma::Allocator *alloc)
-: d_allocator_p(bslma::Default::allocator(alloc))
+TestString::TestString(bslma::Allocator *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 , d_string_p(0)
 {
 }
 
-TestString::TestString(const char *s, bslma::Allocator *alloc)
-: d_allocator_p(bslma::Default::allocator(alloc))
+TestString::TestString(const char *s, bslma::Allocator *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
 
-TestString::TestString(const bsl::string& s, bslma::Allocator *alloc)
-: d_allocator_p(bslma::Default::allocator(alloc))
+TestString::TestString(const bsl::string& s, bslma::Allocator *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
@@ -243,13 +249,14 @@ TestString::operator const bsl::string&() const
     if (d_string_p) {
         return *d_string_p;                                           // RETURN
     }
+    static bsl::string s_emptyString(d_allocator_p);
     return s_emptyString;
 }
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& os, const TestString& s)
+bsl::ostream& operator<<(bsl::ostream& os, const TestString& string)
 {
-    return os << (const bsl::string&)s;
+    return os << (const bsl::string&)string;
 }
 
 bool operator==(const TestString& lhs, const TestString& rhs)
@@ -273,9 +280,9 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 }  // close namespace bslma
 }  // close enterprise namespace
 
-//=============================================================================
-//                          CASE 11 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 11 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_11 {
 
@@ -369,15 +376,15 @@ void *testLength(void *)
 } // extern "C"
 
 }  // close namespace TIMEQUEUE_TEST_CASE_11
-//=============================================================================
-//                      CASE 10 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 10 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_10 {
 
-                           // ====================
-                           // class TestLockObject
-                           // ====================
+                            // ====================
+                            // class TestLockObject
+                            // ====================
 
 class TestLockObject {
     // This small test object holds a time queue reference, and attempts to
@@ -394,8 +401,8 @@ class TestLockObject {
     TestLockObject(const bdlcc::TimeQueue<TestLockObject> *queue = 0,
                    int                                    *numDestructions = 0,
                    int                                     verbose = 0);
-        // Create a test object that holds a reference to the specified
-        // 'queue'.
+        // Create a test object that holds a reference to the optionally
+        // specified 'queue'.
 
     ~TestLockObject();
         // Destroy this test object, in the process trying to access the held
@@ -406,15 +413,15 @@ class TestLockObject {
         // Reset the held queue reference to 0.
 };
 
-                           // --------------------
-                           // class TestLockObject
-                           // --------------------
+                            // --------------------
+                            // class TestLockObject
+                            // --------------------
 
 // CREATORS
 TestLockObject::TestLockObject(
-                         const bdlcc::TimeQueue<TestLockObject> *queue,
-                         int                                  *numDestructions,
-                         int                                   verbose)
+                       const bdlcc::TimeQueue<TestLockObject> *queue,
+                       int                                    *numDestructions,
+                       int                                     verbose)
 : d_timeQueue_p(queue)
 , d_numDestructions_p(numDestructions)
 , d_verbose(verbose)
@@ -447,9 +454,9 @@ void TestLockObject::reset()
 
 }  // close namespace TIMEQUEUE_TEST_CASE_10
 
-//=============================================================================
-//                      CASE -100 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        CASE -100 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_MINUS_100 {
 
@@ -467,7 +474,7 @@ enum {
 void threadFunc(bdlcc::TimeQueue<int> *timeQueue,
                 int                    numIterations,
                 int                    sendCount,
-                int                    rcvCount,
+                int                    receiveCount,
                 int                    delay)
 {
     bsl::vector<int> timers;
@@ -489,7 +496,7 @@ void threadFunc(bdlcc::TimeQueue<int> *timeQueue,
         }
 
         // "receive" replies
-        for (int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<receiveCount; rcv++) {
             timeQueue->remove(timers[rcv]);
         }
 
@@ -545,9 +552,9 @@ void run()
 
 }  // close namespace TIMEQUEUE_TEST_CASE_MINUS_100
 
-//=============================================================================
-//          USAGE EXAMPLE from header (with assert replaced with ASSERT)
-//-----------------------------------------------------------------------------
+// ============================================================================
+//       USAGE EXAMPLE from header (with assert replaced with ASSERT)
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_USAGE_EXAMPLE {
 
@@ -602,8 +609,8 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 //..
     class my_Session {
         // Pure protocol class to process a data buffer of arbitrary size.
-        // Concrete implementations in the "real world" would typically
-        // manage an external connection like a socket.
+        // Concrete implementations in the "real world" would typically manage
+        // an external connection like a socket.
 
       public:
         my_Session();
@@ -634,7 +641,6 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     class my_Server {
         // Simple server supporting multiple Connections.
 
-      private:
         bsl::vector<my_Connection*>      d_connections;
         bdlcc::TimeQueue<my_Connection*> d_timeQueue;
         int                              d_ioTimeout;
@@ -654,9 +660,9 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             // Upon seeing this signal, the TimerMonitor thread will wake up
             // and look for expired timers.
             //
-            // Behavior is undefined if 'connection' has already been added
-            // to any 'my_Server' and has not been removed via member
-            // function 'closeConnection'.
+            // Behavior is undefined if 'connection' has already been added to
+            // any 'my_Server' and has not been removed via member function
+            // 'closeConnection'.
 
         void removeConnection(my_Connection *connection);
             // Remove the specified 'connection' from the current 'my_Server',
@@ -664,21 +670,22 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
         virtual void closeConnection(my_Connection *connection)=0;
             // Provide a mechanism for a concrete implementation to close a
-            // connection.
+            // specified 'connection'.
 
         void dataAvailable(my_Connection *connection,
                            void          *buffer_p,
                            int            length);
-            // Receive in 'buffer_p' a pointer to a data buffer of 'length'
-            // bytes, and pass this to 'connection' to be processed.  Behavior
-            // is undefined if 'connection' is not currently added to this
-            // 'my_Server' object, or if 'length' <= 0.
+            // Receive in the specified 'buffer_p' a pointer to a data buffer
+            // of the specified 'length' bytes, and pass this to the specified
+            // 'connection' to be processed.  Behavior is undefined if
+            // 'connection' is not currently added to this 'my_Server' object,
+            // or if 'length' <= 0.
 
       protected:
         virtual void monitorConnections()=0;
             // Monitor all connections in the current 'my_Server'.  When data
-            // becomes available for a given connection, pass the data to
-            // that connection for processing.
+            // becomes available for a given connection, pass the data to that
+            // connection for processing.
 
         void monitorTimers();
             // Monitor all timers in the current 'my_Server', and handle each
@@ -687,13 +694,18 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         friend void *my_connectionMonitorThreadEntry(void *server);
         friend void *my_timerMonitorThreadEntry(void *server);
 
+      private:
+        // Not implemented:
+        my_Server(const my_Server&);
+
       public:
         // CREATORS
         explicit
         my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-            // Construct a 'my_Server' object with a timeout value of
-            // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
-            // memory allocation for data members of 'my_Server'.
+            // Construct a 'my_Server' object with a timeout value of the
+            // specified 'ioTimeout' seconds.  Use the optionally specified
+            // 'basicAllocator' for all memory allocation for data members of
+            // 'my_Server'.
 
         virtual ~my_Server();
 
@@ -785,14 +797,14 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 // connection to the queue with a new time value.
 //..
     void my_Server::dataAvailable(my_Connection *connection,
-                                  void          *data,
+                                  void          *buffer_p,
                                   int            length)
     {
         if (connection->d_timerId) {
             if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
             connection->d_timerId = 0;
         }
-        connection->d_session_p->processData(data, length);
+        connection->d_session_p->processData(buffer_p, length);
 
         int isNewTop = 0;
 
@@ -945,13 +957,17 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
       protected:
         virtual void closeConnection(my_Connection *connection);
-            // Close external connection and call 'removeConnection' when
-            // done.
+            // Close the specified external 'connection' and call
+            // 'removeConnection' when done.
 
         virtual void monitorConnections();
             // Monitor all connections in the current 'my_Server'.  When data
-            // becomes available for a given connection, pass the data to
-            // that connection for processing.
+            // becomes available for a given connection, pass the data to that
+            // connection for processing.
+
+      private:
+        // Not implemented:
+        my_TestServer(const my_TestServer&);
 
       public:
         // CREATORS
@@ -1052,9 +1068,9 @@ bsls::TimeInterval makeTimeInterval()
     return bsls::TimeInterval((double)counter++);
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1754,15 +1770,15 @@ int main(int argc, char *argv[])
                 int         d_updnsecs;  // Nanoseconds to update to
                 int         d_isNewTop;  // Should item be new top after update
             } VALUES[] = {
-                //line secs  nsecs    value updsecs updnsecs isNewTop
-                //---- ----- -------- ----- ------- -------- --------
-                { L_,   2  , 1000000, VA   ,  0    , 1000000, 0 },
-                { L_,   2  , 1000000, VB   ,  3    , 1000000, 0 },
-                { L_,   2  , 1000000, VC   ,  0    ,    4000, 0 },
-                { L_,   2  , 1000001, VB   ,  0    ,    3999, 1 },
-                { L_,   1  , 9999998, VC   ,  4    , 9999998, 0 },
-                { L_,   1  , 9999999, VD   ,  0    ,       0, 1 },
-                { L_,   0  ,    4000, VE   ,  10   ,    4000, 0 }
+                //line secs  nsecs    value update secs update nsecs isNewTop
+                //---- ----- -------- ----- ----------- ------------ --------
+                { L_,   2  , 1000000, VA   ,      0    ,     1000000, 0 },
+                { L_,   2  , 1000000, VB   ,      3    ,     1000000, 0 },
+                { L_,   2  , 1000000, VC   ,      0    ,        4000, 0 },
+                { L_,   2  , 1000001, VB   ,      0    ,        3999, 1 },
+                { L_,   1  , 9999998, VC   ,      4    ,     9999998, 0 },
+                { L_,   1  , 9999999, VD   ,      0    ,           0, 1 },
+                { L_,   0  ,    4000, VE   ,     10    ,        4000, 0 }
             };
 
             static const int POP_ORDER[]={5,3,2,0,1,4,6};
@@ -2315,7 +2331,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create and populate a time queue, invoke 'removeAll',
-        //   and assert that all the handles are indeed deregistered and that
+        //   and assert that all the handles are indeed de-registered and that
         //   the time queue is empty.  For the version that gets a copy of the
         //   removed items into a local buffer, assert that the items are as
         //   expected.
@@ -2658,14 +2674,14 @@ int main(int argc, char *argv[])
             Obj mG(10, true);       const Obj& G = mG;
             Obj mH(17, false, &ta); const Obj& H = mH;
 
-            (const Obj&)A;  // Suppress unused variable warning
-            (const Obj&)B;  // Suppress unused variable warning
-            (const Obj&)C;  // Suppress unused variable warning
-            (const Obj&)D;  // Suppress unused variable warning
-            (const Obj&)E;  // Suppress unused variable warning
-            (const Obj&)F;  // Suppress unused variable warning
-            (const Obj&)G;  // Suppress unused variable warning
-            (const Obj&)H;  // Suppress unused variable warning
+            (void)A;  // Suppress unused variable warning
+            (void)B;  // Suppress unused variable warning
+            (void)C;  // Suppress unused variable warning
+            (void)D;  // Suppress unused variable warning
+            (void)E;  // Suppress unused variable warning
+            (void)F;  // Suppress unused variable warning
+            (void)G;  // Suppress unused variable warning
+            (void)H;  // Suppress unused variable warning
 
             Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
             const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
@@ -2737,14 +2753,14 @@ int main(int argc, char *argv[])
             Obj mG(10, true);       const Obj& G = mG;
             Obj mH(17, false, &ta); const Obj& H = mH;
 
-            (const Obj&)A;  // Suppress unused variable warning
-            (const Obj&)B;  // Suppress unused variable warning
-            (const Obj&)C;  // Suppress unused variable warning
-            (const Obj&)D;  // Suppress unused variable warning
-            (const Obj&)E;  // Suppress unused variable warning
-            (const Obj&)F;  // Suppress unused variable warning
-            (const Obj&)G;  // Suppress unused variable warning
-            (const Obj&)H;  // Suppress unused variable warning
+            (void)A;  // Suppress unused variable warning
+            (void)B;  // Suppress unused variable warning
+            (void)C;  // Suppress unused variable warning
+            (void)D;  // Suppress unused variable warning
+            (void)E;  // Suppress unused variable warning
+            (void)F;  // Suppress unused variable warning
+            (void)G;  // Suppress unused variable warning
+            (void)H;  // Suppress unused variable warning
 
             Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
             const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;

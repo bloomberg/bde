@@ -96,9 +96,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ========================
-                        // struct LocalTimeValidity
-                        // ========================
+                          // ========================
+                          // struct LocalTimeValidity
+                          // ========================
 
 struct LocalTimeValidity {
     // This 'struct' provides a namespace for enumerating the set of validity
@@ -181,9 +181,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, LocalTimeValidity::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                     // ------------------------
-                     // struct LocalTimeValidity
-                     // ------------------------
+                          // ------------------------
+                          // struct LocalTimeValidity
+                          // ------------------------
 
 // FREE OPERATORS
 inline

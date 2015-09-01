@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryheader_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // --------------------------
-                        // class ZoneinfoBinaryHeader
-                        // --------------------------
+                         // --------------------------
+                         // class ZoneinfoBinaryHeader
+                         // --------------------------
 
 // ACCESSORS
 

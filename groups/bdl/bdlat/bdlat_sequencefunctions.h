@@ -778,7 +778,7 @@ namespace bdlat_SequenceFunctions {
 }  // close namespace bdlat_SequenceFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                      // ---------------------------------

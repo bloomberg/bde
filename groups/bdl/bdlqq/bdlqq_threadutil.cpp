@@ -32,9 +32,9 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
 
 }  // extern "C"
 
-                            // -----------------
-                            // struct ThreadUtil
-                            // -----------------
+                             // -----------------
+                             // struct ThreadUtil
+                             // -----------------
 
 // CLASS METHODS
 int bdlqq::ThreadUtil::convertToSchedulingPriority(

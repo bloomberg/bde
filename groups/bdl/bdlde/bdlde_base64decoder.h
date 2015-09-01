@@ -16,12 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: This component provides a pair of template types (each
-// parameterized separately on both input and output iterators) that can be
-// used respectively to encode and to decode byte sequences of arbitrary length
-// into and from the printable Base64 representation described in Section 6.8
-// "Base64 Content Transfer Encoding" of RFC 2045, "Multipurpose Internet Mail
-// Extensions (MIME) Part One: Format of Internet Message Bodies."
+//@DESCRIPTION: This component a 'class', 'bdlde::Base64Decoder', which
+// provides a pair of template functions (each parameterized separately on both
+// input and output iterators) that can be used respectively to encode and to
+// decode byte sequences of arbitrary length into and from the printable Base64
+// representation described in Section 6.8 "Base64 Content Transfer Encoding"
+// of RFC 2045, "Multipurpose Internet Mail Extensions (MIME) Part One: Format
+// of Internet Message Bodies."
 //
 // Each instance of either the encoder or decoder retains the state of the
 // conversion from one supplied input to the next, enabling the processing of
@@ -187,8 +188,8 @@ BSLS_IDENT("$Id: $")
 //         IO_ERROR     = -2
 //     };
 //..
-// We declare a 'bdlde::Base64Decoder' object 'converter', which will decode the
-// input data.  Note that various internal buffers and cursors are used as
+// We declare a 'bdlde::Base64Decoder' object 'converter', which will decode
+// the input data.  Note that various internal buffers and cursors are used as
 // needed without further comment.  We read as much data as is available from
 // the user-supplied input stream 'is' *or* as much as will fit in
 // 'inputBuffer' before beginning conversion.  To obtain unobstructedly the
@@ -399,13 +400,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // =========================
-                        // class Base64Decoder
-                        // =========================
+                            // ===================
+                            // class Base64Decoder
+                            // ===================
 
 class Base64Decoder {
-    // This class implements a mechanism capable of converting data
-    // of arbitrary length from its corresponding Base64 representation.
+    // This class implements a mechanism capable of converting data of
+    // arbitrary length from its corresponding Base64 representation.
 
     // PRIVATE TYPES
     enum {
@@ -416,13 +417,6 @@ class Base64Decoder {
         e_NEED_EQUAL_STATE =  1, // need an '='
         e_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
         e_DONE_STATE       =  3  // any additional input is an error
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEDE_ERROR_STATE = e_ERROR_STATE
-      , BDEDE_INPUT_STATE = e_INPUT_STATE
-      , BDEDE_NEED_EQUAL_STATE = e_NEED_EQUAL_STATE
-      , BDEDE_SOFT_DONE_STATE = e_SOFT_DONE_STATE
-      , BDEDE_DONE_STATE = e_DONE_STATE
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS DATA
@@ -449,6 +443,7 @@ class Base64Decoder {
     int d_outputLength;          // total number of output characters
 
     // TBD doc
+
     int d_stack;
     int d_bitsInStack;
 
@@ -466,6 +461,7 @@ class Base64Decoder {
         // '0 <= inputLength'.
 
     // CREATORS
+    explicit
     Base64Decoder(bool unrecognizedIsErrorFlag);
         // Create a Base64 decoder in the initial state.  Unrecognized
         // characters (i.e., non-base64 characters other than whitespace) will
@@ -516,19 +512,20 @@ class Base64Decoder {
                    int             *numOut,
                    int              maxNumOut = -1);
         // Terminate decoding for this decoder; write any retained output
-        // (e.g., from a previous call to 'convert' with a non-zero 'maxNumOut'
-        // argument) to the specified 'out' buffer; encode any unprocessed
-        // input characters that do not complete a 3-byte sequence.  Optionally
-        // specify the 'maxNumOut' limit on the number of bytes to output; if
-        // 'maxNumOut' is negative, no limit is imposed.  Load into the
-        // (optionally) specified 'numOut' the number of output bytes produced.
-        // Return 0 on success, the positive number of bytes *still* retained
-        // by this decoder if the 'maxNumOut' limit was reached, and a negative
-        // value otherwise.  Any retained bytes are available on a subsequent
-        // call to 'endConvert'.  Once this method is called, no additional
-        // input may be supplied without an intervening call to 'resetState';
-        // once this method returns a zero status, a subsequent call will place
-        // this decoder in the error state, and return an error status.
+        // (e.g., from a previous call to 'convert' with a non-zero optionally
+        // specified 'maxNumOut' argument) to the specified 'out' buffer;
+        // encode any unprocessed input characters that do not complete a
+        // 3-byte sequence.  The argument 'maxNumOut' is the limit on the
+        // number of bytes to output; if 'maxNumOut' is negative, no limit is
+        // imposed.  Load into the (optionally) specified 'numOut' the number
+        // of output bytes produced.  Return 0 on success, the positive number
+        // of bytes *still* retained by this decoder if the 'maxNumOut' limit
+        // was reached, and a negative value otherwise.  Any retained bytes are
+        // available on a subsequent call to 'endConvert'.  Once this method is
+        // called, no additional input may be supplied without an intervening
+        // call to 'resetState'; once this method returns a zero status, a
+        // subsequent call will place this decoder in the error state, and
+        // return an error status.
 
     void resetState();
         // Reset this instance to its initial state (i.e., as if no input had
@@ -550,14 +547,14 @@ class Base64Decoder {
         // Return 'true' if there is no possibility of achieving an
         // "acceptable" result, and 'false' otherwise.
 
+    bool isInitialState() const;
+        // Return 'true' if this instance is in the initial state (i.e., as
+        // if no input had been consumed), and 'false' otherwise.
+
     bool isMaximal() const;
         // Return 'true' if the current input is acceptable and any additional
         // input (other than 'endConvert') would be an error, and 'false'
         // otherwise.
-
-    bool isInitialState() const;
-        // Return 'true' if this instance is in the initial state (i.e., as
-        // if no input had been consumed), and 'false' otherwise.
 
     bool isMinimal() const;
         // Return 'true' if this instance is in the initial state (i.e., as
@@ -574,12 +571,12 @@ class Base64Decoder {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class Base64Decoder
-                        // -------------------------
+                            // -------------------
+                            // class Base64Decoder
+                            // -------------------
 
 // CLASS METHODS
 inline
@@ -605,8 +602,8 @@ Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag)
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR out,
-                                 INPUT_ITERATOR  begin,
-                                 INPUT_ITERATOR  end)
+                           INPUT_ITERATOR  begin,
+                           INPUT_ITERATOR  end)
 {
     int dummyNumOut;
     int dummyNumIn;
@@ -616,11 +613,11 @@ int Base64Decoder::convert(OUTPUT_ITERATOR out,
 
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR  out,
-                                 int             *numOut,
-                                 int             *numIn,
-                                 INPUT_ITERATOR   begin,
-                                 INPUT_ITERATOR   end,
-                                 int              maxNumOut)
+                           int             *numOut,
+                           int             *numIn,
+                           INPUT_ITERATOR   begin,
+                           INPUT_ITERATOR   end,
+                           int              maxNumOut)
 {
     BSLS_ASSERT(numOut);
     BSLS_ASSERT(numIn);
@@ -743,15 +740,15 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR out)
 
 template <class OUTPUT_ITERATOR>
 int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
-                                    int             *numOut,
-                                    int              maxNumOut)
+                              int             *numOut,
+                              int              maxNumOut)
 {
     BSLS_ASSERT(numOut);
 
     const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
     if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
-                    (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
-                              (e_INPUT_STATE == d_state && residualBits)) {
+                        (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
+                                  (e_INPUT_STATE == d_state && residualBits)) {
         *numOut = 0;
         d_state = e_ERROR_STATE;
         return -1;                                                    // RETURN
@@ -787,7 +784,7 @@ bool Base64Decoder::isAcceptable() const
 {
     const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
     return (0 == residualBits && e_INPUT_STATE == d_state) ||
-               e_SOFT_DONE_STATE == d_state || e_DONE_STATE == d_state;
+                       e_SOFT_DONE_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
@@ -803,18 +800,18 @@ bool Base64Decoder::isError() const
 }
 
 inline
-bool Base64Decoder::isMaximal() const
-{
-    return e_SOFT_DONE_STATE == d_state
-        || (d_bitsInStack && e_DONE_STATE == d_state);
-}
-
-inline
 bool Base64Decoder::isInitialState() const
 {
     return e_INPUT_STATE == d_state
         && 0 == d_bitsInStack
         && 0 == d_outputLength;
+}
+
+inline
+bool Base64Decoder::isMaximal() const
+{
+    return e_SOFT_DONE_STATE == d_state
+                                 || (d_bitsInStack && e_DONE_STATE == d_state);
 }
 
 inline
@@ -828,8 +825,8 @@ int Base64Decoder::outputLength() const
 {
     return d_outputLength;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

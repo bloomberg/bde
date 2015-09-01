@@ -27,28 +27,28 @@ static const char enc[] = {
     '4', '5', '6', '7', '8', '9', '+', '/',  // 070
 };
 
-                        // -------------------------
-                        // class bdlde::Base64Encoder
-                        // -------------------------
+                         // --------------------------
+                         // class bdlde::Base64Encoder
+                         // --------------------------
 
 const char *const bdlde::Base64Encoder::s_encodedChars_p = enc;
 
 const int bdlde::Base64Encoder::s_defaultMaxLineLength = 76;
 
 namespace bdlde {
-// CREATORS
 
+// CREATORS
 Base64Encoder::~Base64Encoder()
 {
     // Assert invariants:
 
-    BSLS_ASSERT(k_ERROR_STATE <= d_state);
+    BSLS_ASSERT(e_ERROR_STATE <= d_state);
     BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_maxLineLength);
     BSLS_ASSERT(0 <= d_outputLength);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

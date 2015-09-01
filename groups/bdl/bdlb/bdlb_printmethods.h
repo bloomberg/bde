@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::PrintMethods: templates for uniform printing of value-semantic types
 //  bdlb::HasPrintMethod: trait indicating existence of 'print' method
-//  bdlb::TypeTraitHasPrintMethod: Old-style version of 'bdlb::HasPrintMethod'
+//  bdlb::TypeTraitHasPrintMethod: old-style version of 'bdlb::HasPrintMethod'
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
@@ -20,14 +20,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraits
 //
-//@DESCRIPTION: This component provides a namespace for print utilities
-// that support uniform 'ostream' printing across all printable types,
-// including template types and containers.  The 'bdlb::PrintMethods' namespace
-// enables clients to output the value of any printable object according to the
-// standard BDE 'print' protocol.  Using the 'bdlb::PrintMethods::print' method,
-// it is convenient to print objects of unknown types, with an optionally-
-// specified indentation level and also an optionally-specified number of
-// spaces per indentation level.
+//@DESCRIPTION: This component provides a namespace for print utilities that
+// support uniform 'ostream' printing across all printable types, including
+// template types and containers.  The 'bdlb::PrintMethods' namespace enables
+// clients to output the value of any printable object according to the
+// standard BDE 'print' protocol.  If the parameterized 'TYPE' does not provide
+// a 'print' method, 'TYPE::operator<<' is used.  Availability of a 'print'
+// method is determined by testing for the 'bdlb::HasPrintMethod' and
+// 'bdlb::TypeTraitHasPrintMethod' traits.
 //
 ///Traits Affecting Printing
 ///-------------------------
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitPair              ( lowest precedence  )
 //..
 // Since a class may declare multiple traits (see the component-level
-// documentation of 'bslalg_typetraits' for information about declaring
+// documentation of {'bslalg_typetraits'} for information about declaring
 // traits), the relative precedence of the traits is shown above.  The next
 // sub-sections describe these traits and their affects on printing.
 //
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // To output an 'X' object with this trait declared, the
 // 'bdlb::PrintMethods::print' method simply forwards to this method.  This
 // means that the print operation is completely defined by the class.  Ideally,
-// it should behave according to the standard BDE 'print' protocol which is
+// it should behave according to the standard BDE 'print' protocol that is
 // documented as follows:
 //..
 //  Format this object to the specified output 'stream' at the (absolute value
@@ -92,8 +92,8 @@ BSLS_IDENT("$Id: $")
 ///Effect of 'bslalg::TypeTraitPair' Trait
 /// - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
-// must contain two 'public' data members named 'first' and 'second'.  The
-// BDE implementation of STL declares this trait for the 'bsl::pair' 'struct'.
+// must contain two 'public' data members named 'first' and 'second'.  The BDE
+// implementation of STL declares this trait for the 'bsl::pair' 'struct'.
 // Other classes that have 'public' 'first' and 'second' data members may
 // declare this trait to get printing behavior similar to that of 'bsl::pair'.
 //
@@ -107,10 +107,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Consider the following value-semantic class that holds an object of
-// parameterized 'TYPE':
+// This section illustrates intended use of this component.
+//
+///Example 1: Supplying a 'print' Method for a Parameterized Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we must create a value-semantic class that holds an object of
+// parameterized 'TYPE' and, per BDE convention for VSTs, provides a 'print'
+// method that shows the value in some human-readable format.
+//
+// First, we define the wrapper class:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  class MyWrapper {
 //    // An example wrapper class for a 'TYPE' object.
 //
@@ -118,13 +125,16 @@ BSLS_IDENT("$Id: $")
 //    TYPE d_obj;  // wrapped object
 //
 //    public:
+//      // TRAITS
+//      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
+//
 //      // CREATORS
-//      MyWrapper() { }
-//      MyWrapper(const TYPE& original) : d_obj(original) { }
-//          // ... other constructors and destructor ...
+//      MyWrapper(): d_obj() {};
+//      MyWrapper(const TYPE& value) : d_obj(value) { }
+//      // ... other constructors and destructor ...
 //
 //      // MANIPULATORS
-//          // ... assignment operator, etc. ...
+//      // ... assignment operator, etc. ...
 //
 //      // ACCESSORS
 //      bsl::ostream& print(bsl::ostream& stream,
@@ -142,41 +152,12 @@ BSLS_IDENT("$Id: $")
 //          // this operation has no effect.
 //  };
 //..
-// This class contains a standard BDE 'print' method for value-semantic
-// components.  Ideally, the implementation of 'MyWrapper<TYPE>::print' would
-// delegate the task of printing to the corresponding 'print' method of
-// 'd_obj':
+// Now, we implement the 'print' method of 'MyWrapper' using the
+// 'bdlb::PrintMethods' utility.  Doing so gives us a method that produces
+// results both when 'TYPE' defines a 'print' method and when it does not.  In
+// the latter case 'TYPE::operator<<' is used.
 //..
-//  template <typename TYPE>
-//  bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
-//                                       int           level,
-//                                       int           spacesPerLevel) const
-//  {
-//      return d_obj.print(stream, level, spacesPerLevel);
-//  }
-//..
-// This method will work fine when 'TYPE' is a standard BDE value-semantic
-// component (e.g., 'bdlt::Date'):
-//..
-//  bdlt::Date            myDate;
-//  MyWrapper<bdlt::Date> myWrapperForDate(myDate);
-//  myWrapperForDate.print(bsl::cout);  // No problem: 'bdlt::Date' has a
-//                                      // corresponding 'print' method.
-//..
-// However, when 'TYPE' is not a standard BDE value-semantic component (e.g.,
-// suppose 'TYPE' does not have the standard BDE 'print' method -- for example,
-// fundamental types, enumerations, pointers, and 'bsl::vector'), the 'print'
-// method defined above will not work:
-//..
-//  int            myInt = 123;
-//  MyWrapper<int> myWrapperForInt(myInt);
-//  myWrapperForInt.print(bsl::cout);  // Error: 'int' has no corresponding
-//                                     // 'print' method.
-//..
-// The solution is to use the 'bdlb::PrintMethods::print' method, which provides
-// generic printing capabilities, as follows:
-//..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
 //                                       int           level,
 //                                       int           spacesPerLevel) const
@@ -184,37 +165,51 @@ BSLS_IDENT("$Id: $")
 //      return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
 //  }
 //..
-// One thing missing from the 'MyWrapper' definition above is a declaration of
-// the 'print' method trait.  Since the 'MyWrapper' class has a 'print' method,
-// it is desirable to make it programmatically detectable that the 'print'
-// method is available.  This is done by declaring the
-// 'bdlb::TypeTraitHasPrintMethod' trait inside the 'MyWrapper' class
-// definition:
+// Finally, we exercise our 'MyWrapper' class using several representative
+// types, starting with 'MyDate' (not shown) a class that implements a 'print'
+// method.
 //..
-//  template <typename TYPE>
-//  class MyWrapper {
-//      // An example wrapper for a 'TYPE' object that also declares the
-//      // 'bdlb::TypeTraitHasPrintMethod' trait.
+//  static void usingMyWrapper()
+//  {
+//      BSLMF_ASSERT(bdlb::HasPrintMethod<MyDate>::value);
 //
-//      ... private data members ...
+//      MyDate            myDate;
+//      MyWrapper<MyDate> myWrapperForMyDate(myDate);
 //
-//    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
+//      BSLMF_ASSERT(!bdlb::HasPrintMethod<int>::value);
 //
-//      ... rest of class definition ...
-//  };
+//      bsl::ostringstream oss1;
+//      myWrapperForMyDate.print(oss1); // No problem expected since
+//                                      // 'bsls::TimeInterval' has a 'print'
+//                                      // method.
+//      assert("01JAN0001\n" == oss1.str());
 //..
-// (See the 'bslalg_typetraits' component for more information about declaring
-// traits for user-defined classes.)
+// Using an 'int' type shows how 'bdlb::PrintMethods::print' transparently
+// handles types that do not provide 'print' methods:
+//..
+//      int            myInt = 123;
+//      MyWrapper<int> myWrapperForInt(myInt);
 //
-// Now that 'MyWrapper' declares the 'bdlb::TypeTraitHasPrintMethod' trait, it
-// can be reliably used as a template parameter for any other template class,
-// including itself.  For example, the following code works:
+//      bsl::ostringstream oss2;
+//      myWrapperForInt.print(oss2);    // 'int' has no 'print' method.
+//                                      // Problem?
+//      assert("123\n" == oss2.str());  // No problem!
 //..
-//  MyWrapper<MyWrapper<int> > myWrappedWrapper;
-//  myWrappedWrapper.print(bsl::cout);
+// Lastly, since 'MyWrapper' itself is a type that implements 'print' -- and
+// sets the 'bdlb::TypeTraitHasPrintMethod' trait -- one instance of the
+// 'MyWrapper' type can be wrapped by another.
 //..
+//      BSLMF_ASSERT(bdlb::HasPrintMethod<MyWrapper<int> >::value);
+//
+//      MyWrapper<MyWrapper<int> > myWrappedWrapper;
+//
+//      bsl::ostringstream oss3;
+//      myWrappedWrapper.print(oss3);
+//      assert("0\n" == oss3.str());
+//  }
+//..
+// See the {'bslalg_typetraits'} component for more information about declaring
+// traits for user-defined classes.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -256,17 +251,17 @@ class basic_string;
 }  // close namespace bsl
 
 namespace BloombergLP {
-
 namespace bdlb {
-                    // ==========================
-                    // struct HasPrintMethod
-                    // ==========================
+
+                           // =====================
+                           // struct HasPrintMethod
+                           // =====================
 
 template <class TYPE>
 struct HasPrintMethod :
         bslmf::DetectNestedTrait<TYPE, HasPrintMethod>::type {
-    // A class, 'TYPE', should specialize this trait to derive from
-    // 'true_type' if it has a 'print' method with the following signature:
+    // A class, 'TYPE', should specialize this trait to derive from 'true_type'
+    // if it has a 'print' method with the following signature:
     //..
     //  bsl::ostream& print(bsl::ostream& stream,
     //                      int           level          = 0,
@@ -274,9 +269,9 @@ struct HasPrintMethod :
     //..
 };
 
-                    // ===================================
-                    // struct TypeTraitHasPrintMethod
-                    // ===================================
+                       // ==============================
+                       // struct TypeTraitHasPrintMethod
+                       // ==============================
 
 struct TypeTraitHasPrintMethod {
     // A class should declare this trait if it has a 'print' method with the
@@ -291,84 +286,81 @@ struct TypeTraitHasPrintMethod {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, HasPrintMethod>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
-        // trait tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
+        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable' trait
+        // tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
     };
 
     template <class TYPE>
     struct Metafunction : HasPrintMethod<TYPE>::type { };
 };
 
-                        // ===========================
+                        // ======================
                         // namespace PrintMethods
-                        // ===========================
+                        // ======================
 
 namespace PrintMethods {
     // This 'namespace' contains parameterized 'print' methods having the
     // standard BDE signature for such methods.
 
-    // CLASS METHODS
-    template <class TYPE>
-    bsl::ostream& print(bsl::ostream& stream,
-                        const TYPE&   object,
-                        int           level          = 0,
-                        int           spacesPerLevel = 4);
-        // Format the specified 'object' to the specified output 'stream' at
-        // the (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
+template <class TYPE>
+bsl::ostream& print(bsl::ostream& stream,
+                    const TYPE&   object,
+                    int           level          = 0,
+                    int           spacesPerLevel = 4);
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to 'stream'.  If 'level' is specified, optionally
+    // specify 'spacesPerLevel', the number of spaces per indentation level for
+    // this and all of its nested objects.  If 'level' is negative, suppress
+    // indentation of the first line.  If 'spacesPerLevel' is negative, format
+    // the entire output on one line, suppressing all but the initial
+    // indentation (as governed by 'level').  If 'stream' is not valid on
+    // entry, this operation has no effect.
 
-    template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>
-    bsl::ostream& print(
-                    bsl::ostream&                          stream,
+template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>
+bsl::ostream& print(bsl::ostream&                          stream,
                     const bsl::basic_string<CHAR_T,
                                             CHAR_TRAITS_T,
                                             ALLOC>&        object,
                     int                                    level          = 0,
                     int                                    spacesPerLevel = 4);
-        // Format the specified 'object' to the specified output 'stream' at
-        // the (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to stream.  Note that output will be
-        // formatted on one line.  If 'stream' is not valid on entry, this
-        // operation has no effect.
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to stream.  Note that output will be formatted on one
+    // line.  If 'stream' is not valid on entry, this operation has no effect.
 
-    template <class ALLOC>
-    bsl::ostream& print(bsl::ostream&                   stream,
-                        const bsl::vector<char, ALLOC>& object,
-                        int                             level          = 0,
-                        int                             spacesPerLevel = 4);
-        // Format the specified 'object' to the specified output 'stream' at
-        // the (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to stream.  Note that output will be
-        // formatted on one line.  Also note that non-printable characters in
-        // 'object' will be printed using their hexadecimal representation.  If
-        // 'stream' is not valid on entry, this operation has no effect.
+template <class ALLOC>
+bsl::ostream& print(bsl::ostream&                   stream,
+                    const bsl::vector<char, ALLOC>& object,
+                    int                             level          = 0,
+                    int                             spacesPerLevel = 4);
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to stream.  Note that output will be formatted on one
+    // line.  Also note that non-printable characters in 'object' will be
+    // printed using their hexadecimal representation.  If 'stream' is not
+    // valid on entry, this operation has no effect.
 
 }  // close namespace PrintMethods
 }  // close package namespace
 
-// ---- Anything below this line is implementation specific.  Do not use.  ----
 
                 // --------------------------------------------
-                // struct bdeu::PrintMethods_Imp<TYPE, SELECTOR>
+                // struct bdlb::PrintMethods_Imp<TYPE, SELECTOR>
                 // --------------------------------------------
 
 
-namespace bdlb {template <class TYPE, class SELECTOR>
+namespace bdlb {
+
+template <class TYPE, class SELECTOR>
 struct PrintMethods_Imp;
 
 template <class TYPE>
 struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
-    // parameterized 'TYPE' that do not declare any of the traits recognized
-    // by this component.
+    // parameterized 'TYPE' that do not declare any of the traits recognized by
+    // this component.
 
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream& stream,
@@ -380,13 +372,13 @@ struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
         // if the specified 'TYPE' does not have a '<<' output stream operator.
 };
 
-              // --------------------------------------------------------------
+              // ----------------------------------------------------
               // struct PrintMethods_Imp<TYPE, HasPrintMethod<TYPE> >
-              // --------------------------------------------------------------
+              // ----------------------------------------------------
 
 template <class TYPE>
-struct PrintMethods_Imp<TYPE,
-                             bslmf::SelectTraitCase<HasPrintMethod> > {
+struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<HasPrintMethod> >
+{
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
     // parameterized 'TYPE' that are associated with the 'HasPrintMethod'
@@ -399,17 +391,17 @@ struct PrintMethods_Imp<TYPE,
                                int           spacesPerLevel);
 };
 
-         // ------------------------------------------------------------------
+         // -------------------------------------------------------------
          // struct PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >
-         // ------------------------------------------------------------------
+         // -------------------------------------------------------------
 
 template <class TYPE>
-struct PrintMethods_Imp<TYPE,
-                            bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
+struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >
+{
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
-    // parameterized 'TYPE' that have the 'bslalg::StlIterators'
-    // trait declared.
+    // parameterized 'TYPE' that have the 'bslalg::StlIterators' trait
+    // declared.
 
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream& stream,
@@ -418,12 +410,13 @@ struct PrintMethods_Imp<TYPE,
                                int           spacesPerLevel);
 };
 
-                  // ---------------------------------------------------------
+                  // ---------------------------------------------------
                   // struct PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
-                  // ---------------------------------------------------------
+                  // ---------------------------------------------------
 
 template <class TYPE>
-struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
+struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >
+{
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
     // parameterized 'TYPE' that declare the 'bslmf::IsPair' trait.
@@ -436,21 +429,20 @@ struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
 };
 
 // ============================================================================
-//                   TEMPLATE AND INLINE FUNCTION DEFINITIONS
+//                 TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                // --------------------------------------------
+                // ---------------------------------------
                 // struct PrintMethods_Imp<TYPE, SELECTOR>
-                // --------------------------------------------
+                // ---------------------------------------
 
 // CLASS METHODS
 template <class TYPE>
-bsl::ostream&
-PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
+bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::print(
+                                                  bsl::ostream& stream,
+                                                  const TYPE&   object,
+                                                  int           level,
+                                                  int           spacesPerLevel)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -458,8 +450,8 @@ print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    // A compilation error indicating the next line of code implies the
-    // 'TYPE' parameter does not have the '<<' output stream operator.
+    // A compilation error indicating the next line of code implies the 'TYPE'
+    // parameter does not have the '<<' output stream operator.
 
     stream << object;
 
@@ -470,40 +462,37 @@ print(bsl::ostream& stream,
     return stream;
 }
 
-          // ---------------------------------------------------------------
+          // ----------------------------------------------------
           // struct PrintMethods_Imp<TYPE, HasPrintMethod<TYPE> >
-          // ---------------------------------------------------------------
+          // ----------------------------------------------------
 
 // CLASS METHODS
 template <class TYPE>
 inline
-bsl::ostream&
-PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<HasPrintMethod> >::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
+bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<HasPrintMethod> >::
+                                            print(bsl::ostream& stream,
+                                                  const TYPE&   object,
+                                                  int           level,
+                                                  int           spacesPerLevel)
 {
-    // A compilation error indicating the next line of code implies the
-    // 'TYPE' parameter does not have a 'print' method with the expected
-    // signature.
+    // A compilation error indicating the next line of code implies the 'TYPE'
+    // parameter does not have a 'print' method with the expected signature.
 
     return object.print(stream, level, spacesPerLevel);
 }
 
-         // ------------------------------------------------------------------
+         // -------------------------------------------------------------
          // struct PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >
-         // ------------------------------------------------------------------
+         // -------------------------------------------------------------
 
 // CLASS METHODS
 template <class TYPE>
-bsl::ostream&
-PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
-
+bsl::ostream& PrintMethods_Imp<TYPE,
+                               bslmf::SelectTraitCase<bslalg::HasStlIterators>
+                              >::print(bsl::ostream& stream,
+                                       const TYPE&   object,
+                                       int           level,
+                                       int           spacesPerLevel)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -511,8 +500,8 @@ print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    // A compilation error indicating the next line of code implies the
-    // 'TYPE' parameter does not have STL-compliant iterators.
+    // A compilation error indicating the next line of code implies the 'TYPE'
+    // parameter does not have STL-compliant iterators.
 
     typedef typename TYPE::const_iterator Iterator;
 
@@ -529,9 +518,9 @@ print(bsl::ostream& stream,
 
         for (Iterator it = object.begin(); it != object.end(); ++it) {
             PrintMethods::print(stream,
-                                     *it,
-                                     levelPlus1,
-                                     spacesPerLevel);
+                                *it,
+                                levelPlus1,
+                                spacesPerLevel);
         }
 
         Print::indent(stream, level, spacesPerLevel);
@@ -554,18 +543,17 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-                  // ---------------------------------------------------------
+                  // ---------------------------------------------------
                   // struct PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
-                  // ---------------------------------------------------------
+                  // ---------------------------------------------------
 
 // CLASS METHODS
 template <class TYPE>
-bsl::ostream&
-PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
+bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >::
+                                            print(bsl::ostream& stream,
+                                                  const TYPE&   object,
+                                                  int           level,
+                                                  int           spacesPerLevel)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -588,13 +576,13 @@ print(bsl::ostream& stream,
         // 'TYPE' parameter is not a pair.
 
         PrintMethods::print(stream,
-                                 object.first,
-                                 levelPlus1,
-                                 spacesPerLevel);
+                            object.first,
+                            levelPlus1,
+                            spacesPerLevel);
         PrintMethods::print(stream,
-                                 object.second,
-                                 levelPlus1,
-                                 spacesPerLevel);
+                            object.second,
+                            levelPlus1,
+                            spacesPerLevel);
 
         Print::indent(stream, level, spacesPerLevel);
 
@@ -618,53 +606,48 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-                        // ---------------------------
+                        // ----------------------
                         // namespace PrintMethods
-                        // ---------------------------
+                        // ----------------------
 
 // CLASS METHODS
 template <class TYPE>
-bsl::ostream&
-PrintMethods::print(bsl::ostream& stream,
-                         const TYPE&   object,
-                         int           level,
-                         int           spacesPerLevel)
+bsl::ostream& PrintMethods::print(bsl::ostream& stream,
+                                  const TYPE&   object,
+                                  int           level,
+                                  int           spacesPerLevel)
 {
-    typedef typename bslmf::SelectTrait<
-                TYPE,
-                HasPrintMethod,
-                bslalg::HasStlIterators,
-                bslmf::IsPair
-            >::Type BdeuSelector;
+    typedef typename bslmf::SelectTrait<TYPE,
+                                        HasPrintMethod,
+                                        bslalg::HasStlIterators,
+                                        bslmf::IsPair>::Type BdlbSelector;
 
-    return PrintMethods_Imp<TYPE, BdeuSelector>::print(stream,
-                                                            object,
-                                                            level,
-                                                            spacesPerLevel);
+    return PrintMethods_Imp<TYPE, BdlbSelector>::print(stream,
+                                                       object,
+                                                       level,
+                                                       spacesPerLevel);
 }
 
 template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>
-bsl::ostream&
-PrintMethods::print(
+bsl::ostream& PrintMethods::print(
          bsl::ostream&                                          stream,
          const bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>& object,
          int                                                    level,
          int                                                    spacesPerLevel)
 {
-    return PrintMethods_Imp<
-                          bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
-                          bslmf::SelectTraitCase<> >::print(stream,
-                                                            object,
-                                                            level,
-                                                            spacesPerLevel);
+    return PrintMethods_Imp<bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
+                            bslmf::SelectTraitCase<> >::print(stream,
+                                                              object,
+                                                              level,
+                                                              spacesPerLevel);
 }
 
 template <class ALLOC>
 bsl::ostream&
 PrintMethods::print(bsl::ostream&                   stream,
-                         const bsl::vector<char, ALLOC>& object,
-                         int                             level,
-                         int                             spacesPerLevel)
+                    const bsl::vector<char, ALLOC>& object,
+                    int                             level,
+                    int                             spacesPerLevel)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -688,8 +671,8 @@ PrintMethods::print(bsl::ostream&                   stream,
 
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
@@ -697,15 +680,15 @@ PrintMethods::print(bsl::ostream&                   stream,
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

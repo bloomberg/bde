@@ -14,9 +14,9 @@ BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-             // ---------------------------------------------
-             // class SemaphoreImpl<Platform::PosixSemaphore>
-             // ---------------------------------------------
+               // ---------------------------------------------
+               // class SemaphoreImpl<Platform::PosixSemaphore>
+               // ---------------------------------------------
 
 // CREATORS
 bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::SemaphoreImpl(int count)

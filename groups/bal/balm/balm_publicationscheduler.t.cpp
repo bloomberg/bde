@@ -2057,7 +2057,7 @@ int main(int argc, char *argv[])
         //   'bdlmt::TimerEventScheduler'.
         //
         // Plan:
-        //   The clocks in a 'bcep::TimerEventSchedule' cannot be inspected
+        //   The clocks in a 'bdlmt::TimerEventSchedule' cannot be inspected
         //   directly.  Instead, we must wait a period of time and verify
         //   that the correct number of events were supplied by the
         //   'bdlmt::TimerEventScheduler'.  A 'TIME_UNIT' was selected as

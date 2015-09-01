@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // ensuring that only one thread at a time enters a specific "critical
 // region" -- a section of code that accesses a shared resource.  The
 // functionality of the 'bdlqq::QLock' class overlaps those of the
-// 'bdlqq::Mutex' and 'bdlqq::SpinLock' classes, but with different usage and
+// 'bdlqq::Mutex' and 'bsls::SpinLock' classes, but with different usage and
 // performance characteristics, as shown in the following grid:
 //..
 //                                    | QLock | Mutex | SpinLock
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 ///The 'bdlqq::QLockGuard' Class
 ///----------------------------
 // A 'bdlqq::QLock' is different from other locking classes such as
-// 'bdlqq::Mutex' and 'bdlqq::SpinLock' in that it cannot be manipulated except
+// 'bdlqq::Mutex' and 'bsls::SpinLock' in that it cannot be manipulated except
 // through the auxiliary 'bdlqq::QLockGuard' class.  The reason for this
 // limited interface is that a QLock requires a small amount of additional
 // storage for each thread that is holding or waiting for the lock.  The
@@ -275,9 +275,9 @@ struct QLock {
         // Return true if this lock is locked and false otherwise.
 };
 
-                        // =====================
-                        // class QLock_EventFlag
-                        // =====================
+                           // =====================
+                           // class QLock_EventFlag
+                           // =====================
 
 class QLock_EventFlag {
     // [!PRIVATE!] This class provides a thread-safe mechanism for one thread
@@ -332,9 +332,9 @@ class QLock_EventFlag {
         // for this flag to be set.
 };
 
-                            // ================
-                            // class QLockGuard
-                            // ================
+                              // ================
+                              // class QLockGuard
+                              // ================
 
 class QLockGuard  {
     // This class provides the means to acquire and release the lock on a
@@ -432,9 +432,9 @@ bool bdlqq::QLock::isLocked() const
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
 
-                        // ---------------------
-                        // class QLock_EventFlag
-                        // ---------------------
+                           // ---------------------
+                           // class QLock_EventFlag
+                           // ---------------------
 
 // CREATORS
 inline
@@ -455,9 +455,9 @@ void bdlqq::QLock_EventFlag::reset()
     d_status = 0;
 }
 
-                            // ----------------
-                            // class QLockGuard
-                            // ----------------
+                              // ----------------
+                              // class QLockGuard
+                              // ----------------
 
 // CREATORS
 inline

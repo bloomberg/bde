@@ -39,13 +39,13 @@ BSLS_IDENT("$Id: $")
 // order it appears in the xml document.
 //
 // 'balxml::Reader' supplies accessors that query a node's attributes, such as
-// the node's type, name, value, element attributes, etc..  Note that each
-// call to 'advanceToNextNode' invalidates strings and data structures
-// returned when the 'balxml::Reader' accessors were call for the prior node.
-// E.g., the pointer returned from 'nodeName' for one node will *not* be
-// valid once the reader has advanced to the next node.  The fact that this
-// interface provides so little prior context gives the derived-class
-// implementations the potential to be very efficient in their use of memory.
+// the node's type, name, value, element attributes, etc..  Note that each call
+// to 'advanceToNextNode' invalidates strings and data structures returned when
+// the 'balxml::Reader' accessors were call for the prior node.  E.g., the
+// pointer returned from 'nodeName' for one node will *not* be valid once the
+// reader has advanced to the next node.  The fact that this interface provides
+// so little prior context gives the derived-class implementations the
+// potential to be very efficient in their use of memory.
 //
 // Any derived class must adhere to the class-level and function-level contract
 // documented in this component.  Note that an object of a derived class
@@ -85,9 +85,8 @@ BSLS_IDENT("$Id: $")
 //   3.  The base URI of the document entity or external entity containing the
 //       element.
 //..
-// If there is no base URI for a node being returned (for example, it
-// was parsed from an in-memory string), then 'nodeBaseUri' return an empty
-// string.
+// If there is no base URI for a node being returned (for example, it was
+// parsed from an in-memory string), then 'nodeBaseUri' return an empty string.
 //
 ///Encoding:
 ///---------
@@ -114,8 +113,8 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This component does not provide any functions that present a thread safety
 // issue, since the 'balxml::Reader' class is abstract and cannot be
-// instantiated.  There is no guarantee that any specific derived class
-// will provide a thread-safe implementation.
+// instantiated.  There is no guarantee that any specific derived class will
+// provide a thread-safe implementation.
 //
 ///Usage
 ///-----
@@ -207,6 +206,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_managedptr.h>
 #endif
 
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
 #ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
 #endif
@@ -221,9 +224,9 @@ namespace BloombergLP  {
 namespace balxml {class ElementAttribute;
 class PrefixStack;
 
-                        // ===================
-                        // class Reader
-                        // ===================
+                                // ============
+                                // class Reader
+                                // ============
 
 class Reader {
     // This abstract class defines an interface for fast, forward-only access
@@ -237,8 +240,8 @@ class Reader {
     enum NodeType {
         // Node types, returned by 'nodeType' method, which represent a XML
         // syntactic construct within a document.  Note: Not every
-        // implementation of 'Reader' will distinguish among all of the
-        // node types.
+        // implementation of 'Reader' will distinguish among all of the node
+        // types.
         e_NODE_TYPE_NONE                   = 0,
         e_NODE_TYPE_ELEMENT                = 1,
         e_NODE_TYPE_TEXT                   = 2,
@@ -263,14 +266,16 @@ class Reader {
       , BAEXML_NODE_TYPE_CDATA = e_NODE_TYPE_CDATA
       , BAEXML_NODE_TYPE_ENTITY_REFERENCE = e_NODE_TYPE_ENTITY_REFERENCE
       , BAEXML_NODE_TYPE_ENTITY = e_NODE_TYPE_ENTITY
-      , BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION = e_NODE_TYPE_PROCESSING_INSTRUCTION
+      , BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION =
+                                             e_NODE_TYPE_PROCESSING_INSTRUCTION
       , BAEXML_NODE_TYPE_COMMENT = e_NODE_TYPE_COMMENT
       , BAEXML_NODE_TYPE_DOCUMENT = e_NODE_TYPE_DOCUMENT
       , BAEXML_NODE_TYPE_DOCUMENT_TYPE = e_NODE_TYPE_DOCUMENT_TYPE
       , BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT = e_NODE_TYPE_DOCUMENT_FRAGMENT
       , BAEXML_NODE_TYPE_NOTATION = e_NODE_TYPE_NOTATION
       , BAEXML_NODE_TYPE_WHITESPACE = e_NODE_TYPE_WHITESPACE
-      , BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE = e_NODE_TYPE_SIGNIFICANT_WHITESPACE
+      , BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE =
+                                             e_NODE_TYPE_SIGNIFICANT_WHITESPACE
       , BAEXML_NODE_TYPE_END_ELEMENT = e_NODE_TYPE_END_ELEMENT
       , BAEXML_NODE_TYPE_END_ENTITY = e_NODE_TYPE_END_ENTITY
       , BAEXML_NODE_TYPE_XML_DECLARATION = e_NODE_TYPE_XML_DECLARATION
@@ -300,7 +305,7 @@ class Reader {
 
     typedef
     bdlf::Function<StreamBufPtr (*)(const char *location,
-                                   const char *namespaceUri)>
+                                    const char *namespaceUri)>
                                                             XmlResolverFunctor;
         // Type for a user supplied functor that finds and opens an external
         // resource for the specified 'location' and/or 'namespaceUri' and
@@ -318,40 +323,40 @@ class Reader {
 
     // CLASS METHODS
     static const char *nodeTypeAsString(NodeType nodeType);
-        // Return a string representation for the specified 'nodeType' code
-        // or "(* UNKNOWN NODE TYPE *)" if 'nodeType' is not one of the values
+        // Return a string representation for the specified 'nodeType' code or
+        // "(* UNKNOWN NODE TYPE *)" if 'nodeType' is not one of the values
         // enumerated in 'NodeType'.
 
     // PUBLIC CREATORS
     virtual ~Reader(void);
-        // Destroy this object.  The implementation for this pure abstract
-        // base class does nothing.
+        // Destroy this object.  The implementation for this pure abstract base
+        // class does nothing.
 
     // NON-VIRTUAL ACCESSORS (implemented in this base class)
     void dumpNode(bsl::ostream& os) const;
-        // Print the information about the current node to the specified
-        // output 'os' stream.
+        // Print the information about the current node to the specified output
+        // 'os' stream.
 
     bool isFatalError() const;
-        // Return 'true' if the derived object encountered a fatal error.
-        // This method is equivalent to a call to 'errorInfo().isFatalError();'
+        // Return 'true' if the derived object encountered a fatal error.  This
+        // method is equivalent to a call to 'errorInfo().isFatalError();'
 
     bool isError() const;
-        // Return 'true' if the derived object encountered a error.
-        // This method is equivalent to a call to 'errorInfo().isError();'
+        // Return 'true' if the derived object encountered a error.  This
+        // method is equivalent to a call to 'errorInfo().isError();'
 
     bool isWarning() const;
-        // Return 'true' if the derived object encountered a warning.
-        // This method is equivalent to a call to 'errorInfo().isWarning();'
+        // Return 'true' if the derived object encountered a warning.  This
+        // method is equivalent to a call to 'errorInfo().isWarning();'
 
     // MANIPULATORS - SETUP METHODS
     virtual void setPrefixStack(PrefixStack *prefixes) = 0;
-        // Set the prefix stack to the stack at the specified 'prefixes'
-        // address or disable prefix stack support if 'prefixes' == 0.  This
-        // stack is used to push and pop namespace prefixes as the parse
-        // progresses, so that, at any point, the stack will reflect the set of
-        // active prefixes for the current node.  It is legitimate to pass a
-        // stack that already contains prefixes, these prefixes shall be
+        // Set the prefix stack to the stack at the optionally specified
+        // 'prefixes' address or disable prefix stack support if 'prefixes' is
+        // null.  This stack is used to push and pop namespace prefixes as the
+        // parse progresses, so that, at any point, the stack will reflect the
+        // set of active prefixes for the current node.  It is legitimate to
+        // pass a stack that already contains prefixes, these prefixes shall be
         // preserved when 'close' is called, i.e., the prefix stack shall be
         // returned to the stack depth it had when 'setPrefixStack' was called.
         // The behavior is undefined if this method is called after calling
@@ -368,15 +373,15 @@ class Reader {
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
     virtual int open(const char *filename, const char *encoding = 0) = 0;
-        // Setup the reader for parsing using the data contained in the XML
+        // Set up the reader for parsing using the data contained in the XML
         // file described by the specified 'filename', and set the encoding
-        // value to the specified 'encoding' ("ASCII", "UTF-8", etc).  Returns
-        // 0 on success and non-zero otherwise.  The encoding passed to
-        // 'Reader::open' will take effect only when there is no
+        // value to the optionally specified 'encoding' ("ASCII", "UTF-8",
+        // etc).  Returns 0 on success and non-zero otherwise.  The encoding
+        // passed to 'Reader::open' will take effect only when there is no
         // encoding information in the original document, i.e., the encoding
         // information obtained from the XML file described by the 'filename'
         // trumps all.  If there is no encoding provided within the document
-        // and 'encoding' == 0 or a blank string is passed, then set the
+        // and 'encoding' is null or a blank string is passed, then set the
         // encoding to the default "UTF-8".  It is an error to 'open' a reader
         // that is already open.  Note that the reader will not be on a valid
         // node until 'advanceToNextNode' is called.
@@ -385,17 +390,17 @@ class Reader {
                      bsl::size_t  size,
                      const char  *url = 0,
                      const char  *encoding = 0) = 0;
-        // Setup the reader for parsing using the data contained in the
+        // Set up the reader for parsing using the data contained in the
         // specified (XML) 'buffer' of the specified 'size', set the base URL
-        // to the specified 'url' and set the encoding value to the specified
-        // 'encoding' ("ASCII", "UTF-8", etc).  Return 0 on success and
-        // non-zero otherwise.  If the 'url' == 0 or a blank string is passed,
-        // then base URL will be empty.  The encoding passed to
-        // 'Reader::open' will take effect only when there is no
-        // encoding information in the original document, i.e., the encoding
-        // information obtained from the (XML) 'buffer' trumps all.  If
-        // there is no encoding provided within the document and 'encoding' ==
-        // 0 or a blank string is passed, then set the encoding to the default
+        // to the optionally specified 'url' and set the encoding value to the
+        // optionally specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0
+        // on success and non-zero otherwise.  If 'url' is null or a blank
+        // string is passed, then base URL will be empty.  The encoding passed
+        // to 'Reader::open' will take effect only when there is no encoding
+        // information in the original document, i.e., the encoding information
+        // obtained from the (XML) 'buffer' trumps all.  If there is no
+        // encoding provided within the document and 'encoding' is null or a
+        // blank string is passed, then set the encoding to the default
         // "UTF-8".  It is an error to 'open' a reader that is already open.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextNode' is called.
@@ -403,19 +408,20 @@ class Reader {
     virtual int open(bsl::streambuf *stream,
                      const char     *url = 0,
                      const char     *encoding = 0) = 0;
-        // Setup the reader for parsing using the data contained in the
-        // specified (XML) 'stream', set the base URL to the specified 'url'
-        // and set the encoding value to the specified 'encoding' ("ASCII",
-        // "UTF-8", etc).  Return 0 on success and non-zero otherwise.  If the
-        // 'url' == 0 or a blank string is passed, then base URL will be empty.
-        // The encoding passed to 'Reader::open' will take effect only
-        // when there is no encoding information in the original document,
-        // i.e., the encoding information obtained from the (XML) 'stream'
-        // trumps all.  If there is no encoding provided within the document
-        // and 'encoding' == 0 or a blank string is passed, then set the
-        // encoding to the default "UTF-8".  It is an error to 'open' a reader
-        // that is already open.  Note that the reader will not be on a valid
-        // node until 'advanceToNextNode' is called.
+        // Set up the reader for parsing using the data contained in the
+        // specified (XML) 'stream', set the base URL to the optionally
+        // specified 'url' and set the encoding value to the optionally
+        // specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0 on success
+        // and non-zero otherwise.  If 'url' is null or a blank string is
+        // passed, then base URL will be empty.  The encoding passed to
+        // 'Reader::open' will take effect only when there is no encoding
+        // information in the original document, i.e., the encoding information
+        // obtained from the (XML) 'stream' trumps all.  If there is no
+        // encoding provided within the document and 'encoding' is null or a
+        // blank string is passed, then set the encoding to the default
+        // "UTF-8".  It is an error to 'open' a reader that is already open.
+        // Note that the reader will not be on a valid node until
+        // 'advanceToNextNode' is called.
 
     virtual void close() = 0;
         // Close the reader.  Most, but not all state is reset.  Specifically,
@@ -423,25 +429,25 @@ class Reader {
         // stack shall be returned to the stack depth it had when
         // 'setPrefixStack' was called.  Call the method 'open' to reuse the
         // reader.  Note that 'close' invalidates all strings and data
-        // structures obtained via 'Reader' accessors.  E.g., the
-        // pointer returned from 'nodeName' for this node will not be valid
-        // once 'close' is called.
+        // structures obtained via 'Reader' accessors.  E.g., the pointer
+        // returned from 'nodeName' for this node will not be valid once
+        // 'close' is called.
 
     virtual int advanceToNextNode() = 0;
         // Move to the next node in the data steam created by 'open' thus
-        // allowing the node's properties to be queried via the
-        // 'Reader' accessors.  Return 0 on successful read, 1 if there
-        // are no more nodes to read, and a negative number otherwise.  Note
-        // that each call to 'advanceToNextNode' invalidates strings and data
-        // structures returned when 'Reader' accessors where call for
-        // the "prior node".  E.g., the pointer returned from 'nodeName' for
-        // this node will not be valid once 'advanceToNextNode' is called.
-        // Note that the reader will not be on a valid node until the first
-        // call to 'advanceToNextNode' after the reader is opened.
-        // TBD: add comment about insignificant white space.
+        // allowing the node's properties to be queried via the 'Reader'
+        // accessors.  Return 0 on successful read, 1 if there are no more
+        // nodes to read, and a negative number otherwise.  Note that each call
+        // to 'advanceToNextNode' invalidates strings and data structures
+        // returned when 'Reader' accessors where call for the "prior node".
+        // E.g., the pointer returned from 'nodeName' for this node will not be
+        // valid once 'advanceToNextNode' is called.  Note that the reader will
+        // not be on a valid node until the first call to 'advanceToNextNode'
+        // after the reader is opened.  TBD: add comment about insignificant
+        // white space.
 
     virtual int lookupAttribute(ElementAttribute *attribute,
-                                int                      index) const = 0;
+                                int               index) const = 0;
         // Find the attribute at the specified 'index' in the current node, and
         // fill in the specified 'attribute' structure.  Return 0 on success, 1
         // if no attribute is found at the 'index', and an a negative value
@@ -450,7 +456,7 @@ class Reader {
         // is called.
 
     virtual int lookupAttribute(ElementAttribute *attribute,
-                                const char              *qname) const = 0;
+                                const char       *qname) const = 0;
         // Find the attribute with the specified 'qname' (qualified name) in
         // the current node, and fill in the specified 'attribute' structure.
         // Return 0 on success, 1 if there is no attribute found with 'qname',
@@ -459,9 +465,9 @@ class Reader {
         // 'advanceToNextNode' or 'close' is called.
 
     virtual int
-    lookupAttribute(ElementAttribute  *attribute,
-                    const char               *localName,
-                    const char               *namespaceUri) const = 0;
+    lookupAttribute(ElementAttribute *attribute,
+                    const char       *localName,
+                    const char       *namespaceUri) const = 0;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceUri' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -473,8 +479,8 @@ class Reader {
 
     virtual int
     lookupAttribute(ElementAttribute *attribute,
-                    const char              *localName,
-                    int                      namespaceId) const  = 0;
+                    const char       *localName,
+                    int               namespaceId) const  = 0;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceId' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -508,8 +514,8 @@ class Reader {
 
     virtual const ErrorInfo& errorInfo() const = 0;
         // Return a reference to the non-modifiable error information for this
-        // reader.  The returned value becomes invalid when 'close' is
-        // called or the reader is destroyed.
+        // reader.  The returned value becomes invalid when 'close' is called
+        // or the reader is destroyed.
 
     virtual int getLineNumber() const = 0;
         // Return the current line number within the input stream.  The current
@@ -610,6 +616,10 @@ class Reader {
         // Return the option flags.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value)
     // Print the specified node type 'value' to the specified 'stream' in
@@ -623,10 +633,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value)
 // FREE OPERATORS
 
 namespace balxml {
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
 inline bool
 Reader::isWarning() const
 {

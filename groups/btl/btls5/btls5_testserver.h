@@ -108,9 +108,9 @@ class Session;
 
 namespace btls5 {
 
-                         // =====================
-                         // struct TestServerArgs
-                         // =====================
+                           // =====================
+                           // struct TestServerArgs
+                           // =====================
 
 struct TestServerArgs {
     // This struct is used to control behavior of 'TestServer' objects.
@@ -182,9 +182,9 @@ struct TestServerArgs {
         // used.
 };
 
-                        // ================
-                        // class TestServer
-                        // ================
+                              // ================
+                              // class TestServer
+                              // ================
 
 class TestServer {
     // This class implements a test server that support a subset of the SOCKS5

@@ -8,12 +8,16 @@ BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
 
 #include <bslalg_arraydestructionprimitives.h>
 #include <bslalg_arrayprimitives.h>
+
+#include <bslma_default.h>
+
 #include <bsls_assert.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_climits.h>
 #include <bsl_iomanip.h>
-#include <bsl_ostream.h>
-
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -275,9 +279,9 @@ static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
 
 namespace bdlcc {
 
-                       // ----------------------------
-                       // class FixedQueueIndexManager
-                       // ----------------------------
+                        // ----------------------------
+                        // class FixedQueueIndexManager
+                        // ----------------------------
 
 // CLASS METHODS
 int FixedQueueIndexManager::circularDifference(unsigned int minuend,

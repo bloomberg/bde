@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 //  int getWorkData(MyWorkData *result)
 //  {
 //      static int count = 0;
-//      result->d_i = rand();   // Only one thread runs this routine, so
-//                              // it does not matter that 'rand()' is not
+//      result->d_i = rand();   // Only one thread runs this routine, so it
+//                              // does not matter that 'rand()' is not
 //                              // thread-safe, or that 'count' is 'static'.
 //
 //      return ++count >= 100;
@@ -192,8 +192,8 @@ BSLS_IDENT("$Id: $")
 //                                   &queue);
 //      }
 //
-//      // Load work data into work requests and push them onto the queue
-//      // with varying priority until all work data has been exhausted.
+//      // Load work data into work requests and push them onto the queue with
+//      // varying priority until all work data has been exhausted.
 //
 //      int count = 0;                          // used to generate priorities
 //
@@ -452,9 +452,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                // =========================================
-                // local class MultipriorityQueue_Node<TYPE>
-                // =========================================
+                 // =========================================
+                 // local class MultipriorityQueue_Node<TYPE>
+                 // =========================================
 
 template <class TYPE>
 class MultipriorityQueue_Node {
@@ -502,9 +502,9 @@ class MultipriorityQueue_Node {
         // Return a reference to the non-modifiable item stored in this node.
 };
 
-                      // ==============================
-                      // class MultipriorityQueue<TYPE>
-                      // ==============================
+                       // ==============================
+                       // class MultipriorityQueue<TYPE>
+                       // ==============================
 
 template <class TYPE>
 class MultipriorityQueue {
@@ -704,12 +704,12 @@ class MultipriorityQueue {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                // -----------------------------------------
-                // local class MultipriorityQueue_Node<TYPE>
-                // -----------------------------------------
+                 // -----------------------------------------
+                 // local class MultipriorityQueue_Node<TYPE>
+                 // -----------------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -753,9 +753,9 @@ const TYPE& MultipriorityQueue_Node<TYPE>::item() const
     return d_item.object();
 }
 
-                      // ------------------------------
-                      // class MultipriorityQueue<TYPE>
-                      // ------------------------------
+                       // ------------------------------
+                       // class MultipriorityQueue<TYPE>
+                       // ------------------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

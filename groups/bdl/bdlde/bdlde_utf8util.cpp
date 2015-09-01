@@ -345,15 +345,15 @@ int validateAndCountCharacters(const char **invalidString,
 namespace BloombergLP {
 
 namespace bdlde {
-                            // ---------------------
-                            // struct Utf8Util
-                            // ---------------------
+                              // ---------------
+                              // struct Utf8Util
+                              // ---------------
 
 // CLASS METHODS
 int Utf8Util::advanceIfValid(int         *status,
-                                   const char **result,
-                                   const char  *string,
-                                   int          numCharacters)
+                             const char **result,
+                             const char  *string,
+                             int          numCharacters)
 {
     BSLS_ASSERT(status);
     BSLS_ASSERT(result);
@@ -532,10 +532,10 @@ int Utf8Util::advanceIfValid(int         *status,
 }
 
 int Utf8Util::advanceIfValid(int         *status,
-                                   const char **result,
-                                   const char  *string,
-                                   int          length,
-                                   int          numCharacters)
+                             const char **result,
+                             const char  *string,
+                             int          length,
+                             int          numCharacters)
 {
     BSLS_ASSERT(status);
     BSLS_ASSERT(result);
@@ -741,8 +741,8 @@ int Utf8Util::advanceIfValid(int         *status,
 }
 
 int Utf8Util::advanceRaw(const char **result,
-                               const char  *string,
-                               int          numCharacters)
+                         const char  *string,
+                         int          numCharacters)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
@@ -821,9 +821,9 @@ int Utf8Util::advanceRaw(const char **result,
 }
 
 int Utf8Util::advanceRaw(const char **result,
-                               const char  *string,
-                               int          length,
-                               int          numCharacters)
+                         const char  *string,
+                         int          length,
+                         int          numCharacters)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
@@ -923,8 +923,8 @@ bool Utf8Util::isValid(const char **invalidString, const char *string)
 }
 
 bool Utf8Util::isValid(const char **invalidString,
-                             const char  *string,
-                             int          length)
+                       const char  *string,
+                       int          length)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
@@ -934,7 +934,7 @@ bool Utf8Util::isValid(const char **invalidString,
 }
 
 int Utf8Util::numCharactersIfValid(const char **invalidString,
-                                         const char  *string)
+                                   const char  *string)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
@@ -943,8 +943,8 @@ int Utf8Util::numCharactersIfValid(const char **invalidString,
 }
 
 int Utf8Util::numCharactersIfValid(const char **invalidString,
-                                         const char  *string,
-                                         int          length)
+                                   const char  *string,
+                                   int          length)
 {
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);

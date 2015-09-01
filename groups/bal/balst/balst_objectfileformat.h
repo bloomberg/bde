@@ -95,9 +95,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                        // ============================
-                        // class ObjectFileFormat
-                        // ============================
+                           // ======================
+                           // class ObjectFileFormat
+                           // ======================
 
 struct ObjectFileFormat {
     // This 'struct' is named 'ObjectFileFormat' for historical reasons, what

@@ -184,9 +184,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // ==================
-                            // class MeteredMutex
-                            // ==================
+                             // ==================
+                             // class MeteredMutex
+                             // ==================
 
 class MeteredMutex {
     // This class implements a mutex, that has the additional capability

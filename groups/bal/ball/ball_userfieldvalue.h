@@ -90,6 +90,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif

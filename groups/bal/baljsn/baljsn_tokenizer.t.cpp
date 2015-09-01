@@ -3,6 +3,8 @@
 
 #include <baljsn_parserutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
@@ -16,6 +18,9 @@
 #include <bdlsb_memoutstreambuf.h>            // for testing only
 #include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>        // for testing only
+
+#include <bsl_cstring.h>
+#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -54,91 +59,55 @@ using bsl::endl;
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define LOOP0_ASSERT ASSERT
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 #define WS "   \t       \n      \v       \f       \r       "
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-enum { SUCCESS = 0, FAILURE = -1 };
 
 typedef baljsn::Tokenizer Obj;
 
@@ -203,7 +172,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64  Int64;
@@ -694,8 +663,8 @@ int main(int argc, char *argv[])
             int             d_numAdvances;
             int             d_numAvail;
         } DATA[] = {
-        // line   value            nAdv      nAvail
-        // ----   -----            ----      ------
+        //line    value            nAdv      nAvail
+        //----    -----            ----      ------
 
         { L_,   "",                  0,           0   },
         { L_,   "{}",                2,           0   },
@@ -964,8 +933,8 @@ int main(int argc, char *argv[])
             int             d_line;
             const char     *d_value_p;
         } DATA[] = {
-        // line   value
-        // ----   -----
+        //line    value
+        //----    -----
 
           { L_,   "\"\""                    },
 
@@ -1370,8 +1339,8 @@ int main(int argc, char *argv[])
             bool              d_allocatesMemory;
         } DATA[] = {
 
-        // Line  Suffix Text                             Allocates memory flag
-        // ----  -----------                             ---------------------
+        //Line   Suffix Text                             Allocates memory flag
+        //----   -----------                             ---------------------
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
 
@@ -1539,7 +1508,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_END_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -1603,8 +1572,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                 << "TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY" << endl
-                 << "================================================" << endl;
+                 << "TESTING 'advanceToNextToken' TO 'e_END_ARRAY'" << endl
+                 << "=============================================" << endl;
 
         const struct {
             int             d_line;
@@ -2555,7 +2524,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_START_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2609,8 +2578,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -2895,7 +2864,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_END_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2959,8 +2928,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT" << endl
-                << "=================================================" << endl;
+                << "TESTING 'advanceToNextToken' TO 'e_END_OBJECT'" << endl
+                << "==============================================" << endl;
 
         const struct {
             int             d_line;
@@ -3729,7 +3698,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_VALUE
+        // TESTING 'advanceToNextToken' TO 'e_VALUE'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -3791,8 +3760,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                     << "TESTING 'advanceToNextToken' TO BAEJSN_VALUE" << endl
-                     << "============================================" << endl;
+                     << "TESTING 'advanceToNextToken' TO 'e_VALUE'" << endl
+                     << "=========================================" << endl;
 
         const struct {
             int             d_line;
@@ -4251,8 +4220,10 @@ int main(int argc, char *argv[])
                 "\"" WS "New" WS "Deal" WS "\""
             },
 
+            //..
             // value (integer) -> value (string)
             // value (string)  -> value (integer)
+            //..
             {
                 L_,
                 "{"
@@ -4601,7 +4572,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_NAME
+        // TESTING 'advanceToNextToken' TO 'e_NAME'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -4657,8 +4628,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -5143,7 +5114,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_START_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -5199,8 +5170,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT" << endl
-              << "===================================================" << endl;
+              << "TESTING 'advanceToNextToken' TO 'e_START_OBJECT'" << endl
+              << "================================================" << endl;
 
         const struct {
             int             d_line;

@@ -127,9 +127,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-                            // ===============
-                            // class Semaphore
-                            // ===============
+                              // ===============
+                              // class Semaphore
+                              // ===============
 
 class Semaphore {
     // This class implements a portable semaphore type for thread
@@ -184,9 +184,9 @@ class Semaphore {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ---------------
-                            // class Semaphore
-                            // ---------------
+                              // ---------------
+                              // class Semaphore
+                              // ---------------
 
 // CREATORS
 inline

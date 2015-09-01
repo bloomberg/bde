@@ -4,6 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP {
+
+namespace bsls {
+
+const SpinLock SpinLock::s_unlocked = BSLS_SPINLOCK_UNLOCKED;
+    
+}  // close package namespace
+
+}  // close enterprise namespace
+
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

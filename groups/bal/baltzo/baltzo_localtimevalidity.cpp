@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(baltzo_localtimevalidity_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ------------------------
-                        // struct LocalTimeValidity
-                        // ------------------------
+                          // ------------------------
+                          // struct LocalTimeValidity
+                          // ------------------------
 
 // CLASS METHODS
 bsl::ostream& baltzo::LocalTimeValidity::print(

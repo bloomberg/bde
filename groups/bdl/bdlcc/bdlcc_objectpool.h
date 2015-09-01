@@ -130,14 +130,14 @@ BSLS_IDENT("$Id: $")
 // object of a query factory class 'QueryFactory'.
 //..
 //  enum {
-//      k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
-//                                      // a connection (in microseconds)
+//      k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open a
+//                                      // connection (in microseconds)
 //
-//      k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
-//                                      // a connection (in microseconds)
+//      k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close a
+//                                      // connection (in microseconds)
 //
-//      k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
-//                                      // a query (in microseconds)
+//      k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute a query
+//                                      // (in microseconds)
 //  };
 //
 //  class my_DatabaseConnection
@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //      void executeQuery(Query *query)
 //      {
 //          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
-//          (void *)query;
+//          (void)query;
 //      }
 //  };
 //..
@@ -165,9 +165,9 @@ BSLS_IDENT("$Id: $")
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//  extern "C" void serverThread(bsls::AtomicInt             *queries,
-//                               int                          max,
-//                               void(*queryHandler)(Query*))
+//  extern "C" void serverThread(bsls::AtomicInt *queries,
+//                               int              max,
+//                               void             (*queryHandler)(Query*))
 //  {
 //      while (++(*queries) <= max) {
 //          Query *query = queryFactory->createQuery();
@@ -380,9 +380,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                        // =========================
-                        // struct ObjectPoolFunctors
-                        // =========================
+                         // =========================
+                         // struct ObjectPoolFunctors
+                         // =========================
 
 struct ObjectPoolFunctors {
     // This struct provides several functors that are suitable 'RESETTER'
@@ -452,9 +452,9 @@ struct ObjectPoolFunctors {
 
 };
 
-                    // =================================
-                    // class ObjectPool_CreatorConverter
-                    // =================================
+                     // =================================
+                     // class ObjectPool_CreatorConverter
+                     // =================================
 
 template <class TYPE, class OTHERTYPE>
 class ObjectPool_CreatorConverter {
@@ -502,9 +502,9 @@ class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
     ObjectPoolFunctors::DefaultCreator creator() const;
 };
 
-                      // =============================
-                      // class ObjectPool_CreatorProxy
-                      // =============================
+                       // =============================
+                       // class ObjectPool_CreatorProxy
+                       // =============================
 
 template <class TYPE, class OTHERTYPE>
 class ObjectPool_CreatorProxy {
@@ -603,9 +603,9 @@ class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
         // proxy.
 };
 
-                             // ================
-                             // class ObjectPool
-                             // ================
+                              // ================
+                              // class ObjectPool
+                              // ================
 
 template <class TYPE,
           class CREATOR  = ObjectPoolFunctors::DefaultCreator,
@@ -926,7 +926,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                                 // ----------

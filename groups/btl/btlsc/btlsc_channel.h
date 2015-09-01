@@ -355,9 +355,9 @@ BSLS_IDENT("$Id: $")
 #error Microsoft Windows headers make writing portable code extremely painful.
 #endif
 
-                        // ===================
-                        // class btlsc::Channel
-                        // ===================
+                            // ====================
+                            // class btlsc::Channel
+                            // ====================
 
 namespace BloombergLP {
 

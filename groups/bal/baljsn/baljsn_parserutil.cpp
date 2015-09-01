@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bdlb_chartype.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -23,7 +24,6 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 
 namespace BloombergLP {
-
 namespace {
 
 inline
@@ -38,19 +38,21 @@ bool isValidNextChar(int nextChar)
         || '}' == static_cast<char>(nextChar);
 }
 
-const bsls::Types::Uint64 UINT64_MAX_VALUE =
+static const bsls::Types::Uint64 UINT64_MAX_VALUE =
                                bsl::numeric_limits<bsls::Types::Uint64>::max();
-const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 = UINT64_MAX_VALUE / 10;
-const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
+static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
+                                                         UINT64_MAX_VALUE / 10;
+static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
                                              UINT64_MAX_VALUE / 10000000000ULL;
-const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
+static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
 }  // close unnamed namespace
 
 namespace baljsn {
-                            // ------------------------
-                            // struct ParserUtil
-                            // ------------------------
+
+                             // -----------------
+                             // struct ParserUtil
+                             // -----------------
 
 // CLASS METHODS
 int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
@@ -99,17 +101,17 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
               case 'u':
               case 'U': {
 
-                enum { NUM_UNICODE_DIGITS = 4 };
+                enum { k_NUM_UNICODE_DIGITS = 4 };
 
-                if (iter + NUM_UNICODE_DIGITS >= end) {
+                if (iter + k_NUM_UNICODE_DIGITS >= end) {
                     return -1;                                        // RETURN
                 }
 
                 ++iter;
 
-                char tmp[NUM_UNICODE_DIGITS + 1];
-                bsl::strncpy(tmp, iter, NUM_UNICODE_DIGITS);
-                tmp[NUM_UNICODE_DIGITS] = '\0';
+                char tmp[k_NUM_UNICODE_DIGITS + 1];
+                bsl::strncpy(tmp, iter, k_NUM_UNICODE_DIGITS);
+                tmp[k_NUM_UNICODE_DIGITS] = '\0';
 
                 char         *end = 0;
                 unsigned int  utf32input[2] = { 0 };
@@ -126,11 +128,12 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 BSLS_ASSERT(0 == (utf32input[0] & 0xFF000000)
                          && 0 == (utf32input[0] & 0x00FF0000));
 
-                // Due to the short string optimization there won't be a
-                // memory allocation here.
+                // Due to the short string optimization there won't be a memory
+                // allocation here.
 
                 bsl::string utf8String;
-                const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(&utf8String,
+                const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(
+                                                                   &utf8String,
                                                                    utf32input);
 
                 if (rc) {
@@ -170,13 +173,14 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
         return -1;                                                    // RETURN
     }
 
-    const int MAX_STRING_LENGTH = 63;
-    char      buffer[MAX_STRING_LENGTH + 1];
+    const int k_MAX_STRING_LENGTH = 63;
+    char      buffer[k_MAX_STRING_LENGTH + 1];
 
-    bdlma::BufferedSequentialAllocator allocator(buffer, MAX_STRING_LENGTH + 1);
-    bsl::string                       dataString(data.data(),
-                                                 data.length(),
-                                                 &allocator);
+    bdlma::BufferedSequentialAllocator allocator(buffer,
+                                                 k_MAX_STRING_LENGTH + 1);
+    bsl::string                        dataString(data.data(),
+                                                  data.length(),
+                                                  &allocator);
 
     char   *endPtr = 0;
     errno          = 0;
@@ -195,7 +199,7 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
 }
 
 int ParserUtil::getUint64(bsls::Types::Uint64 *value,
-                                 bslstl::StringRef    data)
+                          bslstl::StringRef    data)
 {
     const char *iter  = data.begin();
     const char *end   = data.end();
@@ -226,8 +230,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         fractionalEnd = iter;
     }
 
-    // Extract exponent digits if available and store the unsigned integer
-    // part in 'exponent' and the sign in 'isExpNegative'.
+    // Extract exponent digits if available and store the unsigned integer part
+    // in 'exponent' and the sign in 'isExpNegative'.
 
     int  exponent = 0;
     bool isExpNegative = false;
@@ -257,7 +261,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // Based on the value of 'exponent' update the range value digits range,
     // [valueBegin..valueEnd).
 
-    int numFractionalDigits = fractionalEnd - fractionalBegin;
+    int numFractionalDigits = static_cast<int>(fractionalEnd
+                                                            - fractionalBegin);
     int numAdditionalDigits = 0;
     if (isExpNegative) {
         // Shrink the value digits range by 'exponent'.  The fractional digits
@@ -278,8 +283,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         }
     }
     else {
-        // Expand the value digits range.  If there are fractional
-        // digits, coalesce them into the value range by updating
+        // Expand the value digits range.  If there are fractional digits,
+        // coalesce them into the value range by updating
         // 'numAdditionalDigits'.  Update 'exponent' after the operation.
 
         if (numFractionalDigits > exponent) {
@@ -389,18 +394,18 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
 
 int ParserUtil::getValue(bool *value, bslstl::StringRef data)
 {
-    enum { BAEJSN_TRUE_LENGTH = 4, BAEJSN_FALSE_LENGTH = 5 };
+    enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };
 
-    if (BAEJSN_TRUE_LENGTH == data.length()
+    if (k_TRUE_LENGTH == data.length()
      && 0                  == bsl::strncmp("true",
                                            data.data(),
-                                           BAEJSN_TRUE_LENGTH)) {
+                                           k_TRUE_LENGTH)) {
         *value = true;
     }
-    else if (BAEJSN_FALSE_LENGTH == data.length()
-          && 0                   == bsl::strncmp("false",
-                                                 data.data(),
-                                                 BAEJSN_FALSE_LENGTH)) {
+    else if (k_FALSE_LENGTH == data.length()
+          && 0              == bsl::strncmp("false",
+                                            data.data(),
+                                            k_FALSE_LENGTH)) {
         *value = false;
     }
     else {
@@ -410,7 +415,7 @@ int ParserUtil::getValue(bool *value, bslstl::StringRef data)
 }
 
 int ParserUtil::getValue(bsl::vector<char> *value,
-                                bslstl::StringRef  data)
+                         bslstl::StringRef  data)
 {
     const int MAX_LENGTH = 1024;
     bsls::AlignedBuffer<MAX_LENGTH> buffer;

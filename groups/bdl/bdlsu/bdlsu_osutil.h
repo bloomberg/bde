@@ -68,9 +68,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                        // ===================
-                        // struct OsUtil
-                        // ===================
+                               // =============
+                               // struct OsUtil
+                               // =============
 
 struct OsUtil {
     // This 'struct' provides a namespace for utility functions retrieving

@@ -10,14 +10,14 @@ BSLS_IDENT_RCSID(ball_context_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                        // ------------------
+                        // -------------
                         // class Context
-                        // ------------------
+                        // -------------
 
 // CLASS METHODS
 bool Context::isValid(Transmission::Cause transmissionCause,
-                           int                      recordIndex,
-                           int                      sequenceLength)
+                      int                 recordIndex,
+                      int                 sequenceLength)
 {
     bool status;
 
@@ -42,8 +42,8 @@ bool Context::isValid(Transmission::Cause transmissionCause,
 
 // ACCESSORS
 bsl::ostream& Context::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (0 <= spacesPerLevel) {
         bdlb::Print::indent(stream, level, spacesPerLevel);

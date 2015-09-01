@@ -2,7 +2,7 @@
 
 #include <bdlat_typename.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_enumeratorinfo.h>
@@ -82,26 +82,26 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                              USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // We begin by creating abbreviations for formatting modes and by declaring
@@ -227,7 +227,7 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlat_TypeName Obj;
@@ -848,7 +848,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
@@ -1007,7 +1007,7 @@ bsl::ostream& MyChoice::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.h   -*-C++-*-
@@ -1244,7 +1244,7 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
@@ -1326,7 +1326,7 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.h   -*-C++-*-
@@ -1818,7 +1818,7 @@ bsl::ostream& test::operator<<(bsl::ostream&           stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
@@ -1975,7 +1975,7 @@ bsl::ostream& MySequence::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mycustomizedtype.h   -*-C++-*-
@@ -2207,7 +2207,7 @@ STREAM& MyCustomizedType::bdexStreamOut(STREAM& stream, int version) const
 inline
 int MyCustomizedType::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+    return bslx::VersionFunctions::maxSupportedBdexVersion(&d_value, 0);
 }
 
 inline
@@ -2258,7 +2258,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                 stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mycustomizedtype.cpp  -*-C++-*-
@@ -2293,7 +2293,7 @@ const char MyCustomizedType::CLASS_NAME[] = "MyCustomizedType";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 class OtherType { int a; double b; };
@@ -2342,7 +2342,7 @@ const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
 }  // close enterprise namespace
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

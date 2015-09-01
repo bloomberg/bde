@@ -8,9 +8,9 @@ BSLS_IDENT_RCSID(bdlat_selectioninfo_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // --------------------------
-                        // struct bdlat_SelectionInfo
-                        // --------------------------
+                         // --------------------------
+                         // struct bdlat_SelectionInfo
+                         // --------------------------
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&              stream,

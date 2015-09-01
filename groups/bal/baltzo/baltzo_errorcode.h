@@ -68,9 +68,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ================
-                            // struct ErrorCode
-                            // ================
+                              // ================
+                              // struct ErrorCode
+                              // ================
 
 struct ErrorCode {
     // This 'struct' provides a namespace for enumerating the set of named
@@ -150,9 +150,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct ErrorCode
-                            // ----------------
+                              // ----------------
+                              // struct ErrorCode
+                              // ----------------
 
 // FREE OPERATORS
 inline

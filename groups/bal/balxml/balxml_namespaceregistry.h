@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 // 'balxml::NamespaceRegistry' simultaneously, each from a separate thread.  It
 // is safe to read a single instance of 'balxml::NamespaceRegistry' from
 // multiple threads, provided no thread is modifying it at the same time.  It
-// is not safe to read or modify an instance of 'balxml::NamespaceRegistry' from
-// one thread while any other thread is modifying the same instance.
+// is not safe to read or modify an instance of 'balxml::NamespaceRegistry'
+// from one thread while any other thread is modifying the same instance.
 //
 ///Usage
 ///-----
@@ -126,6 +126,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -141,9 +149,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                        // ==============================
-                        // class NamespaceRegistry
-                        // ==============================
+                          // =======================
+                          // class NamespaceRegistry
+                          // =======================
 
 class NamespaceRegistry {
     // Mapping that associates a unique integer with each registered namespace
@@ -151,8 +159,8 @@ class NamespaceRegistry {
 
   private:
     // PRIVATE MEMBER VARIABLES
-    bsl::vector<bsl::string> d_namespaces; // vector of namespaces, indexed
-                                           // by the namespace ID.
+    bsl::vector<bsl::string> d_namespaces; // vector of namespaces, indexed by
+                                           // the namespace ID.
     friend inline
     bool operator==(const NamespaceRegistry& lhs,
                     const NamespaceRegistry& rhs);
@@ -161,6 +169,10 @@ class NamespaceRegistry {
         // value of a namespace registry object.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(NamespaceRegistry,
+                                                    bslma::UsesBslmaAllocator);
+
     // PUBLIC TYPES
     enum {
         // Preregistered namespace IDs.
@@ -206,8 +218,8 @@ class NamespaceRegistry {
         // used to supply memory.  If 'basicAllocator' is 0, the current
         // default allocator is used.
 
-    NamespaceRegistry(const NamespaceRegistry& other,
-                             bslma::Allocator               *basicAllocator=0);
+    NamespaceRegistry(const NamespaceRegistry&  other,
+                      bslma::Allocator         *basicAllocator=0);
         // Construct a copy of the specified 'other' namespace registry using
         // the (optionally) specified 'basicAllocator'.  For a given URI, the
         // results of calling 'lookup' by URI will produce equal results for
@@ -261,18 +273,20 @@ class NamespaceRegistry {
         // human-readable form.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // FREE OPERATORS
 inline
-bool operator==(const NamespaceRegistry& lhs,
-                const NamespaceRegistry& rhs);
+bool operator==(const NamespaceRegistry& lhs, const NamespaceRegistry& rhs);
     // Return true if the specified 'lhs' registry has the same value as the
     // specified 'rhs' registry and false otherwise.  The two registries have
     // the same value if, for any possible URI string, 'u',
-    // 'lhs.lookup(u)' == 'rhs.lookup(u)'.
+    // 'lhs.lookup(u) == rhs.lookup(u)'.
 
 inline
-bool operator!=(const NamespaceRegistry& lhs,
-                const NamespaceRegistry& rhs);
+bool operator!=(const NamespaceRegistry& lhs, const NamespaceRegistry& rhs);
     // Return true if the specified 'lhs' registry does not have the same
     // value as the specified 'rhs' registry and false otherwise.  The two
     // registries do not have the same value if there exists a URI string,
@@ -284,22 +298,16 @@ bsl::ostream& operator<<(bsl::ostream& os, const NamespaceRegistry& r);
     // stream in human-readable form and return a modifiable reference to
     // 'os'.
 
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
 // CREATORS
 inline
-NamespaceRegistry::NamespaceRegistry(
-    bslma::Allocator *basicAllocator)
+NamespaceRegistry::NamespaceRegistry(bslma::Allocator *basicAllocator)
 : d_namespaces(basicAllocator)
 {
 }
 
 inline
-NamespaceRegistry::NamespaceRegistry(
-    const NamespaceRegistry&  other,
-    bslma::Allocator                *basicAllocator)
+NamespaceRegistry::NamespaceRegistry(const NamespaceRegistry&  other,
+                                     bslma::Allocator         *basicAllocator)
 : d_namespaces(other.d_namespaces, basicAllocator)
 {
 }
@@ -328,14 +336,14 @@ void NamespaceRegistry::reset()
 // FREE OPERATORS
 inline
 bool balxml::operator==(const NamespaceRegistry& lhs,
-                const NamespaceRegistry& rhs)
+                        const NamespaceRegistry& rhs)
 {
     return lhs.d_namespaces == rhs.d_namespaces;
 }
 
 inline
 bool balxml::operator!=(const NamespaceRegistry& lhs,
-                const NamespaceRegistry& rhs)
+                        const NamespaceRegistry& rhs)
 {
     return ! (lhs == rhs);
 }

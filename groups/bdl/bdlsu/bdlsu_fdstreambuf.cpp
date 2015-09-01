@@ -84,9 +84,9 @@ bool getRegularFileInfo(bdlsu::FilesystemUtil::FileDescriptor fd)
 #endif
 }
 
-                    // ===================================
+                    // ====================================
                     // class bdlsu::FdStreamBuf_FileHandler
-                    // ===================================
+                    // ====================================
 
 bsls::AtomicOperations::AtomicTypes::Int
                                bdlsu::FdStreamBuf_FileHandler::s_pageSize = {0};
@@ -479,9 +479,9 @@ FdStreamBuf_FileHandler::fileSize() const
     return ret;
 }
 
-                        // -----------------------
-                        // class FdStreamBuf
-                        // -----------------------
+                             // -----------------
+                             // class FdStreamBuf
+                             // -----------------
 
 // CREATORS
 FdStreamBuf::FdStreamBuf(

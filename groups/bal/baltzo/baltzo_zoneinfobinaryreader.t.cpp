@@ -93,7 +93,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
@@ -117,7 +117,7 @@ static void aSsErT(int c, const char *s, int i)
                          << #L << ": " << L << "\n";\
                aSsErT(1, #X, __LINE__); } }
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
@@ -129,9 +129,9 @@ static void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 #define T_ cout << '\t' << flush;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 static const bsls::Types::Int64 FIRST_TRANSITION =
               bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
@@ -1081,7 +1081,7 @@ static bsls::Types::Int64 readBigEndian64(const char *address);
     // in big-endian format, and return the value of the integer.
 
 // ============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 static void writeBigEndian(char *address, int value)
 {
@@ -1115,9 +1115,9 @@ static bsls::Types::Int64 readBigEndian64(const char *address)
     return BSLS_BYTEORDER_BE_U64_TO_HOST(value);
 }
 
-                        // ===============
-                        // class RawHeader
-                        // ===============
+                              // ===============
+                              // class RawHeader
+                              // ===============
 
 class RawHeader {
     // The byte sequence of the header of a Zoneinfo binary data format.
@@ -1297,9 +1297,9 @@ int RawHeader::abbrevDataSize() const
     return readBigEndian(d_abbrevDataSize);
 }
 
-                        // =======================
-                        // class RawLocalTimeTypes
-                        // =======================
+                          // =======================
+                          // class RawLocalTimeTypes
+                          // =======================
 
 class RawLocalTimeTypes {
     // The byte sequence of a local-time type in a Zoneinfo binary data format.
@@ -1334,9 +1334,9 @@ class RawLocalTimeTypes {
 
 BSLMF_ASSERT(6 == sizeof(RawLocalTimeTypes));
 
-                        // -----------------------
-                        // class RawLocalTimeTypes
-                        // -----------------------
+                          // -----------------------
+                          // class RawLocalTimeTypes
+                          // -----------------------
 
 // MANIPULATORS
 void RawLocalTimeTypes::setOffset(int value)
@@ -1370,9 +1370,9 @@ unsigned char RawLocalTimeTypes::abbreviationIndex() const
     return d_abbreviationIndex;
 }
 
-                        // =================
-                        // class RawLeapInfo
-                        // =================
+                             // =================
+                             // class RawLeapInfo
+                             // =================
 
 class RawLeapInfo {
     // The byte sequence of a leap correction in a Zoneinfo binary data format.
@@ -1399,9 +1399,9 @@ class RawLeapInfo {
         // Return the value of 'correction' of this object.
 };
 
-                        // -----------------
-                        // class RawLeapInfo
-                        // -----------------
+                             // -----------------
+                             // class RawLeapInfo
+                             // -----------------
 
 // MANIPULATORS
 void RawLeapInfo::setTransition(int value)
@@ -1425,9 +1425,9 @@ int RawLeapInfo::correction() const
     return readBigEndian(d_correction);
 }
 
-                        // ===================
-                        // class RawLeapInfo64
-                        // ===================
+                            // ===================
+                            // class RawLeapInfo64
+                            // ===================
 
 class RawLeapInfo64 {
     // The byte sequence of a leap correction in a Zoneinfo binary data format.
@@ -1454,9 +1454,9 @@ class RawLeapInfo64 {
         // Return the value of 'correction' of this object.
 };
 
-                        // -------------------
-                        // class RawLeapInfo64
-                        // -------------------
+                            // -------------------
+                            // class RawLeapInfo64
+                            // -------------------
 
 // MANIPULATORS
 void RawLeapInfo64::setTransition(bsls::Types::Int64 value)
@@ -1480,9 +1480,9 @@ int RawLeapInfo64::correction() const
     return readBigEndian(d_correction);
 }
 
-                        // ==================
-                        // class ZoneinfoData
-                        // ==================
+                             // ==================
+                             // class ZoneinfoData
+                             // ==================
 
 class ZoneinfoData {
     // This class provides methods to create and store a Zoneinfo binary data
@@ -1679,9 +1679,9 @@ class ZoneinfoData {
         // version '2' abbreviation string data.
 };
 
-                        // ------------------
-                        // class ZoneinfoData
-                        // ------------------
+                             // ------------------
+                             // class ZoneinfoData
+                             // ------------------
 
 // PRIVATE MANIPULATORS
 void ZoneinfoData::populateBuffer(const RawHeader& header)
@@ -2587,7 +2587,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
 }
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {

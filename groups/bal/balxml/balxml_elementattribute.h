@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide the properties of an attribute in an XML element tag
+//@PURPOSE: Provide the properties of an attribute in an XML element tag.
 //
 //@CLASSES:
 // balxml::ElementAttribute: Properties of an attribute in an XML element tag.
@@ -230,35 +230,37 @@ namespace BloombergLP {
 
 namespace balxml {class PrefixStack;
 
-                        // =============================
-                        // class ElementAttribute
-                        // =============================
+                           // ======================
+                           // class ElementAttribute
+                           // ======================
 
 class ElementAttribute {
-    // Class to represent the properties of an attribute in an XML element
-    // tag.  Note that this class is not value semantic and does not own any
-    // of its pointer values.  The owner of the arguments used to set the
-    // value of a 'ElementAttribute' is responsible for ensuring that
-    // the values remain valid or else must document the conditions that will
-    // make the values invalid.  Some facets are computed the first time that
-    // they are needed.  To avoid extra processing, the caller may supply
-    // otherwise-computed facets at construction or by calling 'reset'.
-    // Facets provided by the caller are not checked to ensure that they are
-    // consistent with one another.
+    // Class to represent the properties of an attribute in an XML element tag.
+    // Note that this class is not value semantic and does not own any of its
+    // pointer values.  The owner of the arguments used to set the value of a
+    // 'ElementAttribute' is responsible for ensuring that the values remain
+    // valid or else must document the conditions that will make the values
+    // invalid.  Some facets are computed the first time that they are needed.
+    // To avoid extra processing, the caller may supply otherwise-computed
+    // facets at construction or by calling 'reset'.  Facets provided by the
+    // caller are not checked to ensure that they are consistent with one
+    // another.
 
     // MEMBER VARIABLES
-    // mutable members may be used to cache computed results.
-    const PrefixStack *d_prefixStack;   // Held, not owned
-    const char               *d_qualifiedName; // Held, not owned
-    const char               *d_value;         // Held, not owned
-    mutable const char       *d_prefix;        // Held, not owned
-    mutable const char       *d_localName;     // Held, not owned
-    mutable int               d_namespaceId;
-    mutable const char       *d_namespaceUri;  // Held, not owned
-    unsigned                  d_flags;
+
+    // Mutable members may be used to cache computed results.
+    const PrefixStack  *d_prefixStack;   // Held, not owned
+    const char         *d_qualifiedName; // Held, not owned
+    const char         *d_value;         // Held, not owned
+    mutable const char *d_prefix;        // Held, not owned
+    mutable const char *d_localName;     // Held, not owned
+    mutable int         d_namespaceId;
+    mutable const char *d_namespaceUri;  // Held, not owned
+    unsigned            d_flags;
 
   public:
     // FLAGS
+
     // The flags property should be set to the bitwise-OR of one or more of
     // the following values:
     enum {
@@ -290,7 +292,7 @@ class ElementAttribute {
     };
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(PrefixStack,
+    BSLALG_DECLARE_NESTED_TRAITS(ElementAttribute,
                                  bslalg::TypeTraitBitwiseCopyable);
 
     // PUBLIC CREATORS
@@ -299,13 +301,13 @@ class ElementAttribute {
         // the namespace ID to 'INT_MIN', and flags to zero.
 
     ElementAttribute(const PrefixStack *prefixStack,
-                            const char               *qualifiedName,
-                            const char               *value,
-                            const char               *prefix = 0,
-                            const char               *localName = 0,
-                            int                       namespaceId = INT_MIN,
-                            const char               *namespaceUri = 0,
-                            unsigned                  flags = 0);
+                     const char        *qualifiedName,
+                     const char        *value,
+                     const char        *prefix = 0,
+                     const char        *localName = 0,
+                     int                namespaceId = INT_MIN,
+                     const char        *namespaceUri = 0,
+                     unsigned           flags = 0);
         // Construct an attribute object with the specified, 'prefixStack',
         // 'qualifiedName', and 'value', with optionally specified 'prefix',
         // 'localName', 'namespaceId', 'namespaceUri', and 'flags'.  Except
@@ -348,13 +350,13 @@ class ElementAttribute {
         // Reset this object to the default-constructed state.
 
     void reset(const PrefixStack *prefixStack,
-               const char               *qualifiedName,
-               const char               *value,
-               const char               *prefix = 0,
-               const char               *localName = 0,
-               int                       namespaceId = INT_MIN,
-               const char               *namespaceUri = 0,
-               unsigned                  flags = 0);
+               const char        *qualifiedName,
+               const char        *value,
+               const char        *prefix = 0,
+               const char        *localName = 0,
+               int                namespaceId = INT_MIN,
+               const char        *namespaceUri = 0,
+               unsigned           flags = 0);
         // Reset this attribute object with the specified, 'prefixStack',
         // 'qualifiedName', and 'value', with optionally specified 'prefix',
         // 'localName', 'namespaceId', 'namespaceUri', and 'flags'.  Except
@@ -443,17 +445,17 @@ class ElementAttribute {
         // "<null>" in the resulting stream.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream&                  os,
+bsl::ostream& operator<<(bsl::ostream&           os,
                          const ElementAttribute& attribute);
     // Write the contents of the specified 'attribute' object to the specified
     // 'os' in human-readable form.  Attributes that have not yet been
     // computed are not computed by this function.
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
 
 // ACCESSORS
 inline
@@ -489,8 +491,8 @@ bool ElementAttribute::isNull() const
 
 // FREE OPERATORS
 inline
-bsl::ostream& balxml::operator<<(bsl::ostream&                  os,
-                         const ElementAttribute& attribute)
+bsl::ostream& balxml::operator<<(bsl::ostream&           os,
+                                 const ElementAttribute& attribute)
 {
     return attribute.print(os);
 }

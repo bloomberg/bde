@@ -2,7 +2,7 @@
 
 #include <bdlcc_skiplist.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_lockguard.h>
@@ -27,8 +27,8 @@
 #include <bsls_assert.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_c_stdlib.h>  // cstdlib does not include rand_r
-#include <bsl_cmath.h>     // floor/ceil
+#include <bsl_c_stdlib.h>  // 'rand_r'
+#include <bsl_cmath.h>     // 'floor', 'ceil'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -36,9 +36,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -55,41 +55,41 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 #define V(X) { if (verbose) P(X) }            // Print in verbose mode
 
 bdlqq::Mutex coutMutex;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-//=============================================================================
-//                          SOME HELPFUL EXTRAS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            SOME HELPFUL EXTRAS
+// ----------------------------------------------------------------------------
 #define ASSERT_L(X, L) { \
    if (!(X)) { aSsErT(1, #X, L); }}
 
@@ -345,8 +345,11 @@ class SimpleScheduler
         }
     }
 
-public:
+  private:
+    // Not implemented:
+    SimpleScheduler(const SimpleScheduler&);
 
+  public:
     //CREATORS
     SimpleScheduler(bslma::Allocator *basicAllocator = 0)
     : d_list(basicAllocator)
@@ -560,9 +563,9 @@ void verifyEx(SKIPLIST* list, const ARRAY& array, int length, int line)
 #define VERIFY_LIST_EX(L, A) { \
                          verifyEx(&(L), A, sizeof(A)/sizeof(A[0]), __LINE__); }
 
-//=============================================================================
-//                      CASE 101 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 101 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace SKIPLIST_TEST_CASE_101 {
 
@@ -638,9 +641,9 @@ void run()
 
 }  // close namespace SKIPLIST_TEST_CASE_101
 
-//=============================================================================
-//                      CASE -100 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        CASE -100 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace SKIPLIST_TEST_CASE_MINUS_100 {
 
@@ -658,7 +661,7 @@ enum {
 void threadFunc(TimeQ *timeQueue,
                 int    numIterations,
                 int    sendCount,
-                int    rcvCount,
+                int    receiveCount,
                 int    delay)
 {
     bsl::vector<TimeQ::Pair*> timers;
@@ -679,7 +682,7 @@ void threadFunc(TimeQ *timeQueue,
         }
 
         // "receive" replies
-        for (int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<receiveCount; rcv++) {
             timeQueue->remove(timers[rcv]);
             timeQueue->releaseReferenceRaw(timers[rcv]);
         }
@@ -707,7 +710,7 @@ void threadFunc(TimeQ *timeQueue,
         }
 
         // clean up remaining handles
-        for (int cln=rcvCount; cln<sendCount; cln++) {
+        for (int cln=receiveCount; cln<sendCount; cln++) {
             timeQueue->releaseReferenceRaw(timers[cln]);
         }
 
@@ -758,9 +761,9 @@ void pushBackWrapper(bsl::vector<int> *vector, int item)
 }
 }  // close unnamed namespace
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1839,7 +1842,8 @@ int main(int argc, char *argv[])
             typedef Obj::PairHandle H;
             typedef int (Obj::*Updater)(const Obj::Pair*,
                                         const int &,
-                                        bool*, bool);
+                                        bool*,
+                                        bool);
             {
                 Obj obj(&ta);
                 H h;

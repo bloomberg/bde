@@ -389,9 +389,9 @@ template <class KEY, class DATA>
 bool operator!=(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs);
 
-                       // ============================
-                       // local class SkipList_Control
-                       // ============================
+                        // ============================
+                        // local class SkipList_Control
+                        // ============================
 
 struct SkipList_Control {
     // This component-private structure stores the "control word" and level of
@@ -432,9 +432,9 @@ struct SkipList_Control {
         // Return the level stored in this control word.
 };
 
-                        // =========================
-                        // local class SkipList_Node
-                        // =========================
+                         // =========================
+                         // local class SkipList_Node
+                         // =========================
 
 template<class KEY, class DATA>
 struct SkipList_Node {
@@ -469,9 +469,9 @@ struct SkipList_Node {
     int level() const;
 };
 
-                // =========================================
-                // local class SkipList_RandomLevelGenerator
-                // =========================================
+                 // =========================================
+                 // local class SkipList_RandomLevelGenerator
+                 // =========================================
 
 class SkipList_RandomLevelGenerator {
     // This component-private class handles randomizing the levelization of
@@ -507,9 +507,9 @@ class SkipList_RandomLevelGenerator {
 
 }  // close package namespace
 
-                   // ====================================
-                   // local class bdlcc::SkipList_PoolUtil
-                   // ====================================
+                    // ====================================
+                    // local class bdlcc::SkipList_PoolUtil
+                    // ====================================
 
 namespace bdlcc {class SkipList_PoolManager;
 
@@ -547,9 +547,9 @@ struct SkipList_PoolUtil {
         // 'poolManager' was not allocated from 'basicAllocator'.
 };
 
-                 // =======================================
-                 // local class SkipList_NodeCreationHelper
-                 // =======================================
+                  // =======================================
+                  // local class SkipList_NodeCreationHelper
+                  // =======================================
 
 template<class KEY, class DATA>
 class SkipList_NodeCreationHelper {
@@ -594,9 +594,9 @@ class SkipList_NodeCreationHelper {
         // already been invoked on this scoped guard object.
 };
 
-                            // ==================
-                            // class SkipListPair
-                            // ==================
+                             // ==================
+                             // class SkipListPair
+                             // ==================
 
 template <class KEY, class DATA>
 class SkipListPair {
@@ -629,9 +629,9 @@ class SkipListPair {
         // Return a reference to the modifiable "data" of this pair.
 };
 
-                         // ========================
-                         // class SkipListPairHandle
-                         // ========================
+                          // ========================
+                          // class SkipListPairHandle
+                          // ========================
 
 template <class KEY, class DATA>
 class SkipListPairHandle {
@@ -711,9 +711,9 @@ class SkipListPairHandle {
         // reference.
 };
 
-                              // ==============
-                              // class SkipList
-                              // ==============
+                               // ==============
+                               // class SkipList
+                               // ==============
 
 template<class KEY, class DATA>
 class SkipList {
@@ -1428,12 +1428,12 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ------------------
-                            // class SkipListPair
-                            // ------------------
+                             // ------------------
+                             // class SkipListPair
+                             // ------------------
 
 // ACCESSORS
 template <class KEY, class DATA>
@@ -1450,9 +1450,9 @@ DATA& SkipListPair<KEY, DATA>::data() const
     return SkipList<KEY, DATA>::data(this);
 }
 
-                         // ------------------------
-                         // class SkipListPairHandle
-                         // ------------------------
+                          // ------------------------
+                          // class SkipListPairHandle
+                          // ------------------------
 
 // CREATORS
 template <class KEY, class DATA>
@@ -1575,9 +1575,9 @@ bdlcc::SkipListPairHandle<KEY, DATA>::
 
 namespace bdlcc {
 
-                           // -------------------
-                           // class SkipList_Node
-                           // -------------------
+                            // -------------------
+                            // class SkipList_Node
+                            // -------------------
 
 template<class KEY, class DATA>
 inline
@@ -1607,9 +1607,9 @@ int SkipList_Node<KEY, DATA>::decrementRefCount()
     return d_control.decrementRefCount();
 }
 
-                    // ---------------------------------
-                    // class SkipList_NodeCreationHelper
-                    // ---------------------------------
+                     // ---------------------------------
+                     // class SkipList_NodeCreationHelper
+                     // ---------------------------------
 
 template<class KEY, class DATA>
 inline
@@ -1656,9 +1656,9 @@ void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
     d_node_p = 0;
 }
 
-                              // --------------
-                              // class SkipList
-                              // --------------
+                               // --------------
+                               // class SkipList
+                               // --------------
 
 // PRIVATE MANIPULATORS
 template<class KEY, class DATA>

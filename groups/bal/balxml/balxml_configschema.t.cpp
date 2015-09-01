@@ -1,8 +1,7 @@
 // balxml_configschema.t.cpp                                          -*-C++-*-
 #include <balxml_configschema.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(baexml_configschema_t_cpp,"$Id$ $CSID$")
+#include <bslim_testutil.h>
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -10,72 +9,70 @@ BSLS_IDENT_RCSID(baexml_configschema_t_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balxml::ConfigSchema Obj;
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

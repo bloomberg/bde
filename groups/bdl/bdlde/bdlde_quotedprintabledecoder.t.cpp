@@ -2,6 +2,7 @@
 
 #include <bdlde_quotedprintabledecoder.h>
 
+#include <bslmf_assert.h>
 
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
@@ -11,8 +12,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using namespace bsl;                // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
@@ -106,12 +106,14 @@ using namespace bsl;  // automatically added by script
 // [ 7] That output length is calculated properly.
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -149,9 +151,10 @@ static void aSsErT(int c, const char *s, int i) {
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
@@ -163,9 +166,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define VVV(X) { if (veryVeryVerbose) { cout << "\t\t\t" << X << endl; } }
 #define VVVV(X) { if (veryVeryVeryVerbose) {cout << "\t\t\t\t" << X << endl;} }
 
-//=============================================================================
-//                       GLOBAL TYPEDEFS/CONSTANTS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         GLOBAL TYPEDEFS/CONSTANTS
+// ----------------------------------------------------------------------------
 
 typedef bdlde::QuotedPrintableDecoder Obj;
 
@@ -175,9 +178,9 @@ typedef bdlde::QuotedPrintableDecoder Obj;
 enum State {
     // Enumeration of logical states described in the test plan overview.
     // These logical states must range in value from INITIAL_STATE = 0 to
-    // ERROR_STATE = NUM_STATES - 1.  Note that the number and values of
-    // these logical states need not coincide with those defined explicitly
-    // in the implementation.
+    // ERROR_STATE = NUM_STATES - 1.  Note that the number and values of these
+    // logical states need not coincide with those defined explicitly in the
+    // implementation.
 
     INITIAL_STATE = 0,
     SAW_EQUAL,
@@ -207,8 +210,7 @@ const char *STATE_NAMES[] = {
 };
 
 const int NUM_STATES = sizeof STATE_NAMES / sizeof *STATE_NAMES;
-
-char assertion[ERROR_STATE + 1 == NUM_STATES];
+BSLMF_ASSERT(ERROR_STATE + 1 == NUM_STATES);
 
                         // ====================================
                         // Equivalence-Class Related Data Types
@@ -373,9 +375,9 @@ const EquivalenceClass *const EquivalenceClassRelaxed_p[] = {
 //     CONTROL
 // };
 
-//=============================================================================
-//                         TEST HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                           TEST HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 
 #if 0  // TBD
                         // =============================
@@ -416,7 +418,11 @@ const EquivalenceClass& findEquivalenceClass(char ch)
                         // ==============
 
 template <class T>
-inline T myMin(const T& a, const T& b) { return a < b ? a : b; }
+inline
+T myMin(const T& a, const T& b)
+{
+    return a < b ? a : b;
+}
 
                         // ==============
                         // Function isHex
@@ -428,7 +434,7 @@ bool isHex(char ch)
     // only uppercase letters are allowed since this function is only used to
     // check output from the converter being tested.
 {
-    return '0' <= ch && ch <= '9' || 'A' <= ch && ch <= 'F';
+    return ('0' <= ch && ch <= '9') || ('A' <= ch && ch <= 'F');
 }
 
 
@@ -436,8 +442,8 @@ inline
 int hexToChar(char hex, bool lowercase = false)
     // Return the hexadecimal number converted from the hexadecimal digit the
     // specified 'hex' character represents, accepting lowercase 'a' - 'f' if
-    // the specified 'lowercase' is 'true'; return -1 if hex is not within the
-    // hexadecimal range (conditioned by 'lowercase').
+    // the optionally specified 'lowercase' is 'true'; return -1 if hex is not
+    // within the hexadecimal range (conditioned by 'lowercase').
 {
     if ('0' <= hex && hex <= '9') {
         return hex - '0';                                             // RETURN
@@ -457,9 +463,9 @@ inline
 int hexStrToChar(char* character, char string[2], bool lowercase = false)
     // Place into the specified 'character' the ASCII value obtained by
     // interpreting the 2 characters in the specified 'string' as hexadecimal
-    // digits, including lowercase 'a' - 'f' if the specified 'lowercase' is
-    // 'true'.  Return 0 if 'string' contains characters within the hexadecimal
-    // range (conditioned by 'lowercase'), and -1 otherwise.
+    // digits, including lowercase 'a' - 'f' if the optionally specified
+    // 'lowercase' is 'true'.  Return 0 if 'string' contains characters within
+    // the hexadecimal range (conditioned by 'lowercase'), and -1 otherwise.
 {
     int d1 = hexToChar(string[0], lowercase);
     if (d1 == -1)
@@ -487,7 +493,7 @@ bool isWhite(char ch)
 ostream& printCharN(ostream& output, const char* sequence, int length)
     // Print the specified character 'sequence' of specified 'length' to the
     // specified 'stream' and return a reference to the modifiable 'stream'
-    // (if a character is not printable, its hexadecimal code is printeded
+    // (if a character is not printable, its hexadecimal code is printed
     // instead).  The behavior is undefined unless 0 <= 'length' and sequence
     // refers to a valid area of memory of size at least 'length'.
 {
@@ -671,11 +677,14 @@ class EnabledGuard {
 
   public:
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions
-        // in the '::isState' test helper function using the specified
-        // enable 'flag' value.  If 'flag' is 'true' individual false values
-        // we be reported as assertion errors.
-    : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
+        // Create a guard to control the activation of individual assertions in
+        // the '::isState' test helper function using the specified enable
+        // 'flag' value.  If 'flag' is 'true' individual false values we be
+        // reported as assertion errors.
+    : d_state(globalAssertsEnabled)
+    {
+        globalAssertsEnabled = flag;
+    }
 
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
 };
@@ -1000,13 +1009,13 @@ const char* getStateInText(bdlde::QuotedPrintableDecoder *object)
     return "UNKNOWN_STATE";
 }
 
-//=============================================================================
-//                         TEST HELPER CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            TEST HELPER CLASSES
+// ----------------------------------------------------------------------------
 
-                        //====================
-                        // class InputIterator
-                        //====================
+                            // ===================
+                            // class InputIterator
+                            // ===================
 
 class InputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1065,29 +1074,34 @@ InputIterator::InputIterator(const InputIterator& original)
 {
 }
 
-InputIterator& InputIterator::operator=(const InputIterator& rhs) {
+InputIterator& InputIterator::operator=(const InputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void InputIterator::operator++() {
+void InputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char InputIterator::operator*() const {
+char InputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator==(const InputIterator& lhs, const InputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
-                        //=====================
-                        // class OutputIterator
-                        //=====================
+                            // ====================
+                            // class OutputIterator
+                            // ====================
 
 class OutputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1146,40 +1160,44 @@ OutputIterator::OutputIterator(const OutputIterator& original)
 {
 }
 
-OutputIterator& OutputIterator::operator=(const OutputIterator& rhs) {
+OutputIterator& OutputIterator::operator=(const OutputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void OutputIterator::operator++() {
+void OutputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char& OutputIterator::operator*() const {
+char& OutputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator==(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
-//=============================================================================
-//                       SUPPORT FOR USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         SUPPORT FOR USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1310,7 +1328,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Using a pseudo-piecewise-continuous implementation technique
         //   i.e., Loop-Based), provide an area test that will sample each of
-        //   the table entires.  The goal is that if any table entry is bad,
+        //   the table entries.  The goal is that if any table entry is bad,
         //   the test will fail.
         //
         // Tactics:

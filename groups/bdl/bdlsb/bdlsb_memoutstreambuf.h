@@ -175,9 +175,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                          // =====================
-                          // class MemOutStreamBuf
-                          // =====================
+                           // =====================
+                           // class MemOutStreamBuf
+                           // =====================
 
 class MemOutStreamBuf : public bsl::streambuf {
     // This 'class' implements the output functionality of the
@@ -305,7 +305,7 @@ class MemOutStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // PRIVATE ACCESSORS

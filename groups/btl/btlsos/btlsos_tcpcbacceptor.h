@@ -450,9 +450,9 @@ namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
 namespace btlsos {class TcpCbAcceptor_Reg; // component-local class declaration
 
-                           // ===================
-                           // class TcpCbAcceptor
-                           // ===================
+                            // ===================
+                            // class TcpCbAcceptor
+                            // ===================
 
 class TcpCbAcceptor : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style callback-based channel allocator
@@ -678,7 +678,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

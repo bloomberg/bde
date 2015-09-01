@@ -244,9 +244,9 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-                       // ============================
+                       // =============================
                        // class balst::StackAddressUtil
-                       // ============================
+                       // =============================
 
 namespace BloombergLP {
 namespace balst {

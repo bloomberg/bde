@@ -57,9 +57,9 @@ BSLS_IDENT_PRAGMA_ONCE
 namespace BloombergLP {
 namespace balber {
 
-                     // =======================
-                     // class BerEncoderOptions
-                     // =======================
+                          // =======================
+                          // class BerEncoderOptions
+                          // =======================
 
 class BerEncoderOptions {
     // BER encoding options
@@ -358,14 +358,14 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balber::BerEncoderOptions)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace balber {
 
-                     // -----------------------
-                     // class BerEncoderOptions
-                     // -----------------------
+                          // -----------------------
+                          // class BerEncoderOptions
+                          // -----------------------
 
 // CLASS METHODS
 inline

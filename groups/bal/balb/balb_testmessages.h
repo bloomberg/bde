@@ -5271,7 +5271,7 @@ struct Testmessages {
 }  // close package namespace
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace balb {

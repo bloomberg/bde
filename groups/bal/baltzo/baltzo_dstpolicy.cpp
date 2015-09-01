@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(baltzo_dstpolicy_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                            // ----------------
-                            // struct DstPolicy
-                            // ----------------
+                              // ----------------
+                              // struct DstPolicy
+                              // ----------------
 
 // CLASS METHODS
 bsl::ostream& baltzo::DstPolicy::print(bsl::ostream&   stream,

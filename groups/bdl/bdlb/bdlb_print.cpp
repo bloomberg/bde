@@ -4,13 +4,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_print_cpp,"$Id$ $CSID$")
 
-#include <bslmf_assert.h>     // BSLMF_ASSERT
+#include <bslmf_assert.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_cassert.h>
-#include <bsl_cstdio.h>       // sprintf()
+#include <bsl_cstdio.h>       // 'bsl::sprintf'
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 
@@ -20,8 +20,7 @@ namespace BloombergLP {
 BSLMF_ASSERT(4 == sizeof(void *) || 8 == sizeof(void *));
 
 // STATIC DATA
-static
-const char HEX_DUMP_CHARS[256] = {
+static const char hexDumpChars[256] = {
     '.'   , //   0   0
     '.'   , //   1   1
     '.'   , //   2   2
@@ -291,7 +290,7 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
 
     // Define the largest chunk of spaces:
     static const char SPACES[]    = "                                        ";
-           const int  SPACES_SIZE = sizeof(SPACES) - 1;
+    const int         SPACES_SIZE = sizeof(SPACES) - 1;
 
     while (SPACES_SIZE < numSpaces) {
         stream.write(SPACES, SPACES_SIZE);
@@ -310,54 +309,55 @@ void hexDumpFullLine(char *dst, const char *src, int length)
     BSLS_ASSERT(src);
     BSLS_ASSERT(0 <= length);
 
-    const int ret = bsl::sprintf(dst,
-                                 "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X "
-                                 "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X"
-                                 "     |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|\n",
-                                 (unsigned char)src[ 0],
-                                 (unsigned char)src[ 1],
-                                 (unsigned char)src[ 2],
-                                 (unsigned char)src[ 3],
-                                 (unsigned char)src[ 4],
-                                 (unsigned char)src[ 5],
-                                 (unsigned char)src[ 6],
-                                 (unsigned char)src[ 7],
-                                 (unsigned char)src[ 8],
-                                 (unsigned char)src[ 9],
-                                 (unsigned char)src[10],
-                                 (unsigned char)src[11],
-                                 (unsigned char)src[12],
-                                 (unsigned char)src[13],
-                                 (unsigned char)src[14],
-                                 (unsigned char)src[15],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 0]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 1]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 2]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 3]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 4]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 5]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 6]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 7]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 8]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[ 9]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[10]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[11]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[12]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[13]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[14]],
-                                 HEX_DUMP_CHARS[(unsigned char)src[15]]);
+    const int ret = bsl::sprintf(
+                            dst,
+                            "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X "
+                            "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X"
+                            "     |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|\n",
+                            static_cast<unsigned char>(src[ 0]),
+                            static_cast<unsigned char>(src[ 1]),
+                            static_cast<unsigned char>(src[ 2]),
+                            static_cast<unsigned char>(src[ 3]),
+                            static_cast<unsigned char>(src[ 4]),
+                            static_cast<unsigned char>(src[ 5]),
+                            static_cast<unsigned char>(src[ 6]),
+                            static_cast<unsigned char>(src[ 7]),
+                            static_cast<unsigned char>(src[ 8]),
+                            static_cast<unsigned char>(src[ 9]),
+                            static_cast<unsigned char>(src[10]),
+                            static_cast<unsigned char>(src[11]),
+                            static_cast<unsigned char>(src[12]),
+                            static_cast<unsigned char>(src[13]),
+                            static_cast<unsigned char>(src[14]),
+                            static_cast<unsigned char>(src[15]),
+                            hexDumpChars[static_cast<unsigned char>(src[ 0])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 1])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 2])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 3])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 4])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 5])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 6])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 7])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 8])],
+                            hexDumpChars[static_cast<unsigned char>(src[ 9])],
+                            hexDumpChars[static_cast<unsigned char>(src[10])],
+                            hexDumpChars[static_cast<unsigned char>(src[11])],
+                            hexDumpChars[static_cast<unsigned char>(src[12])],
+                            hexDumpChars[static_cast<unsigned char>(src[13])],
+                            hexDumpChars[static_cast<unsigned char>(src[14])],
+                            hexDumpChars[static_cast<unsigned char>(src[15])]);
     BSLS_ASSERT(ret == length - 1);
 }
 
 namespace bdlb {
-                             // -----------------
+                             // ------------
                              // struct Print
-                             // -----------------
+                             // ------------
 
 // CLASS METHODS
 bsl::ostream& Print::indent(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel)
+                            int           level,
+                            int           spacesPerLevel)
 {
     if (spacesPerLevel < 0) {
         spacesPerLevel = -spacesPerLevel;
@@ -368,8 +368,8 @@ bsl::ostream& Print::indent(bsl::ostream& stream,
 }
 
 bsl::ostream& Print::newlineAndIndent(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel)
+                                      int           level,
+                                      int           spacesPerLevel)
 {
     if (spacesPerLevel < 0) {
         return stream << ' ';                                         // RETURN
@@ -384,21 +384,21 @@ bsl::ostream& Print::newlineAndIndent(bsl::ostream& stream,
     return stream;
 }
 
-void Print::printPtr(bsl::ostream& stream, const void *voidPointer)
+void Print::printPtr(bsl::ostream& stream, const void *value)
 {
-    const int BDEU_PRINT_BUF_SIZE = sizeof(voidPointer) * 2 + 1;
-    char buf[BDEU_PRINT_BUF_SIZE];
-    char *bufp = buf;
+    const int  k_BDLB_PRINT_BUF_SIZE = sizeof(value) * 2 + 1;
+    char       buf[k_BDLB_PRINT_BUF_SIZE];
+    char      *bufp = buf;
 
     #if defined(BSLS_PLATFORM_CPU_32_BIT)
         // 32 bit pointer
-        bsl::sprintf(buf, "%x", (unsigned int)voidPointer);
+        bsl::sprintf(buf, "%x", reinterpret_cast<unsigned int>(value));
     #else
         // 64 bit pointer
     #if defined(BSLS_PLATFORM_CMP_MSVC)
-        bsl::sprintf(buf, "%I64x", voidPointer);
+        bsl::sprintf(buf, "%I64x", value);
     #else
-        bsl::sprintf(buf, "%llx", (unsigned long long) voidPointer);
+        bsl::sprintf(buf, "%llx", reinterpret_cast<unsigned long long>(value));
     #endif
     #endif
 
@@ -416,9 +416,9 @@ void Print::printPtr(bsl::ostream& stream, const void *voidPointer)
 }
 
 bsl::ostream& Print::printString(bsl::ostream&  stream,
-                                      const char    *string,
-                                      int            length,
-                                      bool           escapeBackSlash)
+                                 const char    *string,
+                                 int            length,
+                                 bool           escapeBackSlash)
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(string || 0 == length);
@@ -457,37 +457,40 @@ bsl::ostream& Print::printString(bsl::ostream&  stream,
 }
 
 bsl::ostream& Print::hexDump(bsl::ostream&                stream,
-                                  bsl::pair<const char *,int> *buffers,
-                                  int                          numBuffers)
+                             bsl::pair<const char *,int> *buffers,
+                             int                          numBuffers)
 {
     BSLS_ASSERT(0 <= numBuffers);
     BSLS_ASSERT(buffers || 0 == numBuffers);
 
     enum {
-        BLOCK_SIZE         =  4,
-        CHAR_PER_LINE      = 16,
-        SCRATCH_BUFFER_LEN = 60  // line size  + '\0'
+        k_BLOCK_SIZE         =  4,
+        k_CHAR_PER_LINE      = 16,
+        k_SCRATCH_BUFFER_LEN = 60  // line size  + '\0'
     };
 
-    char scratch[SCRATCH_BUFFER_LEN];
+    char scratch[k_SCRATCH_BUFFER_LEN];
 
     int bufferIndex    = 0;  // Current buffer.
     int charIndex      = 0;  // Index in buffer of next byte to be read.
-    int preBufferIndex = 0;  // Saves the previous buffer index.
-                             // Used on transitions between buffers.
+    int preBufferIndex = 0;  // Saves the previous buffer index.  Used on
+                             // transitions between buffers.
     int preCharIndex   = 0;  // Saves the last write position in the previous
                              // buffer.  Used on transitions between buffers.
+
     const char *buffer = buffers[bufferIndex].first;  // Data.
-    int length         = buffers[bufferIndex].second; // Size of buffer.
+    int         length = buffers[bufferIndex].second; // Size of buffer.
 
     int lineIndex = 0;
     while (bufferIndex < numBuffers) {
-        int ret = bsl::sprintf(scratch, "%6d:   ", lineIndex * CHAR_PER_LINE);
+        int ret = bsl::sprintf(scratch,
+                               "%6d:   ",
+                               lineIndex * k_CHAR_PER_LINE);
         stream.write(scratch, ret);
-        if (charIndex + CHAR_PER_LINE <= length) {
-            hexDumpFullLine(scratch, buffer + charIndex, SCRATCH_BUFFER_LEN);
-            stream.write(scratch, SCRATCH_BUFFER_LEN - 1);
-            charIndex += CHAR_PER_LINE;
+        if (charIndex + k_CHAR_PER_LINE <= length) {
+            hexDumpFullLine(scratch, buffer + charIndex, k_SCRATCH_BUFFER_LEN);
+            stream.write(scratch, k_SCRATCH_BUFFER_LEN - 1);
+            charIndex += k_CHAR_PER_LINE;
             if (charIndex == length) {
                 bufferIndex++;
                 if (bufferIndex < numBuffers) {
@@ -501,10 +504,12 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
             preBufferIndex = bufferIndex;  // Save indices so we can get back
             preCharIndex   = charIndex;    // to them when printing out ASCII.
 
-            for (int j = 0; j < CHAR_PER_LINE; ++j) {
+            for (int j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if (charIndex < length) {
-                    ret = bsl::sprintf(scratch, "%.2X",
-                                       (unsigned char) buffer[charIndex]);
+                    ret = bsl::sprintf(
+                                scratch,
+                                "%.2X",
+                                static_cast<unsigned char>(buffer[charIndex]));
                     stream.write(scratch, ret);
                     charIndex++;
                 }
@@ -521,7 +526,7 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
                     }
                 }
 
-                if (j % BLOCK_SIZE == 3) {
+                if (j % k_BLOCK_SIZE == 3) {
                     stream.put(' ');  // Spacing.
                 }
             }
@@ -535,10 +540,10 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
             buffer = buffers[preBufferIndex].first;
             length = buffers[preBufferIndex].second;
 
-            for (int j = 0; j < CHAR_PER_LINE; ++j) {
+            for (int j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if (charIndex < length) {
-                    stream.put(
-                             HEX_DUMP_CHARS[(unsigned char)buffer[charIndex]]);
+                    stream.put(hexDumpChars[static_cast<unsigned char>(
+                                                          buffer[charIndex])]);
                     charIndex++;
                 }
                 else if (bufferIndex >= numBuffers) {
@@ -548,8 +553,8 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
                 if (charIndex == length) {
                     bufferIndex++;
                     if (bufferIndex < numBuffers) {
-                        buffer = buffers[bufferIndex].first;
-                        length = buffers[bufferIndex].second;
+                        buffer    = buffers[bufferIndex].first;
+                        length    = buffers[bufferIndex].second;
                         charIndex = 0;
                     }
                 }
@@ -563,46 +568,49 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
 }
 
 bsl::ostream& Print::hexDump(bsl::ostream&  stream,
-                                  const char    *buffer,
-                                  int            length)
+                             const char    *buffer,
+                             int            length)
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(buffer || 0 == length);
 
     enum {
-        BLOCK_SIZE         =  4,
-        CHAR_PER_LINE      = 16,
-        SCRATCH_BUFFER_LEN = 60  // line size  + '\0'
+        k_BLOCK_SIZE         =  4,
+        k_CHAR_PER_LINE      = 16,
+        k_SCRATCH_BUFFER_LEN = 60  // line size  + '\0'
     };
 
-    char scratch[SCRATCH_BUFFER_LEN];
-    for (int i = 0; i < length; i += CHAR_PER_LINE) {
+    char scratch[k_SCRATCH_BUFFER_LEN];
+    for (int i = 0; i < length; i += k_CHAR_PER_LINE) {
         int j;
 
         int ret = bsl::sprintf(scratch, "%6d:   ", i);
         stream.write(scratch, ret);
-        if (i + CHAR_PER_LINE <= length) {
-            hexDumpFullLine(scratch, buffer + i, SCRATCH_BUFFER_LEN);
-            stream.write(scratch, SCRATCH_BUFFER_LEN - 1);
+        if (i + k_CHAR_PER_LINE <= length) {
+            hexDumpFullLine(scratch, buffer + i, k_SCRATCH_BUFFER_LEN);
+            stream.write(scratch, k_SCRATCH_BUFFER_LEN - 1);
         }
         else {
-            for (j = 0; j < CHAR_PER_LINE; ++j) {
+            for (j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if ((i + j) < length) {
-                    ret = bsl::sprintf(scratch, "%.2X",
-                                       (unsigned char)buffer[i + j]);
+                    ret = bsl::sprintf(
+                                    scratch,
+                                    "%.2X",
+                                    static_cast<unsigned char>(buffer[i + j]));
                     stream.write(scratch, ret);
                 }
                 else {
                     stream.write("  ", sizeof("  ") -1);
                 }
-                if (j % BLOCK_SIZE == 3) {
+                if (j % k_BLOCK_SIZE == 3) {
                     stream.put(' ');
                 }
             }
             stream << "    |";
-            for (j = 0; j < CHAR_PER_LINE; ++j) {
+            for (j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if ((i + j) < length) {
-                    stream.put(HEX_DUMP_CHARS[(unsigned char)buffer[i + j]]);
+                    stream.put(hexDumpChars[static_cast<unsigned char>(
+                                                              buffer[i + j])]);
                 }
                 else {
                     stream.put(' ');
@@ -616,15 +624,14 @@ bsl::ostream& Print::hexDump(bsl::ostream&  stream,
 }
 
 bsl::ostream& Print::singleLineHexDump(bsl::ostream&  stream,
-                                            const char    *begin,
-                                            const char    *end)
+                                       const char    *begin,
+                                       const char    *end)
 {
     BSLS_ASSERT(begin <= end);
 
     return singleLineHexDump<const char *>(stream, begin, end);
 }
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

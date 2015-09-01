@@ -394,7 +394,7 @@ namespace bdlat_EnumFunctions {
 }  // close namespace bdlat_EnumFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                       // -----------------------------

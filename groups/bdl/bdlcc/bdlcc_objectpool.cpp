@@ -37,14 +37,17 @@ BSLS_IDENT_RCSID(bdlcc_objectpool_cpp,"$Id$ $CSID$")
 //
 // padding-1 and padding-2 (and thus the proper alignments) are achieved by
 // having 'd_dummy' field in 'BlockNode' and 'ObjectNode' respectively.
-//
+//..
 //        padding-1    padding-2            padding-3    padding-2
 // ----------------------------------------------------------------------------
-// | |||| |||| |||| |||| | Block |||| Object |||| Object |||| Object ||||
-// Object.. | Node |||| Node |||| |||| Node |||| | |||| |||| |||| ||||
+// |        ||||        ||||                   ||||        ||||
+// | Block  |||| Object ||||      Object       |||| Object |||| Object...
+// | Node   |||| Node   ||||                   |||| Node   ||||
+// |        ||||        ||||                   ||||        ||||
 // ----------------------------------------------------------------------------
 //                          <-ROUNDED_OBJECT_SIZE->
 //              <--------OBJECT_FRAME_SIZE------->
+//..
 
 namespace BloombergLP {
 namespace bdlcc {

@@ -624,7 +624,7 @@ namespace bdlat_ChoiceFunctions {
 }  // close namespace bdlat_ChoiceFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                       // -------------------------------

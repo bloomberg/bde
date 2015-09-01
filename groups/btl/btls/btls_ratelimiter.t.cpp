@@ -4,7 +4,7 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -76,7 +76,7 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 3] All accessor methods are declared 'const'.
 // [ *] All creator/manipulator ptr./ref. parameters are 'const'.
 // ============================================================================
@@ -107,48 +107,26 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
@@ -156,9 +134,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
-
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 typedef btls::RateLimiter    Obj;
 typedef bsls::TimeInterval   Ti;
@@ -166,7 +143,7 @@ typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        uint;
 
 // ============================================================================
-//                                USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 ///Usage
@@ -213,9 +190,10 @@ typedef unsigned int        uint;
 // that the usage curve to allowed to achieve.  In the example above:
 //
 //  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
-//    contain no more than 512 bytes.
+//    contain no more than 512 bytes (Rs * Ws).
 //
-//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//  o The area above the peak rate 'Rp' should contain no more than 128 bytes
+//    (Rp * Wp).
 //
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
@@ -225,29 +203,25 @@ typedef unsigned int        uint;
         // 'true' if data was sent successfully and 'false' otherwise.
     {
         (void)(dataSize);
-//..
-// For simplicity, 'sendData' will not actually send any data and will always
-// return 'true'.
-//..
+        // For simplicity, 'sendData' will not actually send any data and will
+        // always return 'true'.
         return true;
     }
 //..
 
 // ============================================================================
-//                                 MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    //bool     veryVerbose = argc > 3;
-    //bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -266,21 +240,21 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
 // First, we create a 'btls::RateLimiter' object having a sustained rate of
-// 1024 bytes/s, a sustained-rate time-window of 0.5s
-// (512 bytes / 1024 bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate
-// time-window of 0.0625s (128 bytes / 2048 bytes/s):
+// 1024 bytes/s, a sustained-rate time-window of 0.5s (512 bytes / 1024
+// bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate time-window of
+// 0.0625s (128 bytes / 2048 bytes/s):
 //..
-   bsls::Types::Uint64 sustainedRateLimit = 1024;
-   bsls::TimeInterval   sustainedRateWindow(0.5);
-   bsls::Types::Uint64 peakRateLimit = 2048;
-   bsls::TimeInterval   peakRateWindow(0.0625);
-   bsls::TimeInterval   now = bdlt::CurrentTime::now();
+    bsls::Types::Uint64 sustainedRateLimit = 1024;
+    bsls::TimeInterval  sustainedRateWindow(0.5);
+    bsls::Types::Uint64 peakRateLimit = 2048;
+    bsls::TimeInterval  peakRateWindow(0.0625);
+    bsls::TimeInterval  now = bdlt::CurrentTime::now();
 
-   btls::RateLimiter  rateLimiter(sustainedRateLimit,
-                                 sustainedRateWindow,
-                                 peakRateLimit,
-                                 peakRateWindow,
-                                 now);
+    btls::RateLimiter  rateLimiter(sustainedRateLimit,
+                                   sustainedRateWindow,
+                                   peakRateLimit,
+                                   peakRateWindow,
+                                   now);
 //..
 // Note that the rate limiter does not prevent the rate at any instant from
 // exceeding either the peak-rate or the sustained rate; instead, it prevents
@@ -291,15 +265,15 @@ int main(int argc, char *argv[])
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
 //..
-   bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
-   bsls::Types::Uint64 chunkSize  = 64;        // in bytes
-   bsls::Types::Uint64 bytesSent  = 0;
+    bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
+    bsls::Types::Uint64 chunkSize  = 64;        // in bytes
+    bsls::Types::Uint64 bytesSent  = 0;
 //..
-// Now, we send the chunks of data using a loop.  For each iteration, we
-// checked whether submitting another byte would exceed the rate limiter's
-// bandwidth limits.  If not, we send an additional chunk of data and submit
-// the number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
-// only after the data has been sent.
+// Now, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would exceed the rate limiter's bandwidth
+// limits.  If not, we send an additional chunk of data and submit the number
+// of bytes sent to the leaky bucket.  Note that 'submit' is invoked only after
+// the data has been sent.
 //..
     while (bytesSent < sizeOfData) {
         now = bdlt::CurrentTime::now();
@@ -319,7 +293,7 @@ int main(int argc, char *argv[])
                                         rateLimiter.calculateTimeToSubmit(now);
             bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                    (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-            bdlqq::ThreadUtil::microSleep(uS);
+            bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
         }
     }
 //..
@@ -474,15 +448,15 @@ int main(int argc, char *argv[])
             Uint64 d_units;
             Ti     d_resetTime;
         } DATA[] = {
-            //LINE  CTIME   UNITS TRESET
-            //----  ------- ----- ------
-            {  L_,  Ti( 0),    0, Ti( 0) },
-            {  L_,  Ti( 0), 1000, Ti( 0) },
-            {  L_,  Ti( 0), 2000, Ti( 0) },
-            {  L_,  Ti(50),    0, Ti(60) },
-            {  L_,  Ti(50), 1000, Ti(60) },
-            {  L_,  Ti(50),    0, Ti( 0) },
-            {  L_,  Ti(50), 1000, Ti( 0) }
+            //LINE  CREATION TIME  UNITS  RESET TIME
+            //----  -------------  -----  ----------
+            {  L_,         Ti( 0),     0,     Ti( 0) },
+            {  L_,         Ti( 0),  1000,     Ti( 0) },
+            {  L_,         Ti( 0),  2000,     Ti( 0) },
+            {  L_,         Ti(50),     0,     Ti(60) },
+            {  L_,         Ti(50),  1000,     Ti(60) },
+            {  L_,         Ti(50),     0,     Ti( 0) },
+            {  L_,         Ti(50),  1000,     Ti( 0) }
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -1157,12 +1131,12 @@ int main(int argc, char *argv[])
             Ti     d_submitInterval;
         } DATA[] = {
 
- //  LINE S_RATE   S_WND  P_RATE   P_WND    TCREATE  NSUBMITS UNITS  INTERVAL
- //  ---- ------- ------- ------- --------- -------- -------- ------ --------
-     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   500,     10,  Ti( 0.1)},
-     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   50,     100,  Ti( 0.1)},
-     {L_,   100,   Ti(10),  1000,  Ti(0.5),   Ti(0),   10,     100,  Ti(   1)},
-     {L_,   100,   Ti(10),  1000,  Ti(0.1),   Ti(0),   10,     100,  Ti(0.01)}
+ //  LINE S_RATE   S_WND  P_RATE   P_WND    TCREATE  SUBMITS UNITS  INTERVAL
+ //  ---- ------- ------- ------- --------- -------- ------- ------ --------
+     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   500,    10,  Ti( 0.1)},
+     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   50,    100,  Ti( 0.1)},
+     {L_,   100,   Ti(10),  1000,  Ti(0.5),   Ti(0),   10,    100,  Ti(   1)},
+     {L_,   100,   Ti(10),  1000,  Ti(0.1),   Ti(0),   10,    100,  Ti(0.01)}
 
         };
 

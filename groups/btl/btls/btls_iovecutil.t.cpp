@@ -2,7 +2,7 @@
 
 #include <btls_iovecutil.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <btlb_blob.h>
 #include <btlb_pooledblobbufferfactory.h>
@@ -11,13 +11,11 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
-
 
 //=============================================================================
 //                             TEST PLAN
@@ -33,9 +31,9 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 3]  USAGE EXAMPLE
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -52,34 +50,34 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -103,6 +101,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
+///Usage
+///-----
+//..
+//..
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -120,38 +122,39 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         enum {
-            BUFFER_MAX_SIZE = 5,
-            VECTOR_SIZE     = 100,
-            VECTOR_NB       = 14   // must be big enough to contain BUFFER_SIZE
+            k_BUFFER_MAX_SIZE = 5,
+            k_VECTOR_SIZE     = 100,
+            k_VECTOR_NB       = 14 // must be big enough to contain BUFFER_SIZE
         };
 
         // Generate seemingly random buffer.
         if (verbose) cout << "\tGenerating buffer...\n";
 
-        char buffer[VECTOR_SIZE];
-        for (int i = 0; i < VECTOR_SIZE; ++i) {
+        char buffer[k_VECTOR_SIZE];
+        for (int i = 0; i < k_VECTOR_SIZE; ++i) {
             buffer[i] = (char)(67 + i * (i+13));
             if (veryVerbose) { int c = buffer[i]; P_(c); }
         }
-        if (veryVerbose) { P_(BUFFER_MAX_SIZE); P(VECTOR_SIZE); }
+        if (veryVerbose) { P_(k_BUFFER_MAX_SIZE); P(k_VECTOR_SIZE); }
 
         if (verbose) cout << "\n\tWith 'btls::Iovec'.";
 
         // Try several buffer sizes for the 'factory'.
-        for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
+        for (int m = 1; m < k_BUFFER_MAX_SIZE; ++m) {
             btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
 
         //--^
-        // Try any number of vectors, containing up to VECTOR_SIZE characters.
+        // Try any number of vectors, containing up to k_VECTOR_SIZE
+        // characters.
         for (int i = 1;
-             i < VECTOR_SIZE && (i * (i+1) / 2) < VECTOR_SIZE; ++i) {
-            btls::Iovec                    vecs[VECTOR_NB];
+             i < k_VECTOR_SIZE && (i * (i+1) / 2) < k_VECTOR_SIZE; ++i) {
+            btls::Iovec                    vecs[k_VECTOR_NB];
             int                           numVecs = 0;
 
-            // Generate up to VECTOR_NB vectors with vec[j].length() == j+1.
+            // Generate up to k_VECTOR_NB vectors with vec[j].length() == j+1.
             // The data is contiguously taken from the buffer.
             if (veryVerbose) cout << "\tGenerating vectors..." << m << "\n";
 
@@ -161,8 +164,8 @@ int main(int argc, char *argv[])
                 ++numVecs;
                 dataSize += j;
             }
-            ASSERT(numVecs <= VECTOR_NB);
-            ASSERT(dataSize <= VECTOR_SIZE);
+            ASSERT(numVecs <= k_VECTOR_NB);
+            ASSERT(dataSize <= k_VECTOR_SIZE);
             if (verbose) { T_; P_(numVecs); P(dataSize); }
 
             // Create a blob with 0 or more initial characters, append the
@@ -196,7 +199,7 @@ int main(int argc, char *argv[])
                             buffer[k] == (blob->buffer(k / m)).data()[k % m]);
                     }
 
-                    // Verify vecs contents after offset have been appended.
+                    // Verify vectors contents after offset have been appended.
                     for (int k = offset, l = j; k < dataSize; ++k, ++l) {
                         LOOP5_ASSERT(m, i, j, offset, k,
                              buffer[k] == (blob->buffer(l / m)).data()[l % m]);
@@ -211,20 +214,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n\tWith 'btls::Iovec'.";
 
         // Try several buffer sizes for the 'factory'.
-        for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
+        for (int m = 1; m < k_BUFFER_MAX_SIZE; ++m) {
             btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
 
         //--^
-        // Try any number of vectors, containing up to VECTOR_SIZE characters.
+        // Try any number of vectors, containing up to k_VECTOR_SIZE
+        // characters.
         for (int i = 1;
-             i < VECTOR_SIZE && (i * (i+1) / 2) < VECTOR_SIZE; ++i) {
-            btls::Ovec vecs[VECTOR_NB];
+             i < k_VECTOR_SIZE && (i * (i+1) / 2) < k_VECTOR_SIZE; ++i) {
+            btls::Ovec vecs[k_VECTOR_NB];
             int       numVecs = 0;
 
-            // Generate up to VECTOR_NB vectors with vec[j].length() == j+1.
+            // Generate up to k_VECTOR_NB vectors with vec[j].length() == j+1.
             // The data is contiguously taken from the buffer.
             if (veryVerbose) cout << "\tGenerating vectors..." << m << "\n";
 
@@ -234,8 +238,8 @@ int main(int argc, char *argv[])
                 ++numVecs;
                 dataSize += j;
             }
-            ASSERT(numVecs <= VECTOR_NB);
-            ASSERT(dataSize <= VECTOR_SIZE);
+            ASSERT(numVecs <= k_VECTOR_NB);
+            ASSERT(dataSize <= k_VECTOR_SIZE);
             if (verbose) { T_; P_(numVecs); P(dataSize); }
 
             // Create a blob with 0 or more initial characters, append the
@@ -269,7 +273,7 @@ int main(int argc, char *argv[])
                             buffer[k] == (blob->buffer(k / m)).data()[k % m]);
                     }
 
-                    // Verify vecs contents after offset have been appended.
+                    // Verify vectors contents after offset have been appended.
                     for (int k = offset, l = j; k < dataSize; ++k, ++l) {
                         LOOP5_ASSERT(m, i, j, offset, k,
                              buffer[k] == (blob->buffer(l / m)).data()[l % m]);

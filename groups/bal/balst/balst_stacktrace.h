@@ -178,9 +178,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                          // ======================
-                          // class StackTrace
-                          // ======================
+                              // ================
+                              // class StackTrace
+                              // ================
 
 class StackTrace {
     // This value-semantic class describes a function-call stack, represented
@@ -333,12 +333,12 @@ void swap(StackTrace& a, StackTrace& b);
     // allocator.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ----------------------
-                         // class StackTrace
-                         // ----------------------
+                              // ----------------
+                              // class StackTrace
+                              // ----------------
 
                             // -----------------
                             // Level 0 Functions

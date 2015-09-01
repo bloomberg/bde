@@ -87,7 +87,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -119,7 +119,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -127,12 +127,12 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
-#define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and
-                                                   // value, then return false.
+#define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and value,
+                                                   // then return false.
 
-//=============================================================================
-//              GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlde::Utf8Util Obj;
 
@@ -2265,8 +2265,8 @@ bsl::string codeBOM()
     return (char *) buf;
 }
 
-// note these decoders all assume they can look as far as they want down
-// the stream of chars without provoking a segfault.
+// note these decoders all assume they can look as far as they want down the
+// stream of chars without provoking a segfault.
 
 static
 int decode8(const char *pc)
@@ -2470,9 +2470,9 @@ bsl::string clone(const char *pc, int length)
     #define U8_10fffe "\xf4\x8f\xbf\xbe"
     #define U8_10ffff "\xf4\x8f\xbf\xbf"
 
-//=============================================================================
-//                             Usage Example
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               Usage Example
+// ----------------------------------------------------------------------------
 
 namespace USAGE {
 
@@ -2561,9 +2561,9 @@ namespace USAGE {
 
 }  // close namespace USAGE
 
-//=============================================================================
-//                      HELPER DEFINITIONS FOR TEST 4
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER DEFINITIONS FOR TEST 4
+// ----------------------------------------------------------------------------
 
 namespace BDEDE_UTF8UTIL_CASE_4 {
 
@@ -2616,9 +2616,9 @@ bsl::string codeRandBenign()
 
 }  // close namespace BDEDE_UTF8UTIL_CASE_4
 
-//=============================================================================
-//                      HELPER DEFINITIONS FOR TEST 2
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER DEFINITIONS FOR TEST 2
+// ----------------------------------------------------------------------------
 
 namespace BDEDE_UTF8UTIL_CASE_2 {
 
@@ -2640,8 +2640,8 @@ static const struct {
 
     const char *d_utf8_p;     // UTF-8 input string
 
-    int         d_numBytes;   // length of spec (in bytes), not
-                              // including null-terminator
+    int         d_numBytes;   // length of spec (in bytes), not including
+                              // null-terminator
 
     int         d_numChars;   // number of UTF-8 characters (-1 if invalid)
 
@@ -2662,17 +2662,21 @@ static const struct {
     { L_, "Hello",                        5,  5, -1,   1   },
 
     // Check the boundary between 1-octet and 2-octet characters.
+
     { L_, "\x7f",                         1,  1, -1,   1   },
     { L_, U8_00080,                       2,  1, -1,   1   },
 
     // Check the boundary between 2-octet and 3-octet characters.
+
     { L_, U8_007ff,                       2,  1, -1,   1   },
     { L_, U8_00800,                       3,  1, -1,   1   },
 
     // Check the maximal 3-octet character.
+
     { L_, U8_0ffff,                       3,  1, -1,   1   },
 
     // Make sure 4-octet characters are handled correctly.
+
     { L_, U8_10000,                       4,  1, -1,   1   },
     { L_, U8_10000 " ",                   5,  2, -1,   1   },
     { L_, " " U8_10001 " ",               6,  3, -1,   1   },
@@ -2680,8 +2684,9 @@ static const struct {
     { L_, U8_10fffe " ",                  5,  2, -1,   1   },
     { L_, " " U8_10ffff " ",              6,  3, -1,   1   },
 
-    // Make sure partial 4-octet characters are handled correctly (with
-    // a single error).
+    // Make sure partial 4-octet characters are handled correctly (with a
+    // single error).
+
     { L_, "\xf0",                         1, -1,  0,   0   },
     { L_, "\xf0\x80",                     2, -1,  0,   0   },
     { L_, "\xf0\x80\x80",                 3, -1,  0,   0   },
@@ -2691,6 +2696,7 @@ static const struct {
 
     // Make sure the "illegal" UTF-8 octets are handled correctly:
     //   o The octet values C0, C1, F5 to FF never appear.
+
     { L_, "\xc0",                         1, -1,  0,   0   },
     { L_, "\xc1",                         1, -1,  0,   0   },
     { L_, "\xf5",                         1, -1,  0,   0   },
@@ -2708,6 +2714,7 @@ static const struct {
     // Make sure that the "illegal" UTF-8 octets are handled correctly
     // mid-string:
     //   o The octet values C0, C1, F5 to FF never appear.
+
     { L_, " \xc0 ",                       3, -1,  1,   0   },
     { L_, " \xc1 ",                       3, -1,  1,   0   },
     { L_, " \xf5 ",                       3, -1,  1,   0   },
@@ -2738,16 +2745,17 @@ static const struct {
     { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
                                          13,  7, -1,   1   },
 
-    // Make sure illegal overlong encodings are not accepted.  These
-    // characters are mathematically correctly encoded, but since there
-    // are equivalent 1-octet encodings, the UTF-8 standard disallows
-    // them.
+    // Make sure illegal overlong encodings are not accepted.  These characters
+    // are mathematically correctly encoded, but since there are equivalent
+    // 1-octet encodings, the UTF-8 standard disallows them.
+
     { L_, "\xc0\x81",                     2, -1,  0,   0   },
     { L_, "\xc0\xbf",                     2, -1,  0,   0   },
     { L_, "\xc1\x81",                     2, -1,  0,   0   },
     { L_, "\xc1\xbf",                     2, -1,  0,   0   },
 
     // Corrupted 2-octet character:
+
     { L_, "\xc2",                         1, -1,  0,   0   },
     { L_, " \xc2",                        2, -1,  1,   0   },
     { L_, "\xc2 ",                        2, -1,  0,   0   },
@@ -2755,14 +2763,17 @@ static const struct {
     { L_, "\xc2 \xc2",                    3, -1,  0,   0   },
 
     // Corrupted 2-octet character followed by a valid character:
+
     { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
     { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
 
     // Corrupted 2-octet character followed by an invalid character:
+
     { L_, "\xc2\xff",                     2, -1,  0,   0   },
     { L_, "\xc2\xff",                     2, -1,  0,   0   },
 
     // 3-octet characters corrupted after octet 1:
+
     { L_, "\xef",                         1, -1,  0,   0   },
     { L_, " \xef",                        2, -1,  1,   0   },
     { L_, "\xef ",                        2, -1,  0,   0   },
@@ -2771,6 +2782,7 @@ static const struct {
     { L_, "\xef" U8_00080,                3, -1,  0,   0   },
 
     // 3-octet characters corrupted after octet 2:
+
     { L_, "\xef\xbf",                     2, -1,  0,   0   },
     { L_, "\xef\xbf",                     2, -1,  0,   0   },
     { L_, " \xef\xbf@",                   4, -1,  1,   0   },
@@ -2790,9 +2802,9 @@ static const struct {
 };
 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

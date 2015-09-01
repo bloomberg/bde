@@ -62,15 +62,15 @@ BSLS_IDENT("$Id: $")
 //  baljsn::EncoderOptions options;
 //  assert(0 == options.initialIndentLevel());
 //  assert(0 == options.spacesPerLevel());
-//  assert(baljsn::EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
+//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
 //  assert(false == options.encodeEmptyArrays());
 //  assert(false == options.encodeNullElements());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
 //..
-//  options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
-//  assert(baljsn::EncoderOptions::BAEJSN_PRETTY == options.encodingStyle());
+//  options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+//  assert(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 //
 //  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
 //  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
@@ -99,12 +99,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baljsn {
 
-                      // ===========================
-                      // class EncoderOptions
-                      // ===========================
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
 
 class EncoderOptions {
     // This simply constrained (value-semantic) attribute class describes
@@ -151,8 +150,8 @@ class EncoderOptions {
   public:
     // CREATORS
     EncoderOptions();
-        // Create a 'EncoderOptions' object having the (default)
-        // attribute values:
+        // Create a 'EncoderOptions' object having the (default) attribute
+        // values:
         //..
         //  encodingStyle      == BAEJSN_COMPACT
         //  initialIndentLevel == 0
@@ -233,40 +232,38 @@ class EncoderOptions {
 };
 
 // FREE OPERATORS
-bool operator==(const EncoderOptions& lhs,
-                const EncoderOptions& rhs);
+bool operator==(const EncoderOptions& lhs, const EncoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'EncoderOptions' objects have
-    // the same value if all of the corresponding values of their
+    // value, and 'false' otherwise.  Two 'EncoderOptions' objects have the
+    // same value if all of the corresponding values of their
     // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
     // 'encodeEmptyArrays', and 'encodeNullElements' attributes are the same.
 
-bool operator!=(const EncoderOptions& lhs,
-                const EncoderOptions& rhs);
+bool operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'EncoderOptions' objects
-    // do not have the same value if any of the corresponding values of their
+    // same value, and 'false' otherwise.  Two 'EncoderOptions' objects do not
+    // have the same value if any of the corresponding values of their
     // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
     // 'encodeEmptyArrays', and 'encodeNullElements' attributes are not the
     // same.
 
-bsl::ostream& operator<<(bsl::ostream&                stream,
+bsl::ostream& operator<<(bsl::ostream&         stream,
                          const EncoderOptions& object);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.  Also note
-    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-    // but with the attribute names elided.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)', but with
+    // the attribute names elided.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------
-                      // class EncoderOptions
-                      // ---------------------------
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
 
 // CREATORS
 inline
@@ -356,8 +353,7 @@ bool EncoderOptions::encodeNullElements() const
 
 // FREE FUNCTIONS
 inline
-bool baljsn::operator==(const EncoderOptions& lhs,
-                const EncoderOptions& rhs)
+bool baljsn::operator==(const EncoderOptions& lhs, const EncoderOptions& rhs)
 {
     return  lhs.initialIndentLevel() == rhs.initialIndentLevel()
          && lhs.spacesPerLevel()     == rhs.spacesPerLevel()
@@ -367,8 +363,7 @@ bool baljsn::operator==(const EncoderOptions& lhs,
 }
 
 inline
-bool baljsn::operator!=(const EncoderOptions& lhs,
-                const EncoderOptions& rhs)
+bool baljsn::operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs)
 {
     return  lhs.initialIndentLevel() != rhs.initialIndentLevel()
          || lhs.spacesPerLevel()     != rhs.spacesPerLevel()

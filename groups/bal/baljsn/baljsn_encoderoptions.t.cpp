@@ -1,9 +1,8 @@
 // baljsn_encoderoptions.t.cpp                                        -*-C++-*-
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(baejsn_encoderoptions_t_cpp,"$Id$ $CSID$")
-
 #include <baljsn_encoderoptions.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -12,6 +11,7 @@ BSLS_IDENT_RCSID(baejsn_encoderoptions_t_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -91,80 +91,77 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-
+}  // close unnamed namespace
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+// ============================================================================
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baljsn::EncoderOptions                Obj;
 typedef baljsn::EncoderOptions::EncodingStyle Style;
 
 // ============================================================================
-//                                 TYPE TRAITS
+//                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -213,9 +210,9 @@ const DefaultDataRow DEFAULT_DATA[] =
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -272,7 +269,7 @@ int main(int argc, char *argv[])
     const int  SPACES_PER_LEVEL     = 4;
     const bool ENCODE_EMPTY_ARRAYS  = true;
     const bool ENCODE_NULL_ELEMENTS = true;
-//
+
     baljsn::EncoderOptions options;
     ASSERT(0 == options.initialIndentLevel());
     ASSERT(0 == options.spacesPerLevel());
@@ -285,20 +282,19 @@ int main(int argc, char *argv[])
 //..
     options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
     ASSERT(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
-//
+
     options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
     ASSERT(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
-//
+
     options.setSpacesPerLevel(SPACES_PER_LEVEL);
     ASSERT(SPACES_PER_LEVEL == options.spacesPerLevel());
-//
+
     options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
     ASSERT(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
-//
+
     options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
     ASSERT(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
 //..
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -692,8 +688,8 @@ int main(int argc, char *argv[])
         //:
         //:     3 Create an object 'Y' having the value 'R2'.
         //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!='.  (C-1..3, 6..8)
+        //:     4 Verify the commutative property and expected return value for
+        //:       both '==' and '!='.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const baljsn::EncoderOptions& lhs, rhs);
@@ -732,37 +728,37 @@ int main(int argc, char *argv[])
         typedef bool  T4;        // 'encodeEmptyArrays'
         typedef bool  T5;        // 'encodeNullElements'
 
-        // ----------------------------------------
-        // Attribute 1 Values: 'initialIndentLevel'
-        // ----------------------------------------
+                 // ----------------------------------------
+                 // Attribute 1 Values: 'initialIndentLevel'
+                 // ----------------------------------------
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
-        // ------------------------------------
-        // Attribute 2 Values: 'spacesPerLevel'
-        // ------------------------------------
+                   // ------------------------------------
+                   // Attribute 2 Values: 'spacesPerLevel'
+                   // ------------------------------------
 
         const T2 A2 = INT_MAX;         // baseline
         const T2 B2 = 10;
 
-        // -----------------------------------
-        // Attribute 3 Values: 'encodingStyle'
-        // -----------------------------------
+                   // -----------------------------------
+                   // Attribute 3 Values: 'encodingStyle'
+                   // -----------------------------------
 
         const T3 A3 = Obj::e_COMPACT;         // baseline
         const T3 B3 = Obj::e_PRETTY;
 
-        // ---------------------------------------
-        // Attribute 4 Values: 'encodeEmptyArrays'
-        // ---------------------------------------
+                 // ---------------------------------------
+                 // Attribute 4 Values: 'encodeEmptyArrays'
+                 // ---------------------------------------
 
         const T4 A4 = false;           // baseline
         const T4 B4 = true;
 
-        // ----------------------------------------
-        // Attribute 5 Values: 'encodeNullElements'
-        // ----------------------------------------
+                 // ----------------------------------------
+                 // Attribute 5 Values: 'encodeNullElements'
+                 // ----------------------------------------
 
         const T5 A5 = false;           // baseline
         const T5 B5 = true;
@@ -781,8 +777,8 @@ int main(int argc, char *argv[])
 
         // The first row of the table below represents an object value
         // consisting of "baseline" attribute values (A1..An).  Each subsequent
-        // row differs (slightly) from the first in exactly one attribute
-        // value (Bi).
+        // row differs (slightly) from the first in exactly one attribute value
+        // (Bi).
 
         //LINE  INDENT  SPL  STYLE   EEA  ENE
         //----  ------  ---  -----   ---  ---
@@ -855,7 +851,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
-                // Verify value, and commutativity.
+                // Verify value, and commutative.
 
                 LOOP4_ASSERT(LINE1, LINE2, X, Y,  EXP == (X == Y));
                 LOOP4_ASSERT(LINE1, LINE2, Y, X,  EXP == (Y == X));
@@ -974,7 +970,7 @@ int main(int argc, char *argv[])
 #define SP " "
 
    // ------------------------------------------------------------------
-   // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+   // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
@@ -1008,7 +1004,7 @@ int main(int argc, char *argv[])
                                                                              },
 
    // ------------------------------------------------------------------
-   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
    // ------------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
@@ -1068,9 +1064,9 @@ int main(int argc, char *argv[])
                                        "]"
                                                                              },
 
-   // -----------------------------------------------------------------
-   // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-   // -----------------------------------------------------------------
+           // ----------------------------------------------------
+           // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
+           // ----------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
 //----  -  ---  ---  --- ----- --- --- ---
@@ -1085,7 +1081,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA  ENE EXP
@@ -1207,9 +1203,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
-        // -----------------------------------------------------
+          // -----------------------------------------------------
+          // 'D' values: These are the default-constructed values.
+          // -----------------------------------------------------
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
@@ -1217,9 +1213,9 @@ int main(int argc, char *argv[])
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
 
-        // -------------------------------------------------------
-        // 'A' values: Boundary values.
-        // -------------------------------------------------------
+                       // ----------------------------
+                       // 'A' values: Boundary values.
+                       // ----------------------------
 
         const int   A1   = INT_MAX;              // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
@@ -1525,9 +1521,9 @@ int main(int argc, char *argv[])
             ASSERT(A4 == X.encodeEmptyArrays());
             ASSERT(A5 == X.encodeNullElements());
 
-            // ---------------------------------------
-            // Set all attributes to their 'B' values.
-            // ---------------------------------------
+                 // ---------------------------------------
+                 // Set all attributes to their 'B' values.
+                 // ---------------------------------------
 
             mX.setInitialIndentLevel(B1);
 
@@ -1630,9 +1626,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Verify the object's attribute values." << endl;
 
-        // -------------------------------------
-        // Verify the object's attribute values.
-        // -------------------------------------
+                  // -------------------------------------
+                  // Verify the object's attribute values.
+                  // -------------------------------------
 
         LOOP2_ASSERT(D1, X.initialIndentLevel(), D1 == X.initialIndentLevel());
         LOOP2_ASSERT(D2, X.spacesPerLevel(),     D2 == X.spacesPerLevel());

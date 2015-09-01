@@ -6,6 +6,7 @@
 
 #include <bdlb_random.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorderutil.h>
 #include <bsls_stopwatch.h>
@@ -16,6 +17,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
 
@@ -85,26 +87,20 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
 namespace {
 int testStatus = 0;
-int testFailures = 0;
-int testFailureLim = 500;        // <0 => no limit.
 
 bool aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100)
+        if (testStatus >= 0 && testStatus <= 100) {
             ++testStatus;
-
-        ++testFailures;
-        if (testFailureLim >= 0
-         && testFailures > testFailureLim)
-            exit(1);
+        }
     }
     return c == 0;
 }
@@ -114,7 +110,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -160,7 +156,7 @@ bool aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -177,7 +173,7 @@ bool aSsErT(int c, const char *s, int i)
 #define R_(X) #X " = " << (X) << " "
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
@@ -186,7 +182,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                               GLOBAL TYPEDEFS
+//                              GLOBAL TYPEDEFS
 // ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertUtf32  Util;
@@ -205,12 +201,12 @@ bool veryVeryVeryVerbose;
 bool veryVeryVeryVeryVerbose;
 
 bdlde::ByteOrder::Enum oppositeEndian =
-                       bdlde::ByteOrder::e_BIG_ENDIAN == bdlde::ByteOrder::e_HOST
-                       ? bdlde::ByteOrder::e_LITTLE_ENDIAN
-                       : bdlde::ByteOrder::e_BIG_ENDIAN;
+                     bdlde::ByteOrder::e_BIG_ENDIAN == bdlde::ByteOrder::e_HOST
+                     ? bdlde::ByteOrder::e_LITTLE_ENDIAN
+                     : bdlde::ByteOrder::e_BIG_ENDIAN;
 
 const void *hx(bsls::Types::UintPtr val)
-    // Cast 'val' to 'void *' so it will be printed in hex
+    // Cast the specified 'val' to 'void *' so it will be printed in hex
 {
     return (const void *) val;
 }
@@ -2095,10 +2091,11 @@ unsigned char utf8MultiLang[] = {
     187, 244, 128, 128, 128, 243, 174, 187, 174, 242, 187, 174,
     187,  13,  10,   0
 };
-const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
+const char * const charUtf8MultiLang =
+                                 reinterpret_cast<const char *>(utf8MultiLang);
 
 // ============================================================================
-//                              Padded String Ref
+//                             Padded String Ref
 // ============================================================================
 
 namespace {
@@ -2107,7 +2104,7 @@ class PaddedStringRef {
     // This 'class' is initialized by a string (in either of two forms) and the
     // only way to read it is via an implicit conversion to a
     // 'bslstl::StringRef'.  The important quality is that while the string
-    // reference converted to will represent the strng passed at construction,
+    // reference converted to will represent the string passed at construction,
     // it will NOT be null terminated, to test functions that take string refs
     // as args, to verify they aren't relying on the input being 0-terminated
     // at the right place.
@@ -2151,9 +2148,9 @@ class PaddedStringRef {
 
 }  // close unnamed namespace
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 char *decodeFourByteUtf8String(char *outBuf, unsigned val)
     // Translate the specified 'val' to UTF-8 to be written to the specified
@@ -2697,7 +2694,7 @@ enum { NUM_BETTER_UTF8_TABLE      =
 
 int main(int argc, char **argv)
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
@@ -2775,7 +2772,7 @@ int main(int argc, char **argv)
         // Then, we do the translation to 'UTF-32':
 
         int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
-                                                         utf8MultiLang);
+                                                          utf8MultiLang);
 
         ASSERT(0 == retVal);        // verify success
         ASSERT(0 == v32.back());    // verify null terminated
@@ -2822,8 +2819,8 @@ int main(int argc, char **argv)
         // Now, we do the reverse transform:
 
         retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
-                                                     v32.begin(),
-                                                     &utf8CharsWritten);
+                                                      v32.begin(),
+                                                      &utf8CharsWritten);
 
         // Finally, we verify that a successful status was returned, that the
         // output of the reverse transform was identical to the original input,
@@ -2888,8 +2885,8 @@ int main(int argc, char **argv)
             const bool opposite  = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             // 'nullIdx0' and 'nullIdx1' are indexes where nulls are inserted.
             // If they have a value of '-1', no null is inserted.  We are only
@@ -3031,8 +3028,8 @@ int main(int argc, char **argv)
             const bool opposite         = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             char *pc = utf8InBuf;
             for (unsigned tj = 1; tj < numBytesIn; ++tj) {
@@ -3224,8 +3221,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
                 unsigned int errorChar;
@@ -3474,8 +3471,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             origUtf32InVec. clear();
             for (unsigned tj = 1; tj < numCharsIn; ++tj) {
@@ -3653,8 +3650,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             utf32InVec. clear();
             utf8ExpVec. clear();
@@ -3795,8 +3792,8 @@ int main(int argc, char **argv)
             const bool opposite = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
-                                               ? oppositeEndian
-                                               : bdlde::ByteOrder::e_HOST;
+                                                ? oppositeEndian
+                                                : bdlde::ByteOrder::e_HOST;
 
             utf32InVec. clear();
             utf8ExpVec. clear();
@@ -5371,9 +5368,11 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             for (int check = 0; check < 2; ++check) {
+                //..
                 // check == 0, check 'numChars' && 'numBytes'
                 // check == 1: check 'numChars'
                 // check == 2: check neither
+                //..
 
                 int expectedRet = IS_ERROR
                                 ? Status::k_INVALID_CHARS_BIT
@@ -6523,7 +6522,7 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Buffer Translation
         //
         // Concerns:
-        // That 'utf8ToUtf32' called with buffer output performs as expected:
+        //   That 'utf8ToUtf32' called with buffer output performs as expected:
         //: 1 Test sound encodings of minimal and maximal encoded values for
         //:   UTF-8 sequences 1, 2, 3, and 4 octets long.
         //: 2 Test non-minimal encodings -- values 1 too small, and zero
@@ -6538,10 +6537,10 @@ int main(int argc, char **argv)
         //: 6 Repeat all tests with both byte orders.
         //
         // Plan:
-        // Set up one loop for each of the case listed under '5' in the
-        // concerns.  The loops will call 'utf8ToUtf32', setting up variables
-        // first to anticipate what the expected behavior of this translation
-        // call.
+        //   Set up one loop for each of the case listed under '5' in the
+        //   concerns.  The loops will call 'utf8ToUtf32', setting up variables
+        //   first to anticipate what the expected behavior of this translation
+        //   call.
         //: 1 Iterate eight times over the variable 'mode', driving 3 booleans:
         //:   o checkNumChars -- have 'numChars' returned and verify accuracy
         //:   o useStringRef -- pass input as a string ref rather than a

@@ -4,6 +4,7 @@ ball_attribute
 ball_attributecontainer
 ball_attributecontainerlist
 ball_attributecontext
+ball_category
 ball_categorymanager
 ball_context
 ball_countingallocator

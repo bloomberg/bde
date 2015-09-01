@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide light-weight implementation of 'balxml::Reader' protocol
+//@PURPOSE: Provide light-weight implementation of 'balxml::Reader' protocol.
 //
 //@CLASSES:
-//   balxml::MiniReader: light-weight implementation of 'balxml::Reader' protocol
+//   balxml::MiniReader: light-weight 'balxml::Reader' implementation
 //
 //@SEE_ALSO: balxml_reader, balxml_errorinfo
 //
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //               bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 //
 //      assert( reader.nodeType() !=
-//                                 balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE);
+//                                balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE);
 //
 //      return rc;
 //  }
@@ -59,9 +59,9 @@ BSLS_IDENT("$Id: $")
 //  int main()
 //  {
 //..
-// The following string describes xml for a very simple user directory.
-// The top level element contains one xml namespace attribute, with one
-// embedded entry describing a user.
+// The following string describes xml for a very simple user directory.  The
+// top level element contains one xml namespace attribute, with one embedded
+// entry describing a user.
 //..
 //      const char TEST_XML_STRING[] =
 //         "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //      int rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                            balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+//                           balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
 //      assert(!bsl::strcmp(reader.nodeName(), "xml"));
 //      assert( reader.nodeHasValue());
 //      assert(!bsl::strcmp(reader.nodeValue(),
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //      rc = reader.advanceToNextNode();
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                                balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "name"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                                balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "phone"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 2);
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //      rc = advancePastWhiteSpace(reader);
 //      assert( 0 == rc);
 //      assert( reader.nodeType() ==
-//                                balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+//                               balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
 //      assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
 //      assert(!reader.nodeHasValue());
 //      assert( reader.nodeDepth() == 1);
@@ -299,6 +299,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
 #endif
@@ -306,9 +310,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // =======================
-                        // class MiniReader
-                        // =======================
+                              // ================
+                              // class MiniReader
+                              // ================
 
 class MiniReader :  public Reader {
     // This 'class' provides a concrete and efficient implementation of the
@@ -324,7 +328,7 @@ class MiniReader :  public Reader {
     };                                        // to minimize allocations
 
     typedef ElementAttribute Attribute;
-    typedef bsl::vector<Attribute>  AttributeVector;
+    typedef bsl::vector<Attribute> AttributeVector;
 
     struct Node;
     friend struct Node;
@@ -349,13 +353,12 @@ class MiniReader :  public Reader {
         int              d_startPos;
         int              d_endPos;
 
-        Node (bslma::Allocator *basicAllocator = 0);
-        Node (const Node & other,
-              bslma::Allocator *basicAllocator = 0);
+        Node(bslma::Allocator *basicAllocator = 0);
+        Node(const Node& other, bslma::Allocator *basicAllocator = 0);
 
         void reset();
-        void swap(Node & other);
-        void addAttribute(const Attribute & attr);
+        void swap(Node& other);
+        void addAttribute(const Attribute& attr);
     };
 
     typedef bsl::pair<bsl::string, int> Element;
@@ -394,8 +397,8 @@ class MiniReader :  public Reader {
 
     char                     *d_startPtr;
     char                     *d_endPtr;
-    char                     *d_scanPtr;        // pointer used to traverse
-                                                // the input
+    char                     *d_scanPtr;        // pointer used to traverse the
+                                                // input
 
     char                     *d_markPtr;        // pointer to the previous node
                                                 // value
@@ -404,15 +407,15 @@ class MiniReader :  public Reader {
     char                     *d_attrValPtr;
 
     int                       d_lineNum;      // current line number
-    char                     *d_linePtr;      // position of the beginning
-                                              // of current line
+    char                     *d_linePtr;      // position of the beginning of
+                                              // current line
 
-    ErrorInfo          d_errorInfo;
+    ErrorInfo                 d_errorInfo;
     XmlResolverFunctor        d_resolver;
 
-    NamespaceRegistry  d_ownNamespaces;
-    PrefixStack        d_ownPrefixes;
-    PrefixStack       *d_prefixes;
+    NamespaceRegistry         d_ownNamespaces;
+    PrefixStack               d_ownPrefixes;
+    PrefixStack              *d_prefixes;
 
     Node                      d_currentNode;
     size_t                    d_activeNodesCount;  // active nodes count
@@ -425,22 +428,25 @@ class MiniReader :  public Reader {
     unsigned int              d_options;      // option flags for the reader
 
   private:
+    // NOT IMPLEMENTED
+    MiniReader(const MiniReader&);             // = delete;
+    MiniReader& operator=(const MiniReader&);  // = delete;
+
     // PRIVATE MANIPULATORS
     Node&       currentNode();
     const Node& currentNode() const;
 
-    int   setError (ErrorInfo::Severity error,
-                    const bsl::string&         msg);
+    int setError(ErrorInfo::Severity error, const bsl::string &msg);
 
-    int   setParseError(const char *errText,
-                        const char *startFragment,
-                        const char *endFragment);
+    int setParseError(const char *errText,
+                      const char *startFragment,
+                      const char *endFragment);
 
     // HIGH LEVEL PARSING PRIMITIVES
 
     void  preAdvance();
-    const bsl::string&  findNamespace(const char *prefix) const ;
-    const bsl::string&  findNamespace(const bsl::string& prefix) const;
+    const bsl::string& findNamespace(const char *prefix) const;
+    const bsl::string& findNamespace(const bsl::string &prefix) const;
     int   checkPrefixes();
 
     int   scanNode();
@@ -457,15 +463,15 @@ class MiniReader :  public Reader {
     int   updateAttributes();
 
     // LOW LEVEL PARSING PRIMITIVES
-    const char *rebasePointer(const char* ptr, const char * newBase);
+    const char *rebasePointer(const char *ptr, const char *newBase);
     void  rebasePointers(const char *newBase, size_t newLength);
 
     int   readInput();
     int   doOpen(const char *url, const char *encoding);
 
     int   peekChar();
-        // Return the character at the current position, and zero if the end
-        // of stream was reached.
+        // Return the character at the current position, and zero if the end of
+        // stream was reached.
 
     int   getChar();
         // Return the character at the current position and then advance the
@@ -474,11 +480,11 @@ class MiniReader :  public Reader {
         // the end is reached.
 
     int   getCharAndSet(char ch);
-        // Set the specified symbol 'ch' at the current position.
-        // Return the original character at the current position,
-        // and advance the current position.  If the end of
-        // stream is reached the return value is zero.  The behavior
-        // is undefined if this method is called once the end is reached.
+        // Set the specified symbol 'ch' at the current position.  Return the
+        // original character at the current position, and advance the current
+        // position.  If the end of stream is reached the return value is zero.
+        // The behavior is undefined if this method is called once the end is
+        // reached.
 
     bool  checkForNewLine();
         // Check if the current symbol is NL and adjust line number
@@ -486,52 +492,48 @@ class MiniReader :  public Reader {
 
     int   skipSpaces();
         // Skip spaces and set the current position to first non space
-        // character or to end if there is no non space found symbol.
-        // Return the character at the new current position.
+        // character or to end if there is no non space found symbol.  Return
+        // the character at the new current position.
 
     int   scanForSymbol(char symbol);
-        // Scan for the required symbol and set the current position
-        // to the found symbol.  Return the character at the new current
-        // position.  If the symbol is not found, the current position is
-        // set to end and returned value is zero.
+        // Scan for the specified 'symbol' and set the current position to the
+        // found symbol.  Return the character at the new current position.  If
+        // the symbol is not found, the current position is set to end and
+        // returned value is zero.
 
     int   scanForSymbolOrSpace(char symbol1, char symbol2);
     int   scanForSymbolOrSpace(char symbol);
-        // Scan for the one of required symbol(s) or any space character
-        // and set the current position to the found symbol.  Return the
-        // character at the new current position.  If there were no
-        // symbols found, the current position is set to end and
-        // returned value is zero.
+        // Scan one of the specified 'symbol', 'symbol1', or 'symbol2'
+        // characters or any space character and set the current position to
+        // the found symbol.  Return the character at the new current position.
+        // If there were no symbols found, the current position is set to end
+        // and returned value is zero.
 
     int   scanForString(const char * str);
-        // Scan for the required string and set the current position to
-        // the first character of the found string.  Return the
-        // character at the new current position.  If there were no
-        // symbols found, the current position is set to end and
-        // returned value is zero.
+        // Scan for the required string and set the current position to the
+        // first character of the found string.  Return the character at the
+        // new current position.  If there were no symbols found, the current
+        // position is set to end and returned value is zero.
 
     bool skipIfMatch(const char *str);
         // Compare the content of the buffer, starting from the current
-        // position, with the specified string 'str'.  If matches, advance
-        // the current position by the length of 'str' and return 'true';
-        // otherwise return 'false' and the current position is unmodified.
+        // position, with the specified string 'str'.  If matches, advance the
+        // current position by the length of 'str' and return 'true'; otherwise
+        // return 'false' and the current position is unmodified.
 
   public:
     // PUBLIC CREATORS
     virtual ~MiniReader();
 
-    explicit
-    MiniReader(bslma::Allocator *basicAllocator = 0);
-    explicit
-    MiniReader(int               bufSize,
-                      bslma::Allocator *basicAllocator = 0);
-       // Construct a reader with the (optionally) specified 'bufSize' and use
-       // the specified 'basicAllocator' to allocate memory.  The instantiated
-       // MiniReader will utilize a memory buffer of 'bufSize' while
-       // reading the input document.  If 'basicAllocator' == 0, the
-       // currently installed default allocator will be used.  Note that
-       // 'bufSize' is a hint, which may be modified or ignored if it is not
-       // within a "sane" range.
+    explicit MiniReader(bslma::Allocator *basicAllocator = 0);
+    explicit MiniReader(int bufSize, bslma::Allocator *basicAllocator = 0);
+        // Construct a reader with the optionally specified 'bufSize' and use
+        // the optionally specified 'basicAllocator' to allocate memory.  The
+        // instantiated MiniReader will utilize a memory buffer of 'bufSize'
+        // while reading the input document.  If 'basicAllocator' null, the
+        // currently installed default allocator will be used.  Note that
+        // 'bufSize' is a hint, which may be modified or ignored if it is not
+        // within a "sane" range.
 
     // CLASS METHODS
     //------------------------------------------------
@@ -562,15 +564,15 @@ class MiniReader :  public Reader {
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
     virtual int open(const char *filename, const char *encoding = 0);
-        // Setup the reader for parsing using the data contained in the XML
+        // Set up the reader for parsing using the data contained in the XML
         // file described by the specified 'filename', and set the encoding
-        // value to the specified 'encoding' ("ASCII", "UTF-8", etc).  Returns
-        // 0 on success and non-zero otherwise.  The encoding passed to
-        // 'Reader::open' will take effect only when there is no
+        // value to the optionally specified 'encoding' ("ASCII", "UTF-8",
+        // etc).  Returns 0 on success and non-zero otherwise.  The encoding
+        // passed to 'Reader::open' will take effect only when there is no
         // encoding information in the original document, i.e., the encoding
         // information obtained from the XML file described by the 'filename'
         // trumps all.  If there is no encoding provided within the document
-        // and 'encoding' == 0 or a blank string is passed, then set the
+        // and 'encoding' is null or a blank string is passed, then set the
         // encoding to the default "UTF-8".  It is an error to 'open' a reader
         // that is already open.  Note that the reader will not be on a valid
         // node until 'advanceToNextNode' is called.
@@ -579,17 +581,17 @@ class MiniReader :  public Reader {
                      bsl::size_t  size,
                      const char  *url = 0,
                      const char  *encoding = 0);
-        // Setup the reader for parsing using the data contained in the
+        // Set up the reader for parsing using the data contained in the
         // specified (XML) 'buffer' of the specified 'size', set the base URL
-        // to the specified 'url' and set the encoding value to the specified
-        // 'encoding' ("ASCII", "UTF-8", etc).  Return 0 on success and
-        // non-zero otherwise.  If the 'url' == 0 or a blank string is passed,
-        // then base URL will be empty.  The encoding passed to
-        // 'Reader::open' will take effect only when there is no
-        // encoding information in the original document, i.e., the encoding
-        // information obtained from the (XML) 'buffer' trumps all.  If
-        // there is no encoding provided within the document and 'encoding' ==
-        // 0 or a blank string is passed, then set the encoding to the default
+        // to the optionally specified 'url' and set the encoding value to the
+        // optionally specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0
+        // on success and non-zero otherwise.  If 'url' is null 0 or a blank
+        // string is passed, then base URL will be empty.  The encoding passed
+        // to 'Reader::open' will take effect only when there is no encoding
+        // information in the original document, i.e., the encoding information
+        // obtained from the (XML) 'buffer' trumps all.  If there is no
+        // encoding provided within the document and 'encoding' is null or a
+        // blank string is passed, then set the encoding to the default
         // "UTF-8".  It is an error to 'open' a reader that is already open.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextNode' is called.
@@ -597,19 +599,20 @@ class MiniReader :  public Reader {
     virtual int open(bsl::streambuf *stream,
                      const char     *url = 0,
                      const char     *encoding = 0);
-        // Setup the reader for parsing using the data contained in the
-        // specified (XML) 'stream', set the base URL to the specified 'url'
-        // and set the encoding value to the specified 'encoding' ("ASCII",
-        // "UTF-8", etc).  Return 0 on success and non-zero otherwise.  If the
-        // 'url' == 0 or a blank string is passed, then base URL will be empty.
-        // The encoding passed to 'Reader::open' will take effect only
-        // when there is no encoding information in the original document,
-        // i.e., the encoding information obtained from the (XML) 'stream'
-        // trumps all.  If there is no encoding provided within the document
-        // and 'encoding' == 0 or a blank string is passed, then set the
-        // encoding to the default "UTF-8".  It is an error to 'open' a reader
-        // that is already open.  Note that the reader will not be on a valid
-        // node until 'advanceToNextNode' is called.
+        // Set up the reader for parsing using the data contained in the
+        // specified (XML) 'stream', set the base URL to the optionally
+        // specified 'url' and set the encoding value to the optionally
+        // specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0 on success
+        // and non-zero otherwise.  If 'url' is null or a blank string is
+        // passed, then base URL will be empty.  The encoding passed to
+        // 'Reader::open' will take effect only when there is no encoding
+        // information in the original document, i.e., the encoding information
+        // obtained from the (XML) 'stream' trumps all.  If there is no
+        // encoding provided within the document and 'encoding' is null or a
+        // blank string is passed, then set the encoding to the default
+        // "UTF-8".  It is an error to 'open' a reader that is already open.
+        // Note that the reader will not be on a valid node until
+        // 'advanceToNextNode' is called.
 
     virtual void close();
         // Close the reader.  Most, but not all state is reset.  Specifically,
@@ -617,24 +620,23 @@ class MiniReader :  public Reader {
         // stack shall be returned to the stack depth it had when
         // 'setPrefixStack' was called.  Call the method 'open' to reuse the
         // reader.  Note that 'close' invalidates all strings and data
-        // structures obtained via 'Reader' accessors.  E.g., the
-        // pointer returned from 'nodeName' for this node will not be valid
-        // once 'close' is called.
+        // structures obtained via 'Reader' accessors.  E.g., the pointer
+        // returned from 'nodeName' for this node will not be valid once
+        // 'close' is called.
 
     virtual int advanceToNextNode();
         // Move to the next node in the data steam created by 'open' thus
-        // allowing the node's properties to be queried via the
-        // 'Reader' accessors.  Return 0 on successful read, 1 if there
-        // are no more nodes to read, and a negative number otherwise.  Note
-        // that each call to 'advanceToNextNode' invalidates strings and data
-        // structures returned when 'Reader' accessors where call for
-        // the "prior node".  E.g., the pointer returned from 'nodeName' for
-        // this node will not be valid once 'advanceToNextNode' is called.
-        // Note that the reader will not be on a valid node until the first
-        // call to 'advanceToNextNode' after the reader is opened.
+        // allowing the node's properties to be queried via the 'Reader'
+        // accessors.  Return 0 on successful read, 1 if there are no more
+        // nodes to read, and a negative number otherwise.  Note that each call
+        // to 'advanceToNextNode' invalidates strings and data structures
+        // returned when 'Reader' accessors where call for the "prior node".
+        // E.g., the pointer returned from 'nodeName' for this node will not be
+        // valid once 'advanceToNextNode' is called.  Note that the reader will
+        // not be on a valid node until the first call to 'advanceToNextNode'
+        // after the reader is opened.
 
-    virtual int lookupAttribute(ElementAttribute *attribute,
-                                int                      index) const;
+    virtual int lookupAttribute(ElementAttribute *attribute, int index) const;
         // Find the attribute at the specified 'index' in the current node, and
         // fill in the specified 'attribute' structure.  Return 0 on success, 1
         // if no attribute is found at the 'index', and an a negative value
@@ -643,7 +645,7 @@ class MiniReader :  public Reader {
         // is called.
 
     virtual int lookupAttribute(ElementAttribute *attribute,
-                                const char              *qname) const;
+                                const char       *qname) const;
         // Find the attribute with the specified 'qname' (qualified name) in
         // the current node, and fill in the specified 'attribute' structure.
         // Return 0 on success, 1 if there is no attribute found with 'qname',
@@ -651,10 +653,9 @@ class MiniReader :  public Reader {
         // the 'attribute' structure are invalid upon the next
         // 'advanceToNextNode' or 'close' is called.
 
-    virtual int
-    lookupAttribute(ElementAttribute  *attribute,
-                    const char               *localName,
-                    const char               *namespaceUri) const;
+    virtual int lookupAttribute(ElementAttribute *attribute,
+                                const char       *localName,
+                                const char       *namespaceUri) const;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceUri' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -664,10 +665,9 @@ class MiniReader :  public Reader {
         // strings that were filled into the 'attribute' structure are invalid
         // upon the next 'advanceToNextNode' or 'close' is called.
 
-    virtual int
-    lookupAttribute(ElementAttribute *attribute,
-                    const char              *localName,
-                    int                      namespaceId) const ;
+    virtual int lookupAttribute(ElementAttribute *attribute,
+                                const char       *localName,
+                                int               namespaceId) const;
         // Find the attribute with the specified 'localName' and specified
         // 'namespaceId' in the current node, and fill in the specified
         // 'attribute' structure.  Return 0 on success, 1 if there is no
@@ -699,8 +699,8 @@ class MiniReader :  public Reader {
 
     virtual const ErrorInfo& errorInfo() const;
         // Return a reference to the non-modifiable error information for this
-        // reader.  The returned value becomes invalid when 'close' is
-        // called or the reader is destroyed.
+        // reader.  The returned value becomes invalid when 'close' is called
+        // or the reader is destroyed.
 
     virtual int getLineNumber() const;
         // Return the current line number within the input stream.  The current
@@ -814,23 +814,25 @@ class MiniReader :  public Reader {
         // byte following after the last byte of the current node.
 
 };
-//=============================================================================
-//                              INLINE FUNCTIONS
-//=============================================================================
-inline MiniReader::Node &
-MiniReader::currentNode()
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+inline
+MiniReader::Node& MiniReader::currentNode()
 {
-    return  d_currentNode;
+    return d_currentNode;
 }
 
-inline const MiniReader::Node &
-MiniReader::currentNode() const
+inline
+const MiniReader::Node& MiniReader::currentNode() const
 {
-    return  d_currentNode;
+    return d_currentNode;
 }
 
-inline int
-MiniReader::peekChar()
+inline
+int MiniReader::peekChar()
 {
     if (d_scanPtr >= d_endPtr) {
         if (readInput() == 0){
@@ -841,8 +843,8 @@ MiniReader::peekChar()
     return *d_scanPtr;
 }
 
-inline int
-MiniReader::getChar()
+inline
+int MiniReader::getChar()
 {
     if (d_scanPtr >= d_endPtr) {
         if (readInput() == 0){
@@ -852,8 +854,8 @@ MiniReader::getChar()
     return *d_scanPtr++;
 }
 
-inline bool
-MiniReader::checkForNewLine()
+inline
+bool MiniReader::checkForNewLine()
 {
     if (*d_scanPtr == '\n') {
         ++d_lineNum;
@@ -863,8 +865,8 @@ MiniReader::checkForNewLine()
     return false;
 }
 
-inline int
-MiniReader::getCharAndSet(char ch)
+inline
+int MiniReader::getCharAndSet(char ch)
 {
     //checkForNewLine();   // modify line, column
 
@@ -877,9 +879,8 @@ MiniReader::getCharAndSet(char ch)
     return rc;
 }
 
-inline const char*
-MiniReader::rebasePointer(const char* ptr,
-                                 const char* newBase)
+inline
+const char *MiniReader::rebasePointer(const char *ptr, const char *newBase)
 {
     if (ptr && ptr >= d_markPtr && ptr <= d_endPtr) {
         return newBase + (ptr-d_markPtr);                             // RETURN
@@ -888,20 +889,19 @@ MiniReader::rebasePointer(const char* ptr,
 }
 
 inline
-int
-MiniReader::getCurrentPosition() const
+int MiniReader::getCurrentPosition() const
 {
     return static_cast<int>(d_streamOffset + (d_scanPtr - d_startPtr));
 }
 
-inline int
-MiniReader::nodeStartPosition() const
+inline
+int MiniReader::nodeStartPosition() const
 {
     return  currentNode().d_startPos;
 }
 
-inline int
-MiniReader::nodeEndPosition() const
+inline
+int MiniReader::nodeEndPosition() const
 {
     return  currentNode().d_endPos;
 }

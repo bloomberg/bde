@@ -5,8 +5,10 @@
 BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitstringutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bslim_printer.h>
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 
 #include <bsl_functional.h>
@@ -19,15 +21,19 @@ int ball::RuleSet::RuleHash::s_hashtableSize = INT_MAX;
 namespace ball {
 // CLASS METHODS
 void RuleSet::printMask(bsl::ostream& stream,
-                             MaskType      mask,
-                             int           level,
-                             int           spacesPerLevel)
+                        MaskType      mask,
+                        int           level,
+                        int           spacesPerLevel)
 {
-    bdlb::BitstringUtil::print(stream,
-                              (int *)&mask,
-                              sizeof(MaskType) * 8,
-                              level,
-                              spacesPerLevel);
+    bsl::uint64_t dummy = mask;
+
+    BSLMF_ASSERT(sizeof(mask) <= sizeof(dummy));
+
+    bdlb::BitStringUtil::print(stream,
+                               &dummy,
+                               bdlb::BitUtil::sizeInBits(mask),
+                               level,
+                               spacesPerLevel);
 }
 
 // CREATORS

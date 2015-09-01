@@ -978,9 +978,9 @@ namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bd
 namespace btlsc {class CbChannel;
 class TimedCbChannel;
 
-                        // ===================================
-                        // class TimedCbChannelAllocator
-                        // ===================================
+                       // =============================
+                       // class TimedCbChannelAllocator
+                       // =============================
 
 class TimedCbChannelAllocator
 // : public CbChannelAllocator                // TBD: later

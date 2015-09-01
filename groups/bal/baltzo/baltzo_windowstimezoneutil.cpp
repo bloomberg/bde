@@ -276,9 +276,9 @@ BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
 
 }  // close unnamed namespace
 
-                        // --------------------------
-                        // struct WindowsTimeZoneUtil
-                        // --------------------------
+                         // --------------------------
+                         // struct WindowsTimeZoneUtil
+                         // --------------------------
 
 // CLASS METHODS
 int baltzo::WindowsTimeZoneUtil::getZoneinfoId(const char **result,

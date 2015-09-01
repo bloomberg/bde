@@ -20,9 +20,9 @@ balber::BerEncoder::MemOutStream::~MemOutStream()
 
 namespace balber {
 
-                   // ----------------
-                   // class BerEncoder
-                   // ----------------
+                              // ----------------
+                              // class BerEncoder
+                              // ----------------
 
 // CREATORS
 BerEncoder::BerEncoder(const BerEncoderOptions *options,

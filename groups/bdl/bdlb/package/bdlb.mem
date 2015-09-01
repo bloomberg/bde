@@ -1,5 +1,7 @@
 bdlb_arrayutil
 bdlb_bigendian
+bdlb_bitmaskutil
+bdlb_bitstringimputil
 bdlb_bitstringutil
 bdlb_bitutil
 bdlb_chartype
@@ -22,6 +24,3 @@ bdlb_randomdevice
 bdlb_string
 bdlb_strtokenrefiter
 bdlb_variant
-bdlb_xxxbitutil
-bdlb_xxxstringref
-bdlb_xxxstrtokeniter

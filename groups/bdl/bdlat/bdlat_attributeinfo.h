@@ -99,9 +99,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ==========================
-                        // struct bdlat_AttributeInfo
-                        // ==========================
+                         // ==========================
+                         // struct bdlat_AttributeInfo
+                         // ==========================
 
 struct bdlat_AttributeInfo {
     // This 'struct' holds information about an attribute.  Its data members

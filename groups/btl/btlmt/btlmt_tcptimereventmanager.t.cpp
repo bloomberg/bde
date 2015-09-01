@@ -2134,7 +2134,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TASKS; ++i) {
             LOOP_ASSERT(i, 0 == threadPool.enqueueJob(
-                   (bcep_ThreadPoolJobFunc)case100EntryPoint,
+                   (bdlmt::ThreadPoolJobFunc)case100EntryPoint,
                    (void*)i));
         }
 

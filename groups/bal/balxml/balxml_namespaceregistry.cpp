@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_namespaceregistry_cpp,"$Id$ $CSID$")
 
+#include <bsl_cstddef.h>
 #include <bsl_ostream.h>
 
 #define ARRAY_LEN(X) int(sizeof(X)/sizeof(X[0]))
@@ -12,9 +13,9 @@ namespace BloombergLP {
 
 namespace {
 
-// The order of the elements in the following table
-// must correspond to appropriate ID numbers, defined in
-// header file.  Therefore ID can be used as index.
+// The order of the elements in the following table must correspond to
+// appropriate ID numbers, defined in header file.  Therefore ID can be used as
+// index.
 
 const char *const predefinedNamespaces[] =
 {
@@ -29,12 +30,11 @@ const char *const predefinedNamespaces[] =
 
 int lookupPredefinedId(const bslstl::StringRef& namespaceUri)
     // Private function.  Look up the specified 'namespaceUri' in the list of
-    // preregistered namespaces and return the namespace ID or -1 if not
-    // found.
+    // preregistered namespaces and return the namespace ID or -1 if not found.
 {
     for (int i = 0; i < ARRAY_LEN(predefinedNamespaces); ++i) {
         if (namespaceUri == predefinedNamespaces[i]) {
-            return i + balxml::NamespaceRegistry::e_PREDEF_MIN;  // RETURN
+            return i + balxml::NamespaceRegistry::e_PREDEF_MIN;       // RETURN
         }
     }
 
@@ -63,9 +63,9 @@ NamespaceRegistry::lookupOrRegister(const bslstl::StringRef& namespaceUri)
 int
 NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
 {
-    // Registry is typically small, so linear search is appropriate.
-    // Since numeric ID is equal to index of string within the vector, it
-    // would not be correct to sort or otherwise re-order the vector.
+    // Registry is typically small, so linear search is appropriate.  Since
+    // numeric ID is equal to index of string within the vector, it would not
+    // be correct to sort or otherwise re-order the vector.
 
     if (namespaceUri.length() == 0) {
         return -1;                                                    // RETURN
@@ -74,8 +74,8 @@ NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
     bsl::vector<bsl::string>::const_iterator iter;
     for (iter = d_namespaces.begin(); iter != d_namespaces.end(); ++iter) {
         if (namespaceUri == *iter) {
-            // ID of namespace is equal to its index
-            // within the 'd_namespaces' vector.
+            // ID of namespace is equal to its index within the 'd_namespaces'
+            // vector.
             return (iter - d_namespaces.begin());                     // RETURN
         }
     }
@@ -91,7 +91,7 @@ NamespaceRegistry::lookup(int id) const
         return  d_namespaces[id].c_str();                             // RETURN
     }
     else if (e_PREDEF_MIN <= id && id < BAEXML_PREDEF_MAX) {
-        return predefinedNamespaces[id - e_PREDEF_MIN];          // RETURN
+        return predefinedNamespaces[id - e_PREDEF_MIN];               // RETURN
     }
 
     return "";

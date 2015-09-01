@@ -67,9 +67,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-            // ===============================================
-            // class SemaphoreImpl<Platform::CountedSemaphore>
-            // ===============================================
+              // ===============================================
+              // class SemaphoreImpl<Platform::CountedSemaphore>
+              // ===============================================
 
 template <>
 class SemaphoreImpl<Platform::CountedSemaphore> {
@@ -122,13 +122,13 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-            // -----------------------------------------------
-            // class SemaphoreImpl<Platform::CountedSemaphore>
-            // -----------------------------------------------
+              // -----------------------------------------------
+              // class SemaphoreImpl<Platform::CountedSemaphore>
+              // -----------------------------------------------
 
 // CREATORS
 inline

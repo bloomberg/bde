@@ -86,9 +86,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class ConditionImpl;
 
-            // ==================================================
-            // class ConditionImpl<Platform::PosixThreads>
-            // ==================================================
+                // ===========================================
+                // class ConditionImpl<Platform::PosixThreads>
+                // ===========================================
 
 template <>
 class ConditionImpl<Platform::PosixThreads> {
@@ -169,9 +169,9 @@ class ConditionImpl<Platform::PosixThreads> {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-            // --------------------------------------------------
-            // class ConditionImpl<Platform::PosixThreads>
-            // --------------------------------------------------
+                // -------------------------------------------
+                // class ConditionImpl<Platform::PosixThreads>
+                // -------------------------------------------
 
 // CREATORS
 inline

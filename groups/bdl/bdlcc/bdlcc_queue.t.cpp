@@ -2,7 +2,7 @@
 
 #include <bdlcc_queue.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
@@ -19,6 +19,7 @@
 #include <bdlt_currenttime.h>
 #include <bdlb_random.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_stopwatch.h>
 
@@ -107,9 +108,9 @@ using namespace bsl;  // automatically added by script
 // [ 9] Usage example 1
 // [10] Use of the 'bdlc::Queue' interface example
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -126,44 +127,44 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                                    GLOBALS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             GLOBAL VARIABLES
+// ----------------------------------------------------------------------------
 
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
-//=============================================================================
-//                GLOBAL TYPEDEFS/CONSTANTS/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//              GLOBAL TYPEDEFS/CONSTANTS/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef double Element;
 typedef bdlcc::Queue<Element> Obj;
 
 static const double DECI_SEC      = 0.1;
-                                    // 1 deci second (i.e., 1/10th of a second)
+                                     // 1 decisecond (i.e., 1/10th of a second)
 
 static const int MICRO_SEC_IN_SEC = 100000;
                                          // number of micro seconds in a second
@@ -171,9 +172,9 @@ static const int MICRO_SEC_IN_SEC = 100000;
 static const int MICRO_DECI_SEC =    10000;
                                        // number of micro seconds in .1 seconds
 
-//=============================================================================
-//                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//              SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 namespace bslma {
@@ -229,9 +230,9 @@ class MyBarrier {
     }
 };
 
-//=============================================================================
-//          USAGE use of the 'bdlc::Queue' interface from header
-//-----------------------------------------------------------------------------
+// ============================================================================
+//           USAGE use of the 'bdlc::Queue' interface from header
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_USE_OF_QUEUE_INTERFACE {
 
@@ -268,9 +269,9 @@ void myWork()
 
 }  // close namespace QUEUE_USE_OF_QUEUE_INTERFACE
 
-//=============================================================================
-//          USAGE example 1 from header (with assert replaced with ASSERT)
-//-----------------------------------------------------------------------------
+// ============================================================================
+//      USAGE example 1 from header (with assert replaced with ASSERT)
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_USAGE_EXAMPLE_1 {
 
@@ -411,9 +412,9 @@ int getWorkData(my_WorkData *)
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_1
 
-//=============================================================================
-//          USAGE example 2 from header (with assert replaced with ASSERT)
-//-----------------------------------------------------------------------------
+// ============================================================================
+//      USAGE example 2 from header (with assert replaced with ASSERT)
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_USAGE_EXAMPLE_2 {
 
@@ -562,9 +563,9 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_2
 
-//=============================================================================
-//                              TEST CASE 12
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               TEST CASE 12
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_12 {
 
@@ -671,9 +672,9 @@ class TestPopBack {
 
 }  // close namespace QUEUE_TEST_CASE_12
 
-//=============================================================================
-//                              TEST CASE 11
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               TEST CASE 11
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_11 {
 
@@ -749,9 +750,9 @@ int TestClass13::s_pushCount;
 
 }  // close namespace QUEUE_TEST_CASE_11
 
-//=============================================================================
-//                              TEST CASE 10
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               TEST CASE 10
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_10 {
 
@@ -820,9 +821,9 @@ class TestClass12 {      // this class is a functor passed to thread::create
 
 }  // close namespace QUEUE_TEST_CASE_10
 
-//=============================================================================
-//                              TEST CASE 6
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 6
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_6 {
 
@@ -892,9 +893,9 @@ void *test6(void *arg)
 }
 
 }  // close namespace QUEUE_TEST_CASE_6
-//=============================================================================
-//                              TEST CASE 5
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 5
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_5 {
 
@@ -1025,9 +1026,9 @@ void *test5front(void *arg)
 }
 
 }  // close namespace QUEUE_TEST_CASE_5
-//=============================================================================
-//                              TEST CASE 4
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 4
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_4 {
 
@@ -1118,9 +1119,9 @@ void *test4front(void *arg)
 }
 
 }  // close namespace QUEUE_TEST_CASE_4
-//=============================================================================
-//                              TEST CASE 3
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 3
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_3 {
 
@@ -1285,9 +1286,9 @@ extern "C" {
     }
 } // extern "C"
 
-//=============================================================================
-//                              TEST CASE 2
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 2
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_2 {
 
@@ -1378,9 +1379,9 @@ void *test2front(void *arg)
 
 }  // close namespace QUEUE_TEST_CASE_2
 
-//=============================================================================
-//                              TEST CASE 2
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 2
+// ----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_MINUS_1 {
 
@@ -1432,9 +1433,9 @@ struct Consumer {
 
 }  // close namespace QUEUE_TEST_CASE_MINUS_1
 
-//=============================================================================
-//                          SEQUENCE CONSTRAINT TEST
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         SEQUENCE CONSTRAINT TEST
+// ----------------------------------------------------------------------------
 
 namespace seqtst {
 
@@ -1729,9 +1730,9 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }  // close namespace seqtst3
 
-//=============================================================================
-//                              ZERO PTR TEST
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             ZERO POINTER TEST
+// ----------------------------------------------------------------------------
 
 namespace zerotst {
 
@@ -1817,9 +1818,9 @@ int myLength(bdlcc::Queue<Element> *q)
 
 }  // close namespace TEST_CASE_2
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1933,7 +1934,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // ---------------------------------------------------------
-        // TESTING queue of zero ptr
+        // TESTING queue of zero pointer
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2282,7 +2283,7 @@ int main(int argc, char *argv[])
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD TEST
+        // TEST 'tryPopFront', 'tryPopBack' -- SINGLE THREAD TEST
         //
         // Concern:
         //   That tryPopFront and tryPopBack work as designed in a single -
@@ -2602,7 +2603,7 @@ int main(int argc, char *argv[])
             barrier.wait();
 
             // Unfortunately, there is no way to test if the test thread is
-            // waiting on the condition variable... so we just give it a chance
+            // waiting on the condition variable.  So we just give it a chance
             // to unblock - it should continue to block.  This is not
             // bullet-proof because it does not ENSURE that testObj is blocking
             // on the popFront, so we maximize our chances by waiting some

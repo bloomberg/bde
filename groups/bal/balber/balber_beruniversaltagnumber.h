@@ -156,9 +156,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace balber {
-                     // ============================
-                     // struct BerUniversalTagNumber
-                     // ============================
+                        // ============================
+                        // struct BerUniversalTagNumber
+                        // ============================
 
 struct BerUniversalTagNumber {
     // This 'struct' contains an enumeration of the universal tag numbers for
@@ -258,9 +258,9 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // reference providing modifiable access to 'stream'.
 
 
-                 // ====================================
-                 // struct BerUniversalTagNumber_ImpUtil
-                 // ====================================
+                    // ====================================
+                    // struct BerUniversalTagNumber_ImpUtil
+                    // ====================================
 
 class BerUniversalTagNumber_Imp {
     // Component-private class.  Do not use.  This class contains
@@ -365,13 +365,13 @@ class BerUniversalTagNumber_Imp {
 
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                     // ------------------------------------
-                     // struct balber::BerUniversalTagNumber
-                     // ------------------------------------
+                    // ------------------------------------
+                    // struct balber::BerUniversalTagNumber
+                    // ------------------------------------
 
 // FORWARD DECLARATIONS
 
@@ -472,9 +472,9 @@ bsl::ostream& balber::operator<<(bsl::ostream&                stream,
 
 namespace balber {
 
-                 // --------------------------------
-                 // struct BerUniversalTagNumber_Imp
-                 // --------------------------------
+                      // --------------------------------
+                      // struct BerUniversalTagNumber_Imp
+                      // --------------------------------
 
 // PRIVATE MANIPULATORS
 inline

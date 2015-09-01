@@ -467,9 +467,9 @@ namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bd
 namespace btlsc {class Channel;
 class TimedChannel;
 
-                        // ============================
-                        // class ChannelAllocator
-                        // ============================
+                           // ======================
+                           // class ChannelAllocator
+                           // ======================
 
 class ChannelAllocator {
     // This class is a protocol (pure abstract interface) for a (synchronous)

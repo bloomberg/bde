@@ -430,9 +430,9 @@ namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bd
 }  // close namespace bdet
 
 namespace btlsc {
-                        // ========================
-                        // class TimedChannel
-                        // ========================
+                             // ==================
+                             // class TimedChannel
+                             // ==================
 
 class TimedChannel : public Channel
 {

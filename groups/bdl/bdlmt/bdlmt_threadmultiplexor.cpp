@@ -13,9 +13,9 @@ BSLS_IDENT_RCSID(bdlmt_threadmultiplexor_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlmt {
-                        // ----------------------------
-                        // class ThreadMultiplexor
-                        // ----------------------------
+                          // -----------------------
+                          // class ThreadMultiplexor
+                          // -----------------------
 
 // PRIVATE MANIPULATORS
 
@@ -24,11 +24,10 @@ int ThreadMultiplexor::processJobQueue()
     Job job;
     while (0 == d_jobQueue_p->tryPopFront(&job)) {
         int previousNumProcessors = d_numProcessors;
-        if (previousNumProcessors < d_maxProcessors
-         && previousNumProcessors == d_numProcessors.testAndSwap(
-                                                previousNumProcessors,
-                                                previousNumProcessors + 1))
-        {
+        if (previousNumProcessors < d_maxProcessors &&
+            previousNumProcessors ==
+                      d_numProcessors.testAndSwap(previousNumProcessors,
+                                                  previousNumProcessors + 1)) {
             // Process the job
             job();
             --d_numProcessors;
@@ -51,10 +50,9 @@ int ThreadMultiplexor::processJobQueue()
 
 // CREATORS
 
-ThreadMultiplexor::ThreadMultiplexor(
-        int               maxProcessors,
-        int               maxQueueSize,
-        bslma::Allocator *basicAllocator)
+ThreadMultiplexor::ThreadMultiplexor(int               maxProcessors,
+                                     int               maxQueueSize,
+                                     bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_jobQueue_p(0)
 , d_numProcessors(0)
@@ -73,8 +71,8 @@ ThreadMultiplexor::~ThreadMultiplexor()
 
     d_allocator_p->deleteObjectRaw(d_jobQueue_p);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

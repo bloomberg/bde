@@ -12,14 +12,14 @@ BSLS_IDENT_RCSID(balxml_util_cpp,"$Id$ $CSID$")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // ------------------
-                        // struct Util
-                        // ------------------
+                                // -----------
+                                // struct Util
+                                // -----------
 
 // CLASS METHODS
 bool
 Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
-                                     bsl::string        *targetNs)
+                              bsl::string        *targetNamespace)
 {
     // Note that a valid XSD file must have this attribute for the root element
     // '<schema>' and the only place that the token "targetNamespace" can
@@ -30,7 +30,7 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
     // occurrence of "targetNamespace" and extract the attribute value.  It
     // leaves all other validation of 'xsdSource' to a parser.
 
-    BSLS_ASSERT(targetNs != 0);
+    BSLS_ASSERT(targetNamespace != 0);
 
     typedef bsl::string::size_type size_type;
 
@@ -61,9 +61,9 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
                     break;
                 }
                 else if (startCloseComment >= startTargetNamespace + 15) {
-                    // bsl::strlen("targetNamespace") == 15
                     // "targetNamespace" is enclosed within '<!-- comment -->'.
-                    // So look for next "targetNamespace".
+                    // 'bsl::strlen("targetNamespace") == 15' So look for next
+                    // "targetNamespace".
                     lookHere = startCloseComment + 3; // 3 is strlen("-->")
                 }
                 else {
@@ -94,7 +94,7 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
             char quote = xsdSource[startNamespace];
             size_type endNamespace = xsdSource.find(quote, startNamespace + 1);
             if (bsl::string::npos != endNamespace) {
-                targetNs->append(xsdSource.substr(
+                targetNamespace->append(xsdSource.substr(
                                            startNamespace + 1,
                                            endNamespace - startNamespace - 1));
                 return true;                                          // RETURN
@@ -107,25 +107,25 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
 
 bool
 Util::extractNamespaceFromXsd(bsl::streambuf *xsdSource,
-                                     bsl::string    *targetNs)
+                              bsl::string    *targetNamespace)
 {
 
     bsl::streambuf::pos_type pos = xsdSource->pubseekoff(0,
                                                          bsl::ios_base::cur,
-                                                         bsl::ios::in );
+                                                         bsl::ios::in);
 
     bsl::ostringstream oss;
 
     oss << xsdSource;
 
-    bool rc = extractNamespaceFromXsd(oss.str(), targetNs);
+    bool rc = extractNamespaceFromXsd(oss.str(), targetNamespace);
 
     xsdSource->pubseekpos(pos, bsl::ios::in);
 
     return rc;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

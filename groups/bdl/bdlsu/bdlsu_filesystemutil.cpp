@@ -318,9 +318,9 @@ int removeFile(const char *path)
 
 #endif
 
-                           // ---------------------------
-                           // struct bdlsu::FilesystemUtil
-                           // ---------------------------
+                        // ----------------------------
+                        // struct bdlsu::FilesystemUtil
+                        // ----------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 

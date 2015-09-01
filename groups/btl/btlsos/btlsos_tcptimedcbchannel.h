@@ -100,9 +100,9 @@ namespace btlsos {class TcpTimedCbChannel_RReg;  // Component local class
 
 class TcpTimedCbChannel_WReg;  // Component local class declaration
 
-                         // =======================
-                         // class TcpTimedCbChannel
-                         // =======================
+                          // =======================
+                          // class TcpTimedCbChannel
+                          // =======================
 
 class TcpTimedCbChannel : public btlsc::TimedCbChannel {
     // This class implements a 'btesc'-style timed callback-based channel for a
@@ -1260,7 +1260,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

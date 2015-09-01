@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ================
-                        // class btesc_Flag
-                        // ================
+                              // ================
+                              // class btesc_Flag
+                              // ================
 
 struct btesc_Flag {
     // This class provides a namespace for enumerating all flags for the

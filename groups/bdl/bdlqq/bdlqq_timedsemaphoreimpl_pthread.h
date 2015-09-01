@@ -79,9 +79,9 @@ namespace bdlqq {
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
 
-            // ===============================================
-            // class TimedSemaphoreImpl<PthreadTimedSemaphore>
-            // ===============================================
+              // ===============================================
+              // class TimedSemaphoreImpl<PthreadTimedSemaphore>
+              // ===============================================
 
 template<>
 class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {

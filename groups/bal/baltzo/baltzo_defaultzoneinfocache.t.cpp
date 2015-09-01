@@ -58,9 +58,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -73,7 +73,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -98,9 +98,9 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\n";                                               \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -108,7 +108,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -118,9 +118,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef baltzo::DefaultZoneinfoCache Obj;
 typedef baltzo::ZoneinfoCache        Cache;
 typedef baltzo::Zoneinfo             Zone;
@@ -196,9 +196,9 @@ typedef bsl::string                 Id;
     }
 //..
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 // DATA from GMT
 static const unsigned char GMT_DATA[] = {
@@ -552,9 +552,9 @@ void writeData(const char *fileName, const char *data, int numBytes)
     outputFile.close();
 }
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

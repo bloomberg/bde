@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide common error information for XML components
+//@PURPOSE: Provide common error information for XML components.
 //
 //@CLASSES:
 //   balxml::ErrorInfo: details of XML parsing errors
@@ -32,12 +32,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this example, we create a parser for a simple file of percentages.
-// The file is formatted as a sequence of lines, with each line containing a
-// decimal number in the range "0" to "100", inclusive.  Leading whitespace
-// and blank lines are ignored.  When an error occurs during parsing, the
-// error data is stored in a 'balxml::ErrorInfo' object.  Our parser's
-// interface is as follows:
+// In this example, we create a parser for a simple file of percentages.  The
+// file is formatted as a sequence of lines, with each line containing a
+// decimal number in the range "0" to "100", inclusive.  Leading whitespace and
+// blank lines are ignored.  When an error occurs during parsing, the error
+// data is stored in a 'balxml::ErrorInfo' object.  Our parser's interface is
+// as follows:
 //..
 //  #include <balxml_errorinfo.h>
 //  #include <sstream>
@@ -296,6 +296,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
@@ -307,9 +315,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // ==========================
-                        // class ErrorInfo
-                        // ==========================
+                              // ===============
+                              // class ErrorInfo
+                              // ===============
 class ErrorInfo
 {
     // This class provides detailed information for errors encounted during
@@ -321,19 +329,18 @@ class ErrorInfo
     // PUBLIC TYPES
     enum Severity
     {
-        // Error severity level.  Each severity level is considered more
-        // severe than the one before.  Client software will typically
-        // continue processing on 'BAEXML_WARNING' and will stop processing
-        // on 'BAEXML_ERROR' or 'BAEXML_FATAL_ERROR'.  The distinction
-        // between the latter two severities is somewhat arbitrary.  A
-        // component that sets the severity of a 'ErrorInfo' object
-        // can use 'BAEXML_FATAL_ERROR' to discard a less-severe error with
-        // 'BAEXML_ERROR'.  As a general guideline, 'BAEXML_ERROR' means
-        // that processing could continue, albeit with compromised results and
-        // 'BAEXML_FATAL_ERROR' means that processing could not continue.
-        // For example, a constraint error would typically have
-        // 'BAEXML_ERROR' whereas a parsing (syntax) error would have
-        // 'BAEXML_FATAL_ERROR'.
+        // Error severity level.  Each severity level is considered more severe
+        // than the one before.  Client software will typically continue
+        // processing on 'BAEXML_WARNING' and will stop processing on
+        // 'BAEXML_ERROR' or 'BAEXML_FATAL_ERROR'.  The distinction between the
+        // latter two severities is somewhat arbitrary.  A component that sets
+        // the severity of a 'ErrorInfo' object can use 'BAEXML_FATAL_ERROR' to
+        // discard a less-severe error with 'BAEXML_ERROR'.  As a general
+        // guideline, 'BAEXML_ERROR' means that processing could continue,
+        // albeit with compromised results and 'BAEXML_FATAL_ERROR' means that
+        // processing could not continue.  For example, a constraint error
+        // would typically have 'BAEXML_ERROR' whereas a parsing (syntax) error
+        // would have 'BAEXML_FATAL_ERROR'.
         e_NO_ERROR,
         e_WARNING,
         e_ERROR,
@@ -355,6 +362,9 @@ class ErrorInfo
     bsl::string       d_message;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ErrorInfo, bslma::UsesBslmaAllocator);
+
     // CREATORS
     ErrorInfo(bslma::Allocator *basicAllocator = 0);
         // Construct an error info object using the (optionally) specified
@@ -363,8 +373,7 @@ class ErrorInfo
         // 'lineNumber()' and 'columnNumber()' will each return 0, and
         // 'source()' and 'message()' will each return an empty string.
 
-    ErrorInfo(const ErrorInfo&  other,
-                     bslma::Allocator        *basicAllocator = 0);
+    ErrorInfo(const ErrorInfo& other, bslma::Allocator *basicAllocator = 0);
         // Construct a copy of the specified 'other' object using the
         // (optionally) specified 'basicAllocator', or the default allocator
         // of none is specified.
@@ -377,22 +386,21 @@ class ErrorInfo
         // Copy the value of the specified 'rhs' object into this object and
         // return a modifiable reference to this object.
 
-    void setError(Severity               severity,
-                  int                    lineNumber,
-                  int                    columnNumber,
+    void setError(Severity                 severity,
+                  int                      lineNumber,
+                  int                      columnNumber,
                   const bslstl::StringRef& source,
                   const bslstl::StringRef& errorMsg);
         // If the specified 'severity' is greater than the current value of
-        // 'this->severity()', then set this object's severity to the
-        // specified 'severity', line number to the specified 'lineNumber',
-        // column number to the specified 'columnNumber', source name to the
-        // specified 'source', and error message to the specified 'errorMsg',
-        // otherwise do nothing.
+        // 'this->severity()', then set this object's severity to 'severity',
+        // line number to the specified 'lineNumber', column number to the
+        // specified 'columnNumber', source name to the specified 'source', and
+        // error message to the specified 'errorMsg', otherwise do nothing.
 
     void setError(const ErrorInfo& other);
         // If the severity of the specified 'other' object is greater than the
         // current value of 'this->severity()', then assign this object the
-        // value of the specified 'other', otherwise do nothing.
+        // value of 'other', otherwise do nothing.
 
     void reset();
         // Reset this object to initial state, as if it were default
@@ -423,10 +431,9 @@ class ErrorInfo
         // Return the severity level.
 
     int lineNumber() const;
-        // Return the line number of the warning or error.  By convention,
-        // the first line is numbered 1.  The constructors and 'reset'
-        // functions set the line number to 0, since there is no error line to
-        // report.
+        // Return the line number of the warning or error.  By convention, the
+        // first line is numbered 1.  The constructors and 'reset' functions
+        // set the line number to 0, since there is no error line to report.
 
     int columnNumber() const;
         // Return the column number.  By convention, the first column is
@@ -439,6 +446,10 @@ class ErrorInfo
     const bsl::string& message() const;
         // Return the string describing the error or warning.
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // FREE OPERATORS
 bool operator==(const ErrorInfo& lhs, const ErrorInfo& rhs);
@@ -454,15 +465,10 @@ bool operator!=(const ErrorInfo& lhs, const ErrorInfo& rhs);
     // 'severity()', 'lineNumber()', 'columnNumber()', 'source()', and
     // 'message()' return equal values for both.
 
-bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const ErrorInfo& errInfo);
+bsl::ostream& operator<<(bsl::ostream& stream, const ErrorInfo& errInfo);
     // Print the specified 'errInfo' object to the specified 'stream' in
     // human-readable form and return a modifiable reference to 'stream'.  The
     // output is one-line without a terminating newline.
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
 
 // MANIPULATORS
 inline void

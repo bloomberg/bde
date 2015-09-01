@@ -5,7 +5,7 @@
 #include <bdlcc_queue.h>
 #include <bdlcc_skiplist.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlqq_barrier.h>
 #include <bdlqq_condition.h>
@@ -33,6 +33,11 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>
+#include <bsl_ctime.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -41,9 +46,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -60,30 +65,30 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   THREAD-SAFE OUTPUT AND ASSERT MACROS
+// ----------------------------------------------------------------------------
 typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
 bdlqq::Mutex coutMutex;
 
@@ -128,16 +133,16 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef void Element;
 typedef bdlcc::FixedQueue<Element*> Obj;
 
-//=============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
+// ----------------------------------------------------------------------------
 
 namespace Backoff {
 
@@ -179,7 +184,7 @@ void rolloverPusher(bdlcc::FixedQueue<int> *queue,
                     int                     threadId)
 {
     enum {
-        k_NUM_ITEMS = 50000 // num to push in this thread
+        k_NUM_ITEMS = 50000 // number to push in this thread
     };
 
     const int base = 1000000 * threadId;
@@ -283,7 +288,7 @@ public:
 bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
-                       bdlqq::TimedSemaphore              *sema,
+                       bdlqq::TimedSemaphore              *semaphore,
                        bsls::AtomicInt                    *numCaught) {
     enum { k_NUM_ITERATIONS = 3 };
 
@@ -293,7 +298,7 @@ void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
         } catch (...) {
             ++(*numCaught);
         }
-        sema->post();
+        semaphore->post();
     }
 }
 
@@ -384,7 +389,7 @@ void* pushBackTestThread(void *ptr)
     if (veryVerbose) {
         LockGuard guard(&coutMutex);
         cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
-             << "done, pushing sentinal value..." << endl;
+             << "done, pushing sentinel value..." << endl;
     }
 
     args->d_queue.pushBack((Element*)(0xFFFFFFFF));
@@ -599,17 +604,17 @@ void abaThread(char                     *firstValue,
                char                     *lastValue,
                bdlcc::FixedQueue<char*> *queue,
                bdlqq::Barrier           *barrier,
-               bool                      sendSentinal)
+               bool                      sendSentinel)
 {
     barrier->wait();
     for (char* value = firstValue; value <= lastValue; ++value) {
         queue->pushBack(value);
     }
-    if (sendSentinal) {
+    if (sendSentinel) {
         if (veryVerbose) {
             LockGuard guard(&coutMutex);
             cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
-                 << " done, pushing sentinal value" << endl;
+                 << " done, pushing sentinel value" << endl;
         }
         queue->pushBack((char*)0xffffffff);
     }
@@ -1064,9 +1069,9 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

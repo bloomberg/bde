@@ -235,9 +235,9 @@ bool operator!=(const IndexClerkIter& lhs, const IndexClerkIter& rhs);
     // and 'rhs' refer to the same container and are non-singular (i.e., are
     // not default-constructed or copies of singular iterators).
 
-                            // ================
-                            // class IndexClerk
-                            // ================
+                              // ================
+                              // class IndexClerk
+                              // ================
 
 class IndexClerk {
     // This class defines an efficient, value-semantic manager type for
@@ -498,9 +498,9 @@ bool bdlc::operator!=(const IndexClerkIter& lhs, const IndexClerkIter& rhs)
     return lhs.d_index_p != rhs.d_index_p;
 }
 
-                            // ----------------
-                            // class IndexClerk
-                            // ----------------
+                              // ----------------
+                              // class IndexClerk
+                              // ----------------
 
 // CREATORS
 inline

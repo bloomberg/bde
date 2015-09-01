@@ -16,7 +16,6 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
@@ -102,9 +101,9 @@ using namespace bsl;  // automatically added by script
 // [ 8] bdlde::Md5   g(const char *spec);
 
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -118,9 +117,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -149,39 +148,38 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlde::Md5          Obj;
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
 // The following snippets of code illustrate a typical use of the 'bdlde::Md5'
 // class.  Each function would typically execute in separate processes or
 // potentially on separate machines.  The 'senderExample' function below
-// demonstrates how a message sender can write a message and its MD5 digest
-// to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
+// demonstrates how a message sender can write a message and its MD5 digest to
+// a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
 // that implements the 'bslx::OutStream' protocol:
 //..
 void senderExample(Out& output)
-    // Write a message and its MD5 digest to the specified 'output'
-    // stream.
+    // Write a message and its MD5 digest to the specified 'output' stream.
 {
     // Prepare a message.
     bsl::string message = "This is a test message.";
@@ -224,9 +222,9 @@ void receiverExample(In& input)
     ASSERT(digestLocal == digest);
 }
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void printHex(const char *str)
     // Print the specified 'str' string to 'bsl::cout', taking care to expand
@@ -272,7 +270,7 @@ void printHex(const char *str)
 //
 // LANGUAGE SPECIFICATION
 // ----------------------
-//
+//..
 // <SPEC>       ::= <EMPTY> | <DATA>
 //
 // <EMPTY>      ::=
@@ -297,6 +295,7 @@ void printHex(const char *str)
 // "abc~de"          Calls 'update("abc~de", 6)'.
 // "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
 // ----------------------------------------------------------------------------
+//..
 
 int ggg(Obj *object, const char *spec, int vF = 1)
     // Configure the specified 'object' according to the specified 'spec'
@@ -415,9 +414,9 @@ int verify(const bdlde::Md5::Md5Digest& result, const char *hexString)
     return val;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1034,8 +1033,8 @@ int main(int argc, char *argv[])
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     In in(OD, LOD);  In &testInStream = in;
@@ -1071,9 +1070,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
-                // Ensure that reading from an empty or invalid input
-                // stream leaves the stream invalid and the target object
-                // unchanged.
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
                 const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {

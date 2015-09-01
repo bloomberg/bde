@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe observer that logs to a file and to 'stdout'.
 //
 //@CLASSES:
-//  ball::FileObserver: observer that outputs log records to a file and 'stdout'
+//  ball::FileObserver: observer that writes log records to a file and 'stdout'
 //
 //@SEE_ALSO: ball_record, ball_context, ball_observer, ball_fileobserver2
 //
@@ -197,9 +197,9 @@ BSLS_IDENT("$Id: $")
 //  ball::LoggerManagerConfiguration configuration;
 //  ball::LoggerManager::initSingleton(&fileObserver, configuration);
 //..
-// Optionally, the format can be changed by calling the 'setLogFormat'
-// method.  The statement below outputs timestamps in ISO 8601 format to a
-// log file and in 'bdet'-style (default) format to 'stdout':
+// Optionally, the format can be changed by calling the 'setLogFormat' method.
+// The statement below outputs timestamps in ISO 8601 format to a log file and
+// in 'bdet'-style (default) format to 'stdout':
 //..
 //  observer.setLogFormat("%i %p:%t %s %f:%l %c %m",
 //                        "%d %p:%t %s %f:%l %c %m");
@@ -281,6 +281,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
 #endif
@@ -291,56 +299,56 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Context;
+class Context;
 class Record;
 
-                          // =======================
+                          // ==================
                           // class FileObserver
-                          // =======================
+                          // ==================
 
 class FileObserver : public Observer {
-    // This class implements the 'Observer' protocol.  The 'publish'
-    // method of this class outputs the log records that it receives to
-    // 'stdout' and optionally to a user-specified file.  This class is
-    // thread-safe; different threads can operate on this object concurrently.
-    // This class is exception-neutral with no guarantee of rollback.  In no
-    // event is memory leaked.
+    // This class implements the 'Observer' protocol.  The 'publish' method of
+    // this class outputs the log records that it receives to 'stdout' and
+    // optionally to a user-specified file.  This class is thread-safe;
+    // different threads can operate on this object concurrently.  This class
+    // is exception-neutral with no guarantee of rollback.  In no event is
+    // memory leaked.
 
     // DATA
-    RecordStringFormatter d_logFileFormatter;   // record formatter used
-                                                     // when logging to a file
+    RecordStringFormatter d_logFileFormatter;   // record formatter used when
+                                                // logging to a file
 
-    RecordStringFormatter d_stdoutFormatter;    // record formatter used
-                                                     // when logging to
-                                                     // 'stdout'
+    RecordStringFormatter d_stdoutFormatter;    // record formatter used when
+                                                // logging to 'stdout'
 
     Severity::Level       d_stdoutThreshold;    // minimum severity for
-                                                     // published messages
+                                                // published messages
 
-    bool                       d_useRegularFormatOnStdoutFlag;
-                                                     // 'true' if messages
-                                                     // published to 'stdout'
-                                                     // in regular format
+    bool                  d_useRegularFormatOnStdoutFlag;
+                                                // 'true' if messages published
+                                                // to 'stdout' in regular
+                                                // format
 
-    bool                       d_publishInLocalTime; // 'true' if timestamps of
-                                                     // records are published
-                                                     // in local time
+    bool                  d_publishInLocalTime; // 'true' if timestamps of
+                                                // records are published in
+                                                // local time
 
-    bool                       d_userFieldsLoggingFlag;
-                                                     // 'true' if user-defined
-                                                     // fields published
+    bool                  d_userFieldsLoggingFlag;
+                                                // 'true' if user-defined
+                                                // fields published
 
-    bsl::string                d_stdoutLongFormat;   // long format of records
-                                                     // printed to 'stdout'
+    bsl::string           d_stdoutLongFormat;   // long format of records
+                                                // printed to 'stdout'
 
-    bsl::string                d_stdoutShortFormat;  // short format records
-                                                     // printed to 'stdout'
+    bsl::string           d_stdoutShortFormat;  // short format records
+                                                // printed to 'stdout'
 
-    mutable bdlqq::Mutex        d_mutex;              // serialize operations
+    mutable bdlqq::Mutex  d_mutex;              // serialize operations
 
     FileObserver2         d_fileObserver2;      // forward most operations
-                                                     // this object
+                                                // this object
 
   private:
     // NOT IMPLEMENTED
@@ -348,12 +356,15 @@ class FileObserver : public Observer {
     FileObserver& operator=(const FileObserver&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit FileObserver(
-              Severity::Level  stdoutThreshold = Severity::e_WARN,
-              bslma::Allocator     *basicAllocator  = 0);
+              Severity::Level   stdoutThreshold = Severity::e_WARN,
+              bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
-        // their severity is at least as severe as the optionally-specified
+        // their severity is at least as severe as the optionally specified
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
         // severe as 'Severity::BAEL_WARN'.  The timestamp attribute of
@@ -363,9 +374,9 @@ class FileObserver : public Observer {
         // used.  Note that user-defined fields are published to 'stdout' by
         // default.  Also note that file logging is initially disabled.
 
-    FileObserver(Severity::Level  stdoutThreshold,
-                      bool                  publishInLocalTime,
-                      bslma::Allocator     *basicAllocator = 0);
+    FileObserver(Severity::Level   stdoutThreshold,
+                 bool              publishInLocalTime,
+                 bslma::Allocator *basicAllocator = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the specified
         // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
@@ -495,10 +506,10 @@ class FileObserver : public Observer {
         // severity level specified at construction.
 
     void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was
-        // supplied to the 'publish' method, and is held by this observer.
-        // Note that this operation should be called if resources underlying
-        // the previously provided shared-pointers must be released.
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method, and is held by this observer.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
 
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
@@ -523,8 +534,9 @@ class FileObserver : public Observer {
         // DEPRECATED: Use 'rotateOnTimeInterval' instead.
 
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
-    void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
-                              const bdlt::Datetime&         referenceStartTime);
+    void rotateOnTimeInterval(
+                             const bdlt::DatetimeInterval& interval,
+                             const bdlt::Datetime&         referenceStartTime);
         // Set this file observer to perform a periodic log-file rotation at
         // multiples of the specified 'interval'.  Optionally, specify
         // 'referenceStartTime' indicating the *local* datetime to use as the
@@ -564,9 +576,9 @@ class FileObserver : public Observer {
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
-        // 'false' otherwise.  Load the optionally-specified 'result' with the
+        // 'false' otherwise.  Load the optionally specified 'result' with the
         // name of the current log file if file logging is enabled, and leave
-        // 'result' uneffected otherwise.
+        // 'result' unaffected otherwise.
 
     bool isStdoutLoggingPrefixEnabled() const;
         // Return 'true' if this file observer uses the default output format
@@ -614,12 +626,12 @@ class FileObserver : public Observer {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
+                          // ------------------
                           // class FileObserver
-                          // -----------------------
+                          // ------------------
 
 // MANIPULATORS
 inline
@@ -654,10 +666,10 @@ int FileObserver::enableFileLogging(const char *logFilenamePattern)
 
 inline
 int FileObserver::enableFileLogging(const char *logFilenamePattern,
-                                         bool        timestampFlag)
+                                    bool        appendTimestampFlag)
 {
     return d_fileObserver2.enableFileLogging(logFilenamePattern,
-                                             timestampFlag);
+                                             appendTimestampFlag);
 }
 
 inline
@@ -667,9 +679,8 @@ void FileObserver::forceRotation()
 }
 
 inline
-void FileObserver::publish(
-                             const bsl::shared_ptr<const Record>& record,
-                             const Context&                       context)
+void FileObserver::publish(const bsl::shared_ptr<const Record>& record,
+                           const Context&                       context)
 {
     publish(*record, context);
 }
@@ -686,23 +697,21 @@ void FileObserver::rotateOnSize(int size)
 }
 
 inline
-void FileObserver::rotateOnLifetime(
-                                     const bdlt::DatetimeInterval& timeInterval)
+void FileObserver::rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval)
 {
     d_fileObserver2.rotateOnLifetime(timeInterval);
 }
 
 inline
-void FileObserver::rotateOnTimeInterval(
-                                         const bdlt::DatetimeInterval& interval)
+void FileObserver::rotateOnTimeInterval(const bdlt::DatetimeInterval& interval)
 {
     d_fileObserver2.rotateOnTimeInterval(interval);
 }
 
 inline
 void FileObserver::rotateOnTimeInterval(
-                               const bdlt::DatetimeInterval& interval,
-                               const bdlt::Datetime&         referenceStartTime)
+                              const bdlt::DatetimeInterval& interval,
+                              const bdlt::Datetime&         referenceStartTime)
 {
     d_fileObserver2.rotateOnTimeInterval(interval, referenceStartTime);
 }

@@ -1,6 +1,7 @@
 // balxml_formatter.t.cpp                                             -*-C++-*-
-
 #include <balxml_formatter.h>
+
+#include <bslim_testutil.h>
 
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlt_datetime.h>
@@ -19,10 +20,11 @@
 #include <bsl_cstring.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // Each of balxml::Formatter's the manipulators is tested in its own test case
@@ -31,73 +33,56 @@ using namespace BloombergLP;
 // e.g., the missing '>' indicates BAEXML_IN_TAG state, we use other
 // manipulators as helpers to indicate the such internal states have been
 // reached or avoided (such as the use of flush()).
-//-----------------------------------------------------------------------------
-//=============================================================================
+// ----------------------------------------------------------------------------
 
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-  if (!(X)) { bsl::cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-  if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"\
-       << #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << \
-       "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-       << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// Print identifier and value.
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-// Quote identifier literally.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-// P(X) without '\n'
-#define P_(X) bsl::cout << #X " = " << (X) << ", "<< bsl::flush;
-#define L_ __LINE__                           // current Line number
-#define T_ bsl::cout << "\t" << bsl::flush;   // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 namespace {
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef balxml::Formatter Obj;
 
 // names
@@ -143,13 +128,13 @@ enum Test {
     TEST_B = 500
 };
 
-//=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    CLASSES FOR TESTING USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//                          Perturbation class
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                            Perturbation class
+// ----------------------------------------------------------------------------
 struct Pert {
     // Provides permutations for orthogonal perturbation
     static bool s_doFlush[];
@@ -240,7 +225,7 @@ class ScalarData {
     Ft::Type           d_type;
 
     // N.B. A union would be natural here, but we cannot use a union for
-    // non-builtin types, i.e. bdlt::*
+    // non-builtin types, i.e., bdlt::*
 
     char               d_char;
     short              d_short;
@@ -269,19 +254,19 @@ class ScalarData {
     ScalarData(const bdlt::Date& d) : d_type(Ft::e_DATE), d_date(d) {}
     ScalarData(const bdlt::Time& t) : d_type(Ft::e_TIME), d_time(t) {}
     void addAttribute(const bsl::string&  attrName,
-                      balxml::Formatter   *formatter) const;
-        // Call addAttribute method of the 'formatter' with 'attrName' as
-        // attribute name and the d_typeValue corresponding to the d_type
+                      balxml::Formatter  *formatter) const;
+        // Call addAttribute method of the specified 'formatter' with
+        // 'attrName' as attribute name and the d_typeValue corresponding to
+        // the d_type
     void addListData(Obj *formatter) const;
-        // Call addListData method of the 'formatter' with the d_typeValue
-        // corresponding to the d_type.
+        // Call addListData method of the specified 'formatter' with the
+        // d_typeValue corresponding to the d_type.
     void addData(Obj *formatter) const;
-        // Call addData method of the 'formatter' with the d_typeValue
-        // corresponding to the d_type.
+        // Call addData method of the specified 'formatter' with the
+        // d_typeValue corresponding to the d_type.
     friend bsl::ostream& operator<<(bsl::ostream& os, const ScalarData& data);
-        // Output only ScalarData of type short, int,
-        // bsls::Types::Int64, float, double.  Other types result in
-        // undefined behavior
+        // Output only ScalarData of type short, int, bsls::Types::Int64,
+        // float, double.  Other types result in undefined behavior
 };
 
 void ScalarData::addAttribute(const bsl::string&  attrName,
@@ -401,9 +386,9 @@ using namespace bsl;  // automatically added by script
 }
 
 }  // close unnamed namespace
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 #ifdef BSLS_PLATFORM_CMP_MSVC
 // Disable warnings that the Microsoft compiler issues for overflow of floating
 // point constants, that we are deliberately using to confirm how we handle
@@ -538,15 +523,15 @@ int main(int argc, char *argv[])
 // using this component's major manipulators:
 //..
     {
-        // 1. Create a formatter:
+        // 1.  Create a formatter:
         bsl::ostringstream outStream;
         balxml::Formatter formatter(outStream);
 
-        // 2. Add a header:
+        // 2.  Add a header:
         formatter.addHeader("UTF-8");
 
-        // 3. Open the root element,
-        //    Add attributes if there are any:
+        // 3.  Open the root element,
+        //     Add attributes if there are any:
         formatter.openElement("Fruits");
 
         // 4. Open an element,
@@ -555,15 +540,14 @@ int main(int argc, char *argv[])
         formatter.addAttribute("farm", "Frances' Orchard"); // ' is escaped
         formatter.addAttribute("size", 3.5);
 
-        // 5. If there are nested elements, recursively do
-        // 6. Else, there are no more nested elements, add data:
+        // 5.  If there are nested elements, recursively do
+        // 6.  Else, there are no more nested elements, add data:
         formatter.openElement("pickDate");               // step 4
-        formatter.addData(bdlt::Date(2004, 8, 31));       // step 6
+        formatter.addData(bdlt::Date(2004, 8, 31));      // step 6
         formatter.closeElement("pickDate");              // step 7
         formatter.addElementAndData("Quantity", 12);     // step 8
-        // element "Quantity" has no attributes, can use
-        // shortcut 'addElementAndData' to complete steps
-        // 4, 6 and 7 in one shot.
+        // element "Quantity" has no attributes, can use shortcut
+        // 'addElementAndData' to complete steps 4, 6 and 7 in one shot.
 
         // 7. Close the element:
         formatter.closeElement("Oranges");
@@ -852,19 +836,20 @@ int main(int argc, char *argv[])
         // reset
         //
         // Plans:
+        //
         // Since addHeader cannot be called after any manipulators unless
         // reset is called first, we use some calling sequence to verify that
         // reset correctly resets the internal states that may not be
         // otherwise measured through the public interface.  Use the following
         // sequences of manipulator calls:
         //
-        // addheader reset addHeader again
-        // openElement reset flush does not output '>'
-        // openElement closeElement reset addHeader
-        // addComment reset addHeader
-        // addBlankLine reset addHeader
-        // reset addHeader
-        // openElement flush reset addHeader
+        //: addheader reset addHeader again
+        //: openElement reset flush does not output '>'
+        //: openElement closeElement reset addHeader
+        //: addComment reset addHeader
+        //: addBlankLine reset addHeader
+        //: reset addHeader
+        //: openElement flush reset addHeader
         // --------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nTESTING reset\n" << bsl::endl;
@@ -999,8 +984,10 @@ int main(int argc, char *argv[])
       case 19: {
         // --------------------------------------------------------------------
         // addNewline, addBlankLine
+        //
         // other than following openElement addAttribute, these don't add '>'.
         // add one or two '\n'.
+        //
         // minimum testing for now
         // --------------------------------------------------------------------
           if (verbose) {
@@ -1050,6 +1037,7 @@ int main(int argc, char *argv[])
       case 18: {
         // --------------------------------------------------------------------
         // rawOutputStream
+        //
         // leave empty for now
         // --------------------------------------------------------------------
       } break;
@@ -1058,12 +1046,15 @@ int main(int argc, char *argv[])
         // addComment (minimum testing for now)
         //
         // Concerns:
+        //
         // addComment appends a '>' for an opened element if it's not closed
         // with a '>'.  It correctly precedes the comment with newline and
         // indent when it's called with forceNewline true, and adds only a
         // space when forceNewline false.  It adds another newline after
         // comment if forceNewline is true.
+        //
         // Plans:
+        //
         // open an element with various initial indentations, with or without
         // flush() afterwards.  Then add comment with forceNewline true or
         // false.  Check for resulting string, d_column, d_indentLevel.
@@ -1097,8 +1088,8 @@ int main(int argc, char *argv[])
               const char *COMMENT = "comment";
 
               bsl::ostringstream ss;
-              Obj formatter(ss, INIT_INDENT,
-                            SPACES_PERLEVEL, INT_MAX); // big wrap column
+              Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, INT_MAX);
+                                                             // big wrap column
 
               formatter.openElement("root");
 
@@ -1145,6 +1136,7 @@ int main(int argc, char *argv[])
       case 16: {
         // --------------------------------------------------------------------
         // flush
+        //
         // leave empty for now
         // --------------------------------------------------------------------
       } break;
@@ -1253,11 +1245,13 @@ int main(int argc, char *argv[])
         // string printing, control character truncation
         //
         // Concerns:
+        //
         // The escapable characters (' " < > &) in a string value passed to
-        // these manipulators are escaped properly, the UTF8 code are
-        // printed properly, and string with control characters are truncated
-        // properly.
+        // these manipulators are escaped properly, the UTF8 code are printed
+        // properly, and string with control characters are truncated properly.
+        //
         // Plans:
+        //
         // Pass some strings with escapable characters and UTF8 code and check
         // the resulting string and d_column, d_indentLevel.
         // --------------------------------------------------------------------
@@ -1308,12 +1302,13 @@ int main(int argc, char *argv[])
         // addElementAndData
         //
         // Concerns:
-        // addElementAndData(name, value) is as the sequence of
-        // openElement(name), addData(value), closeElement(name)
+        //: 1 addElementAndData(name, value) is as the sequence of
+        //:   openElement(name), addData(value), closeElement(name)
+        //
         // Plans:
-        // For a combination of tagName and dataValue, call both
-        // addElementAndData, and its equivalent sequence and compare the
-        // result.
+        //: 1 For a combination of tagName and dataValue, call both
+        //:   addElementAndData, and its equivalent sequence and compare the
+        //:   result.
         // --------------------------------------------------------------------
           if (verbose) {
               bsl::cout << "\nTESTING nested closeElement\n" << bsl::endl;
@@ -1333,10 +1328,14 @@ int main(int argc, char *argv[])
                       const int WRAP_COLUMN = pert.d_wrapColumn;
                       const bool DOFLUSH = pert.d_doFlush;
                       bsl::ostringstream ss1, ss2;
-                      Obj formatter1(ss1, INIT_INDENT,
-                                     SPACES_PERLEVEL, WRAP_COLUMN);
-                      Obj formatter2(ss2, INIT_INDENT,
-                                     SPACES_PERLEVEL, WRAP_COLUMN);
+                      Obj formatter1(ss1,
+                                     INIT_INDENT,
+                                     SPACES_PERLEVEL,
+                                     WRAP_COLUMN);
+                      Obj formatter2(ss2,
+                                     INIT_INDENT,
+                                     SPACES_PERLEVEL,
+                                     WRAP_COLUMN);
                       formatter1.openElement(NAME);
                       formatter1.addData(VALUE);
                       formatter1.closeElement(NAME);
@@ -1362,21 +1361,25 @@ int main(int argc, char *argv[])
         // closeElement for nested elements
         //
         // Concerns:
-        // (a) when called multiple times, each time for a nested element,
-        // closeElement properly decrements the indent level.
-        // (b) add </tag> for each non-innermost element with proper
-        // indentation, irrespective of whitespace constraint.
+        //: 1 when called multiple times, each time for a nested element,
+        //:   closeElement properly decrements the indent level.
+        //: 2 add </tag> for each non-innermost element with proper
+        //:   indentation, irrespective of whitespace constraint.
+        //
         // Plans:
+        //
         //     Open a series of elements(with the same whitespace handling
-        // constraint), and write one piece of data for the innermost
-        // element.  Close all elements, after each closure, check for
-        // resulting string, d_column and d_indentLevel.
+        // constraint), and write one piece of data for the innermost element.
+        // Close all elements, after each closure, check for resulting string,
+        // d_column and d_indentLevel.
+        //
         // Test vector -
         //   tagName,                    // should all work
         //   level of nesting,           // should all work
         //   whitespace option,          // no effect for non-innermost
         //                               // element.  Same effect for the
         //                               // innermost element as in case 10
+        //
         // Perturbation -
         //   initial indent level,       // should all work
         //   spaces per level,           // should all work
@@ -1416,15 +1419,14 @@ int main(int argc, char *argv[])
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL, WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
 
                   for (int level = 0; level < LEVEL_NESTING; ++level) {
                       formatter.openElement(NAME, WS);
                   }
                   formatter.addData(FIXEDVALUE);
-                  formatter.closeElement(NAME); // result of this
-                                                // has been verified in case 10
+                  formatter.closeElement(NAME); // result of this has been
+                                                // verified in case 10
                   for (int level = LEVEL_NESTING - 2; level >= 0; --level) {
                       ss.str(bsl::string()); // reset stream
                       formatter.closeElement(NAME);
@@ -1456,27 +1458,34 @@ int main(int argc, char *argv[])
         // closeElement for the root element
         //
         // Concerns:
-        // (a) closeElement properly decrements the indent level and add </tag>
-        // to the element of name 'tag'.
-        // (b) After it closes the element, it gives a newline.
-        // (c) In the case of element opened with BAEXML_NEWLINE_INDENT
-        // whitespace handling constraint, the closing tag does not share the
-        // same line as the opening tag, nor does it share the same line as the
-        // data if there is any.
-        // (d) In the case of an opened element that has not been completed
-        // with '>', (d_state is BAEXML_IN_TAG), it closes the element with
-        // '/>', no matter what whitespace constraint it was opened with.
+        //: 1 closeElement properly decrements the indent level and add </tag>
+        //:   to the element of name 'tag'.
+        //:
+        //: 2 After it closes the element, it gives a newline.
+        //:
+        //: 3 In the case of element opened with BAEXML_NEWLINE_INDENT
+        //:   whitespace handling constraint, the closing tag does not share
+        //:   the same line as the opening tag, nor does it share the same line
+        //:   as the data if there is any.
+        //:
+        //: 4 In the case of an opened element that has not been completed with
+        //:   '>', (d_state is BAEXML_IN_TAG), it closes the element with '/>',
+        //:   no matter what whitespace constraint it was opened with.
+        //
         // Plans:
-        // Open a single element (the root element) with tag name of different
-        // lengths, with different whitespace handling constraints, add one
-        // piece of data of different lengths (using addData), then close this
-        // element.  Check the resulting string, d_indentLevel, d_column.  The
-        // limitation is the resulting d_state should be BAEXML_AT_END, which
-        // is not perceptible through the public interface.
+        //     Open a single element (the root element) with tag name of
+        // different lengths, with different whitespace handling constraints,
+        // add one piece of data of different lengths (using addData), then
+        // close this element.  Check the resulting string, d_indentLevel,
+        // d_column.  The limitation is the resulting d_state should be
+        // BAEXML_AT_END, which is not perceptible through the public
+        // interface.
+        //
         // Test vector -
         //   tagName,               // should all work
         //   dataValue,             // should all work
         //   whitespace handling    // may affect which line to close element
+        //
         // Perturbation -
         //   initial indent level,  // should all work
         //   spaces per level,      // should all work
@@ -1517,8 +1526,7 @@ int main(int argc, char *argv[])
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL, WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(NAME, WS);
                   int expectedColumn = INIT_INDENT * SPACES_PERLEVEL +
                       1 + bsl::strlen(NAME);
@@ -1531,8 +1539,7 @@ int main(int argc, char *argv[])
                   formatter.closeElement(NAME);
 
                   bsl::string expected;
-                  if (WRAP_COLUMN > 0
-                   && Obj::e_NEWLINE_INDENT == WS) { // (c)
+                  if (WRAP_COLUMN > 0 && Obj::e_NEWLINE_INDENT == WS) { // (c)
                       if (bsl::strlen(VALUE) > 0) {
                           // do not add unnecessary newline if VALUE is ""
                           expected += '\n';
@@ -1565,8 +1572,7 @@ int main(int argc, char *argv[])
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL, WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(NAME, WS);
 
                   ss.str(bsl::string()); // reset
@@ -1586,27 +1592,34 @@ int main(int argc, char *argv[])
         // addListData<bsl::string> - no escaping is tested here
         //
         // Concerns:
-        // (a) addListData puts the formatter in the correct state of
-        // BAEXML_BETWEEN_TAGS.
-        // (b) It performs limited line-wrapping for input values if the
-        // element is opened with BAEXML_WORDWRAP;
-        // (c) It performs indentation after limited line-wrapping for
-        // BAEXML_WORDWRAP_INDENT;
-        // (d) In the case of BAEXML_NEWLINE_INDENT, addListData starts from
-        // the new line, and performs indentation after line-wrapping.
-        // (e) In the case of more than one call to addListData within a pair
-        // of tags, a single space is inserted between adjacent data unless
-        // when line is wrapped a newline and optionally indentation spaces
-        // are inserted as in (b), (c), (d).
-        // (f) Empty data value should not change d_column.
+        //: 1 addListData puts the formatter in the correct state of
+        //:   BAEXML_BETWEEN_TAGS.
+        //:
+        //: 2 It performs limited line-wrapping for input values if the element
+        //:   is opened with BAEXML_WORDWRAP;
+        //:
+        //: 3 It performs indentation after limited line-wrapping for
+        //:   BAEXML_WORDWRAP_INDENT;
+        //:
+        //: 4 In the case of BAEXML_NEWLINE_INDENT, addListData starts from the
+        //:   new line, and performs indentation after line-wrapping.
+        //:
+        //: 5 In the case of more than one call to addListData within a pair of
+        //:   tags, a single space is inserted between adjacent data unless
+        //:   when line is wrapped a newline and optionally indentation spaces
+        //:   are inserted as in 2, 3, 4.
+        //:
+        //: 6 Empty data value should not change d_column.
         //
         // Plans:
         //     Add one root element with various whitespace handling.  Call
         // addListData multiple times.  Every time, check for resulting string,
         // d_indentLevel, d_column.
+        //
         // Test vector -
         //     values,              // should all work
         //     number of values,    // should all work
+        //
         // Perturbation -
         //   whitespace handling    // should all work(may affect first data's
         //                                             start line)
@@ -1660,7 +1673,8 @@ int main(int argc, char *argv[])
                       const int WRAP_COLUMN = pert.d_wrapColumn;
                       const bool DOFLUSH = pert.d_doFlush;
                       const bsl::string rootElemName = "root";
-                      Obj formatter(ss, INIT_INDENT,
+                      Obj formatter(ss,
+                                    INIT_INDENT,
                                     SPACES_PERLEVEL,
                                     WRAP_COLUMN);
                       formatter.openElement(rootElemName, WS);
@@ -1763,20 +1777,24 @@ int main(int argc, char *argv[])
         // addData<bsl::string> - no escaping is tested here
         //
         // Concerns:
-        // (a) addData puts the formatter in the correct state of
-        //     BAEXML_BETWEEN_TAGS.
-        // (b) addData performs no indentation or line-wrapping for any input
-        // value.
-        // (c) In the case of openElement with BAEXML_NEWLINE_INDENT, addData
-        // starts
-        // from the new line, and performs only initial indentation, but no
-        // other indentation or line-wrapping.
-        // (d) In the case of more than one call to addData within a pair of
-        // tags, no spacing is inserted between adjacent data whatsoever.
+        //: 1 addData puts the formatter in the correct state of
+        //:   BAEXML_BETWEEN_TAGS.
+        //:
+        //: 2 addData performs no indentation or line-wrapping for any input
+        //:   value.
+        //:
+        //: 3 In the case of openElement with BAEXML_NEWLINE_INDENT, addData
+        //:  starts from the new line, and performs only initial indentation,
+        //:  but no other indentation or line-wrapping.
+        //:
+        //: 4 In the case of more than one call to addData within a pair of
+        //:   tags, no spacing is inserted between adjacent data whatsoever.
+        //
         // Plans:
         //     Add one root element with various whitespace handling.  Call
         // addData multiple times.  Every time, check for resulting string,
         // d_indentLevel, d_column.
+        //
         // Test vector -
         //     values,              // should all work
         //     number of values,    // should all work
@@ -1832,7 +1850,8 @@ int main(int argc, char *argv[])
                       const int WRAP_COLUMN = pert.d_wrapColumn;
                       const bool DOFLUSH = pert.d_doFlush;
                       const bsl::string rootElemName = "root";
-                      Obj formatter(ss, INIT_INDENT,
+                      Obj formatter(ss,
+                                    INIT_INDENT,
                                     SPACES_PERLEVEL,
                                     WRAP_COLUMN);
                       formatter.openElement(rootElemName, WS);
@@ -1955,9 +1974,7 @@ int main(int argc, char *argv[])
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
                   const bsl::string rootElemName = "root";
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL,
-                                WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(rootElemName);
 
                   bsl::string expected(INIT_INDENT * SPACES_PERLEVEL, ' ');
@@ -2049,17 +2066,19 @@ int main(int argc, char *argv[])
         //     A single call to addAttribute leaves the formatter in the same
         // state (d_state) as openElement does.   Results in correct
         // d_indentLevel and correct d_column).
+        //
         // Plans:
         //     Add one root element with default whitespace handling for
         // element data, and add one attribute.  This attribute can be on the
-        // same line as the element tag, or can be on the next line
-        // because of wrapping.  Check for resulting string(need white-box
-        // knowledge of how name="value" is appended), d_indentLevel,
-        // d_column, absence of '>' for the element's opening tag
-        // (i.e., d_state indirectly).
+        // same line as the element tag, or can be on the next line because of
+        // wrapping.  Check for resulting string(need white-box knowledge of
+        // how name="value" is appended), d_indentLevel, d_column, absence of
+        // '>' for the element's opening tag (i.e., d_state indirectly).
+        //
         // Test vector -
         //     attribute name,          // should all work
         //     attribute value,         // should all work
+        //
         // Perturbation -
         //   initial indent level,      // should all work(may affect wrapping)
         //   spaces per level,          // should all work(may affect wrapping)
@@ -2102,9 +2121,7 @@ int main(int argc, char *argv[])
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
                   const bsl::string rootElemName = "root";
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL,
-                                WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(rootElemName);
                   formatter.addAttribute(NAME, VALUE);
                   if (DOFLUSH) {
@@ -2175,9 +2192,11 @@ int main(int argc, char *argv[])
         // checked in case 4.
         //     For every opened nested-element, calling flush() afterwards
         // should
+        //
         // Test vector -
         //   tagName,                    // should all work
         //   level of nesting,           // should all work
+        //
         // Perturbation -
         //   initial indent level,       // should all work
         //   spaces per level,           // should all work
@@ -2225,9 +2244,7 @@ int main(int argc, char *argv[])
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL,
-                                WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(NAME);
                   bsl::string ssDoc;  // document from formatter
                   ssDoc += ss.str();
@@ -2301,10 +2318,12 @@ int main(int argc, char *argv[])
         //     Call openElement with or without addHeader ahead of it, using
         // tags of different lengths.  Check the resulting string, as well as
         // the accessors for the internal states
+        //
         // Test vector -
         //   whether has header,         // should not affect result
         //   tagName,                    // lengths should all work
         //   whitespace handling         // no effect.
+        //
         // Perturbation -
         //   initial indent level,       // should all work
         //   spaces per level,           // should all work
@@ -2348,23 +2367,19 @@ int main(int argc, char *argv[])
                   const int WRAP_COLUMN = pert.d_wrapColumn;
                   const bool DOFLUSH = pert.d_doFlush;
                   bsl::ostringstream ss;
-                  Obj formatter(ss, INIT_INDENT,
-                                SPACES_PERLEVEL,
-                                WRAP_COLUMN);
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   if (HAS_HEADER) {
                       formatter.addHeader();
                   }
                   ss.str(bsl::string());
                       // reset ostring to focus on openElement
-                  formatter.openElement(NAME,
-                                        WS);
+                  formatter.openElement(NAME, WS);
                   if (DOFLUSH) {
                       formatter.flush();
                   }
 
                   int expectedColumn;
-                  bsl::string expected(
-                      INIT_INDENT * SPACES_PERLEVEL, ' ');
+                  bsl::string expected(INIT_INDENT * SPACES_PERLEVEL, ' ');
                   expected.append("<");
                   expected.append(NAME);
                   expectedColumn = expected.length();
@@ -2435,10 +2450,11 @@ int main(int argc, char *argv[])
           bsl::ostringstream stream1, stream2;
           int initialIndent = 1, spacesPerLevel = 2, wrapColumn = 3;
 
-          Obj formatter1(stream1, initialIndent,
-                                     spacesPerLevel, wrapColumn);
-          Obj formatter2(stream2.rdbuf(), initialIndent,
-                                     spacesPerLevel, wrapColumn);
+          Obj formatter1(stream1, initialIndent, spacesPerLevel, wrapColumn);
+          Obj formatter2(stream2.rdbuf(),
+                         initialIndent,
+                         spacesPerLevel,
+                         wrapColumn);
           ASSERT(formatter1.outputColumn() == 0);
           ASSERT(formatter2.outputColumn() == 0);
 
@@ -2720,11 +2736,11 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
           // Performance test
-          // Usage: balxml_formatter.t.dbg_exc_mt -3 <size> <reps> <verbose>
-          // Where <size> is the approximate message size, in bytes,
-          //       <reps> is the number of test repetitions and
-          //       <verbose> is non-empty to dump the messages to stdout
-          // Defaults: <size> = 10000, <reps> = 100
+          //  Usage: balxml_formatter.t.dbg_exc_mt -3 <size> <reps> <verbose>
+          //   Where <size> is the approximate message size, in bytes,
+          //        <reps> is the number of test repetitions and
+          //        <verbose> is non-empty to dump the messages to stdout
+          //  Defaults: <size> = 10000, <reps> = 100
 
           int msgSize = argc > 2 ? bsl::atoi(argv[2]) : 10000;
           int reps    = argc > 3 ? bsl::atoi(argv[3]) : 100;

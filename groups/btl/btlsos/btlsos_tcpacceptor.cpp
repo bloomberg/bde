@@ -49,9 +49,9 @@ enum {
     e_SUCCESS       =  0
 };
 
-                         // =======================
-                         // local function allocate
-                         // =======================
+                          // =======================
+                          // local function allocate
+                          // =======================
 
 template <class RESULT>
 inline
@@ -102,9 +102,9 @@ namespace btlsos {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // class TcpAcceptor
-                            // -----------------
+                             // -----------------
+                             // class TcpAcceptor
+                             // -----------------
 
 // CREATORS
 TcpAcceptor::TcpAcceptor(

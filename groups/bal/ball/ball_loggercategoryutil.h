@@ -7,8 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Provide a suite of utility functions for category management.
 //
 //@CLASSES:
@@ -140,9 +138,8 @@ struct LoggerCategoryUtil {
 
     // CLASS METHODS
 
-    static Category *addCategoryHierarchically(
-                                  LoggerManager *loggerManager,
-                                  const char         *categoryName);
+    static Category *addCategoryHierarchically(LoggerManager *loggerManager,
+                                               const char    *categoryName);
         // Add, to the specified 'loggerManager', a new category having the
         // specified 'categoryName'; return the address of the modifiable new
         // category on success, and 0, with no effect, if a category by that
@@ -155,12 +152,12 @@ struct LoggerCategoryUtil {
         // 'categoryName' is null-terminated.
 
     static int setThresholdLevelsHierarchically(
-                                  LoggerManager *loggerManager,
-                                  const char         *categoryNamePrefix,
-                                  int                 recordLevel,
-                                  int                 passLevel,
-                                  int                 triggerLevel,
-                                  int                 triggerAllLevel);
+                                            LoggerManager *loggerManager,
+                                            const char    *categoryNamePrefix,
+                                            int            recordLevel,
+                                            int            passLevel,
+                                            int            triggerLevel,
+                                            int            triggerAllLevel);
         // Set, in the specified 'loggerManager', the threshold levels of
         // every category whose name has, as a prefix, the specified
         // 'categoryNamePrefix' to the specified threshold values,
@@ -172,11 +169,11 @@ struct LoggerCategoryUtil {
         // 'categoryNamePrefix' is null-terminated.
 
     static int setThresholdLevels(LoggerManager *loggerManager,
-                                  const char         *regularExpression,
-                                  int                 recordLevel,
-                                  int                 passLevel,
-                                  int                 triggerLevel,
-                                  int                 triggerAllLevel);
+                                  const char    *regularExpression,
+                                  int            recordLevel,
+                                  int            passLevel,
+                                  int            triggerLevel,
+                                  int            triggerAllLevel);
         // DEPRECATED:: Use 'setThresholdLevelsHierarchically' instead.
         //
         // Set the threshold levels of each category in the specified

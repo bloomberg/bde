@@ -17,13 +17,14 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides a generic thread-safe pool of shared
-// objects using the acquire-release idiom.  The functionality provided is
-// identical to 'bdlcc::ObjectPool', except that 'getObject' returns
-// efficiently-constructed 'bsl::shared_ptr' objects instead of raw pointers.
-// For client code that needs to provide shared access to objects in the pool,
-// this functionality saves an additional allocation for the shared pointer
-// itself.  Since the shared pointer and the object are contiguous in memory,
-// this component also tends to improve performance by reducing "cache misses."
+// objects, 'bdlcc::SharedObjectPool', using the acquire-release idiom.  The
+// functionality provided is identical to 'bdlcc::ObjectPool', except that
+// 'getObject' returns efficiently-constructed 'bsl::shared_ptr' objects
+// instead of raw pointers.  For client code that needs to provide shared
+// access to objects in the pool, this functionality saves an additional
+// allocation for the shared pointer itself.  Since the shared pointer and the
+// object are contiguous in memory, this component also tends to improve
+// performance by reducing "cache misses."
 //
 ///Object Construction and Destruction
 ///-----------------------------------
@@ -59,15 +60,15 @@ BSLS_IDENT("$Id: $")
 // for reuse - another kind of 'RESETTER' should be provided (so long as that
 // type supplies 'void(*)(TYPE*)').  In 'bdlcc::ObjectPoolFunctors', the
 // classes 'Clear', 'RemoveAll', and 'Reset' are all acceptable types for
-// 'RESETTER'.  Since these "functor" types are fully inlined, it is generally
+// 'RESETTER'.  Since these "functor" types are fully inline, it is generally
 // most efficient to define 'reset()' (or 'clear()' or 'removeAll()') in the
 // underlying 'TYPE' and allow the functor to call that method.  The 'CREATOR'
 // functor defaults to an object that invokes the default constructor with
 // placement new, passing the allocator argument if the type traits of the
-// object indicate it uses an allocator (see 'bslalg_typetraits').  If a custom
-// creator functor or a custom 'CREATOR' type is specified, it is the user's
-// responsibility to ensure that it correctly passes its allocator argument
-// through to the constructor of 'TYPE' if 'TYPE' uses allocator.
+// object indicate it uses an allocator (see 'bslma_usesbslmaallocator').  If a
+// custom creator functor or a custom 'CREATOR' type is specified, it is the
+// user's responsibility to ensure that it correctly passes its allocator
+// argument through to the constructor of 'TYPE' if 'TYPE' uses allocator.
 //
 ///Exception-Safety
 ///----------------
@@ -101,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //  typedef vector<char> CharArray;
 //
 //  class SlowCharArrayPool {
-//      bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+//      bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
 //      bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 //
 //      static void createCharArray(void *address, bslma::Allocator *allocator)
@@ -117,8 +118,11 @@ BSLS_IDENT("$Id: $")
 //          pool->releaseObject(charArray);
 //      }
 //
-//    public:
+//    private:
+//      // Not implemented:
+//      SlowCharArrayPool(const SlowCharArrayPool&);
 //
+//    public:
 //      SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
 //      : d_spAllocator(basicAllocator)
 //      , d_charArrayPool(bdlf::BindUtil::bind(
@@ -163,8 +167,11 @@ BSLS_IDENT("$Id: $")
 //          new (address) CharArray(allocator);
 //      }
 //
-//    public:
+//    private:
+//      // Not implemented:
+//      FastCharArrayPool(const FastCharArrayPool&);
 //
+//    public:
 //      FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
 //      : d_charArrayPool(bdlf::BindUtil::bind(
 //                                         &FastCharArrayPool::createCharArray,
@@ -220,6 +227,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
+#ifndef INCLUDED_BDLF_PLACEHOLDER
+#include <bdlf_placeholder.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
 #endif
@@ -234,6 +245,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -251,9 +270,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                        // ==========================
-                        // class SharedObjectPool_Rep
-                        // ==========================
+                         // ==========================
+                         // class SharedObjectPool_Rep
+                         // ==========================
 
 template <class TYPE, class RESETTER>
 class SharedObjectPool_Rep: public bslma::SharedPtrRep {
@@ -283,12 +302,12 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
                     const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
                     PoolType                                  *pool,
                     bslma::Allocator                          *basicAllocator);
-       // Construct a new rep object that, upon release, will invoke the
-       // specified 'objectResetter' and return itself to the specified 'pool';
-       // then invoke 'objectCreator' to construct an object of 'TYPE' embedded
-       // within the new rep object.  Use the specified 'basicAllocator' to
-       // supply memory.  If 'basicAllocator' is 0, the currently installed
-       // default allocator is used.
+        // Construct a new rep object that, upon release, will invoke the
+        // specified 'objectResetter' and return itself to the specified
+        // 'pool'; then invoke 'objectCreator' to construct an object of 'TYPE'
+        // embedded within the new rep object.  Use the specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~SharedObjectPool_Rep();
         // Destroy this representation object and the embedded instance of
@@ -325,9 +344,10 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
     TYPE *ptr();
         // Return a pointer to the in-place object.
 };
-                           // ===========================
+
+                           // ======================
                            // class SharedObjectPool
-                           // ===========================
+                           // ======================
 
 template <class TYPE,
           class CREATOR=ObjectPoolFunctors::DefaultCreator,
@@ -354,7 +374,7 @@ class SharedObjectPool {
     SharedObjectPool(const SharedObjectPool&);
     SharedObjectPool& operator=(const SharedObjectPool&);
 
-    void constructRepObject(void *mem, bslma::Allocator *alloc);
+    void constructRepObject(void *memory, bslma::Allocator *alloc);
         // Initializes a newly constructed SharedObjectPool_Rep object
 
   public:
@@ -363,8 +383,8 @@ class SharedObjectPool {
     typedef RESETTER   ResetterType;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SharedObjectPool,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(SharedObjectPool,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -415,18 +435,18 @@ class SharedObjectPool {
     bsl::shared_ptr<TYPE> getObject();
         // Return a pointer to an object from this object pool.  When the last
         // shared pointer to the object is destroyed, the object will be reset
-        // as specified at construction and then returned to the
-       //  pool.  If this pool is empty, it is replenished according to the
-       //  strategy specified at construction.
+        // as specified at construction and then returned to the pool.  If this
+        // pool is empty, it is replenished according to the strategy specified
+        // at construction.
 
     void increaseCapacity(int growBy);
         // Create the specified 'growBy' objects and add them to this object
-        // pool.  The behavior is undefined unless 0 <= growBy.
+        // pool.  The behavior is undefined unless '0 <= growBy'.
 
     void reserveCapacity(int growBy);
         // Create enough objects to satisfy requests for at least the specified
         // 'growBy' objects before the next replenishment.  The behavior is
-        // undefined unless 0 <= growBy.  Note that this method is different
+        // undefined unless '0 <= growBy'.  Note that this method is different
         // from 'increaseCapacity' in that the number of created objects may be
         // less than 'growBy'.
 
@@ -441,12 +461,12 @@ class SharedObjectPool {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class SharedObjectPool_Rep
-                        // --------------------------
+                         // --------------------------
+                         // class SharedObjectPool_Rep
+                         // --------------------------
 
 // CREATORS
 template <class TYPE, class RESETTER>
@@ -515,22 +535,24 @@ TYPE *SharedObjectPool_Rep<TYPE, RESETTER>::ptr()
     return &d_instance.object();
 }
 
-                               // ---------------------
-                               // SharedObjectPool
-                               // ---------------------
+                             // ----------------
+                             // SharedObjectPool
+                             // ----------------
+
 // PRIVATE
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 void SharedObjectPool<TYPE, CREATOR, RESETTER>::constructRepObject(
-                                                       void             *mem,
-                                                       bslma::Allocator *alloc)
+                                                      void             *memory,
+                                                      bslma::Allocator *alloc)
 {
-    RepType *r = new (mem) RepType(&d_objectCreator.object(),
-                                   d_objectResetter,
-                                   &d_pool,
-                                   alloc);
+    RepType *r = new (memory) RepType(&d_objectCreator.object(),
+                                      d_objectResetter,
+                                      &d_pool,
+                                      alloc);
     r->resetCountsRaw(0, 0);
 }
+
 }  // close package namespace
 
 // CREATORS

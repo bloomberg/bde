@@ -290,9 +290,9 @@ class ZoneinfoCache {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // -------------------
-                        // class ZoneinfoCache
-                        // -------------------
+                            // -------------------
+                            // class ZoneinfoCache
+                            // -------------------
 
 // CREATORS
 inline

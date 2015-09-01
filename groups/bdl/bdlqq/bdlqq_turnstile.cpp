@@ -19,9 +19,9 @@ enum { MICROSECS_PER_SECOND = 1000 * 1000 };
 
 }  // close unnamed namespace
 
-                            // ---------------
-                            // class Turnstile
-                            // ---------------
+                              // ---------------
+                              // class Turnstile
+                              // ---------------
 
 // CREATORS
 bdlqq::Turnstile::Turnstile(double rate, const bsls::TimeInterval& startTime)

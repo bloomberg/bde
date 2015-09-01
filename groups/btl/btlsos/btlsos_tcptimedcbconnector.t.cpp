@@ -18,7 +18,7 @@
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
 #include <bdlqq_mutex.h>
@@ -77,23 +77,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
@@ -101,9 +101,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 const char* hostName = "127.0.0.1";
 typedef btlsos::TcpTimedCbConnector  Obj;
 
@@ -163,13 +163,13 @@ struct TestCommand {
                            // command is executed.
 };
 
-//=============================================================================
-//                      HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  USAGE EXAMPLES HELPER FUNCTIONS AND CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                USAGE EXAMPLES HELPER FUNCTIONS AND CLASSES
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -470,9 +470,9 @@ void *echoClientThread(void *arg) {
     return arg;
 }
 
-//-----------------------------------------------------------------------------
-//  USAGE EXAMPLE: Data stream
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                        USAGE EXAMPLE: Data stream
+// ----------------------------------------------------------------------------
 
 ///Dual control and data channels
 ///- - - - - - - - - - - - - -  -
@@ -1252,9 +1252,9 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

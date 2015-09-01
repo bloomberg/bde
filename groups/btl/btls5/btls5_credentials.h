@@ -92,9 +92,9 @@ namespace BloombergLP {
 namespace bslma { class Allocator; }
 
 namespace btls5 {
-                         // =================
-                         // class Credentials
-                         // =================
+                             // =================
+                             // class Credentials
+                             // =================
 
 class Credentials {
     // This complex-constrained (value-semantic) type describes the username
@@ -218,12 +218,12 @@ void swap(btls5::Credentials& a, btls5::Credentials& b);
     // allocator.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------
-                        // class Credentials
-                        // -----------------
+                             // -----------------
+                             // class Credentials
+                             // -----------------
 
 // CREATORS
 inline

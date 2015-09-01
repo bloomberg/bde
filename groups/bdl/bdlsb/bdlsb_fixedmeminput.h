@@ -75,9 +75,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                           // ===================
-                           // class FixedMemInput
-                           // ===================
+                            // ===================
+                            // class FixedMemInput
+                            // ===================
 
 class FixedMemInput {
     // This class, like 'FixedMemInStreamBuf', implements the input
@@ -208,12 +208,12 @@ class FixedMemInput {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // -------------------
-                           // class FixedMemInput
-                           // -------------------
+                            // -------------------
+                            // class FixedMemInput
+                            // -------------------
 
 // CREATORS
 inline

@@ -48,7 +48,7 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -62,7 +62,7 @@ void aSsErT(int c, const char *s, int i)
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -72,7 +72,7 @@ void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush; // tab
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 // test_customizedstring.h   -*-C++-*-
@@ -217,7 +217,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -619,7 +619,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1185,7 +1185,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1587,7 +1587,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -2089,7 +2089,7 @@ typedef bdlat_TypeCategory                TC;
     // extra bit set in 'formattingMode'.
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

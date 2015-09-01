@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
 //
 //@CLASSES:
-// bdlde::QuotedPrintableEncoder: automaton performing Quoted-Printable encoding
+// bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
 //
 //@AUTHOR: Alex Fung (afung8)
 //
@@ -108,7 +108,8 @@ BSLS_IDENT("$Id: $")
 //      const char *extraCharsToEncode,
 //      bdlde::QuotedPrintableEncoder::LineBreakMode lineBreakMode
 //                        = bdlde::QuotedPrintableEncoder::BDEDE_CRLF_MODE,
-//      int maxLineLength = bdlde::QuotedPrintableEncoder::DEFAULT_MAX_LINELEN);
+//      int maxLineLength =
+//                         bdlde::QuotedPrintableEncoder::DEFAULT_MAX_LINELEN);
 //..
 //
 // The following examples demonstrate the above rules per the design choices
@@ -195,9 +196,9 @@ BSLS_IDENT("$Id: $")
 //..
 // We will use fixed-sized input and output buffers in the implementation, but,
 // because of the flexibility of 'bsl::istream' and the output-buffer
-// monitoring functionality of 'bdlde::QuotedPrintableEncoder', the fixed buffer
-// sizes do *not* limit the quantity of data that can be read, encoded, or
-// written to the output stream.  The implementation file is as follows.
+// monitoring functionality of 'QuotedPrintableEncoder', the fixed buffer sizes
+// do *not* limit the quantity of data that can be read, encoded, or written to
+// the output stream.  The implementation file is as follows.
 //..
 // streamconverter.cpp                  -*-C++-*-
 //
@@ -424,13 +425,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>  // INT_MAX
 #endif
 
-
 namespace BloombergLP {
-
 namespace bdlde {
-                              // ==================================
-                              // class QuotedPrintableEncoder
-                              // ==================================
+
+                        // ============================
+                        // class QuotedPrintableEncoder
+                        // ============================
 
 class QuotedPrintableEncoder {
     // This class implements a mechanism capable of converting data of
@@ -537,11 +537,9 @@ class QuotedPrintableEncoder {
     int  d_lineStart;           // TBD doc
 
   private:
-    // PRIVATE - NOT IMPLEMENTED
+    // NOT IMPLEMENTED
     QuotedPrintableEncoder(const QuotedPrintableEncoder&);
-
-    QuotedPrintableEncoder& operator=(
-                                          const QuotedPrintableEncoder&);
+    QuotedPrintableEncoder& operator=(const QuotedPrintableEncoder&);
 
   public:
     // CLASS METHODS
@@ -551,9 +549,10 @@ class QuotedPrintableEncoder {
         // name corresponding to the specified enumerator 'mode'.
 
     // CREATORS
+    explicit
     QuotedPrintableEncoder(LineBreakMode lineBreakMode = e_CRLF_MODE,
-                                 int           maxLineLength
-                                                        = e_DEFAULT_MAX_LINELEN);
+                           int           maxLineLength =
+                                                        e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to accept hard line breaks based on the specified 'lineBreakMode',
         // and to insert soft line breaks when the line length exceeds the
@@ -564,10 +563,11 @@ class QuotedPrintableEncoder {
         // BDEDE_LF_MODE passes '\n' and converts '\r'; BDEDE_MIXED_MODE passes
         // both "\r\n" and '\n'.
 
+    explicit
     QuotedPrintableEncoder(
-                           const char    *extraCharsToEncode,
-                           LineBreakMode  lineBreakMode = e_CRLF_MODE,
-                           int            maxLineLength = e_DEFAULT_MAX_LINELEN);
+                         const char    *extraCharsToEncode,
+                         LineBreakMode  lineBreakMode = e_CRLF_MODE,
+                         int            maxLineLength = e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to convert to the form "=XX" any input character matching those in
         // the specified 'extraCharsToEncode' array (as opposed to the default
@@ -684,8 +684,7 @@ class QuotedPrintableEncoder {
 
 // CLASS METHODS
 inline
-const char* QuotedPrintableEncoder::lineBreakModeToAscii(
-                                                            LineBreakMode mode)
+const char* QuotedPrintableEncoder::lineBreakModeToAscii(LineBreakMode mode)
 {
     return s_lineBreakModeName[mode];
 }
@@ -752,8 +751,8 @@ int QuotedPrintableEncoder::outputLength() const
 {
     return d_outputLength;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

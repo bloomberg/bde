@@ -227,9 +227,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                             // ================
-                             // class FixedQueue
-                             // ================
+                              // ================
+                              // class FixedQueue
+                              // ================
 
 template <class TYPE>
 class FixedQueue {
@@ -374,9 +374,9 @@ class FixedQueue {
 
 };
 
-                        // =========================
-                        // class FixedQueue_PopGuard
-                        // =========================
+                         // =========================
+                         // class FixedQueue_PopGuard
+                         // =========================
 
 template <class VALUE>
 class FixedQueue_PopGuard {
@@ -420,9 +420,9 @@ class FixedQueue_PopGuard {
         // object.
 };
 
-                       // ============================
-                       // class FixedQueue_PushProctor
-                       // ============================
+                        // ============================
+                        // class FixedQueue_PushProctor
+                        // ============================
 
 template <class VALUE>
 class FixedQueue_PushProctor {
@@ -475,7 +475,7 @@ class FixedQueue_PushProctor {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // See the .cpp for an implementation note.
@@ -751,9 +751,9 @@ int FixedQueue<TYPE>::size() const
     return static_cast<int>(capacity());
 }
 
-                        // -------------------------
-                        // class FixedQueue_PopGuard
-                        // -------------------------
+                         // -------------------------
+                         // class FixedQueue_PopGuard
+                         // -------------------------
 
 // CREATORS
 template <class VALUE>
@@ -788,9 +788,9 @@ FixedQueue_PopGuard<VALUE>::~FixedQueue_PopGuard()
     }
 }
 
-                       // ----------------------------
-                       // class FixedQueue_PushProctor
-                       // ----------------------------
+                        // ----------------------------
+                        // class FixedQueue_PushProctor
+                        // ----------------------------
 
 // CREATORS
 template <class VALUE>

@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 //      DynamicType                         Runtime type's formatting modes
 //      Enumeration                         DEFAULT, TEXT, DECIMAL
 //..
-// When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting
-// mode selected is based on the following mapping:
+// When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting mode
+// selected is based on the following mapping:
 //..
 //      C++ Type                            Default Formatting Mode
 //      --------                            -----------------------
@@ -108,8 +108,8 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<char> vec;
 //
 //      int retCode = balxml::TypesParserUtil::parseBase64(&vec,
-//                                                        INPUT,
-//                                                        INPUT_LENGTH);
+//                                                         INPUT,
+//                                                         INPUT_LENGTH);
 //
 //      assert(0   == retCode);
 //      assert(4   == vec.size());
@@ -144,8 +144,32 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATE
+#include <bdlt_date.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include <bdlt_datetimetz.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETZ
+#include <bdlt_datetz.h>
+#endif
+
 #ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
+#endif
+
+#ifndef INCLUDED_BDLT_TIME
+#include <bdlt_time.h>
+#endif
+
+#ifndef INCLUDED_BDLT_TIMETZ
+#include <bdlt_timetz.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -168,45 +192,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Date; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class DateTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class Time; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class TimeTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close namespace bdet
-
 namespace balxml {
-                           // =============================
+                           // ======================
                            // struct TypesParserUtil
-                           // =============================
+                           // ======================
 
 struct TypesParserUtil {
     // This 'struct' contains functions for parsing input strings using various
@@ -279,9 +268,9 @@ struct TypesParserUtil {
         // otherwise.
 };
 
-                         // =================================
+                         // ==========================
                          // struct TypesParserUtil_Imp
-                         // =================================
+                         // ==========================
 
 struct TypesParserUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
@@ -289,280 +278,280 @@ struct TypesParserUtil_Imp {
 
     // BASE64 FUNCTIONS
     template <class TYPE>
-    static int parseBase64(TYPE       *result,
-                           const char *input,
-                           int         inputLength,
+    static int parseBase64(TYPE                            *result,
+                           const char                      *input,
+                           int                              inputLength,
                            bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseBase64(TYPE       *result,
-                           const char *input,
-                           int         inputLength,
+    static int parseBase64(TYPE         *result,
+                           const char   *input,
+                           int           inputLength,
                            ANY_CATEGORY);
 
-    static int parseBase64(bsl::string *result,
-                           const char  *input,
-                           int          inputLength,
+    static int parseBase64(bsl::string                *result,
+                           const char                 *input,
+                           int                         inputLength,
                            bdlat_TypeCategory::Simple);
-    static int parseBase64(bsl::vector<char> *result,
-                           const char        *input,
-                           int                inputLength,
+    static int parseBase64(bsl::vector<char>         *result,
+                           const char                *input,
+                           int                        inputLength,
                            bdlat_TypeCategory::Array);
 
     // DECIMAL FUNCTIONS
     template <class TYPE>
-    static int parseDecimal(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDecimal(TYPE                            *result,
+                            const char                      *input,
+                            int                              inputLength,
                             bdlat_TypeCategory::Enumeration);
 
     template <class TYPE>
-    static int parseDecimal(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDecimal(TYPE                               *result,
+                            const char                         *input,
+                            int                                 inputLength,
                             bdlat_TypeCategory::CustomizedType);
 
     template <class TYPE>
-    static int parseDecimal(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDecimal(TYPE                            *result,
+                            const char                      *input,
+                            int                              inputLength,
                             bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseDecimal(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
-                            ANY_CATEGORY);
-
-    static int parseDecimal(bool       *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(char       *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(short      *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(int        *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(bsls::Types::Int64 *result,
-                            const char         *input,
-                            int                 inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(unsigned char *result,
-                            const char    *input,
-                            int            inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(unsigned short *result,
-                            const char     *input,
-                            int             inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDecimal(unsigned int *result,
+    static int parseDecimal(TYPE         *result,
                             const char   *input,
                             int           inputLength,
+                            ANY_CATEGORY);
+
+    static int parseDecimal(bool                       *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDecimal(bsls::Types::Uint64 *result,
-                            const char          *input,
-                            int                  inputLength,
+    static int parseDecimal(char                       *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(short                      *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(int                        *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(bsls::Types::Int64         *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(unsigned char              *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(unsigned short             *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(unsigned int               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDecimal(bsls::Types::Uint64        *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
 
-    static int parseDecimal(float       *result,
-                            const char  *input,
-                            int          inputLength,
+    static int parseDecimal(float                      *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDecimal(double      *result,
-                            const char  *input,
-                            int          inputLength,
+    static int parseDecimal(double                     *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
 
     // DEFAULT FUNCTIONS
     template <class TYPE>
-    static int parseDefault(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(TYPE                            *result,
+                            const char                      *input,
+                            int                              inputLength,
                             bdlat_TypeCategory::Enumeration);
 
     template <class TYPE>
-    static int parseDefault(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(TYPE                               *result,
+                            const char                         *input,
+                            int                                 inputLength,
                             bdlat_TypeCategory::CustomizedType);
 
     template <class TYPE>
-    static int parseDefault(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(TYPE                            *result,
+                            const char                      *input,
+                            int                              inputLength,
                             bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseDefault(TYPE       *result,
-                            const char *input,
-                            int         inputLength,
-                            ANY_CATEGORY);
-
-    static int parseDefault(bool       *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(char       *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(short      *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(int        *result,
-                            const char *input,
-                            int         inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(bsls::Types::Int64 *result,
-                            const char         *input,
-                            int                 inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(unsigned char *result,
-                            const char    *input,
-                            int            inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(unsigned short *result,
-                            const char     *input,
-                            int             inputLength,
-                            bdlat_TypeCategory::Simple);
-    static int parseDefault(unsigned int *result,
+    static int parseDefault(TYPE         *result,
                             const char   *input,
                             int           inputLength,
+                            ANY_CATEGORY);
+
+    static int parseDefault(bool                       *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bsls::Types::Uint64 *result,
-                            const char          *input,
-                            int                  inputLength,
+    static int parseDefault(char                       *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(float      *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(short                      *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(double     *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(int                        *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bsl::string *result,
-                            const char  *input,
-                            int          inputLength,
+    static int parseDefault(bsls::Types::Int64         *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::Date  *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(unsigned char              *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::DateTz *result,
-                            const char  *input,
-                            int          inputLength,
+    static int parseDefault(unsigned short             *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::Datetime *result,
-                            const char    *input,
-                            int            inputLength,
+    static int parseDefault(unsigned int               *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::DatetimeTz *result,
-                            const char      *input,
-                            int              inputLength,
+    static int parseDefault(bsls::Types::Uint64        *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::Time  *result,
-                            const char *input,
-                            int         inputLength,
+    static int parseDefault(float                      *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bdlt::TimeTz *result,
-                            const char  *input,
-                            int          inputLength,
+    static int parseDefault(double                     *result,
+                            const char                 *input,
+                            int                         inputLength,
                             bdlat_TypeCategory::Simple);
-    static int parseDefault(bsl::vector<char> *result,
-                            const char        *input,
-                            int                inputLength,
+    static int parseDefault(bsl::string                *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::Date                 *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::DateTz               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::Datetime             *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::DatetimeTz           *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::Time                 *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bdlt::TimeTz               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(bsl::vector<char>         *result,
+                            const char                *input,
+                            int                        inputLength,
                             bdlat_TypeCategory::Array);
 
     // HEX FUNCTIONS
     template <class TYPE>
-    static int parseHex(TYPE       *result,
-                        const char *input,
-                        int         inputLength,
+    static int parseHex(TYPE                            *result,
+                        const char                      *input,
+                        int                              inputLength,
                         bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseHex(TYPE       *result,
-                        const char *input,
-                        int         inputLength,
+    static int parseHex(TYPE         *result,
+                        const char   *input,
+                        int           inputLength,
                         ANY_CATEGORY);
 
-    static int parseHex(bsl::string *result,
-                        const char  *input,
-                        int          inputLength,
+    static int parseHex(bsl::string                *result,
+                        const char                 *input,
+                        int                         inputLength,
                         bdlat_TypeCategory::Simple);
-    static int parseHex(bsl::vector<char> *result,
-                        const char        *input,
-                        int                inputLength,
+    static int parseHex(bsl::vector<char>         *result,
+                        const char                *input,
+                        int                        inputLength,
                         bdlat_TypeCategory::Array);
 
     // LIST FUNCTIONS
     template <class TYPE>
-    static int parseList(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseList(TYPE                      *result,
+                         const char                *input,
+                         int                        inputLength,
                          bdlat_TypeCategory::Array);
 
     template <class TYPE>
-    static int parseList(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseList(TYPE                            *result,
+                         const char                      *input,
+                         int                              inputLength,
                          bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseList(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseList(TYPE         *result,
+                         const char   *input,
+                         int           inputLength,
                          ANY_CATEGORY);
 
     // TEXT FUNCTIONS
     template <class TYPE>
-    static int parseText(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(TYPE                            *result,
+                         const char                      *input,
+                         int                              inputLength,
                          bdlat_TypeCategory::Enumeration);
 
     template <class TYPE>
-    static int parseText(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(TYPE                               *result,
+                         const char                         *input,
+                         int                                 inputLength,
                          bdlat_TypeCategory::CustomizedType);
 
     template <class TYPE>
-    static int parseText(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(TYPE                            *result,
+                         const char                      *input,
+                         int                              inputLength,
                          bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
-    static int parseText(TYPE       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(TYPE         *result,
+                         const char   *input,
+                         int           inputLength,
                          ANY_CATEGORY);
 
-    static int parseText(bool       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(bool                       *result,
+                         const char                 *input,
+                         int                         inputLength,
                          bdlat_TypeCategory::Simple);
-    static int parseText(char       *result,
-                         const char *input,
-                         int         inputLength,
+    static int parseText(char                       *result,
+                         const char                 *input,
+                         int                         inputLength,
                          bdlat_TypeCategory::Simple);
-    static int parseText(bsl::string *result,
-                         const char  *input,
-                         int          inputLength,
+    static int parseText(bsl::string                *result,
+                         const char                 *input,
+                         int                         inputLength,
                          bdlat_TypeCategory::Simple);
-    static int parseText(bsl::vector<char> *result,
-                         const char        *input,
-                         int                inputLength,
+    static int parseText(bsl::vector<char>         *result,
+                         const char                *input,
+                         int                        inputLength,
                          bdlat_TypeCategory::Array);
 
 };
@@ -571,9 +560,9 @@ struct TypesParserUtil_Imp {
 //                               PROXY CLASSES
 // ============================================================================
 
-                // ==================================================
+                // ===========================================
                 // struct TypesParserUtil_Imp_parseBase64Proxy
-                // ==================================================
+                // ===========================================
 
 struct TypesParserUtil_Imp_parseBase64Proxy {
     // Component-private struct.  Do not use.
@@ -583,16 +572,16 @@ struct TypesParserUtil_Imp_parseBase64Proxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -607,9 +596,9 @@ struct TypesParserUtil_Imp_parseBase64Proxy {
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDecimalProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDecimalProxy {
     // Component-private struct.  Do not use.
@@ -619,16 +608,16 @@ struct TypesParserUtil_Imp_parseDecimalProxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -637,15 +626,15 @@ struct TypesParserUtil_Imp_parseDecimalProxy {
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
         return TypesParserUtil_Imp::parseDecimal(object,
-                                                        d_input_p,
-                                                        d_inputLength,
-                                                        category);
+                                                 d_input_p,
+                                                 d_inputLength,
+                                                 category);
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDefaultProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDefaultProxy {
     // Component-private struct.  Do not use.
@@ -655,16 +644,16 @@ struct TypesParserUtil_Imp_parseDefaultProxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -673,15 +662,15 @@ struct TypesParserUtil_Imp_parseDefaultProxy {
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
         return TypesParserUtil_Imp::parseDefault(object,
-                                                        d_input_p,
-                                                        d_inputLength,
-                                                        category);
+                                                 d_input_p,
+                                                 d_inputLength,
+                                                 category);
     }
 };
 
-                  // ===============================================
+                  // ========================================
                   // struct TypesParserUtil_Imp_parseHexProxy
-                  // ===============================================
+                  // ========================================
 
 struct TypesParserUtil_Imp_parseHexProxy {
     // Component-private struct.  Do not use.
@@ -691,16 +680,16 @@ struct TypesParserUtil_Imp_parseHexProxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -709,15 +698,15 @@ struct TypesParserUtil_Imp_parseHexProxy {
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
         return TypesParserUtil_Imp::parseHex(object,
-                                                    d_input_p,
-                                                    d_inputLength,
-                                                    category);
+                                             d_input_p,
+                                             d_inputLength,
+                                             category);
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseListProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseListProxy {
     // Component-private struct.  Do not use.
@@ -727,16 +716,16 @@ struct TypesParserUtil_Imp_parseListProxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -745,15 +734,15 @@ struct TypesParserUtil_Imp_parseListProxy {
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
         return TypesParserUtil_Imp::parseList(object,
-                                                     d_input_p,
-                                                     d_inputLength,
-                                                     category);
+                                              d_input_p,
+                                              d_inputLength,
+                                              category);
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseTextProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseTextProxy {
     // Component-private struct.  Do not use.
@@ -763,16 +752,16 @@ struct TypesParserUtil_Imp_parseTextProxy {
     int         d_inputLength;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
     inline
-    int operator()(TYPE *object, bslmf::Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
-        (void) object;
         return -1;
     }
 
@@ -781,66 +770,67 @@ struct TypesParserUtil_Imp_parseTextProxy {
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
         return TypesParserUtil_Imp::parseText(object,
-                                                     d_input_p,
-                                                     d_inputLength,
-                                                     category);
+                                              d_input_p,
+                                              d_inputLength,
+                                              category);
     }
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // -----------------------------
+                           // ----------------------
                            // struct TypesParserUtil
-                           // -----------------------------
+                           // ----------------------
 
 template <class TYPE>
 int TypesParserUtil::parse(TYPE       *result,
-                                  const char *input,
-                                  int         inputLength,
-                                  int         formattingMode)
+                           const char *input,
+                           int         inputLength,
+                           int         formattingMode)
 {
     enum { k_FAILURE = - 1 };
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
-        return TypesParserUtil_Imp::parseList(result, input,
-                                                     inputLength, Tag());
-                                                                      // RETURN
+        return TypesParserUtil_Imp::parseList(result,
+                                              input,
+                                              inputLength,
+                                              Tag());                 // RETURN
     }
 
     switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
       case bdlat_FormattingMode::e_BASE64: {
         return TypesParserUtil_Imp::parseBase64(result,
-                                                       input,
-                                                       inputLength,
-                                                       Tag());        // RETURN
+                                                input,
+                                                inputLength,
+                                                Tag());               // RETURN
       }
       case bdlat_FormattingMode::e_DEC: {
         return TypesParserUtil_Imp::parseDecimal(result,
-                                                        input,
-                                                        inputLength,
-                                                        Tag());       // RETURN
+                                                 input,
+                                                 inputLength,
+                                                 Tag());              // RETURN
       }
       case bdlat_FormattingMode::e_DEFAULT: {
         return TypesParserUtil_Imp::parseDefault(result,
-                                                        input,
-                                                        inputLength,
-                                                        Tag());       // RETURN
+                                                 input,
+                                                 inputLength,
+                                                 Tag());              // RETURN
       }
       case bdlat_FormattingMode::e_HEX: {
         return TypesParserUtil_Imp::parseHex(result,
-                                                    input,
-                                                    inputLength,
-                                                    Tag());           // RETURN
+                                             input,
+                                             inputLength,
+                                             Tag());                  // RETURN
       }
       case bdlat_FormattingMode::e_TEXT: {
         return TypesParserUtil_Imp::parseText(result,
-                                                     input,
-                                                     inputLength,
-                                                     Tag());          // RETURN
+                                              input,
+                                              inputLength,
+                                              Tag());                 // RETURN
       }
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -853,87 +843,88 @@ int TypesParserUtil::parse(TYPE       *result,
 template <class TYPE>
 inline
 int TypesParserUtil::parseBase64(TYPE       *result,
-                                        const char *input,
-                                        int         inputLength)
+                                 const char *input,
+                                 int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseBase64(result, input,
-                                                   inputLength, Tag());
+    return TypesParserUtil_Imp::parseBase64(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
 inline
 int TypesParserUtil::parseDecimal(TYPE       *result,
-                                         const char *input,
-                                         int         inputLength)
+                                  const char *input,
+                                  int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseDecimal(result, input,
-                                                    inputLength, Tag());
+    return TypesParserUtil_Imp::parseDecimal(result,
+                                             input,
+                                             inputLength,
+                                             Tag());
 }
 
 template <class TYPE>
 inline
 int TypesParserUtil::parseDefault(TYPE       *result,
-                                         const char *input,
-                                         int         inputLength)
+                                  const char *input,
+                                  int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseDefault(result, input,
-                                                    inputLength, Tag());
+    return TypesParserUtil_Imp::parseDefault(result,
+                                             input,
+                                             inputLength,
+                                             Tag());
 }
 
 template <class TYPE>
 inline
 int TypesParserUtil::parseHex(TYPE       *result,
-                                     const char *input,
-                                     int         inputLength)
+                              const char *input,
+                              int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseHex(result, input,
-                                                inputLength, Tag());
+    return TypesParserUtil_Imp::parseHex(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
 inline
 int TypesParserUtil::parseList(TYPE       *result,
-                                      const char *input,
-                                      int         inputLength)
+                               const char *input,
+                               int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseList(result, input,
-                                                 inputLength, Tag());
+    return TypesParserUtil_Imp::parseList(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
 inline
 int TypesParserUtil::parseText(TYPE       *result,
-                                      const char *input,
-                                      int         inputLength)
+                               const char *input,
+                               int         inputLength)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    return TypesParserUtil_Imp::parseText(result, input,
-                                                 inputLength, Tag());
+    return TypesParserUtil_Imp::parseText(result, input, inputLength, Tag());
 }
 
-                         // ---------------------------------
+                         // --------------------------
                          // struct TypesParserUtil_Imp
-                         // ---------------------------------
+                         // --------------------------
 
 // BASE64 FUNCTIONS
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseBase64(TYPE       *result,
-                                            const char *input,
-                                            int         inputLength,
-                                            bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseBase64(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
     TypesParserUtil_Imp_parseBase64Proxy proxy = { input, inputLength };
 
@@ -942,18 +933,11 @@ int TypesParserUtil_Imp::parseBase64(TYPE       *result,
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseBase64(TYPE       *result,
-                                            const char *input,
-                                            int         inputLength,
-                                            ANY_CATEGORY)
+int TypesParserUtil_Imp::parseBase64(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
-
-    (void) result;
-    (void) input;
-    (void) inputLength;
 
     // Note: 'parseBase64' for 'bsl::string' and 'bsl::vector<char>' is inside
     //       the CPP file.
@@ -965,17 +949,17 @@ int TypesParserUtil_Imp::parseBase64(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Enumeration)
+int TypesParserUtil_Imp::parseDecimal(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::Enumeration)
 {
     enum { k_FAILURE = -1 };
 
     int intValue;
 
-    if (0 != TypesParserUtil::parseDecimal(&intValue, input,
-                                                  inputLength)) {
+    if (0 != TypesParserUtil::parseDecimal(&intValue, input, inputLength)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -984,11 +968,11 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::CustomizedType
-                                            )
+int TypesParserUtil_Imp::parseDecimal(
+                               TYPE                               *result,
+                               const char                         *input,
+                               int                                 inputLength,
+                               bdlat_TypeCategory::CustomizedType)
 {
     enum { k_FAILURE = -1 };
 
@@ -1006,33 +990,24 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseDecimal(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
-    TypesParserUtil_Imp_parseDecimalProxy proxy = {
-        input,
-        inputLength
-    };
+    TypesParserUtil_Imp_parseDecimalProxy proxy = { input, inputLength };
 
     return bdlat_TypeCategoryUtil::manipulateByCategory(result, proxy);
 }
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             ANY_CATEGORY)
+int TypesParserUtil_Imp::parseDecimal(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
-
-    (void) result;
-    (void) input;
-    (void) inputLength;
 
     return k_FAILURE;
 }
@@ -1041,21 +1016,22 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDefault(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Enumeration)
+int TypesParserUtil_Imp::parseDefault(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::Enumeration)
 {
     return bdlat_EnumFunctions::fromString(result, input, inputLength);
 }
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDefault(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::CustomizedType
-                                            )
+int TypesParserUtil_Imp::parseDefault(
+                               TYPE                               *result,
+                               const char                         *input,
+                               int                                 inputLength,
+                               bdlat_TypeCategory::CustomizedType)
 {
     enum { k_FAILURE = -1 };
 
@@ -1073,190 +1049,199 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseDefault(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseDefault(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
-    TypesParserUtil_Imp_parseDefaultProxy proxy = {
-        input,
-        inputLength
-    };
+    TypesParserUtil_Imp_parseDefaultProxy proxy = { input, inputLength };
 
     return bdlat_TypeCategoryUtil::manipulateByCategory(result, proxy);
 }
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseDefault(TYPE       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             ANY_CATEGORY)
+int TypesParserUtil_Imp::parseDefault(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
-    (void) result;
-    (void) input;
-    (void) inputLength;
-
     return k_FAILURE;
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(char       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(char                       *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(short      *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(short                      *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(int        *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(int                        *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(
-    bsls::Types::Int64 *result,
-    const char         *input,
-    int                 inputLength,
-    bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bsls::Types::Int64         *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(unsigned char *result,
-                                             const char    *input,
-                                             int            inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(unsigned char              *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(unsigned short *result,
-                                             const char     *input,
-                                             int             inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(unsigned short             *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(unsigned int *result,
-                                             const char   *input,
-                                             int           inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(unsigned int               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(
-    bsls::Types::Uint64 *result,
-    const char          *input,
-    int                  inputLength,
-    bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bsls::Types::Uint64        *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseDecimal(result, input, inputLength,
+    return parseDecimal(result,
+                        input,
+                        inputLength,
                         bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bsl::string *result,
-                                             const char  *input,
-                                             int          inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bsl::string                *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
-    return parseText(result, input, inputLength,
+    return parseText(result,
+                     input,
+                     inputLength,
                      bdlat_TypeCategory::Simple());
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::Date  *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::Date                 *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::DateTz *result,
-                                             const char  *input,
-                                             int          inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::DateTz               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::Datetime *result,
-                                             const char    *input,
-                                             int            inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::Datetime             *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::DatetimeTz *result,
-                                             const char      *input,
-                                             int              inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::DatetimeTz           *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::Time  *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::Time                 *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bdlt::TimeTz *result,
-                                             const char  *input,
-                                             int          inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bdlt::TimeTz               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
-int TypesParserUtil_Imp::parseDefault(bsl::vector<char> *result,
-                                             const char        *input,
-                                             int                inputLength,
-                                             bdlat_TypeCategory::Array)
+int TypesParserUtil_Imp::parseDefault(bsl::vector<char>         *result,
+                                      const char                *input,
+                                      int                        inputLength,
+                                      bdlat_TypeCategory::Array)
 {
-    return parseBase64(result, input, inputLength,
+    return parseBase64(result,
+                       input,
+                       inputLength,
                        bdlat_TypeCategory::Array());
 }
 
@@ -1264,10 +1249,10 @@ int TypesParserUtil_Imp::parseDefault(bsl::vector<char> *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseHex(TYPE       *result,
-                                         const char *input,
-                                         int         inputLength,
-                                         bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseHex(TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
     TypesParserUtil_Imp_parseHexProxy proxy = { input, inputLength };
 
@@ -1276,18 +1261,11 @@ int TypesParserUtil_Imp::parseHex(TYPE       *result,
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseHex(TYPE       *result,
-                                         const char *input,
-                                         int         inputLength,
-                                         ANY_CATEGORY)
+int TypesParserUtil_Imp::parseHex(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
-
-    (void) result;
-    (void) input;
-    (void) inputLength;
 
     // Note: 'parseHex' for 'bsl::string' and 'bsl::vector<char>' is inside the
     //       CPP file.
@@ -1298,10 +1276,10 @@ int TypesParserUtil_Imp::parseHex(TYPE       *result,
 // LIST FUNCTIONS
 
 template <class TYPE>
-int TypesParserUtil_Imp::parseList(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::Array)
+int TypesParserUtil_Imp::parseList(TYPE                      *result,
+                                   const char                *input,
+                                   int                        inputLength,
+                                   bdlat_TypeCategory::Array)
 {
     enum { k_FAILURE = -1 };
 
@@ -1317,7 +1295,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
     }
 
     if (0 != listParser.pushCharacters(input, input + inputLength)) {
-        return k_FAILURE;
+        return k_FAILURE;                                             // RETURN
     }
 
     return listParser.endParse();
@@ -1325,10 +1303,11 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseList(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseList(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
     TypesParserUtil_Imp_parseListProxy proxy = { input, inputLength };
 
@@ -1337,18 +1316,11 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseList(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          ANY_CATEGORY)
+int TypesParserUtil_Imp::parseList(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
-
-    (void) result;
-    (void) input;
-    (void) inputLength;
 
     return k_FAILURE;
 }
@@ -1357,20 +1329,22 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseText(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::Enumeration)
+int TypesParserUtil_Imp::parseText(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::Enumeration)
 {
     return bdlat_EnumFunctions::fromString(result, input, inputLength);
 }
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseText(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::CustomizedType)
+int TypesParserUtil_Imp::parseText(
+                               TYPE                               *result,
+                               const char                         *input,
+                               int                                 inputLength,
+                               bdlat_TypeCategory::CustomizedType)
 {
     enum { k_FAILURE = -1 };
 
@@ -1388,10 +1362,11 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
 
 template <class TYPE>
 inline
-int TypesParserUtil_Imp::parseText(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::DynamicType)
+int TypesParserUtil_Imp::parseText(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
 {
     TypesParserUtil_Imp_parseTextProxy proxy = { input, inputLength };
 
@@ -1400,23 +1375,16 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
 
 template <class TYPE, class ANY_CATEGORY>
 inline
-int TypesParserUtil_Imp::parseText(TYPE       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          ANY_CATEGORY)
+int TypesParserUtil_Imp::parseText(TYPE *, const char *, int, ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
-    (void) result;
-    (void) input;
-    (void) inputLength;
-
     return k_FAILURE;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

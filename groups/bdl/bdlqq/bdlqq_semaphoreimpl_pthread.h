@@ -57,9 +57,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-            // =============================================
-            // class SemaphoreImpl<Platform::PosixSemaphore>
-            // =============================================
+               // =============================================
+               // class SemaphoreImpl<Platform::PosixSemaphore>
+               // =============================================
 
 template <>
 class SemaphoreImpl<Platform::PosixSemaphore> {
@@ -111,9 +111,9 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-            // ---------------------------------------------
-            // class SemaphoreImpl<Platform::PosixSemaphore>
-            // ---------------------------------------------
+               // ---------------------------------------------
+               // class SemaphoreImpl<Platform::PosixSemaphore>
+               // ---------------------------------------------
 
 // CREATORS
 inline

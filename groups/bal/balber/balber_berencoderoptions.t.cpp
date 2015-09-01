@@ -38,7 +38,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
@@ -57,11 +57,11 @@ static void aSsErT(int c, const char *s, int i)
 
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 static bool             verbose = false;
@@ -70,7 +70,7 @@ static bool     veryVeryVerbose = false;
 static bool veryVeryVeryVerbose = false;
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

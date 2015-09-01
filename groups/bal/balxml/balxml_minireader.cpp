@@ -4,10 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 
+#include <balxml_errorinfo.h>
+
+#include <bdlf_function.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>  // for swap
 #include <bsl_cctype.h>
+#include <bsl_climits.h>
 
 // IMPLEMENTATION NOTES
 // --------------------
@@ -99,7 +104,8 @@ namespace {
 
 inline
 const char* nonNullStr(const char *s)
-    // Return 's' if 's' != 0, or "" otherwise.  Never returns a null pointer.
+    // Return the specified 's' if 's' != 0, or "" otherwise.  Never returns a
+    // null pointer.
 {
     return s ? s : "";
 }
@@ -159,9 +165,8 @@ int unicodeToUtf8(char *output, unsigned val)
 }
 
 // Perform an in-place replacement of XML character references with the
-// specified null-terminated 'text' with the corresponding ASCII
-// character.  The following pre-defined character entities are
-// recognized:
+// specified null-terminated 'text' with the corresponding ASCII character.
+// The following pre-defined character entities are recognized:
 //..
 //  Entity  Char    Name
 //  ======  ====    ====
@@ -171,17 +176,17 @@ int unicodeToUtf8(char *output, unsigned val)
 //  &apos;  '       Apostrophe
 //  &quot;  "       Quote
 //..
-// In addition, this function recognizes numeric character entities of the
-// form '&#dd;', where 'dd' is a character value in decimal notation.  For
-// example, '&#92;' is a character reference for the backslash character
-// (\).  This function only recognizes numeric character entities in the
-// range 1-255 ('&#00' is forbidden by both the XML 1.0 and 1.1
-// standards).  Unrecognized character entities (whether symbolic or
-// numeric) are ignored and remain in the text unchanged.
+// In addition, this function recognizes numeric character entities of the form
+// '&#dd;', where 'dd' is a character value in decimal notation.  For example,
+// '&#92;' is a character reference for the backslash character (\).  This
+// function only recognizes numeric character entities in the range 1-255
+// ('&#00' is forbidden by both the XML 1.0 and 1.1 standards).  Unrecognized
+// character entities (whether symbolic or numeric) are ignored and remain in
+// the text unchanged.
 //
-// The transformed text (including the null terminator at the end) is
-// written back to the location specified by 'text'.  It will always have
-// a length no longer than the original text.
+// The transformed text (including the null terminator at the end) is written
+// back to the location specified by 'text'.  It will always have a length no
+// longer than the original text.
 void replaceCharReferences(char *text)
 {
     struct Entity {
@@ -203,8 +208,8 @@ void replaceCharReferences(char *text)
         return; // No ampersands                                      // RETURN
     }
 
-    // Loop through rest of input, looking for ampersands.
-    // Loop invariant: *input == '&'
+    //  Loop through rest of input, looking for ampersands.
+    //  Loop invariant: *input == '&'
     const char* input = output;
     do {
         Entity Numeric;
@@ -230,8 +235,8 @@ void replaceCharReferences(char *text)
               // an error?
 
               if (endptr && ';' == *endptr && 0 < c) {
-                  // String has already been matched.  Consume the input
-                  // and set the Numeric entity to match an empty string.
+                  // String has already been matched.  Consume the input and
+                  // set the Numeric entity to match an empty string.
                   input = endptr;
                   Numeric.d_len = 0;
                   Numeric.d_ch = c;
@@ -272,9 +277,9 @@ void replaceCharReferences(char *text)
 
 namespace BloombergLP  {
 
-                  // -----------------------------
-                  // class balxml::MiniReader::Node
-                  // -----------------------------
+                       // ------------------------------
+                       // class balxml::MiniReader::Node
+                       // ------------------------------
 
 balxml::MiniReader::Node::Node(bslma::Allocator *basicAllocator)
 : d_type          (e_NODE_TYPE_NONE)
@@ -294,7 +299,7 @@ balxml::MiniReader::Node::Node(bslma::Allocator *basicAllocator)
 }
 
 balxml::MiniReader::Node::Node(const Node&       other,
-                              bslma::Allocator *basicAllocator)
+                               bslma::Allocator *basicAllocator)
 : d_type          (other.d_type)
 , d_qualifiedName (other.d_qualifiedName)
 , d_prefix        (other.d_prefix)
@@ -311,8 +316,7 @@ balxml::MiniReader::Node::Node(const Node&       other,
 {
 }
 
-void
-balxml::MiniReader::Node::reset()
+void balxml::MiniReader::Node::reset()
 {
     d_type           = e_NODE_TYPE_NONE;
     d_qualifiedName  = 0;
@@ -331,19 +335,21 @@ balxml::MiniReader::Node::reset()
 void
 balxml::MiniReader::Node::swap(Node& other)
 {
-    bsl::swap(d_type, other.d_type);
-    bsl::swap(d_qualifiedName, other.d_qualifiedName);
-    bsl::swap(d_prefix, other.d_prefix);
-    bsl::swap(d_localName, other.d_localName);
-    bsl::swap(d_value, other.d_value);
-    bsl::swap(d_namespaceId, other.d_namespaceId);
-    bsl::swap(d_namespaceUri, other.d_namespaceUri);
-    bsl::swap(d_flags, other.d_flags);
+    using bsl::swap;
+
+    swap(d_type, other.d_type);
+    swap(d_qualifiedName, other.d_qualifiedName);
+    swap(d_prefix, other.d_prefix);
+    swap(d_localName, other.d_localName);
+    swap(d_value, other.d_value);
+    swap(d_namespaceId, other.d_namespaceId);
+    swap(d_namespaceUri, other.d_namespaceUri);
+    swap(d_flags, other.d_flags);
     d_attributes.swap(other.d_attributes);
-    bsl::swap(d_attrCount, other.d_attrCount);
-    bsl::swap(d_namespaceCount, other.d_namespaceCount);
-    bsl::swap(d_startPos, other.d_startPos);
-    bsl::swap(d_endPos, other.d_endPos);
+    swap(d_attrCount, other.d_attrCount);
+    swap(d_namespaceCount, other.d_namespaceCount);
+    swap(d_startPos, other.d_startPos);
+    swap(d_endPos, other.d_endPos);
 }
 
 void
@@ -363,9 +369,9 @@ balxml::MiniReader::Node::addAttribute(const Attribute& attr)
 }
 
 namespace balxml {
-                          // -----------------------
-                          // class MiniReader
-                          // -----------------------
+                              // ----------------
+                              // class MiniReader
+                              // ----------------
 
 // CREATORS
 MiniReader::MiniReader(bslma::Allocator *basicAllocator)
@@ -403,8 +409,7 @@ MiniReader::MiniReader(bslma::Allocator *basicAllocator)
     d_parseBuf.resize(d_readSize);
 }
 
-MiniReader::MiniReader(int               bufSize,
-                                     bslma::Allocator *basicAllocator)
+MiniReader::MiniReader(int bufSize, bslma::Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
 , d_readSize        (bufSize)
@@ -458,9 +463,7 @@ MiniReader::~MiniReader()
 }
 
 // MANIPULATORS
-int
-MiniReader::setError(ErrorInfo::Severity error,
-                            const bsl::string&         msg)
+int MiniReader::setError(ErrorInfo::Severity error, const bsl::string &msg)
 {
     Node&  node = currentNode();
 
@@ -486,10 +489,9 @@ MiniReader::setError(ErrorInfo::Severity error,
     return rc;
 }
 
-int
-MiniReader::setParseError(const char *errText,
-                                 const char *startFragment,
-                                 const char *endFragment)
+int MiniReader::setParseError(const char *errText,
+                              const char *startFragment,
+                              const char *endFragment)
 {
     bsl::string msg(errText);
     if (startFragment != 0) {
@@ -505,38 +507,32 @@ MiniReader::setParseError(const char *errText,
     return setError(ErrorInfo::e_ERROR, msg);
 }
 
-void
-MiniReader::setOptions(unsigned int flags)
+void MiniReader::setOptions(unsigned int flags)
 {
     d_options = flags;
 }
 
-unsigned int
-MiniReader::options() const
+unsigned int MiniReader::options() const
 {
     return d_options;
 }
 
-void
-MiniReader::setResolver(XmlResolverFunctor resolver)
+void MiniReader::setResolver(XmlResolverFunctor resolver)
 {
     d_resolver = resolver;
 }
 
-MiniReader::XmlResolverFunctor
-MiniReader::resolver() const
+MiniReader::XmlResolverFunctor MiniReader::resolver() const
 {
     return d_resolver;
 }
 
-PrefixStack *
-MiniReader::prefixStack() const
+PrefixStack *MiniReader::prefixStack() const
 {
     return (d_prefixes == &d_ownPrefixes ? 0 : d_prefixes);
 }
 
-void
-MiniReader::setPrefixStack(PrefixStack *prefixes)
+void MiniReader::setPrefixStack(PrefixStack *prefixes)
 {
     d_prefixes = prefixes;
     if (d_prefixes == 0) {
@@ -544,8 +540,7 @@ MiniReader::setPrefixStack(PrefixStack *prefixes)
     }
 }
 
-void
-MiniReader::close()
+void MiniReader::close()
 {
     d_stream.close();
 
@@ -557,8 +552,7 @@ MiniReader::close()
     d_state     = ST_CLOSED;
 }
 
-int
-MiniReader::doOpen(const char *url, const char *encoding)
+int MiniReader::doOpen(const char *url, const char *encoding)
 {
     // reset active nodes stack
     d_activeNodesCount = 0;
@@ -592,11 +586,10 @@ MiniReader::doOpen(const char *url, const char *encoding)
     return (readInput() > 0) ? 0 : -1;
 }
 
-int
-MiniReader::open(const char *buffer,
-                        size_t      size,
-                        const char *url,
-                        const char *encoding)
+int MiniReader::open(const char *buffer,
+                     size_t      size,
+                     const char *url,
+                     const char *encoding)
 {
     if (d_state != ST_CLOSED) {
         return -1;                                                    // RETURN
@@ -612,9 +605,7 @@ MiniReader::open(const char *buffer,
     return doOpen(url, encoding);
 }
 
-int
-MiniReader::open(const char *filename,
-                        const char *encoding)
+int MiniReader::open(const char *filename, const char *encoding)
 {
     if (d_state != ST_CLOSED) {
         return -1;                                                    // RETURN
@@ -630,20 +621,19 @@ MiniReader::open(const char *filename,
     return open(d_stream.rdbuf(), filename, encoding);
 }
 
-int
-MiniReader::open(bsl::streambuf *streambuf,
-                        const char     *url,
-                        const char     *encoding)
+int MiniReader::open(bsl::streambuf *stream,
+                     const char     *url,
+                     const char     *encoding)
 {
     if (d_state != ST_CLOSED) {
         return -1;                                                    // RETURN
     }
 
-    if  (streambuf == 0) {
+    if  (stream == 0) {
         return -1;                                                    // RETURN
     }
 
-    d_streamBuf = streambuf;
+    d_streamBuf = stream;
 
     return doOpen(url, encoding);
 }
@@ -779,10 +769,7 @@ MiniReader::isEmptyElement() const
     return ((currentNode().d_flags & Node::k_NODE_EMPTY) != 0);
 }
 
-int
-MiniReader::lookupAttribute(
-                         ElementAttribute *attribute,
-                         int                      index) const
+int MiniReader::lookupAttribute(ElementAttribute *attribute, int index) const
 {
     const Node&  node = currentNode();
 
@@ -794,10 +781,8 @@ MiniReader::lookupAttribute(
     return 1; //not found
 }
 
-int
-MiniReader::lookupAttribute(
-                           ElementAttribute  *attribute,
-                           const char               *qname) const
+int MiniReader::lookupAttribute(ElementAttribute *attribute,
+                                const char       *qname) const
 {
     const Node&  node = currentNode();
 
@@ -815,11 +800,9 @@ MiniReader::lookupAttribute(
     return 1; //not found
 }
 
-int
-MiniReader::lookupAttribute(
-                           ElementAttribute *attribute,
-                           const char              *localName,
-                           const char              *namespaceUri) const
+int MiniReader::lookupAttribute(ElementAttribute *attribute,
+                                const char       *localName,
+                                const char       *namespaceUri) const
 {
     const Node&  node = currentNode();
 
@@ -839,11 +822,9 @@ MiniReader::lookupAttribute(
     return 1; //not found
 }
 
-int
-MiniReader::lookupAttribute(
-                           ElementAttribute *attribute,
-                           const char              *localName,
-                           int                      namespaceId) const
+int MiniReader::lookupAttribute(ElementAttribute *attribute,
+                                const char       *localName,
+                                int               namespaceId)  const
 {
     const Node&  node = currentNode();
 
@@ -914,18 +895,16 @@ MiniReader::advanceToNextNode()
 
         if ((d_flags & FLG_ROOT_CLOSED) == 0) {  // Root element not closed
 
-            return setParseError("Root Element not found",
-                    0,
-                    0);                                               // RETURN
+            return setParseError("Root Element not found", 0, 0);     // RETURN
         }
     }
 
     return rc;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              PRIVATE methods
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 MiniReader::skipSpaces()
 {
@@ -985,7 +964,7 @@ MiniReader::scanForSymbol(char symbol)
 int
 MiniReader::scanForSymbolOrSpace(char symbol)
 {
-    char strSet[] = { symbol, '\n', '\r', '\t' , ' ', '\0' };
+    char strSet[] = { symbol, '\n', '\r', '\t', ' ', '\0' };
 
     while (1) {
         // find 'symbol' or space
@@ -1007,7 +986,7 @@ int
 MiniReader::scanForSymbolOrSpace(char symbol1, char symbol2)
 {
     char strSet [] = {
-        symbol1, symbol2,  '\n', '\r', '\t' , ' ', '\0'
+        symbol1, symbol2,  '\n', '\r', '\t', ' ', '\0'
     };
 
     while (1) {
@@ -1133,8 +1112,8 @@ MiniReader::scanNode()
 int
 MiniReader::scanText()
 {
-    // at this moment the current position is set to
-    // the character following  '>'
+    // At this moment the current position is set to the character following
+    // '>'.
     Node& node = currentNode();
 
     node.d_startPos = getCurrentPosition();
@@ -1147,15 +1126,15 @@ MiniReader::scanText()
 
         node.d_endPos = getCurrentPosition();
 
-        // consume separating character with replacing it by zero
-        // this will make node value as C-string
+        // Consume separating character with replacing it by zero.  This will
+        // make node value as C-string.
         getCharAndSet(0);
         d_state = ST_TAG_BEGIN;
         return 0;                                                     // RETURN
     }
 
     if (d_state == ST_INITIAL) {
-        return setParseError("No root element", 0 , 0);               // RETURN
+        return setParseError("No root element", 0, 0);                // RETURN
     }
 
     if (ch == 0) {
@@ -1170,8 +1149,8 @@ MiniReader::scanText()
 
         node.d_endPos = getCurrentPosition();
 
-        // consume separating character with replacing it by zero
-        // this will make node value as C-string
+        // Consume separating character with replacing it by zero.  This will
+        // make node value as C-string.
         getCharAndSet(0);
         node.d_type = e_NODE_TYPE_TEXT;
         d_state = ST_TAG_BEGIN;
@@ -1196,8 +1175,8 @@ MiniReader::scanText()
 int
 MiniReader::scanOpenTag()
 {
-    // at this moment the current position is set to
-    // the character following  '<'
+    // At this moment the current position is set to the character following
+    // '<'.
     Node& node = currentNode();
     node.d_startPos = getCurrentPosition()-1;
 
@@ -1226,9 +1205,8 @@ MiniReader::scanOpenTag()
     }
 
     if (bsl::isspace(static_cast<unsigned char>(ch))) {
-        return setParseError("Invalid tag character",
-                             d_scanPtr,
-                             d_scanPtr+1);                            // RETURN
+        return setParseError("Invalid tag character", d_scanPtr, d_scanPtr+1);
+                                                                      // RETURN
     }
 
     if ((d_flags & FLG_ROOT_CLOSED) != 0) {
@@ -1243,8 +1221,8 @@ MiniReader::scanOpenTag()
 int
 MiniReader::scanExclaimConstruct()
 {
-    // at this moment the current position is set to
-    // the character following "<!"
+    // At this moment the current position is set to the character following
+    // "<!".
     Node& node = currentNode();
 
     if (skipIfMatch("--")) {  // comment
@@ -1281,16 +1259,15 @@ MiniReader::scanExclaimConstruct()
         getChar();          // consume ']'
         getChar();          // consume '>'
 
-        // Note that in CDATA section we should not
-        // replace entities and char references.
+        // Note that in CDATA section we should not replace entities and char
+        // references.
 
         node.d_endPos = getCurrentPosition();
         d_state = ST_TAG_END;
         return 0;                                                     // RETURN
     }
 
-    // here is the place to add support of
-    // <!XXXX > (old DTD-style constructs)
+    // here is the place to add support of <!XXXX > (old DTD-style constructs)
 
     node.d_value = d_scanPtr;
 
@@ -1300,16 +1277,15 @@ MiniReader::scanExclaimConstruct()
         !skipIfMatch("ELEMENT")  &&
         !skipIfMatch("DOCTYPE")) {
 
-        return setParseError("Unrecognized construst" ,
+        return setParseError("Unrecognized construst",
                              node.d_value,
                              d_scanPtr);                              // RETURN
 
     }
 
     if (scanForSymbol('>') == 0) { // not found
-        return setParseError("No closing tag for " ,
-                             node.d_value,
-                             d_scanPtr);                              // RETURN
+        return setParseError("No closing tag for ", node.d_value, d_scanPtr);
+                                                                      // RETURN
     }
 
     getCharAndSet(0);   // consume '>'
@@ -1322,8 +1298,8 @@ MiniReader::scanExclaimConstruct()
 int
 MiniReader::scanProcessingInstruction()
 {
-    // at this moment the current position is set to
-    // the character following "<?"
+    // At this moment the current position is set to the character following
+    // "<?".
     Node& node = currentNode();
 
     node.d_type = e_NODE_TYPE_PROCESSING_INSTRUCTION;
@@ -1332,13 +1308,12 @@ MiniReader::scanProcessingInstruction()
     int ch = scanForSymbolOrSpace('?');
 
     if (ch == 0) {  // not found
-        return setParseError("Invalid PI name",
-                             node.d_qualifiedName,
-                             0);                                      // RETURN
+        return setParseError("Invalid PI name", node.d_qualifiedName, 0);
+                                                                      // RETURN
     }
 
-    // consume separating character with replacing it by zero
-    // this will make PI name as C-string
+    // Consume separating character with replacing it by zero.  This will make
+    // PI name as C-string.
     getCharAndSet(0);
 
     if (bsl::isspace(static_cast<unsigned char>(ch))) {
@@ -1349,29 +1324,27 @@ MiniReader::scanProcessingInstruction()
         node.d_value = d_scanPtr;
 
         ch = scanForSymbol('?');
-        if (ch != '?') {       // not found , must be end
-            return setParseError("Invalid PI value",
-                                  node.d_value,
-                                  0);                                 // RETURN
+        if (ch != '?') {       // not found, must be end
+            return setParseError("Invalid PI value", node.d_value, 0);
+                                                                      // RETURN
         }
 
-        // consume separating character with replacing it by zero
-        // this will make PI value as C-string
+        // Consume separating character with replacing it by zero.  This will
+        // make PI value as C-string.
         getCharAndSet(0);
     }
 
     ch = getChar();
     if (ch != '>') {            // Not closing tag
-        return setParseError("No closing tag for PI",
-                              node.d_qualifiedName,
-                              0);                                     // RETURN
+        return setParseError("No closing tag for PI", node.d_qualifiedName, 0);
+                                                                      // RETURN
     }
 
     if (bsl::strcmp("xml", node.d_qualifiedName) == 0) {
         node.d_type = e_NODE_TYPE_XML_DECLARATION;
         if (d_state != ST_INITIAL) {
-            return setParseError("The XML declaration is unexpected",
-                                 0, 0);                               // RETURN
+            return setParseError("The XML declaration is unexpected", 0, 0);
+                                                                      // RETURN
         }
     }
     node.d_endPos = getCurrentPosition();
@@ -1382,8 +1355,8 @@ MiniReader::scanProcessingInstruction()
 int
 MiniReader::scanEndElement()
 {
-    // at this moment the current position is set to
-    // the character following "</"
+    // At this moment the current position is set to the character following
+    // "</".
     Node& node = currentNode();
 
     node.d_type = e_NODE_TYPE_END_ELEMENT;
@@ -1396,8 +1369,8 @@ MiniReader::scanEndElement()
                              0);                                      // RETURN
     }
 
-    // consume separating character with replacing it by zero
-    // this will make qualified name as C-string
+    // Consume separating character with replacing it by zero.  This will make
+    // qualified name as C-string.
     getCharAndSet(0);
 
     if (bsl::isspace(static_cast<unsigned char>(ch))) {
@@ -1406,9 +1379,8 @@ MiniReader::scanEndElement()
     }
 
     if (ch != '>') {
-        return setParseError("No '>' for Element",
-                             node.d_qualifiedName,
-                             0);                                      // RETURN
+        return setParseError("No '>' for Element", node.d_qualifiedName, 0);
+                                                                      // RETURN
     }
 
     node.d_endPos = getCurrentPosition();
@@ -1435,8 +1407,8 @@ MiniReader::scanEndElement()
 int
 MiniReader::scanStartElement()
 {
-    // at this moment the current position is set to
-    // the character following "<"
+    // At this moment the current position is set to the character following
+    // "<".
     Node& node = currentNode();
 
     node.d_type = e_NODE_TYPE_ELEMENT;
@@ -1449,8 +1421,8 @@ MiniReader::scanStartElement()
                              0);                                      // RETURN
     }
 
-    // consume separating character with replacing it by zero
-    // this will make qualified name as C-string
+    // Consume separating character with replacing it by zero.  This will make
+    // qualified name as C-string.
     getCharAndSet(0);
 
     // Check for attributes.
@@ -1468,9 +1440,8 @@ MiniReader::scanStartElement()
     }
 
     if (ch != '>') {
-        return setParseError("No '>' for Element",
-                             node.d_qualifiedName,
-                             0);                                      // RETURN
+        return setParseError("No '>' for Element", node.d_qualifiedName, 0);
+                                                                      // RETURN
     }
 
     node.d_endPos = getCurrentPosition();
@@ -1493,10 +1464,10 @@ MiniReader::updateElementInfo()
         node.d_localName = colon + 1;
         *colon = 0;   // temporary set terminating zero
         node.d_namespaceId = d_prefixes->lookupNamespaceId(
-                                          node.d_qualifiedName);
+                                                         node.d_qualifiedName);
 
         node.d_prefix = d_prefixes->lookupNamespacePrefix(
-                                            node.d_qualifiedName);
+                                                         node.d_qualifiedName);
         *colon =':';  // restore
         if (node.d_namespaceId == -1) {
 
@@ -1505,16 +1476,16 @@ MiniReader::updateElementInfo()
             msg.append(node.d_qualifiedName);
             msg.append("'");
 
-            //******************************************
-            // temporary fix for BAS<->SOAP converters.
-            // If there is no user provided PrefixStack,
-            // assume we do not process namespaces,
-            // ignore undefined namespaces and consider
-            // this case as warning rather then error.
-            //******************************************
+            // ******************************************
+            //  temporary fix for BAS<->SOAP converters.
+            //  If there is no user provided PrefixStack,
+            //  assume we do not process namespaces,
+            //  ignore undefined namespaces and consider
+            //  this case as warning rather then error.
+            // ******************************************
             if (d_prefixes != &d_ownPrefixes) {
                 // user provided PrefixStack
-                return setError(ErrorInfo::e_ERROR, msg);        // RETURN
+                return setError(ErrorInfo::e_ERROR, msg);             // RETURN
             }
 
            // issue warning and continue
@@ -1549,18 +1520,18 @@ MiniReader::scanAttributes()
         d_attrNamePtr = d_scanPtr;
         ch = scanForSymbolOrSpace('=', '>');
         if (ch == 0) {
-            return setParseError("Invalid Attribute Name",
-                                 d_attrNamePtr,
-                                 0);                                  // RETURN
+            return setParseError("Invalid Attribute Name", d_attrNamePtr, 0);
+                                                                      // RETURN
         }
 
         if (! bsl::isspace(static_cast<unsigned char>(separator))) {
             return setParseError("No space before attribute ",
-                                 d_attrNamePtr, d_scanPtr);           // RETURN
+                                 d_attrNamePtr,
+                                 d_scanPtr);                          // RETURN
         }
 
-        // consume separating character with replacing it by zero
-        // this will make attribute qualified name as C-string
+        // consume separating character with replacing it by zero this will
+        // make attribute qualified name as C-string
         getCharAndSet(0);
 
         // Space after attribute name.
@@ -1584,19 +1555,20 @@ MiniReader::scanAttributes()
           case '\'':
             break;
           default:
-            return setParseError(
-                "Attribute value must start with ' or \"",
-                0, 0);                                                // RETURN
+            return setParseError("Attribute value must start with ' or \"",
+                                 0,
+                                 0);                                  // RETURN
         }
 
         d_attrValPtr = d_scanPtr;
         int ch2 = scanForSymbol(static_cast<char>(ch));
         if (ch2 != ch) {       // not the same delimiter
             return setParseError("Attribute value must end with ' or \"",
-                                 0, 0);                               // RETURN
+                                 0,
+                                 0);                                  // RETURN
         }
-        // consume terminating character with replacing it by zero
-        // this will make attribute qualified name as C-string
+        // Consume terminating character with replacing it by zero.  This will
+        // make attribute qualified name as C-string.
         getCharAndSet(0);
 
         rc = addAttribute();
@@ -1652,16 +1624,16 @@ MiniReader::updateAttributes()
                 msg.append("'");
                 setError(ErrorInfo::e_WARNING, msg);
 
-                //******************************************
-                // temporary fix for BAS<->SOAP converters.
-                // If there is no user provided PrefixStack,
-                // assume we do not process namespaces,
-                // ignore undefined namespaces and consider
-                // this case as warning rather then error.
-                //******************************************
+                // ******************************************
+                //  temporary fix for BAS<->SOAP converters.
+                //  If there is no user provided PrefixStack,
+                //  assume we do not process namespaces,
+                //  ignore undefined namespaces and consider
+                //  this case as warning rather then error.
+                // ******************************************
                 if (d_prefixes != &d_ownPrefixes) {
                     // user provided PrefixStack
-                    return setError(ErrorInfo::e_ERROR, msg);    // RETURN
+                    return setError(ErrorInfo::e_ERROR, msg);         // RETURN
                 }
 
                 // issue warning and continue
@@ -1790,13 +1762,13 @@ MiniReader::rebasePointers(const char *newBase, size_t newLength)
         namespaceUri = rebasePointer(namespaceUri, newBase);
 
         attr.reset(d_prefixes,
-                qName,
-                value,
-                prefix,
-                localName,
-                namespaceId,
-                namespaceUri,
-                flags);
+                   qName,
+                   value,
+                   prefix,
+                   localName,
+                   namespaceId,
+                   namespaceUri,
+                   flags);
     }
 
     // adjust members

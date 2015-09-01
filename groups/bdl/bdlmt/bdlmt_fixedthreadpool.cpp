@@ -51,9 +51,9 @@ void initBlockSet(sigset_t *blockSet)
 namespace BloombergLP {
 
 namespace bdlmt {
-                         // --------------------------
-                         // class FixedThreadPool
-                         // --------------------------
+                           // ---------------------
+                           // class FixedThreadPool
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 void FixedThreadPool::processJobs()
@@ -190,11 +190,11 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bdlqq::ThreadAttributes&  threadAttributes,
-        int                     numThreads,
-        int                     maxQueueSize,
-        bslma::Allocator       *basicAllocator)
-: d_queue(maxQueueSize, basicAllocator)
+                             const bdlqq::ThreadAttributes&  threadAttributes,
+                             int                             numThreads,
+                             int                             maxNumPendingJobs,
+                             bslma::Allocator               *basicAllocator)
+: d_queue(maxNumPendingJobs, basicAllocator)
 , d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)
@@ -212,9 +212,9 @@ FixedThreadPool::FixedThreadPool(
 }
 
 FixedThreadPool::FixedThreadPool(int               numThreads,
-                                           int               maxQueueSize,
-                                           bslma::Allocator *basicAllocator)
-: d_queue(maxQueueSize, basicAllocator)
+                                 int               maxNumPendingJobs,
+                                 bslma::Allocator *basicAllocator)
+: d_queue(maxNumPendingJobs, basicAllocator)
 , d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)

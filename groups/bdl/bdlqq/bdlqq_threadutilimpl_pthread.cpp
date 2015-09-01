@@ -189,9 +189,9 @@ class MachClockGuard {
 
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
-            // --------------------------------------------
-            // class ThreadUtilImpl<Platform::PosixThreads>
-            // --------------------------------------------
+                // --------------------------------------------
+                // class ThreadUtilImpl<Platform::PosixThreads>
+                // --------------------------------------------
 
 // CLASS DATA
 const pthread_t

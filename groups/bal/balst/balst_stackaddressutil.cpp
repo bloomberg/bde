@@ -58,9 +58,9 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #endif
 
-//=============================================================================
-//                  Debugging trace macro: 'TRACE_PRINTF'
-//=============================================================================
+// ============================================================================
+//                   Debugging trace macro: 'TRACE_PRINTF'
+// ============================================================================
 
 #undef  DEVELOPMENT_TRACE_FLAG
 #define DEVELOPMENT_TRACE_FLAG 0

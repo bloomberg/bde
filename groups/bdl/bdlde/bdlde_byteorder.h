@@ -84,9 +84,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                         // ======================
-                         // struct ByteOrder
-                         // ======================
+                              // ================
+                              // struct ByteOrder
+                              // ================
 
 struct ByteOrder {
     // This 'struct' provides a namespace for enumerating the set of byte
@@ -115,11 +115,10 @@ struct ByteOrder {
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(
-                            bsl::ostream& stream,
-                            Enum          value,
-                            int           level          = 0,
-                            int           spacesPerLevel = 4);
+    static bsl::ostream& print(bsl::ostream& stream,
+                               Enum          value,
+                               int           level          = 0,
+                               int           spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -165,12 +164,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, ByteOrder::Enum value);
     //..
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // ----------------------
-                            // struct bdlde::ByteOrder
-                            // ----------------------
+                          // -----------------------
+                          // struct bdlde::ByteOrder
+                          // -----------------------
 
 // FREE OPERATORS
 inline

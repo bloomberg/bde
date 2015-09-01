@@ -130,9 +130,9 @@ btls5::NetworkConnector::Connector::Connector(
     BSLS_ASSERT(basicAllocator);
 }
 
-                           // =======================
-                           // class ConnectionAttempt
-                           // =======================
+                          // =======================
+                          // class ConnectionAttempt
+                          // =======================
 
 class NetworkConnector::ConnectionAttempt {
     // This class describes the state of a SOCKS connection attempt.  The
@@ -773,9 +773,9 @@ static void timeoutAttempt(
 
 }  // close unnamed namespace
 
-                           // -----------------------
-                           // class ConnectionAttempt
-                           // -----------------------
+                          // -----------------------
+                          // class ConnectionAttempt
+                          // -----------------------
 
 // CREATORS
 btls5::NetworkConnector::ConnectionAttempt::ConnectionAttempt(
@@ -804,9 +804,9 @@ btls5::NetworkConnector::ConnectionAttempt::ConnectionAttempt(
     BSLS_ASSERT(basicAllocator);
 }
 
-                        // ----------------------
-                        // class NetworkConnector
-                        // ----------------------
+                           // ----------------------
+                           // class NetworkConnector
+                           // ----------------------
 
 // CREATORS
 NetworkConnector::NetworkConnector(

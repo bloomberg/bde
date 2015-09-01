@@ -592,7 +592,8 @@ BSLS_IDENT("$Id: $")
                              BloombergLP::ball::Log::setCategory(CATEGORY); \
     BloombergLP::ball::CategoryHolder BAEL_LOG_CATEGORYHOLDER = {           \
         BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY,           \
-        BAEL_LOG_DYNAMIC_CATEGORY, 0                                       \
+        const_cast<BloombergLP::ball::Category *>(BAEL_LOG_DYNAMIC_CATEGORY), \
+        0 \
     };
 
                        // =======================

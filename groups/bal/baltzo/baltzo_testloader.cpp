@@ -21,9 +21,9 @@ BSLS_IDENT_RCSID(baltzo_testloader_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                       // ----------------
-                       // class TestLoader
-                       // ----------------
+                              // ----------------
+                              // class TestLoader
+                              // ----------------
 
 // CREATORS
 baltzo::TestLoader::~TestLoader()

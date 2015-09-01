@@ -14,9 +14,9 @@ BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-           // ---------------------------------------------
-           // class SemaphoreImpl<Platform::Win32Semaphore>
-           // ---------------------------------------------
+               // ---------------------------------------------
+               // class SemaphoreImpl<Platform::Win32Semaphore>
+               // ---------------------------------------------
 
 // MANIPULATORS
 void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post(int number)

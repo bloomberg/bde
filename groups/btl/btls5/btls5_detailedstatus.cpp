@@ -12,9 +12,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                        // --------------------
-                        // class DetailedStatus
-                        // --------------------
+                            // --------------------
+                            // class DetailedStatus
+                            // --------------------
 
 // ACCESSORS
 

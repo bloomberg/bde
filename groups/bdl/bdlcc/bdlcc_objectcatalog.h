@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 //
 //  class RequestMsg
 //      // Class encapsulating the request message.  It encapsulates the
-//      // actual query and the handle associated with the callback for
-//      // the query.
+//      // actual query and the handle associated with the callback for the
+//      // query.
 //  {
 //      Query d_query;
 //      int   d_handle;
@@ -92,15 +92,15 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  class ResponseMsg
-//      // Class encapsulating the response message.  It encapsulates the
-//      // query result and the handle associated with the callback for
-//      // the query.
+//      // Class encapsulating the response message.  It encapsulates the query
+//      // result and the handle associated with the callback for the query.
 //  {
 //      int d_handle;
 //
 //    public:
 //      void setHandle(int handle)
-//          // Set the handle contained in this response message.
+//          // Set the "handle" contained in this response message to the
+//          // specified 'handle'.
 //      {
 //          d_handle = handle;
 //      }
@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-//      // Get the response from the specified 'peer' into '*msg'.
+//      // Get the response from the specified 'peer' into the specified 'msg'.
 //  {
 //      serverMutex.lock();
 //      while (peer->empty()) {
@@ -141,11 +141,11 @@ BSLS_IDENT("$Id: $")
 //
 //  void getQueryAndCallback(Query                                 *query,
 //                           bdlf::Function<void (*)(QueryResult)> *callBack)
-//      // Set the '*query' and '*callBack' to the next query and its
-//      // associated callback (the functor to be called when the response
-//      // to this query comes in).
+//      // Set the specified 'query' and 'callBack' to the next 'Query' and its
+//      // associated functor (the functor to be called when the response to
+//      // this 'Query' comes in).
 //  {
-//      (void *)query;
+//      (void)query;
 //      *callBack = &queryCallBack;
 //  }
 //..
@@ -154,11 +154,11 @@ BSLS_IDENT("$Id: $")
 //  RemoteAddress serverAddress;  // address of remote server
 //
 //  bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
-//      // Catalog of query callbacks, used by the client internally to
-//      // keep track of callback functions across multiple queries.  The
-//      // invariant is that each element corresponds to a pending query
-//      // (i.e., the callback function has not yet been or is in the
-//      // process of being invoked).
+//      // Catalog of query callbacks, used by the client internally to keep
+//      // track of callback functions across multiple queries.  The invariant
+//      // is that each element corresponds to a pending query (i.e., the
+//      // callback function has not yet been or is in the process of being
+//      // invoked).
 //..
 // Now we define functions that will be used in the thread entry functions:
 //..
@@ -186,25 +186,25 @@ BSLS_IDENT("$Id: $")
 //  {
 //      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
 //      while (queriesToBeProcessed--) {
-//          // The following call blocks until some response is available
-//          // in the form of a 'ResponseMsg'.
+//          // The following call blocks until some response is available in
+//          // the form of a 'ResponseMsg'.
 //
 //          ResponseMsg msg;
 //          recvMessage(&msg, serverAddress);
 //          int handle = msg.handle();
 //          QueryResult result = msg.queryResult();
 //
-//          // Process query 'result' by applying registered 'callBack'
-//          // to it.  The 'callBack' function is retrieved from the
-//          // 'catalog' using the given 'handle'.
+//          // Process query 'result' by applying registered 'callBack' to it.
+//          // The 'callBack' function is retrieved from the 'catalog' using
+//          // the given 'handle'.
 //
 //          bdlf::Function<void (*)(QueryResult)> callBack;
 //          assert(0 == catalog.find(handle, &callBack));
 //          callBack(result);
 //
 //          // Finally, remove the no-longer-needed 'callBack' from the
-//          // 'catalog'.  Assert so that 'catalog' may not grow unbounded
-//          // if remove fails.
+//          // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
+//          // remove fails.
 //
 //          assert(0 == catalog.remove(handle));
 //      }
@@ -318,9 +318,9 @@ namespace bdlcc {template <class TYPE> class ObjectCatalog_AutoCleanup;
 template <class TYPE> class ObjectCatalogIter;
 template <class TYPE> class ObjectCatalog;
 
-                  // =====================================
-                  // local class ObjectCatalog_AutoCleanup
-                  // =====================================
+                   // =====================================
+                   // local class ObjectCatalog_AutoCleanup
+                   // =====================================
 
 template <class TYPE>
 class ObjectCatalog_AutoCleanup {
@@ -365,9 +365,9 @@ class ObjectCatalog_AutoCleanup {
         // object, if any.
 };
 
-                           // ===================
-                           // class ObjectCatalog
-                           // ===================
+                            // ===================
+                            // class ObjectCatalog
+                            // ===================
 
 template <class TYPE>
 class ObjectCatalog {
@@ -479,9 +479,9 @@ class ObjectCatalog {
         // introduced for testing purposes only.
 };
 
-                         // =======================
-                         // class ObjectCatalogIter
-                         // =======================
+                          // =======================
+                          // class ObjectCatalogIter
+                          // =======================
 
 template <class TYPE>
 class ObjectCatalogIter {
@@ -540,13 +540,13 @@ class ObjectCatalogIter {
         // is *valid*.
 };
 
-//-----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                            INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
-                  // -------------------------------------
-                  // local class ObjectCatalog_AutoCleanup
-                  // -------------------------------------
+                   // -------------------------------------
+                   // local class ObjectCatalog_AutoCleanup
+                   // -------------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -597,9 +597,9 @@ void ObjectCatalog_AutoCleanup<TYPE>::release()
     d_node_p = 0;
 }
 
-                           // -------------------
-                           // class ObjectCatalog
-                           // -------------------
+                            // -------------------
+                            // class ObjectCatalog
+                            // -------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

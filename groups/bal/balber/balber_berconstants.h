@@ -45,9 +45,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace balber {
 
-                        // ===================
-                        // struct BerConstants
-                        // ===================
+                            // ===================
+                            // struct BerConstants
+                            // ===================
 
 struct BerConstants {
     // This 'struct' contains enumerations of the constants used by the BER

@@ -16,11 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides utility functions for decoding data in
-// the JSON format into a 'bdeat' Simple type.  The primary method is
-// 'getValue', which decodes into a specified object and is overloaded for all
-// 'bdeat' Simple types.  The following table describes the format in which
-// various Simple types are decoded.
+//@DESCRIPTION: This component provides a 'struct' of utility functions,
+// 'baljsn::ParserUtil', for decoding data in the JSON format into a 'bdeat'
+// Simple type.  The primary method is 'getValue', which decodes into a
+// specified object and is overloaded for all 'bdeat' Simple types.  The
+// following table describes the format in which various Simple types are
+// decoded.
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----
@@ -48,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Decoding into a Simple 'struct' from JSON data
 ///---------------------------------------------------------
-// Suppose we want to deserialize some JSON data into an object.
+// Suppose we want to de-serialize some JSON data into an object.
 //
 // First, we define a struct, 'Employee', to contain the data:
 //..
@@ -115,46 +116,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Date; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class Time; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class DateTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class TimeTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close namespace bdet
-
 namespace baljsn {
-                            // ========================
-                            // struct ParserUtil
-                            // ========================
+
+                             // =================
+                             // struct ParserUtil
+                             // =================
 
 struct ParserUtil {
     //This class provides utility functions for decoding data in the JSON
@@ -225,17 +191,16 @@ struct ParserUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ------------------------
-                            // struct ParserUtil
-                            // ------------------------
+                             // -----------------
+                             // struct ParserUtil
+                             // -----------------
 
 // CLASS METHODS
 template <class TYPE>
-int ParserUtil::getUnsignedIntegralValue(TYPE              *value,
-                                                bslstl::StringRef  data)
+int ParserUtil::getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data)
 {
     if (0 == data.length()) {
         return -1;                                                    // RETURN
@@ -296,8 +261,8 @@ int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 
 template <class TYPE>
 int ParserUtil::getDateAndTimeValue(TYPE              *value,
-                                           bslstl::StringRef  data,
-                                           int                maxLength)
+                                    bslstl::StringRef  data,
+                                    int                maxLength)
 {
     enum { k_STRING_LENGTH_WITH_QUOTES = 2 };
 
@@ -364,15 +329,13 @@ int ParserUtil::getValue(unsigned int *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bsls::Types::Int64 *value,
-                                bslstl::StringRef   data)
+int ParserUtil::getValue(bsls::Types::Int64 *value, bslstl::StringRef data)
 {
     return getIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(bsls::Types::Uint64 *value,
-                                bslstl::StringRef    data)
+int ParserUtil::getValue(bsls::Types::Uint64 *value, bslstl::StringRef data)
 {
     return getUnsignedIntegralValue(value, data);
 }

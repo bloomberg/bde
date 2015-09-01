@@ -123,9 +123,9 @@ struct Socks5ConnectResponse3 {
 
 }  // close unnamed namespace
 
-                             // ====================
-                             // struct Socks5Session
-                             // ====================
+                            // ====================
+                            // struct Socks5Session
+                            // ====================
 
 struct Socks5Session : public btlmt::Session {
     // A concrete implementation of 'btlmt::Session'.  A 'Socks5Session' can
@@ -265,9 +265,9 @@ struct Socks5Session : public btlmt::Session {
         // Return the communication channel used by this session.
 };
 
-                    // ================================
-                    // class TestServer::SessionFactory
-                    // ================================
+                      // ================================
+                      // class TestServer::SessionFactory
+                      // ================================
 
 class TestServer::SessionFactory : public btlmt::SessionFactory {
     // This class is a concrete implementation of the 'btlmt::SessionFactory'
@@ -346,9 +346,9 @@ class TestServer::SessionFactory : public btlmt::SessionFactory {
 
 };
 
-                        // --------------------
-                        // struct Socks5Session
-                        // --------------------
+                            // --------------------
+                            // struct Socks5Session
+                            // --------------------
 
 // PRIVATE MANIPULATORS
 template<class MSG>
@@ -822,9 +822,9 @@ btlmt::AsyncChannel *Socks5Session::channel() const
     return d_channel_p;
 }
 
-                    // ---------------------------------------
-                    // class btls5::TestServer::SessionFactory
-                    // ---------------------------------------
+                  // ---------------------------------------
+                  // class btls5::TestServer::SessionFactory
+                  // ---------------------------------------
 
 // PRIVATE MANIPULATORS
 void btls5::TestServer::SessionFactory::poolStateCb(int   reason,
@@ -1020,9 +1020,9 @@ btls5::TestServer::SessionFactory::deallocate(btlmt::Session *session)
     d_allocator_p->deleteObjectRaw(session);
 }
 
-                         // ---------------------
-                         // struct TestServerArgs
-                         // ---------------------
+                           // ---------------------
+                           // struct TestServerArgs
+                           // ---------------------
 
 // CREATORS
 TestServerArgs::TestServerArgs(bslma::Allocator *basicAllocator)
@@ -1038,9 +1038,9 @@ TestServerArgs::TestServerArgs(bslma::Allocator *basicAllocator)
     d_expectedPort = 0;
 }
 
-                        // ----------------
-                        // class TestServer
-                        // ----------------
+                              // ----------------
+                              // class TestServer
+                              // ----------------
 
 // CREATORS
 TestServer::TestServer(btlso::Endpoint  *proxy,

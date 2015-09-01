@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerEncoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 balxml::Encoder::MemOutStream::~MemOutStream()
 {
@@ -28,9 +28,8 @@ namespace balxml {                       // --------------------
                        // class Encoder
                        // --------------------
 
-Encoder::Encoder(
-                   const EncoderOptions *options,
-                   bslma::Allocator            *basicAllocator)
+Encoder::Encoder(const EncoderOptions *options,
+                 bslma::Allocator     *basicAllocator)
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
@@ -40,11 +39,10 @@ Encoder::Encoder(
 {
 }
 
-Encoder::Encoder(
-                   const EncoderOptions *options,
-                   bsl::ostream                *errorStream,
-                   bsl::ostream                *warningStream,
-                   bslma::Allocator            *basicAllocator)
+Encoder::Encoder(const EncoderOptions *options,
+                 bsl::ostream         *errorStream,
+                 bsl::ostream         *warningStream,
+                 bslma::Allocator     *basicAllocator)
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
@@ -62,10 +60,10 @@ Encoder::~Encoder()
 }
 
 ErrorInfo::Severity  Encoder::logError(
-                         const char             *text,
-                         const bslstl::StringRef&  tag,
-                         int                     formattingMode,
-                         int                     index)
+                                      const char               *text,
+                                      const bslstl::StringRef&  tag,
+                                      int                       formattingMode,
+                                      int                       index)
 {
     if ((int) d_severity < (int) ErrorInfo::e_ERROR) {
         d_severity = ErrorInfo::e_ERROR;
@@ -86,9 +84,9 @@ ErrorInfo::Severity  Encoder::logError(
     return d_severity;
 }
 
-                       // ----------------------------
-                       // class Encoder_Context
-                       // ----------------------------
+                           // ---------------------
+                           // class Encoder_Context
+                           // ---------------------
 
 Encoder_Context::Encoder_Context(
                                 Formatter *formatter,
@@ -98,15 +96,14 @@ Encoder_Context::Encoder_Context(
 {
 }
 
-                       // ------------------------------
-                       // class Encoder_EncodeObject
-                       // ------------------------------
+                         // --------------------------
+                         // class Encoder_EncodeObject
+                         // --------------------------
 
-int Encoder_EncodeObject::executeImp(
-                                      const bsl::vector<char>&  object,
-                                      const bslstl::StringRef&    tag,
-                                      int                       formattingMode,
-                                      bdlat_TypeCategory::Array)
+int Encoder_EncodeObject::executeImp(const bsl::vector<char>&  object,
+                                     const bslstl::StringRef&  tag,
+                                     int                       formattingMode,
+                                     bdlat_TypeCategory::Array)
 {
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return executeArrayListImp(object, tag);                      // RETURN

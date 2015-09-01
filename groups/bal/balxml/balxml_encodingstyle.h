@@ -52,9 +52,9 @@ namespace BloombergLP {
 
 namespace balxml {
 
-                            // ==========================
+                            // ===================
                             // class EncodingStyle
-                            // ==========================
+                            // ===================
 
 struct EncodingStyle {
     // Enumeration of encoding style (COMPACT or PRETTY).
@@ -133,13 +133,13 @@ namespace balxml {
 
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 
-                            // --------------------------
+                            // -------------------
                             // class EncodingStyle
-                            // --------------------------
+                            // -------------------
 
 // CLASS METHODS
 inline

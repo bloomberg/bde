@@ -115,9 +115,9 @@ void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) {                                                    \
         if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }   \
 
@@ -133,16 +133,16 @@ void aSsErT(int c, const char *s, int i) {
         if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n",                \
                       #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                     // current Line number
 #define T_ printf("\t");                // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 class ConvertibleFromToInt {
     // Object that is convertible from and to 'int'.  Used to make sure that
@@ -235,9 +235,9 @@ typedef bdlf::PlaceHolder<12> PH12;
 typedef bdlf::PlaceHolder<13> PH13;
 typedef bdlf::PlaceHolder<14> PH14;
 
-//=============================================================================
-//               MACROS EXPORTING INITIALIZATION OUT OF MAIN
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                MACROS EXPORTING INITIALIZATION OUT OF MAIN
+// ----------------------------------------------------------------------------
 #define DECLARE_MAIN_VARIABLES                                                \
     /* The following machinery is for use in conjunction with the             \
     // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.  \
@@ -313,9 +313,9 @@ typedef bdlf::PlaceHolder<14> PH14;
     const AllocTestArg13 V13(712),  NV13(-712);                               \
     const AllocTestArg14 V14(1414), NV14(-1414);
 
-//=============================================================================
-//                              TEST CASES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASES
+// ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
@@ -3068,9 +3068,9 @@ DEFINE_TEST_CASE(1) {
         }
       }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

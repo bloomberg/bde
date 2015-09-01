@@ -14,9 +14,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                       // ------------------------
-                       // class NetworkDescription
-                       // ------------------------
+                          // ------------------------
+                          // class NetworkDescription
+                          // ------------------------
 
 // MANIPULATORS
 bsl::size_t NetworkDescription::addProxy(bsl::size_t            level,

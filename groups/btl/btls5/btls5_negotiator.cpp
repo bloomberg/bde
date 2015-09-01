@@ -98,9 +98,9 @@ struct ConnectRspBase {
 
 }  // close unnamed namespace
 
-                     // ============================
-                     // class Negotiator_Negotiation
-                     // ============================
+                        // ============================
+                        // class Negotiator_Negotiation
+                        // ============================
 
 class Negotiator_Negotiation {
     // This mechanism class describes the state of a SOCKS connection
@@ -163,9 +163,9 @@ class Negotiator_Negotiation {
         // Destroy this object.
 };
 
-                     // -----------------------------
-                     // struct Negotiator_Negotiation
-                     // -----------------------------
+                       // -----------------------------
+                       // struct Negotiator_Negotiation
+                       // -----------------------------
 
 // CREATORS
 Negotiator_Negotiation::Negotiator_Negotiation(
@@ -616,9 +616,9 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
     return 0;
 }
 
-                           // ----------------
-                           // class Negotiator
-                           // ----------------
+                              // ----------------
+                              // class Negotiator
+                              // ----------------
 
 // CREATORS
 Negotiator::Negotiator(btlmt::TcpTimerEventManager *eventManager,

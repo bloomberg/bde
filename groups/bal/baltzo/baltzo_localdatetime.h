@@ -135,9 +135,9 @@ BSLS_IDENT("$Id: $ $CSID: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                        // ===================
-                        // class LocalDatetime
-                        // ===================
+                            // ===================
+                            // class LocalDatetime
+                            // ===================
 
 class LocalDatetime {
     // This unconstrained (value-semantic) attribute class characterizes a date

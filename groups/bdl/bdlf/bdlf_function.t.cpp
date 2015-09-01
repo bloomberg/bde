@@ -112,9 +112,9 @@ using namespace bsl;  // automatically added by script
 // [18] BINDING TO A FUNCTION OBJECT WITH PTR SEMANTICS
 // [19] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 namespace {
@@ -132,9 +132,9 @@ void aSsErT(int c, const char *s, int i)
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -166,21 +166,21 @@ void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // current Line number
 
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef int (*Proto)(int);  // unless specified, default prototype
 
 typedef bdlf::Function<Proto> Obj;
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR VALUE-SEMANTICS TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            GLOBAL HELPER FUNCTIONS FOR VALUE-SEMANTICS TESTING
+// ----------------------------------------------------------------------------
 
-                          // ===================
-                          // class Function_Rep2
-                          // ===================
+                            // ===================
+                            // class Function_Rep2
+                            // ===================
 
 struct Function_Rep2 {
     // This 'struct' *MUST* have the same layout as the component-private
@@ -192,9 +192,9 @@ struct Function_Rep2 {
     bslma::Allocator             *d_allocator_p;
 };
 
-                           // ================
-                           // struct Function2
-                           // ================
+                              // ================
+                              // struct Function2
+                              // ================
 
 struct Function2 {
     // This 'struct' *MUST* have the same layout as the 'bdlf::Function' class
@@ -345,9 +345,9 @@ bool operator!=(const bdlf::Function<PROTOTYPE>& lhs,
     return !(lhs == rhs);
 }
 #endif
-//=============================================================================
-//                     GENERATED TYPES AND VALUES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  GENERATED TYPES AND VALUES FOR TESTING
+// ----------------------------------------------------------------------------
 
                                // =============
                                // return values
@@ -716,9 +716,9 @@ PointerSemanticWrapper<FUNC> pointerWrapper(const FUNC& func)
     return PointerSemanticWrapper<FUNC>(func);
 }
 
-                        // =======================
-                        // class RawPointerWrapper
-                        // =======================
+                          // =======================
+                          // class RawPointerWrapper
+                          // =======================
 
 template <class FUNC>
 class RawPointerWrapper {
@@ -766,9 +766,9 @@ RawPointerWrapper<FUNC> rawPointerWrapper(FUNC *funcPtr)
     return RawPointerWrapper<FUNC>(funcPtr);
 }
 
-                        // =========================
-                        // class RawBCPointerWrapper
-                        // =========================
+                         // =========================
+                         // class RawBCPointerWrapper
+                         // =========================
 
 template <class FUNC>
 struct RawBCPointerWrapper : public RawPointerWrapper<FUNC> {
@@ -1049,9 +1049,9 @@ void stretchRemoveAll(bdlf::Function<PROTOTYPE> *object, const char *perturb)
     object->clear();
 }
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void add5(int* value)
 {
@@ -1486,9 +1486,9 @@ struct MyBCFunctionObject : public MyFunctionObject {
                                  bslalg::TypeTraitBitwiseCopyable);
 };
 
-                           // ==========================
-                           // class MySizeFunctionObject
-                           // ==========================
+                         // ==========================
+                         // class MySizeFunctionObject
+                         // ==========================
 
 template <int SIZE>
 struct MySizeFunctionObject {
@@ -1507,9 +1507,9 @@ extern "C" int externCIdentityFunction(int value)
     return value;
 }
 
-//=============================================================================
-//                 USAGE EXAMPLE CLASSES AND FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    USAGE EXAMPLE CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace TEST_CASE_BASSVC {
 
 struct SharedPtr {};
@@ -1562,9 +1562,9 @@ struct InProcessServiceManager {
 };
 
 }  // close namespace TEST_CASE_BASSVC
-//=============================================================================
-//                 USAGE EXAMPLE CLASSES AND FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    USAGE EXAMPLE CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace USAGE_EXAMPLE_NAMESPACE {
 
 ///Declaring a Functor
@@ -2024,9 +2024,9 @@ struct FunctorNop {
     void operator()() {}
 };
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

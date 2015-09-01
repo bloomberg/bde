@@ -14,9 +14,9 @@ BSLS_IDENT_RCSID(bdlqq_once_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                                // ----------
-                                // class Once
-                                // ----------
+                                 // ----------
+                                 // class Once
+                                 // ----------
 
 bool bdlqq::Once::enter(Once::OnceLock *onceLock)
 {
@@ -59,9 +59,9 @@ void bdlqq::Once::cancel(Once::OnceLock *onceLock)
     onceLock->unlock();
 }
 
-                            // ---------------
-                            // class OnceGuard
-                            // ---------------
+                              // ---------------
+                              // class OnceGuard
+                              // ---------------
 
 bdlqq::OnceGuard::~OnceGuard()
 {

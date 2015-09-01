@@ -134,9 +134,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                        // ==================================
+                        // ============================
                         // class DbghelpDllImpl_Windows
-                        // ==================================
+                        // ============================
 
 class DbghelpDllImpl_Windows {
     // This class provides a namespace for static methods (defined only on
@@ -265,7 +265,7 @@ class DbghelpDllImpl_Windows {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                         // ----------------------------

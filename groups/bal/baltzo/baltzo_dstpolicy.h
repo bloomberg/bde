@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ================
-                            // struct DstPolicy
-                            // ================
+                              // ================
+                              // struct DstPolicy
+                              // ================
 
 struct DstPolicy {
     // This 'struct' provides a namespace for enumerating the set of policies
@@ -170,9 +170,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, DstPolicy::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct DstPolicy
-                            // ----------------
+                              // ----------------
+                              // struct DstPolicy
+                              // ----------------
 
 // FREE OPERATORS
 inline

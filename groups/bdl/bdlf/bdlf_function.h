@@ -421,9 +421,9 @@ template <int, class RET, class ARGS> struct Function_Invoker;
 struct FunctionUtil;
 struct Function_RepUtil;
 
-                        // =======================
-                        // class Function_Rep
-                        // =======================
+                             // ==================
+                             // class Function_Rep
+                             // ==================
 
 class Function_Rep {
     // This is a component-private class.  Do not use.  This class provides a
@@ -676,9 +676,9 @@ class Function_Rep {
         // otherwise.
 };
 
-                      // ========================
-                      // struct FunctionUtil
-                      // ========================
+                            // ===================
+                            // struct FunctionUtil
+                            // ===================
 
 struct FunctionUtil {
     // This 'struct' provides a namespace for various constants and utilities
@@ -736,9 +736,9 @@ struct FunctionUtil {
     };
 };
 
-                 // ==========================================
-                 // struct Function_UnspecifiedBoolHelper
-                 // ==========================================
+                   // =====================================
+                   // struct Function_UnspecifiedBoolHelper
+                   // =====================================
 
 struct Function_UnspecifiedBoolHelper {
     // This 'struct' provides a member, 'd_member', whose pointer-to-member is
@@ -760,9 +760,9 @@ typedef int Function_UnspecifiedBoolHelper::*
     // which would also enable undesirable implicit comparisons of function
     // objects to 'int' and less-than comparisons).
 
-                        // ===================
-                        // class Function
-                        // ===================
+                               // ==============
+                               // class Function
+                               // ==============
 
 template <class PROTOTYPE>
 class Function {
@@ -1151,9 +1151,9 @@ void swap(bdlf::Function<PROTOTYPE>& a, bdlf::Function<PROTOTYPE>& b);
 
 #ifdef BSLS_PLATFORM_CMP_IBM
 
-                        // ==============================
-                        // struct bdlf::Function_Invocable
-                        // ==============================
+                      // ===============================
+                      // struct bdlf::Function_Invocable
+                      // ===============================
 
 
 namespace bdlf {template <class FUNC, int INVOCABLE_TYPE>
@@ -1219,9 +1219,9 @@ struct Function_Invocable<FUNC,
 #endif
 
 namespace bdlf {
-                        // ============================
-                        // struct Function_RepUtil
-                        // ============================
+                          // =======================
+                          // struct Function_RepUtil
+                          // =======================
 
 struct Function_RepUtil {
     // This implementation-private 'struct' provides a namespace for functions
@@ -1302,9 +1302,9 @@ struct Function_RepUtil {
         // 'const FUNC *' or 'Function_Rep *' according to the 'opCode'.
 };
 
-                        // =============================
-                        // struct Function_TypeList
-                        // =============================
+                          // ========================
+                          // struct Function_TypeList
+                          // ========================
 
 template <class PROTOTYPE>
 struct Function_TypeList {
@@ -1359,9 +1359,9 @@ struct Function_TypeList {
 };
 }  // close package namespace
 
-                        // ============================
-                        // struct bdlf::Function_Invoker
-                        // ============================
+                       // =============================
+                       // struct bdlf::Function_Invoker
+                       // =============================
 
 #define BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)                               \
     enum {                                                                    \
@@ -2203,12 +2203,12 @@ struct Function_Invoker<14, void, ARGS> {
 
 namespace bdlf {
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -------------------
-                        // class Function
-                        // -------------------
+                               // --------------
+                               // class Function
+                               // --------------
 
 // CREATORS
 template <class PROTOTYPE>
@@ -2546,9 +2546,9 @@ void swap(bdlf::Function<PROTOTYPE>& a, bdlf::Function<PROTOTYPE>& b)
 }
 
 namespace bdlf {
-                          // ------------------------
-                          // struct Function_Rep
-                          // ------------------------
+                            // -------------------
+                            // struct Function_Rep
+                            // -------------------
 
 // CREATORS
 inline
@@ -2789,9 +2789,9 @@ bool Function_Rep::isInplace() const
     return (*d_manager_p)(0, (const void *)0, e_IN_PLACE_DETECTION);
 }
 
-                        // ----------------------------
-                        // struct Function_RepUtil
-                        // ----------------------------
+                          // -----------------------
+                          // struct Function_RepUtil
+                          // -----------------------
 
 // CLASS METHODS
 template <int FUNC_SIZE>

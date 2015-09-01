@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_crc32_cpp,"$Id$ $CSID$")
 
+#include <bslmf_assert.h>
+
 ///IMPLEMENTATION NOTES
 ///--------------------
 // This implementation is based upon the CRC-32 implementation found at the
@@ -87,11 +89,9 @@ BSLS_IDENT_RCSID(bdlde_crc32_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC DATA
+BSLMF_ASSERT(4 == sizeof(unsigned int));
 
-struct Assertions {
-    char assertion[4 == sizeof(unsigned int)];
-};
+// STATIC DATA
 
 static const unsigned int CRC_TABLE[256] = {
     0x0,        0x77073096, 0xee0e612c, 0x990951ba, 0x76dc419,
@@ -149,9 +149,9 @@ static const unsigned int CRC_TABLE[256] = {
 };
 
 namespace bdlde {
-                            // -----------------
-                            // class Crc32
-                            // -----------------
+                                // -----------
+                                // class Crc32
+                                // -----------
 
 // MANIPULATORS
 void Crc32::update(const void *data, int length)

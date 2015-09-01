@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-           // ---------------------------------------------
-           // class TimedSemaphoreImpl<Win32TimedSemaphore>
-           // ---------------------------------------------
+               // ---------------------------------------------
+               // class TimedSemaphoreImpl<Win32TimedSemaphore>
+               // ---------------------------------------------
 
 // MANIPULATORS
 int

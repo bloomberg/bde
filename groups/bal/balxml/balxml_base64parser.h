@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balxml::Base64Parser: push parser for Base64 types
 //
-//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by
-// this component can be used to parse Base64 characters into one of the
-// supported Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.
-// The 'TYPE' parameter can be one of these two types.
+//@DESCRIPTION: The 'balxml::Base64Parser' class template provided by this
+// component can be used to parse Base64 characters into one of the supported
+// Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
+// parameter can be one of these two types.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
@@ -175,7 +175,7 @@ class Base64Parser {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                           // ------------------------

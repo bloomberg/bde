@@ -15,34 +15,41 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <ball_multiplexobserver.h>           // for testing only
 #endif
 
+#include <bdlf_function.h>
 #include <bdlqq_lockguard.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_sstream.h>
 
-namespace {
-
-const char *const DEFAULT_LONG_FORMAT =  "\n%d %p:%t %s %f:%l %c %m %u\n";
-const char *const DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%d %p:%t %s %f:%l %c %m\n";
-
-const char *const DEFAULT_SHORT_FORMAT = "\n%s %f:%l %c %m %u\n";
-const char *const DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%s %f:%l %c %m\n";
-
-}  // close unnamed namespace
 
 namespace BloombergLP {
 
 namespace ball {
-                          // -----------------------
+
+namespace {
+
+static const char *const DEFAULT_LONG_FORMAT =
+                                         "\n%d %p:%t %s %f:%l %c %m %u\n";
+
+static const char *const DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS =
+                                         "\n%d %p:%t %s %f:%l %c %m\n";
+
+static const char *const DEFAULT_SHORT_FORMAT =
+                                         "\n%s %f:%l %c %m %u\n";
+
+static const char *const DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
+                                         "\n%s %f:%l %c %m\n";
+
+}  // close unnamed namespace
+
+                          // ------------------
                           // class FileObserver
-                          // -----------------------
+                          // ------------------
 
 // CREATORS
-FileObserver::FileObserver(Severity::Level  stdoutThreshold,
-                                     bslma::Allocator     *basicAllocator)
+FileObserver::FileObserver(Severity::Level   stdoutThreshold,
+                           bslma::Allocator *basicAllocator)
 : d_logFileFormatter(DEFAULT_LONG_FORMAT,
                      bdlt::DatetimeInterval(0),
                      basicAllocator)
@@ -59,9 +66,9 @@ FileObserver::FileObserver(Severity::Level  stdoutThreshold,
 {
 }
 
-FileObserver::FileObserver(Severity::Level  stdoutThreshold,
-                                     bool                  publishInLocalTime,
-                                     bslma::Allocator     *basicAllocator)
+FileObserver::FileObserver(Severity::Level   stdoutThreshold,
+                           bool              publishInLocalTime,
+                           bslma::Allocator *basicAllocator)
 : d_logFileFormatter(DEFAULT_LONG_FORMAT,
                      publishInLocalTime,
                      basicAllocator)
@@ -178,8 +185,7 @@ void FileObserver::enablePublishInLocalTime()
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
-void FileObserver::publish(const Record&  record,
-                                const Context& context)
+void FileObserver::publish(const Record&  record, const Context& context)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
@@ -196,15 +202,13 @@ void FileObserver::publish(const Record&  record,
     d_fileObserver2.publish(record, context);
 }
 
-void
-FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
+void FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_stdoutThreshold = stdoutThreshold;
 }
 
-void
-FileObserver::setLogFormat(const char *logFileFormat,
+void FileObserver::setLogFormat(const char *logFileFormat,
                                 const char *stdoutFormat)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
@@ -239,14 +243,14 @@ bool FileObserver::isPublishInLocalTimeEnabled() const
     return d_publishInLocalTime;
 }
 
-void
-FileObserver::getLogFormat(const char **logFileFormat,
+void FileObserver::getLogFormat(const char **logFileFormat,
                                 const char **stdoutFormat) const
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     *logFileFormat = d_logFileFormatter.format();
     *stdoutFormat  = d_stdoutFormatter.format();
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

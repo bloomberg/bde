@@ -118,9 +118,9 @@ void aSsErT(int c, const char *s, int i) {
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
         if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
 
@@ -136,16 +136,16 @@ void aSsErT(int c, const char *s, int i) {
         if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
                       #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                     // current Line number
 #define T_ printf("\t");                // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int globalVerbose = 0;
 
@@ -232,9 +232,9 @@ static const NoAllocTestArg12 I12 = 12;
 static const NoAllocTestArg13 I13 = 13;
 static const NoAllocTestArg14 I14 = 14;
 
-//=============================================================================
-//                  GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     GLOBAL HELPER CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 class ConvertibleFromToInt {
     // Object that is convertible from and to 'int'.  Used to make sure that
@@ -257,13 +257,13 @@ class ConvertibleFromToInt {
     operator int() const { return d_value; }
 };
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//                 TESTING FUNCTIONS/CLASSES FOR CASE 5
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 5
+// ----------------------------------------------------------------------------
 extern "C" { // cannot be part of a namespace (namespace would be ignored)
 
     int myFunctionWithExternCLinkage(int x)
@@ -454,9 +454,9 @@ namespace BDEF_BIND_TEST_CASE_5 {
 
 }  // close namespace BDEF_BIND_TEST_CASE_5
 
-//-----------------------------------------------------------------------------
-//                 TESTING FUNCTIONS/CLASSES FOR CASE 4
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 4
+// ----------------------------------------------------------------------------
 namespace BDEF_BIND_TEST_CASE_4 {
 
 #define BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                                  \
@@ -716,9 +716,9 @@ AllocTestArg14 const&
 
 }  // close namespace BDEF_BIND_TEST_CASE_4
 
-//-----------------------------------------------------------------------------
-//                 TESTING FUNCTIONS/CLASSES FOR CASE 3
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 3
+// ----------------------------------------------------------------------------
 namespace BDEF_BIND_TEST_CASE_3 {
 
 template <// Types of bound arguments, could be I1-14, or placeholder.
@@ -766,9 +766,9 @@ void testPlaceHolder(
 
 }  // close namespace BDEF_BIND_TEST_CASE_3
 
-//=============================================================================
-//                 BREATHING TEST CLASSES AND FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   BREATHING TEST CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace BDEF_BIND_BREATHING_TEST {
 
 using namespace bdlf::PlaceHolders;
@@ -1224,9 +1224,9 @@ using namespace bdlf::PlaceHolders;
 
 }  // close namespace BDEF_BIND_BREATHING_TEST
 
-//=============================================================================
-//                 USAGE EXAMPLE CLASSES AND FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    USAGE EXAMPLE CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace BDEF_BIND_USAGE_EXAMPLE {
 
 using namespace bdlf::PlaceHolders;
@@ -1539,9 +1539,9 @@ using namespace bdlf::PlaceHolders;
 //..
 
 }  // close namespace BDEF_BIND_USAGE_EXAMPLE
-//=============================================================================
-//                 USAGE EXAMPLE FROM OTHER TEST DRIVERS FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//              USAGE EXAMPLE FROM OTHER TEST DRIVERS FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace BDEF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS {
 
 int onMasterCommand(const int&, int& stream, int *counter = 0)
@@ -1571,9 +1571,9 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 }
 
 }  // close namespace BDEF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS
-//=============================================================================
-//               MACROS EXPORTING INITIALIZATION OUT OF MAIN
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                MACROS EXPORTING INITIALIZATION OUT OF MAIN
+// ----------------------------------------------------------------------------
 #define DECLARE_MAIN_VARIABLES                                                \
     /* The following machinery is for use in conjunction with the             \
     // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.  \
@@ -1664,9 +1664,9 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
     const AllocTestArg13 V13(712),  NV13(-712);                               \
     const AllocTestArg14 V14(1414), NV14(-1414);
 
-//=============================================================================
-//                              TEST CASES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASES
+// ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
@@ -3577,9 +3577,9 @@ DEFINE_TEST_CASE(1) {
 
       }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

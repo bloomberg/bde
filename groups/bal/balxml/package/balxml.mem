@@ -1,3 +1,4 @@
+balxml_base64parser
 balxml_configschema
 balxml_decoder
 balxml_decoderoptions
@@ -17,4 +18,3 @@ balxml_typesparserutil
 balxml_typesprintutil
 balxml_util
 balxml_validatingreader
-balxml_base64parser

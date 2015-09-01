@@ -79,9 +79,9 @@ namespace bdlqq {
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
 
-           // ================================================
-           // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-           // ================================================
+              // ================================================
+              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+              // ================================================
 
 template <>
 class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
@@ -157,9 +157,9 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-            // ------------------------------------------------
-            // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-            // ------------------------------------------------
+              // ------------------------------------------------
+              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+              // ------------------------------------------------
 
 // CREATORS
 inline

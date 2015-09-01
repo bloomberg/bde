@@ -2,44 +2,59 @@
 
 #include <bdlscm_version.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bslim_testutil.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
 #include <bsl_cstdio.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
-static bool verbose = false;
-static bool veryVerbose = false;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        bsl::fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::printf("%s: %d\n", #I, I); \
-                aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) bsl::printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ bsl::printf("\t");             // Print a tab (w/o newline)
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  USAGE EXAMPLE HELPER FUNCTIONS
@@ -51,9 +66,8 @@ static void aSsErT(int c, const char *s, int i) {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-
-    verbose = (argc > 2);
-    veryVerbose = (argc > 3);
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     bsl::printf("TEST %s CASE %d\n", __FILE__, test);
 

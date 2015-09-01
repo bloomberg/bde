@@ -1,11 +1,15 @@
 // btlb_blob.t.cpp                                                    -*-C++-*-
 #include <btlb_blob.h>
 
-#include <bdlt_datetimeutil.h>                     // for testing only
-#include <bdlt_currenttime.h>                   // for testing only
-#include <bdlxxxx_byteoutstreamraw.h>              // for testing only
-#include <bdlxxxx_bytestreamimputil.h>             // for testing only
+#include <bslim_testutil.h>
 
+#include <bdlt_datetime.h>                      // for testing only
+#include <bdlt_datetimeutil.h>                  // for testing only
+#include <bdlt_currenttime.h>                   // for testing only
+#include <bslx_byteoutstream.h>                 // for testing only
+#include <bslx_marshallingutil.h>               // for testing only
+
+#include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -17,8 +21,9 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#include <bsl_cctype.h>      // isdigit() isupper() islower()
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
 
 using namespace BloombergLP;
@@ -89,65 +94,53 @@ using bsl::cerr;
 // [13] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) // not static, to use it in template
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL HELPER CLASSES/FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      GLOBAL HELPER CLASSES/FUNCTIONS
+// ----------------------------------------------------------------------------
 
 static int numUnknownFactoryHandlerInvocations = 0;
 
@@ -235,7 +228,7 @@ void loadBlob(btlb::Blob *blob, bsl::string& dataString)
     }
 }
 
-void blobToStr(bsl::string * str, const btlb::Blob& blob) {
+void blobToStr(bsl::string *string, const btlb::Blob& blob) {
     const int NUM_PRE_DATA_BUFFERS = blob.numDataBuffers() - 1;
     const int DATA_LENGTH          = blob.length();
 
@@ -243,19 +236,19 @@ void blobToStr(bsl::string * str, const btlb::Blob& blob) {
         return;                                                       // RETURN
     }
 
-    str->reserve(DATA_LENGTH);
+    string->reserve(DATA_LENGTH);
 
     int bufferIdx = 0;
 
     for ( ; bufferIdx < NUM_PRE_DATA_BUFFERS; ++bufferIdx) {
         const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
-        str->append(buffer.data(), buffer.size());
+        string->append(buffer.data(), buffer.size());
     }
 
     const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
-    int toAppend = DATA_LENGTH - str->length();
+    int toAppend = DATA_LENGTH - string->length();
     ASSERT(toAppend <= buffer.size());
-    str->append(buffer.data(), toAppend);
+    string->append(buffer.data(), toAppend);
 }
 
 bool checkBlob(const btlb::Blob& blob, const bsl::string& dataString)
@@ -313,18 +306,18 @@ bool compareBlobBufferData(const btlb::BlobBuffer& blobBuffer, char value)
 bool compareBuffersData(const btlb::Blob& blob,
                         int               numBuffers,
                         char              value,
-                        int               exceptIdx = -1)
+                        int               exceptIndex = -1)
     // Return 'true' if the specified 'numBuffers' in the specified 'blob' all
     // contain the specified 'value' and 'false' otherwise.  Optionally,
-    // specify 'exceptIdx' of the a blob buffer to skip from comparison.
+    // specify 'exceptIndex' of the a blob buffer to skip from comparison.
 {
-    ASSERT(-1 <= exceptIdx && exceptIdx < numBuffers);
+    ASSERT(-1 <= exceptIndex && exceptIndex < numBuffers);
 
     if (0 == numBuffers) {
         return false;                                                 // RETURN
     }
     for (int i = 0; i < numBuffers; ++i) {
-        if (i == exceptIdx) {
+        if (i == exceptIndex) {
             continue;
         }
         if (!compareBlobBufferData(blob.buffer(i), value)) {
@@ -334,9 +327,9 @@ bool compareBuffersData(const btlb::Blob& blob,
     return true;
 }
 
-                         // ===========================
-                         // class TestBlobBufferFactory
-                         // ===========================
+                       // ===========================
+                       // class TestBlobBufferFactory
+                       // ===========================
 
 class TestBlobBufferFactory : public btlb::BlobBufferFactory
 {
@@ -368,11 +361,12 @@ class TestBlobBufferFactory : public btlb::BlobBufferFactory
     bool growFlag() const;
 };
 
-TestBlobBufferFactory::TestBlobBufferFactory(bslma::Allocator *allocator,
-                                             bsl::size_t       currentBufSize,
-                                             bool              growFlag)
+TestBlobBufferFactory::TestBlobBufferFactory(
+                                           bslma::Allocator *allocator,
+                                           bsl::size_t       currentBufferSize,
+                                           bool              growFlag)
 : d_allocator_p(allocator)
-, d_currentBufferSize(currentBufSize)
+, d_currentBufferSize(currentBufferSize)
 , d_growFlag(growFlag)
 {
 }
@@ -409,140 +403,80 @@ bool TestBlobBufferFactory::growFlag() const
     return d_growFlag;
 }
 
-                         // =================
-                         // class NullDeleter
-                         // =================
+                            // =================
+                            // class NullDeleter
+                            // =================
 
 class NullDeleter {
     public:
     void deleteObject(char *) {};
 };
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-                         // =============================
-                         // class SimpleBlobBufferFactory
-                         // =============================
+                      // =============================
+                      // class SimpleBlobBufferFactory
+                      // =============================
 
-class SimpleBlobBufferFactory : public btlb::BlobBufferFactory
-{
-    // This factory creates blob buffers of a fixed size specified at
-    // construction.  It is part of the usage example.
-
-    bsl::size_t       d_bufferSize;
-    bslma::Allocator *d_allocator_p;
-
-    private:
-    // not implemented
-    SimpleBlobBufferFactory(const SimpleBlobBufferFactory&);
-    SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
-
-    public:
-    // CREATORS
-    explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
-                                     bslma::Allocator *basicAllocator = 0);
-    ~SimpleBlobBufferFactory();
-
-    // MANIPULATORS
-    void allocate(btlb::BlobBuffer *buffer);
-};
-
-SimpleBlobBufferFactory::SimpleBlobBufferFactory(
-                                           int               bufferSize,
-                                           bslma::Allocator *basicAllocator)
-: d_bufferSize(bufferSize)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
-SimpleBlobBufferFactory::~SimpleBlobBufferFactory()
-{
-}
-
-void SimpleBlobBufferFactory::allocate(btlb::BlobBuffer *buffer)
-{
-
-    bsl::shared_ptr<char> shptr(
-                            (char *) d_allocator_p->allocate(d_bufferSize),
-                            d_allocator_p);
-
-    buffer->reset(shptr, d_bufferSize);
-}
-
-///Simple blob usage
-///- - - - - - - - -
-// Blobs can be created just by passing a factory that is responsible to
-// allocate the 'btlb::BlobBuffer'.  The following simple program illustrate
-// how.
+///Usage
+///-----
+//
+///Example 1: A Simple Blob Buffer Factory
+///- - - - - - - - - - - - - - - - - - - -
+// Classes that implement the 'btlb::BlobBufferFactory' protocol are used to
+// allocate 'btlb::BlobBuffer' objects.  A simple implementation follows:
 //..
-void  usageExample() {
-    SimpleBlobBufferFactory myFactory(1024);
+    class SimpleBlobBufferFactory : public btlb::BlobBufferFactory {
+        // This factory creates blob buffers of a fixed size specified at
+        // construction.
 
-    btlb::Blob blob(&myFactory);
-    ASSERT(0    == blob.length());
-    ASSERT(0    == blob.totalSize());
+        // DATA
+        bsl::size_t       d_bufferSize;
+        bslma::Allocator *d_allocator_p;
 
-    blob.setLength(512);
-    ASSERT( 512 == blob.length());
-    ASSERT(1024 == blob.totalSize());
-//..
-// Users need to access buffers directly in order to read/write data.
-//..
-    char data[] = "12345678901234567890"; // 20 bytes
-    ASSERT(0 != blob.numBuffers());
-    ASSERT((int) sizeof(data) <= blob.buffer(0).size());
-    bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
+      private:
+        // Not implemented:
+        SimpleBlobBufferFactory(const SimpleBlobBufferFactory&);
+        SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
 
-    blob.setLength(sizeof(data));
-    ASSERT(sizeof data == blob.length());
-    ASSERT(       1024 == blob.totalSize());
-//..
-// A 'btlb::BlobBuffer' can easily be re-assigned from one blob to another with
-// no copy.  In that case, the memory held by the buffer will be returned to
-// its factory when the last blob referencing the buffer is destroyed.  For the
-// following example, a blob will be created using the default constructor.  In
-// this case, the 'btlb::Blob' object will not able to grow on its own.
-// Calling 'setLength' for a number equal or greater than 'totalSize()' will
-// result in undefined behavior.
-//..
-    btlb::Blob dest;
-    ASSERT(   0 == dest.length());
-    ASSERT(   0 == dest.totalSize());
+      public:
+        // CREATORS
+        explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
+                                         bslma::Allocator *basicAllocator = 0);
+        ~SimpleBlobBufferFactory();
 
-    ASSERT(0 != blob.numBuffers());
-    dest.appendBuffer(blob.buffer(0));
-    ASSERT(   0 == dest.length());
-    ASSERT(1024 == dest.totalSize());
-//..
-// Note that at this point, the logical length (returned by 'length') of this
-// object has not changed.  'setLength' must be called explicitly by the user
-// if the logical length of the 'btlb::Blob' should be changed:
-//..
-    dest.setLength(dest.buffer(0).size());
-    ASSERT(1024 == dest.length());
-    ASSERT(1024 == dest.totalSize());
-//..
-// Sharing only a part of a buffer is also possible through shared pointer
-// aliasing.  In the following example, a buffer that contains only bytes 11-16
-// from the first buffer of 'blob' will be appended to 'blob'.
-//..
-    ASSERT(0 != blob.numBuffers());
-    ASSERT(16 <= blob.buffer(0).size());
+        // MANIPULATORS
+        void allocate(btlb::BlobBuffer *buffer);
+    };
 
-    bsl::shared_ptr<char> shptr(blob.buffer(0).buffer(),
-                                blob.buffer(0).data() + 10);
-        // 'shptr' is now an alias of 'blob.buffer(0).buffer()'.
+    SimpleBlobBufferFactory::SimpleBlobBufferFactory(
+                                              int               bufferSize,
+                                              bslma::Allocator *basicAllocator)
+    : d_bufferSize(bufferSize)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
 
-    btlb::BlobBuffer partialBuffer(shptr, 6);
-    dest.appendBuffer(partialBuffer);
-        // The last buffer of 'dest' contains only bytes 11-16 from
-        // 'blob.buffer(0)'.
-}
+    SimpleBlobBufferFactory::~SimpleBlobBufferFactory()
+    {
+    }
 
-///Data-oriented manipulation of a blob
-///- - - - - - - - - - - - - - - - - -
+    void SimpleBlobBufferFactory::allocate(btlb::BlobBuffer *buffer)
+    {
+        bsl::shared_ptr<char> shptr(
+                                (char *) d_allocator_p->allocate(d_bufferSize),
+                                d_allocator_p);
+
+        buffer->reset(shptr, d_bufferSize);
+    }
+//..
+
+// Example 1 moved into Usage Test Case.
+
+///Example 2: Data-Oriented Manipulation of a Blob
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // There are several typical ways of manipulating a blob: the simplest lets the
 // blob automatically manage the length, by using only 'prependBuffer',
 // 'appendBuffer', and 'insertBuffer'.  Consider the following typical
@@ -550,69 +484,72 @@ void  usageExample() {
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-void prependProlog(btlb::Blob          *blob,
-                   const bsl::string&   prolog,
-                   bslma::Allocator    *allocator = 0);
-    // Prepend the specified 'prolog' to the specified 'blob', using the
-    // specified 'allocator' to supply any memory (or the currently
-    // installed default allocator if 'allocator' is 0).  The behavior is
-    // undefined unless 'blob' points to an initialized 'btlb::Blob'
-    // instance.
+    void prependProlog(btlb::Blob         *blob,
+                       const bsl::string&  prolog,
+                       bslma::Allocator   *allocator = 0);
+        // Prepend the specified 'prolog' to the specified 'blob', using the
+        // optionally specified 'allocator' to supply any memory (or the
+        // currently installed default allocator if 'allocator' is 0).  The
+        // behavior is undefined unless 'blob' points to an initialized
+        // 'btlb::Blob' instance.
 
-template <class DELETER>
-void composeMessage(btlb::Blob          *blob,
-                    const bsl::string&   prolog,
-                    char * const        *vectors,
-                    const int           *vectorSizes,
-                    int                  numVectors,
-                    const DELETER&       deleter,
-                    bslma::Allocator    *allocator = 0);
-    // Load into the specified 'blob' the data composed of the specified
-    // 'prolog' and of the payload in the 'numVectors' buffers pointed to by
-    // the specified 'vectors' of the respective 'vectorSizes'.  Ownership
-    // of the vectors is transferred to the 'blob' which will use the
-    // specified 'deleter' to destroy them.  Use the specified 'allocator'
-    // to supply memory, or the currently installed default allocator if
-    // 'allocator' is 0.  Note that any buffer belonging to 'blob' prior to
-    // composing the message is not longer in 'blob' after composing the
-    // message.  Note also that 'blob' need not have been created with a
-    // blob buffer factory.  The behavior is undefined unless 'blob' points
-    // to an initialized 'btlb::Blob' instance.
+    template <class DELETER>
+    void composeMessage(btlb::Blob         *blob,
+                        const bsl::string&  prolog,
+                        char * const       *vectors,
+                        const int          *vectorSizes,
+                        int                 numVectors,
+                        const DELETER&      deleter,
+                        bslma::Allocator   *allocator = 0);
+        // Load into the specified 'blob' the data composed of the specified
+        // 'prolog' and of the payload in the 'numVectors' buffers pointed to
+        // by the specified 'vectors' of the respective 'vectorSizes'.
+        // Ownership of the vectors is transferred to the 'blob' which will use
+        // the specified 'deleter' to destroy them.  Use the optionally
+        // specified 'allocator' to supply memory, or the currently installed
+        // default allocator if 'allocator' is 0.  Note that any buffer
+        // belonging to 'blob' prior to composing the message is not longer in
+        // 'blob' after composing the message.  Note also that 'blob' need not
+        // have been created with a blob buffer factory.  The behavior is
+        // undefined unless 'blob' points to an initialized 'btlb::Blob'
+        // instance.
 
-int timestampMessage(btlb::Blob          *blob,
-                     bslma::Allocator    *allocator = 0);
-    // Insert a timestamp data buffer immediately after the prolog buffer
-    // and prior to any payload buffer.  Return the number of bytes
-    // inserted.  Use the specified 'allocator' to supply memory, or the
-    // currently installed default allocator if 'allocator' is 0.  The
-    // behavior is undefined unless 'blob' points to an initialized
-    // 'btlb::Blob' instance with at least one data buffer.
+    int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator = 0);
+        // Insert a timestamp data buffer immediately after the prolog buffer
+        // and prior to any payload buffer.  Return the number of bytes
+        // inserted.  Use the optionally specified 'allocator' to supply
+        // memory, or the currently installed default allocator if 'allocator'
+        // is 0.  The behavior is undefined unless the specified 'blob' points
+        // to an initialized 'btlb::Blob' instance with at least one data
+        // buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-void prependProlog(btlb::Blob          *blob,
-                   const bsl::string&   prolog,
-                   bslma::Allocator    *)
-{
-    ASSERT(blob);
+    void prependProlog(btlb::Blob         *blob,
+                       const bsl::string&  prolog,
+                       bslma::Allocator   *allocator)
+    {
+        BSLS_ASSERT(blob);
 
-    int prologLength = prolog.length();
-    SimpleBlobBufferFactory fa(prologLength + sizeof(int));
-    btlb::BlobBuffer prologBuffer;
-    fa.allocate(&prologBuffer);
+        (void)allocator;
 
-    bdlxxxx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
-    bsl::memcpy(prologBuffer.data() + sizeof(int),
-                prolog.c_str(),
-                prologLength);
-    ASSERT(prologBuffer.size() == prologLength + (int) sizeof(int));
+        int prologLength = prolog.length();
+        SimpleBlobBufferFactory fa(prologLength + sizeof(int));
+        btlb::BlobBuffer prologBuffer;
+        fa.allocate(&prologBuffer);
 
-    blob->prependDataBuffer(prologBuffer);
-}
+        bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
+        bsl::memcpy(prologBuffer.data() + sizeof(int),
+                    prolog.c_str(),
+                    prologLength);
+        BSLS_ASSERT(prologBuffer.size() == prologLength + sizeof(int));
+
+        blob->prependDataBuffer(prologBuffer);
+    }
 //..
 // Note that the length of 'blob' in the above implementation is automatically
-// and always incremented by the 'prologBuffer.size()'.  Consider instead:
+// incremented by 'prologBuffer.size()'.  Consider instead:
 //..
 //      blob->insertBuffer(0, prologBuffer);
 //..
@@ -620,80 +557,83 @@ void prependProlog(btlb::Blob          *blob,
 // will almost always adjust the length properly *except* if the length of
 // 'blob' is 0 before the insertion (i.e., the message has an empty payload).
 // In that case, the resulting 'blob' will still be empty after
-// 'prependProlog', which depending on the intention of the programmer, could
+// 'prependProlog', which, depending on the intention of the programmer, could
 // be intended (avoid sending empty messages) or could be (most likely) a
 // mistake.
 //
 // The 'composeMessage' implementation is simplified by using 'prependProlog':
 //..
-template <class DELETER>
-void composeMessage(btlb::Blob         *blob,
-                    const bsl::string&  prolog,
-                    char * const       *vectors,
-                    const int          *vectorSizes,
-                    int                 numVectors,
-                    const DELETER&      deleter,
-                    bslma::Allocator   *allocator)
-{
-    ASSERT(blob);
-    ASSERT(vectors);
-    ASSERT(0 <= numVectors);
+    template <class DELETER>
+    void composeMessage(btlb::Blob         *blob,
+                        const bsl::string&  prolog,
+                        char * const       *vectors,
+                        const int          *vectorSizes,
+                        int                 numVectors,
+                        const DELETER&      deleter,
+                        bslma::Allocator   *allocator)
+    {
+        BSLS_ASSERT(blob);
+        BSLS_ASSERT(vectors);
+        BSLS_ASSERT(0 <= numVectors);
 
-    blob->removeAll();
-    prependProlog(blob, prolog, allocator);
+        blob->removeAll();
+        prependProlog(blob, prolog, allocator);
 
-    for (int i = 0; i < numVectors; ++i) {
-        bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
-        btlb::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
-        blob->appendDataBuffer(partialBuffer);
-            // The last buffer of 'dest' contains only bytes 11-16 from
-            // 'blob.buffer(0)'.
+        for (int i = 0; i < numVectors; ++i) {
+            bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
+            btlb::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
+            blob->appendDataBuffer(partialBuffer);
+                // The last buffer of 'dest' contains only bytes 11-16 from
+                // 'blob.buffer(0)'.
+        }
     }
-}
 //..
 // Note that the 'deleter' is used to destroy the buffers transferred by
 // 'vectors', but not the prolog buffer.
 //
 // Timestamping a message is done by creating a buffer holding a timestamp, and
 // inserting it after the prolog and before the payload of the message.  Note
-// that in usual messages, timestamps would be part of the prolog itself, so
-// this is a somewhat constrained example for exposition only.
+// that in typical messages, timestamps would be part of the prolog itself, so
+// this is a somewhat contrived example for exposition only.
 //..
-int timestampMessage(btlb::Blob          *blob,
-                     bslma::Allocator    *allocator)
-{
-    ASSERT(blob);
-    ASSERT(0 < blob->numDataBuffers());
+    int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator)
+    {
+        BSLS_ASSERT(blob);
+        BSLS_ASSERT(0 < blob->numDataBuffers());
 
-    btlb::BlobBuffer buffer;
-    bdlt::Datetime now = bdlt::CurrentTime::utc();
+        btlb::BlobBuffer buffer;
+        bdlt::Datetime now = bdlt::CurrentTime::utc();
 
-    SimpleBlobBufferFactory fa(128, allocator);
-    btlb::BlobBuffer timestampBuffer;
-    fa.allocate(&timestampBuffer);
+        SimpleBlobBufferFactory fa(128, allocator);
+        btlb::BlobBuffer timestampBuffer;
+        fa.allocate(&timestampBuffer);
 
-    bdlxxxx::ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
-    now.bdexStreamOut(bdexStream, 1);
-    ASSERT(bdexStream); // is valid (i.e., did not overflow 128 bytes)
-    timestampBuffer.setSize(bdexStream.length());
+        bslx::ByteOutStream bdexStream(20150826);
+        now.bdexStreamOut(bdexStream, 1);
+        BSLS_ASSERT(bdexStream);
+        BSLS_ASSERT(bdexStream.length() < 128);
+        bsl::memcpy(timestampBuffer.data(),
+                    bdexStream.data(),
+                    bdexStream.length());
+        timestampBuffer.setSize(bdexStream.length());
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
-// must insert it into the blob after the first buffer (i.e., before the
-// buffered at the index 1).  Note however that the payload could be empty, a
-// condition tested by the fact that there is only one data buffer in 'blob'.
-// In that case, it would be a mistake to use 'insertBuffer' since it would not
-// modify the length of the blob.
+// must insert it into the blob after the first buffer (i.e., before the buffer
+// at index 1).  Note however that the payload could be empty, a condition
+// tested by the fact that there is only one data buffer in 'blob'.  In that
+// case, it would be a mistake to use 'insertBuffer' since it would not modify
+// the length of the blob.
 //..
-    if (1 < blob->numDataBuffers()) {
-        blob->insertBuffer(1, timestampBuffer);
-    } else {
-        blob->appendDataBuffer(timestampBuffer);
-    }
+        if (1 < blob->numDataBuffers()) {
+            blob->insertBuffer(1, timestampBuffer);
+        } else {
+            blob->appendDataBuffer(timestampBuffer);
+        }
 
-    return bdexStream.length();
-}
+        return bdexStream.length();
+    }
 //..
-// Note that the call to 'appendDataBuffer' takes also care of the possibility
+// Note that the call to 'appendDataBuffer' also takes care of the possibility
 // that the first buffer of 'blob' may not be full to capacity (if the length
 // of the blob was smaller than the buffer size, only the first
 // 'blob->length()' bytes would contain prolog data).  In that case, that
@@ -701,69 +641,11 @@ int timestampMessage(btlb::Blob          *blob,
 // byte of the 'timestampBuffer' appears immediately next to the last prolog
 // byte, and the blob length is automatically incremented by the size of the
 // 'timestampBuffer'.
+//..
 
-/// Additional: test those utilities (not in the usage example)
-
-void usageExample2()
-{
-    bslma::TestAllocator ta;
-    SimpleBlobBufferFactory fa(1024);
-
-    btlb::Blob blob(&ta);
-    btlb::BlobBuffer buffer;
-    fa.allocate(&buffer); blob.appendBuffer(buffer);
-    fa.allocate(&buffer); blob.appendBuffer(buffer);
-    ASSERT(0 == blob.length());
-    ASSERT(2 == blob.numBuffers());
-
-    // Testing 'prependProlog'
-    const bsl::string PROLOG("This is a prolog");
-    const int PROLOG_LENGTH = PROLOG.length() + sizeof(int);
-
-    prependProlog(&blob, PROLOG, &ta);
-    ASSERT(PROLOG_LENGTH        == blob.length());
-    ASSERT(PROLOG_LENGTH + 2048 == blob.totalSize());
-    ASSERT(1                    == blob.numDataBuffers());
-    ASSERT(3                    == blob.numBuffers());
-
-    // Testing 'composeMessage'
-    const char *const MSG[] = {
-        "Here is the first piece",
-        "A second piece",
-        "trailer"
-    };
-    const int MSG_SIZES[] = {
-        bsl::strlen(MSG[0]),
-        bsl::strlen(MSG[1]),
-        bsl::strlen(MSG[2])
-    };
-    const int NUM_MSG_BUFFERS = sizeof MSG / sizeof *MSG;
-    const int MSG_LENGTH      = MSG_SIZES[0] + MSG_SIZES[1] + MSG_SIZES[2];
-    const int TOTAL_SIZE      = PROLOG_LENGTH + MSG_LENGTH;
-
-    NullDeleter deleter;
-    composeMessage(&blob,
-                   PROLOG,
-                   const_cast<char * const *>(MSG),
-                   (const int *)MSG_SIZES,
-                   NUM_MSG_BUFFERS,
-                   &deleter, &ta);
-    ASSERT(PROLOG_LENGTH + MSG_LENGTH == blob.length());
-    ASSERT(TOTAL_SIZE                 == blob.totalSize());
-    ASSERT(4                          == blob.numDataBuffers());
-    ASSERT(4                          == blob.numBuffers());
-
-    // Testing 'timestampMessage'
-    const int TIMESTAMP_LENGTH = timestampMessage(&blob, &ta);
-    ASSERT(PROLOG_LENGTH + TIMESTAMP_LENGTH + MSG_LENGTH == blob.length());
-    ASSERT(TOTAL_SIZE + TIMESTAMP_LENGTH == blob.totalSize());
-    ASSERT(5                             == blob.numDataBuffers());
-    ASSERT(5                             == blob.numBuffers());
-}
-
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -793,10 +675,136 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-        usageExample();
+// Note that should the user desire a blob buffer factory for his/her
+// application, a better implementation that pools buffers is available in the
+// 'btlb_pooledblobbufferfactory' component.
+//
+///Simple Blob Usage
+///- - - - - - - - -
+// Blobs can be created just by passing a factory that is responsible to
+// allocate the 'btlb::BlobBuffer'.  The following simple program illustrates
+// how.
+//..
+    {
+        SimpleBlobBufferFactory myFactory(1024);
 
-        usageExample2();
+        btlb::Blob blob(&myFactory);
+        ASSERT(0    == blob.length());
+        ASSERT(0    == blob.totalSize());
 
+        blob.setLength(512);
+        ASSERT( 512 == blob.length());
+        ASSERT(1024 == blob.totalSize());
+//..
+// Users need to access buffers directly in order to read/write data.
+//..
+        char data[] = "12345678901234567890"; // 20 bytes
+        ASSERT(0 != blob.numBuffers());
+        ASSERT(static_cast<int>(sizeof(data)) <= blob.buffer(0).size());
+        bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
+
+        blob.setLength(sizeof(data));
+        ASSERT(sizeof data == blob.length());
+        ASSERT(       1024 == blob.totalSize());
+//..
+// A 'btlb::BlobBuffer' can easily be re-assigned from one blob to another with
+// no copy.  In that case, the memory held by the buffer will be returned to
+// its factory when the last blob referencing the buffer is destroyed.  For the
+// following example, a blob will be created using the default constructor.  In
+// this case, the 'btlb::Blob' object will not able to grow on its own.
+// Calling 'setLength' for a number equal or greater than 'totalSize()' will
+// result in undefined behavior.
+//..
+        btlb::Blob dest;
+        ASSERT(   0 == dest.length());
+        ASSERT(   0 == dest.totalSize());
+
+        ASSERT(0 != blob.numBuffers());
+        dest.appendBuffer(blob.buffer(0));
+        ASSERT(   0 == dest.length());
+        ASSERT(1024 == dest.totalSize());
+//..
+// Note that at this point, the logical length (returned by 'length') of this
+// object has not changed.  'setLength' must be called explicitly by the user
+// if the logical length of the 'btlb::Blob' must be changed:
+//..
+        dest.setLength(dest.buffer(0).size());
+        ASSERT(1024 == dest.length());
+        ASSERT(1024 == dest.totalSize());
+//..
+// Sharing only a part of a buffer is also possible through shared pointer
+// aliasing.  In the following example, a buffer that contains only bytes 11-16
+// from the first buffer of 'blob' will be appended to 'blob'.
+//..
+        ASSERT(0 != blob.numBuffers());
+        ASSERT(16 <= blob.buffer(0).size());
+
+        bsl::shared_ptr<char> shptr(blob.buffer(0).buffer(),
+                                    blob.buffer(0).data() + 10);
+            // 'shptr' is now an alias of 'blob.buffer(0).buffer()'.
+
+        btlb::BlobBuffer partialBuffer(shptr, 6);
+        dest.appendBuffer(partialBuffer);
+            // The last buffer of 'dest' contains only bytes 11-16 from
+            // 'blob.buffer(0)'.
+    }
+//..
+
+    {
+        bslma::TestAllocator ta;
+        SimpleBlobBufferFactory fa(1024);
+
+        btlb::Blob blob(&ta);
+        btlb::BlobBuffer buffer;
+        fa.allocate(&buffer); blob.appendBuffer(buffer);
+        fa.allocate(&buffer); blob.appendBuffer(buffer);
+        ASSERT(0 == blob.length());
+        ASSERT(2 == blob.numBuffers());
+
+        // Testing 'prependProlog'
+        const bsl::string PROLOG("This is a prolog");
+        const int PROLOG_LENGTH = PROLOG.length() + sizeof(int);
+
+        prependProlog(&blob, PROLOG, &ta);
+        ASSERT(PROLOG_LENGTH        == blob.length());
+        ASSERT(PROLOG_LENGTH + 2048 == blob.totalSize());
+        ASSERT(1                    == blob.numDataBuffers());
+        ASSERT(3                    == blob.numBuffers());
+
+        // Testing 'composeMessage'
+        const char *const MSG[] = {
+            "Here is the first piece",
+            "A second piece",
+            "trailer"
+        };
+        const int MSG_SIZES[] = {
+            bsl::strlen(MSG[0]),
+            bsl::strlen(MSG[1]),
+            bsl::strlen(MSG[2])
+        };
+        const int NUM_MSG_BUFFERS = sizeof MSG / sizeof *MSG;
+        const int MSG_LENGTH      = MSG_SIZES[0] + MSG_SIZES[1] + MSG_SIZES[2];
+        const int TOTAL_SIZE      = PROLOG_LENGTH + MSG_LENGTH;
+
+        NullDeleter deleter;
+        composeMessage(&blob,
+                       PROLOG,
+                       const_cast<char * const *>(MSG),
+                       (const int *)MSG_SIZES,
+                       NUM_MSG_BUFFERS,
+                       &deleter, &ta);
+        ASSERT(PROLOG_LENGTH + MSG_LENGTH == blob.length());
+        ASSERT(TOTAL_SIZE                 == blob.totalSize());
+        ASSERT(4                          == blob.numDataBuffers());
+        ASSERT(4                          == blob.numBuffers());
+
+        // Testing 'timestampMessage'
+        const int TIMESTAMP_LENGTH = timestampMessage(&blob, &ta);
+        ASSERT(PROLOG_LENGTH + TIMESTAMP_LENGTH + MSG_LENGTH == blob.length());
+        ASSERT(TOTAL_SIZE + TIMESTAMP_LENGTH == blob.totalSize());
+        ASSERT(5                             == blob.numDataBuffers());
+        ASSERT(5                             == blob.numBuffers());
+    }
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1073,7 +1081,7 @@ int main(int argc, char *argv[])
                 : DATA_LENGTH1 - ((NUM_DATA_BUFFERS1 - 1) * BUFFER_SIZE1);
 
             if (veryVerbose) {
-                T_(); P_(BUFFER_SIZE1); P_(NUM_BUFFERS1); P_(DATA_LENGTH1);
+                T_; P_(BUFFER_SIZE1); P_(NUM_BUFFERS1); P_(DATA_LENGTH1);
                 P_(TOTAL_SIZE1) P_(NUM_DATA_BUFFERS1)
                 P(LAST_DATA_BUFFER_LENGTH1)
             }
@@ -1117,7 +1125,7 @@ int main(int argc, char *argv[])
                 : LAST_DATA_BUFFER_LENGTH1;
 
             if (veryVerbose) {
-                T_(); P_(BUFFER_SIZE2); P_(NUM_BUFFERS2); P_(DATA_LENGTH2);
+                T_; P_(BUFFER_SIZE2); P_(NUM_BUFFERS2); P_(DATA_LENGTH2);
                 P_(TOTAL_SIZE2) P_(NUM_DATA_BUFFERS2)
                 P(LAST_DATA_BUFFER_LENGTH2)
             }
@@ -1295,8 +1303,8 @@ int main(int argc, char *argv[])
                 const int EXP_NUM_BUFFERS = NUM_BUFFERS;
 
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
                 }
 
                 typedef btlb::Blob Obj;
@@ -1368,7 +1376,7 @@ int main(int argc, char *argv[])
             const int BUFFER_SIZE = bufferSize;
             const int NUM_BUFFERS = numBuffers;
             if (veryVerbose) {
-                T_(); P_(BUFFER_SIZE); P(NUM_BUFFERS);
+                T_; P_(BUFFER_SIZE); P(NUM_BUFFERS);
             }
 
             SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
@@ -1479,8 +1487,8 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1517,8 +1525,8 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
 
-                // Repeat invariants after testing setLength in the presence
-                // of zero-sized buffers.
+                // Repeat invariants after testing setLength in the presence of
+                // zero-sized buffers.
 
                 mX.setLength(0);
                 mX.setLength(DATA_LENGTH + PREPEND_BUFFER_SIZE);
@@ -1576,8 +1584,8 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1679,9 +1687,9 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
                           P(REMOVE_POSITION);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                           P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1757,8 +1765,8 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1845,8 +1853,8 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1947,9 +1955,9 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
                           P(INSERT_POSITION)
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                           P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -1981,8 +1989,8 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_NUM_DATA_BUFFERS + INSERT_FLAG ==
                                                            X.numDataBuffers());
 
-                // Repeat invariants after testing setLength in the presence
-                // of zero-sized buffers.
+                // Repeat invariants after testing setLength in the presence of
+                // zero-sized buffers.
 
                 mX.setLength(0);
                 mX.setLength(DATA_LENGTH + INSERT_FLAG * INSERT_BUFFER_SIZE);
@@ -2050,8 +2058,8 @@ int main(int argc, char *argv[])
                       : 0;
 
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
@@ -2173,8 +2181,8 @@ int main(int argc, char *argv[])
                 const int EXP_NUM_BUFFERS = NUM_BUFFERS;
 
                 if (veryVerbose) {
-                    T_(); P_(BUFFER_SIZE); P_(LENGTH); P(NUM_BUFFERS);
-                    T_(); P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
+                    T_; P_(BUFFER_SIZE); P_(LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
                 }
 
                 typedef btlb::Blob Obj;

@@ -410,9 +410,9 @@ bsls::Types::Int64 getSerialDatetimeValue(const bdlt::Datetime& value)
 }  // close unnamed namespace
 
 namespace balber {
-                            // --------------
-                            // struct BerUtil
-                            // --------------
+                               // --------------
+                               // struct BerUtil
+                               // --------------
 
 int BerUtil::getIdentifierOctets(
                             bsl::streambuf         *streamBuf,
@@ -546,9 +546,9 @@ int BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
            : FAILURE;
 }
 
-                          // ------------------
-                          // struct BerUtil_Imp
-                          // ------------------
+                             // ------------------
+                             // struct BerUtil_Imp
+                             // ------------------
 
 int BerUtil_Imp::getBinaryDateValue(bsl::streambuf  *streamBuf,
                                     bdlt::Date      *value,

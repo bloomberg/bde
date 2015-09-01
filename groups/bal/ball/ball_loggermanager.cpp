@@ -1395,7 +1395,7 @@ const RuleSet& LoggerManager::ruleSet() const
 }
 
 bool LoggerManager::isCategoryEnabled(const Category *category,
-                                           int                  severity) const
+                                      int             severity) const
 {
     if (category->relevantRuleMask()) {
         AttributeContext *context = AttributeContext::getContext();

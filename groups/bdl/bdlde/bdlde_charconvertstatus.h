@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate masks for interpreting status from charconvert functions.
+//@PURPOSE: Provide masks for interpreting status from charconvert functions.
 //
 //@CLASSES:
 //  bdlde::CharConvertStatus: namespace for bit-wise mask of charconvert status
@@ -25,16 +25,47 @@ BSLS_IDENT("$Id: $")
 ///-----------
 //..
 //  Name                      Description
-//  -----------------------   ----------------------------------------
-//  BDEDE_INVALID_CHARS_BIT   Invalid characters or sequences of characters
-//                            were encountered in the input.
-//  BDEDE_OUT_OF_SPACE_BIT    The space provided for the output was
-//                            insufficient for the translation.
+//  -------------------   ---------------------------------------------
+//  e_INVALID_CHARS_BIT   Invalid characters or sequences of characters
+//                        were encountered in the input.
+//  e_OUT_OF_SPACE_BIT    The space provided for the output was
+//                        insufficient for the translation.
 //..
 //
 ///Usage
 ///-----
-// TBD
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// 'bdlde::CharConvertStatus' usage.
+//
+// First, we create a variable 'value' of type 'bdlde::CharConvertStatus::Enum'
+// and initialize it with the value 3, which is not a valid value of the
+// 'enum'.
+//..
+//      bdlde::CharConvertStatus::Enum value =
+//                               bdlde::CharConvertStatus::e_INVALID_CHARS_BIT;
+//..
+// Next, we store a pointer to its ASCII representation in a variable
+// 'asciiValue' of type 'const char *':
+//..
+//      const char *asciiValue = bdlde::CharConvertStatus::toAscii(value);
+//      assert(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_BIT"));
+//..
+// Finally, we print 'value' to 'bsl::cout'.
+//..
+//      if (veryVerbose) {
+//          bsl::cout << value << bsl::endl;
+//      }
+//..
+// This statement produces the following output on 'stdout':
+//..
+// INVALID_CHARS_BIT
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -45,11 +76,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlde {
-                     // ==============================
-                     // struct CharConvertStatus
-                     // ==============================
+
+                          // ========================
+                          // struct CharConvertStatus
+                          // ========================
 
 struct CharConvertStatus {
     // This 'struct' provides a namespace for enumerating the set of mask
@@ -65,25 +96,25 @@ struct CharConvertStatus {
   public:
     // TYPES
     enum Enum {
-        k_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences
-                                            // of characters were encountered
-                                            // in the input.
-        k_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
-                                            // output was insufficient for the
-                                            // translation.
+        k_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences of
+                                        // characters were encountered in the
+                                        // input.
+        k_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the output
+                                        // was insufficient for the
+                                        // translation.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_INVALID_CHARS_BIT = k_INVALID_CHARS_BIT
-      , BDEDE_OUT_OF_SPACE_BIT = k_OUT_OF_SPACE_BIT
+      , BDEDE_OUT_OF_SPACE_BIT  = k_OUT_OF_SPACE_BIT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(
-                            bsl::ostream&                 stream,
-                            CharConvertStatus::Enum value,
-                            int                           level          = 0,
-                            int                           spacesPerLevel = 4);
+    static bsl::ostream& print(bsl::ostream&           stream,
+                               CharConvertStatus::Enum value,
+                               int                     level          = 0,
+                               int                     spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -101,11 +132,11 @@ struct CharConvertStatus {
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BDEDE_" prefix elided.  For
+        // corresponding enumerator name with the "k_" prefix elided.  For
         // example:
         //..
         //  bsl::cout << CharConvertStatus::toAscii(
-        //                    CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT);
+        //                    CharConvertStatus::k_OUT_OF_SPACE_BIT);
         //..
         // will print the following on standard output:
         //..
@@ -118,7 +149,7 @@ struct CharConvertStatus {
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&                 stream,
+bsl::ostream& operator<<(bsl::ostream&           stream,
                          CharConvertStatus::Enum value);
 }  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
@@ -131,17 +162,17 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
     //..
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                     // ------------------------------
-                     // struct bdlde::CharConvertStatus
-                     // ------------------------------
+                      // -------------------------------
+                      // struct bdlde::CharConvertStatus
+                      // -------------------------------
 
 // FREE OPERATORS
 inline
-bsl::ostream& bdlde::operator<<(bsl::ostream&                 stream,
-                         CharConvertStatus::Enum value)
+bsl::ostream& bdlde::operator<<(bsl::ostream&           stream,
+                                CharConvertStatus::Enum value)
 {
     return CharConvertStatus::print(stream, value, 0, -1);
 }

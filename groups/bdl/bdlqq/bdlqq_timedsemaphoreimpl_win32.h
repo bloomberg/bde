@@ -108,9 +108,9 @@ namespace bdlqq {
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
 
-            // =============================================
-            // class TimedSemaphoreImpl<Win32TimedSemaphore>
-            // =============================================
+               // =============================================
+               // class TimedSemaphoreImpl<Win32TimedSemaphore>
+               // =============================================
 
 template <>
 class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
@@ -181,13 +181,13 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-            // ---------------------------------------------
-            // class TimedSemaphoreImpl<Win32TimedSemaphore>
-            // ---------------------------------------------
+               // ---------------------------------------------
+               // class TimedSemaphoreImpl<Win32TimedSemaphore>
+               // ---------------------------------------------
 
 // CREATORS
 inline

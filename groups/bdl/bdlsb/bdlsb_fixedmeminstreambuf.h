@@ -223,9 +223,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                        // =========================
-                        // class FixedMemInStreamBuf
-                        // =========================
+                         // =========================
+                         // class FixedMemInStreamBuf
+                         // =========================
 
 class FixedMemInStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -335,12 +335,12 @@ class FixedMemInStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class FixedMemInStreamBuf
-                        // -------------------------
+                         // -------------------------
+                         // class FixedMemInStreamBuf
+                         // -------------------------
 
 // PROTECTED MANIPULATORS
 // coverity[bad_override]

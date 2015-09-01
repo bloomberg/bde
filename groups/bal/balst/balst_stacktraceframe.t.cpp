@@ -21,7 +21,7 @@
 #include <bsl_string.h>
 
 // ============================================================================
-//                          ADL SWAP TEST HELPER
+//                           ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
 // TBD move this into its own component?
@@ -173,7 +173,7 @@ using bsl::ostream;
 // [10] Reserved for 'bslx' streaming.
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -189,7 +189,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -215,7 +215,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -225,14 +225,14 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef balst::StackTraceFrame Obj;
@@ -708,7 +708,7 @@ bool TestAllocatorMonitor::isTotalUp() const
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

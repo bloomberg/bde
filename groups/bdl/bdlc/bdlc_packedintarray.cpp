@@ -73,9 +73,9 @@ int PackedIntArrayImp_Unsigned::
     return 1;                                                         // RETURN
 }
 
-                         // ------------------------
-                         // struct PackedIntArrayImp
-                         // ------------------------
+                          // ------------------------
+                          // struct PackedIntArrayImp
+                          // ------------------------
 
 // PRIVATE MANIPULATORS
 template <class STORAGE>

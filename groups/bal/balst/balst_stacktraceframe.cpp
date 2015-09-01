@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(balst_stacktraceframe_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balst {
-                       // ---------------------------
-                       // class StackTraceFrame
-                       // ---------------------------
+                           // ---------------------
+                           // class StackTraceFrame
+                           // ---------------------
 
 // ACCESSORS
 bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,

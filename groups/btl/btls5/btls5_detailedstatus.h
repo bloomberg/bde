@@ -92,9 +92,9 @@ namespace bslma { class Allocator; }
 
 namespace btls5 {
 
-                         // ====================
-                         // class DetailedStatus
-                         // ====================
+                            // ====================
+                            // class DetailedStatus
+                            // ====================
 
 class DetailedStatus {
     // This value-semantic class provides information about the status of a
@@ -224,12 +224,12 @@ void swap(btls5::DetailedStatus& a, btls5::DetailedStatus& b);
     // allocator.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------
-                        // class DetailedStatus
-                        // --------------------
+                            // --------------------
+                            // class DetailedStatus
+                            // --------------------
 
 // CREATORS
 inline

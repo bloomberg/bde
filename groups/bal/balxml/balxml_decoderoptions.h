@@ -53,9 +53,9 @@ namespace BloombergLP {
 
 namespace balxml {
 
-                            // ===========================
+                            // ====================
                             // class DecoderOptions
-                            // ===========================
+                            // ====================
 
 class DecoderOptions {
     // Options for controlling the XML decoding process.
@@ -269,13 +269,13 @@ BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balxml::DecoderOptions)
 namespace balxml {
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 
-                            // ---------------------------
+                            // --------------------
                             // class DecoderOptions
-                            // ---------------------------
+                            // --------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>

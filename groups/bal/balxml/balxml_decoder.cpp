@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 
 #include <bslalg_typetraits.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
@@ -61,10 +62,11 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //                                     the destination object, instead of a
 //                                     temporary 'd_chars' member.
 //
-//  balxml::Decoder_StdStringContext       Used for 'bsl::string'.  This context
-//                                     simply delegates the callbacks to
-//                                     another context.  The delegated context
-//                                     is selected using the formatting mode.
+//  balxml::Decoder_StdStringContext       Used for 'bsl::string'.  This
+//                                     context simply delegates the callbacks
+//                                     to another context.  The delegated
+//                                     context is selected using the formatting
+//                                     mode.
 //
 //  balxml::Decoder_StdVectorCharContext   Used for 'bsl::vector<char>'.  This
 //                                     context simply delegates the callbacks
@@ -141,9 +143,9 @@ public:
 }  // close unnamed namespace
 
 namespace balxml {
-                      // -----------------------------------
-                      // class Decoder_ElementContext
-                      // -----------------------------------
+                        // ----------------------------
+                        // class Decoder_ElementContext
+                        // ----------------------------
 
 Decoder_ElementContext::~Decoder_ElementContext()
 {
@@ -156,62 +158,60 @@ Decoder_ElementContext::beginParse(Decoder *decoder)
 }
 }  // close package namespace
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerDecoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 balxml::Decoder::MemOutStream::~MemOutStream()
 {
 }
 
 namespace balxml {
-                      // --------------------
-                      // class Decoder
-                      // --------------------
+                               // -------------
+                               // class Decoder
+                               // -------------
 
 // CREATORS
-Decoder::Decoder(
-                        const DecoderOptions *options,
-                        Reader               *reader,
-                        ErrorInfo            *errInfo,
-                        bslma::Allocator            *basicAllocator)
-: d_options       (options)
-, d_reader        (reader)
-, d_errorInfo     (errInfo)
-, d_allocator     (bslma::Default::allocator(basicAllocator))
-, d_logStream     (0)
-, d_errorStream   (0)
-, d_warningStream (0)
-, d_sourceUri     (d_allocator)
-, d_errorCount    (0)
-, d_warningCount  (0)
+Decoder::Decoder(const DecoderOptions *options,
+                 Reader               *reader,
+                 ErrorInfo            *errInfo,
+                 bslma::Allocator     *basicAllocator)
+: d_options(options)
+, d_reader(reader)
+, d_errorInfo(errInfo)
+, d_allocator(bslma::Default::allocator(basicAllocator))
+, d_logStream(0)
+, d_errorStream(0)
+, d_warningStream(0)
+, d_sourceUri(d_allocator)
+, d_errorCount(0)
+, d_warningCount(0)
 , d_numUnknownElementsSkipped(0)
-, d_fatalError    (false)
+, d_fatalError(false)
 , d_remainingDepth(1)
 {
     BSLS_ASSERT(d_options != 0);
     BSLS_ASSERT(d_reader != 0);
 }
 
-Decoder::Decoder(
-                        const DecoderOptions *options,
-                        Reader               *reader,
-                        ErrorInfo            *errInfo,
-                        bsl::ostream                *errorStream,
-                        bsl::ostream                *warningStream,
-                        bslma::Allocator            *basicAllocator)
-: d_options       (options)
-, d_reader        (reader)
-, d_errorInfo     (errInfo)
-, d_allocator     (bslma::Default::allocator(basicAllocator))
-, d_logStream     (0)
-, d_errorStream   (errorStream)
-, d_warningStream (warningStream)
-, d_sourceUri     (d_allocator)
-, d_errorCount    (0)
-, d_warningCount  (0)
+Decoder::Decoder(const DecoderOptions *options,
+                 Reader               *reader,
+                 ErrorInfo            *errInfo,
+                 bsl::ostream         *errorStream,
+                 bsl::ostream         *warningStream,
+                 bslma::Allocator     *basicAllocator)
+: d_options(options)
+, d_reader(reader)
+, d_errorInfo(errInfo)
+, d_allocator(bslma::Default::allocator(basicAllocator))
+, d_logStream(0)
+, d_errorStream(errorStream)
+, d_warningStream(warningStream)
+, d_sourceUri(d_allocator)
+, d_errorCount(0)
+, d_warningCount(0)
 , d_numUnknownElementsSkipped(0)
-, d_fatalError    (false)
+, d_fatalError(false)
 , d_remainingDepth(1)
 {
     BSLS_ASSERT(d_options != 0);
@@ -374,14 +374,14 @@ Decoder::checkForErrors(const ErrorInfo& errInfo)
 
 // MANIPULATORS
 int
-Decoder::parse(Decoder_ElementContext *elementContext)
+Decoder::parse(Decoder_ElementContext *context)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    // according to protocol parse method is allowed to call only
-    // from Decoder_ElementContext::parseSubElement method.
-    // That means the current node is ELEMENT .
-    //
+    // according to protocol parse method is allowed to call only from
+    // Decoder_ElementContext::parseSubElement method.  That means the current
+    // node is ELEMENT.
+
     BSLS_ASSERT(d_reader->nodeType() ==
                    Reader::e_NODE_TYPE_ELEMENT);
 
@@ -403,7 +403,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
         return BAEXML_FAILURE;                                        // RETURN
     }
 
-    if (0 != elementContext->startElement(this)) {
+    if (0 != context->startElement(this)) {
         BALXML_DECODER_LOG_ERROR(this)
             << "Unable to start element."
             << BALXML_DECODER_LOG_END;
@@ -426,10 +426,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
         const char *attrVal = attr.value();
         size_t       lenVal = attrVal ? bsl::strlen(attrVal) : 0;
 
-        if (0 != elementContext->parseAttribute(attrName,
-                                                attrVal,
-                                                lenVal,
-                                                this)) {
+        if (0 != context->parseAttribute(attrName, attrVal, lenVal, this)) {
             BALXML_DECODER_LOG_ERROR(this)
                     << "Unable to parse attribute '"
                     << attrName << "'."
@@ -466,9 +463,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             {
                 const char *val = d_reader->nodeValue();
                 size_t       len = val ? bsl::strlen(val) : 0;
-                if (0 != elementContext->addCharacters(val,
-                                                       len,
-                                                       this)) {
+                if (0 != context->addCharacters(val, len, this)) {
                     BALXML_DECODER_LOG_ERROR(this)
                                    << "Unable to add \""
                                    << val
@@ -488,8 +483,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             {
                 const char *name = d_reader->nodeLocalName();
 
-                if (0 != elementContext->parseSubElement(name,
-                                                         this)) {
+                if (0 != context->parseSubElement(name, this)) {
                     BALXML_DECODER_LOG_ERROR(this)
                                            << "Unable to decode sub-element '"
                                            << name
@@ -506,7 +500,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
         }
     }
 
-    if (0 != elementContext->endElement(this)) {
+    if (0 != context->endElement(this)) {
         BALXML_DECODER_LOG_ERROR(this)
             << "Unable to end element."
             << BALXML_DECODER_LOG_END;
@@ -529,13 +523,13 @@ bsl::ostream& Decoder::logStream()
 ErrorInfo::Severity Decoder::errorSeverity() const
 {
     if (d_fatalError) {
-        return ErrorInfo::e_FATAL_ERROR;                         // RETURN
+        return ErrorInfo::e_FATAL_ERROR;                              // RETURN
     }
     if (d_errorCount != 0) {
-        return ErrorInfo::e_ERROR;                               // RETURN
+        return ErrorInfo::e_ERROR;                                    // RETURN
     }
     if (d_warningCount != 0) {
-        return ErrorInfo::e_WARNING;                             // RETURN
+        return ErrorInfo::e_WARNING;                                  // RETURN
     }
 
     return ErrorInfo::e_NO_ERROR;
@@ -550,9 +544,9 @@ bslstl::StringRef Decoder::loggedMessages() const
     return bslstl::StringRef();
 }
 
-                     // ------------------------------------
-                     // class Decoder_NillableContext
-                     // ------------------------------------
+                       // -----------------------------
+                       // class Decoder_NillableContext
+                       // -----------------------------
 
 // CREATORS
 Decoder_NillableContext::Decoder_NillableContext()
@@ -577,8 +571,7 @@ int Decoder_NillableContext::startElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-int Decoder_NillableContext::endElement(
-                                          Decoder *decoder)
+int Decoder_NillableContext::endElement(Decoder *decoder)
 {
     enum { BAEXML_SUCCESS = 0 };
 
@@ -591,9 +584,9 @@ int Decoder_NillableContext::endElement(
     return d_elementContext_p->endElement(decoder);
 }
 
-int Decoder_NillableContext::addCharacters(const char *chars,
-                                                 unsigned int length,
-                                              Decoder *decoder)
+int Decoder_NillableContext::addCharacters(const char   *chars,
+                                           unsigned int  length,
+                                           Decoder      *decoder)
 {
     BSLS_ASSERT(d_elementContext_p);
 
@@ -605,10 +598,10 @@ int Decoder_NillableContext::addCharacters(const char *chars,
     return d_elementContext_p->addCharacters(chars, length, decoder);
 }
 
-int Decoder_NillableContext::parseAttribute(const char     *name,
-                                                   const char     *value,
-                                                   size_t          lenValue,
-                                                   Decoder *decoder)
+int Decoder_NillableContext::parseAttribute(const char *name,
+                                            const char *value,
+                                            size_t      lenValue,
+                                            Decoder    *decoder)
 {
     BSLS_ASSERT(d_elementContext_p);
 
@@ -628,9 +621,8 @@ int Decoder_NillableContext::parseAttribute(const char     *name,
     return d_elementContext_p->parseAttribute(name, value, lenValue, decoder);
 }
 
-int Decoder_NillableContext::parseSubElement(
-                                       const char     *elementName,
-                                       Decoder *decoder)
+int Decoder_NillableContext::parseSubElement(const char *elementName,
+                                             Decoder    *decoder)
 {
     BSLS_ASSERT(d_elementContext_p);
 
@@ -639,14 +631,13 @@ int Decoder_NillableContext::parseSubElement(
         d_isNil = false;
     }
 
-    return d_elementContext_p->parseSubElement(elementName,
-                                               decoder);
+    return d_elementContext_p->parseSubElement(elementName, decoder);
 }
 
 // MANIPULATORS
 
 void Decoder_NillableContext::setElementContext(
-                                 Decoder_ElementContext *elementContext)
+                                        Decoder_ElementContext *elementContext)
 {
     d_elementContext_p = elementContext;
     BSLS_ASSERT(d_elementContext_p);
@@ -660,9 +651,9 @@ bool Decoder_NillableContext::isNil() const
     return d_isNil;
 }
 
-                  // ---------------------------------------
-                  // class Decoder_UnknownElementContext
-                  // ---------------------------------------
+                    // -----------------------------------
+                    // class Decoder_UnknownElementContext
+                    // -----------------------------------
 
 // CREATORS
 
@@ -687,8 +678,8 @@ int Decoder_UnknownElementContext::endElement(Decoder *)
 }
 
 int Decoder_UnknownElementContext::addCharacters(const char *,
-                                                        unsigned int ,
-                                                        Decoder *)
+                                                 unsigned int,
+                                                 Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
 
@@ -696,28 +687,26 @@ int Decoder_UnknownElementContext::addCharacters(const char *,
 }
 
 int Decoder_UnknownElementContext::parseAttribute(const char *,
-                                                         const char *,
-                                                         size_t    ,
-                                                         Decoder *)
+                                                  const char *,
+                                                  size_t,
+                                                  Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
 
     return BAEXML_SUCCESS;
 }
 
-int Decoder_UnknownElementContext::parseSubElement(
-                                                      const char     *,
-                                                      Decoder *decoder)
+int Decoder_UnknownElementContext::parseSubElement(const char *,
+                                                   Decoder    *decoder)
 {
     return beginParse(decoder);
 }
 
-                     // ----------------------------------
-                     // class Decoder_StdStringContext
-                     // ----------------------------------
+                       // ------------------------------
+                       // class Decoder_StdStringContext
+                       // ------------------------------
 
-Decoder_StdStringContext::Decoder_StdStringContext(
-                                                   bsl::string *object,
+Decoder_StdStringContext::Decoder_StdStringContext(bsl::string *object,
                                                    int          formattingMode)
 {
     switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
@@ -747,43 +736,40 @@ Decoder_StdStringContext::~Decoder_StdStringContext()
 
 // CALLBACKS
 
-int Decoder_StdStringContext::startElement(
-                                          Decoder *decoder)
+int Decoder_StdStringContext::startElement(Decoder *decoder)
 {
     return d_context_p->startElement(decoder);
 }
 
-int Decoder_StdStringContext::endElement(
-                                          Decoder *decoder)
+int Decoder_StdStringContext::endElement(Decoder *decoder)
 {
     return d_context_p->endElement(decoder);
 }
 
-int Decoder_StdStringContext::addCharacters(const char *chars,
-                                          unsigned int length,
-                                          Decoder *decoder)
+int Decoder_StdStringContext::addCharacters(const char   *chars,
+                                            unsigned int  length,
+                                            Decoder      *decoder)
 {
     return d_context_p->addCharacters(chars, length, decoder);
 }
 
 int Decoder_StdStringContext::parseAttribute(const char *name,
-                                                 const char *value,
-                                                 size_t    lenValue,
-                                      Decoder *decoder)
+                                             const char *value,
+                                             size_t      lenValue,
+                                             Decoder    *decoder)
 {
     return d_context_p->parseAttribute(name, value, lenValue, decoder);
 }
 
-int Decoder_StdStringContext::parseSubElement(
-                                       const char *          elementName,
-                                       Decoder *decoder)
+int Decoder_StdStringContext::parseSubElement(const char *elementName,
+                                              Decoder    *decoder)
 {
     return d_context_p->parseSubElement(elementName, decoder);
 }
 
-                   // --------------------------------------
-                   // class Decoder_StdVectorCharContext
-                   // --------------------------------------
+                     // ----------------------------------
+                     // class Decoder_StdVectorCharContext
+                     // ----------------------------------
 
 // CREATORS
 
@@ -824,49 +810,46 @@ Decoder_StdVectorCharContext::~Decoder_StdVectorCharContext()
 
 // CALLBACKS
 
-int Decoder_StdVectorCharContext::startElement(
-                                          Decoder *decoder)
+int Decoder_StdVectorCharContext::startElement(Decoder *decoder)
 {
     return d_context_p->startElement(decoder);
 }
 
-int Decoder_StdVectorCharContext::endElement(
-                                          Decoder *decoder)
+int Decoder_StdVectorCharContext::endElement(Decoder *decoder)
 {
     return d_context_p->endElement(decoder);
 }
 
-int Decoder_StdVectorCharContext::addCharacters(const char *chars,
-                                          unsigned int length,
-                                          Decoder *decoder)
+int Decoder_StdVectorCharContext::addCharacters(const char   *chars,
+                                                unsigned int  length,
+                                                Decoder      *decoder)
 {
     return d_context_p->addCharacters(chars, length, decoder);
 }
 
 int Decoder_StdVectorCharContext::parseAttribute(const char *name,
-                                                    const char *value,
-                                                    size_t    lenValue,
-                                      Decoder *decoder)
+                                                 const char *value,
+                                                 size_t      lenValue,
+                                                 Decoder    *decoder)
 {
     return d_context_p->parseAttribute(name, value, lenValue, decoder);
 }
 
-int Decoder_StdVectorCharContext::parseSubElement(
-                                        const char *         elementName,
-                                        Decoder *decoder)
+int Decoder_StdVectorCharContext::parseSubElement(const char *elementName,
+                                                  Decoder    *decoder)
 {
     return d_context_p->parseSubElement(elementName, decoder);
 }
 
-                       // -----------------------------
-                       // class Decoder_ParseObject
-                       // -----------------------------
+                         // -------------------------
+                         // class Decoder_ParseObject
+                         // -------------------------
 
 // MANIPULATORS
 
-int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
-                                        int                formattingMode,
-                                        bdlat_TypeCategory::Array)
+int Decoder_ParseObject::executeImp(bsl::vector<char>         *object,
+                                    int                        formattingMode,
+                                    bdlat_TypeCategory::Array)
 {
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return executeArrayImp(object,
@@ -880,7 +863,7 @@ int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
       case bdlat_FormattingMode::e_HEX:
       case bdlat_FormattingMode::e_TEXT: {
         Decoder_StdVectorCharContext stdVectorCharContext(object,
-                                                              formattingMode);
+                                                          formattingMode);
 
         return stdVectorCharContext.beginParse(d_decoder);            // RETURN
       }
@@ -889,8 +872,8 @@ int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
       }
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -492,9 +492,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                      // ===================================
-                      // class StackTraceTestAllocator
-                      // ===================================
+                       // =============================
+                       // class StackTraceTestAllocator
+                       // =============================
 
 class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     // This class defines a concrete "test" allocator mechanism that implements
@@ -700,9 +700,9 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
         // 'setOstream' was never called, 'bsl::cerr' will be used.
 };
 
-                      // -----------------------------------
-                      // class StackTraceTestAllocator
-                      // -----------------------------------
+                       // -----------------------------
+                       // class StackTraceTestAllocator
+                       // -----------------------------
 
 inline
 const StackTraceTestAllocator::FailureHandler&

@@ -2,7 +2,9 @@
 
 #include <bdlcc_multipriorityqueue.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
+
+#include <bdlf_function.h>
 
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -114,9 +116,9 @@ int veryVeryVeryVerbose;
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  NON-STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 NON-STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { COUT << #I << ": " << I << ENDL; aSsErT(1, #X, __LINE__); }}
 
@@ -145,18 +147,18 @@ int veryVeryVeryVerbose;
        #M << ": " << M << "\t" << #N << ": " << N << ENDL; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  NON-SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   NON-SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) COUT << #X " = " << (X) << ENDL // Print identifier and value.
 #define Q(X) COUT << "<| " #X " |>" << ENDL  // Quote identifier literally.
 #define P_(X) COUT << #X " = " << (X) << ", "<< FLUSH // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  COUT << '\t' << FLUSH           // Print tab w/o newline
 
-//=============================================================================
-//              GLOBAL TYPEDEFS, CONSTANTS & VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            GLOBAL TYPEDEFS, CONSTANTS & VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
 
 // Struct 'Element' is used in many examples, it behaves similarly to a double,
 // but it also keeps track of the number instances of it in existence, useful
@@ -196,9 +198,9 @@ typedef bdlcc::MultipriorityQueue<bsl::string>  Sobj;
 
 }  // close unnamed namespace
 
-//=============================================================================
-//             TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 1
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 1
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 
@@ -249,8 +251,8 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
     int getWorkData(MyWorkData *result)
     {
         static int count = 0;
-        result->d_i = rand();   // Only one thread runs this routine, so
-                                // it does not matter that 'rand()' is not
+        result->d_i = rand();   // Only one thread runs this routine, so it
+                                // does not matter that 'rand()' is not
                                 // thread-safe, or that 'count' is 'static'.
 
         return ++count >= 100;
@@ -337,8 +339,8 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
                                      &queue);
         }
 
-        // Load work data into work requests and push them onto the queue
-        // with varying priority until all work data has been exhausted.
+        // Load work data into work requests and push them onto the queue with
+        // varying priority until all work data has been exhausted.
 
         int count = 0;                          // used to generate priorities
 
@@ -367,9 +369,9 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_1
 
-//=============================================================================
+// ============================================================================
 //            TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 2
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 
@@ -537,9 +539,9 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_2
 
-//=============================================================================
-//                            TYPE FOR TEST CASE 11
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                           TYPE FOR TEST CASE 11
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_11 {
 
@@ -590,9 +592,9 @@ Thrower& Thrower::operator=(const Thrower& original) {
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_11
 
-//=============================================================================
-//                                  TEST CASE 9
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 9
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_9 {
 
@@ -705,9 +707,9 @@ bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_9
 
-//=============================================================================
-//                                  TEST CASE 8
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 8
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_8 {
 
@@ -810,9 +812,9 @@ bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_8
 
-//=============================================================================
-//                                  TEST CASE 7
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 7
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_7 {
 
@@ -870,9 +872,9 @@ struct TestFunctor7 {
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_7
 
-//=============================================================================
-//                                  TEST CASE 5
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                TEST CASE 5
+// ----------------------------------------------------------------------------
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_5 {
 
@@ -887,9 +889,9 @@ struct PushPoint {
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_5
 
-//=============================================================================
-//                                MAIN PROGRAM
-//=============================================================================
+// ============================================================================
+//                               MAIN PROGRAM
+// ============================================================================
 
 int main(int argc, char *argv[])
 {
@@ -1764,12 +1766,12 @@ int main(int argc, char *argv[])
         //   possible argument combinations returns failure without blocking
         //   when called on an empty queue.  Then it will reach a barrier
         //   and, once past the barrier, will attempt to pop data off the
-        //   queue, once with each possible arg combination for 'popFront'.
-        //   The spawning thread sleeps for about 200 milliSeconds, then
-        //   pushes data into the queue, and the spawned thread, once it
-        //   pops data, verifies the value is what was expected, showing
-        //   that the pops blocked as they should have until the queue
-        //   contained data for them.
+        //   queue, once with each possible argument combination for
+        //   'popFront'.  The spawning thread sleeps for about 200
+        //   milliSeconds, then pushes data into the queue, and the spawned
+        //   thread, once it pops data, verifies the value is what was
+        //   expected, showing that the pops blocked as they should have until
+        //   the queue contained data for them.
         //
         // Testing:
         //   blocking behavior
@@ -1976,7 +1978,7 @@ int main(int argc, char *argv[])
         // TESTING ALL CONSTRUCTORS AND numPriorities() ACCESSOR
         //
         // Concerns:
-        //   That all possible combinations of arg types to constructors
+        //   That all possible combinations of argument types to constructors
         //   work and produce multipriority queues that function on a basic
         //   level.
         //
@@ -2277,8 +2279,8 @@ int main(int argc, char *argv[])
         //     at the same priority.
         //   * That 'pushBack' enqueues multiple items of the same value
         //     at the same priority.
-        //   * That repeated calls to 'popFront' deque the items in turn.
-        //   * That 'tryPopFront' deques items in turn, returning success
+        //   * That repeated calls to 'popFront' dequeue the items in turn.
+        //   * That 'tryPopFront' dequeues items in turn, returning success
         //     then returns a non-zero value when the queue is empty.
         //
         // Plan:

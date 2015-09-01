@@ -376,9 +376,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
-                            // ==================
-                            // class ZoneinfoUtil
-                            // ==================
+                             // ==================
+                             // class ZoneinfoUtil
+                             // ==================
 
 struct ZoneinfoUtil {
     // This 'struct' provides a namespace for utility operations using a

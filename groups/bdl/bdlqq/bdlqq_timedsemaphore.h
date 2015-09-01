@@ -228,9 +228,9 @@ class TimedSemaphore {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------
-                         // class TimedSemaphore
-                         // --------------------
+                            // --------------------
+                            // class TimedSemaphore
+                            // --------------------
 
 // CREATORS
 inline

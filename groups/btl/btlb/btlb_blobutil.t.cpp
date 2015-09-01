@@ -2,24 +2,28 @@
 #include <btlb_blobutil.h>
 #include <btlb_blob.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bdlxxxx_byteoutstreamformatter.h>
-#include <bdlxxxx_testoutstream.h>
+#include <bslx_genericoutstream.h>
+#include <bslx_testoutstream.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                                  TEST PLAN
@@ -34,77 +38,58 @@ using namespace bsl;  // automatically added by script
 // [ 3] Testing HexDump
 // [ 2] Testing compare
 // [ 1] Testing "write special cases"
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
-
-//=============================================================================
-//                  STANDARD BDEMA EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
-
-//=============================================================================
+// ============================================================================
 //                            CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-                          // =======================
-                          // class BlobBufferFactory
-                          // =======================
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
 
 class BlobBufferFactory : public btlb::BlobBufferFactory {
     // TBD: doc
@@ -113,10 +98,13 @@ class BlobBufferFactory : public btlb::BlobBufferFactory {
     int               d_size;
     bslma::Allocator *d_allocator_p;
 
+  private:
+    // Not implemented:
+    BlobBufferFactory(const BlobBufferFactory&);
+
   public:
     // CREATORS
-    BlobBufferFactory(int               initialSize,
-                      bslma::Allocator *basicAllocator = 0)
+    BlobBufferFactory(int initialSize, bslma::Allocator *basicAllocator = 0)
     : d_size(initialSize)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -147,9 +135,9 @@ class BlobBufferFactory : public btlb::BlobBufferFactory {
     }
 };
 
-//=============================================================================
-//                               GLOBAL TYPEDEF
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              GLOBAL TYPEDEF
+// ----------------------------------------------------------------------------
 
 typedef btlb::BlobUtil Util;
 
@@ -174,13 +162,13 @@ int ggg(bsl::string *result, int length)
                         "abcdefghijklmnopqrstuvwxyz"
                         "abcdefghijklmnopqrstuvwxyz"
                         "abcdefghijklmnopqrstuvwxyz";
-    enum { DATA_SIZE = sizeof DATA - 1 };
+    enum { k_DATA_SIZE = sizeof DATA - 1 };
 
     int capacity = length;
     result->clear();
     result->reserve(capacity);
     do {
-        int nbytes = (capacity >= DATA_SIZE) ? DATA_SIZE : capacity;
+        int nbytes = (capacity >= k_DATA_SIZE) ? k_DATA_SIZE : capacity;
         result->append(DATA, nbytes);
         capacity -= nbytes;
     } while (capacity > 0);
@@ -205,14 +193,14 @@ bsl::string g(int length)
     return gg(&object, length);
 }
 
-//=============================================================================
-//                               HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 
 void copyStringToBlob(btlb::Blob *dest, const bsl::string& str)
 {
-    dest->setLength(str.length());
-    int numBytesRemaining = str.length();
+    dest->setLength(static_cast<int>(str.length()));
+    int numBytesRemaining = static_cast<int>(str.length());
     const char *data = str.data();
     int bufferIndex = 0;
     while (numBytesRemaining) {
@@ -319,16 +307,14 @@ static bool bad_jk(int j, int k, btlb::Blob& blob)
     return (j < 0 || k < 0 || j + k > blob.totalSize());
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
-//                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
     bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
-    // The line above will not be needed once bsls is updated.
+    // The line above will not be needed once 'bsls' is updated.
 
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
@@ -490,13 +476,11 @@ int main(int argc, char *argv[]) {
             bsl::shared_ptr<char> bufferp;
             bufferp.loadAlias(buffer.buffer(), aligned + i - 1);
             buffers[i].buffer() = bufferp;
-            buffers[i].setSize(BIG - fuzz - i - 1);
+            buffers[i].setSize(static_cast<int>(BIG - fuzz - i - 1));
         }
-        // Now we have four buffers, in four different sizes.
-        // The first is empty
-        // The second is aligned to 16 bytes, size 16
-        // The third is misaligned by 1, size 15
-        // The fourth is misaligned by 2, size 14
+        // Now we have four buffers, in four different sizes.  The first is
+        // empty The second is aligned to 16 bytes, size 16 The third is
+        // misaligned by 1, size 15 The fourth is misaligned by 2, size 14
 
         int NUMDATA = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUMDATA; ++i) {
@@ -1172,7 +1156,7 @@ int main(int argc, char *argv[]) {
                           << "\n=========================" << endl;
 
         const bsl::string STR      = "HelloWorld";
-        const int         BUF_SIZE = STR.size();
+        const int         BUF_SIZE = static_cast<int>(STR.size());
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             BlobBufferFactory factory(bufferSize);
 
@@ -1223,30 +1207,30 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         enum {
-            DYNAMIC_ALLOCATION_THRESHOLD = 32,
+            k_DYNAMIC_ALLOCATION_THRESHOLD = 32,
 
-            MIN_BUFFER_SIZE = 1,
-            MAX_BUFFER_SIZE = 4,
-            INC_BUFFER_SIZE = 1,
+            k_MIN_BUFFER_SIZE = 1,
+            k_MAX_BUFFER_SIZE = 4,
+            k_INC_BUFFER_SIZE = 1,
 
-            MIN_NUM_BUFFERS = DYNAMIC_ALLOCATION_THRESHOLD - 4,
-            MAX_NUM_BUFFERS = DYNAMIC_ALLOCATION_THRESHOLD + 4,
-            INC_NUM_BUFFERS = 1
+            k_MIN_NUM_BUFFERS = k_DYNAMIC_ALLOCATION_THRESHOLD - 4,
+            k_MAX_NUM_BUFFERS = k_DYNAMIC_ALLOCATION_THRESHOLD + 4,
+            k_INC_NUM_BUFFERS = 1
         };
 
         bslma::TestAllocator allocator;
         bslma::Default::setDefaultAllocatorRaw(&allocator);
         ASSERT(&allocator == bslma::Default::defaultAllocator());
 
-        for (int bufferSize =  MIN_BUFFER_SIZE;
-                 bufferSize <= MAX_BUFFER_SIZE;
-                 bufferSize += INC_BUFFER_SIZE)
+        for (int bufferSize =  k_MIN_BUFFER_SIZE;
+                 bufferSize <= k_MAX_BUFFER_SIZE;
+                 bufferSize += k_INC_BUFFER_SIZE)
         {
             BlobBufferFactory factory(bufferSize);
 
-            for (int numBuffers =  MIN_NUM_BUFFERS;
-                     numBuffers <= MAX_NUM_BUFFERS;
-                     numBuffers += INC_NUM_BUFFERS)
+            for (int numBuffers =  k_MIN_NUM_BUFFERS;
+                     numBuffers <= k_MAX_NUM_BUFFERS;
+                     numBuffers += k_INC_NUM_BUFFERS)
             {
                 if (verbose) {
                     bsl::cout << "[bufferSize = " << bufferSize << ", "
@@ -1269,7 +1253,9 @@ int main(int argc, char *argv[]) {
                         }
 
                         bsl::stringstream os;
-                        ASSERT(&os == &btlb::BlobUtil::hexDump(os, blob, offset,
+                        ASSERT(&os == &btlb::BlobUtil::hexDump(os,
+                                                               blob,
+                                                               offset,
                                                                length));
 
                         if (veryVeryVerbose) {
@@ -1306,15 +1292,13 @@ int main(int argc, char *argv[]) {
         //     (e) 33 buffers.  Verify correctness.
         //
         // Testing:
-        // static bsl::ostream& hexDump(bsl::ostream&     stream,
-        //                              const btlb::Blob& source);
-        //
+        //   static bsl::ostream& hexDump(stream, source);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'hexdump' Function"
                           << "\n==========================" << endl;
 
-        enum { BUF_SIZE = 2048 };
+        enum { k_BUF_SIZE = 2048 };
 
         {
             if (verbose) cout << "(a) 0 buffers" << endl;
@@ -1323,7 +1307,7 @@ int main(int argc, char *argv[]) {
 
             ASSERT(0 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
                                 expectedOutCase3[0].size()));
@@ -1351,7 +1335,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(1 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
                                 expectedOutCase3[1].size()));
@@ -1377,7 +1361,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(31 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
                                 expectedOutCase3[2].size()));
@@ -1403,7 +1387,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(32 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
                                 expectedOutCase3[3].size()));
@@ -1430,7 +1414,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(33 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
                                 expectedOutCase3[4].size()));
@@ -1463,7 +1447,7 @@ int main(int argc, char *argv[]) {
             const char *d_rhs;
             const int   d_retValue;
         } DATA[] = {
-            // Line   LHS         RHS          retValue
+            // Line LHS RHS retValue
             // ----   ---         ---          --------
             {   L_,   "",         "",                 0 },
 
@@ -1582,9 +1566,9 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE = DATA[i].d_line;
             const char *LHS  = DATA[i].d_lhs;
-            const int   LLEN = bsl::strlen(LHS);
+            const int   LLEN = static_cast<int>(bsl::strlen(LHS));
             const char *RHS  = DATA[i].d_rhs;
-            const int   RLEN = bsl::strlen(RHS);
+            const int   RLEN = static_cast<int>(bsl::strlen(RHS));
             const int   RV   = DATA[i].d_retValue;
 
             for (int size1 = 1; size1 < 10; ++size1) {
@@ -1638,8 +1622,8 @@ int main(int argc, char *argv[]) {
                 btlb::Blob b1(&factory);
                 btlb::Blob b2(&factory2);
 
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1651,8 +1635,8 @@ int main(int argc, char *argv[]) {
                              0 == btlb::BlobUtil::compare(b2, b1));
 
                 // Test first char diff
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR2));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR2)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR2);
@@ -1663,8 +1647,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR2));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR2)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR2);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1676,8 +1660,8 @@ int main(int argc, char *argv[]) {
                              0 < btlb::BlobUtil::compare(b2, b1));
 
                 // Test last char diff
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR3));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR3)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR3);
@@ -1688,8 +1672,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR3));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR3)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR3);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1701,8 +1685,8 @@ int main(int argc, char *argv[]) {
                              0 < btlb::BlobUtil::compare(b2, b1));
 
                 // Test 1 char diff in length
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR4));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR4)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR4);
@@ -1713,8 +1697,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 < btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR4));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR4)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR4);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1746,7 +1730,7 @@ int main(int argc, char *argv[]) {
         // writing zero bytes from an empty blob
         {
             btlb::Blob emptyBlob;
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, emptyBlob, 0, 0) == 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1754,7 +1738,7 @@ int main(int argc, char *argv[]) {
         // writing non-zero bytes from an empty blob
         {
             btlb::Blob emptyBlob;
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, emptyBlob, 0, 1) != 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1763,12 +1747,12 @@ int main(int argc, char *argv[]) {
         {
             // create a non-empty blob
             size_t size = 10;
-            BlobBufferFactory blobFactory(size);
+            BlobBufferFactory blobFactory(static_cast<int>(size));
             btlb::Blob nonemptyBlob(&blobFactory);
-            nonemptyBlob.setLength(size);
+            nonemptyBlob.setLength(static_cast<int>(size));
 
             // write blob
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, nonemptyBlob, 0, 0) == 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1845,7 +1829,7 @@ int main(int argc, char *argv[]) {
                 copyStringToBlob(&dest1,  DEST);
                 copyStringToBlob(&dest2,  DEST);
                 copyStringToBlob(&dest4,  DEST);
-                dest3.sputn(DEST, bsl::strlen(DEST));
+                dest3.sputn(DEST, static_cast<int>(bsl::strlen(DEST)));
                 copyStringToBlob(&source, SOURCE);
 
                 if (veryVeryVerbose) {
@@ -1863,9 +1847,9 @@ int main(int argc, char *argv[]) {
                 }
 
                 {
-                bdlxxxx::ByteOutStreamFormatter bosf(&dest3);
-                Util::write(bosf, source, OFFSET, LENGTH);
-                bosf.flush();
+                bslx::GenericOutStream<bsl::stringbuf> gos(&dest3, 20150825);
+                Util::write(gos, source, OFFSET, LENGTH);
+                gos.flush();
                 }
 
                 if (veryVeryVerbose) {
