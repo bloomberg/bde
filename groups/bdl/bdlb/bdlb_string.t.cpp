@@ -171,10 +171,10 @@ int main(int argc, char *argv[])
         // TESTING 'copy'
         //
         // Concerns:
-        //: 1  That the three 'copy' methods work as specified in the doc.
+        //: 1 That the three 'copy' methods work as specified in the doc.
         //
         // Plan:
-        //: 1  TBD
+        //: 1 Table-based tests are used.
         //
         // Testing:
         //  copy(cchar *string, bslma::Allocator *basicAllocator);
@@ -221,8 +221,9 @@ int main(int argc, char *argv[])
 
                 ASSERT(result != STRING);
                 ASSERT(!bsl::strcmp(result, CLIPPED_RESULT));
-                int minLength = bsl::min((int) nneg(CLIP_LEN),
-                                         (int) bsl::strlen(STRING));
+                int minLength = bsl::min(static_cast<int>(nneg(CLIP_LEN)),
+                                         static_cast<int>(
+                                                         bsl::strlen(STRING)));
                 ASSERT(minLength == (int) bsl::strlen(result));
                 ASSERT(0 == memcmp(result, STRING, nneg(CLIP_LEN)));
                 ASSERT(0 == result[nneg(CLIP_LEN)]);
@@ -401,7 +402,10 @@ int main(int argc, char *argv[])
         //:   string when an empty substring is passed in.
         //
         // Plan:
-        //: 1 To address concerns 1, 2, 3, and 4 we enumerate through different
+        //: 1 This case use the Ad-Hoc Data Selection Method for contents of
+        //:   the original string and Depth-First Enumeration substring values.
+        //:
+        //: 2 To address concerns 1, 2, 3, and 4 we enumerate through different
         //:   lengths of substrings (0 to 2) and match them against different
         //:   lengths of original strings (0 to substring length + 2).  The
         //:   case of both the substrings and the original strings are also
@@ -409,10 +413,6 @@ int main(int argc, char *argv[])
         //:   'strstrCaseless', 'strrstr', and 'strrstrCaseless' is compared
         //:   against the expected offset from the original string to make sure
         //:   concerns 1, 2, 3, and 4 are addressed.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method (original string)
-        //      - Depth First Enumeration (substring)
         //
         // Testing:
         //  strstr(cchar *str, int strL, cchar *subStr, int subStrL);
@@ -717,11 +717,12 @@ int main(int argc, char *argv[])
                     T_ T_ P(RESULT)
                     T_ T_ bsl::cout << "STRING + RESULT: "
                                     << bsl::hex
-                                    << (const void *) (STRING + RESULT)
+                                    << static_cast<const void *>(
+                                                               STRING + RESULT)
                                     << bsl::dec << bsl::endl;
                     T_ T_ bsl::cout << "STRSTRRESULT: "
                                     << bsl::hex
-                                    << (const void *) strstrResult
+                                    << static_cast<const void *>(strstrResult)
                                     << bsl::dec << bsl::endl;
                 }
                 ASSERT(strstrResult == ( -1 == STRINGLEN
@@ -737,11 +738,13 @@ int main(int argc, char *argv[])
                     T_ T_ P(RESULTCASELESS)
                     T_ T_ bsl::cout << "STRING + RESULTCASELESS: "
                                     << bsl::hex
-                                    << (const void *) (STRING+RESULTCASELESS)
+                                    << static_cast<const void *>(
+                                                       STRING + RESULTCASELESS)
                                     << bsl::dec << bsl::endl;
                     T_ T_ bsl::cout << "STRSTRCASELESSRESULT: "
                                     << bsl::hex
-                                    << (const void *) strstrCaselessResult
+                                    << static_cast<const void *>(
+                                                          strstrCaselessResult)
                                     << bsl::dec << bsl::endl;
                 }
                 ASSERT(strstrCaselessResult == (-1 != STRINGLEN
@@ -757,11 +760,13 @@ int main(int argc, char *argv[])
                     T_ T_ P(RESULT)
                     T_ T_ bsl::cout << "STRING + RESULTREVERSE: "
                                     << bsl::hex
-                                    << (const void *) (STRING + RESULTREVERSE)
+                                    << static_cast<const void *>(
+                                                        STRING + RESULTREVERSE)
                                     << bsl::dec << bsl::endl;
                     T_ T_ bsl::cout << "STRRSTRRESULT: "
                                     << bsl::hex
-                                    << (const void *) strrstrResult
+                                    << static_cast<const void *>(
+                                                                 strrstrResult)
                                     << bsl::dec << bsl::endl;
                 }
                 ASSERT(strrstrResult == (-1 != STRINGLEN
@@ -777,12 +782,13 @@ int main(int argc, char *argv[])
                     T_ T_ P(RESULTREVERSECASELESS)
                     T_ T_ bsl::cout << "STRING + RESULTREVERSECASELESS: "
                                     << bsl::hex
-                                    << (const void *)
-                                                 (STRING+RESULTREVERSECASELESS)
+                                    << static_cast<const void *>(
+                                                STRING + RESULTREVERSECASELESS)
                                     << bsl::dec << bsl::endl;
                     T_ T_ bsl::cout << "STRRSTRCASELESSRESULT: "
                                     << bsl::hex
-                                    << (const void *) strrstrCaselessResult
+                                    << static_cast<const void *>(
+                                                         strrstrCaselessResult)
                                     << bsl::dec << bsl::endl;
                 }
                 ASSERT (strrstrCaselessResult == (-1 != STRINGLEN
@@ -806,7 +812,10 @@ int main(int argc, char *argv[])
         //:   character to the length 'dstLength'.
         //
         // Plan:
-        //: 1 To address concerns 1 and 2, we arbitrarily select a set of
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Array-Based Implementation Technique.
+        //:
+        //: 2 To address concerns 1 and 2, we arbitrarily select a set of
         //:   strings as source strings.  We generate a string S for each of
         //:   these source strings for verification purpose.  The length of S
         //:   is always 'dstLength'.  If 'srcLength < dstLength', S contains
@@ -814,10 +823,6 @@ int main(int argc, char *argv[])
         //:   Otherwise, S contains the first 'dstLength' characters of the
         //:   source string.  Then we compare S with the destination string
         //:   after 'toFixedLength' is invoked and make sure they are equal.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Array-Based Implementation Technique
         //
         // Testing:
         //  toFixedLength(char *d, int dL, cchar *s, int sL, char pad= ' ');
@@ -858,19 +863,28 @@ int main(int argc, char *argv[])
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
 
+                if (veryVerbose) { T_ P_(charIdx) P(PADCHAR) }
+
                 // Call 'toFixedLength' with various lengths for both source
                 // and destination string.
 
                 for (bsl::size_t destLen = 0;
                      destLen <  sizeof destBuf;
                      ++destLen) {
+
+                    if (veryVerbose) { T_ T_ P(destLen) }
+
                     for (int srcLen = -1; srcLen < LEN; ++srcLen) {
+
+                       if (veryVerbose) { T_ T_ T_ P(srcLen) }
+
                         bsl::memset(destBuf, 0, sizeof(destBuf));
                         Util::toFixedLength(destBuf,
                                             destLen,
                                             ns(SRC, srcLen),
                                             nneg(srcLen),
                                             PADCHAR);
+
 
                         // Generating the expected result string.
 
@@ -879,7 +893,7 @@ int main(int argc, char *argv[])
                                            bsl::min(static_cast<bsl::size_t>(
                                                                  nneg(srcLen)),
                                            destLen));
-                        if (nneg(srcLen) < destLen) {
+                        if (static_cast<bsl::size_t>(nneg(srcLen)) < destLen) {
                             result.append(destLen - nneg(srcLen), PADCHAR);
                         }
 
@@ -896,20 +910,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'strnlen'
         //
-        // Concern:
+        // Concerns:
         //: 1 We want to verify that 'strnlen' returns the minimum of the
         //:   length of the specified string and the specified maximum length.
         //
         // Plan:
-        //: 1 We first select an arbitrary set of strings.  For each of these
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Array-Based Implementation Technique.
+        //:
+        //: 2 We first select an arbitrary set of strings.  For each of these
         //:   strings, we vary the maximum length from 0 to two times the
         //:   actually string length.  We then use the string and maximum
         //:   length as inputs to 'strnlen' and verify its return value equals
         //:   the minimum of result of 'strlen' and the maximum length.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Array-Based Implementation Technique
         //
         // Testing:
         //  strnlen(cchar *str, int maximumLength);
@@ -936,7 +949,13 @@ int main(int argc, char *argv[])
 
         for (int i = 0; STRINGS[i]; ++i) {
             int LEN  = bsl::strlen(STRINGS[i]);
+
+            if (veryVerbose) { T_ P_(i) P_(STRINGS[i]) P(LEN) }
+
             for (int l = 0; l < 2 * LEN; ++l) {
+
+                if (veryVerbose) { T_ T_ P(l) }
+
                 LOOP2_ASSERT(i, l,
                        bsl::min(l, LEN) == Util::strnlen(STRINGS[i], l));
             }
@@ -957,15 +976,14 @@ int main(int argc, char *argv[])
         //:   string.
         //
         // Plan:
-        //: 1 To address concern 1 and 2, we call 'pad' with an arbitrarily
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Table-Driven Implementation Technique.
+        //:
+        //: 2 To address concern 1 and 2, we call 'pad' with an arbitrarily
         //:   selected set of data.  Then we verify that if the length
         //:   specified does not exceed the string's original length, the
         //:   string is unmodified.  Otherwise, the string is padded with the
         //:   supplied character up to the specified length.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Table-Driven Implementation Technique
         //
         // Testing:
         //  pad(bsl::str *str, int numChars, char padChar = ' ');
@@ -997,12 +1015,17 @@ int main(int argc, char *argv[])
             const char *STRING = STRINGS[strIdx];
             const int   LEN    = bsl::strlen(STRING);
 
+            if (veryVerbose) { T_ P_(strIdx) P_(STRING) P(LEN) }
+
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
 
                 // Pad the string to various lengths and verify the result.
 
                 for (int length = 0; length < 2 * LEN; ++length) {
+
+                 if (veryVerbose) { T_ T_ P(length) }
+
                     bsl::string testString(STRING);
                     Util::pad(&testString, length, PADCHAR);
                     if (LEN >= length) {
@@ -1037,7 +1060,10 @@ int main(int argc, char *argv[])
         //:   these strings.
         //
         // Plan:
-        //: 1 To address concern 1, we arbitrarily select a set S of strings
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Table-Driven Implementation Technique.
+        //:
+        //: 2 To address concern 1, we arbitrarily select a set S of strings
         //:   with no whitespace characters as their beginning or ending
         //:   characters.  Then we append whitespace characters before and
         //:   after them and apply 'ltrim', 'rtrim', and 'trim' methods to
@@ -1050,15 +1076,11 @@ int main(int argc, char *argv[])
         //:   strings for it, then pass them to the corresponding methods and
         //:   verify the results.
         //:
-        //: 2 To address concern 2, we create a non-null-terminated string for
+        //: 3 To address concern 2, we create a non-null-terminated string for
         //:   each string s by copying s into a buffer pre-filled with non-zero
         //:   content.  This will cause incorrect compare results if any of
         //:   these 'ltrim', 'rtrim' or 'trim' methods read pass the end of
         //:   these strings.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Table-Driven Implementation Technique
         //
         // Testing:
         //  ltrim(char *str);
@@ -1082,12 +1104,19 @@ int main(int argc, char *argv[])
         const int          NUM_PADCHARS = sizeof padChars  / sizeof *padChars;
 
         for (int i = 0; STRINGS[i]; ++i) {
+
             if (veryVerbose) { T_ P(i) }
+
             char cstring[64];
             char nonNullString[sizeof(cstring)];
 
             for (int padBefore = 0; padBefore < 5; ++padBefore) {
+
+                if (veryVerbose) { T_ T_ P(padBefore) }
+
                 for (int padAfter = 0; padAfter < 5; ++padAfter) {
+
+                    if (veryVerbose) { T_ T_ T_ P(padAfter) }
 
                     // Generating the padding before the string.
 
@@ -1206,7 +1235,10 @@ int main(int argc, char *argv[])
         //:   (128-255).
         //
         // Plan:
-        //: 1 To address concern 1, we arbitrarily select a set S of string
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Table-Driven Implementation Technique.
+        //:
+        //: 2 To address concern 1, we arbitrarily select a set S of string
         //:   pairs and exercise all the 'lowerCaseCmp' and 'upperCaseCmp'
         //:   methods and then verify the results by converting these strings
         //:   to upper/lower cases.  These strings contain letters, digits,
@@ -1218,15 +1250,11 @@ int main(int argc, char *argv[])
         //:   strings, we will vary the length of these strings while comparing
         //:   against other strings using one of the above methods.
         //:
-        //: 2 To address concern 2, we create a pair of non-null-terminated
+        //: 3 To address concern 2, we create a pair of non-null-terminated
         //:   strings for each string pair (s1, s2) by copying s1 and s2 into
         //:   two buffers pre-filled with non-zero content.  This will cause
         //:   incorrect compare results if any of these 'lowerCaseCmp' or
         //:   'upperCaseCmp' methods read pass the end of these strings.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Table-Driven Implementation Technique
         //
         // Testing:
         //  lowerCaseCmp(cchar *lhsStr, cchar *rhsStr);
@@ -1385,7 +1413,9 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int nb = 0; nb < NUM_DATA; ++nb) {
+
             if (veryVerbose) { T_ P(nb) }
+
             const char *STRING1 = DATA[nb].d_string1;
             const char *STRING2 = DATA[nb].d_string2;
 
@@ -1398,7 +1428,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 2; ++i) {
 
-                if (veryVerbose) { T_ P(i) }
+                if (veryVerbose) { T_ T_ P(i) }
 
                 const char *cstring1, *cstring2;
 
@@ -1448,7 +1478,7 @@ int main(int argc, char *argv[])
 
                 for (int len = -1; len <= length1; ++len) {
 
-                    if (veryVerbose) { T_ P(len) }
+                    if (veryVerbose) { T_ T_ T_ P(len) }
 
                     result = lowerStr1.compare(0, nneg(len), lowerStr2);
                     result = result > 0 ? 1 : (result < 0 ? -1 : 0);
@@ -1467,7 +1497,7 @@ int main(int argc, char *argv[])
 
                 for (int len = -1; len <= length2; ++len) {
 
-                    if (veryVerbose) { T_ P(len) }
+                    if (veryVerbose) { T_ T_ T_ P(len) }
 
                     result = lowerStr2.compare(0, nneg(len), lowerStr1);
                     result = result > 0 ? -1 : (result < 0 ? 1 : 0);
@@ -1485,7 +1515,13 @@ int main(int argc, char *argv[])
                 // both of their arguments.
 
                 for (int len1 = -1; len1 <= length1; ++len1) {
+
+                    if (veryVerbose) { T_ T_ T_ P(len1) }
+
                     for (int len2 = -1; len2 <= length2; ++len2) {
+
+                        if (veryVerbose) { T_ T_ T_ T_ P(len2) }
+
                         result = lowerStr1.compare(0, nneg(len1), lowerStr2, 0,
                                                                    nneg(len2));
                         result = result > 0 ? 1 : (result < 0 ? -1 : 0);
@@ -1519,6 +1555,9 @@ int main(int argc, char *argv[])
                 // their first argument.
 
                 for (int len = -1; len <= length1; ++len) {
+
+                    if (veryVerbose) { T_ T_ T_ P(len) }
+
                     result = upperStr1.compare(0, nneg(len), upperStr2);
                     result = result > 0 ? 1 : (result < 0 ? -1 : 0);
                     LOOP_ASSERT(nb, result ==
@@ -1535,6 +1574,9 @@ int main(int argc, char *argv[])
                 // their second argument.
 
                 for (int len = -1; len <= length2; ++len) {
+
+                    if (veryVerbose) { T_ T_ T_ P(len) }
+
                     result = upperStr2.compare(0, nneg(len), upperStr1);
                     result = result > 0 ? -1 : (result < 0 ? 1 : 0);
                     LOOP_ASSERT(nb, result ==
@@ -1551,7 +1593,13 @@ int main(int argc, char *argv[])
                 // both of their arguments.
 
                 for (int len1 = -1; len1 <= length1; ++len1) {
+
+                    if (veryVerbose) { T_ T_ T_ P(len1) }
+
                     for (int len2 = -1; len2 <= length2; ++len2) {
+
+                        if (veryVerbose) { T_ T_ T_ T_ P(len2) }
+
                         result = upperStr1.compare(0, nneg(len1), upperStr2, 0,
                                                                    nneg(len2));
                         result = result > 0 ? 1 : (result < 0 ? -1 : 0);
@@ -1580,7 +1628,10 @@ int main(int argc, char *argv[])
         //:   these strings.
         //
         // Plan:
-        //: 1 To address concern 1, we arbitrarily select a set of strings and
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Array-Based Implementation Technique.
+        //:
+        //: 2 To address concern 1, we arbitrarily select a set of strings and
         //:   use the 'areEqualCaseless' methods to compare these strings
         //:   against each other and verify the results against the ones
         //:   returned by 'strcasecmp' or 'strncasecmp'.  These strings contain
@@ -1589,17 +1640,14 @@ int main(int argc, char *argv[])
         //:   strings, we will vary the length of these strings while comparing
         //:   against other strings using one of the above methods.
         //:
-        //: 2 To address concern 2, we create the non-null-terminated strings
+        //: 3 To address concern 2, we create the non-null-terminated strings
         //:   by copying the original string without the null character into a
         //:   buffer pre-filled with non-zero content.  This will cause
         //:   incorrect compare results if any of these 'areEqualCaseless'
         //:   methods read pass the end of these strings.
         //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Array-Based Implementation Technique
-        //
         // Testing:
+        //  areEqualCaseless(cchar *lhs, cchar *rhs);
         //  areEqualCaseless(cchar *lhs, cchar *rhs, int rhsL);
         //  areEqualCaseless(cchar *lhs, cBslStr& rhs);
         //  areEqualCaseless(cchar *lhs, int lshL, cchar *rhs);
@@ -1780,20 +1828,19 @@ int main(int argc, char *argv[])
         //:   go beyond the end of the string.
         //
         // Plan:
-        //: 1 To address concern 1, we use 'bsl::tolower' or 'bsl::toupper' to
+        //: 1 This case uses the Ad-Hoc Data Selection Method and the
+        //:   Array-Based Implementation Technique.
+        //:
+        //: 2 To address concern 1, we use 'bsl::tolower' or 'bsl::toupper' to
         //:   convert the supplied test strings to lower/upper cases.  Then we
         //:   compare them with the results of 'toLower' and 'toUpper' to make
         //:   sure they match.
         //:
-        //: 2 To address concern 2, we create the non-null-terminated
+        //: 3 To address concern 2, we create the non-null-terminated
         //:   'const char  *' string in a buffer pre-filled with non-null data.
         //:   Then we verify that after the corresponding methods are invoked,
         //:   the content in the buffer beyond the valid range of the string is
         //:   unmodified.
-        //
-        // Tactics:
-        //      - Ad-Hoc Data Selection Method
-        //      - Array-Based Implementation Technique
         //
         // Testing:
         //  toLower(char *string);
@@ -1859,7 +1906,7 @@ int main(int argc, char *argv[])
                 bsl::transform(lowerStr.begin(),
                                lowerStr.end(),
                                lowerStr.begin(),
-                               (int(*)(int))bsl::tolower);
+                               static_cast<int(*)(int)>(bsl::tolower));
                 LOOP_ASSERT(i, lowerStr == stdString);
                 LOOP_ASSERT(i, lowerStr == cstring);
                 LOOP_ASSERT(i, strncmp(lowerStr.c_str(), nonNullString,
@@ -1886,7 +1933,7 @@ int main(int argc, char *argv[])
                 bsl::transform(upperStr.begin(),
                                upperStr.end(),
                                upperStr.begin(),
-                               (int(*)(int))bsl::toupper);
+                               static_cast<int(*)(int)>(bsl::toupper));
                 LOOP_ASSERT(i, upperStr == stdString);
                 LOOP_ASSERT(i, upperStr == cstring);
                 LOOP_ASSERT(i, strncmp(upperStr.c_str(), nonNullString,
