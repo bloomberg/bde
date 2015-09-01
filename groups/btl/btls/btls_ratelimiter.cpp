@@ -4,11 +4,11 @@
 #include <bsl_climits.h>
 
 namespace BloombergLP {
-
 namespace btls {
-                             // -----------------
-                             // class RateLimiter
-                             // -----------------
+
+                            // -----------------
+                            // class RateLimiter
+                            // -----------------
 
 // CREATORS
 RateLimiter::RateLimiter(bsls::Types::Uint64       sustainedRateLimit,
@@ -79,12 +79,9 @@ void RateLimiter::setRateLimits(bsls::Types::Uint64       sustainedRateLimit,
     capacity = LeakyBucket::calculateCapacity(peakRateLimit,
                                                    peakRateWindow);
 
-
     d_peakRateBucket.setRateAndCapacity(peakRateLimit, capacity);
 
 }
-
-
 
 bsls::TimeInterval RateLimiter::calculateTimeToSubmit(
                                          const bsls::TimeInterval& currentTime)

@@ -6,6 +6,9 @@ BSLS_IDENT_RCSID(ball_defaultattributecontainer_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsl_climits.h>
+
+
 namespace BloombergLP {
 
 int ball::DefaultAttributeContainer::s_initialSize = 8;
@@ -54,7 +57,7 @@ bsl::ostream& DefaultAttributeContainer::print(
 
 // FREE OPERATORS
 bool ball::operator==(const DefaultAttributeContainer& lhs,
-                const DefaultAttributeContainer& rhs)
+                      const DefaultAttributeContainer& rhs)
 {
     if (lhs.numAttributes() != rhs.numAttributes()) {
         return false;                                                 // RETURN
@@ -71,7 +74,7 @@ bool ball::operator==(const DefaultAttributeContainer& lhs,
 }
 
 bool ball::operator!=(const DefaultAttributeContainer& lhs,
-                const DefaultAttributeContainer& rhs)
+                      const DefaultAttributeContainer& rhs)
 {
     return !(lhs == rhs);
 }

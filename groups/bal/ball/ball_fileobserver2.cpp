@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_userfields.h>
+#include <ball_userfieldvalue.h>
 
 #ifdef BDE_FOR_TESTING_ONLY
 #include <ball_defaultobserver.h>             // for testing only
@@ -20,8 +21,6 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_lockguard.h>
 
-
-
 #include <bdlt_currenttime.h>
 
 #include <bdlf_memfn.h>
@@ -30,7 +29,11 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bdlsu_processutil.h>
 
 #include <bdlt_currenttime.h>
+#include <bdlt_date.h>
+#include <bdlt_delegatingdateimputil.h>
+#include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
+#include <bdlt_time.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -39,6 +42,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bslstl_stringref.h>
 
 #include <bsl_cstdio.h>
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -56,15 +60,18 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
+namespace BloombergLP {
+
+namespace ball {
+
 namespace {
 
-using namespace BloombergLP;
 
 // Messages written to 'stderr' are prefixed with a unique string to allow
 // them to be easily identified.
 
-const char errorMsgPrefix[] = { "ERROR: ball::FileObserver2:" };
-const char warnMsgPrefix[]  = { "WARN: ball::FileObserver2:" };
+static const char errorMsgPrefix[] = { "ERROR: ball::FileObserver2:" };
+static const char warnMsgPrefix[]  = { "WARN: ball::FileObserver2:" };
 
 enum {
     // status code for the call back function.
@@ -75,7 +82,7 @@ enum {
     ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
 };
 
-int getErrorCode(void)
+static int getErrorCode(void)
     // Return the system-specific error code.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -86,7 +93,7 @@ int getErrorCode(void)
 #endif
 }
 
-bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
+static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     // Return the specified 'timestamp' in the 'YYYYMMDD_hhmmss' format.
 {
     char buffer[20];
@@ -112,7 +119,7 @@ bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     return bsl::string(buffer);
 }
 
-bdlt::DatetimeInterval localTimeOffsetInterval(bdlt::Datetime timeUtc)
+static bdlt::DatetimeInterval localTimeOffsetInterval(bdlt::Datetime timeUtc)
     // Return the offset of local time from UTC time at the specified
     // 'timeUtc'.
 {
@@ -120,10 +127,10 @@ bdlt::DatetimeInterval localTimeOffsetInterval(bdlt::Datetime timeUtc)
                               bdlt::LocalTimeOffset::localTimeOffset(timeUtc));
 }
 
-void getLogFileName(bsl::string                  *logFileName,
-                    bdlt::Datetime                *timestampUtc,
-                    const char                   *logFilePattern,
-                    bool                          publishInLocalTime)
+static void getLogFileName(bsl::string    *logFileName,
+                           bdlt::Datetime *timestampUtc,
+                           const char     *logFilePattern,
+                           bool            publishInLocalTime)
     // Load, into the specified 'logFileName', the filename that is obtained by
     // replacing every '%'-escape sequence in the specified 'logFilePattern'.
     // If the specified 'publishInLocalTime' is 'true', replace the time
@@ -197,7 +204,7 @@ void getLogFileName(bsl::string                  *logFileName,
     *logFileName = os.str();
 }
 
-bool hasEscapePattern(const char *logFilePattern)
+static bool hasEscapePattern(const char *logFilePattern)
     // Return 'true' if the specified 'logFilePattern' contains a recognized
     // '%'-escape sequence, and false otherwise.  The recognized escape
     // sequence are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
@@ -226,7 +233,7 @@ bool hasEscapePattern(const char *logFilePattern)
     return false;
 }
 
-int openLogFile(bsl::ostream *stream, const char *filename)
+static int openLogFile(bsl::ostream *stream, const char *filename)
     // Open a file stream referred to by the specified 'stream' for the file
     // with the specified 'filename' in append mode.  Return 0 on success, and
     // a non-zero value otherwise.
@@ -275,7 +282,7 @@ int openLogFile(bsl::ostream *stream, const char *filename)
 }
 
 
-int toSerialDate(bdlt::Date date)
+static int toSerialDate(bdlt::Date date)
     // Return the elapsed number of days between 01JAN0001 and the specified
     // 'date'.
 {
@@ -285,7 +292,7 @@ int toSerialDate(bdlt::Date date)
 }
 
 
-bdlt::Datetime computeNextRotationTime(
+static bdlt::Datetime computeNextRotationTime(
                      const bdlt::Datetime&          referenceStartTimeLocal,
                      const bdlt::DatetimeInterval&  interval,
                      const bdlt::Datetime&          fileCreationTimeUtc)
@@ -305,7 +312,7 @@ bdlt::Datetime computeNextRotationTime(
     // Notice that the logic for computing the next time interval must
     // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
     // possible use of 'bsls::Log' to report warnings about date math.  Such
-    // warnings, when issued from within a function in bael cause an attempt
+    // warnings, when issued from within a function in BAEL cause an attempt
     // to recursively re-enter the file-observer (and a dead-lock).  Once
     // 'bdlt' no longer uses bsls log to report date arithmetic this logic can
     // be returned to:
@@ -357,16 +364,13 @@ bdlt::Datetime computeNextRotationTime(
 
 }  // close unnamed namespace
 
-namespace BloombergLP {
-
-namespace ball {
-                          // ------------------------
+                          // -------------------
                           // class FileObserver2
-                          // ------------------------
+                          // -------------------
 
 // PRIVATE MANIPULATORS
-void FileObserver2::logRecordDefault(bsl::ostream&      stream,
-                                          const Record& record)
+void FileObserver2::logRecordDefault(bsl::ostream& stream,
+                                     const Record& record)
 
 {
     const RecordAttributes& fixedFields = record.fixedFields();
@@ -489,9 +493,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     return returnStatus;
 }
 
-int  FileObserver2::rotateIfNecessary(
-                                      bsl::string          *rotatedLogFileName,
-                                      const bdlt::Datetime&  currentLogTimeUtc)
+int FileObserver2::rotateIfNecessary(bsl::string           *rotatedLogFileName,
+                                     const bdlt::Datetime&  currentLogTimeUtc)
 {
     BSLS_ASSERT(d_rotationSize >= 0);
     BSLS_ASSERT(d_rotationInterval.totalSeconds() >= 0);
@@ -609,7 +612,7 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
 }
 
 int FileObserver2::enableFileLogging(const char *logFilenamePattern,
-                                          bool        appendTimestampFlag)
+                                     bool        appendTimestampFlag)
 {
     BSLS_ASSERT(logFilenamePattern);
 
@@ -681,20 +684,20 @@ void FileObserver2::publish(const Record&  record,
 }
 
 void FileObserver2::rotateOnLifetime(
-                                     const bdlt::DatetimeInterval& timeInterval)
+                                    const bdlt::DatetimeInterval& timeInterval)
 {
     rotateOnTimeInterval(timeInterval);
 }
 
 void FileObserver2::rotateOnTimeInterval(
-                                         const bdlt::DatetimeInterval& interval)
+                                        const bdlt::DatetimeInterval& interval)
 {
     rotateOnTimeInterval(interval, bdlt::CurrentTime::local());
 }
 
 void FileObserver2::rotateOnTimeInterval(
-                               const bdlt::DatetimeInterval& interval,
-                               const bdlt::Datetime&         referenceStartTime)
+                              const bdlt::DatetimeInterval& interval,
+                              const bdlt::Datetime&         referenceStartTime)
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
@@ -724,8 +727,7 @@ void FileObserver2::rotateOnSize(int size)
     d_rotationSize = size;
 }
 
-void FileObserver2::setLogFileFunctor(
-                                        const LogRecordFunctor& logFileFunctor)
+void FileObserver2::setLogFileFunctor(const LogRecordFunctor& logFileFunctor)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_logFileFunctor = logFileFunctor;

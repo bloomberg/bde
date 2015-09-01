@@ -8,6 +8,9 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 
@@ -85,21 +88,21 @@ const char *DEFAULT_CATEGORY_NAME = "";
 //                  HELPER FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+static void printCategory(const ball::Category *category)
+{
+    bsl::cout << "\t[ " << category->categoryName()
+              << ", " << category->recordLevel()
+              << ", " << category->passLevel()
+              << ", " << category->triggerLevel()
+              << ", " << category->triggerAllLevel()
+              << " ]" << bsl::endl;
+}
 void printAllCategories()
 {
+    
     ball::LoggerManager& lm = ball::LoggerManager::singleton();
-    ball::LoggerCategoryManip manip(&lm);
-    for (manip.advance(); manip; manip.advance()) {     // skip the default
-                                                        // category
-        const ball::Category *category
-            = lm.lookupCategory(manip().categoryName());
-        bsl::cout << "\t[ " << category->categoryName()
-                  << ", " << category->recordLevel()
-                  << ", " << category->passLevel()
-                  << ", " << category->triggerLevel()
-                  << ", " << category->triggerAllLevel()
-                  << " ]" << bsl::endl;
-    }
+    using namespace bdlf::PlaceHolders;    
+    lm.visitCategories(bdlf::BindUtil::bind(printCategory,  _1));
 }
 
 //=============================================================================

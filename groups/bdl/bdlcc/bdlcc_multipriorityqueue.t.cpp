@@ -2,7 +2,7 @@
 
 #include <bdlcc_multipriorityqueue.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlf_function.h>
 

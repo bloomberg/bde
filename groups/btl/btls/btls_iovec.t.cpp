@@ -2,12 +2,12 @@
 
 #include <btls_iovec.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
-#include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_c_stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -38,23 +38,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                             TEST PLAN
@@ -79,15 +79,13 @@ void aSsErT(bool condition, const char *message, int line)
 int globalVerbose = 0;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-static int TestWSASend(
-  SOCKET s,
-  LPWSABUF lpBuffers,
-  DWORD dwBufferCount,
-  LPDWORD lpNumberOfBytesSent,
-  DWORD dwFlags,
-  LPWSAOVERLAPPED lpOverlapped,
-  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-)
+static int TestWSASend(SOCKET                             s,
+                       LPWSABUF                           lpBuffers,
+                       DWORD                              dwBufferCount,
+                       LPDWORD                            lpNumberOfBytesSent,
+                       DWORD                              dwFlags,
+                       LPWSAOVERLAPPED                    lpOverlapped,
+                       LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine )
 {
     if (globalVerbose) P(dwBufferCount);
     DWORD i;
@@ -105,6 +103,7 @@ static int TestWSASend(
 // UNIX like systems - writev scatter/gather write function
 ssize_t writev(int fildes, const struct iovec *iov, int iovcnt)
 {
+    (void)fildes;
     if (globalVerbose) P(iovcnt);
     int i;
     for (i = 0; i < iovcnt; ++i) {
@@ -142,9 +141,9 @@ int main(int argc, char *argv[]) {
         // have identical internal structure.
         //
         // Testing:
-        // btls::Iovec::Iovec(const Iovec&)
-        // btls::Ovec::Ovec(const Ovec&)
-        // btls::Ovec::Ovec(const Iovec&)
+        //   btls::Iovec::Iovec(const Iovec&)
+        //   btls::Ovec::Ovec(const Ovec&)
+        //   btls::Ovec::Ovec(const Iovec&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING COPY CONTRUCTOR" <<
@@ -297,27 +296,46 @@ int main(int argc, char *argv[]) {
         // Testing
         // USAGE
         // --------------------------------------------------------------------
-        char buf1[10];
-        char buf2[4];
-        char buf3[7];
-        btls::Ovec vector[3];
-        vector[0].setBuffer(buf1, 10);
-        vector[1].setBuffer(buf2, 4);
-        vector[2].setBuffer(buf3, 7);
 
-#ifndef BSLS_PLATFORM_CMP_MSVC
+///Usage
+///-----
+// The following snippets of code illustrate how to use 'btls::Iovec' with
+// platform dependent scatter/gather operations.  Typically, an array of
+// structures is created with each element containing a pointer to a buffer.  A
+// pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
+// operation.  In this example an array of 3 buffer pointers is created.
+//..
+    char buf1[10];
+    char buf2[4];
+    char buf3[7];
+    btls::Ovec vector[3];
+    vector[0].setBuffer(buf1, 10);
+    vector[1].setBuffer(buf2, 4);
+    vector[2].setBuffer(buf3, 7);
+//..
+// On UNIX-like systems the internal structure of 'btls::Iovec' and
+// 'btls::Ovec' use the 'iovec' 'struct'.  This structure is used for the
+// 'writev' and 'readv' scatter/gather read/write operations or within the
+// 'msgbuf' 'struct' used by 'sendmsg' and 'readmsg' socket operations.
+//
+// On Windows the internal structure of 'btls::Iovec' and 'btls::Ovec' use the
+// 'WSABUF' 'struct'.  This structure is used for the 'WSARecv' and 'WSASend'
+// scatter/gather send/receive socket operations or within the 'WSAMSG'
+// 'struct' used by 'WSARecvMsg' and 'WSASendMsg' socket operations.
+//..
+    #ifndef BSLS_PLATFORM_CMP_MSVC
         // Verify values for UNIX like systems
         int socket = 0;
         ::writev(socket, (struct iovec *) vector, 3);
-#else
+    #else
         // Verify values for Windows
         DWORD writeCount = 0;
         SOCKET socket = (SOCKET) 0;
         int ret =
                TestWSASend(socket, (WSABUF *) vector, 3, &writeCount, 0, 0, 0);
-#endif
+    #endif
+//..
       } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

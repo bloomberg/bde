@@ -4,16 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 
-#include <bdlde_base64encoder.h>
 #include <bdlb_print.h>
+
+#include <bdlde_base64encoder.h>
+
+#include <bsl_cfloat.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstring.h>
+#include <bsl_iterator.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-
-#include <bsl_iterator.h>
-
-#include <bsl_cfloat.h>
-#include <stdio.h>  // for 'sprintf', which is not always in '<bsl_cstdio.h>'
 
 namespace BloombergLP {
 
@@ -53,19 +54,19 @@ bsl::ostream& encodeBase64(bsl::ostream&  stream,
 }
 
 const char *printTextReplacingXMLEscapes(
-                                      bsl::ostream&                stream,
-                                      const char                  *data,
-                                      int                          dataLength,
-                                      const balxml::EncoderOptions *options = 0)
+                                     bsl::ostream&                 stream,
+                                     const char                   *data,
+                                     int                           dataLength,
+                                     const balxml::EncoderOptions *options = 0)
     // Format the specified 'data' buffer of the specified 'dataLength' to the
     // specified output 'stream' using the 'bdlat_FormattingMode::e_TEXT'
-    // formatting mode, and using the specified encoder 'options'.  Return 0 on
-    // success, and a non-negative value otherwise.  If 'dataLength' is -1,
-    // then detect automatically the null character as the end of the string.
-    // If 'data' is invalid UTF-8 or contains a null character and
-    // 'dataLength' is not -1 (neither one being allowed for XML 1.0), then
-    // return the address of the first byte of the offending UTF-8 character
-    // in 'data'.
+    // formatting mode, and using the optionally specified encoder 'options'.
+    // Return 0 on success, and a non-negative value otherwise.  If
+    // 'dataLength' is -1, then detect automatically the null character as the
+    // end of the string.  If 'data' is invalid UTF-8 or contains a null
+    // character and 'dataLength' is not -1 (neither one being allowed for XML
+    // 1.0), then return the address of the first byte of the offending UTF-8
+    // character in 'data'.
 {
     // IMPLEMENTATION NOTE: This implementation does not buffer the output, for
     // two reasons.  The first is that most ostream's are buffered already.
@@ -363,10 +364,10 @@ const char *printTextReplacingXMLEscapes(
 
     while (data < end) {
         // The logic is to test if the current character should interrupt the
-        // current run of printable characters and, if so, flush the run
-        // to the stream, output the special character, and continue.
-        // For efficiency, we replicate the calls to 'stream.write(...)' in
-        // order to perform a single test per character.
+        // current run of printable characters and, if so, flush the run to the
+        // stream, output the special character, and continue.  For efficiency,
+        // we replicate the calls to 'stream.write(...)' in order to perform a
+        // single test per character.
 
         switch (ESCAPED_CHARS_TABLE[(unsigned char)*data]) {
           case END_OF_STRING: {
@@ -388,8 +389,7 @@ const char *printTextReplacingXMLEscapes(
             if (!options || !options->allowControlCharacters()) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             ++data;
           } break;
@@ -399,8 +399,7 @@ const char *printTextReplacingXMLEscapes(
 
             stream.write(runBegin, data - runBegin);
             stream.setstate(bsl::ios_base::failbit);
-            return data;  // error position                              RETURN
-                                                                      // RETURN
+            return data;  // error position                           // RETURN
           }
 
           case AMPERSAND: {
@@ -447,21 +446,20 @@ const char *printTextReplacingXMLEscapes(
           // of the run.
 
           case TWO_BYTE_SEQUENCE_PREFIX: {
-            // Second byte should be in the range 0x80..0xbf.  If not,
-            // including if it is the null-terminating character,
-            // flush current run and exit.
+            // Second byte should be in the range '[0x80..0xbf]'.  If not,
+            // including if it is the null-terminating character, flush current
+            // run and exit.
 
             if (!(data + 1 < end) || (*(data + 1) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 2;
           } break;
 
           case THREE_BYTE_SEQUENCE_PREFIX: {
-            // Second and third bytes should be in the range 0x80..0xbf.
+            // Second and third bytes should be in the range '[0x80..0xbf]'.
             // If not, including if the null-terminating character is
             // encountered, flush current run and exit.
 
@@ -469,46 +467,43 @@ const char *printTextReplacingXMLEscapes(
                                   || (*(data + 2) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 3;
           } break;
 
           case THREE_BYTE_SEQUENCE_PREFIX_E0: {
-            // Second byte should be in the range 0xa0..0xbf.
-            // Third bytes should be in the range 0x80..0xbf.
-            // If not, including if the null-terminating character is
-            // encountered, flush current run and exit.
+            // Second byte should be in the range '[0xa0..0xbf]'.  Third byte
+            // should be in the range '[0x80..0xbf]'.  If not, including if the
+            // null-terminating character is encountered, flush current run and
+            // exit.
 
             if (!(data + 2 < end) || (*(data + 1) & 0xe0) != 0xa0
                                   || (*(data + 2) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 3;
           } break;
 
           case THREE_BYTE_SEQUENCE_PREFIX_ED: {
-            // Second byte should be in the range 0x80..0x9f
-            // Third bytes should be in the range 0x80..0xbf
-            // If not, including if the null-terminating character is
-            // encountered, flush current run and exit.
+            // Second byte should be in the range '[0x80..0x9f]'.  Third byte
+            // should be in the range '[0x80..0xbf]'.  If not, including if the
+            // null-terminating character is encountered, flush current run and
+            // exit.
 
             if (!(data + 2 < end) || (*(data + 1) & 0xe0) != 0x80
                                   || (*(data + 2) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 3;
           } break;
 
           case FOUR_BYTE_SEQUENCE_PREFIX: {
-            // Second to fourth bytes should be in the range 0x80..0xbf
+            // Second to fourth bytes should be in the range '[0x80..0xbf]'.
             // If not, including if the null-terminating character is
             // encountered, flush current run and exit.
 
@@ -517,42 +512,39 @@ const char *printTextReplacingXMLEscapes(
                                   || (*(data + 3) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 4;
           } break;
 
           case FOUR_BYTE_SEQUENCE_PREFIX_F0: {
-            // Second byte should be in the range 0x90..0xbf
-            // Third and fourth bytes should be in the range 0x80..0xbf
-            // If not, including if the null-terminating character is
-            // encountered, flush current run and exit.
+            // Second byte should be in the range '[0x90..0xbf]'.  Third and
+            // fourth bytes should be in the range '[0x80..0xbf]'.  If not,
+            // including if the null-terminating character is encountered,
+            // flush current run and exit.
 
             if (!(data + 3 < end)
              || !((*(data + 1) & 0xc0) == 0x80 && (*(data + 1) & 0x90) != 0x00)
              || (*(data + 2) & 0xc0) != 0x80 || (*(data + 3) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 4;
           } break;
 
           case FOUR_BYTE_SEQUENCE_PREFIX_F4: {
-            // Second byte should be in the range 0x80..0x8f
-            // Third and fourth bytes should be in the range 0x80..0xbf
-            // If not, including if the null-terminating character is
-            // encountered, flush current run and exit.
+            // Second byte should be in the range '[0x80..0x8f]'.  Third and
+            // fourth bytes should be in the range '[0x80..0xbf]'.  If not,
+            // including if the null-terminating character is encountered,
+            // flush current run and exit.
 
             if (!(data + 3 < end) || (*(data + 1) & 0xf0) != 0x80
                                   || (*(data + 2) & 0xc0) != 0x80
                                   || (*(data + 3) & 0xc0) != 0x80) {
                 stream.write(runBegin, data - runBegin);
                 stream.setstate(bsl::ios_base::failbit);
-                return data;  // error position                          RETURN
-                                                                      // RETURN
+                return data;  // error position                       // RETURN
             }
             data += 4;
           } break;
@@ -664,9 +656,8 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
     }
 
     // Maximum number of digits in the number (excluding the decimal point).
-    // Ex: for totalDigits = 4, 65.43, 1234, 1.456 etc
-    // Maximum number of fraction digits refers to the digits following the
-    // decimal point.
+    // Ex: for totalDigits = 4, 65.43, 1234, 1.456 etc Maximum number of
+    // fraction digits refers to the digits following the decimal point.
 
     const int BUF_SIZE = 128;
     char buffer[BUF_SIZE];
@@ -734,30 +725,30 @@ namespace balxml {
 // BASE64 FUNCTIONS
 
 bsl::ostream&
-TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
-                                       const bsl::string&           object,
-                                       const EncoderOptions *,
-                                       bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
+                                const bsl::string&          object,
+                                const EncoderOptions       *,
+                                bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printBase64(bsl::ostream&                 stream,
-                                       const bslstl::StringRef&        object,
-                                       const EncoderOptions  *,
-                                       bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
+                                const bslstl::StringRef&    object,
+                                const EncoderOptions       *,
+                                bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
-                                       const bsl::vector<char>&     object,
-                                       const EncoderOptions *,
-                                       bdlat_TypeCategory::Array)
+TypesPrintUtil_Imp::printBase64(bsl::ostream&              stream,
+                                const bsl::vector<char>&   object,
+                                const EncoderOptions      *,
+                                bdlat_TypeCategory::Array)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
@@ -766,89 +757,95 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
 // HEX FUNCTIONS
 
 bsl::ostream&
-TypesPrintUtil_Imp::printHex(bsl::ostream&                stream,
-                                    const bsl::string&           object,
-                                    const EncoderOptions *,
-                                    bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printHex(bsl::ostream&               stream,
+                             const bsl::string&          object,
+                             const EncoderOptions       *,
+                             bdlat_TypeCategory::Simple)
 {
-    return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
+    return bdlb::Print::singleLineHexDump(stream,
+                                          object.begin(),
+                                          object.end());
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printHex(bsl::ostream&                 stream,
-                                    const bslstl::StringRef&        object,
-                                    const EncoderOptions  *,
-                                    bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printHex(bsl::ostream&               stream,
+                             const bslstl::StringRef&    object,
+                             const EncoderOptions       *,
+                             bdlat_TypeCategory::Simple)
 {
-    return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
+    return bdlb::Print::singleLineHexDump(stream,
+                                          object.begin(),
+                                          object.end());
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printHex(bsl::ostream&                   stream,
-                                    const bsl::vector<char>&        object,
-                                    const EncoderOptions    *,
-                                    bdlat_TypeCategory::Array)
+TypesPrintUtil_Imp::printHex(bsl::ostream&              stream,
+                             const bsl::vector<char>&   object,
+                             const EncoderOptions      *,
+                             bdlat_TypeCategory::Array)
 {
-    return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
+    return bdlb::Print::singleLineHexDump(stream,
+                                          object.begin(),
+                                          object.end());
 }
 
 // TEXT FUNCTIONS
 
 bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const char&                  object,
-                                     const EncoderOptions *options,
-                                     bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
+                              const char&                 object,
+                              const EncoderOptions       *encoderOptions,
+                              bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream, &object, 1, options);
+    printTextReplacingXMLEscapes(stream, &object, 1, encoderOptions);
     return stream;
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const char                  *object,
-                                     const EncoderOptions *options,
-                                     bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
+                              const char                 *object,
+                              const EncoderOptions       *encoderOptions,
+                              bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream, object, -1, options);
+    printTextReplacingXMLEscapes(stream, object, -1, encoderOptions);
     return stream;
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const bsl::string&           object,
-                                     const EncoderOptions *options,
-                                     bdlat_TypeCategory::Simple)
-{
-    // Calls a function in the unnamed namespace.  Cannot be inlined.
-    printTextReplacingXMLEscapes(stream,
-                                 object.data(),
-                                 object.length(),
-                                 options);
-    return stream;
-}
-
-bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const bslstl::StringRef&       object,
-                                     const EncoderOptions *options,
-                                     bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
+                              const bsl::string&          object,
+                              const EncoderOptions       *encoderOptions,
+                              bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream,
                                  object.data(),
                                  object.length(),
-                                 options);
+                                 encoderOptions);
     return stream;
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const bsl::vector<char>&     object,
-                                     const EncoderOptions *options,
-                                     bdlat_TypeCategory::Array)
+TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
+                              const bslstl::StringRef&    object,
+                              const EncoderOptions       *encoderOptions,
+                              bdlat_TypeCategory::Simple)
+{
+    // Calls a function in the unnamed namespace.  Cannot be inlined.
+    printTextReplacingXMLEscapes(stream,
+                                 object.data(),
+                                 object.length(),
+                                 encoderOptions);
+    return stream;
+}
+
+bsl::ostream&
+TypesPrintUtil_Imp::printText(bsl::ostream&              stream,
+                              const bsl::vector<char>&   object,
+                              const EncoderOptions      *encoderOptions,
+                              bdlat_TypeCategory::Array)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
 
@@ -858,41 +855,41 @@ TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
         printTextReplacingXMLEscapes(stream,
                                      &object[0],
                                      object.size(),
-                                     options);
+                                     encoderOptions);
     }
     return stream;
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
-                                        const float&                 object,
-                                        const EncoderOptions *,
-                                        bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
+                                 const float&                object,
+                                 const EncoderOptions       *,
+                                 bdlat_TypeCategory::Simple)
 {
     return printDecimalImpl(stream, object, FLT_DIG);
 }
 
 bsl::ostream&
-TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
-                                        const double&                object,
-                                        const EncoderOptions *options,
-                                        bdlat_TypeCategory::Simple)
+TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
+                                 const double&               object,
+                                 const EncoderOptions       *encoderOptions,
+                                 bdlat_TypeCategory::Simple)
 {
-    if (!options
-     || (options->maxDecimalTotalDigits().isNull()
-      && options->maxDecimalFractionDigits().isNull())) {
+    if (!encoderOptions
+     || (encoderOptions->maxDecimalTotalDigits().isNull()
+      && encoderOptions->maxDecimalFractionDigits().isNull())) {
         printDecimalImpl(stream, object, DBL_DIG);
     }
     else {
         const int maxTotalDigits =
-                                 options->maxDecimalTotalDigits().isNull()
-                                 ? DBL_DIG + 1
-                                 : options->maxDecimalTotalDigits().value();
+                         encoderOptions->maxDecimalTotalDigits().isNull()
+                             ? DBL_DIG + 1
+                             : encoderOptions->maxDecimalTotalDigits().value();
 
         const int maxFractionDigits =
-                                 options->maxDecimalFractionDigits().isNull()
-                                 ? DBL_DIG
-                                 : options->maxDecimalFractionDigits().value();
+                      encoderOptions->maxDecimalFractionDigits().isNull()
+                          ? DBL_DIG
+                          : encoderOptions->maxDecimalFractionDigits().value();
 
         printDecimalWithOptions(stream,
                                 object,
@@ -904,10 +901,10 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
 }
 
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                           bsl::ostream&                stream,
-                                           const float&                 object,
-                                           const EncoderOptions *,
-                                           bdlat_TypeCategory::Simple)
+                                            bsl::ostream&               stream,
+                                            const float&                object,
+                                            const EncoderOptions       *,
+                                            bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
       case bdlb::Float::k_POSITIVE_INFINITY: {
@@ -950,10 +947,10 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 }
 
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                           bsl::ostream&                stream,
-                                           const double&                object,
-                                           const EncoderOptions *,
-                                           bdlat_TypeCategory::Simple)
+                                            bsl::ostream&               stream,
+                                            const double&               object,
+                                            const EncoderOptions       *,
+                                            bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
       case bdlb::Float::k_POSITIVE_INFINITY: {

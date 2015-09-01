@@ -5743,7 +5743,9 @@ int main(int argc, char *argv[])
                 const Cat *CATEGORY  = DATA[i].d_category;
 
                 Holder BAEL_LOG_CATEGORYHOLDER = {
-                    THRESHOLD, CATEGORY, 0
+                    THRESHOLD, 
+                    const_cast<Cat *>(CATEGORY), 
+                    0
                 };
 
                 LOOP3_ASSERT(LINE, THRESHOLD, BALL_LOG_THRESHOLD,

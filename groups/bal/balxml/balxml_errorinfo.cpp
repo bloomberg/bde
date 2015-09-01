@@ -18,13 +18,12 @@ ErrorInfo::ErrorInfo(bslma::Allocator *basicAllocator)
 {
 }
 
-ErrorInfo::ErrorInfo(const ErrorInfo&  other,
-                                   bslma::Allocator        *basicAllocator)
-: d_severity    (other.d_severity)
-, d_lineNumber  (other.d_lineNumber)
+ErrorInfo::ErrorInfo(const ErrorInfo& other, bslma::Allocator *basicAllocator)
+: d_severity(other.d_severity)
+, d_lineNumber(other.d_lineNumber)
 , d_columnNumber(other.d_columnNumber)
-, d_source      (other.d_source, basicAllocator)
-, d_message     (other.d_message, basicAllocator)
+, d_source(other.d_source, basicAllocator)
+, d_message(other.d_message, basicAllocator)
 {
 }
 
@@ -55,12 +54,11 @@ ErrorInfo::reset()
     d_message.clear();
 }
 
-void
-ErrorInfo::setError(Severity               severity,
-                           int                    lineNumber,
-                           int                    columnNumber,
-                           const bslstl::StringRef& source,
-                           const bslstl::StringRef& errorMsg)
+void ErrorInfo::setError(Severity                 severity,
+                         int                      lineNumber,
+                         int                      columnNumber,
+                         const bslstl::StringRef& source,
+                         const bslstl::StringRef& errorMsg)
 {
     if (severity > d_severity) {
         d_severity = severity;
@@ -81,8 +79,8 @@ bool balxml::operator==(const ErrorInfo& lhs, const ErrorInfo& rhs)
             lhs.message() == rhs.message());
 }
 
-bsl::ostream& balxml::operator<<(bsl::ostream&           stream,
-                         const ErrorInfo& errInfo)
+bsl::ostream& balxml::operator<<(bsl::ostream&    stream,
+                                 const ErrorInfo& errInfo)
 {
     const char *severityStr;
 

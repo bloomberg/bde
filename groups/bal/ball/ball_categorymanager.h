@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //              ball::Category: container for name and threshold levels
 //        ball::CategoryHolder: holder of a category and its maximum level
 //       ball::CategoryManager: manager of category registry
-//   ball::CategoryManagerIter: sequential read-only accessor of categories (*)
-//  ball::CategoryManagerManip: sequential manipulator of categories (*)
 //
 // (*) Indicates that the class is deprecated.  See "Deprecation Notice" below.
 //
@@ -183,6 +181,10 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
+#ifndef INCLUDED_BALL_CATEGORY
+#include <ball_category.h>
+#endif
+
 #ifndef INCLUDED_BALL_RULESET
 #include <ball_ruleset.h>
 #endif
@@ -233,228 +235,11 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
+namespace ball {
 
-                        // ===================
-                        // class ball::Category
-                        // ===================
-
-
-namespace ball {class CategoryHolder;
-class CategoryManager;
-class Category_Proctor;
-
-class Category {
-    // This class provides a container to hold the name and threshold levels
-    // of a category.  Instances of 'Category' are created and manipulated
-    // by 'CategoryManager'.  All threshold levels are integral values in
-    // the range '[0 .. 255]'.
-
-    ThresholdAggregate  d_thresholdLevels;  // record, pass, trigger, and
-                                                 // trigger-all levels
-
-    int                      d_threshold;        // numerical maximum of the
-                                                 // four levels
-
-    bsl::string              d_categoryName;     // category name
-
-    CategoryHolder     *d_categoryHolder;   // linked list of holders of
-                                                 // this category
-    mutable RuleSet::MaskType
-                             d_relevantRuleMask; // the mask indicating which
-                                                 // rules are relevant (i.e.,
-                                                 // have been attached to this
-                                                 // category)
-
-    mutable int              d_ruleThreshold;    // numerical maximum of all
-                                                 // four levels for all
-                                                 // relevant rules
-
-    // FRIENDS
-    friend class CategoryManager;
-    friend class Category_Proctor;
-
-    // NOT IMPLEMENTED
-    Category(const Category&);
-    Category& operator=(const Category&);
-
-  private:
-    // PRIVATE CREATORS
-    Category(const char       *categoryName,
-                  int               recordLevel,
-                  int               passLevel,
-                  int               triggerLevel,
-                  int               triggerAllLevel,
-                  bslma::Allocator *basicAllocator = 0);
-        // Create a category having the specified 'categoryName' and the
-        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel' threshold values, respectively.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless each of the specified
-        // threshold levels is in the range '[0 .. 255]', and 'categoryName' is
-        // null-terminated.
-
-    ~Category();
-        // Destroy this category.
-
-    // PRIVATE MANIPULATORS
-    void linkCategoryHolder(CategoryHolder *categoryHolder);
-        // Load this category and its corresponding 'maxLevel()' into the
-        // specified 'categoryHolder', and add 'categoryHolder' to the linked
-        // list of category holders managed by this category.
-
-    void resetCategoryHolders();
-        // Reset the category holders to which this category is linked to
-        // their default value.  See the function-level documentation of
-        // 'CategoryHolder::reset' for further information on the
-        // default value of category holders.
-
-    void updateThresholdForHolders();
-        // Update the threshold of all category holders that hold the address
-        // of this object to the maximum of 'd_threshold' and
-        // 'd_ruleThreshold'.
-
-  public:
-    // CLASS METHODS
-    static bool areValidThresholdLevels(int recordLevel,
-                                        int passLevel,
-                                        int triggerLevel,
-                                        int triggerAllLevel);
-        // Return 'true' if each of the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel' and 'triggerAllLevel' threshold values are in the
-        // range '[0 .. 255]', and 'false' otherwise.
-
-    // MANIPULATORS
-    int setLevels(int recordLevel,
-                  int passLevel,
-                  int triggerLevel,
-                  int triggerAllLevel);
-        // Set the threshold levels of this category to the specified
-        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-        // values, respectively, if each of the specified values is in the
-        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value
-        // otherwise (with no effect on the threshold levels of this category).
-
-    // ACCESSORS
-    const char *categoryName() const;
-        // Return the name of this category.
-
-    bool isEnabled(int level) const;
-        // Return 'true' if logging at the specified 'level' is enabled for
-        // this category, and 'false' otherwise.  Logging is enabled if 'level'
-        // is numerically less than or equal to any of the four threshold
-        // levels of this category.
-
-    int maxLevel() const;
-        // Return the numerical maximum of the four levels of this category.
-
-    int recordLevel() const;
-        // Return the record level of this category.
-
-    int passLevel() const;
-        // Return the pass level of this category.
-
-    int triggerLevel() const;
-        // Return the trigger level of this category.
-
-    int triggerAllLevel() const;
-        // Return the trigger-all level of this category.
-
-    const ThresholdAggregate& thresholdLevels() const;
-        // Return the aggregate threshold levels of this category.
-
-    const RuleSet::MaskType& relevantRuleMask() const;
-        // Return a reference to the non-modifiable relevant rule mask for
-        // this category.  The returned 'RuleSet::MaskType' value is a
-        // bit-mask, where each bit is a boolean value indicating whether the
-        // rule at the corresponding index (in the rule set of the category
-        // manager that owns this category) applies at this category.  Note
-        // that a rule applies to this category if the rule's pattern matches
-        // the name returned by 'categoryName'.
-};
-
-                        // =========================
-                        // class CategoryHolder
-                        // =========================
-
-class CategoryHolder {
-    // This class, informally referred to as a "category holder" (or simply
-    // "holder"), holds a category, a threshold level, and a pointer to a
-    // "next" holder.  Both the category and next pointer may be null.  The
-    // intended use is as follows: (1) instances of this class are (only)
-    // declared in contexts where logging occurs; (2) if the held category is
-    // non-null, then the held threshold is the numerical maximum of the four
-    // levels of that category; (3) if the next pointer is non-null, then the
-    // holder pointed to holds the same category and threshold.  Instances of
-    // this class must be *statically* initializable.  Hence, the data members
-    // are 'public', and no constructors or destructor are defined.
-    //
-    // This class should *not* be used directly by client code.  It is an
-    // implementation detail of the 'bael' logging system.
-
-    // NOT IMPLEMENTED
-    CategoryHolder& operator=(const CategoryHolder&);
-
-  public:
-    // PUBLIC TYPES
-    enum {
-        e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
-        e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , BAEL_DYNAMIC_CATEGORY = e_DYNAMIC_CATEGORY
-      , UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-    };
-        // This enumeration defines distinguished values for category holder
-        // threshold levels.  Note that these values are intentionally outside
-        // the range '[0 .. 255]'.
-
-    // PUBLIC DATA MEMBERS
-    int                  d_threshold;   // threshold level
-    const Category *d_category_p;  // held category (not owned)
-    CategoryHolder *d_next_p;      // next category holder in linked list
-
-    // CREATORS
-
-    // No constructors or destructors are declared in order to allow for static
-    // initialization of instances of this class.
-
-    // MANIPULATORS
-    void reset();
-        // Reset this object to its default value.  The default value is:
-        //..
-        //   { BAEL_UNINITIALIZED_CATEGORY, 0, 0 }
-        //..
-
-    void setCategory(const Category *category);
-        // Set the address of the category held by this holder to the specified
-        // 'category'.
-
-    void setThreshold(int threshold);
-        // Set the threshold level held by this holder to the specified
-        // 'threshold'.
-
-    void setNext(CategoryHolder *holder);
-        // Set this holder to point to the specified 'holder'.
-
-    // ACCESSORS
-    const Category *category() const;
-        // Return the address of the non-modifiable category held by this
-        // holder.
-
-    int threshold() const;
-        // Return the threshold level held by this holder.
-
-    CategoryHolder *next() const;
-        // Return the address of the modifiable holder held by this holder.
-};
-
-                        // ==========================
+                        // =====================
                         // class CategoryManager
-                        // ==========================
+                        // =====================
 
 class CategoryManager {
     // This class manages a set (or "registry") of categories.  Categories may
@@ -526,10 +311,10 @@ class CategoryManager {
         // undefined unless '0 <= index < length()'.
 
     Category *addCategory(const char *categoryName,
-                               int         recordLevel,
-                               int         passLevel,
-                               int         triggerLevel,
-                               int         triggerAllLevel);
+                          int         recordLevel,
+                          int         passLevel,
+                          int         triggerLevel,
+                          int         triggerAllLevel);
         // Add to the registry of this category manager a category having the
         // specified 'categoryName' and the specified 'recordLevel,
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
@@ -541,11 +326,11 @@ class CategoryManager {
         // 'categoryName' already exists in the registry, 0 is returned.
 
     Category *addCategory(CategoryHolder *categoryHolder,
-                               const char          *categoryName,
-                               int                  recordLevel,
-                               int                  passLevel,
-                               int                  triggerLevel,
-                               int                  triggerAllLevel);
+                          const char     *categoryName,
+                          int             recordLevel,
+                          int             passLevel,
+                          int             triggerLevel,
+                          int             triggerAllLevel);
         // Add to the registry of this category manager a category having the
         // specified 'categoryName' and the specified 'recordLevel,
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
@@ -634,6 +419,16 @@ class CategoryManager {
         // and any of the rule methods on this object (other than 'ruleSet()')
         // are called.
 
+    template <class CATEGORY_VISITOR>
+    void visitCategories(const CATEGORY_VISITOR& visitor);
+        // Invoke the specified 'visitor' functor on each category managed by
+        // this object, supplying that functor modifiable access to each
+        // category.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(Category *);
+        //..      
+
     // ACCESSORS
     int ruleSequenceNumber() const;
         // Return the rule sequence number indicating the number of rule
@@ -658,215 +453,25 @@ class CategoryManager {
         // Return a reference to the non-modifiable rule set maintained by
         // this object.  Note that the 'rulesetMutex()' should be locked prior
         // to accessing this set.
-};
 
-                        // ==============================
-                        // class CategoryManagerIter
-                        // ==============================
-
-class CategoryManagerIter {
-    // This class provides sequential, read-only access to the categories in
-    // the registry of a category manager.  The order of the iteration is
-    // undefined.
-    //
-    // WARNING: THIS CLASS IS DEPRECATED!
-
-    const CategoryManager& d_cm;     // associated category manager (held)
-    int                         d_index;  // index into category manager
-
-    // NOT IMPLEMENTED
-    CategoryManagerIter(const CategoryManagerIter& original);
-    CategoryManagerIter& operator=(const CategoryManagerIter& rhs);
-
-    bool operator==(const CategoryManagerIter&) const;
-    bool operator!=(const CategoryManagerIter&) const;
-
-  public:
-    // CREATORS
-    explicit CategoryManagerIter(
-                                  const CategoryManager& categoryManager);
-        // Create an iterator for the specified 'categoryManager' initialized
-        // to refer to the first category in the sequence of categories in the
-        // registry of 'categoryManager', if one exists, and initialized to be
-        // invalid otherwise.  The order of iteration is undefined.  The
-        // behavior is undefined unless the lifetime of 'categoryManager'
-        // is at least as long as the lifetime of this iterator.
-
-    ~CategoryManagerIter();
-        // Destroy this iterator.
-
-    // MANIPULATORS
-    void operator++();
-        // Advance this iterator to refer to the next unvisited category.  If
-        // no such category exists, this iterator becomes invalid.  The
-        // behavior is undefined unless this iterator is initially valid.  Note
-        // that the order of iteration is undefined.
-
-    // ACCESSORS
-    operator const void *() const;
-        // Return a non-zero value if this iterator is valid, and 0 otherwise.
-
-    const Category& operator()() const;
-        // Return a reference to the non-modifiable category currently
-        // referred to by this iterator.  The behavior is undefined unless this
-        // iterator is valid.
-};
-
-                        // ===============================
-                        // class CategoryManagerManip
-                        // ===============================
-
-class CategoryManagerManip {
-    // This class provides sequential, modifiable access to the categories in
-    // the registry of a category manager.  The order of the iteration is
-    // undefined.
-    //
-    // WARNING: THIS CLASS IS DEPRECATED!
-
-    CategoryManager *d_cm_p;   // associated category manager (held)
-    int                   d_index;  // index into category manager
-
-    // NOT IMPLEMENTED
-    CategoryManagerManip(const CategoryManagerManip& original);
-    CategoryManagerManip& operator=(const CategoryManagerManip& rhs);
-
-    bool operator==(const CategoryManagerManip&) const;
-    bool operator!=(const CategoryManagerManip&) const;
-
-  public:
-    // CREATORS
-    explicit CategoryManagerManip(CategoryManager *categoryManager);
-        // Create a manipulator for the specified 'categoryManager' initialized
-        // to refer to the first category in the sequence of categories in the
-        // registry of 'categoryManager', if one exists, and initialized to be
-        // invalid otherwise.  The order of iteration is undefined.  The
-        // behavior is undefined unless 'categoryManager' is non-null and the
-        // lifetime of 'categoryManager' is at least as long as the lifetime
-        // of this manipulator.
-
-    ~CategoryManagerManip();
-        // Destroy this manipulator.
-
-    // MANIPULATORS
-    void advance();
-        // Advance this manipulator to refer to the next unvisited category.
-        // If no such category exists, this manipulator becomes invalid.  The
-        // behavior is undefined unless this manipulator is initially valid.
-        // Note that the order of iteration is undefined.
-
-    Category& operator()();
-        // Return a reference to the modifiable category currently referred to
-        // by this manipulator.  The behavior is undefined unless this
-        // manipulator is valid.
-
-    // ACCESSORS
-    operator const void *() const;
-        // Return a non-zero value if this manipulator is valid, and 0
-        // otherwise.
+    template <class CATEGORY_VISITOR>
+    void visitCategories(const CATEGORY_VISITOR& visitor) const;
+        // Invoke the specified 'visitor' functor on each category managed by
+        // this object, supplying that functor non-modifiable access to each
+        // category.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(const Category *);
+        //..
 };
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -------------------
-                        // class Category
-                        // -------------------
-
-// ACCESSORS
-inline
-const char *Category::categoryName() const
-{
-    return d_categoryName.c_str();
-}
-
-inline
-int Category::maxLevel() const
-{
-    return d_threshold;
-}
-
-inline
-int Category::recordLevel() const
-{
-    return d_thresholdLevels.recordLevel();
-}
-
-inline
-int Category::passLevel() const
-{
-    return d_thresholdLevels.passLevel();
-}
-
-inline
-int Category::triggerLevel() const
-{
-    return d_thresholdLevels.triggerLevel();
-}
-
-inline
-int Category::triggerAllLevel() const
-{
-    return d_thresholdLevels.triggerAllLevel();
-}
-
-inline
-const ThresholdAggregate& Category::thresholdLevels() const
-{
-    return d_thresholdLevels;
-}
-
-inline
-const RuleSet::MaskType& Category::relevantRuleMask() const
-{
-    return d_relevantRuleMask;
-}
-
-                        // -------------------------
-                        // class CategoryHolder
-                        // -------------------------
-
-// MANIPULATORS
-inline
-void CategoryHolder::setCategory(const Category *category)
-{
-    d_category_p = category;
-}
-
-inline
-void CategoryHolder::setThreshold(int threshold)
-{
-    d_threshold = threshold;
-}
-
-inline
-void CategoryHolder::setNext(CategoryHolder *holder)
-{
-    d_next_p = holder;
-}
-
-// ACCESSORS
-inline
-const Category *CategoryHolder::category() const
-{
-    return d_category_p;
-}
-
-inline
-int CategoryHolder::threshold() const
-{
-    return d_threshold;
-}
-
-inline
-CategoryHolder *CategoryHolder::next() const
-{
-    return d_next_p;
-}
-
-                        // --------------------------
+                        // ---------------------
                         // class CategoryManager
-                        // --------------------------
+                        // ---------------------
 
 // CREATORS
 inline
@@ -891,6 +496,18 @@ bdlqq::Mutex& CategoryManager::rulesetMutex()
 {
     return d_ruleSetMutex;
 }
+
+template <class CATEGORY_VISITOR>
+void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
+{
+    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    for (bsl::vector<Category *>::iterator it = d_categories.begin();
+         it != d_categories.end();
+         ++it) {
+        visitor(*it);
+    }   
+}
+
 // ACCESSORS
 inline
 int CategoryManager::ruleSequenceNumber() const
@@ -920,85 +537,18 @@ const RuleSet& CategoryManager::ruleSet() const
     return d_ruleSet;
 }
 
-                        // ------------------------------
-                        // class CategoryManagerIter
-                        // ------------------------------
-
-// CREATORS
-inline
-CategoryManagerIter::CategoryManagerIter(
-                                   const CategoryManager& categoryManager)
-: d_cm(categoryManager)
-, d_index(0)
+template <class CATEGORY_VISITOR>
+void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 {
+    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    for (bsl::vector<Category *>::const_iterator it = d_categories.begin();
+         it != d_categories.end();
+         ++it) {
+        visitor(*it);
+    }
 }
 
-inline
-CategoryManagerIter::~CategoryManagerIter()
-{
-}
-
-// MANIPULATORS
-inline
-void CategoryManagerIter::operator++()
-{
-    ++d_index;
-}
 }  // close package namespace
-
-// ACCESSORS
-inline
-ball::CategoryManagerIter::operator const void *() const
-{
-    return (void *)(0 <= d_index && d_index < d_cm.length());
-}
-
-namespace ball {
-inline
-const Category& CategoryManagerIter::operator()() const
-{
-    return d_cm[d_index];
-}
-
-                        // -------------------------------
-                        // class CategoryManagerManip
-                        // -------------------------------
-
-// CREATORS
-inline
-CategoryManagerManip::CategoryManagerManip(
-                                         CategoryManager *categoryManager)
-: d_cm_p(categoryManager)
-, d_index(0)
-{
-}
-
-inline
-CategoryManagerManip::~CategoryManagerManip()
-{
-}
-
-// MANIPULATORS
-inline
-void CategoryManagerManip::advance()
-{
-    ++d_index;
-}
-
-inline
-Category& CategoryManagerManip::operator()()
-{
-    return d_cm_p->operator[](d_index);
-}
-}  // close package namespace
-
-// ACCESSORS
-inline
-ball::CategoryManagerManip::operator const void *() const
-{
-    return (const void *)(0 <= d_index && d_index < d_cm_p->length()) ? this
-                                                                      : 0;
-}
 
 }  // close enterprise namespace
 

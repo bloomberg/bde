@@ -1,7 +1,7 @@
 // bdlmt_timereventscheduler.t.cpp                                    -*-C++-*-
 #include <bdlmt_timereventscheduler.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_atomic.h>
@@ -11,7 +11,7 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#include <bdlb_bitstringutil.h>
+#include <bdlb_bitutil.h>
 #include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
@@ -150,23 +150,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 #define E(X)  cout << (X) << endl;     // Print value.
 #define E_(X) cout << (X) << flush;    // Print value.
@@ -1046,9 +1046,8 @@ int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
 
-    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
-                                                   &maxValue,
-                                                   CHAR_BIT * sizeof maxValue);
+    return (sizeof(maxValue) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
+                                         static_cast<bsl::uint32_t>(maxValue));
 }
 
 // Calculate the largest integer identifiable using the specified 'numBits'.
@@ -2630,39 +2629,6 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
-        // FAST TRACK SCRATCH AREA
-
-        if (verbose) cout << endl
-                          << "FAST TRACK SCRATCH AREA" << endl
-                          << "=======================" << endl;
-
-        const int ARRAY[] = {
-            //  INT_MIN,
-            //       -1,
-                      0,
-                      1,
-                      2,
-                      3,
-                1 << 10,
-                INT_MAX
-        };
-        const int NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
-
-        for (int i = 0; i < NUM_ELEMENTS; ++i) {
-            const int VALUE = ARRAY[i];
-        //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
-            const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
-                                                      &VALUE,
-                                                      CHAR_BIT * sizeof VALUE);
-
-            P_(VALUE)
-            //P_(ret0)
-            P(ret1)
-            // ASSERT(ret1 == ret0);
-        }
-
-      } break;
       case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:

@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 //                                          publish
 //..
 // 'ball::DefaultObserver' is a concrete class derived from 'ball::Observer'
-// that processes the log records it receives through its 'publish' method
-// by printing them to 'stdout'.  Given its minimal functionality,
+// that processes the log records it receives through its 'publish' method by
+// printing them to 'stdout'.  Given its minimal functionality,
 // 'ball::DefaultObserver' is intended for development use only.
 // 'ball::DefaultObserver' is not recommended for use in a production
 // environment.
@@ -45,7 +45,8 @@ BSLS_IDENT("$Id: $")
 //..
 // The default observer must then be installed within a 'bael' logging system.
 // This is done by passing 'defaultObserver' to the 'ball::LoggerManager'
-// constructor, which also requires a 'ball::LoggerManagerConfiguration' object.
+// constructor, which also requires a 'ball::LoggerManagerConfiguration'
+// object.
 //..
 //     ball::LoggerManagerConfiguration lmc;
 //     ball::LoggerManager              loggerManager(&defaultObserver, lmc);
@@ -71,23 +72,24 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Context;
+class Context;
 class Record;
 
-                           // ==========================
+                           // =====================
                            // class DefaultObserver
-                           // ==========================
+                           // =====================
 
 class DefaultObserver : public Observer {
-    // This class provides a default implementation of the 'Observer'
-    // protocol.  The 'publish' method of this class outputs the log records
-    // that it receives to an instance of 'bsl::ostream' that is supplied
-    // at construction.
+    // This class provides a default implementation of the 'Observer' protocol.
+    // The 'publish' method of this class outputs the log records that it
+    // receives to an instance of 'bsl::ostream' that is supplied at
+    // construction.
 
     // DATA
     bsl::ostream *d_stream;  // output sink for log records
-    bdlqq::Mutex   d_mutex;   // serializes concurrent calls to 'publish'
+    bdlqq::Mutex  d_mutex;   // serializes concurrent calls to 'publish'
 
     // NOT IMPLEMENTED
     DefaultObserver(const DefaultObserver&);
@@ -122,12 +124,12 @@ class DefaultObserver : public Observer {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                           // --------------------------
+                           // ---------------------
                            // class DefaultObserver
-                           // --------------------------
+                           // ---------------------
 
 // CREATORS
 inline
@@ -141,6 +143,7 @@ DefaultObserver::DefaultObserver(bsl::ostream *stream)
 : d_stream(stream)
 {
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

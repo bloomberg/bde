@@ -1,74 +1,79 @@
 // balxml_validatingreader.t.cpp                                      -*-C++-*-
-
 #include <balxml_validatingreader.h>
+
+#include <bslim_testutil.h>
+
 #include <balxml_errorinfo.h>
 #include <balxml_namespaceregistry.h>
 #include <balxml_prefixstack.h>
 #include <balxml_elementattribute.h>
-//#include <balxml_util.h>  // for testing
+
+#include <bdlf_function.h>
 
 #include <bsl_cstring.h>     // strlen()
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_strstream.h>
 
 using namespace BloombergLP;
-
-//=============================================================================
-//                                 TEST PLAN
-//-----------------------------------------------------------------------------
-//                                 Overview
-//                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+using namespace bsl;
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
+//                                 Overview
+//                                 --------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
 #define NL "\n"
 
 // ============================================================================
@@ -101,8 +106,8 @@ struct TestNode {
     int            d_retCode;     // return code when we advance to this node
     Obj::NodeType  d_type;        // Describes the type of the XML node
     const char    *d_qname;       // Name qualified name the XML node
-    const char    *d_nodeValue;   // Value of the the XML node
-                                  // if null, then hasValue() returns false
+    const char    *d_nodeValue;   // Value of the the XML node if null, then
+                                  // hasValue() returns false
     int            d_depthChange; // Used to adjust the 'TestReader' depth
                                   // level, valid values are -1, 0 or 1
     bool           d_isEmptyElement;
@@ -227,7 +232,7 @@ private:
     const TestNode     *d_document;  // fake document
 
     balxml::ErrorInfo    d_errorInfo; // Contains the current error information
-    balxml::PrefixStack *d_prefixes;  // The prefix stack used by the TestReader
+    balxml::PrefixStack *d_prefixes; // The prefix stack used by the TestReader
     XmlResolverFunctor  d_resolver;  // Just a place holder, not actually used
                                      // while looking up XML information
     bool                d_isOpen;    // Keeps track if the reader is open
@@ -287,13 +292,13 @@ public:
     virtual int advanceToNextNode();
 
     virtual int lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                      index) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+                                int                       index) const;
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *qname) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 const char               *namespaceUri) const;
-    virtual int lookupAttribute(balxml::ElementAttribute  *attribute,
+    virtual int lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 int                       namespaceId) const;
 
@@ -326,7 +331,7 @@ public:
 //..
 int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
     const char *whiteSpace = "\n\r\t ";
-    const char *value = '\0';
+    const char *value = 0;
     int         type = 0;
     int         rc = 0;
 
@@ -335,9 +340,9 @@ int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
         value = reader.nodeValue();
         type  = reader.nodeType();
     } while(0 == rc &&
-            type == balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE ||
-            (type == balxml::ValidatingReader::e_NODE_TYPE_TEXT &&
-             bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
+            (type == balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE ||
+             (type == balxml::ValidatingReader::e_NODE_TYPE_TEXT &&
+              bsl::strlen(value) == bsl::strspn(value, whiteSpace))));
 
     ASSERT( reader.nodeType() !=
                          balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE);
@@ -536,10 +541,10 @@ int TestReader::advanceToNextNode() {
 
         if (d_prefixes && 1 == d_nodeDepth) {
         // The 'TestReader' only recognizes namespace URIs with the prefix
-        // (xmlns:) on the top level element, these URIs will be added to
-        // the prefix stack.  Namespace URI declarations on any other
-        // elements will be treated like normal attributes.  The prefix
-        // stack will be reset once the top level element is closed.
+        // (xmlns:) on the top level element, these URIs will be added to the
+        // prefix stack.  Namespace URI declarations on any other elements will
+        // be treated like normal attributes.  The prefix stack will be reset
+        // once the top level element is closed.
             adjustPrefixStack();
         }
 
@@ -550,7 +555,7 @@ int TestReader::advanceToNextNode() {
 }
 
 int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
-                                int                      index) const {
+                                int                       index) const {
     if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
         return 1;                                                     // RETURN
     }
@@ -566,7 +571,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
 }
 
 int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
-                                const char               *qname) const {
+                                const char                *qname) const {
     if (!d_currentNode) {
         return 1;                                                     // RETURN
     }
@@ -584,7 +589,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
     return 1;
 }
 
-int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
+int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
                                 const char               *localName,
                                 const char               *namespaceUri) const {
     if (!d_currentNode) {
@@ -613,8 +618,8 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
 }
 
 int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
-                                const char               *localName,
-                                int                       namespaceId) const {
+                                const char                *localName,
+                                int                        namespaceId) const {
     if (!d_currentNode) {
         return 1;                                                     // RETURN
     }
@@ -673,7 +678,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return e_NODE_TYPE_NONE;                                 // RETURN
+        return e_NODE_TYPE_NONE;                                      // RETURN
     }
 
     return d_currentNode->d_type;
@@ -763,9 +768,9 @@ bool TestReader::isEmptyElement() const {
 unsigned int TestReader::options() const {
     return 0;
 }
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //..
 // The following string describes xsd schema for
 // the documents we are going to parse
@@ -827,8 +832,8 @@ unsigned int TestReader::options() const {
 //..
 
 int parse(balxml::ValidatingReader *reader,
-          const char              *xmlData,
-          const char              *xsdSchema)
+          const char               *xmlData,
+          const char               *xsdSchema)
 {
 //..
 // In order to read the XML, we first need to construct a

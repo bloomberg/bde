@@ -115,7 +115,7 @@ using namespace BloombergLP::bsltf;
 // 'realTestStatus' and 'realaSsErT' instead.
 //
 // Additionally, in order to allow capturing the output of the
-// 'BSLS_BSLTESTUTIL_*' macros, the standard macros output to 'stderr' instead
+// 'BDLS_TESTUTIL_*' macros, the standard macros output to 'stderr' instead
 // of 'stdout'.
 
 static int realTestStatus = 0;

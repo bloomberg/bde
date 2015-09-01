@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a mechanism for reading control messages from a named pipe
+//@PURPOSE: Provide a mechanism for reading control messages from a named pipe.
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlsu::PipeUtil
 //
-//@DESCRIPTION: This component provides a platform-independent mechanism for
-// establishing, monitoring, and shutting down a named pipe.  It reads text
-// messages (generally short operational commands) from the pipe and passes
-// them to a callback function.  Note that this component does *not* provide
-// a general transport mechanism over a named pipe: it is specialized for the
-// case that the messages to be read are relatively short newline-terminated
-// strings.
+//@DESCRIPTION: This component provides a platform-independent mechanism,
+// 'balb::PipeControlChannel', for establishing, monitoring, and shutting down
+// a named pipe.  It reads text messages (generally short operational commands)
+// from the pipe and passes them to a callback function.  Note that this
+// component does *not* provide a general transport mechanism over a named
+// pipe: it is specialized for the case that the messages to be read are
+// relatively short newline-terminated strings.
 //
 ///Thread Safety
 ///-------------
@@ -219,7 +219,7 @@ class PipeControlChannel {
         // Dispatch the message that extends up to the specified 'iter'.
 
     void destroyNamedPipe();
-         // Close the named pipe.
+        // Close the named pipe.
 
     int readNamedPipe();
         // Block until bytes are available on the named pipe, and read them
@@ -239,11 +239,11 @@ class PipeControlChannel {
     // CREATORS
     explicit
     PipeControlChannel(const ControlCallback&  callback,
-                            bslma::Allocator       *basicAllocator = 0);
+                       bslma::Allocator       *basicAllocator = 0);
         // Create a pipe control mechanism that dispatches messages to the
-        // specified 'callback'.  Use 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is zero, the currently installed default allocator
-        // is used.
+        // specified 'callback'.  Optionally specify 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is zero, the currently installed
+        // default allocator is used.
 
     ~PipeControlChannel();
         // Destroy this object.  Shut down the processing thread if it is still
@@ -273,7 +273,7 @@ class PipeControlChannel {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 inline
@@ -281,8 +281,8 @@ const bsl::string& PipeControlChannel::pipeName() const
 {
     return d_pipeName;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 #endif
 

@@ -4,7 +4,7 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -25,8 +25,8 @@ using namespace bsl;
 //                              --------
 // The component under test implements a mechanism.
 //
-// This class provides a value constructor capable of creating an object
-// having any parameters.
+// This class provides a value constructor capable of creating an object having
+// any parameters.
 //
 // Primary Manipulators:
 //: o Value constructor
@@ -291,45 +291,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                 STANDARD BDE VARIADIC ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -342,7 +320,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -352,13 +329,12 @@ typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        Uint;
 
 template<class T>
-static Ti testLB(
-          T&        object,
-          Uint64    rate,
-          Uint64    capacity,
-          Uint64    dataSize,
-          Uint64    chunkSize,
-          const Ti& minQueryInterval)
+static Ti testLB(T&        object,
+                 Uint64    rate,
+                 Uint64    capacity,
+                 Uint64    dataSize,
+                 Uint64    chunkSize,
+                 const Ti& minQueryInterval)
     // Simulate load generation on specified rate controlling 'object', having
     // the specified 'rate' and 'capacity', by modeling sending the specified
     // 'dataSize' divided on the chunks of the specified 'chunkSize', keeping
@@ -433,19 +409,18 @@ static Ti testLB(
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified data buffer over that network interface:
 //..
-bool sendData(const char *buffer, size_t dataSize)
-    // Send the specified 'buffer' of the specified size 'dataSize' through
-    // the network interface.  Return 'true' if data was sent successfully,
-    // and 'false' otherwise.
-{
-    (void) buffer;
-    (void) dataSize;
-//..
-// In our example we don`t deal with actual data sending, so we assume that
-// the function sends data successfully and return true.
-//..
-    return true;
-}
+    bool sendData(const char *buffer, size_t dataSize)
+        // Send the specified 'buffer' of the specified size 'dataSize' through
+        // the network interface.  Return 'true' if data was sent successfully,
+        // and 'false' otherwise.
+    {
+        (void) buffer;
+        (void) dataSize;
+
+        // In our example we don`t deal with actual data sending, so we assume
+        // that the function sends data successfully and return true.
+        return true;
+    }
 //..
 
 // ============================================================================
@@ -454,10 +429,8 @@ bool sendData(const char *buffer, size_t dataSize)
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-//  bool     veryVerbose = argc > 3;
-//  bool veryVeryVerbose = argc > 4;
+    int     test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -485,21 +458,20 @@ int main(int argc, char *argv[])
 // interval from unix epoch).  Note that 'unit', the unit of measurement for
 // leaky bucket, corresponds to 'byte' in this example:
 //..
-  bsls::Types::Uint64 rate     = 512;  // bytes/second
-  bsls::Types::Uint64 capacity = 2560; // bytes
-  bsls::TimeInterval   now      = bdlt::CurrentTime::now();
-  btls::LeakyBucket    bucket(rate, capacity, now);
+    bsls::Types::Uint64 rate     = 512;  // bytes/second
+    bsls::Types::Uint64 capacity = 2560; // bytes
+    bsls::TimeInterval  now      = bdlt::CurrentTime::now();
+    btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
 // the total size of the data to transmit:
 //..
-  char                buffer[5120];
-  unsigned int        chunkSize  = 256;             // in bytes
-  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
-  bsls::Types::Uint64 dataSent   = 0;               // in bytes
-//
-//  // Load 'buffer'.
-//  // ...
+    char                buffer[5120];
+    unsigned int        chunkSize  = 256;             // in bytes
+    bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
+    bsls::Types::Uint64 dataSent   = 0;               // in bytes
+
+    // Load 'buffer'...
 //..
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
@@ -510,30 +482,31 @@ int main(int argc, char *argv[])
 // sent to the leaky bucket.  Note that 'submit' is invoked only after the data
 // has been sent.
 //..
-  char *data = buffer;
-  while (dataSent < totalSize) {
-      now = bdlt::CurrentTime::now();
-      if (!bucket.wouldOverflow(now)) {
-          if (true == sendData(data, chunkSize)) {
-              data += chunkSize;
-              bucket.submit(chunkSize);
-              dataSent += chunkSize;
-          }
-      }
+    char *data = buffer;
+    while (dataSent < totalSize) {
+        now = bdlt::CurrentTime::now();
+        if (!bucket.wouldOverflow(now)) {
+            if (true == sendData(data, chunkSize)) {
+                data += chunkSize;
+                bucket.submit(chunkSize);
+                dataSent += chunkSize;
+            }
+        }
 //..
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
 // then we wait until the submission will be allowed by waiting for an amount
 // time returned by the 'calculateTimeToSubmit' method:
 //..
-      else {
-          bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
+        else {
+            bsls::TimeInterval timeToSubmit =
+                                             bucket.calculateTimeToSubmit(now);
 
-          // Round up the number of microseconds.
-          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+            // Round up the number of microseconds.
+            bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                  ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
-          bdlqq::ThreadUtil::microSleep(uS);
-      }
-  }
+            bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
+        }
+    }
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
@@ -626,7 +599,8 @@ int main(int argc, char *argv[])
                                             Ti(0,5000));
 
             // Calculate the deviation in percentage.
-            double maxNegDev = -((double)CAPACITY * 100) / DATA_SIZE;
+            double maxNegDev = -static_cast<double>(CAPACITY * 100)
+                             / static_cast<double>(DATA_SIZE);
 
             double dev = 100 *
                 (EXP_DURATION.totalSecondsAsDouble() -
@@ -790,8 +764,8 @@ int main(int argc, char *argv[])
         const Uint64 MAX_R = ULLONG_MAX;
         const Uint64 G     = 1000000000;
 
-        // Numbers of units to be consumed during different intervals
-        // at maximum rate.
+        // Numbers of units to be consumed during different intervals at
+        // maximum rate.
         const Uint64 U_NS  = MAX_R / G;
 
         struct {
@@ -921,7 +895,7 @@ int main(int argc, char *argv[])
             Ti     d_expectedUpdate;
         } DATA[] = {
 
-//  LINE RATE CAP    SUB  RSRV TCREATE   TCHECK    EXP_WAIT     EXP_U EXP_UPD_T
+//  LINE RATE CAP    SUB  RSRV CREATE    CHECK     EXP_WAIT     EXP_U EXP_UPD_T
 //  ---- ---- ----  ----- ---- -------   ------   -----------   ----- ---------
   // C-3
   { L_, 1000, 1000,    0,  0, Ti(  0),  Ti(0.5),  Ti(       0),    0, Ti(  0)},
@@ -1196,22 +1170,22 @@ int main(int argc, char *argv[])
             Uint64 d_units;
             Ti     d_resetTime;
         } DATA[] = {
-          //  LINE   CTIME    UNITS     TRESET
-          //  ----  ------- ----------- ------
-            {  L_,  Ti( 0),          0, Ti( 0) },
-            {  L_,  Ti( 0),       1000, Ti( 0) },
-            {  L_,  Ti( 0),       2000, Ti( 0) },
-            {  L_,  Ti(50),          0, Ti(60) },
-            {  L_,  Ti(50),       1000, Ti(60) },
-            {  L_,  Ti(50),          0, Ti( 0) },
-            {  L_,  Ti(50),       1000, Ti( 0) },
+          //  LINE  CREATION TIME    UNITS    RESET TIME
+          //  ----  -------------  ---------  ----------
+            {  L_,         Ti( 0),         0,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      2000,     Ti( 0) },
+            {  L_,         Ti(50),         0,     Ti(60) },
+            {  L_,         Ti(50),      1000,     Ti(60) },
+            {  L_,         Ti(50),         0,     Ti( 0) },
+            {  L_,         Ti(50),      1000,     Ti( 0) },
 
-            {  L_,  Ti( 0),  LLONG_MAX, Ti( 0) },
-            {  L_,  MAX_TI,       1000, Ti( 0) },
-            {  L_,  Ti( 0),       1000, MAX_TI },
-            {  L_,  MIN_TI,       1000, Ti( 0) },
-            {  L_,  Ti( 0),       1000, MIN_TI },
-            {  L_,  MIN_TI,       1000, MAX_TI },
+            {  L_,         Ti( 0), LLONG_MAX,     Ti( 0) },
+            {  L_,         MAX_TI,      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     MAX_TI },
+            {  L_,         MIN_TI,      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     MIN_TI },
+            {  L_,         MIN_TI,      1000,     MAX_TI },
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -1396,7 +1370,6 @@ int main(int argc, char *argv[])
 
         Uint64 usedUnits   = 0;
         Uint64 unusedUnits = 0;
-
 
         const Uint64 MAX_R = ULLONG_MAX;
         const Uint64 G     = 1000000000;
@@ -1749,8 +1722,8 @@ int main(int argc, char *argv[])
                 Uint64 d_expectedFinalUnits;
             } DATA[] = {
 
-       //  LINE RATE1 CAPACITY   SUBMIT RSRV TCREATE  CHECK_INT  NSUBMT   EXP_U
-       //  ---- ----- --------   ------ ---- -------  ---------- ------  ------
+       //  LINE RATE1 CAPACITY   SUBMIT RSRV TCREATE  CHECK_INT  # SUBMIT EXP_U
+       //  ---- ----- --------   ------ ---- -------  ---------- -------- -----
           {L_, 1000,    500,      100,  50, Ti(0),   Ti(   0),     5,     500},
           {L_, 1000,   1000,      300, 150, Ti(0),   Ti( 0.1),     5,    1000},
           {L_,   10,     10,        1,   0, Ti(10),  Ti(0.01),     11,     10}
@@ -1770,7 +1743,6 @@ int main(int argc, char *argv[])
                                              = DATA[ti].d_expectedNumOfSubmits;
                 const Uint64 EXPECTED_FINAL_UNITS
                                              = DATA[ti].d_expectedFinalUnits;
-
 
                 Obj x(RATE, CAPACITY, CREATION_TIME);
                 Ti  currentCheck(CREATION_TIME);
@@ -1890,7 +1862,7 @@ int main(int argc, char *argv[])
                 Ti     d_expectedUpdate;
             } DATA[] = {
 
-// LINE RATE  CAP   SUBMIT RSRV TCREATE  TCHECK   CHK_RES EXP_U EXP_UPD
+// LINE RATE  CAP   SUBMIT RSRV CREATE   CHECK    CHK_RES EXP_U EXP_UPD
 // ---- ----- ----- ------ ---- -------  ------   ------- ----- -------
    {L_, 1000, 1000,    0,   0,  Ti(0),   Ti(  0),  false,    0, Ti(  0)},
    {L_, 1000, 1000, 1000, 500,  Ti(0),   Ti(  0),   true, 1000, Ti(  0)},
@@ -2028,8 +2000,8 @@ int main(int argc, char *argv[])
         const Ti     MAX_TI   = bsls::TimeInterval(LLONG_MAX, 999999999);
         const Uint64 G        = 1000000000;
 
-        // Number of units remaining in bucket with maximum allowed drain
-        // rate, after 3 updates with 1ns interval.
+        // Number of units remaining in bucket with maximum allowed drain rate,
+        // after 3 updates with 1ns interval.
         const Uint64 MR_EXP = MAX_RATE -
                                       (MAX_RATE / 1000000000) * 3 -
                                       (MAX_RATE % 1000000000) * 3 / 1000000000;
@@ -2050,8 +2022,8 @@ int main(int argc, char *argv[])
                 int    d_NumOfDrains;
                 Uint64 d_expectedUnits;
             } DATA[] = {
-      // LINE  RATE     SUB      RSRV  TCREATE  DRAIN_INT   NDRAIN EXP_UNITS
-      // ----  -------- -------  ----  -------  ----------  ------ ---------
+      // LINE  RATE     SUB      RSRV  TCREATE  DRAIN_INT    DRAIN EXP_UNITS
+      // ----  -------- -------  ----  -------  ----------   ----- ---------
         {L_,     1000,      1000,    0,  Ti( 0),  Ti(  0.01),   10,    900},
         {L_,     1000,      1500,    0,  Ti( 0),  Ti(   0.5),    5,      0},
         {L_,       10,        10,    0,  Ti(10),  Ti(  0.16),    1,      9},
@@ -2377,8 +2349,8 @@ int main(int argc, char *argv[])
             unsigned d_numOfSubmits;
             Uint64   d_expectedUnits;
         } DATA[] = {
-            // LINE     UNITS    NSUBMITS    EXPECTED_UNITS
-            // ----  ----------  --------  --------------------
+            // LINE     UNITS    SUBMITS    EXPECTED_UNITS
+            // ----  ----------  -------  --------------------
               {L_,       1000,     1,                   1000},
               {L_,        250,     4,                   1000},
               {L_,          1,     4,                      4},

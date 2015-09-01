@@ -49,11 +49,10 @@ BSLS_IDENT("$Id: $")
 // when setting the length to a new value.
 //
 // Buffers which do not contain data are referred to as capacity buffers.  The
-// total size of a blob does not decrease when setting the length to a
-// value smaller than the current length.  Instead, any data buffer that no
-// longer contains data after the call to 'setLength' becomes a capacity
-// buffer, and may become a data buffer again later if setting length past its
-// prefix size.
+// total size of a blob does not decrease when setting the length to a value
+// smaller than the current length.  Instead, any data buffer that no longer
+// contains data after the call to 'setLength' becomes a capacity buffer, and
+// may become a data buffer again later if setting length past its prefix size.
 //
 // This design is intended to allow very efficient re-assignment of buffers (or
 // part of buffers using shared pointer aliasing) between different blobs,
@@ -64,10 +63,10 @@ BSLS_IDENT("$Id: $")
 // of individual portions of the sequence, are desired.  Another added
 // flexibility of 'btlb::Blob' is the possibility for buffers in the sequence
 // to have different sizes (as opposed to a uniform fixed size for
-// 'btlb::PooledBufferChain').  When choosing whether to use a
-// 'btlb::Blob' vs. a 'btlb::PooledBufferChain', one must consider the added
-// flexibility vs. the added cost of shared ownership for each individual
-// buffer and random access to the buffer.
+// 'btlb::PooledBufferChain').  When choosing whether to use a 'btlb::Blob' vs.
+// a 'btlb::PooledBufferChain', one must consider the added flexibility versus
+// the added cost of shared ownership for each individual buffer and random
+// access to the buffer.
 //
 ///Thread-Safety
 ///-------------
@@ -77,22 +76,26 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///A Simple Blob Buffer Factory
-/// - - - - - - - - - - - - - -
+//
+///Example 1: A Simple Blob Buffer Factory
+///- - - - - - - - - - - - - - - - - - - -
 // Classes that implement the 'btlb::BlobBufferFactory' protocol are used to
 // allocate 'btlb::BlobBuffer' objects.  A simple implementation follows:
 //..
 //  class SimpleBlobBufferFactory : public btlb::BlobBufferFactory {
+//      // This factory creates blob buffers of a fixed size specified at
+//      // construction.
+//
 //      // DATA
 //      bsl::size_t       d_bufferSize;
 //      bslma::Allocator *d_allocator_p;
 //
-//      private:
-//      // NOT IMPLEMENTED
+//    private:
+//      // Not implemented:
 //      SimpleBlobBufferFactory(const SimpleBlobBufferFactory&);
 //      SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
 //
-//      public:
+//    public:
 //      // CREATORS
 //      explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
 //                                       bslma::Allocator *basicAllocator = 0);
@@ -124,8 +127,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Note that should the user desire a blob buffer factory for his/her
-// application, a better implementation that pools buffers is available in
-// the 'btlb_pooledblobbufferfactory' component.
+// application, a better implementation that pools buffers is available in the
+// 'btlb_pooledblobbufferfactory' component.
 //
 ///Simple Blob Usage
 ///- - - - - - - - -
@@ -133,7 +136,6 @@ BSLS_IDENT("$Id: $")
 // allocate the 'btlb::BlobBuffer'.  The following simple program illustrates
 // how.
 //..
-//  int main()
 //  {
 //      SimpleBlobBufferFactory myFactory(1024);
 //
@@ -149,10 +151,10 @@ BSLS_IDENT("$Id: $")
 //..
 //      char data[] = "12345678901234567890"; // 20 bytes
 //      assert(0 != blob.numBuffers());
-//      assert(sizeof data <= blob.buffer(0).size());
-//      bsl::memcpy(blob.buffer(0).data(), data, sizeof data);
+//      assert(static_cast<int>(sizeof(data)) <= blob.buffer(0).size());
+//      bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
 //
-//      blob.setLength(sizeof data);
+//      blob.setLength(sizeof(data));
 //      assert(sizeof data == blob.length());
 //      assert(       1024 == blob.totalSize());
 //..
@@ -196,10 +198,10 @@ BSLS_IDENT("$Id: $")
 //      dest.appendBuffer(partialBuffer);
 //          // The last buffer of 'dest' contains only bytes 11-16 from
 //          // 'blob.buffer(0)'.
-//   }
+//  }
 //..
-///Data-Oriented Manipulation of a Blob
-/// - - - - - - - - - - - - - - - - - -
+///Example 2: Data-Oriented Manipulation of a Blob
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // There are several typical ways of manipulating a blob: the simplest lets the
 // blob automatically manage the length, by using only 'prependBuffer',
 // 'appendBuffer', and 'insertBuffer'.  Consider the following typical
@@ -211,10 +213,10 @@ BSLS_IDENT("$Id: $")
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator = 0);
 //      // Prepend the specified 'prolog' to the specified 'blob', using the
-//      // specified 'allocator' to supply any memory (or the currently
-//      // installed default allocator if 'allocator' is 0).  The behavior is
-//      // undefined unless 'blob' points to an initialized 'btlb::Blob'
-//      // instance.
+//      // optionally specified 'allocator' to supply any memory (or the
+//      // currently installed default allocator if 'allocator' is 0).  The
+//      // behavior is undefined unless 'blob' points to an initialized
+//      // 'btlb::Blob' instance.
 //
 //  template <class DELETER>
 //  void composeMessage(btlb::Blob         *blob,
@@ -228,21 +230,23 @@ BSLS_IDENT("$Id: $")
 //      // 'prolog' and of the payload in the 'numVectors' buffers pointed to
 //      // by the specified 'vectors' of the respective 'vectorSizes'.
 //      // Ownership of the vectors is transferred to the 'blob' which will use
-//      // the specified 'deleter' to destroy them.  Use the specified
-//      // 'allocator' to supply memory, or the currently installed default
-//      // allocator if 'allocator' is 0.  Note that any buffer belonging to
-//      // 'blob' prior to composing the message is not longer in 'blob' after
-//      // composing the message.  Note also that 'blob' need not have been
-//      // created with a blob buffer factory.  The behavior is undefined
-//      // unless 'blob' points to an initialized 'btlb::Blob' instance.
+//      // the specified 'deleter' to destroy them.  Use the optionally
+//      // specified 'allocator' to supply memory, or the currently installed
+//      // default allocator if 'allocator' is 0.  Note that any buffer
+//      // belonging to 'blob' prior to composing the message is not longer in
+//      // 'blob' after composing the message.  Note also that 'blob' need not
+//      // have been created with a blob buffer factory.  The behavior is
+//      // undefined unless 'blob' points to an initialized 'btlb::Blob'
+//      // instance.
 //
 //  int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator = 0);
 //      // Insert a timestamp data buffer immediately after the prolog buffer
 //      // and prior to any payload buffer.  Return the number of bytes
-//      // inserted.  Use the specified 'allocator' to supply memory, or the
-//      // currently installed default allocator if 'allocator' is 0.  The
-//      // behavior is undefined unless 'blob' points to an initialized
-//      // 'btlb::Blob' instance with at least one data buffer.
+//      // inserted.  Use the optionally specified 'allocator' to supply
+//      // memory, or the currently installed default allocator if 'allocator'
+//      // is 0.  The behavior is undefined unless the specified 'blob' points
+//      // to an initialized 'btlb::Blob' instance with at least one data
+//      // buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
@@ -253,12 +257,14 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT(blob);
 //
+//      (void)allocator;
+//
 //      int prologLength = prolog.length();
 //      SimpleBlobBufferFactory fa(prologLength + sizeof(int));
 //      btlb::BlobBuffer prologBuffer;
 //      fa.allocate(&prologBuffer);
 //
-//      bdlxxxx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
+//      bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
 //      bsl::memcpy(prologBuffer.data() + sizeof(int),
 //                  prolog.c_str(),
 //                  prologLength);
@@ -327,9 +333,13 @@ BSLS_IDENT("$Id: $")
 //      btlb::BlobBuffer timestampBuffer;
 //      fa.allocate(&timestampBuffer);
 //
-//      bdlxxxx::ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
+//      bslx::ByteOutStream bdexStream(20150826);
 //      now.bdexStreamOut(bdexStream, 1);
-//      BSLS_ASSERT(bdexStream);  // is valid, i.e., did not overflow 128 bytes
+//      BSLS_ASSERT(bdexStream);
+//      BSLS_ASSERT(bdexStream.length() < 128);
+//      bsl::memcpy(timestampBuffer.data(),
+//                  bdexStream.data(),
+//                  bdexStream.length());
 //      timestampBuffer.setSize(bdexStream.length());
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
@@ -392,27 +402,25 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace btlb {
 
-                              // ================
-                              // class BlobBuffer
-                              // ================
+                             // ================
+                             // class BlobBuffer
+                             // ================
 
 class BlobBuffer {
-    // 'BlobBuffer' is a simple in-core representation of a shared
-    // buffer.  This class is exception-neutral with no guarantee of rollback:
-    // if an exception is thrown during the invocation of a method on a
-    // pre-existing instance, the container is left in a valid state, but its
-    // value is undefined.  In no event is memory leaked.
+    // 'BlobBuffer' is a simple in-core representation of a shared buffer.
+    // This class is exception-neutral with no guarantee of rollback: if an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // instance, the container is left in a valid state, but its value is
+    // undefined.  In no event is memory leaked.
 
     // DATA
     bsl::shared_ptr<char> d_buffer;  // shared buffer
     int                   d_size;    // buffer size (in bytes)
 
     // FRIENDS
-    friend bool operator==(const BlobBuffer&,
-                           const BlobBuffer&);
+    friend bool operator==(const BlobBuffer&, const BlobBuffer&);
 
-    friend bool operator!=(const BlobBuffer&,
-                           const BlobBuffer&);
+    friend bool operator!=(const BlobBuffer&, const BlobBuffer&);
 
   public:
     // CREATORS
@@ -470,12 +478,14 @@ class BlobBuffer {
                         int           spacesPerLevel = 4) const;
         // Format this object as a hexadecimal dump on the specified 'stream',
         // and return a reference to the modifiable 'stream'.  Note that the
-        // specified 'level' and 'spacesPerLevel' arguments are specified for
-        // interface compatibility only and are effectively ignored.
+        // optionally specified 'level' and 'spacesPerLevel' arguments are
+        // specified for interface compatibility only and are effectively
+        // ignored.
 };
 }  // close package namespace
 
 // TYPE TRAITS
+
 namespace bslmf {
 
 template <>
@@ -486,6 +496,7 @@ struct IsBitwiseMoveable<BloombergLP::btlb::BlobBuffer>
 }  // close namespace bslmf
 
 namespace btlb {
+
 // FREE OPERATORS
 bool operator==(const BlobBuffer& lhs, const BlobBuffer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blob buffers have the
@@ -497,17 +508,16 @@ bool operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs);
     // the same value, and 'false' otherwise.  Two blob buffers do not have the
     // same value if they do not represent the same buffer of the same size.
 
-bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& rhs);
-    // Format the specified 'rhs' blob buffer to the specified output 'stream',
-    // and return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
+    // Format the specified blob 'buffer' to the specified output 'stream', and
+    // return a reference to the modifiable 'stream'.
 
-                          // =======================
-                          // class BlobBufferFactory
-                          // =======================
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
 
 class BlobBufferFactory {
-    // This class defines a base-level protocol for a 'BlobBuffer'
-    // factory.
+    // This class defines a base-level protocol for a 'BlobBuffer' factory.
 
   public:
     // CREATORS
@@ -520,16 +530,16 @@ class BlobBufferFactory {
         // into the specified 'buffer'.
 };
 
-                                 // ==========
-                                 // class Blob
-                                 // ==========
+                                // ==========
+                                // class Blob
+                                // ==========
 
 class Blob {
-    // 'Blob' is an in-core container for 'BlobBuffer' objects.
-    // This class is exception-neutral with no guarantee of rollback: if an
-    // exception is thrown during the invocation of a method on a pre-existing
-    // instance, the container is left in a valid state, but its value is
-    // undefined.  In no event is memory leaked.
+    // 'Blob' is an in-core container for 'BlobBuffer' objects.  This class is
+    // exception-neutral with no guarantee of rollback: if an exception is
+    // thrown during the invocation of a method on a pre-existing instance, the
+    // container is left in a valid state, but its value is undefined.  In no
+    // event is memory leaked.
 
     // DATA
     bsl::vector<BlobBuffer>  d_buffers;             // buffer sequence
@@ -575,16 +585,16 @@ class Blob {
         // the currently installed default allocator is used.
 
     explicit Blob(BlobBufferFactory *factory,
-                        bslma::Allocator        *basicAllocator = 0);
+                  bslma::Allocator  *basicAllocator = 0);
         // Create an empty blob using the specified 'factory' to allocate blob
         // buffers.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     Blob(const BlobBuffer  *buffers,
-               int                      numBuffers,
-               BlobBufferFactory *factory,
-               bslma::Allocator        *basicAllocator = 0);
+         int                numBuffers,
+         BlobBufferFactory *factory,
+         bslma::Allocator  *basicAllocator = 0);
         // Create a blob that initially holds the specified 'numBuffers'
         // buffers referenced by the specified 'buffers', and uses the
         // specified 'factory' to allocate blob buffers.  Optionally specify a
@@ -592,16 +602,15 @@ class Blob {
         // the currently installed default allocator is used.
 
     Blob(const Blob&        original,
-               BlobBufferFactory *factory,
-               bslma::Allocator        *basicAllocator = 0);
+         BlobBufferFactory *factory,
+         bslma::Allocator  *basicAllocator = 0);
         // Create a blob that holds the same buffers as the specified
         // 'original' blob, and uses the specified 'factory' to allocate blob
         // buffers.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    Blob(const Blob&  original,
-               bslma::Allocator  *basicAllocator = 0);
+    Blob(const Blob& original, bslma::Allocator *basicAllocator = 0);
         // Create a blob that holds the same buffers as the specified
         // 'original' blob, and has no factory to allocate blob buffers.  Since
         // there is no factory, the behavior is undefined if the length of the
@@ -619,7 +628,7 @@ class Blob {
 
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
-        // The length of this blob is uneffected.  Note that this operation is
+        // The length of this blob is unaffected.  Note that this operation is
         // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
@@ -644,8 +653,8 @@ class Blob {
         // following all data buffers (e.g., inserting into an empty blob or
         // inserting a buffer to increase capacity); in that case, the blob
         // length must be changed by an explicit call to 'setLength'.  Buffers
-        // at 'index' and higher positions (if any) are shifted up by one
-        // index position.  The behavior is undefined unless
+        // at 'index' and higher positions (if any) are shifted up by one index
+        // position.  The behavior is undefined unless
         // '0 <= index <= numBuffers()'.
 
     void prependDataBuffer(const BlobBuffer& buffer);
@@ -682,8 +691,8 @@ class Blob {
         // Set the length of this blob to the specified 'length' and, if
         // 'length' is greater than its total size, grow this blob by appending
         // buffers allocated using this object's underlying
-        // 'BlobBufferFactory'.  The behavior is undefined if 'length' is
-        // a negative value, or if the new length requires growing the blob and
+        // 'BlobBufferFactory'.  The behavior is undefined if 'length' is a
+        // negative value, or if the new length requires growing the blob and
         // this blob has no underlying factory.
 
     void swapBufferRaw(int index, BlobBuffer *srcBuffer);
@@ -745,7 +754,9 @@ class Blob {
 }  // close package namespace
 
 // TYPE TRAITS
+
 namespace bslmf {
+
 template <>
 struct IsBitwiseMoveable<BloombergLP::btlb::Blob>
     : IsBitwiseMoveable<bsl::vector<BloombergLP::btlb::BlobBuffer> >::type
@@ -753,12 +764,14 @@ struct IsBitwiseMoveable<BloombergLP::btlb::Blob>
 }  // close namespace bslmf
 
 namespace bslma {
+
 template <>
 struct UsesBslmaAllocator<BloombergLP::btlb::Blob> : bsl::true_type
 {};
 }  // close namespace bslma
 
 namespace btlb {
+
 // FREE OPERATORS
 bool operator==(const Blob& lhs, const Blob& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blobs have the same
@@ -771,12 +784,12 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
     // if they do not hold the same buffers, or do not have the same length.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ================
-                              // class BlobBuffer
-                              // ================
+                             // ================
+                             // class BlobBuffer
+                             // ================
 
 // CREATORS
 inline
@@ -787,7 +800,7 @@ BlobBuffer::BlobBuffer()
 
 inline
 BlobBuffer::BlobBuffer(const bsl::shared_ptr<char>& buffer,
-                                   int                          size)
+                       int                          size)
 : d_buffer(buffer)
 , d_size(size)
 {
@@ -858,9 +871,9 @@ bool btlb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 
 namespace btlb {
 
-                                 // ==========
-                                 // class Blob
-                                 // ==========
+                                // ==========
+                                // class Blob
+                                // ==========
 
 // MANIPULATORS
 inline

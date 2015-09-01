@@ -12,7 +12,9 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 #include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_cerrno.h>
 #include <bsl_cfloat.h>
@@ -25,9 +27,10 @@ namespace {
 // HELPER FUNCTIONS
 
 int parseBoolean(bool *result, const char *input, int inputLength)
-    // Set '*result' to true if 'input' is "1" or "true" and false if 'input'
-    // is "0" or "false".  Strings are case-insensitive.  Return 0 on success
-    // and non-zero if 'input' is not "1", "0", "true", or "false".
+    // Set the specified '*result' to true if the specified 'input' of
+    // specified length 'inputLength' is "1" or "true" and false if 'input' is
+    // "0" or "false".  Strings are case-insensitive.  Return 0 on success and
+    // non-zero if 'input' is not "1", "0", "true", or "false".
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -66,16 +69,13 @@ int parseBoolean(bool *result, const char *input, int inputLength)
     return BAEXML_FAILURE;
 }
 
-int parseDoubleImpl(double     *result,
-                    const char *input,
-                    bool        formatDecimal)
-    // Parse a string representing a double.
-    // Parameter 'input' is null-terminated string.
-    // Parameter "formatDecimal" will be true if 'input' should
-    // contain only decimal digits, period and sign characters (i.e., INF/NaN,
-    // and exponential notation are not allowed);
-    // otherwise 'input' can contain any float point representation
-    // form.  Return 0 on success and non-zero otherwise.
+int parseDoubleImpl(double *result, const char *input, bool formatDecimal)
+    // Parse a string representing a double into the specified 'result'.  The
+    // specified 'input' is a null-terminated string.  The specified
+    // 'formatDecimal' should be true if 'input' should contain only decimal
+    // digits, period and sign characters (i.e., INF/NaN, and exponential
+    // notation are not allowed); otherwise 'input' can contain any floating-
+    // point representation form.  Return 0 on success and non-zero otherwise.
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
     static const char decimalChars[] = "+-.0123456789";
@@ -129,11 +129,12 @@ int parseDoubleImpl(double     *result,
     // very small number (or zero) for underflow -- exactly what we want.
     if (ERANGE == errno) {
         if (*result < -1.0 || 1.0 < *result) {
-            return BAEXML_FAILURE; // Overflow is an error.           // RETURN
+            // Overflow is an error.
+            return BAEXML_FAILURE;                                    // RETURN
         }
         else {
-            return BAEXML_SUCCESS; // Underflow is OK (very small number).
-                                                                      // RETURN
+            // Underflow is OK (very small number).
+            return BAEXML_SUCCESS;                                    // RETURN
         }
     }
     else if (errno != 0) {
@@ -147,11 +148,11 @@ int parseDouble(double     *result,
                 const char *input,
                 int         inputLength,
                 bool        formatDecimal)
-    // Parse a string representing a double.
-    // Parameter "formatDecimal" will be true if 'input' should
-    // contain only decimal digits, period and sign characters;
-    // otherwise 'input' can contain any float point representation
-    // form.  Return 0 on success and non-zero otherwise.
+    // Parse a string representing a double into the specified 'result'.  The
+    // specified 'formatDecimal' will be true if the specified 'input' of
+    // specified length 'inputLength' should contain only decimal digits,
+    // period and sign characters; otherwise 'input' can contain any floating-
+    // point representation form.  Return 0 on success and non-zero otherwise.
 {
     // 'input' must be zero terminated string
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -217,9 +218,7 @@ int parseInt(int *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
-int parseUnsignedInt(unsigned int *result,
-                     const char   *input,
-                     int           inputLength)
+int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
     // Parse an unsigned long decimal string
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -305,10 +304,10 @@ namespace balxml {
 
 // BASE64 FUNCTIONS
 
-int TypesParserUtil_Imp::parseBase64(bsl::string *result,
-                                            const char  *input,
-                                            int          inputLength,
-                                            bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseBase64(bsl::string                *result,
+                                     const char                 *input,
+                                     int                         inputLength,
+                                     bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -325,10 +324,10 @@ int TypesParserUtil_Imp::parseBase64(bsl::string *result,
     return base64Parser.endParse();
 }
 
-int TypesParserUtil_Imp::parseBase64(bsl::vector<char> *result,
-                                            const char        *input,
-                                            int                inputLength,
-                                            bdlat_TypeCategory::Array)
+int TypesParserUtil_Imp::parseBase64(bsl::vector<char>         *result,
+                                     const char                *input,
+                                     int                        inputLength,
+                                     bdlat_TypeCategory::Array)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -347,45 +346,44 @@ int TypesParserUtil_Imp::parseBase64(bsl::vector<char> *result,
 
 // DECIMAL FUNCTIONS
 
-int TypesParserUtil_Imp::parseDecimal(bool       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(bool                       *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(char       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(char                       *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal((signed char*) result,
                               input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(short      *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(short                      *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(int        *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(int                        *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal(result, input, inputLength);
 }
 
 int
-TypesParserUtil_Imp::parseDecimal(
-                                       bsls::Types::Int64         *result,
-                                       const char                 *input,
-                                       int                         inputLength,
-                                       bdlat_TypeCategory::Simple  sc)
+TypesParserUtil_Imp::parseDecimal(bsls::Types::Int64         *result,
+                                  const char                 *input,
+                                  int                         inputLength,
+                                  bdlat_TypeCategory::Simple  sc)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -403,46 +401,45 @@ TypesParserUtil_Imp::parseDecimal(
         return rc;                                                    // RETURN
     }
 
-    // TBD Microsoft is warning that -temp is still an unsigned value.
-    // Rather than silence the warning, note that there is an unvalidated
-    // assumption that temp <= INT_MAX.  It is not clear from the contract
-    // in the header how to handle such a case, although returning
-    // 'BAEXML_FAILURE' might be most appropriate.
+    // TBD Microsoft is warning that -temp is still an unsigned value.  Rather
+    // than silence the warning, note that there is an unvalidated assumption
+    // that temp <= INT_MAX.  It is not clear from the contract in the header
+    // how to handle such a case, although returning 'BAEXML_FAILURE' might be
+    // most appropriate.
 
     *result = sign ? -temp : temp;
 
     return BAEXML_SUCCESS;
 }
 
-int TypesParserUtil_Imp::parseDecimal(unsigned char *result,
-                                             const char    *input,
-                                             int            inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(unsigned char              *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(unsigned short *result,
-                                             const char     *input,
-                                             int             inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(unsigned short             *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(unsigned int *result,
-                                             const char   *input,
-                                             int           inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(unsigned int               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDecimal(
-    bsls::Types::Uint64        *result,
-    const char                 *input,
-    int                         inputLength,
-    bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(bsls::Types::Uint64        *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -468,11 +465,10 @@ int TypesParserUtil_Imp::parseDecimal(
     return BAEXML_SUCCESS;
 }
 
-int TypesParserUtil_Imp::parseDecimal(
-    float                     *result,
-    const char                *input,
-    int                        inputLength,
-    bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(float                      *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     double tmpResult;
     int rc = parseDouble(&tmpResult, input, inputLength, true);
@@ -482,29 +478,28 @@ int TypesParserUtil_Imp::parseDecimal(
     return rc;
 }
 
-int TypesParserUtil_Imp::parseDecimal(
-    double                    *result,
-    const char                *input,
-    int                        inputLength,
-    bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDecimal(double                     *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseDouble(result, input, inputLength, true);
 }
 
 // DEFAULT FUNCTIONS
 
-int TypesParserUtil_Imp::parseDefault(bool       *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(bool                       *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseDefault(float      *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(float                      *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     double tmpResult;
     int rc = parseDouble(&tmpResult, input, inputLength, false);
@@ -514,20 +509,20 @@ int TypesParserUtil_Imp::parseDefault(float      *result,
     return rc;
 }
 
-int TypesParserUtil_Imp::parseDefault(double     *result,
-                                             const char *input,
-                                             int         inputLength,
-                                             bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseDefault(double                     *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
 {
     return parseDouble(result, input, inputLength, false);
 }
 
 // HEX FUNCTIONS
 
-int TypesParserUtil_Imp::parseHex(bsl::string *result,
-                                         const char  *input,
-                                         int          inputLength,
-                                         bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseHex(bsl::string                *result,
+                                  const char                 *input,
+                                  int                         inputLength,
+                                  bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -544,10 +539,10 @@ int TypesParserUtil_Imp::parseHex(bsl::string *result,
     return hexParser.endParse();
 }
 
-int TypesParserUtil_Imp::parseHex(bsl::vector<char> *result,
-                                         const char        *input,
-                                         int                inputLength,
-                                         bdlat_TypeCategory::Array)
+int TypesParserUtil_Imp::parseHex(bsl::vector<char>         *result,
+                                  const char                *input,
+                                  int                        inputLength,
+                                  bdlat_TypeCategory::Array)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -566,18 +561,18 @@ int TypesParserUtil_Imp::parseHex(bsl::vector<char> *result,
 
 // TEXT FUNCTIONS
 
-int TypesParserUtil_Imp::parseText(bool       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseText(bool                       *result,
+                                   const char                 *input,
+                                   int                         inputLength,
+                                   bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
 
-int TypesParserUtil_Imp::parseText(char       *result,
-                                          const char *input,
-                                          int         inputLength,
-                                          bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseText(char                       *result,
+                                   const char                 *input,
+                                   int                         inputLength,
+                                   bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -590,10 +585,10 @@ int TypesParserUtil_Imp::parseText(char       *result,
     return BAEXML_SUCCESS;
 }
 
-int TypesParserUtil_Imp::parseText(bsl::string *result,
-                                          const char  *input,
-                                          int          inputLength,
-                                          bdlat_TypeCategory::Simple)
+int TypesParserUtil_Imp::parseText(bsl::string                *result,
+                                   const char                 *input,
+                                   int                         inputLength,
+                                   bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0 };
 
@@ -602,10 +597,10 @@ int TypesParserUtil_Imp::parseText(bsl::string *result,
     return BAEXML_SUCCESS;
 }
 
-int TypesParserUtil_Imp::parseText(bsl::vector<char> *result,
-                                          const char        *input,
-                                          int                inputLength,
-                                          bdlat_TypeCategory::Array)
+int TypesParserUtil_Imp::parseText(bsl::vector<char>         *result,
+                                   const char                *input,
+                                   int                        inputLength,
+                                   bdlat_TypeCategory::Array)
 {
     enum { BAEXML_SUCCESS = 0 };
 
@@ -613,8 +608,8 @@ int TypesParserUtil_Imp::parseText(bsl::vector<char> *result,
 
     return BAEXML_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

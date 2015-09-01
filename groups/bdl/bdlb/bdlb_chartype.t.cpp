@@ -1,14 +1,7 @@
 // bdlb_chartype.t.cpp                                                -*-C++-*-
 
 #include <bdlb_chartype.h>
-
 #include <bdls_testutil.h>
-
-#include <bdlxxxx_testinstream.h>
-#include <bdlxxxx_testinstreamexception.h>
-#include <bdlxxxx_testoutstream.h>
-#include <bdlxxxx_outstreamfunctions.h>
-#include <bdlxxxx_instreamfunctions.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>   // 'bsl::atoi'

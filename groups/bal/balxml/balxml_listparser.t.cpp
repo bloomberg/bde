@@ -1,46 +1,72 @@
 // balxml_listparser.t.cpp                                            -*-C++-*-
-
 #include <balxml_listparser.h>
+
+#include <bslim_testutil.h>
 
 #include <bdlb_printmethods.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
-
 #include <bsl_istream.h>
 #include <bsl_iterator.h>
-#include <bsl_vector.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::atoi;
-using bsl::endl;
-using bsl::flush;
-
-//=============================================================================
-//                             TEST PLAN
-//-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-//-----------------------------------------------------------------------------
+using namespace bsl;
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                             TEST PLAN
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
+//                              Overview
+//                              --------
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -339,60 +365,6 @@ void printValue(bsl::ostream& out, const char& value)
 }
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -521,6 +493,7 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 
@@ -740,6 +713,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
+        //
         // Plan:
         // --------------------------------------------------------------------
 

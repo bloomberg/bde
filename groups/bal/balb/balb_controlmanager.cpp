@@ -14,6 +14,7 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 
@@ -32,13 +33,14 @@ GetExtractor(const bsl::map<FIRST, SECOND, TC, TA>&) {
    return MapKeyExtractor<FIRST, SECOND>();
 }
 
-inline bool isLessThanCaseless(const bsl::string& lhsString,
+inline
+bool isLessThanCaseless(const bsl::string& lhsString,
                         const bsl::string& rhsString)
 {
    return -1 == bdlb::String::lowerCaseCmp(lhsString, rhsString);
 }
 
-const char LOG_CATEGORY[] = "BAEA.CONTROLMANAGER";
+const char LOG_CATEGORY[] = "BALB.CONTROLMANAGER";
 
 }  // close unnamed namespace
 
@@ -52,19 +54,17 @@ namespace balb {
 ControlManager::ControlManager(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_registry(&isLessThanCaseless, basicAllocator)
-{
-}
+{ }
 
 ControlManager::~ControlManager()
-{}
+{ }
 
 // MANIPULATORS
 
-int ControlManager::registerHandler(
-        const bsl::string&                         prefix,
-        const bsl::string&                         arguments,
-        const bsl::string&                         description,
-        const ControlManager::ControlHandler& handler)
+int ControlManager::registerHandler(const bsl::string&    prefix,
+                                    const bsl::string&    arguments,
+                                    const bsl::string&    description,
+                                    const ControlHandler& handler)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_registryMutex);
 
@@ -114,9 +114,8 @@ int ControlManager::dispatchMessage(const bsl::string& message) const
     return -1;
 }
 
-int ControlManager::dispatchMessage(
-        const bsl::string& prefix,
-        bsl::istream&      stream) const
+int ControlManager::dispatchMessage(const bsl::string& prefix,
+                                    bsl::istream&      stream) const
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     BALL_LOG_TRACE << "Dispatching control message '" << prefix << "'"
@@ -135,9 +134,8 @@ int ControlManager::dispatchMessage(
     return -1;
 }
 
-void ControlManager::printUsage(
-        bsl::ostream       &stream,
-        const bsl::string&  preamble) const
+void ControlManager::printUsage(bsl::ostream&      stream,
+                                const bsl::string& preamble) const
 {
     stream << preamble << bsl::endl;
     d_registryMutex.lockRead();
@@ -154,14 +152,13 @@ void ControlManager::printUsage(
     d_registryMutex.unlock();
 }
 
-                         // --------------------------
-                         // class ControlManager_Entry
-                         // --------------------------
+                        // --------------------------
+                        // class ControlManager_Entry
+                        // --------------------------
 
 // CREATORS
 
-ControlManager_Entry::ControlManager_Entry(
-        bslma::Allocator *basicAllocator)
+ControlManager_Entry::ControlManager_Entry(bslma::Allocator *basicAllocator)
 : d_callback(basicAllocator)
 , d_arguments(basicAllocator)
 , d_description(basicAllocator)
@@ -171,21 +168,21 @@ ControlManager_Entry::~ControlManager_Entry()
 {}
 
 ControlManager_Entry::ControlManager_Entry(
-        const ControlManager::ControlHandler&  callback,
-        const bsl::string&                          arguments,
-        const bsl::string&                          description,
-        bslma::Allocator                           *basicAllocator)
+                         const ControlManager::ControlHandler&  callback,
+                         const bsl::string&                     arguments,
+                         const bsl::string&                     description,
+                         bslma::Allocator                      *basicAllocator)
 : d_callback(callback, basicAllocator)
 , d_arguments(arguments, basicAllocator)
 , d_description(description, basicAllocator)
 {}
 
 ControlManager_Entry::ControlManager_Entry(
-        const ControlManager_Entry&  rhs,
-        bslma::Allocator                 *basicAllocator)
-: d_callback(rhs.d_callback, basicAllocator)
-, d_arguments(rhs.d_arguments, basicAllocator)
-, d_description(rhs.d_description, basicAllocator)
+                                   const ControlManager_Entry&  original,
+                                   bslma::Allocator            *basicAllocator)
+: d_callback(original.d_callback, basicAllocator)
+, d_arguments(original.d_arguments, basicAllocator)
+, d_description(original.d_description, basicAllocator)
 {}
 
 // MANIPULATORS
@@ -200,8 +197,8 @@ ControlManager_Entry::operator=(const ControlManager_Entry& rhs)
    }
    return *this;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

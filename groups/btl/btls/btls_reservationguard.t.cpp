@@ -6,7 +6,7 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -93,23 +93,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -126,7 +126,6 @@ class my_Reserve {
     // This class provides a mock rate controllering mechanism which conforms
     // to the interface required by 'btls::ReservationGuard'.
 
-
     // DATA
     bsls::Types::Uint64 d_unitsSubmitted;
     bsls::Types::Uint64 d_unitsReserved;
@@ -142,8 +141,8 @@ public:
         // Add the specified 'numUnits' to the 'unitsReserved' counter.
 
     void submitReserved(bsls::Types::Uint64 numUnits);
-        // Subtract the specified 'numUnits' from 'unitsReserved' and add it
-        // to 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
+        // Subtract the specified 'numUnits' from 'unitsReserved' and add it to
+        // 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
         // Otherwise, add 'unitsReserved' to 'unitsSubmitted' and set
         // 'unitsReserved' to 0.
 
@@ -220,7 +219,6 @@ bsls::Types::Uint64 my_Reserve::unitsSubmitted() const
     return d_unitsSubmitted;
 }
 
-
 typedef btls::ReservationGuard<my_Reserve> Obj;
 typedef bsls::TimeInterval                 Ti;
 typedef bsls::Types::Uint64               Uint64;
@@ -235,29 +233,25 @@ typedef unsigned int                      uint;
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Guarding units reservation in operations with btls::LeakyBucket
-///----------------------------------------------------------------------------
+///--------------------------------------------------------------------------
 // Suppose that we are limiting the rate of network traffic generation using a
 // 'btls::LeakyBucket' object.  We send data buffer over a network interface
 // using the 'mySendData' function:
 //..
-static bsls::Types::Uint64 sendData(size_t dataSize)
-    // Send a specified 'dataSize' amount of data over the network.  Return
-    // the amount of data actually sent.  Throw an exception if a network
-    // failure is detected.
-
-{
-//..
-// In our example we don`t deal with actual data sending, so we assume that the
-// function has sent certain amount of data (3/4 of the requested amount)
-// successfully.
-//..
-   return (dataSize*3)>>2;
-}
+    static bsls::Types::Uint64 mySendData(size_t dataSize)
+        // Send a specified 'dataSize' amount of data over the network.  Return
+        // the amount of data actually sent.  Throw an exception if a network
+        // failure is detected.
+    {
+        // In our example we don`t deal with actual data sending, so we assume
+        // that the function has sent certain amount of data (3/4 of the
+        // requested amount) successfully.
+        return (dataSize * 3) >> 2;
+    }
 //..
 // Notice that the 'mySendData' function may throw an exception; therefore, we
 // should wait until 'mySendData' returns before indicating the amount of data
 // sent to the leaky bucket.
-
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -265,10 +259,8 @@ static bsls::Types::Uint64 sendData(size_t dataSize)
 
 int main(int argc, char *argv[]) {
 
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-//  bool     veryVerbose = argc > 3;
-//  bool veryVeryVerbose = argc > 4;
+    int     test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -290,51 +282,50 @@ int main(int argc, char *argv[]) {
 // Further suppose that multiple threads are sending network data and sharing
 // the same leaky bucket.  If every thread simply checks for overflowing of the
 // leaky bucket, send data, and then submit to the leaky bucket, then the rate
-// of data usage may exceed the limitations imposed by the leaky bucket due to
-// race conditions.  We can avoid the this issue by reserving the amount of
-// data immediately after checking whether the leaky bucket has overflown and
-// submit the reserved amount after the data has been sent.  However, this
-// procedure could lead to a permanent loss of the leaky bucket capacity if
-// 'mySendData' throws an exception and the reserved units are not cancelled
-// -- the issue that 'btls::ReservationGuard' is designed to solve.
+// of data usage may exceed the limits imposed by the leaky bucket due to race
+// conditions.  We can avoid the this issue by reserving the amount of data
+// immediately after checking whether the leaky bucket has overflown and submit
+// the reserved amount after the data has been sent.  However, this process
+// could lead to the loss of the reserved units (effectively decreasing the
+// leaky bucket's capacity) if 'mySendData' throws an exception.
+// 'btls::ReservationGuard' is designed to resolve this issue.
 //
 // First, we define the size of each data chunk and the total size of the data
 // to send:
 //..
-  const unsigned int  CHUNK_SIZE = 256;
-  bsls::Types::Uint64 bytesSent  = 0;
-  bsls::Types::Uint64 totalSize  = 10 * 1024; // in bytes
+    const unsigned int  CHUNK_SIZE = 256;
+    bsls::Types::Uint64 bytesSent  = 0;
+    bsls::Types::Uint64 totalSize  = 10 * 1024; // in bytes
 //..
 // Then, we create a 'btls::LeakyBucket' object to limit the rate of data
 // transmission:
 //..
-  bsls::Types::Uint64 rate     = 512;
-  bsls::Types::Uint64 capacity = 1536;
-  bsls::TimeInterval   now      = bdlt::CurrentTime::now();
-  btls::LeakyBucket    bucket(rate, capacity, now);
+    bsls::Types::Uint64 rate     = 512;
+    bsls::Types::Uint64 capacity = 1536;
+    bsls::TimeInterval  now      = bdlt::CurrentTime::now();
+    btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
 //..
-  while (bytesSent < totalSize) {
-
-      now = bdlt::CurrentTime::now();
-      if (!bucket.wouldOverflow(now)) {
+    while (bytesSent < totalSize) {
+        now = bdlt::CurrentTime::now();
+        if (!bucket.wouldOverflow(now)) {
 //..
 // Now, if the leaky bucket would not overflow, we create a
 // 'btls::ReservationGuard' object to reserve the amount of data to be sent:
 //..
-          btls::ReservationGuard<btls::LeakyBucket> guard(&bucket,
-                                                        CHUNK_SIZE);
+            btls::ReservationGuard<btls::LeakyBucket> guard(&bucket,
+                                                            CHUNK_SIZE);
 //..
 // Then, we use the 'mySendData' function to send the data chunk over the
 // network.  After the data had been sent, we submit the amount of reserved
 // data that was actually sent:
 //..
-          bsls::Types::Uint64 result;
-          result = sendData(CHUNK_SIZE);
-          bytesSent += result;
-          guard.submitReserved(result);
+            bsls::Types::Uint64 result;
+            result = mySendData(CHUNK_SIZE);
+            bytesSent += result;
+            guard.submitReserved(result);
 //..
 // Note that we do not have manually cancel any remaining units reserved by the
 // 'btls::ReservationGuard' object either because 'mySendData' threw an
@@ -342,20 +333,20 @@ int main(int argc, char *argv[]) {
 // object goes out of scope, all remaining reserved units will be automatically
 // cancelled.
 //..
-      }
+        }
 //..
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
 // then we wait until the submission will be allowed by waiting for an amount
 // time returned by the 'calculateTimeToSubmit' method:
 //..
-      else {
-
-          bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
-          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-                                  (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-          bdlqq::ThreadUtil::microSleep(uS);
-      }
-  }
+        else {
+            bsls::TimeInterval timeToSubmit =
+                                             bucket.calculateTimeToSubmit(now);
+            bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+                                   (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+            bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
+        }
+    }
 //..
       } break;
       case 6: {

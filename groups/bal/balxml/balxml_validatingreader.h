@@ -18,21 +18,21 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component represents an abstract class
 // 'balxml::ValidatingReader' - an XML reader that provides data validation
-// against DTD or/and XML Schemas(XSD).  The 'balxml::ValidatingReader' inherits
-// from the 'balxml::Reader' interface and therefore fully compliant with
-// it.  In addition, 'balxml::ValidatingReader' provides additional methods
-// to control the validation.  The 'enableValidation' method specifies what
-// type of validation the reader should perform.  Setting 'validationFlag' to
-// 'false' produces a non-validating reader.  Setting it to 'true' forces the
-// reader perform the validation of input XML data against XSD schemas.
+// against DTD or/and XML Schemas(XSD).  The 'balxml::ValidatingReader'
+// inherits from the 'balxml::Reader' interface and therefore fully compliant
+// with it.  In addition, 'balxml::ValidatingReader' provides additional
+// methods to control the validation.  The 'enableValidation' method specifies
+// what type of validation the reader should perform.  Setting 'validationFlag'
+// to 'false' produces a non-validating reader.  Setting it to 'true' forces
+// the reader perform the validation of input XML data against XSD schemas.
 //
 ///Schema Location and obtaining Schemas
 ///-------------------------------------
 // In validating mode the reader should be able obtain external XSD schemas.
 // 'balxml::ValidatingReader' requires that all schema sources must be
-// represented in the form of 'bsl::streambuf' objects.
-// According to W3C standard an information about external XSD schemas can
-// be defined in three places:
+// represented in the form of 'bsl::streambuf' objects.  According to W3C
+// standard an information about external XSD schemas can be defined in three
+// places:
 //
 // 1. In an instance document, the attribute 'xsi:schemaLocation' provides
 //    hints from the author to a processor regarding the location of schema
@@ -70,8 +70,8 @@ BSLS_IDENT("$Id: $")
 // For all mentioned cases, having the URI reference which identifies a schema
 // and an optional namespace, the processor(parser) should obtain
 // 'bsl::streambuf' object for the schema.  For this purpose
-// 'balxml::ValidatingReader' interface defines the two level schemas resolution
-// process:
+// 'balxml::ValidatingReader' interface defines the two level schemas
+// resolution process:
 //..
 // 1. The reader(parser) must lookup schema in internal cache.
 //    If the schema is found, it must be used.
@@ -93,13 +93,13 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This component does not provide any functions that present a thread safety
 // issue, since the 'balxml::Reader' class is abstract and cannot be
-// instantiated.  There is no guarantee that any specific derived class
-// will provide a thread-safe implementation.
+// instantiated.  There is no guarantee that any specific derived class will
+// provide a thread-safe implementation.
 //
 ///Usage
 ///-----
-// In this example, we will create a validating parser that
-// parses and validates document again the schema.
+// In this example, we will create a validating parser that parses and
+// validates document again the schema.
 //..
 //  #include <a_xercesc_reader.h>
 //
@@ -138,9 +138,9 @@ BSLS_IDENT("$Id: $")
 //    "<xsd:element name='directory-entry' type='entryType'/>"
 //    "</xsd:schema>";
 //..
-// The following string describes correct XML for a conforming schema.
-// The top-level element contains one XML namespace attribute, with one
-// embedded entry describing a user:
+// The following string describes correct XML for a conforming schema.  The
+// top-level element contains one XML namespace attribute, with one embedded
+// entry describing a user:
 //..
 //  const char TEST_GOOD_XML_STRING[] =
 //    "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -289,17 +289,16 @@ class ValidatingReader : public Reader {
         // Associate the specified 'location' with the XSD document in the
         // specified 'schema' stream.  Return 0 on success and non-zero on
         // error.  This method may be called more than once to add multiple
-        // location-schema associations to a pre-resolved schema cache.
-        // During XML validation, a reference to a schema with a specific
-        // location will be looked up in the schema cache.  Only if this
-        // resolution fails, is the schema resolver used to find the external
-        // schema.  (See 'setResolver' in the 'Reader' base class.)
-        // The effects of calling this method when the reader is already open
-        // is not specified and a derived class implementation may treat it as
-        // an error.  The behavior is undefined unless 'schema' is
-        // a repositionable stream (i.e., it must be possible to read from the
-        // stream, then seek to the beginning of the stream and read the same
-        // bytes again.)
+        // location-schema associations to a pre-resolved schema cache.  During
+        // XML validation, a reference to a schema with a specific location
+        // will be looked up in the schema cache.  Only if this resolution
+        // fails, is the schema resolver used to find the external schema.
+        // (See 'setResolver' in the 'Reader' base class.)  The effects of
+        // calling this method when the reader is already open is not specified
+        // and a derived class implementation may treat it as an error.  The
+        // behavior is undefined unless 'schema' is a repositionable stream
+        // (i.e., it must be possible to read from the stream, then seek to the
+        // beginning of the stream and read the same bytes again.)
 
     virtual void removeSchemas() = 0;
         // Remove all location-to-schema associations that were added using
@@ -315,7 +314,7 @@ class ValidatingReader : public Reader {
 }  // close package namespace
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 }  // close enterprise namespace

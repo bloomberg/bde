@@ -18,17 +18,17 @@ BSLS_IDENT_RCSID(btlb_blobutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace {
+
 // HELPER FUNCTION
-void copyFromPlace(char               *dstBuffer,
-                   const btlb::Blob&   srcBlob,
-                   bsl::pair<int, int> place,
-                   int                 length)
-    // Copy the specified 'length' bytes, starting at the specified
-    // 'place' in the specified 'srcBlob', to the specified 'dstBuffer'.
-    // The behavior of this function is undefined unless '0 < length',
-    // 'place' represents an actual character position in 'srcBlob',
-    // 'srcBlob' has at least 'length' bytes starting at 'place', and
-    // 'dstBuffer' has room for 'length' bytes.
+void copyFromPlace(char                *dstBuffer,
+                   const btlb::Blob&    srcBlob,
+                   bsl::pair<int, int>  place,
+                   int                  length)
+    // Copy the specified 'length' bytes, starting at the specified 'place' in
+    // the specified 'srcBlob', to the specified 'dstBuffer'.  The behavior of
+    // this function is undefined unless '0 < length', 'place' represents an
+    // actual character position in 'srcBlob', 'srcBlob' has at least 'length'
+    // bytes starting at 'place', and 'dstBuffer' has room for 'length' bytes.
 {
     BSLS_ASSERT_SAFE(place.first < srcBlob.numBuffers());
     BSLS_ASSERT_SAFE(place.second < srcBlob.buffer(place.first).size());
@@ -51,15 +51,13 @@ void copyFromPlace(char               *dstBuffer,
 }  // close unnamed namespace
 
 namespace btlb {
-                              // ---------------
-                              // struct BlobUtil
-                              // ---------------
+
+                             // ---------------
+                             // struct BlobUtil
+                             // ---------------
 
 // CLASS METHODS
-void BlobUtil::append(Blob        *dest,
-                            const Blob&  source,
-                            int                offset,
-                            int                length)
+void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
 {
     BSLS_ASSERT(0 != dest);
     BSLS_ASSERT(0 <= offset);
@@ -136,10 +134,7 @@ void BlobUtil::append(Blob        *dest,
     (void) newLength; // quash potential compiler warning
 }
 
-void BlobUtil::append(Blob *dest,
-                            const char *source,
-                            int         offset,
-                            int         length)
+void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
 {
     BSLS_ASSERT(0 != dest);
     BSLS_ASSERT(0 != source || 0 == length);
@@ -214,8 +209,8 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
         leadingPartialBuffer.buffer().swap(leadingShptr);
         blob->swapBufferRaw(currBufferIdx, &leadingPartialBuffer);
 
-        // Adjust the length of the data to be deleted to include the length
-        // of the leading buffer that we just prepended and increment
+        // Adjust the length of the data to be deleted to include the length of
+        // the leading buffer that we just prepended and increment
         // currBufferIdx to show that the next buffer to be deleted should be
         // after the prepended buffer.
         ++currBufferIdx;
@@ -257,10 +252,10 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
 }
 
 void BlobUtil::insert(Blob        *dest,
-                            int                destOffset,
-                            const Blob&  source,
-                            int                sourceOffset,
-                            int                sourceLength)
+                      int          destOffset,
+                      const Blob&  source,
+                      int          sourceOffset,
+                      int          sourceLength)
 {
     // TBD: optimize this also
     BSLS_ASSERT(0 != dest);
@@ -274,9 +269,8 @@ void BlobUtil::insert(Blob        *dest,
     *dest = result;
 }
 
-bsl::pair<int, int> BlobUtil::findBufferIndexAndOffset(
-                                                    const Blob& blob,
-                                                    int               position)
+bsl::pair<int, int> BlobUtil::findBufferIndexAndOffset(const Blob& blob,
+                                                       int         position)
 {
     BSLS_ASSERT(0 <= position);
     BSLS_ASSERT(position < blob.totalSize());
@@ -291,10 +285,10 @@ bsl::pair<int, int> BlobUtil::findBufferIndexAndOffset(
     return result;
 }
 
-void BlobUtil::copy(char              *dstBuffer,
-                          const Blob&  srcBlob,
-                          int                position,
-                          int                length)
+void BlobUtil::copy(char        *dstBuffer,
+                    const Blob&  srcBlob,
+                    int          position,
+                    int          length)
 {
     BSLS_ASSERT(0 <= position);
     BSLS_ASSERT(0 <= length);
@@ -307,11 +301,11 @@ void BlobUtil::copy(char              *dstBuffer,
     }
 }
 
-char *BlobUtil::getContiguousRangeOrCopy(char              *dstBuffer,
-                                               const Blob&  srcBlob,
-                                               int                position,
-                                               int                length,
-                                               int                alignment)
+char *BlobUtil::getContiguousRangeOrCopy(char        *dstBuffer,
+                                         const Blob&  srcBlob,
+                                         int          position,
+                                         int          length,
+                                         int          alignment)
 {
     BSLS_ASSERT(dstBuffer != 0);
     BSLS_ASSERT(0 <= position);
@@ -334,10 +328,9 @@ char *BlobUtil::getContiguousRangeOrCopy(char              *dstBuffer,
     return p;
 }
 
-char *BlobUtil::getContiguousDataBuffer(
-                                            Blob              *blob,
-                                            int                      addLength,
-                                            BlobBufferFactory *factory)
+char *BlobUtil::getContiguousDataBuffer(Blob              *blob,
+                                        int                addLength,
+                                        BlobBufferFactory *factory)
 {
     BSLS_ASSERT(factory != 0);
     BSLS_ASSERT(blob != 0);
@@ -364,8 +357,7 @@ char *BlobUtil::getContiguousDataBuffer(
     return blob->buffer(index).data() + offset;
 }
 
-bsl::ostream& BlobUtil::asciiDump(bsl::ostream&     stream,
-                                        const Blob& source)
+bsl::ostream& BlobUtil::asciiDump(bsl::ostream& stream, const Blob& source)
 {
     int numBytes = source.length();
 
@@ -385,10 +377,10 @@ bsl::ostream& BlobUtil::asciiDump(bsl::ostream&     stream,
     return stream;
 }
 
-bsl::ostream& BlobUtil::hexDump(bsl::ostream&     stream,
-                                      const Blob& source,
-                                      int               offset,
-                                      int               length)
+bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
+                                const Blob&   source,
+                                int           offset,
+                                int           length)
 {
     BSLS_ASSERT(0 <= offset);
     BSLS_ASSERT(0 <= length);
@@ -400,19 +392,19 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream&     stream,
     }
 
     enum {
-        NUM_STATIC_BUFFERS = 32
+        k_NUM_STATIC_BUFFERS = 32
     };
 
     typedef bsl::pair<const char*, int> BufferInfo;
 
-    BufferInfo  staticBuffers[NUM_STATIC_BUFFERS];
+    BufferInfo  staticBuffers[k_NUM_STATIC_BUFFERS];
     BufferInfo *buffers = staticBuffers;
     int         numBufferInfo = 0;
 
     bslma::DeallocatorProctor<bslma::Allocator> deallocationGuard(
                                         0, bslma::Default::defaultAllocator());
 
-    if (source.numDataBuffers() > NUM_STATIC_BUFFERS) {
+    if (source.numDataBuffers() > k_NUM_STATIC_BUFFERS) {
         // This works because we do not need to call the constructor on a pair
         // of two built-in types.
 
@@ -580,8 +572,9 @@ int BlobUtil::compare(const Blob& a, const Blob& b)
             rhsBufSize = nextLhsBufSize;
             rhsPtr     = nextLhsBlobBuffer.data();
 
-            bsl::swap(lhsBlob,   rhsBlob);
-            bsl::swap(lhsBufIdx, rhsBufIdx);
+            using bsl::swap;
+            swap(lhsBlob,   rhsBlob);
+            swap(lhsBufIdx, rhsBufIdx);
         }
     }
 

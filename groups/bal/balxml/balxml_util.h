@@ -18,11 +18,11 @@ BSLS_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides a namespace for various XML utilities.
-// Included is a method for extracting the 'targetNamespace' from an XSD
-// schema.  Any top-level XSD schema must have a 'targetNamespace' attribute
-// in the '<schema>' element that identifies the namespace that the XSD schema
-// defines.
+//@DESCRIPTION: This component provides a namespace, 'balxml::Util', for
+// various XML utilities.  Included is a method for extracting the
+// 'targetNamespace' from an XSD schema.  Any top-level XSD schema must have a
+// 'targetNamespace' attribute in the '<schema>' element that identifies the
+// namespace that the XSD schema defines.
 //
 // Note that a valid XSD file must have this attribute for the root element
 // '<schema>' and the only place that the token "targetNamespace" can appear
@@ -137,7 +137,7 @@ struct Util {
         // Extract the target namespace from the XSD schema in the specified
         // 'xsdSource' and load it into the specified 'targetNamespace'.
         // Return 'true' on success, and 'false' otherwise.  Note that a valid
-        // XSD schema must have a "targetNamespace" attribute in the '<schema>'
+        // XSD schema must have a 'targetNamespace' attribute in the '<schema>'
         // element that identifies the namespace that the XSD schema defines.
         // If no such attribute is found, or the 'xsdSource' is ill-formed,
         // this method returns 'false'.  Otherwise, it returns 'true' and

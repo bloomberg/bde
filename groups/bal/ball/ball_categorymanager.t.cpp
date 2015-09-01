@@ -69,55 +69,41 @@ using namespace bsl;  // automatically added by script
 // 'ball::CategoryManager' public interface:
 // [ 2] ball::CategoryManager(bslma::Allocator *ba = 0);
 // [ 2] ~ball::CategoryManager();
-// [ 8] ball::Category& operator[](int index)
+// [ 6] ball::Category& operator[](int index)
 // [ 5] ball::Category *addCategory(const char *name, int, int, int, int);
-// [13] ball::Category *addCategory(Holder *, const char *, int, int, int, int);
+// [11] ball::Category *addCategory(Holder *, const char *, int, int, int, int);
 // [ 3] ball::Category *lookupCategory(const char *name);
-// [13] ball::Category *lookupCategory(Holder *, const char *name);
-// [13] void resetCategoryHolders();
+// [11] ball::Category *lookupCategory(Holder *, const char *name);
+// [11] void resetCategoryHolders();
 // [ 5] ball::Category *setThresholdLevels(*name, int, int, int, int);
-// [10] int addRule(const ball::Rule& rule);
-// [11] int addRules(const ball::RuleSet& ruleSet);
-// [10] int removeRule(const ball::Rule& rule);
-// [11] int removeRules(const ball::RuleSet& ruleSet);
-// [10] void removeAllRules();
-// [15] bdlqq::Mutex& rulesetMutex();
+// [ 8] int addRule(const ball::Rule& rule);
+// [ 9] int addRules(const ball::RuleSet& ruleSet);
+// [ 8] int removeRule(const ball::Rule& rule);
+// [ 9] int removeRules(const ball::RuleSet& ruleSet);
+// [ 8] void removeAllRules();
+// [13] bdlqq::Mutex& rulesetMutex();
 // [ 8] const ball::Category& operator[](int index) const
 // [ 3] const ball::Category *lookupCategory(const char *name) const;
 // [ 3] int length() const;
-// [10] int ruleSequenceNumber() const;
-// [15] ball::RuleSet& ruleSet() const;
-//
-// 'ball::CategoryManagerIter' public interface:
-// [ 6] ball::CategoryManagerIter(const ball::CategoryManager& cm)
-// [ 6] ~ball::CategoryManagerIter();
-// [ 6] void operator++();
-// [ 6] operator const void *() const;
-// [ 6] const ball::Category& operator()() const;
-//
-// 'ball::CategoryManagerManip' public interface:
-// [ 7] ball::CategoryManagerManip(ball::CategoryManager *cm);
-// [ 7] ~ball::CategoryManagerManip();
-// [ 7] void advance();
-// [ 7] ball::Category& operator()();
-// [ 7] operator const void *() const;
+// [ 8] int ruleSequenceNumber() const;
+// [13] ball::RuleSet& ruleSet() const;
 //
 // 'ball::CategoryHolder' public interface:
-// [12] void reset();
-// [12] void setCategory(const ball::Category *category);
-// [12] void setThreshold(int threshold);
-// [12] void setNext(ball::CategoryHolder *holder);
-// [12] const ball::Category *category() const;
-// [12] int threshold() const;
-// [12] ball::CategoryHolder *next() const;
+// [10] void reset();
+// [10] void setCategory(const ball::Category *category);
+// [10] void setThreshold(int threshold);
+// [10] void setNext(ball::CategoryHolder *holder);
+// [10] const ball::Category *category() const;
+// [10] int threshold() const;
+// [10] ball::CategoryHolder *next() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] BASIC CONSTRUCTORS AND PRIMARY MANIPULATORS (BOOTSTRAP)
 // [ 2] BOOTSTRAP: ball::Category *addCategory(*name, int, int, int, int);
-// [ 9] MT-SAFETY
-// [14] TESTING IMPACT OF RULES ON CATEGORY HOLDERS
-// [15] CONCURRENCY TEST: RULES
-// [16] USAGE EXAMPLE
+// [ 7] MT-SAFETY
+// [12] TESTING IMPACT OF RULES ON CATEGORY HOLDERS
+// [13] CONCURRENCY TEST: RULES
+// [14] USAGE EXAMPLE
 
 //-----------------------------------------------------------------------------
 
@@ -224,8 +210,6 @@ typedef ball::CategoryManager         Obj;
 
 typedef ball::Category                Entry;
 typedef ball::CategoryHolder          Holder;
-typedef ball::CategoryManagerIter     Iter;
-typedef ball::CategoryManagerManip    Manip;
 typedef ball::ThresholdAggregate      Thresholds;
 typedef const char*                  Name;
 typedef bslma::TestAllocator         TestAllocator;
@@ -579,7 +563,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -671,7 +655,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) { out << ends; cout << buf << endl; }
       }  break;
-      case 15: {
+      case 12: {
         // --------------------------------------------------------------------
         // CONCURRENCY TEST: RULES
         //
@@ -835,7 +819,7 @@ int main(int argc, char *argv[])
             mX.removeAllRules();
         }
       } break;
-      case 13: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING FUNCTIONS TAKING A HOLDER
         //
@@ -1090,7 +1074,7 @@ int main(int argc, char *argv[])
         ASSERT(0         == G.next());
       } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING ball::CategoryHolder
         //
@@ -1198,7 +1182,11 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard guard(&testAllocator);
             const int NUM_BYTES = testAllocator.numBytesInUse();
 
-            Holder mX = { Holder::e_DYNAMIC_CATEGORY, CATEGORY, NEXT };
+            Holder mX = { 
+                Holder::e_DYNAMIC_CATEGORY, 
+                const_cast<Entry *>(CATEGORY),
+                NEXT 
+            };
             const Holder& X = mX;
             LOOP3_ASSERT(LINE, Holder::e_DYNAMIC_CATEGORY, X.threshold(),
                          Holder::e_DYNAMIC_CATEGORY == X.threshold());
@@ -1228,7 +1216,7 @@ int main(int argc, char *argv[])
                          NUM_BYTES == testAllocator.numBytesInUse());
         }
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING: 'addRules', 'removeRules'
         //
@@ -1363,7 +1351,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == MX.ruleSet().numRules());
         }
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING: 'addRule', 'removeRule', 'removeAllRules'
         //
@@ -1465,7 +1453,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == cat->relevantRuleMask());
         }
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING MT-SAFETY: ADD AND LOOKUP
         //
@@ -1592,7 +1580,7 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
       }  break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING INDEXED ACCESS
         //
@@ -1667,139 +1655,6 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
       }  break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING MANIPULATOR (ball::CategoryManagerManip)
-        //
-        // Concerns:
-        //   The basic concern is that the constructor, the destructor, the
-        //   manipulators:
-        //     - void advance();
-        //     - ball::Category& operator()();
-        //   and the accessor:
-        //     - operator const void *() const;
-        //   operate as expected.
-        //
-        // Plan:
-        //   Create a category manager X.  Add categories to X having various
-        //   names and threshold level values.  Create a manipulator for X.
-        //   Change the threshold level values using the modifiable access
-        //   provided by the manipulator.  Verify that the values are changed.
-        //   Change the threshold levels back to their original values, and
-        //   verify that they were reset.
-        //
-        // Testing:
-        //   ball::CategoryManagerManip(ball::CategoryManager *cm);
-        //   ~ball::CategoryManagerManip();
-        //   void advance();
-        //   ball::Category& operator()();
-        //   operator const void *() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Test ball::CategoryManagerManip" << endl
-                                  << "==============================" << endl;
-
-        Obj mX;  const Obj& X = mX;
-
-        for (int i = 0; i < NUM_NAMES; ++i) {
-            mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                     LEVELS[i][2], LEVELS[i][3]);
-        }
-        ASSERT(NUM_NAMES == X.length());
-
-        for (Manip manip(&mX); manip; manip.advance()) {
-            const Entry *p          = X.lookupCategory(manip().categoryName());
-            const int    record     = p->recordLevel();
-            const int    pass       = p->passLevel();
-            const int    trigger    = p->triggerLevel();
-            const int    triggerAll = p->triggerAllLevel();
-            ASSERT(record     == manip().recordLevel());
-            ASSERT(pass       == manip().passLevel());
-            ASSERT(trigger    == manip().triggerLevel());
-            ASSERT(triggerAll == manip().triggerAllLevel());
-
-            manip().setLevels(manip().recordLevel() + 1,
-                              manip().passLevel() + 1,
-                              manip().triggerLevel() + 1,
-                              manip().triggerAllLevel() + 1);
-
-            ASSERT(record + 1     == p->recordLevel());
-            ASSERT(pass + 1       == p->passLevel());
-            ASSERT(trigger + 1    == p->triggerLevel());
-            ASSERT(triggerAll + 1 == p->triggerAllLevel());
-
-            manip().setLevels(manip().recordLevel() - 1,
-                              manip().passLevel() - 1,
-                              manip().triggerLevel() - 1,
-                              manip().triggerAllLevel() - 1);
-
-            ASSERT(record     == p->recordLevel());
-            ASSERT(pass       == p->passLevel());
-            ASSERT(trigger    == p->triggerLevel());
-            ASSERT(triggerAll == p->triggerAllLevel());
-        }
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING ITERATOR
-        //
-        // Concerns:
-        //   The basic concerns for the iterator are that the constructor,
-        //   the destructor, the manipulator 'operator++', and the accessors:
-        //     - operator const void *() const;
-        //     - const ball::Category& operator()() const;
-        //   operate as expected.
-        //
-        // Plan
-        //   Construct a category manager X.  Add categories to X having
-        //   various names and threshold levels.  Construct another empty
-        //   category manager Y.  Walk the categories of X with an iterator;
-        //   add categories with names and threshold levels obtained from the
-        //   iterator into Y.  Verify that the two category managers have the
-        //   same length, and that entries in each with that same name have
-        //   the same threshold levels.
-        //
-        // Testing:
-        //   ball::CategoryManagerIter(const ball::CategoryManager& cm)
-        //   ~ball::CategoryManagerIter();
-        //   void operator ++();
-        //   operator const void *() const;
-        //   const ball::Category& operator()() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Test Iterator" << endl
-                                  << "=============" << endl;
-
-        Obj mX;  const Obj& X = mX;
-
-        for (int i = 0; i < NUM_NAMES; ++i) {
-            mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                     LEVELS[i][2], LEVELS[i][3]);
-        }
-        ASSERT(NUM_NAMES == X.length());
-
-        Obj mY;  const Obj& Y = mY;
-        ASSERT(0 == Y.length());
-        for (Iter it(X); it; ++it) {
-            mY.addCategory(it().categoryName(),
-                           it().recordLevel(),
-                           it().passLevel(),
-                           it().triggerLevel(),
-                           it().triggerAllLevel());
-        }
-        ASSERT(X.length() == Y.length());
-
-        for (int i = 0; i < NUM_NAMES; ++i) {
-            const Entry *px = X.lookupCategory(NAMES[i]);
-            const Entry *py = Y.lookupCategory(NAMES[i]);
-
-            ASSERT(px != py);
-            ASSERT(px->recordLevel()     == py->recordLevel());
-            ASSERT(px->passLevel()       == py->passLevel());
-            ASSERT(px->triggerLevel()    == py->triggerLevel());
-            ASSERT(px->triggerAllLevel() == py->triggerAllLevel());
-        }
-      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING AREVALIDTHRESHOLDLEVELS AND MANIPULATORS

@@ -34,31 +34,39 @@ BSLS_IDENT("$Id: $")
 ///-----
 // The following snippets of code illustrate how to use 'btls::Iovec' with
 // platform dependent scatter/gather operations.  Typically, an array of
-// structures is created with each element containing a pointer to a buffer.
-// A pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
+// structures is created with each element containing a pointer to a buffer.  A
+// pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
 // operation.  In this example an array of 3 buffer pointers is created.
 //..
-// char buf1[10];
-// char buf2[4];
-// char buf3[7];
-// btls::Ovec vector[3];
-// vector[0].setBuffer(buf1, 10);
-// vector[1].setBuffer(buf2, 4);
-// vector[2].setBuffer(buf3, 7);
+//  char buf1[10];
+//  char buf2[4];
+//  char buf3[7];
+//  btls::Ovec vector[3];
+//  vector[0].setBuffer(buf1, 10);
+//  vector[1].setBuffer(buf2, 4);
+//  vector[2].setBuffer(buf3, 7);
 //..
 // On UNIX-like systems the internal structure of 'btls::Iovec' and
 // 'btls::Ovec' use the 'iovec' 'struct'.  This structure is used for the
 // 'writev' and 'readv' scatter/gather read/write operations or within the
 // 'msgbuf' 'struct' used by 'sendmsg' and 'readmsg' socket operations.
-//..
-// int writeCount = ::writev(socket, (struct iovec *) vector, 3);
-//..
+//
 // On Windows the internal structure of 'btls::Iovec' and 'btls::Ovec' use the
 // 'WSABUF' 'struct'.  This structure is used for the 'WSARecv' and 'WSASend'
 // scatter/gather send/receive socket operations or within the 'WSAMSG'
 // 'struct' used by 'WSARecvMsg' and 'WSASendMsg' socket operations.
 //..
-// int ret = ::WSASend(socket, (WSABUF *) vector, 3, &writeCount, 0, 0, 0);
+//  #ifndef BSLS_PLATFORM_CMP_MSVC
+//      // Verify values for UNIX like systems
+//      int socket = 0;
+//      ::writev(socket, (struct iovec *) vector, 3);
+//  #else
+//      // Verify values for Windows
+//      DWORD writeCount = 0;
+//      SOCKET socket = (SOCKET) 0;
+//      int ret =
+//             TestWSASend(socket, (WSABUF *) vector, 3, &writeCount, 0, 0, 0);
+//  #endif
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
@@ -90,15 +98,15 @@ BSLS_IDENT("$Id: $")
     #define INCLUDED_UNISTD
     #endif
 
-    #ifndef INCLUDED_SYS_UIO
+    #ifndef INCLUDED_UIO_H
     #include <sys/uio.h>
-    #define INCLUDED_SYS_UIO
+    #define INCLUDED_UIO_H
     #endif
 #endif
 
-                                // ===========
-                                // class Iovec
-                                // ===========
+                               // ===========
+                               // class Iovec
+                               // ===========
 
 namespace BloombergLP {
 namespace btls {
@@ -167,9 +175,9 @@ class Iovec {
         // Return the length of the writable buffer.
 };
 
-                                 // ==========
-                                 // class Ovec
-                                 // ==========
+                                // ==========
+                                // class Ovec
+                                // ==========
 
 class Ovec {
     // This class provides a platform-independent data structure for
@@ -226,12 +234,12 @@ class Ovec {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                                // -----------
-                                // class Iovec
-                                // -----------
+                               // -----------
+                               // class Iovec
+                               // -----------
 
 // CREATORS
 inline
@@ -313,9 +321,9 @@ int Iovec::length() const
 #endif
 }
 
-                                 // ----------
-                                 // class Ovec
-                                 // ----------
+                                // ----------
+                                // class Ovec
+                                // ----------
 
 // CREATORS
 inline

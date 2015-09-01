@@ -48,28 +48,26 @@ const PredefinedPrefix& lookupPredefinedPrefix(const bslstl::StringRef& prefix)
 }  // close unnamed namespace
 
 namespace balxml {
-PrefixStack::PrefixStack(
-    NamespaceRegistry *namespaceRegistry,
-    bslma::Allocator         *alloc)
+PrefixStack::PrefixStack(NamespaceRegistry *namespaceRegistry,
+                         bslma::Allocator  *basicAllocator)
 : d_namespaceRegistry(namespaceRegistry)
-, d_prefixes(alloc)
+, d_prefixes(basicAllocator)
 , d_numPrefixes(0)
 {
 }
 
 int PrefixStack::pushPrefix(const bslstl::StringRef& prefix,
-                                   const bslstl::StringRef& namespaceUri)
+                            const bslstl::StringRef& namespaceUri)
 {
     int nsId = d_namespaceRegistry->lookupOrRegister(namespaceUri);
 
-    // if nsId is -1, this means namespaceUri is empty
-    // we can interpret this as "undeclared namespace"
-    // example:  xmlns:myprefix=""
+    // if nsId is -1, this means namespaceUri is empty we can interpret this as
+    // "undeclared namespace" example: xmlns:myprefix=""
 
     if ((unsigned) d_numPrefixes >= d_prefixes.size()) {
-        // It is more efficient to push an empty element onto the vector
-        // then fill in the values than it is to construct a pair<string,int>
-        // on the stack and then copy it into the vector.
+        // It is more efficient to push an empty element onto the vector then
+        // fill in the values than it is to construct a pair<string,int> on the
+        // stack and then copy it into the vector.
         d_prefixes.push_back(PrefixVector::value_type());
         BSLS_ASSERT((unsigned) d_numPrefixes < d_prefixes.size());
     }
@@ -129,9 +127,9 @@ PrefixStack::lookupNamespaceUri(const bslstl::StringRef& prefix) const
 }
 
 const char *
-PrefixStack::lookupNamespaceUri(int id) const
+PrefixStack::lookupNamespaceUri(int nsId) const
 {
-    return d_namespaceRegistry->lookup(id);
+    return d_namespaceRegistry->lookup(nsId);
 }
 
 const char *PrefixStack::namespaceUriByIndex(int index) const
@@ -142,7 +140,7 @@ const char *PrefixStack::namespaceUriByIndex(int index) const
 }
 
 void
-PrefixStack::print(bsl::ostream& stream, bool fullName) const
+PrefixStack::print(bsl::ostream& stream, bool fullNames) const
 {
     PrefixVector::const_iterator it1(d_prefixes.begin());
     PrefixVector::const_iterator it2(it1 + d_numPrefixes);
@@ -150,7 +148,7 @@ PrefixStack::print(bsl::ostream& stream, bool fullName) const
     for(int i=0; it1 != it2; ++it1, ++i)
     {
         stream << it1->first << " => " << it1->second;
-        if (fullName) {
+        if (fullNames) {
             stream << " (" << lookupNamespaceUri(it1->second) << ')';
         }
         stream << '\n';
@@ -158,8 +156,8 @@ PrefixStack::print(bsl::ostream& stream, bool fullName) const
 
     stream << bsl::flush;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
