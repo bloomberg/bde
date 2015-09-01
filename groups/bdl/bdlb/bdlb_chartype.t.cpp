@@ -1,31 +1,32 @@
 // bdlb_chartype.t.cpp                                                -*-C++-*-
 
 #include <bdlb_chartype.h>
+#include <bdls_testutil.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstdlib.h>   // atoi()
-#include <bsl_cstring.h>   // memset()
-#include <bsl_cctype.h>    // isprint(), toupper(), etc.
-#include <bsl_strstream.h> // ostream
+#include <bsl_cstdlib.h>   // 'bsl::atoi'
+#include <bsl_cstring.h>   // 'bsl::memset'
+#include <bsl_cctype.h>    // 'bsl::isprint', 'bsl::toupper', etc.
+#include <bsl_strstream.h> // 'bsl::ostream'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // Almost all of the behavior in this component is implemented via tables.
 // Moreover, this component has no state, and the data it provides is
 // delightfully finite.  Lastly, much of the functionality being implemented
-// can be found in the standard C library: 'include' '<cctype>'.  Our general
+// can be found in the standard C library: '#include <cctype>'.  Our general
 // test approach will be to make liberal use of helper functions, oracles, and
 // loop-based "area" testing to verify (exhaustively) that each entry in every
 // table is correct.  Note that the redundant methods taking a category
 // argument are all implemented in terms of separately assigned tables; hence,
 // direct testing of each of these functions must be exhaustive as well.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // TYPES
 // [ 3] enum Category;
 // [ 3] enum { NUM_CATEGORIES };
@@ -47,7 +48,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bool isAlund(char character);
 // [ 5] bool isAll(char character);
 // [ 5] bool isNone(char character);
-// [ 5] bool isCategory(char character, bdlb::CharType::Category category);
+// [ 5] bool isCategory(char c, bdlb::CharType::Category category);
 // [ 6] const char *stringUpper();
 // [ 6] const char *stringLower();
 // [ 6] const char *stringAlpha();
@@ -87,19 +88,21 @@ using namespace bsl;  // automatically added by script
 //
 // FREE OPERATORS
 // [ 4] operator<<(bsl::ostream& out, bdlb::CharType::Category category);
-//-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST -- (developer's sandbox)
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
-// [ 2] Test helper functions match equivalent functions in <cctype>.
+// [ 2] Test helper functions match equivalent functions in '<cctype>'.
 // [ 2] The detailed tabular documentation in the header is accurate.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -107,52 +110,28 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
 //                       GLOBAL TYPEDEFS/CONSTANTS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                         TEST HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The functions in this section provide piece-wise continuous representations
 // of the tables used to implement the corresponding functions in the component
 // under test.  These functions will be used to verify consistency with the
@@ -244,9 +223,9 @@ static char toUpper(char c) {
     return isLower(c) ? c - 32 : c;
 }
 
-//=============================================================================
+// ============================================================================
 //             DEFINITIONAL DATA TO VERIFY DOCUMENTATION IN HEADER
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following table mirrors the one in the header used to document which
 // characters belong to the respective categories.
 
@@ -389,9 +368,16 @@ static const char DOC_TABLE[128][bdlb::CharType::e_NONE + 1] =
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 177
 };
 
-//=============================================================================
+// ============================================================================
 //                       SUPPORT FOR USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Validating C-Style Identifiers
+///- - - - - - - - - - - - - - - - - - - - -
 // The character category extensions 'IDENT' and 'ALUND' are particularly
 // useful for parsing C-style identifier names as described by the following
 // regular expression:
@@ -421,15 +407,15 @@ static const char DOC_TABLE[128][bdlb::CharType::e_NONE + 1] =
     }
 //..
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -438,19 +424,16 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Ensure that the function (implemented above) works as advertized.
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   - That the function isIdentifier works as advertized.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   - Try a few examples ordered by length.
-        //      + consider boundary conditions
-        //      + ident/non-ident characters
-        //
-        // Tactics:
-        //   - Ad Hoc Data Selection Method
-        //   - Table-Based Implementation Technique
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -463,8 +446,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest 'isIdentifier' function." << endl;
         {
             static const struct {
-                int d_lineNum;           // source line number
-                bool d_expected;         // expected value
+                int         d_lineNum;   // source line number
+                bool        d_expected;  // expected value
                 const char *d_input_p;   // input string
 
             } DATA[] = {
@@ -510,8 +493,8 @@ int main(int argc, char *argv[])
             // MAIN TEST-TABLE LOOP
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE          = DATA[ti].d_lineNum;
-                const bool EXP          = DATA[ti].d_expected;
+                const int         LINE  = DATA[ti].d_lineNum;
+                const bool        EXP   = DATA[ti].d_expected;
                 const char *const INPUT = DATA[ti].d_input_p;
 
                 if (veryVerbose) {
@@ -523,47 +506,51 @@ int main(int argc, char *argv[])
 
                 LOOP4_ASSERT(LINE, EXP, result, INPUT, EXP == result);
 
-            } // end for ti
-        } // end block
+            }
+        }
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
         // VERIFY COUNT AND STRING FUNCTIONS
-        //   Ensure numCategory, stringCategory, numUpper, etc are correct.
+        //   Ensure 'numCategory', 'stringCategory', 'numUpper', etc. are
+        //   correct.
         //
         // Concerns:
-        //   - That all character counts are consistent with the tables.
-        //   - That the strings characters are consistent with the tables.
-        //   - That strings are ordered by increasing character encodings.
-        //   - That the character at the corresponding 'count' index is null.
-        //   - That we test numCategory and stringCategory exhaustively.
-        //   - That we test each num and string function exhaustively.
-        //   - That the results of stringCategory and string are identical.
+        //: 1 All character counts are consistent with the tables.
+        //: 2 The strings characters are consistent with the tables.
+        //: 3 Strings are ordered by increasing character encodings.
+        //: 4 The character at the corresponding 'count' index is null.
+        //: 5 The 'numCategory' and 'stringCategory' functions are tested
+        //:   exhaustively.
+        //: 6 Each 'num*' and 'string*' function are tested exhaustively.
+        //: 7 The results of 'stringCategory' and string are identical.
         //
         // Plan:
-        //   - For each of the character sets,
-        //      + count up the number of 1 values returned and compare that
-        //        value with the number returned by the 'numCategory' function.
-        //        - also compare with individual num functions.
-        //      + Initialize a table of 256 integers to 0; increment the array
-        //        element corresponding to the code for each character in the
-        //        'stringCategory' function.  Use the isCategory method to
-        //        ensure that each character in the string belongs (and occurs
-        //        once).
-        //        - also use the num functions and 'memcmp' to ensure that
-        //          the corresponding strings returned are the same (and using
-        //          == are, in fact, identical) and that both strings are null
-        //          terminated (i.e., 0 == string...[num...]).
-        //   - for each string of each category in stringCategory walk the
-        //      string and make sure that each character code is strictly
-        //      greater than the previous by converting each 'char' to
-        //      to 'unsigned' 'char' before assigning to a signed integer
-        //      'curr' (initial previous value 'prev' = -1).
+        //   This test case uses the Area Data Selection Method and is
+        //   implemented using the Brute Force and Loop-Based Implementation
+        //   Techniques
         //
-        // Tactics:
-        //   - Area Data Selection Method
-        //   - Brute Force and Loop-Based Implementation Techniques
+        //: 1 For each of the character sets:
+        //:    1 Count up the number of 1 values returned and compare that
+        //:      value with the number returned by the 'numCategory' function.
+        //:      1 Also compare with individual num functions.
+        //:
+        //:    2 Initialize a table of 256 integers to 0; increment the array
+        //:      element corresponding to the code for each character in the
+        //:      'stringCategory' function.  Use the isCategory method to
+        //:      ensure that each character in the string belongs (and occurs
+        //:      once).
+        //:      1 also use the 'num*' functions and 'memcmp' to ensure that
+        //:        the corresponding strings returned are the same (and using
+        //:        '==' are, in fact, identical) and that both strings are null
+        //:        terminated (i.e., '0 == string...[num...]').
+        //:
+        //: 2 For each string of each category in 'stringCategory' walk the
+        //:    string and make sure that each character code is strictly
+        //:    greater than the previous by converting each 'char' to
+        //:    to 'unsigned char' before assigning to a signed integer
+        //:    'curr' (initial previous value 'prev = -1').
         //
         // Testing:
         //   int numUpper();
@@ -603,9 +590,8 @@ int main(int argc, char *argv[])
         //   int numCategory(bdlb::CharType::Category category);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                  << "VERIFY COUNT AND STRING FUNCTIONS" << endl
-                  << "=================================" << endl;
+        if (verbose) cout << "\n" "VERIFY COUNT AND STRING FUNCTIONS" "\n"
+                                  "=================================" "\n";
 
         typedef bdlb::CharType Util;     // *** Short Alias
 
@@ -764,9 +750,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
         }
 
-        if (verbose) cout <<
-    "\nFor each character set, ensure character codes are strictly increasing."
-                                                                       << endl;
+        if (verbose) cout << "\n"
+      "For each character set, ensure character codes are strictly increasing."
+                                                                          "\n";
         {
             for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
@@ -789,19 +775,19 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // VERIFY IS MEMBER AND TOUPPER/TOLOWER FUNCTIONS
-        //   Ensure isCategory, isUpper, isDigit etc are implemented properly.
+        //   Ensure 'isCategory', 'isUpper', 'isDigit', etc. are implemented
+        //   properly.
         //
         // Concerns:
-        //   - that every table entry is correct.
-        //   - that we test isCategory exhaustively.
+        //: 1 Every table entry is correct.
+        //: 2 The 'isCategory' function is tested exhaustively.
         //
-        // Plan:
-        //   For each of the table-based functions, verify that the test helper
-        //   produces the same results as the corresponding Utility function.
+        // Plan: This test case uses the Area Data Selection Method and is
+        // implemented using the Loop-Based Technique.
         //
-        // Tactics:
-        //   - Area Data Selection Method
-        //   - Loop-Based Implementation Technique
+        //: 1 For each of the table-based functions, verify that the test
+        //:   helper produces the same results as the corresponding 'Utility'
+        //:   function.
         //
         // Testing:
         //   bool isUpper(char character);
@@ -821,20 +807,20 @@ int main(int argc, char *argv[])
         //   bool isAll(char character);
         //   bool isNone(char character);
         //
-        //   bool isCategory(char character, bdlb::CharType::Category category);
+        //   bool isCategory(char c, bdlb::CharType::Category category);
         //
         //   char toLower(char input);
         //   char toUpper(char input);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                  << "VERIFY IS MEMBER AND TOUPPER/TOLOWER FUNCTIONS" << endl
-                  << "==============================================" << endl;
+        if (verbose) cout << "\n"
+                  "VERIFY IS MEMBER AND TOUPPER/TOLOWER FUNCTIONS" "\n"
+                  "==============================================" "\n";
 
         typedef bdlb::CharType Util;     // *** Short Alias
 
         if (verbose) cout <<
-               "\nVerify isCategory, isAlpha, etc., toLower, toUpper." << endl;
+                  "\nVerify isCategory, isAlpha, etc., toLower, toUpper." "\n";
         {
             for (int i = 0; i < 256; ++i) {
                 if (veryVerbose) P(i);
@@ -908,60 +894,58 @@ int main(int argc, char *argv[])
         //   Ensure enumerated types covert to readable values.
         //
         // Concerns:
-        //   - That each enumerator converts to the appropriate string.
-        //   - That each enumerator prints as the appropriate string
+        //: 1 Each enumerator converts to the appropriate string.
+        //: 2 Each enumerator prints as the appropriate string.
         //
-        // Plan:
-        //   - Assert the correct string value for each of these enumerators.
-        //   - Write each value to a buffer and verify its contents.
-        //
-        // Tactics:
-        //   - Area Test Data Selection Method
-        //   - Brute-Force and Table-Based Implementation Techniques
+        // Plan: This test case uses the Area Test Data Selection Method and is
+        // implemented using the Brute-Force and Table-Based Implementation
+        // Techniques.
+        //: 1 Assert the correct string value for each of these enumerators.
+        //: 2 Write each value to a buffer and verify its contents.
         //
         // Testing:
         //   const char *toAscii(bdlb::CharType::Category category);
         //   operator<<(bsl::ostream& out, bdlb::CharType::Category category);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                  << "VERIFY ENUM OUTPUT OPERATOR AND TO-ASCII METHOD" << endl
-                  << "===============================================" << endl;
+        if (verbose) cout << "\n"
+                        "VERIFY ENUM OUTPUT OPERATOR AND TO-ASCII METHOD" "\n"
+                        "===============================================" "\n";
 
         typedef bdlb::CharType Util;     // *** Short Alias
 
         if (verbose) cout << "\nVerify bdlb::CharType::toAscii." << endl;
         {
-            ASSERT(0 == strcmp("UPPER", Util::toAscii(Util::e_UPPER)));
-            ASSERT(0 == strcmp("LOWER", Util::toAscii(Util::e_LOWER)));
-            ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::e_ALPHA)));
-            ASSERT(0 == strcmp("DIGIT", Util::toAscii(Util::e_DIGIT)));
+            ASSERT(0 == strcmp("UPPER",  Util::toAscii(Util::e_UPPER)));
+            ASSERT(0 == strcmp("LOWER",  Util::toAscii(Util::e_LOWER)));
+            ASSERT(0 == strcmp("ALPHA",  Util::toAscii(Util::e_ALPHA)));
+            ASSERT(0 == strcmp("DIGIT",  Util::toAscii(Util::e_DIGIT)));
             ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::e_XDIGIT)));
-            ASSERT(0 == strcmp("ALNUM", Util::toAscii(Util::e_ALNUM)));
-            ASSERT(0 == strcmp("SPACE", Util::toAscii(Util::e_SPACE)));
-            ASSERT(0 == strcmp("PRINT", Util::toAscii(Util::e_PRINT)));
-            ASSERT(0 == strcmp("GRAPH", Util::toAscii(Util::e_GRAPH)));
-            ASSERT(0 == strcmp("PUNCT", Util::toAscii(Util::e_PUNCT)));
-            ASSERT(0 == strcmp("CNTRL", Util::toAscii(Util::e_CNTRL)));
-            ASSERT(0 == strcmp("ASCII", Util::toAscii(Util::e_ASCII)));
-            ASSERT(0 == strcmp("IDENT", Util::toAscii(Util::e_IDENT)));
-            ASSERT(0 == strcmp("ALUND", Util::toAscii(Util::e_ALUND)));
-            ASSERT(0 == strcmp("ALL", Util::toAscii(Util::e_ALL)));
-            ASSERT(0 == strcmp("NONE", Util::toAscii(Util::e_NONE)));
+            ASSERT(0 == strcmp("ALNUM",  Util::toAscii(Util::e_ALNUM)));
+            ASSERT(0 == strcmp("SPACE",  Util::toAscii(Util::e_SPACE)));
+            ASSERT(0 == strcmp("PRINT",  Util::toAscii(Util::e_PRINT)));
+            ASSERT(0 == strcmp("GRAPH",  Util::toAscii(Util::e_GRAPH)));
+            ASSERT(0 == strcmp("PUNCT",  Util::toAscii(Util::e_PUNCT)));
+            ASSERT(0 == strcmp("CNTRL",  Util::toAscii(Util::e_CNTRL)));
+            ASSERT(0 == strcmp("ASCII",  Util::toAscii(Util::e_ASCII)));
+            ASSERT(0 == strcmp("IDENT",  Util::toAscii(Util::e_IDENT)));
+            ASSERT(0 == strcmp("ALUND",  Util::toAscii(Util::e_ALUND)));
+            ASSERT(0 == strcmp("ALL",    Util::toAscii(Util::e_ALL)));
+            ASSERT(0 == strcmp("NONE",   Util::toAscii(Util::e_NONE)));
         }
 
         if (verbose) cout <<
-            "\nVerify operator<<(bdlb::CharType::Category) (ostream)." << endl;
+               "\nVerify operator<<(bdlb::CharType::Category) (ostream)." "\n";
         {
             static const struct {
                 int            d_lineNum;    // source line number
-                Util::Category d_input;       // enumerator to be printed
+                Util::Category d_input;      // enumerator to be printed
                 const char    *d_fmt_p;      // expected output format
             } DATA[] = {
 
-                //        Input              Output
-                //L#    Enumerator           Format
-                //--    ----------           ------
+                //      Input             Output
+                //L#    Enumerator        Format
+                //--    --------------    ------
                 { L_,   Util::e_UPPER,    "UPPER"         },
                 { L_,   Util::e_LOWER,    "LOWER"         },
                 { L_,   Util::e_ALPHA,    "ALPHA"         },
@@ -1035,28 +1019,23 @@ int main(int argc, char *argv[])
         //   Ensure that enumerated types and values are correct.
         //
         // Concerns:
-        //   - That each enumerator has the appropriate type.
-        //   - That each enumerator has the appropriate value.
-        //   - that BDEU_NUM_CATEGORIES has the appropriate value.
+        //: 1 Each enumerator has the appropriate type.
+        //: 2 Each enumerator has the appropriate value.
+        //: 3 'BDEU_NUM_CATEGORIES' has the appropriate value.
         //
-        // Plan:
-        //   - Assert the correct value for each of these enumerators, after
-        //      assigning it to a variable of type Category where appropriate.
-        //
-        // Tactics:
-        //   - Ad Hoc Test Data Selection Method
-        //   - Brute Force Implementation Technique
+        // Plan: This test case uses Ad Hoc Test Data Selection and is
+        // implemented using the Brute Force Technique.
+        //: 1 Assert the correct value for each of these enumerators, after
+        //:   assigning it to a variable of type Category where appropriate.
         //
         // Testing:
         //   enum Category;
         //   enum { BDEU_NUM_CATEGORIES };
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "VERIFY CATEGORY ENUM AND BDEU_NUM_CATEGORIES"
-                          << endl
-                          << "============================================"
-                          << endl;
+        if (verbose) cout << "\n"
+                           "VERIFY CATEGORY ENUM AND BDEU_NUM_CATEGORIES" "\n"
+                           "============================================" "\n";
 
         if (verbose) cout << "\nVerify bdlb::CharType::Category." << endl;
         {
@@ -1093,28 +1072,25 @@ int main(int argc, char *argv[])
         //   Ensure that supporting functionality is working properly.
         //
         // Concerns:
-        //   - the current setting for locale on this platform is "C local"
-        //   - std C-library functions from <cctype> give same results
-        //   - the table defining behavior for each category is correct
-        //   - that the value returned is 0 or 1 (even though it is dec bool)
+        //: 1 The current setting for locale on this platform is "C local".
+        //: 2 Standard C-library functions from '<cctype>' give same results.
+        //: 3 The table defining behavior for each category is correct.
+        //: 4 The value returned is 0 or 1 (even though it is declared 'bool').
         //
-        // Plan:
-        //   For each of the table-based functions, verify that the test helper
-        //   produces the same results as the corresponding C-library method
-        //   and that the static table column for that entry is correct.
-        //
-        // Tactics:
-        //   - Area Data Selection Method
-        //   - Loop-Based Implementation Technique
+        // Plan: This test case uses Area Datat Selection and is implemented
+        // using the Loop-Based Technique.
+        //: 1 For each of the table-based functions, verify that the test
+        //:   helper produces the same results as the corresponding C-library
+        //:   method and that the static table column for that entry is
+        //:   correct.
         //
         // Testing:
-        //   Test helper functions match equivalent functions in <cctype>.
+        //   Test helper functions match equivalent functions in '<cctype>'.
         //   The detailed tabular documentation in the header is accurate.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "VERIFY TEST APPARATUS" << endl
-                          << "=====================" << endl;
+        if (verbose) cout << "\n" "VERIFY TEST APPARATUS" "\n"
+                                  "=====================" "\n";
 
         if (verbose) cout << "\nCompare test helpers with <cctype>." << endl;
         {
@@ -1190,25 +1166,21 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This case is available to be used as a developers sandbox.
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //    None.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //    Ad hoc.
-        //
-        // Tactics:
-        //    - Ad Hoc Data Selection Method
-        //    - Brute Force Implementation Technique
+        //: 1 Ad hoc.
         //
         // Testing:
-        //     BREATHING TEST -- (developer's sandbox)
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\n" "BREATHING TEST" "\n"
+                                  "==============" "\n";
 
         if (verbose) cout << "\nTry a few representative functions." << endl;
 
