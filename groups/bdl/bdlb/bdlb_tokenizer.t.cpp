@@ -361,12 +361,12 @@ int main(int argc, char **argv)
                 ++mT;
 
                 ASSERTV(LINE, T, VALID      == (!!T));
-                ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
+                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
                 ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
-                ASSERTV(LINE, IS_HARD       == T.isHard());
+                ASSERTV(LINE, HAS_SOFT      == T.hasTrailingSoft());
+                ASSERTV(LINE, IS_HARD       == T.isTrailingHard());
                 ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
 
             }
@@ -481,9 +481,9 @@ int main(int argc, char **argv)
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
+                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
             }
 
             if (verbose) cout << "\tTesting 'bdlb::Tokenizer("
@@ -507,9 +507,9 @@ int main(int argc, char **argv)
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
+                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
             }
         }
 
@@ -600,15 +600,15 @@ int main(int argc, char **argv)
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, DELIM         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN         == T.token());
+                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
 
                 ++mT;
 
-                ASSERTV(LINE, DELIM1         == T.delimiter());
                 ASSERTV(LINE, PREV_DELIM1    == T.previousDelimiter());
                 ASSERTV(LINE, TOKEN1         == T.token());
+                ASSERTV(LINE, DELIM1         == T.trailingDelimiter());
             }
         }
 
@@ -645,16 +645,16 @@ int main(int argc, char **argv)
                             StringRef());
 
                     ASSERT(""                    == mT1.previousDelimiter());
-                    ASSERT(""                    == mT1.delimiter());
                     ASSERT(StringRef(input, 255) == mT1.token());
+                    ASSERT(""                    == mT1.trailingDelimiter());
 
                     Obj mT2(StringRef(input, 255),
                             StringRef(),
                             StringRef(&delim, 1));
 
                     ASSERT(""                    == mT2.previousDelimiter());
-                    ASSERT(""                    == mT2.delimiter());
                     ASSERT(StringRef(input, 255) == mT2.token());
+                    ASSERT(""                    == mT2.trailingDelimiter());
                 }
             }
 
@@ -675,16 +675,16 @@ int main(int argc, char **argv)
                             StringRef());
 
                     ASSERT(""                  == mT1.previousDelimiter());
-                    ASSERT(""                  == mT1.delimiter());
                     ASSERT(StringRef(input, i) == mT1.token());
+                    ASSERT(""                  == mT1.trailingDelimiter());
 
                     Obj mT2(StringRef(input, i),
                             StringRef(),
                             StringRef(delim, 255-i));
 
                     ASSERT(""                  == mT2.previousDelimiter());
-                    ASSERT(""                  == mT2.delimiter());
                     ASSERT(StringRef(input, i) == mT2.token());
+                    ASSERT(""                  == mT2.trailingDelimiter());
                 }
             }
         }
@@ -718,10 +718,10 @@ int main(int argc, char **argv)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
-                     << '"' << tokenizer.delimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasSoft() ? "T":"F")
+                     << '"' << tokenizer.trailingDelimiter() << '"'
+                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
                      << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isHard() ? "T":"F")
+                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
                      << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
                      << endl;
                 ++tokenizer;
@@ -738,10 +738,10 @@ int main(int argc, char **argv)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
-                     << '"' << tokenizer.delimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasSoft() ? "T":"F")
+                     << '"' << tokenizer.trailingDelimiter() << '"'
+                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
                      << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isHard() ? "T":"F")
+                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
                      << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
                      << endl;
                 ++tokenizer;
@@ -758,10 +758,10 @@ int main(int argc, char **argv)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
-                     << '"' << tokenizer.delimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasSoft() ? "T":"F")
+                     << '"' << tokenizer.trailingDelimiter() << '"'
+                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
                      << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isHard() ? "T":"F")
+                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
                      << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
                      << endl;
             }

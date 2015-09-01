@@ -107,56 +107,63 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters,
 
 // CREATORS
 TokenizerIterator::TokenizerIterator()
-: d_sharedData_p(0)
+: d_cursor_p(0)
 , d_token_p(0)
-, d_delimiter_p(0)
-, d_input_p(0)
+, d_postDelim_p(0)
 , d_end_p(0)
 , d_endFlag(true)
+, d_sharedData_p(0)
 {
     // Constructor for end iterator
 }
 
 TokenizerIterator::TokenizerIterator(const char           *input,
                                      const char           *end,
-                                     const Tokenizer_Data *tokenizerData)
-: d_sharedData_p(tokenizerData)
+                                     const Tokenizer_Data *sharedData)
+: d_cursor_p(input)
 , d_token_p(input)
-, d_delimiter_p(input)
-, d_input_p(input)
+, d_postDelim_p(input)
 , d_end_p(end)
 , d_endFlag(false)
+, d_sharedData_p(sharedData)
 {
     // skip optional leader
-    while (!isEos() && SFT == d_sharedData_p->toInputType(*d_input_p))
-    {
-        ++d_input_p;
+    if (d_end_p) {
+        while (d_end_p != d_cursor_p
+               && SFT == d_sharedData_p->toInputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
+    } else {
+        while (0 != *d_cursor_p
+               && SFT == d_sharedData_p->toInputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
     }
 
     ++*this;            // find first token
 }
 
 TokenizerIterator::TokenizerIterator(const TokenizerIterator&  other)
-: d_sharedData_p(other.d_sharedData_p)
+: d_cursor_p(other.d_cursor_p)
 , d_token_p(other.d_token_p)
-, d_delimiter_p(other.d_delimiter_p)
-, d_input_p(other.d_input_p)
+, d_postDelim_p(other.d_postDelim_p)
 , d_end_p(other.d_end_p)
 , d_endFlag(other.d_endFlag)
+, d_sharedData_p(other.d_sharedData_p)
 {
 }
 
 // MANIPULATORS
 TokenizerIterator& TokenizerIterator::operator++()
 {
-    // This function does not use slow isEos() for performance:w
-    // reasons
     if (d_end_p) {
-        d_token_p     = d_input_p;
-        d_delimiter_p = d_input_p;
+        d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
-        if ( d_end_p == d_input_p ) {
-            d_endFlag = true;            // invalidate tokenizer iterator
+        if ( d_end_p == d_cursor_p ) {
+            d_endFlag = true;
             return *this;                                             // RETURN
         }
 
@@ -164,15 +171,15 @@ TokenizerIterator& TokenizerIterator::operator++()
         int inputType;
 
         do {
-            if (d_end_p == d_input_p) {
+            if (d_end_p == d_cursor_p) {
                 return *this;                                         // RETURN
             }
 
-            inputType = d_sharedData_p->toInputType(*d_input_p);
+            inputType = d_sharedData_p->toInputType(*d_cursor_p);
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
-                ++d_delimiter_p;
+                ++d_postDelim_p;
               } break;
               case ACT_AD: {  // accumulate delimiter
                 // Nothing to do.
@@ -186,14 +193,14 @@ TokenizerIterator& TokenizerIterator::operator++()
             }
 
             currentState = nextStateTable[currentState][inputType];
-            ++d_input_p;
+            ++d_cursor_p;
         } while (true);
     } else {
-        d_token_p     = d_input_p;
-        d_delimiter_p = d_input_p;
+        d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
-        if ( 0 == *d_input_p ) {
-            d_endFlag = true;       // invalidate tokenizer iterator
+        if ( 0 == *d_cursor_p ) {
+            d_endFlag = true;
             return *this;                                             // RETURN
         }
 
@@ -201,15 +208,15 @@ TokenizerIterator& TokenizerIterator::operator++()
         int inputType;
 
         do {
-            if (0 == *d_input_p) {
+            if (0 == *d_cursor_p) {
                 return *this;                                         // RETURN
             }
 
-            inputType = d_sharedData_p->toInputType(*d_input_p);
+            inputType = d_sharedData_p->toInputType(*d_cursor_p);
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
-                ++d_delimiter_p;
+                ++d_postDelim_p;
               } break;
               case ACT_AD: {  // accumulate delimiter
                 // Nothing to do.
@@ -223,30 +230,10 @@ TokenizerIterator& TokenizerIterator::operator++()
             }
 
             currentState = nextStateTable[currentState][inputType];
-            ++d_input_p;
+            ++d_cursor_p;
         } while (true);
     }
     BSLS_ASSERT(0);
-}
-
-//inline
-bool TokenizerIterator::isEqual(const TokenizerIterator& other) const
-{
-    // Fast path decision
-    if (d_endFlag != other.d_endFlag) {
-        return false;                                                 // RETURN
-    }
-
-    // Comparing end iterators
-    if ( d_endFlag && other.d_endFlag ) {
-           return true;                                               // RETURN
-    }
-
-    return    d_input_p      == other.d_input_p
-           && d_token_p      == other.d_token_p
-           && d_delimiter_p  == other.d_delimiter_p
-           && d_sharedData_p == other.d_sharedData_p
-           && d_end_p        == other.d_end_p;
 }
 
                         // ---------------
@@ -255,7 +242,7 @@ bool TokenizerIterator::isEqual(const TokenizerIterator& other) const
 // CREATORS
 Tokenizer::Tokenizer(const char               *input,
                      const bslstl::StringRef&  soft)
-: d_tokenizerData(soft)
+: d_sharedData(soft)
 {
     BSLS_ASSERT(input);
     reset(input);
@@ -264,7 +251,7 @@ Tokenizer::Tokenizer(const char               *input,
 Tokenizer::Tokenizer(const char               *input,
                      const bslstl::StringRef&  soft,
                      const bslstl::StringRef&  hard)
-: d_tokenizerData(soft, hard)
+: d_sharedData(soft, hard)
 {
     BSLS_ASSERT(input);
     reset(input);
@@ -272,7 +259,7 @@ Tokenizer::Tokenizer(const char               *input,
 
 Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  soft)
-: d_tokenizerData(soft)
+: d_sharedData(soft)
 {
     BSLS_ASSERT(input.begin());
     reset(input);
@@ -281,7 +268,7 @@ Tokenizer::Tokenizer(const bslstl::StringRef&  input,
 Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  soft,
                      const bslstl::StringRef&  hard)
-: d_tokenizerData(soft, hard)
+: d_sharedData(soft, hard)
 {
     BSLS_ASSERT(input.begin());
     reset(input);
@@ -296,12 +283,12 @@ Tokenizer& Tokenizer::operator++()
     // This function does not use slow isEos() for performance reasons
     if (d_end_p) {
 
-        d_previous_p  = d_delimiter_p;  // current delimiter becomes previous
-        d_token_p     = d_input_p;
-        d_delimiter_p = d_input_p;
+        d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
+        d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
-        if ( d_end_p == d_input_p ) {
-            d_endFlag = true;            // invalidate tokenizer iterator
+        if ( d_end_p == d_cursor_p ) {
+            d_endFlag = true;
             return *this;                                             // RETURN
         }
 
@@ -309,15 +296,15 @@ Tokenizer& Tokenizer::operator++()
         int inputType;
 
         do {
-            if (d_end_p == d_input_p) {
+            if (d_end_p == d_cursor_p) {
                 return *this;                                         // RETURN
             }
 
-            inputType = d_tokenizerData.toInputType(*d_input_p);
+            inputType = d_sharedData.toInputType(*d_cursor_p);
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
-                ++d_delimiter_p;
+                ++d_postDelim_p;
               } break;
               case ACT_AD: {  // accumulate delimiter
                 // Nothing to do.
@@ -331,17 +318,17 @@ Tokenizer& Tokenizer::operator++()
             }
 
             currentState = nextStateTable[currentState][inputType];
-            ++d_input_p;
+            ++d_cursor_p;
         } while (true);
 
     } else {
 
-        d_previous_p = d_delimiter_p;  // current delimiter becomes previous
-        d_token_p     = d_input_p;
-        d_delimiter_p = d_input_p;
+        d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
+        d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
-        if ( 0 == *d_input_p ) {
-            d_endFlag = true;       // invalidate tokenizer iterator
+        if ( 0 == *d_cursor_p ) {
+            d_endFlag = true;
             return *this;                                             // RETURN
         }
 
@@ -349,15 +336,15 @@ Tokenizer& Tokenizer::operator++()
         int inputType;
 
         do {
-            if (0 == *d_input_p) {
+            if (0 == *d_cursor_p) {
                 return *this;                                         // RETURN
             }
 
-            inputType = d_tokenizerData.toInputType(*d_input_p);
+            inputType = d_sharedData.toInputType(*d_cursor_p);
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
-                ++d_delimiter_p;
+                ++d_postDelim_p;
               } break;
               case ACT_AD: {  // accumulate delimiter
                 // Nothing to do.
@@ -371,7 +358,7 @@ Tokenizer& Tokenizer::operator++()
             }
 
             currentState = nextStateTable[currentState][inputType];
-            ++d_input_p;
+            ++d_cursor_p;
         } while (true);
 
     }
@@ -382,16 +369,25 @@ void Tokenizer::resetImplementation(const char  *input,
                                     const char  *end)
 {
     d_input_p     = input;
-    d_input_p     = input;
-    d_previous_p  = input;
+    d_cursor_p    = input;
+    d_prevDelim_p = input;
     d_token_p     = input;
-    d_delimiter_p = input;
+    d_postDelim_p = input;
     d_end_p       = end;
     d_endFlag     = false;
 
-    while (!isEos() && SFT == d_tokenizerData.toInputType(*d_input_p))
-    {
-        ++d_input_p;
+    if (d_end_p) {
+        while (d_end_p != d_cursor_p
+               && SFT == d_sharedData.toInputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
+    } else {
+        while (0 != *d_cursor_p
+               && SFT == d_sharedData.toInputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
     }
 
     ++*this;                 // find first token
@@ -409,29 +405,12 @@ void Tokenizer::reset(const bslstl::StringRef& input)
     return resetImplementation(input.begin(), input.end());
 }
 
-bool Tokenizer::hasSoft() const
-{
-    if (d_endFlag) {
-        return false;                                                 // RETURN
-    }
-
-    const char *p = d_delimiter_p;
-
-    while (p != d_input_p) {
-        if (SFT == d_tokenizerData.toInputType(*p)) {
-            return true;                                              // RETURN
-        }
-        ++p;
-    }
-    return false;
-}
-
 bool Tokenizer::hasPreviousSoft() const
 {
-    const char *p = d_previous_p;
+    const char *p = d_prevDelim_p;
 
     while (p != d_token_p) {
-        if (SFT == d_tokenizerData.toInputType(*p)) {
+        if (SFT == d_sharedData.toInputType(*p)) {
             return true;                                              // RETURN
         }
         ++p;
@@ -439,16 +418,16 @@ bool Tokenizer::hasPreviousSoft() const
     return false;
 }
 
-bool Tokenizer::isHard() const
+bool Tokenizer::hasTrailingSoft() const
 {
     if (d_endFlag) {
         return false;                                                 // RETURN
     }
 
-    const char *p = d_delimiter_p;
+    const char *p = d_postDelim_p;
 
-    while (p != d_input_p) {
-        if (HRD == d_tokenizerData.toInputType(*p)) {
+    while (p != d_cursor_p) {
+        if (SFT == d_sharedData.toInputType(*p)) {
             return true;                                              // RETURN
         }
         ++p;
@@ -458,10 +437,27 @@ bool Tokenizer::isHard() const
 
 bool Tokenizer::isPreviousHard() const
 {
-    const char *p = d_previous_p;
+    const char *p = d_prevDelim_p;
 
     while (p != d_token_p) {
-        if (HRD == d_tokenizerData.toInputType(*p)) {
+        if (HRD == d_sharedData.toInputType(*p)) {
+            return true;                                              // RETURN
+        }
+        ++p;
+    }
+    return false;
+}
+
+bool Tokenizer::isTrailingHard() const
+{
+    if (d_endFlag) {
+        return false;                                                 // RETURN
+    }
+
+    const char *p = d_postDelim_p;
+
+    while (p != d_cursor_p) {
+        if (HRD == d_sharedData.toInputType(*p)) {
             return true;                                              // RETURN
         }
         ++p;
@@ -471,14 +467,13 @@ bool Tokenizer::isPreviousHard() const
 
 Tokenizer::iterator Tokenizer::begin() const
 {
-    return TokenizerIterator(d_input_p, d_end_p, &d_tokenizerData);
+    return TokenizerIterator(d_input_p, d_end_p, &d_sharedData);
 }
 
 Tokenizer::iterator Tokenizer::end() const
 {
     return TokenizerIterator();
 }
-// MANIPULATORS
 
 }  // close package namespace
 }  // close enterprise namespace
