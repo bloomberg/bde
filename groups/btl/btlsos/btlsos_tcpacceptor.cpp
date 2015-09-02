@@ -81,7 +81,7 @@ static RESULT *allocate(int                                     *status,
             return NULL;                                              // RETURN
         }
 
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 

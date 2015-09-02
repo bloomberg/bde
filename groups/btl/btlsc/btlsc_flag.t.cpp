@@ -1,14 +1,15 @@
 // btlsc_flag.t.cpp                                                   -*-C++-*-
-
 #include <btlsc_flag.h>
 
-#include <bsl_cstdlib.h>                      // atoi()
-#include <bsl_cstring.h>                      // strcmp(), memcmp() memcpy()
+#include <bdls_testutil.h>
+
+#include <bsl_cstdlib.h>         // 'atoi'
+#include <bsl_cstring.h>         // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -17,57 +18,75 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // Standard enumeration test plan.
 //-----------------------------------------------------------------------------
-// [ 1] enum Flag { ... };
-// [ 1] enum { LENGTH = ... };
-// [ 1] static const char *toAscii(Flag value);
+// [ 1] enum Enum { ... };
+// [ 1] enum { k_LENGTH = ... };
+// [ 1] static const char *toAscii(Enum value);
 //
-// [ 1] operator<<(ostream&, btesc_Flag::Flag rhs);
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
-
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-    }
-}
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// [ 1] ostream& operator<<(ostream& stream, Flag::Enum value);
+// ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
+    }
+}
+
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef btesc_Flag         Class;
-typedef Class::Flag        Enum;
+typedef btlsc::Flag Class;
+typedef Class::Enum Enum;
 
 // ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-inline int twoToTheN(int n)
+
+inline
+int twoToTheN(int n)
     // Return the value of 2 raised to the power of the specified 'n' if
-    // n >= 0, and return the (negative) value of 'n' otherwise.
+    // 'n >= 0', and return 'n' otherwise.
 {
-    if (n < 0)
-    {
+    if (n < 0) {
         return n;                                                     // RETURN
     }
 
@@ -80,14 +99,64 @@ inline int twoToTheN(int n)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    const int         test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool     verbose = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// 'btlsc::Flag' operation.
+//
+// First, create a variable, 'flag', of type 'btlsc::Flag::Enum', and
+// initialize it to the value 'btlsc::Flag::k_ASYNC_INTERRUPT':
+//..
+    btlsc::Flag::Enum flag = btlsc::Flag::k_ASYNC_INTERRUPT;
+//..
+// Next, store its representation in a variable, 'rep', of type 'const char *':
+//..
+    const char *rep = btlsc::Flag::toAscii(flag);
+    ASSERT(0 == bsl::strcmp(rep, "ASYNC_INTERRUPT"));
+//..
+// Finally, we print the value of 'flag' to 'stdout':
+//..
+if (verbose) {  // added in test driver
+    bsl::cout << flag << bsl::endl;
+}               // added in test driver
+//..
+// This statement produces the following output on 'stdout':
+//..
+//  ASYNC_INTERRUPT
+//..
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST:
@@ -98,32 +167,32 @@ int main(int argc, char *argv[])
         //   the 'toAscii' function produces strings that are identical to
         //   their respective enumerator symbols.  Verify that the output
         //   operator produces the same respective string values that would
-        //   be produced by 'toAscii'.  Also verify the ascii representation
+        //   be produced by 'toAscii'.  Also verify the ASCII representation
         //   and 'ostream' output for invalid enumerator values.
         //
         // Testing:
-        //   enum Flag { ... };
-        //   enum { LENGTH = ... };
-        //   static const char *toAscii(Flag value);
-        //   operator<<(ostream&, btesc_Flag::Flag rhs)
+        //   enum Enum { ... };
+        //   enum { k_LENGTH = ... };
+        //   static const char *toAscii(Enum value);
+        //   ostream& operator<<(ostream& stream, Flag::Enum value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "VALUE TEST" << endl
                                   << "==========" << endl;
 
         static const struct {
-            Enum d_enum;                        // Enumerated Value
-            const char  *d_ascii;               // String Representation
+            Enum        d_enum;   // enumerated value
+            const char *d_ascii;  // string representation
         } DATA[] = {
-            // Enumerated Value                 String Representation
-            // --------------------------       --------------------------
-            { Class::k_ASYNC_INTERRUPT,     "ASYNC_INTERRUPT"      },
-            { Class::k_RAW,                 "RAW"                  },
+            // Enumerated Value              String Representation
+            // ------------------------      ---------------------
+            {  Class::k_ASYNC_INTERRUPT,     "ASYNC_INTERRUPT"      },
+            {  Class::k_RAW,                 "RAW"                  },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
 
-        const char *const UNKNOWN_FMT = "(* UNKNOWN *)";
+        const char *const UNKNOWN_FMT = "(* Unknown Enumerator *)";
 
         int i; // loop index variable -- keeps MS compiler from complaining
 
@@ -168,7 +237,8 @@ int main(int argc, char *argv[])
 
         for (i = -1; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
             char buf[SIZE];
-            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to 'unset' char values.
+            memcpy(buf, CTRL_BUF, SIZE);  // Preset 'buf' to "unset" 'char'
+                                          // values.
 
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;

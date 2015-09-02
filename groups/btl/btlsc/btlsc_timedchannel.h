@@ -7,20 +7,20 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide protocol for stream-based communication with timeout.
+//@PURPOSE: Provide a protocol for stream-based communication with a timeout.
 //
 //@CLASSES:
 //  btlsc::TimedChannel: synchronous stream-based channel protocol with timeout
 //
-//@SEE_ALSO: btlsc_timedcbchannel, btemc_timedchannel,
-//           btlsc_timedchannelallocator, btesc_timedallocatorfactory
+//@SEE_ALSO: btlsc_timedcbchannel, btlsc_timedchannelallocator
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
-//@DESCRIPTION: This component defines an abstract interface for an end-point
-// of a bi-directional synchronous (i.e., blocking) stream-based communication
-// channel with timeout capability.  The 'btlsc::TimedChannel' protocol supports
-// efficient "buffered" transport and the syntax to enable efficient vector I/O
+//@DESCRIPTION: This component provides a class, 'btlsc::TimedChannel', that
+// defines an abstract interface for an end-point of a bi-directional
+// synchronous (i.e., blocking) stream-based communication channel with timeout
+// capability.  The 'btlsc::TimedChannel' protocol supports efficient
+// "buffered" transport and the syntax to enable efficient vector I/O
 // operations (i.e., Unix-style scatter/gather "readv" and "writev").  Various
 // forms of "partial transmission" authorizations (i.e., "raw" OS-level atomic
 // operations and interruptions due to a user-specified "timeout" or an
@@ -31,14 +31,14 @@ BSLS_IDENT("$Id: $")
 // The interface hierarchy (defined by direct public inheritance) of the
 // 'btlsc::TimedChannel' protocol is as follows:
 //..
-//                        ,------------------.
+//                        ,-------------------.
 //                       ( btlsc::TimedChannel )
-//                        `------------------'
+//                        `-------------------'
 //                                  |
 //                                  V
-//                           ,-------------.
+//                           ,--------------.
 //                          ( btlsc::Channel )
-//                           `-------------'
+//                           `--------------'
 //..
 // This protocol adds a "timeout" capability for read and write methods.
 //
@@ -49,13 +49,13 @@ BSLS_IDENT("$Id: $")
 // is reached: (1) "success" -- the specified number of bytes was transmitted,
 // (2) "partial result" -- the operation was interrupted (e.g., via a timeout),
 // (3) "error" -- an implementation-dependent error occurred.  In all cases, a
-// "status" value is returned; an optional leading (int *) 'augStatus' argument
-// may be provided to enable the caller to distinguish among various reasons
-// for a partial result (see below).  The user may retry a partial-result
-// operation (with method arguments suitably adjusted), with a reasonable
-// expectation of success.  Finally, concrete blocking stream-based channels do
-// a "best effort" in sending and receiving the specified data, but need not
-// guarantee successful transmission.
+// "status" value is returned; an optional leading ('int *') 'augStatus'
+// argument may be provided to enable the caller to distinguish among various
+// reasons for a partial result (see below).  The user may retry a
+// partial-result operation (with method arguments suitably adjusted), with a
+// reasonable expectation of success.  Finally, concrete blocking stream-based
+// channels do a "best effort" in sending and receiving the specified data, but
+// need not guarantee successful transmission.
 //
 ///Buffered Transport
 ///------------------
@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 // to return, if such occurrence is detected, a "partial result" upon
 // occurrence of an AE.  Such authorizations are made explicitly by
 // incorporating into the optional (trailing) integer 'flags' argument to a
-// method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
+// method call the 'btlsc::Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
 ///- - - -
@@ -137,7 +137,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - -
 // Since there are several possible reasons for a "partial result", the caller
 // may wish to know the specific cause.  A second status value, 'augStatus'
-// ("augmented status") may be requested as an optional *initial* ('int*')
+// ("augmented status") may be requested as an optional *initial* ('int *')
 // argument to each transmission function.  If specified, 'augStatus' will be
 // set to 0 if a user-supplied timeout interrupted the operation, and to a
 // positive value if the interruption was due to an "asynchronous event".  Note
@@ -149,23 +149,21 @@ BSLS_IDENT("$Id: $")
 // This interface supports "vector I/O" -- the simultaneous reading from or
 // writing to multiple buffers -- via Unix-style 'readv' and 'writev' variants
 // of the normal single-buffer methods.  Scatter/Gather operations use either
-// the 'btls::Iovec' or 'btls::Ovec' objects which use a 'iovec' 'struct' on UNIX
-// platforms or a 'WSABUF' 'struct' on Windows.  In either structure, the total
-// number of bytes to be read or written is determined by the sum of each
+// the 'btls::Iovec' or 'btls::Ovec' objects which use a 'iovec' 'struct' on
+// Unix platforms or a 'WSABUF' 'struct' on Windows.  In either structure, the
+// total number of bytes to be read or written is determined by the sum of each
 // buffer of the non-negative 'numBuffers'.  Note that the 'btls::Ovec' variant
 // enables write operations to avoid having to cast away 'const' in order to
 // hold the address of non-modifiable data to be written.  The following simple
-// example shows how to create and populate an 'btls::Ovec' array in preparation
-// for a 'writev' operation.
+// example shows how to create and populate a 'btls::Ovec' array in
+// preparation for a 'writev' operation:
 //..
-//  static void myPrintWriteStatus(int status,
-//                                 int augStatus,
-//                                 int numBytes)
+//  static void myPrintWriteStatus(int status, int augStatus, int numBytes)
 //      // Print to the user console the result of a attempting to write
 //      // the specified 'numBytes' based on the specified write 'status'
 //      // and the auxiliary 'augStatus' (discussed below).  The behavior
-//      // is undefined unless 0 < numBytes and status <= numBytes.  Note
-//      // that 'augStatus' is ignored unless 0 <= status < numBytes.
+//      // is undefined unless '0 < numBytes' and 'status <= numBytes'.  Note
+//      // that 'augStatus' is ignored unless '0 <= status < numBytes'.
 //     {
 //         assert(0 < numBytes);
 //         assert(status <= numBytes);
@@ -197,7 +195,7 @@ BSLS_IDENT("$Id: $")
 //                       << bsl::endl;
 //         }
 //         else {
-//             assert (-1 > status);
+//             assert(-1 > status);
 //             bsl::cout << "Write failed: the reason is unknown."
 //                       << bsl::endl;
 //         }
@@ -221,8 +219,7 @@ BSLS_IDENT("$Id: $")
 //         buffer[1].setBuffer(MESSAGE, HEADER);
 //
 //         if (0 > channel->writev(buffers, NUM_BUFFERS)) {
-//             bsl::cout << "Buffered write operation failed!"
-//                       << bsl::endl;
+//             bsl::cout << "Buffered write operation failed!" << bsl::endl;
 //         }
 //
 //         // Notice that the 'writev' operation above does not
@@ -255,20 +252,20 @@ BSLS_IDENT("$Id: $")
 //              WRITE  VEC  RAW  writevRaw            timedWritevRaw
 //
 //..
-// Each of these methods supports the specification of a flag
+// Each of these methods supports the specification of a flag value:
 //..
-//                  btesc_Flag::k_ASYNC_INTERRUPT
+//  btlsc::Flag::k_ASYNC_INTERRUPT
 //..
 // supplied in an optional trailing integer to enable "asynchronous events" to
 // cause partial results; by default, such events are ignored.
 //
-// Each of these method is overloaded to allow the caller to optionally specify
-// the address of an 'augStatus', which will then be modified in the event of a
-// partial result.
+// Each of these methods is overloaded to allow the caller to optionally
+// specify the address of an 'augStatus', which will then be modified in the
+// event of a partial result.
 //
 ///Usage
 ///-----
-// The 'btesc' style of channel interface is used to transmit sequences of
+// The 'btlsc' style of channel interface is used to transmit sequences of
 // specified size across some concrete channel implementation.  In this example
 // we demonstrate how to implement a remote procedure call (RPC) to a factorial
 // function taking an 'int' and returning a 'double'.  For simplicity, we will
@@ -276,27 +273,30 @@ BSLS_IDENT("$Id: $")
 // client and server platforms.
 //..
 //  double factorial(int number)
-//      // Return the factorial of the specified integral number as a value of
-//      // type 'double'.  The behavior is undefined unless 0 <= number.  Note
-//      // that this helper function is provided for the server to calculate
-//      // the factorial value.
+//      // Return the factorial of the specified integral 'number' as a value
+//      // of type 'double'.  The behavior is undefined unless '0 <= number'.
+//      // Note that this helper function is provided for the server to
+//      // calculate the factorial value.
 //  {
 //      if (0 == number) {
-//          return 1;
+//          return 1;                                                 // RETURN
 //      }
 //      else {
-//          return number * factorial(number - 1);
+//          return number * factorial(number - 1);                    // RETURN
 //      }
 //  }
 //
-//  int factorialClient(double *result, int input, btlsc::TimedChannel *channel)
+//  int factorialClient(double              *result,
+//                      int                  input,
+//                      btlsc::TimedChannel *channel)
 //      // Load into the specified 'result' the factorial of the specified
 //      // 'input' using the specified 'channel' (which is assumed to be
 //      // connected to an appropriate factorial service).  Return 0 on
-//      // success and -1, with no effect on 'result', on error.  The behavior
-//      // is undefined unless 0 <= input.
+//      // success, and -1, with no effect on 'result', on error.  The behavior
+//      // is undefined unless '0 <= input'.
 //  {
-//      assert (0 <= input);
+//      assert(0 <= input);
+//
 //      enum {
 //          ERROR_STATUS   = -1,
 //          SUCCESS_STATUS =  0,
@@ -318,32 +318,30 @@ BSLS_IDENT("$Id: $")
 //      assert(0 != writeStatus);
 //
 //      if (writeStatus != numBytes) {
-//          return ERROR_STATUS;
+//          return ERROR_STATUS;                                      // RETURN
 //      }
 //
 //      int readStatus = channel->timedRead((char *)result,
 //                                          sizeof *result,
 //                                          readTimeout);
 //      if (readStatus != sizeof *result) {
-//          return ERROR_STATUS;
+//          return ERROR_STATUS;                                      // RETURN
 //      }
 //
 //      return SUCCESS_STATUS;
 //  }
 //
 //  int factorialServer(btlsc::TimedChannel *channel)
-//      // Repeatedly read integer sequences from the specified channel.
-//      // Return a negative value if any read operation doesn't succeed
-//      // (refer to the following 'enum' values for specific errors).
+//      // Repeatedly read integer sequences from the specified 'channel'.
 //      // When a read succeeds, interpret the byte sequence as an integer
 //      // value in host-byte order.  Return -1 if that value is negative.
-//      // Otherwise, calculate the factorial of the (non-negative)
-//      // integer and write back the result to 'channel' as a sequence of
-//      // bytes representing a 'double' in the host's native format.  Return
-//      // a negative value if any write operation doesn't succeed (refer to
-//      // the following 'enum' values for specific errors).
-//      // Note that this implementation is just to show how a channel could be
-//      // used, there's much room to improve.
+//      // Otherwise, calculate the factorial of the (non-negative) integer and
+//      // write back the result to 'channel' as a sequence of bytes
+//      // representing a 'double' in the host's native format.  Return a
+//      // negative value if any write operation doesn't succeed (refer to the
+//      // following 'enum' values for specific errors).  Note that this
+//      // implementation is just to show how a channel could be used; there is
+//      // much room to improve.
 //  {
 //      enum {
 //          SUCCESS            =  0,
@@ -366,22 +364,23 @@ BSLS_IDENT("$Id: $")
 //      while (1) {
 //          int input, augStatus;
 //          int readStatus = channel->timedRead(&augStatus,
-//                                              (char *) &input,
+//                                              (char *)&input,
 //                                              sizeof input,
 //                                              READ_TIMEOUT);
 //          if (readStatus < 0) {
-//              return ERROR_READ;
+//              return ERROR_READ;                                    // RETURN
 //          }
 //          if (readStatus != sizeof input) {
 //              if (0 == augStatus) {
-//                  return ERROR_TIMEOUT;
-//              else if (augStatus > 0) {
-//                  return ERROR_INTERRUPTED;
+//                  return ERROR_TIMEOUT;                             // RETURN
 //              }
-//              return ERROR_UNCLASSIFIED;
+//              else if (augStatus > 0) {
+//                  return ERROR_INTERRUPTED;                         // RETURN
+//              }
+//              return ERROR_UNCLASSIFIED;                            // RETURN
 //          }
 //          if (input < 0) {
-//              return INVALID_INPUT;
+//              return INVALID_INPUT;                                 // RETURN
 //          }
 //
 //          augStatus = 0;
@@ -391,15 +390,16 @@ BSLS_IDENT("$Id: $")
 //                                                sizeof input,
 //                                                WRITE_TIMEOUT);
 //          if (writeStatus < 0) {
-//              return ERROR_WRITE;
+//              return ERROR_WRITE;                                   // RETURN
 //          }
 //          else if (writeStatus != sizeof input){
 //              if (0 == augStatus) {
-//                  return ERROR_TIMEOUT;
-//              else if (augStatus > 0) {
-//                  return ERROR_INTERRUPTED;
+//                  return ERROR_TIMEOUT;                             // RETURN
 //              }
-//              return ERROR_UNCLASSIFIED;
+//              else if (augStatus > 0) {
+//                  return ERROR_INTERRUPTED;                         // RETURN
+//              }
+//              return ERROR_UNCLASSIFIED;                            // RETURN
 //          }
 //      }
 //  }
@@ -419,23 +419,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
+namespace bsls { class TimeInterval; }
 
 namespace btlsc {
+
                              // ==================
                              // class TimedChannel
                              // ==================
 
-class TimedChannel : public Channel
-{
+class TimedChannel : public Channel {
     // This class defines a protocol (pure abstract interface) for a
     // synchronous communication channel that supports timed (blocking) read,
     // write, and buffered read operations on a byte stream.  In general, a
@@ -447,7 +439,7 @@ class TimedChannel : public Channel
   public:
     // CREATORS
     virtual ~TimedChannel();
-        // Destroy this channel (required for syntactic consistency only).
+        // Destroy this object.
 
     // MANIPULATORS
     virtual int read(char *buffer, int numBytes, int flags = 0) = 0;
@@ -457,7 +449,7 @@ class TimedChannel : public Channel
                      int   flags = 0) = 0;
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -473,21 +465,21 @@ class TimedChannel : public Channel
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.
+        // and '0 < numBytes'.
 
-    virtual int timedRead(char                     *buffer,
-                          int                       numBytes,
+    virtual int timedRead(char                      *buffer,
+                          int                        numBytes,
                           const bsls::TimeInterval&  timeout,
-                          int                       flags = 0) = 0;
-    virtual int timedRead(int                      *augStatus,
-                          char                     *buffer,
-                          int                       numBytes,
+                          int                        flags = 0) = 0;
+    virtual int timedRead(int                       *augStatus,
+                          char                      *buffer,
+                          int                        numBytes,
                           const bsls::TimeInterval&  timeout,
-                          int                       flags = 0) = 0;
+                          int                        flags = 0) = 0;
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -503,25 +495,26 @@ class TimedChannel : public Channel
         // the contents of 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' has sufficient capacity to
-        // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // hold the requested data and '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     virtual int readv(const btls::Iovec *buffers,
-                      int               numBuffers,
-                      int               flags = 0) = 0;
-    virtual int readv(int              *augStatus,
+                      int                numBuffers,
+                      int                flags = 0) = 0;
+    virtual int readv(int               *augStatus,
                       const btls::Iovec *buffers,
-                      int               numBuffers,
-                      int               flags = 0) = 0;
+                      int                numBuffers,
+                      int                flags = 0) = 0;
         // Read from this channel into the specified sequence of 'buffers' of
-        // the specified 'numBuffers', the respective numbers of bytes as
+        // the specified 'numBuffers', the respective number of bytes as
         // specified in each corresponding 'btls::Iovec' buffer.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a partial result.  Return 'numBytes'
+        // (i.e., the sum of calls to 'length' on the 'numBuffers' 'buffers')
         // on success, a negative value on error, and the number of bytes newly
         // read into 'buffers' (indicating a partial result) otherwise.  On a
         // partial result, load 'augStatus', if supplied, with a positive
@@ -534,26 +527,27 @@ class TimedChannel : public Channel
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffers' have sufficient capacity to hold the requested data
-        // and 0 < numBytes.
+        // and '0 < numBytes'.
 
     virtual int timedReadv(const btls::Iovec         *buffers,
-                           int                       numBuffers,
+                           int                        numBuffers,
                            const bsls::TimeInterval&  timeout,
-                           int                       flags = 0) = 0;
-    virtual int timedReadv(int                      *augStatus,
+                           int                        flags = 0) = 0;
+    virtual int timedReadv(int                       *augStatus,
                            const btls::Iovec         *buffers,
-                           int                       numBuffers,
+                           int                        numBuffers,
                            const bsls::TimeInterval&  timeout,
-                           int                       flags = 0) = 0;
+                           int                        flags = 0) = 0;
         // Read from this channel into the specified sequence of 'buffers' of
-        // the specified 'numBuffers', the respective numbers of bytes as
+        // the specified 'numBuffers', the respective number of bytes as
         // specified in each corresponding 'btls::Iovec' buffer, or interrupted
         // after the specified absolute 'timeout' time is reached.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
+        // (i.e., the sum of calls to 'length' on the 'numBuffers' 'buffers')
         // on success, a negative value on error, and the number of bytes newly
         // read into 'buffers' (indicating a partial result) otherwise.  On a
         // partial result, load 'augStatus', if supplied, with 0 if 'timeout'
@@ -566,9 +560,9 @@ class TimedChannel : public Channel
         // the contents of 'buffers' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffers' have sufficient capacity to
-        // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // hold the requested data and '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -581,7 +575,7 @@ class TimedChannel : public Channel
                         int   flags = 0) = 0;
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -599,21 +593,21 @@ class TimedChannel : public Channel
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.
+        // and '0 < numBytes'.
 
-    virtual int timedReadRaw(char                     *buffer,
-                             int                       numBytes,
+    virtual int timedReadRaw(char                      *buffer,
+                             int                        numBytes,
                              const bsls::TimeInterval&  timeout,
-                             int                       flags = 0         ) = 0;
-    virtual int timedReadRaw(int                      *augStatus,
-                             char                     *buffer,
-                             int                       numBytes,
+                             int                        flags = 0) = 0;
+    virtual int timedReadRaw(int                       *augStatus,
+                             char                      *buffer,
+                             int                        numBytes,
                              const bsls::TimeInterval&  timeout,
-                             int                       flags = 0         ) = 0;
+                             int                        flags = 0) = 0;
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes' or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -631,25 +625,26 @@ class TimedChannel : public Channel
         // the contents of 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' has sufficient capacity to
-        // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // hold the requested data and '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     virtual int readvRaw(const btls::Iovec *buffers,
-                         int               numBuffers,
-                         int               flags = 0) = 0;
-    virtual int readvRaw(int              *augStatus,
+                         int                numBuffers,
+                         int                flags = 0) = 0;
+    virtual int readvRaw(int               *augStatus,
                          const btls::Iovec *buffers,
-                         int               numBuffers,
-                         int               flags = 0) = 0;
+                         int                numBuffers,
+                         int                flags = 0) = 0;
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of the specified 'numBuffers', *at* *most* the respective
-        // numbers of bytes as specified in each corresponding 'btls::Iovec'
+        // number of bytes as specified in each corresponding 'btls::Iovec'
         // buffer.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
+        // (i.e., the sum of calls to 'length' on the 'numBuffers' 'buffers')
         // on success, a negative value on error, and the number of bytes newly
         // read into 'buffers' (indicating a partial result) otherwise.  On a
         // partial result, load 'augStatus', if supplied, with a positive value
@@ -663,26 +658,27 @@ class TimedChannel : public Channel
         // the contents of 'buffers' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffers' have sufficient capacity to
-        // hold the requested data and 0 < numBytes.
+        // hold the requested data and '0 < numBytes'.
 
-    virtual int timedReadvRaw(int                      *augStatus,
+    virtual int timedReadvRaw(int                       *augStatus,
                               const btls::Iovec         *buffers,
-                              int                       numBuffers,
+                              int                        numBuffers,
                               const bsls::TimeInterval&  timeout,
-                              int                       flags = 0) = 0;
+                              int                        flags = 0) = 0;
     virtual int timedReadvRaw(const btls::Iovec         *buffers,
-                              int                       numBuffers,
+                              int                        numBuffers,
                               const bsls::TimeInterval&  timeout,
-                              int                       flags = 0) = 0;
+                              int                        flags = 0) = 0;
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of the specified 'numBuffers' *at* *most* the respective
-        // numbers of bytes as specified in each corresponding 'btls::Iovec'
+        // number of bytes as specified in each corresponding 'btls::Iovec'
         // buffer, or interrupted after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
+        // (i.e., the sum of calls to 'length' on the 'numBuffers' 'buffers')
         // on success, a negative value on error, and the number of bytes newly
         // read into 'buffers' (indicating a partial result) otherwise.  On a
         // partial result, load 'augStatus', if supplied, with 0 if 'timeout'
@@ -697,9 +693,9 @@ class TimedChannel : public Channel
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffers' have sufficient capacity to hold the requested data
-        // and 0 < numBytes.  Note that if the specified 'timeout' value has
-        // already passed, the "read" operation will still be attempted, but
-        // the attempt will not block.
+        // and '0 < numBytes'.  Note that if the 'timeout' value has already
+        // passed, the "read" operation will still be attempted, but the
+        // attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -713,7 +709,7 @@ class TimedChannel : public Channel
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes'.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -730,22 +726,22 @@ class TimedChannel : public Channel
         // however, indicates a permanent error (leaving 'buffer' undefined);
         // -1 implies that the connection was closed by the peer (but the
         // converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.
+        // '0 < numBytes'.
 
-    virtual int timedBufferedRead(const char               **buffer,
-                                  int                        numBytes,
+    virtual int timedBufferedRead(const char                **buffer,
+                                  int                         numBytes,
                                   const bsls::TimeInterval&   timeout,
-                                  int                        flags = 0) = 0;
-    virtual int timedBufferedRead(int                       *augStatus,
-                                  const char               **buffer,
-                                  int                        numBytes,
+                                  int                         flags = 0) = 0;
+    virtual int timedBufferedRead(int                        *augStatus,
+                                  const char                **buffer,
+                                  int                         numBytes,
                                   const bsls::TimeInterval&   timeout,
-                                  int                        flags = 0) = 0;
+                                  int                         flags = 0) = 0;
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes', or interrupt
         // after the specified absolute 'timeout' time is reached.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -762,9 +758,9 @@ class TimedChannel : public Channel
         // operations.  A negative "status", however, indicates a permanent
         // error (leaving 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // behavior is undefined unless '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     virtual int bufferedReadRaw(const char **buffer,
                                 int          numBytes,
@@ -776,7 +772,7 @@ class TimedChannel : public Channel
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -794,22 +790,24 @@ class TimedChannel : public Channel
         // by subsequent read operations.  A negative "status", however,
         // indicates a permanent error (leaving 'buffer' unset); -1 implies
         // that the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes.
+        // guaranteed).  The behavior is undefined unless '0 < numBytes'.
 
-    virtual int timedBufferedReadRaw(const char               **buffer,
-                                     int                        numBytes,
-                                     const bsls::TimeInterval&   timeout,
-                                     int                        flags = 0) = 0;
-    virtual int timedBufferedReadRaw(int                       *augStatus,
-                                     const char               **buffer,
-                                     int                        numBytes,
-                                     const bsls::TimeInterval&   timeout,
-                                     int                        flags = 0) = 0;
+    virtual int timedBufferedReadRaw(
+                                    const char                **buffer,
+                                    int                         numBytes,
+                                    const bsls::TimeInterval&   timeout,
+                                    int                         flags = 0) = 0;
+    virtual int timedBufferedReadRaw(
+                                    int                        *augStatus,
+                                    const char                **buffer,
+                                    int                         numBytes,
+                                    const bsls::TimeInterval&   timeout,
+                                    int                         flags = 0) = 0;
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -826,9 +824,9 @@ class TimedChannel : public Channel
         // by subsequent read operations.  A negative "status", however,
         // indicates a permanent error (leaving '*buffer' unset); -1 implies
         // that the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes.  Note
-        // that if the specified 'timeout' value has already passed, the "read"
-        // operation will still be attempted, but the attempt will not block.
+        // guaranteed).  The behavior is undefined unless '0 < numBytes'.  Note
+        // that if the 'timeout' value has already passed, the "read" operation
+        // will still be attempted, but the attempt will not block.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -841,7 +839,7 @@ class TimedChannel : public Channel
                       int         flags = 0) = 0;
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -855,21 +853,21 @@ class TimedChannel : public Channel
         // with some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // behavior is undefined unless '0 < numBytes'.
 
-    virtual int timedWrite(int                      *augStatus,
-                           const char               *buffer,
-                           int                       numBytes,
+    virtual int timedWrite(int                       *augStatus,
+                           const char                *buffer,
+                           int                        numBytes,
                            const bsls::TimeInterval&  timeout,
-                           int                       flags = 0) = 0;
-    virtual int timedWrite(const char               *buffer,
-                           int                       numBytes,
+                           int                        flags = 0) = 0;
+    virtual int timedWrite(const char                *buffer,
+                           int                        numBytes,
                            const bsls::TimeInterval&  timeout,
-                           int                       flags = 0) = 0;
+                           int                        flags = 0) = 0;
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 'numBytes' on success, a negative value on error,
         // and the number of bytes newly written from 'buffer' (indicating a
@@ -882,9 +880,9 @@ class TimedChannel : public Channel
         // reasonable hope of success.  A negative "status", however, indicates
         // a permanent error; -1 implies that the connection was closed by the
         // peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt will not block.
+        // undefined unless '0 < numBytes'.  Note that if the 'timeout' value
+        // has already passed, the "write" operation will still be attempted,
+        // but the attempt will not block.
 
     virtual int writeRaw(const char *buffer,
                          int         numBytes,
@@ -895,7 +893,7 @@ class TimedChannel : public Channel
                          int         flags = 0) = 0;
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -911,21 +909,21 @@ class TimedChannel : public Channel
         // some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // behavior is undefined unless '0 < numBytes'.
 
-    virtual int timedWriteRaw(int                      *augStatus,
-                              const char               *buffer,
-                              int                       numBytes,
+    virtual int timedWriteRaw(int                       *augStatus,
+                              const char                *buffer,
+                              int                        numBytes,
                               const bsls::TimeInterval&  timeout,
-                              int                       flags = 0) = 0;
-    virtual int timedWriteRaw(const char               *buffer,
-                              int                       numBytes,
+                              int                        flags = 0) = 0;
+    virtual int timedWriteRaw(const char                *buffer,
+                              int                        numBytes,
                               const bsls::TimeInterval&  timeout,
-                              int                       flags = 0) = 0;
+                              int                        flags = 0) = 0;
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes', or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -942,33 +940,34 @@ class TimedChannel : public Channel
         // of success.  A negative "status", however, indicates a permanent
         // error; -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.  Note that if the specified 'timeout' value has
-        // already passed, the "write" operation will still be attempted, but
-        // the attempt will not block.
+        // '0 < numBytes'.  Note that if the 'timeout' value has already
+        // passed, the "write" operation will still be attempted, but the
+        // attempt will not block.
 
     virtual int writev(const btls::Ovec  *buffers,
-                       int               numBuffers,
-                       int               flags = 0) = 0;
+                       int                numBuffers,
+                       int                flags = 0) = 0;
     virtual int writev(const btls::Iovec *buffers,
-                       int               numBuffers,
-                       int               flags = 0) = 0;
-    virtual int writev(int             *augStatus,
-                       const btls::Ovec *buffers,
-                       int              numBuffers,
-                       int              flags = 0) = 0;
-    virtual int writev(int              *augStatus,
+                       int                numBuffers,
+                       int                flags = 0) = 0;
+    virtual int writev(int               *augStatus,
+                       const btls::Ovec  *buffers,
+                       int                numBuffers,
+                       int                flags = 0) = 0;
+    virtual int writev(int               *augStatus,
                        const btls::Iovec *buffers,
-                       int               numBuffers,
-                       int               flags = 0) = 0;
+                       int                numBuffers,
+                       int                flags = 0) = 0;
         // Write to this channel from the specified sequence of 'buffers' of
-        // specified sequence length 'numBuffers', the respective numbers of
-        // bytes as specified in each corresponding 'btls::Ovec ' (or
+        // the specified sequence length 'numBuffers', the respective number of
+        // bytes as specified in each corresponding 'btls::Ovec' (or
         // 'btls::Iovec') buffer.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // are permitted to interrupt this operation; by default, such events
+        // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
-        // 'numBytes' on success, a negative value on error, and the number of
+        // 'numBytes' (i.e., the sum of calls to 'length' on the 'numBuffers'
+        // 'buffers') on success, a negative value on error, and the number of
         // bytes newly written from 'buffers' (indicating a partial result)
         // otherwise.  On a partial result, load 'augStatus', if supplied, with
         // a positive value, indicating that an asynchronous event caused the
@@ -978,38 +977,39 @@ class TimedChannel : public Channel
         // with some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // behavior is undefined unless '0 < numBytes'.
 
     virtual int timedWritev(const btls::Ovec          *buffers,
-                            int                       numBuffers,
+                            int                        numBuffers,
                             const bsls::TimeInterval&  timeout,
-                            int                       flags = 0) = 0;
+                            int                        flags = 0) = 0;
     virtual int timedWritev(const btls::Iovec         *buffers,
-                            int                       numBuffers,
+                            int                        numBuffers,
                             const bsls::TimeInterval&  timeout,
-                            int                       flags = 0) = 0;
-    virtual int timedWritev(int                      *augStatus,
+                            int                        flags = 0) = 0;
+    virtual int timedWritev(int                       *augStatus,
                             const btls::Ovec          *buffers,
-                            int                       numBuffers,
+                            int                        numBuffers,
                             const bsls::TimeInterval&  timeout,
-                            int                       flags = 0) = 0;
-    virtual int timedWritev(int                      *augStatus,
+                            int                        flags = 0) = 0;
+    virtual int timedWritev(int                       *augStatus,
                             const btls::Iovec         *buffers,
-                            int                       numBuffers,
+                            int                        numBuffers,
                             const bsls::TimeInterval&  timeout,
-                            int                       flags = 0) = 0;
+                            int                        flags = 0) = 0;
         // Write to this channel from the specified sequence of 'buffers' of
-        // specified sequence length 'numBuffers' the respective numbers of
+        // the specified sequence length 'numBuffers' the respective number of
         // bytes specified in each 'btls::Ovec' (or 'btls::Iovec') buffer, or
         // interrupted after the specified absolute 'timeout' time is reached.
         // If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
+        // (i.e., the sum of calls to 'length' on the 'numBuffers' 'buffers')
         // on success, a negative value on error, and the number of bytes newly
-        // written from 'buffer' (indicating a partial result) otherwise.  On a
-        // partial result, load 'augStatus', if supplied, with 0 if 'timeout'
+        // written from 'buffers' (indicating a partial result) otherwise.  On
+        // a partial result, load 'augStatus', if supplied, with 0 if 'timeout'
         // interrupted this operation or a positive value if the interruption
         // was due to an asynchronous event; otherwise, 'augStatus' is
         // unmodified.  A partial result typically does not invalidate this
@@ -1017,90 +1017,92 @@ class TimedChannel : public Channel
         // arguments suitably adjusted) with some reasonable hope of success.
         // A negative "status", however, indicates a permanent error; -1
         // implies that the connection was closed by the peer (but the converse
-        // is not guaranteed).  The behavior is undefined unless 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "write" operation will still be attempted, but the attempt will not
-        // block.
+        // is not guaranteed).  The behavior is undefined unless
+        // '0 < numBytes'.  Note that if the 'timeout' value has already
+        // passed, the "write" operation will still be attempted, but the
+        // attempt will not block.
 
     virtual int writevRaw(const btls::Ovec  *buffers,
-                          int               numBuffers,
-                          int               flags = 0) = 0;
+                          int                numBuffers,
+                          int                flags = 0) = 0;
     virtual int writevRaw(const btls::Iovec *buffers,
-                          int               numBuffers,
-                          int               flags = 0) = 0;
-    virtual int writevRaw(int              *augStatus,
+                          int                numBuffers,
+                          int                flags = 0) = 0;
+    virtual int writevRaw(int               *augStatus,
                           const btls::Ovec  *buffers,
-                          int               numBuffers,
-                          int               flags = 0) = 0;
-    virtual int writevRaw(int              *augStatus,
+                          int                numBuffers,
+                          int                flags = 0) = 0;
+    virtual int writevRaw(int               *augStatus,
                           const btls::Iovec *buffers,
-                          int               numBuffers,
-                          int               flags = 0) = 0;
+                          int                numBuffers,
+                          int                flags = 0) = 0;
         // *Atomically* write to this channel, from the specified sequence of
-        // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
-        // respective numbers of bytes as specified in each 'btls::Ovec' (or
+        // 'buffers' of the specified sequence length 'numBuffers', *at* *most*
+        // the respective number of bytes as specified in each 'btls::Ovec' (or
         // 'btls::Iovec') buffer.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // are permitted to interrupt this operation; by default, such events
+        // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly written from 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with a positive value if an asynchronous event interrupted
-        // this operation and a negative value if the atomic OS-level operation
-        // transmitted at least one byte, but less than 'numBytes'; otherwise,
-        // 'augStatus' is unmodified.  A partial result typically does not
-        // invalidate this channel; hence, this (or another) operation may be
-        // retried (with arguments suitably adjusted) with some reasonable hope
-        // of success.  A negative "status", however, indicates a permanent
-        // error; -1 implies that the connection was closed by the peer (but
-        // the converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.
+        // Return 'numBytes' (i.e., the sum of calls to 'length' on the
+        // 'numBuffers' 'buffers') on success, a negative value on error, and
+        // the number of bytes newly written from 'buffers' (indicating a
+        // partial result) otherwise.  On a partial result, load 'augStatus',
+        // if supplied, with a positive value if an asynchronous event
+        // interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative "status", however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless '0 < numBytes'.
 
     virtual int timedWritevRaw(const btls::Ovec          *buffers,
-                               int                       numBuffers,
+                               int                        numBuffers,
                                const bsls::TimeInterval&  timeout,
-                               int                       flags = 0) = 0;
+                               int                        flags = 0) = 0;
     virtual int timedWritevRaw(const btls::Iovec         *buffers,
-                               int                       numBuffers,
+                               int                        numBuffers,
                                const bsls::TimeInterval&  timeout,
-                               int                       flags = 0) = 0;
-    virtual int timedWritevRaw(int                      *augStatus,
+                               int                        flags = 0) = 0;
+    virtual int timedWritevRaw(int                       *augStatus,
                                const btls::Ovec          *buffers,
-                               int                       numBuffers,
+                               int                        numBuffers,
                                const bsls::TimeInterval&  timeout,
-                               int                       flags = 0) = 0;
-    virtual int timedWritevRaw(int                      *augStatus,
+                               int                        flags = 0) = 0;
+    virtual int timedWritevRaw(int                       *augStatus,
                                const btls::Iovec         *buffers,
-                               int                       numBuffers,
+                               int                        numBuffers,
                                const bsls::TimeInterval&  timeout,
-                               int                       flags = 0) = 0;
+                               int                        flags = 0) = 0;
         // *Atomically* write to this channel, from the specified sequence of
-        // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
-        // respective numbers of bytes specified in each 'btls::Ovec' (or
+        // 'buffers' of the specified sequence length 'numBuffers', *at* *most*
+        // the respective number of bytes specified in each 'btls::Ovec' (or
         // 'btls::Iovec') buffer, or interrupted after the specified absolute
         // 'timeout' time is reached.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // are permitted to interrupt this operation; by default, such events
+        // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly written from 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with 0 if 'timeout' interrupted this operation, a positive
-        // value if an asynchronous event caused an interruption, or a negative
-        // value if the atomic OS-level operation transmitted at least one
-        // byte, but less than 'numBytes'; otherwise, 'augStatus' is
+        // Return 'numBytes' (i.e., the sum of calls to 'length' on the
+        // 'numBuffers' 'buffers') on success, a negative value on error, and
+        // the number of bytes newly written from 'buffers' (indicating a
+        // partial result) otherwise.  On a partial result, load 'augStatus',
+        // if supplied, with 0 if 'timeout' interrupted this operation, a
+        // positive value if an asynchronous event caused an interruption, or a
+        // negative value if the atomic OS-level operation transmitted at least
+        // one byte, but less than 'numBytes'; otherwise, 'augStatus' is
         // unmodified.  A partial result typically does not invalidate this
         // channel; hence, this (or another) operation may be retried (with
         // arguments suitably adjusted) with some reasonable hope of success.
         // A negative "status", however, indicates a permanent error; -1
         // implies that the connection was closed by the peer (but the converse
-        // is not guaranteed).  The behavior is undefined unless 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "write" operation will still be attempted, but the attempt will not
-        // block.
+        // is not guaranteed).  The behavior is undefined unless
+        // '0 < numBytes'.  Note that if the 'timeout' value has already
+        // passed, the "write" operation will still be attempted, but the
+        // attempt will not block.
 
     virtual void invalidate() = 0;
         // Make this channel invalid; no subsequent operations can be completed
@@ -1108,13 +1110,13 @@ class TimedChannel : public Channel
 
     // ACCESSORS
     virtual int isInvalid() const = 0;
-        // Return 1 if this channel is invalid and 0 otherwise.  Note that once
-        // a channel is invalid, no operations can be completed successfully.
-        // Note also that 0 return value does NOT guarantee that a subsequent
-        // I/O operation would not fail.
+        // Return 1 if this channel is invalid, and 0 otherwise.  Note that
+        // once a channel is invalid, no operations can be completed
+        // successfully.  Also note that a 0 return value does NOT guarantee
+        // that a subsequent I/O operation would not fail.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -78,7 +78,7 @@ inline
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
         }
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
