@@ -10,15 +10,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an instrumented observer for testing.
 //
 //@CLASSES:
-//    ball::TestObserver: instrumented observer for testing
+//  ball::TestObserver: instrumented observer for testing
 //
 //@SEE_ALSO: ball_record, ball_context, ball_observer
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
-// 'ball::Observer' protocol that is instrumented for testing systems that use
-// 'ball::Observer' objects.
+// 'ball::Observer' protocol, 'ball::TestObserver', that is instrumented for
+// testing systems that use 'ball::Observer' objects.
 //..
 //                   ( ball::TestObserver )
 //                            |             static numInstances
@@ -40,6 +40,14 @@ BSLS_IDENT("$Id: $")
 // a copy of the record and context data from the most recent call to
 // 'publish'; that information is available via the accessors
 // 'lastPublishedRecord' and 'lastPublishedContext'.
+//
+///Thread-Safety
+///-------------
+// The 'ball::TestObserver' provides a 'publish' method that is *thread-safe*,
+// meaning that the test observer may be used to log records from multiple
+// threads.  However, the 'ball::TestObserver' accessors 'lastPublished' method
+// and 'lastPublishedContext' provide references to internal data structures
+// (for backwards compatibilty) and are therefore *not* *thread-safe*.
 //
 ///Verbose Mode
 ///------------
@@ -74,16 +82,16 @@ BSLS_IDENT("$Id: $")
 // 'bsl::cout' as the held stream.  Note that each instance will be given a
 // unique integer identifier by the constructor.
 //..
-//                                        assert(0 == ball::TestObserver::
+//                                         assert(0 == ball::TestObserver::
 //                                                             numInstances());
 //     ball::TestObserver to1(bsl::cout);  assert(1 == to1.id());
-//                                        assert(1 == ball::TestObserver::
+//                                         assert(1 == ball::TestObserver::
 //                                                             numInstances());
 //     ball::TestObserver to2(bsl::cout);  assert(2 == to2.id());
-//                                        assert(2 == ball::TestObserver::
+//                                         assert(2 == ball::TestObserver::
 //                                                             numInstances());
 //     ball::TestObserver to3(bsl::cout);  assert(3 == to3.id());
-//                                        assert(3 == ball::TestObserver::
+//                                         assert(3 == ball::TestObserver::
 //                                                             numInstances());
 //
 //                                      assert(0 == to1.numPublishedRecords());
@@ -140,8 +148,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -151,17 +159,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                         // =======================
+                         // ==================
                          // class TestObserver
-                         // =======================
+                         // ==================
 
 class TestObserver : public Observer {
-    // This class provides an instrumented implementation of the
-    // 'Observer' protocol suitable for testing systems that use
-    // 'Observer'.  Each instance receives a unique (per process) integer
-    // identifier at construction, and keeps count of the number of records
-    // that it has published, as well as the contents of the most recently
-    // published record and context.
+    // This class provides an instrumented implementation of the 'Observer'
+    // protocol suitable for testing systems that use 'Observer'.  Each
+    // instance receives a unique (per process) integer identifier at
+    // construction, and keeps count of the number of records that it has
+    // published, as well as the contents of the most recently published record
+    // and context.
     //
     // By default, instances publish appropriate diagnostic information, either
     // to 'stdout' or to an optional 'bsl::ostream'.  This diagnostic
@@ -169,22 +177,28 @@ class TestObserver : public Observer {
     // argument.  A subsequent call to 'setVerbose' with a zero argument will
     // restore the default behavior of 'publish'.
 
+    typedef bsls::AtomicOperations                       AtomicOps;
+    typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;
+
     // CLASS DATA
-    static bsls::AtomicInt
-                        s_count;        // number of instances created
+    static AtomicInt     s_count;        // number of instances created
 
     // DATA
-    bsl::ostream&       d_stream;       // target of 'publish' method
-    Record         d_record;       // most-recently-published record
-    Context        d_context;      // most-recently-published context
+    bsl::ostream&        d_stream;       // target of 'publish' method
 
-    int                 d_count;        // unique (per process) id
-    volatile int        d_verboseFlag;  // "verbosity" mode on 'publish'
-    volatile int        d_numRecords;   // total number of published records
+    Record               d_record;       // most-recently-published record
+
+    Context              d_context;      // most-recently-published context
+
+    int                  d_count;        // unique (per process) id
+
+    int                  d_verboseFlag;  // "verbosity" mode on 'publish'
+
+    int                  d_numRecords;   // total number of published records
 
     mutable bdlqq::Mutex d_mutex;        // serializes concurrent calls to
-                                        // 'publish' and protects concurrent
-                                        // access to other class members
+                                         // 'publish' and protects concurrent
+                                         // access to other class members
 
     // NOT IMPLEMENTED
     TestObserver(const TestObserver&);
@@ -200,7 +214,7 @@ class TestObserver : public Observer {
 
     // CREATORS
     TestObserver(bsl::ostream&     stream,
-                      bslma::Allocator *basicAllocator = 0);
+                 bslma::Allocator *basicAllocator = 0);
         // Create a test observer having a unique integer identifier, whose
         // 'publish' method will send it's output (if any) to the specified
         // 'stream'.  Optionally specify a 'basicAllocator' used to supply
@@ -227,7 +241,7 @@ class TestObserver : public Observer {
         // (boolean) 'flagValue'.  The default mode is *not* verbose.  If
         // 'flagValue' is non-zero, calls to 'publish' will print appropriate
         // diagnostics to the 'bsl::ostream' associated with this test
-        // observer.  This printing is suppressed if flagValue == 0.
+        // observer.  This printing is suppressed if 'flagValue' is 0.
 
     // ACCESSORS
     int id() const;
@@ -241,37 +255,39 @@ class TestObserver : public Observer {
     const Record& lastPublishedRecord() const;
         // Return a reference to the record most recently published by this
         // test observer.  The behavior is undefined unless 'publish' has been
-        // called at least once.
+        // called at least once, and no other thread is manipulating this
+        // object concurrently (i.e., this function is *not* thread safe).
 
     const Context& lastPublishedContext() const;
         // Return a reference to the context most recently published by this
         // test observer.  The behavior is undefined unless 'publish' has been
-        // called at least once.
+        // called at least once, and no other thread is manipulating this
+        // object concurrently (i.e., this function is *not* thread safe).
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                         // -----------------------
+                         // ------------------
                          // class TestObserver
-                         // -----------------------
+                         // ------------------
 
 // CLASS METHODS
 inline
 int TestObserver::numInstances()
 {
-    return s_count;
+    return AtomicOps::getIntRelaxed(&s_count);
 }
 
 // CREATORS
 inline
 TestObserver::TestObserver(bsl::ostream&     stream,
-                                     bslma::Allocator *basicAllocator)
+                           bslma::Allocator *basicAllocator)
 : d_stream(stream)
 , d_record(basicAllocator)
 , d_context(basicAllocator)
-, d_count(++s_count)
+, d_count(AtomicOps::incrementIntNvAcqRel(&s_count))
 , d_verboseFlag(0)
 , d_numRecords(0)
 {
@@ -289,18 +305,21 @@ void TestObserver::setVerbose(int flagValue)
 inline
 int TestObserver::id() const
 {
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_count;
 }
 
 inline
 int TestObserver::numPublishedRecords() const
 {
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_numRecords;
 }
 
 inline
 const Record& TestObserver::lastPublishedRecord() const
 {
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_record;
 }
 
@@ -310,6 +329,7 @@ const Context& TestObserver::lastPublishedContext() const
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_context;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

@@ -16,8 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component provides a value-semantic container for
-// storage and efficient retrieval of 'ball::Rule' objects.
+//@DESCRIPTION: This component provides a value-semantic container,
+// 'ball::RuleSet', for storage and efficient retrieval of 'ball::Rule'
+// objects.
 //
 ///Thread Safety
 ///-------------
@@ -31,39 +32,39 @@ BSLS_IDENT("$Id: $")
 // The following code fragments illustrate how to use a rule set.
 //
 // We first create a rule whose pattern is 'WEEKEND*' and whose threshold
-// levels are all 'ball::Severity::BAEL_OFF' except the 'pass-through' level.  A
-// 'pass-through' level of 'ball::Severity::BAEL_INFO' indicates that whenever
-// the rule is active and the severity equals or exceeds
-// 'ball::Severity::BAEL_INFO', log records will be passed to the observer:
+// levels are all 'ball::Severity::e_OFF' except the 'pass-through' level.  A
+// 'pass-through' level of 'ball::Severity::e_INFO' indicates that whenever the
+// rule is active and the severity equals or exceeds 'ball::Severity::e_INFO',
+// log records will be passed to the observer:
 //..
-//  ball::Rule rule1("WEEKEND*",                  // pattern
-//                  ball::Severity::BAEL_OFF,     // record level
-//                  ball::Severity::BAEL_INFO,    // pass-through level
-//                  ball::Severity::BAEL_OFF,     // trigger level
-//                  ball::Severity::BAEL_OFF);    // triggerAll level
+//  ball::Rule rule1("WEEKEND*",               // pattern
+//                  ball::Severity::e_OFF,     // record level
+//                  ball::Severity::e_INFO,    // pass-through level
+//                  ball::Severity::e_OFF,     // trigger level
+//                  ball::Severity::e_OFF);    // triggerAll level
 //..
 // Next, we create another rule having a different pattern, but the same
 // threshold levels:
 //..
-//  ball::Rule rule2("WEEKDAY*",                  // pattern
-//                  ball::Severity::BAEL_OFF,     // record level
-//                  ball::Severity::BAEL_INFO,    // pass-through level
-//                  ball::Severity::BAEL_OFF,     // trigger level
-//                  ball::Severity::BAEL_OFF);    // triggerAll level
+//  ball::Rule rule2("WEEKDAY*",               // pattern
+//                  ball::Severity::e_OFF,     // record level
+//                  ball::Severity::e_INFO,    // pass-through level
+//                  ball::Severity::e_OFF,     // trigger level
+//                  ball::Severity::e_OFF);    // triggerAll level
 //..
 // We then create a 'ball::RuleSet' object, add the two rules, and verify that
 // rules were added correctly:
 //..
 //  ball::RuleSet ruleSet;
-//  assert(1 == ruleSet.addRule(rule1));
-//  assert(1 == ruleSet.addRule(rule2));
+//  assert(0 <= ruleSet.addRule(rule1));
+//  assert(0 <= ruleSet.addRule(rule2));
 //  assert(2 == ruleSet.numRules());
 //..
 // Duplicate rules cannot be added:
 //..
-//  assert(0 == ruleSet.addRule(rule1));
-//  assert(0 == ruleSet.addRule(rule2));
-//  assert(2 == ruleSet.numRules());
+//  assert(-1 == ruleSet.addRule(rule1));
+//  assert(-1 == ruleSet.addRule(rule2));
+//  assert( 2 == ruleSet.numRules());
 //..
 // Rules in a rule set can be looked up by the 'ruleId' method:
 //..
@@ -93,6 +94,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_UNORDERED_SET
 #include <bsl_unordered_set.h>
 #endif
@@ -104,9 +113,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                      // ==================
-                      // class RuleSet
-                      // ==================
+                          // =============
+                          // class RuleSet
+                          // =============
 
 class RuleSet {
     // This class manages a set of unique rule values.  Rules may be added to
@@ -124,9 +133,10 @@ class RuleSet {
     enum {
         e_MAX_NUM_RULES = 8 * sizeof(MaskType)
            // The maximum number of rules managed by this object.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_MAX_NUM_RULES = e_MAX_NUM_RULES
-      , MAX_NUM_RULES = e_MAX_NUM_RULES
+      , MAX_NUM_RULES      = e_MAX_NUM_RULES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -152,10 +162,9 @@ class RuleSet {
                                                  // manages all the rules
                                                  // maintained by this rule
                                                  // set
-    bsl::vector<const Rule *>
-                               d_ruleAddresses;  // secondary map between
-                                                 // ids and the addresses
-                                                 // of rules
+
+    bsl::vector<const Rule *>  d_ruleAddresses;  // secondary map between ids
+                                                 // and the addresses of rules
 
     bsl::vector<int>           d_freeRuleIds;    // rule Ids that are not being
                                                  // used
@@ -180,13 +189,17 @@ class RuleSet {
         // Format the specified 'mask' to the specified output 'stream' at the
         // optionally specified indentation 'level' and return a reference to
         // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation
-        // level for this and all of its nested objects.  Each line is
-        // indented by the absolute value of 'level * spacesPerLevel'.  If
-        // 'level' is negative, suppress indentation of the first line.  If
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(RuleSet, bslma::UsesBslmaAllocator);
+
 
     // CREATORS
     explicit RuleSet(bslma::Allocator *basicAllocator = 0);
@@ -194,8 +207,8 @@ class RuleSet {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    RuleSet(const RuleSet&  original,
-                 bslma::Allocator    *basicAllocator = 0);
+    RuleSet(const RuleSet&    original,
+            bslma::Allocator *basicAllocator = 0);
         // Create a 'RuleSet' object having the same value as that of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -206,12 +219,12 @@ class RuleSet {
 
     // MANIPULATOR
     int addRule(const Rule& value);
-        // Create a new 'Rule' object having the specified 'value'.
-        // Return the non-negative id of this non-modifiable object on
-        // success, and a negative value otherwise.  A return value of -1
-        // indicates that another rule having this value already exists.  A
-        // return value of -2 indicates that the maximum number of rules for
-        // this rule set has been reached.
+        // Create a new 'Rule' object having the specified 'value'.  Return the
+        // non-negative id of this non-modifiable object on success, and a
+        // negative value otherwise.  A return value of -1 indicates that
+        // another rule having this value already exists.  A return value of -2
+        // indicates that the maximum number of rules for this rule set has
+        // been reached.
 
     int addRules(const RuleSet& rules);
         // Add each rule in the specified 'rules' to this rule set.  Return
@@ -226,7 +239,7 @@ class RuleSet {
         // Remove from this rule set the rule having the specified 'id'.
         // Return the number of rules removed (i.e., 1 on success and 0 if
         // there is no rule whose id is 'id').  The behavior is undefined
-        // unless '0 <= id < BAEL_MAX_NUM_RULES'.
+        // unless '0 <= id < e_MAX_NUM_RULES'.
 
     int removeRule(const Rule& value);
         // Remove the rule having the specified 'value' from this rule set.
@@ -245,11 +258,11 @@ class RuleSet {
 
     // ACCESSORS
     int ruleId(const Rule& value) const;
-       // Return the id of the rule having the specified 'value' if such a
-       // rule exists, and a negative value otherwise.  Note that if there are
-       // multiple rules having the specified 'value', the id of the first
-       // one found will be returned and the order in which rules are searched
-       // is implementation dependent.
+        // Return the id of the rule having the specified 'value' if such a
+        // rule exists, and a negative value otherwise.  Note that if there are
+        // multiple rules having 'value', the id of the first one found will be
+        // returned and the order in which rules are searched is implementation
+        // dependent.
 
     const Rule *getRuleById(int id) const;
         // Return the address of the rule having the specified 'id' if such a
@@ -301,12 +314,12 @@ bsl::ostream& operator<<(bsl::ostream& output, const RuleSet& rules);
     // stream.  Return the specified 'output' stream
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                      // ------------------
-                      // class RuleSet
-                      // ------------------
+                          // -------------
+                          // class RuleSet
+                          // -------------
 
 // CLASS METHODS
 inline

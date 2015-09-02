@@ -1,10 +1,15 @@
 // ball_scopedattribute.t.cpp                                         -*-C++-*-
 #include <ball_scopedattribute.h>
 
-#include <ball_attributecontext.h>
-#include <ball_severity.h>
 #include <ball_categorymanager.h>
+#include <ball_attributecontext.h>
+#include <ball_rule.h>
+#include <ball_predicate.h>
+#include <ball_severity.h>
+#include <ball_thresholdaggregate.h>
 
+
+#include <bslim_testutil.h>
 #include <bslma_testallocator.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -21,54 +26,61 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << "Error: " << #I << ": " << I << "\n"; \
-               aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << "Error: " << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << "Error: " << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\t" << #K << ": " << K << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << "Error: " << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-              << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << "Error: " << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-              << "\t" << #M << ": " << M << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
-#define PF(X) (cout << #X " = " << (X) << endl, false)
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING

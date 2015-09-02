@@ -15,9 +15,9 @@ BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                         // ---------------
+                         // ----------
                          // class Rule
-                         // ---------------
+                         // ----------
 
 // CLASS METHODS
 int Rule::hash(const Rule& rule, int size)
@@ -55,7 +55,7 @@ bsl::ostream& Rule::print(bsl::ostream& stream,
     printer.printAttribute("pattern", d_pattern);
     printer.printAttribute("thresholds", d_thresholds);
     printer.printAttribute("predicateSet",
-                           d_predicateSet.begin(), 
+                           d_predicateSet.begin(),
                            d_predicateSet.end());
     printer.end();
 

@@ -4,8 +4,8 @@
 ///--------------------
 // Using the insertion operator (operator <<) with an 'ostream' introduces
 // significant performance overhead.  For this reason, the 'operator()' method
-// is implemented by writing the formatted string to a buffer before
-// inserting to a stream.
+// is implemented by writing the formatted string to a buffer before inserting
+// to a stream.
 
 #include <ball_recordstringformatter.h>
 
@@ -15,12 +15,14 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
+#include <ball_userfieldvalue.h>
 #include <ball_userfields.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
+#include <bdlt_localtimeoffset.h>
 #include <bdlb_print.h>
 
 #include <bsls_platform.h>
@@ -88,33 +90,36 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
                         // class ball::RecordStringFormatter
                         // --------------------------------
 
-// CLASS DATA
-const int ball::RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
-const int ball::RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
 
-namespace ball {    // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should
-    // not appear in practice.  Real values are (always?) less than one day
-    // (plus or minus).
+namespace ball {
+
+
+// CLASS DATA
+const int RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
+const int RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
+
+// Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should not
+// appear in practice.  Real values are (always?) less than one day (plus or
+// minus).
+
 
 // CREATORS
-RecordStringFormatter::RecordStringFormatter(
-                                              bslma::Allocator *basicAllocator)
+RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(0)
 {
 }
 
-RecordStringFormatter::RecordStringFormatter(
-                                              const char       *format,
-                                              bslma::Allocator *basicAllocator)
+RecordStringFormatter::RecordStringFormatter(const char       *format,
+                                             bslma::Allocator *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(0)
 {
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                  const bdlt::DatetimeInterval&  offset,
-                                  bslma::Allocator             *basicAllocator)
+                                 const bdlt::DatetimeInterval&  offset,
+                                 bslma::Allocator              *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -135,9 +140,9 @@ RecordStringFormatter::RecordStringFormatter(
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                  const char                   *format,
-                                  const bdlt::DatetimeInterval&  offset,
-                                  bslma::Allocator             *basicAllocator)
+                                 const char                    *format,
+                                 const bdlt::DatetimeInterval&  offset,
+                                 bslma::Allocator              *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -159,8 +164,8 @@ RecordStringFormatter::RecordStringFormatter(
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                             const RecordStringFormatter&  original,
-                             bslma::Allocator                  *basicAllocator)
+                                  const RecordStringFormatter&  original,
+                                  bslma::Allocator             *basicAllocator)
 : d_formatSpec(original.d_formatSpec, basicAllocator)
 , d_timestampOffset(original.d_timestampOffset)
 {
@@ -172,7 +177,7 @@ RecordStringFormatter::~RecordStringFormatter()
 
 // MANIPULATORS
 RecordStringFormatter& RecordStringFormatter::operator=(
-                                         const RecordStringFormatter& rhs)
+                                              const RecordStringFormatter& rhs)
 {
     if (this != &rhs) {
         d_formatSpec      = rhs.d_formatSpec;
@@ -183,8 +188,8 @@ RecordStringFormatter& RecordStringFormatter::operator=(
 }
 
 // ACCESSORS
-void RecordStringFormatter::operator()(bsl::ostream&      stream,
-                                            const Record& record) const
+void RecordStringFormatter::operator()(bsl::ostream& stream,
+                                       const Record& record) const
 
 {
     const RecordAttributes& fixedFields = record.fixedFields();
@@ -393,16 +398,18 @@ void RecordStringFormatter::operator()(bsl::ostream&      stream,
 
 // FREE OPERATORS
 bool ball::operator==(const RecordStringFormatter& lhs,
-                const RecordStringFormatter& rhs)
+                      const RecordStringFormatter& rhs)
 {
     return 0 == bsl::strcmp(lhs.format(), rhs.format())
         && lhs.timestampOffset() == rhs.timestampOffset();
 }
 
-bsl::ostream& ball::operator<<(bsl::ostream&                     output,
-                         const RecordStringFormatter& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&                output,
+                               const RecordStringFormatter& rhs)
 {
-    return output << "\'" << rhs.format() << "\' " << rhs.timestampOffset();
+    return output << "\'" << rhs.format() << "\' "
+                  << (rhs.isPublishInLocalTimeEnabled() ? "local-time"
+                                                        : "UTC");
 }
 
 }  // close enterprise namespace

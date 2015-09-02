@@ -2,13 +2,16 @@
 
 #include <ball_ruleset.h>
 
+#include <ball_predicate.h>
 #include <ball_severity.h>                      // for testing only
 
+#include <bslim_testutil.h>
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
-
 #include <bsls_types.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -51,49 +54,62 @@ using namespace bsl;  // automatically added by script
 // [ 3] PRIMITIVE TEST APPARATUS: 'gg'
 // [ 8] UNUSED
 // [11] USAGE EXAMPLE
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -102,15 +118,15 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::RuleSet       Obj;
 typedef bsls::Types::Int64 Int64;
 
-const ball::Predicate P1("A", "1");
-const ball::Predicate P2("A", 1);
-const ball::Predicate P3("A", (Int64)1);
-const ball::Predicate P4("",  "");
-const ball::Predicate P5("B", INT_MAX);
-const ball::Predicate P6("B", LLONG_MAX);
-const ball::Predicate P7("C", LLONG_MIN);
-const ball::Predicate P8("a", 1);
-const ball::Predicate P9("a", (Int64)1);
+const ball::Predicate P1("A", "1",       bslma::Default::globalAllocator());
+const ball::Predicate P2("A", 1,         bslma::Default::globalAllocator());
+const ball::Predicate P3("A", (Int64)1,  bslma::Default::globalAllocator());
+const ball::Predicate P4("",  "",        bslma::Default::globalAllocator());
+const ball::Predicate P5("B", INT_MAX,   bslma::Default::globalAllocator());
+const ball::Predicate P6("B", LLONG_MAX, bslma::Default::globalAllocator());
+const ball::Predicate P7("C", LLONG_MIN, bslma::Default::globalAllocator());
+const ball::Predicate P8("a", 1,         bslma::Default::globalAllocator());
+const ball::Predicate P9("a", (Int64)1,  bslma::Default::globalAllocator());
 
 const ball::Predicate PREDICATES[] = {
     P1, P2, P3, P4, P5, P6, P7, P8, P9
@@ -118,15 +134,15 @@ const ball::Predicate PREDICATES[] = {
 
 const int NUM_PREDICATES = sizeof PREDICATES / sizeof *PREDICATES;
 
-ball::Rule mR0("", 0, 0, 0, 0);
-ball::Rule mR1("eq", 16, 32, 48, 64);
-ball::Rule mR2("eq", 16, 32, 48, 64);
-ball::Rule mR3("eq", 16, 32, 48, 64);
-ball::Rule mR4("eq*", 16, 32, 48, 64);
-ball::Rule mR5("eq*", 16, 32, 48, 64);
-ball::Rule mR6("eq*", 16, 32, 48, 64);
-ball::Rule mR7("eq", 64, 48, 32, 16);
-ball::Rule mR8("eq", 64, 48, 32, 16);
+ball::Rule mR0("",    0,   0,  0,  0, bslma::Default::globalAllocator());
+ball::Rule mR1("eq",  16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR2("eq",  16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR3("eq",  16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR4("eq*", 16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR5("eq*", 16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR6("eq*", 16, 32, 48, 64, bslma::Default::globalAllocator());
+ball::Rule mR7("eq",  64, 48, 32, 16, bslma::Default::globalAllocator());
+ball::Rule mR8("eq",  64, 48, 32, 16, bslma::Default::globalAllocator());
 
 const ball::Rule& R0 = mR0;
 const ball::Rule& R1 = mR1;
@@ -167,14 +183,15 @@ bool verifyRuleSet(const ball::RuleSet& ruleSet)
     return count == ruleSet.numRules();
 }
 
-bool compareText(bslstl::StringRef lhs, 
+bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
-   // Return 'true' if the specified 'lhs' has the same value as the specified'
-   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-   // which, if 'lhs' and 'rhs' are not the same', a description of how the
-   // two strings differ will be written.  If 'errorStream' is not supplied,
-   // 'stdout' will be used to report an error description.
+    // Return 'true' if the specified 'lhs' has the same value as the
+    // specified' rhs' and 'false' otherwise.  Optionally specify a
+    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
+    // description of how the two strings differ will be written.  If
+    // 'errorStream' is not supplied, 'stdout' will be used to report an error
+    // description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -216,9 +233,9 @@ bool compareText(bslstl::StringRef lhs,
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::Rule' object for
-// testing.  They interpret a given 'spec' (from left to right) to configure
-// the predicate set according to a custom language.
+// The 'g' family of functions generate a 'ball::Rule' object for testing.
+// They interpret a given 'spec' (from left to right) to configure the
+// predicate set according to a custom language.
 //
 // The specification for a rule set specifies a number of 'ball::Rule' objects
 // that will be added to the rule set sequentially.  Each 'ball::Rule' object
@@ -325,6 +342,7 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -342,37 +360,60 @@ int main(int argc, char *argv[])
                           << "\n====================="
                           << endl;
 
-        ball::Rule rule1("WEEKEND*",                  // pattern
-                        ball::Severity::e_OFF,     // record level
-                        ball::Severity::e_INFO,    // pass-through level
-                        ball::Severity::e_OFF,     // trigger level
-                        ball::Severity::e_OFF);    // triggerAll level
-
-        ball::Rule rule2("WEEKDAY*",                  // pattern
-                        ball::Severity::e_OFF,     // record level
-                        ball::Severity::e_INFO,    // pass-through level
-                        ball::Severity::e_OFF,     // trigger level
-                        ball::Severity::e_OFF);    // triggerAll level
-
-        ball::RuleSet ruleSet;
-        ASSERT(ruleSet.addRule(rule1) >= 0);
-        ASSERT(ruleSet.addRule(rule2) >= 0);
-        ASSERT(2 == ruleSet.numRules());
-
-        ASSERT(ruleSet.addRule(rule1) < 0);
-        ASSERT(ruleSet.addRule(rule2) < 0);
-        ASSERT(2 == ruleSet.numRules());
-
-        int i1 = ruleSet.ruleId(rule1);
-        int i2 = ruleSet.ruleId(rule2);
-        ASSERT(0 <= i1); ASSERT(i1 < ruleSet.maxNumRules());
-        ASSERT(0 <= i2); ASSERT(i2 < ruleSet.maxNumRules());
-        ASSERT(i1 != i2);
-
-        ASSERT(ruleSet.removeRule(rule1));
-        ASSERT(1 == ruleSet.numRules());
-        ASSERT(ruleSet.ruleId(rule1) < 0);
-        ASSERT(ruleSet.ruleId(rule2) == i2);
+///Usage
+///-----
+// The following code fragments illustrate how to use a rule set.
+//
+// We first create a rule whose pattern is 'WEEKEND*' and whose threshold
+// levels are all 'ball::Severity::e_OFF' except the 'pass-through' level.  A
+// 'pass-through' level of 'ball::Severity::e_INFO' indicates that whenever the
+// rule is active and the severity equals or exceeds 'ball::Severity::e_INFO',
+// log records will be passed to the observer:
+//..
+    ball::Rule rule1("WEEKEND*",               // pattern
+                    ball::Severity::e_OFF,     // record level
+                    ball::Severity::e_INFO,    // pass-through level
+                    ball::Severity::e_OFF,     // trigger level
+                    ball::Severity::e_OFF);    // triggerAll level
+//..
+// Next, we create another rule having a different pattern, but the same
+// threshold levels:
+//..
+    ball::Rule rule2("WEEKDAY*",               // pattern
+                    ball::Severity::e_OFF,     // record level
+                    ball::Severity::e_INFO,    // pass-through level
+                    ball::Severity::e_OFF,     // trigger level
+                    ball::Severity::e_OFF);    // triggerAll level
+//..
+// We then create a 'ball::RuleSet' object, add the two rules, and verify that
+// rules were added correctly:
+//..
+    ball::RuleSet ruleSet;
+    ASSERT(0 <= ruleSet.addRule(rule1));
+    ASSERT(0 <= ruleSet.addRule(rule2));
+    ASSERT(2 == ruleSet.numRules());
+//..
+// Duplicate rules cannot be added:
+//..
+    ASSERT(-1 == ruleSet.addRule(rule1));
+    ASSERT(-1 == ruleSet.addRule(rule2));
+    ASSERT( 2 == ruleSet.numRules());
+//..
+// Rules in a rule set can be looked up by the 'ruleId' method:
+//..
+    int i1 = ruleSet.ruleId(rule1);
+    int i2 = ruleSet.ruleId(rule2);
+    ASSERT(0 <= i1); ASSERT(i1 < ruleSet.maxNumRules());
+    ASSERT(0 <= i2); ASSERT(i2 < ruleSet.maxNumRules());
+    ASSERT(i1 != i2);
+//..
+// The 'removeRule' method can be used to remove rules from a rule set.
+//..
+    ASSERT(ruleSet.removeRule(rule1));
+    ASSERT(1 == ruleSet.numRules());
+    ASSERT(ruleSet.ruleId(rule1) < 0);
+    ASSERT(ruleSet.ruleId(rule2) == i2);
+//..
 
       } break;
       case 10: {
@@ -1232,9 +1273,9 @@ int main(int argc, char *argv[])
                                  "                  [ \"A\" = 1 ]\n"
                                  "      ]\n"
                                  "    ]\n"
-                                 "  ]\n" 
+                                 "  ]\n"
  },
- {  L_,  "R1R2R3",    -1,   -2,  
+ {  L_,  "R1R2R3",    -1,   -2,
     "[ [ pattern = \"eq\" "
     "thresholds = [         16         32         48         64       ] "
     " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
@@ -1276,9 +1317,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set P of unique 'ball::Predicate' objects.  Construct a
-        //   set of R of 'ball::Rule' objects using the superset of P.  Then add
-        //   elements of R to a rule set one by one, and verify that 'addRule'
-        //   returns 1 if the number of existing rules is less than
+        //   set of R of 'ball::Rule' objects using the superset of P.  Then
+        //   add elements of R to a rule set one by one, and verify that
+        //   'addRule' returns 1 if the number of existing rules is less than
         //   'maxNumRules'.  After having adding each rule, for every existing
         //   rule check that the same rule cannot be added, 'getRuleById'
         //   returns the same rule, and 'ruleId' returns the correct id.
@@ -1370,6 +1411,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTIONS 'GG'
+        //
         // Plan:
         //   Test the behavior of 'gg'.
         //   * Verify that all test values are distinct.

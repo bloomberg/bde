@@ -16,10 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component implements a class that aggregates four
-// threshold levels: record level, pass-through level, trigger level, and
-// trigger-all level.  Each of these levels must in the range '[0 .. 255]', and
-// represents a threshold which, if exceeded, will invoke a certain action.
+//@DESCRIPTION: This component implements a class, 'ball::ThresholdAggregate',
+// that aggregates four threshold levels: record level, pass-through level,
+// trigger level, and trigger-all level.  Each of these levels must in the
+// range '[0 .. 255]', and represents a threshold which, if exceeded, will
+// invoke a certain action.
 //
 ///Usage
 ///-----
@@ -172,34 +173,33 @@ class ThresholdAggregate {
 };
 
 // FREE OPERATORS
-bool operator==(const ThresholdAggregate& lhs,
-                const ThresholdAggregate& rhs);
+bool operator==(const ThresholdAggregate& lhs, const ThresholdAggregate& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' threshold aggregates have
     // the same value, and 'false' otherwise.  Two threshold aggregates have
     // the same value if all four of their respective threshold levels are the
     // same.
 
-bool operator!=(const ThresholdAggregate& lhs,
-                const ThresholdAggregate& rhs);
+bool operator!=(const ThresholdAggregate& lhs, const ThresholdAggregate& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' threshold aggregates do
     // not have the same value, and 'false' otherwise.  Two threshold
     // aggregates do not have the same value if any of their four respective
     // threshold levels differ.
 
-bsl::ostream& operator<<(bsl::ostream&                  stream,
+bsl::ostream& operator<<(bsl::ostream&             stream,
                          const ThresholdAggregate& aggregate);
     // Write the value of the specified threshold 'aggregate' to the specified
     // output 'stream' and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // -----------------------------
+                        // ------------------------
                         // class ThresholdAggregate
-                        // -----------------------------
+                        // ------------------------
 
-// ACCESSORS INLINED BY OTHER METHODS
+// ACCESSORS USED INLINE BY OTHER METHODS
+
 inline
 int ThresholdAggregate::recordLevel() const
 {
@@ -247,10 +247,10 @@ int ThresholdAggregate::maxLevel(const ThresholdAggregate& aggregate)
 // CREATORS
 inline
 ThresholdAggregate::ThresholdAggregate(int recordLevel,
-                                                 int passLevel,
-                                                 int triggerLevel,
-                                                 int triggerAllLevel)
-: d_recordLevel(static_cast<unsigned char>(recordLevel))
+                                       int passLevel,
+                                       int triggerLevel,
+                                       int triggerAllLevel)
+    : d_recordLevel(static_cast<unsigned char>(recordLevel))
 , d_passLevel(static_cast<unsigned char>(passLevel))
 , d_triggerLevel(static_cast<unsigned char>(triggerLevel))
 , d_triggerAllLevel(static_cast<unsigned char>(triggerAllLevel))
@@ -298,7 +298,7 @@ void ThresholdAggregate::setTriggerAllLevel(int triggerAllLevel)
 // FREE OPERATORS
 inline
 bool ball::operator==(const ThresholdAggregate& lhs,
-                const ThresholdAggregate& rhs)
+                      const ThresholdAggregate& rhs)
 {
     return lhs.d_recordLevel     == rhs.d_recordLevel
         && lhs.d_passLevel       == rhs.d_passLevel
@@ -308,16 +308,16 @@ bool ball::operator==(const ThresholdAggregate& lhs,
 
 inline
 bool ball::operator!=(const ThresholdAggregate& lhs,
-                const ThresholdAggregate& rhs)
+                      const ThresholdAggregate& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&                  output,
-                         const ThresholdAggregate& aggregate)
+bsl::ostream& ball::operator<<(bsl::ostream&             stream,
+                               const ThresholdAggregate& aggregate)
 {
-    return aggregate.print(output, 0, -1);
+    return aggregate.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace

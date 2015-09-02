@@ -20,13 +20,13 @@ BSLS_IDENT_RCSID(ball_thresholdaggregate_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                        // -----------------------------
+                        // ------------------------
                         // class ThresholdAggregate
-                        // -----------------------------
+                        // ------------------------
 
 // CLASS METHODS
 int ThresholdAggregate::hash(const ThresholdAggregate& aggregate,
-                                  int                            size)
+                             int                       size)
 {
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     int value = (aggregate.recordLevel()  << 24)
@@ -49,9 +49,9 @@ int ThresholdAggregate::hash(const ThresholdAggregate& aggregate,
 }
 
 int ThresholdAggregate::maxLevel(int recordLevel,
-                                      int passLevel,
-                                      int triggerLevel,
-                                      int triggerAllLevel)
+                                 int passLevel,
+                                 int triggerLevel,
+                                 int triggerAllLevel)
 {
     return bsl::max(bsl::max(passLevel,    recordLevel),
                     bsl::max(triggerLevel, triggerAllLevel));
@@ -70,9 +70,9 @@ ThresholdAggregate::operator=(const ThresholdAggregate& rhs)
 }
 
 int ThresholdAggregate::setLevels(int recordLevel,
-                                       int passLevel,
-                                       int triggerLevel,
-                                       int triggerAllLevel)
+                                  int passLevel,
+                                  int triggerLevel,
+                                  int triggerAllLevel)
 {
     if (areValidThresholdLevels(recordLevel,
                                 passLevel,
@@ -92,8 +92,8 @@ int ThresholdAggregate::setLevels(int recordLevel,
 // ACCESSORS
 bsl::ostream&
 ThresholdAggregate::print(bsl::ostream& stream,
-                               int           level,
-                               int           spacesPerLevel) const
+                          int           level,
+                          int           spacesPerLevel) const
 {
     const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
 
@@ -123,6 +123,7 @@ ThresholdAggregate::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

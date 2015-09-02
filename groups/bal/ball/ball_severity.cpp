@@ -20,8 +20,8 @@ void Severity::print(bsl::ostream& stream, Severity::Level value)
 
 // CLASS METHODS
 int Severity::fromAscii(Severity::Level *level,
-                             const char           *string,
-                             int                   stringLength)
+                        const char      *string,
+                        int              stringLength)
 {
     switch(stringLength) {
       case 3: {
@@ -42,14 +42,16 @@ int Severity::fromAscii(Severity::Level *level,
                 return 0;                                             // RETURN
             }
           } break;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
           case 'N': {
             if ('o' == (string[1] | 0x20)
              && 'n' == (string[2] | 0x20)
              && 'e' == (string[3] | 0x20)) {
-                *level = Severity::e_NONE;
+                *level = Severity::BAEL_NONE;
                 return 0;                                             // RETURN
             }
           } break;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
           case 'W': {
             if ('a' == (string[1] | 0x20)
              && 'r' == (string[2] | 0x20)
@@ -107,22 +109,21 @@ int Severity::fromAscii(Severity::Level *level,
 
 const char *Severity::toAscii(Severity::Level value)
 {
-#define CASE(X) return #X;
-
     switch(value) {
-      case   0: CASE(OFF)
-      case  32: CASE(FATAL)
-      case  64: CASE(ERROR)
-      case  96: CASE(WARN)
-      case 128: CASE(INFO)
-      case 160: CASE(DEBUG)
-      case 192: CASE(TRACE)
-      case 224: CASE(NONE)
+      case   0: return "OFF";
+      case  32: return "FATAL";
+      case  64: return "ERROR";
+      case  96: return "WARN";
+      case 128: return "INFO";
+      case 160: return "DEBUG";
+      case 192: return "TRACE";
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case 224: return "NONE";
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       default:  return "(* UNKNOWN *)";
     }
-
-#undef CASE
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

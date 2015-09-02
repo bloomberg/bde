@@ -9,9 +9,9 @@
 namespace BloombergLP {
 
 namespace ball {
-                    // ------------------------------------
+                    // -------------------------------
                     // class ScopedAttribute_Container
-                    // ------------------------------------
+                    // -------------------------------
 
 // CREATORS
 ScopedAttribute_Container::~ScopedAttribute_Container()
@@ -21,14 +21,15 @@ ScopedAttribute_Container::~ScopedAttribute_Container()
 // ACCESSORS
 bsl::ostream&
 ScopedAttribute_Container::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
+                                 int           level,
+                                 int           spacesPerLevel) const
 {
     const char EL = spacesPerLevel < 0 ? ' ' : '\n';
     bdlb::Print::indent(stream, level, spacesPerLevel);
     stream << "[ " << d_attribute << ']' << EL;
     return stream;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

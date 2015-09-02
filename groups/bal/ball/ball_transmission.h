@@ -16,11 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'ball::Transmission::Cause'.  'Cause' enumerates the list of conditions
-// (or states) that can cause a log record to be transmitted.  In addition,
-// this component supports functions that convert the 'Cause' enumerators to a
-// well-defined ASCII representation.
+//@DESCRIPTION: This component provides a namespace, 'ball::Transmission', for
+// the 'enum' type 'ball::Transmission::Cause'.  'Cause' enumerates the list of
+// conditions (or states) that can cause a log record to be transmitted.  In
+// addition, this component supports functions that convert the 'Cause'
+// enumerators to a well-defined ASCII representation.
 //
 ///USAGE EXAMPLE 1 - SYNTAX
 ///------------------------
@@ -214,15 +214,15 @@ struct Transmission {
   private:
     // PRIVATE CLASS METHODS
     static void print(bsl::ostream& stream, Transmission::Cause value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.
 
   public:
     // CLASS METHODS
-    static bsl::ostream& streamOut(bsl::ostream&            stream,
+    static bsl::ostream& streamOut(bsl::ostream&       stream,
                                    Transmission::Cause value);
-        // Format the specified 'value' to the specified output 'stream'
-        // and return a reference to the modifiable 'stream'.
+        // Format the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
 
     static const char *toAscii(Transmission::Cause value);
         // Return the string representation exactly matching the enumerator
@@ -231,13 +231,12 @@ struct Transmission {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------
@@ -246,8 +245,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
 
 // CLASS METHODS
 inline
-bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
-                                           Transmission::Cause value)
+bsl::ostream& Transmission::streamOut(bsl::ostream&       stream,
+                                      Transmission::Cause value)
 {
     print(stream, value);
     return stream;
@@ -257,8 +256,8 @@ bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&            stream,
-                         Transmission::Cause rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&       stream,
+                               Transmission::Cause rhs)
 {
     return Transmission::streamOut(stream, rhs);
 }

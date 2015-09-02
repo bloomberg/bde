@@ -12,13 +12,13 @@ BSLS_IDENT_RCSID(ball_severityutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                        // ------------------------
+                        // -------------------
                         // struct SeverityUtil
-                        // ------------------------
+                        // -------------------
 
 // CLASS METHODS
 int SeverityUtil::fromAsciiCaseless(Severity::Level *level,
-                                         const char           *name)
+                                    const char      *name)
 {
     BSLS_ASSERT(level);
     BSLS_ASSERT(name);
@@ -53,10 +53,12 @@ int SeverityUtil::fromAsciiCaseless(Severity::Level *level,
         *level = Severity::e_TRACE;
         return BAEL_SUCCESS;                                          // RETURN
     }
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     if (bdlb::String::areEqualCaseless("NONE", 4, name)) {
-        *level = Severity::e_NONE;
+        *level = Severity::BAEL_NONE;
         return BAEL_SUCCESS;                                          // RETURN
     }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     return BAEL_FAILURE;
 }
 
@@ -70,8 +72,10 @@ bool SeverityUtil::isValidNameCaseless(const char *name)
         || bdlb::String::areEqualCaseless("WARN",  4, name)
         || bdlb::String::areEqualCaseless("INFO",  4, name)
         || bdlb::String::areEqualCaseless("DEBUG", 5, name)
-        || bdlb::String::areEqualCaseless("TRACE", 5, name)
-        || bdlb::String::areEqualCaseless("NONE",  4, name);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        || bdlb::String::areEqualCaseless("NONE",  4, name)
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+        || bdlb::String::areEqualCaseless("TRACE", 5, name);
 }
 }  // close package namespace
 

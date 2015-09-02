@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@CONTACT: Ralph Gibbons (rgibbons1)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'ball::Severity::Level'.  'Level' enumerates a list of severity levels
-// that can be attached to a logging event.  In addition, this component
+//@DESCRIPTION: This component provides a namespace, 'ball::Severity', for the
+// 'enum' type 'ball::Severity::Level'.  'Level' enumerates a list of severity
+// levels that can be attached to a logging event.  In addition, this component
 // supports functions that convert the 'Level' enumerators to a well-defined
 // ASCII representation.
 //
@@ -51,13 +51,13 @@ BSLS_IDENT("$Id: $")
 ///-------------------------
 // Consider a general-purpose logging facility that provides two interfaces:
 // one for developers to use when logging from subroutines and another to be
-// used by the owner of the main program to administer how much information
-// is to be published to a log file.  Messages logged with numeric values at
-// or below the globally-administered threshold level are published to the log,
+// used by the owner of the main program to administer how much information is
+// to be published to a log file.  Messages logged with numeric values at or
+// below the globally-administered threshold level are published to the log,
 // while those logged with higher (less severe) levels are not.  Being
 // general-purpose, we envision that additional levels may be useful in some
-// applications.  Hence, the numeric values supplied in this component might
-// be augmented with additional severities.  For example:
+// applications.  Hence, the numeric values supplied in this component might be
+// augmented with additional severity levels.  For example:
 //..
 //      enum {
 //          MAJOR_ERROR =  48
@@ -121,9 +121,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                        // ====================
+                        // ===============
                         // struct Severity
-                        // ====================
+                        // ===============
 
 struct Severity {
     // This struct provides a namespace for enumerating severity levels.
@@ -136,8 +136,7 @@ struct Severity {
         e_WARN  =  96,  // a *potentially* problematic condition
         e_INFO  = 128,  // data about the running process
         e_DEBUG = 160,  // information useful while debugging
-        e_TRACE = 192,  // execution trace data
-        e_NONE  = 224   // !DEPRECATED! Do not use
+        e_TRACE = 192   // execution trace data
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_OFF = e_OFF
@@ -147,7 +146,7 @@ struct Severity {
       , BAEL_INFO = e_INFO
       , BAEL_DEBUG = e_DEBUG
       , BAEL_TRACE = e_TRACE
-      , BAEL_NONE = e_NONE
+      , BAEL_NONE = 224
       , OFF   = e_OFF
       , FATAL = e_FATAL
       , ERROR = e_ERROR
@@ -155,14 +154,14 @@ struct Severity {
       , INFO  = e_INFO
       , DEBUG = e_DEBUG
       , TRACE = e_TRACE
-      , NONE  = e_NONE
+      , NONE  = BAEL_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        e_LENGTH = 8
+        e_LENGTH = 7
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_LENGTH = e_LENGTH
+      , BAEL_LENGTH = e_LENGTH + 1
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
@@ -171,14 +170,14 @@ struct Severity {
   private:
     // PRIVATE CLASS METHODS
     static void print(bsl::ostream& stream, Severity::Level value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.
 
   public:
     // CLASS METHODS
     static int fromAscii(Severity::Level *level,
-                         const char           *string,
-                         int                   stringLength);
+                         const char      *string,
+                         int              stringLength);
         // Load into the specified 'level' the severity matching the specified
         // case-insensitive 'string' of the specified 'stringLength'.  Return 0
         // on success, and a non-zero value with no effect on 'level'
@@ -188,27 +187,30 @@ struct Severity {
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-    static bsl::ostream& streamOut(bsl::ostream&        stream,
+    static bsl::ostream& streamOut(bsl::ostream&   stream,
                                    Severity::Level value);
-        // Format the specified 'value' to the specified output 'stream'
-        // and return a reference to the modifiable 'stream'.
+        // Format the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
 
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, Severity::Level rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
+
+                        // ---------------
+                        // struct Severity
+                        // ---------------
 
 // CLASS METHODS
 inline
-bsl::ostream& Severity::streamOut(bsl::ostream&        stream,
-                                       Severity::Level value)
+bsl::ostream& Severity::streamOut(bsl::ostream&   stream,
+                                  Severity::Level value)
 {
     print(stream, value);
     return stream;

@@ -83,6 +83,7 @@ class my_Logger {
     my_Logger(ostream& stream);
     ~my_Logger();
     void publish(const char *message, ball::Transmission::Cause cause);
+
     // ...
 };
 
@@ -92,7 +93,7 @@ my_Logger::my_Logger(ostream& stream) : d_os(stream) { }
 
 my_Logger::~my_Logger() { }
 
-void my_Logger::publish(const char               *message,
+void my_Logger::publish(const char                *message,
                         ball::Transmission::Cause  cause)
 {
 using namespace bsl;  // automatically added by script
@@ -132,6 +133,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -185,6 +187,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST
+        //
         // Concerns:
         //   The following must hold for the enumeration under test:
         //     - The enumerator values must be consecutive integers in the

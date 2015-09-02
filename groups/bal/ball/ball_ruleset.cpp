@@ -11,6 +11,8 @@ BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
+#include <bsl_climits.h>
+#include <bsl_cstdint.h>
 #include <bsl_functional.h>
 
 namespace BloombergLP {
@@ -19,6 +21,11 @@ namespace BloombergLP {
 int ball::RuleSet::RuleHash::s_hashtableSize = INT_MAX;
 
 namespace ball {
+
+                          // -------------
+                          // class RuleSet
+                          // -------------
+
 // CLASS METHODS
 void RuleSet::printMask(bsl::ostream& stream,
                         MaskType      mask,
@@ -38,9 +45,9 @@ void RuleSet::printMask(bsl::ostream& stream,
 
 // CREATORS
 RuleSet::RuleSet(bslma::Allocator *basicAllocator)
-: d_ruleHashtable(maxNumRules(),              // initial size
-                  RuleHash(),                 // hash functor
-                  bsl::equal_to<Rule>(), // equal functor
+: d_ruleHashtable(maxNumRules(),          // initial size
+                  RuleHash(),             // hash functor
+                  bsl::equal_to<Rule>(),  // equal functor
                   basicAllocator)
 , d_ruleAddresses(basicAllocator)
 , d_freeRuleIds(basicAllocator)
@@ -53,11 +60,11 @@ RuleSet::RuleSet(bslma::Allocator *basicAllocator)
     }
 }
 
-RuleSet::RuleSet(const RuleSet&  original,
-                           bslma::Allocator    *basicAllocator)
-: d_ruleHashtable(maxNumRules(),              // initial size
-                  RuleHash(),                 // hash functor
-                  bsl::equal_to<Rule>(), // equal functor
+RuleSet::RuleSet(const RuleSet&    original,
+                 bslma::Allocator *basicAllocator)
+: d_ruleHashtable(maxNumRules(),          // initial size
+                  RuleHash(),             // hash functor
+                  bsl::equal_to<Rule>(),  // equal functor
                   basicAllocator)
 , d_ruleAddresses(basicAllocator)
 , d_freeRuleIds(basicAllocator)
@@ -73,7 +80,6 @@ RuleSet::RuleSet(const RuleSet&  original,
 RuleSet::~RuleSet()
 {
 }
-
 
 // MANIPULATORS
 int RuleSet::addRule(const Rule& value)
@@ -214,6 +220,7 @@ bsl::ostream& RuleSet::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
