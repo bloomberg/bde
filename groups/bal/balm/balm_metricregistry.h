@@ -20,9 +20,9 @@ BSLS_IDENT("$Id: $")
 // provides operations to register both metric categories and individual
 // metrics.  A metric is uniquely identified by its name and category, and the
 // metric registry provides a mapping from those identifying properties to a
-// 'balm::MetricId'.  A 'balm::MetricRegistry' object also provides a
-// mapping from a category name to the address of a non-modifiable
-// 'balm::Category' object.
+// 'balm::MetricId'.  A 'balm::MetricRegistry' object also provides a mapping
+// from a category name to the address of a non-modifiable 'balm::Category'
+// object.
 //
 ///Thread Safety
 ///-------------
@@ -114,6 +114,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -159,17 +163,17 @@ namespace balm {
 
 class MetricFormat;
 
-                      // =========================
-                      // class balm::MetricRegistry
-                      // =========================
+                            // ====================
+                            // class MetricRegistry
+                            // ====================
 
 class MetricRegistry {
-    // The class defines a thread-aware mechanism for registering metrics
-    // and metric categories.  A metric is uniquely identified by its name
-    // and category, and the metric registry provides a mapping from those
+    // The class defines a thread-aware mechanism for registering metrics and
+    // metric categories.  A metric is uniquely identified by its name and
+    // category, and the metric registry provides a mapping from those
     // identifying properties to a 'balm::MetricId'.  A 'balm::MetricRegistry'
-    // object also provides a mapping from a category name to the address of
-    // a non-modifiable 'balm::Category' object.
+    // object also provides a mapping from a category name to the address of a
+    // non-modifiable 'balm::Category' object.
 
     // PRIVATE TYPES
     typedef bsl::pair<const char *, const char *> CategoryAndName;
@@ -189,12 +193,11 @@ class MetricRegistry {
                         const CategoryAndName& rhs) const
             // Return 'true' if the value of the specified 'lhs' is less than
             // (ordered before) the value of the specified 'rhs', and 'false'
-            // otherwise.  The 'lhs' value is considered less than
-            // the 'rhs' value if the first value in the 'lhs' pair (the
-            // category) is less than the first value in the 'rhs' pair or, if
-            // the first values are equal, if the second value in the 'lhs'
-            // pair (the name) is less than the second value in the 'rhs'
-            // pair.
+            // otherwise.  The 'lhs' value is considered less than the 'rhs'
+            // value if the first value in the 'lhs' pair (the category) is
+            // less than the first value in the 'rhs' pair or, if the first
+            // values are equal, if the second value in the 'lhs' pair (the
+            // name) is less than the second value in the 'rhs' pair.
         {
             int cmp = bsl::strcmp(lhs.first, rhs.first);
             if (0 == cmp) {
@@ -216,8 +219,9 @@ class MetricRegistry {
         // A 'CategoryRegistry' is a type that maps a name to a
         // 'balm::Category' object address.
 
-    typedef bsl::map<const char *, bsl::vector<const void *>, bdlb::CStringLess>
-                                                          UserDataRegistry;
+    typedef bsl::map<const char *,
+                     bsl::vector<const void *>,
+                     bdlb::CStringLess>  UserDataRegistry;
         // 'UserDataRegistry' is an alias for a type that maps a category (or
         // category prefix) to the user data set for that category (or group of
         // categories).
@@ -225,7 +229,7 @@ class MetricRegistry {
     // DATA
     bsl::set<bsl::string>  d_uniqueStrings;  // unique string memory
 
-    CategoryRegistry       d_categories;     // map category -> 'balm::Category'
+    CategoryRegistry       d_categories;     // category -> 'balm::Category'
 
     MetricMap              d_metrics;        // map (category,name) -> MetricId
 
@@ -235,12 +239,12 @@ class MetricRegistry {
                                              // map category -> user data
 
     UserDataRegistry       d_categoryPrefixUserData;
-                                             // map category-prefix ->
-                                             // user data
+                                             // map category-prefix -> user
+                                             // data
 
     int                    d_nextKey;        // next valid user data key
 
-    mutable bdlqq::RWMutex  d_lock;           // read-write property lock
+    mutable bdlqq::RWMutex  d_lock;          // read-write property lock
 
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
@@ -251,16 +255,16 @@ class MetricRegistry {
   private:
     // PRIVATE MANIPULATORS
     bsl::pair<MetricId, bool> insertId(const char *category,
-                                            const char *name);
+                                       const char *name);
         // Insert a metric id having the specified 'category' and 'name' into
         // this metric registry.  Return a pair whose first member is the id
         // of the metric, and whose second member is 'true' if the returned
         // metric id is newly-created and 'false' otherwise.  The behavior is
         // undefined unless the calling thread has a *write* lock on 'd_lock'.
 
-    void setCurrentUserData(const char                          *category,
+    void setCurrentUserData(const char                     *category,
                             MetricDescription::UserDataKey  key,
-                            const void                          *value);
+                            const void                     *value);
         // Associate the specified 'value' with the specified 'key' for every
         // metric belonging to the specified 'category'.  Note that this
         // operation modifies existing metrics, but does not affect metrics
@@ -322,39 +326,39 @@ class MetricRegistry {
         // Return the address of the non-modifiable 'balm::Category' object for
         // the specified 'category'.  If no corresponding category exists,
         // register a new category and return the address of the newly-created
-        // 'balm::Category' object.  The behavior is undefined unless 'category'
-        // is null-terminated.  Note that this operation is guaranteed to
-        // return a valid address.
+        // 'balm::Category' object.  The behavior is undefined unless
+        // 'category' is null-terminated.  Note that this operation is
+        // guaranteed to return a valid address.
 
     void setCategoryEnabled(const Category* category,
-                            bool                 value);
+                            bool            value);
         // Set whether the specified 'category' is enabled to the specified
-        // 'value'.  The behavior is undefined unless 'category' is a
-        // valid address of a category previously returned by this metric
-        // registry.  Note that this operation is thread-safe, but *not*
-        // atomic: Other threads may simultaneously access the current enabled
-        // value for 'category' while this operation completes.  Also note
-        // that this operation has *linear* runtime performance with respect
-        // to the number of registered category holders for 'category'.
-
-     void setAllCategoriesEnabled(bool value);
-        // Set whether each currently registered category is enabled to the
-        // specified 'value', and ensure that categories registered
-        // after this call are initialized as either enabled or disabled,
-        // accordingly.  This operation is logically equivalent to iterating
-        // over the list of currently registed categories and calling
-        // 'setCategoryEnabled' on each category individually, and also
-        // setting a default 'enabled' value (for newly-created
-        // categories).  Hence, subsequent calls 'setCategoryEnabled' will
-        // override this value for a particular category.  Note that this
-        // operation is thread-safe, but *not* atomic: Other threads may
-        // simultaneously access the current enabled status for registered
-        // categories while this operation completes.  Also note that this
+        // 'value'.  The behavior is undefined unless 'category' is a valid
+        // address of a category previously returned by this metric registry.
+        // Note that this operation is thread-safe, but *not* atomic: Other
+        // threads may simultaneously access the current enabled value for
+        // 'category' while this operation completes.  Also note that this
         // operation has *linear* runtime performance with respect to the
-        // total number of category holders registered with this repository.
+        // number of registered category holders for 'category'.
 
-     void registerCategoryHolder(const Category *category,
-                                 CategoryHolder *holder);
+    void setAllCategoriesEnabled(bool value);
+        // Set whether each currently registered category is enabled to the
+        // specified 'value', and ensure that categories registered after this
+        // call are initialized as either enabled or disabled, accordingly.
+        // This operation is logically equivalent to iterating over the list
+        // of currently registered categories and calling 'setCategoryEnabled'
+        // on each category individually, and also setting a default 'enabled'
+        // value (for newly-created categories).  Hence, subsequent calls
+        // 'setCategoryEnabled' will override this value for a particular
+        // category.  Note that this operation is thread-safe, but *not*
+        // atomic: Other threads may simultaneously access the current enabled
+        // status for registered categories while this operation completes.
+        //  Also note that this operation has *linear* runtime performance with
+        // respect to the total number of category holders registered with this
+        // repository.
+
+    void registerCategoryHolder(const Category *category,
+                                CategoryHolder *holder);
         // Load into the specified  'holder' the address of the specified
         // 'category', its 'enabled' status, and the address of the next holder
         // in the linked list of category holders maintained by 'category'
@@ -388,8 +392,8 @@ class MetricRegistry {
         // Set the format for the specified 'metricId' to the specified
         // 'format'.  Note that there is no uniform specification for how
         // publisher implementations will interpret the supplied 'format'.
-        // Also note that the format for a metric is accessed through
-        // the 'balm::MetricDescription'.  For example:
+        // Also note that the format for a metric is accessed through the
+        // 'balm::MetricDescription'.  For example:
         //..
         //  metric.description()->format();
         //..
@@ -402,31 +406,32 @@ class MetricRegistry {
 
     void setUserData(const MetricId&                 metricId,
                      MetricDescription::UserDataKey  key,
-                     const void                          *value);
+                     const void                     *value);
         // Associate the specified 'value' with the specified 'key' in the
         // description of the specified 'metricId'.  The behavior is undefined
         // unless 'key' was previously returned from 'createUserDataKey'.  Note
         // that this method allows clients of 'balm' to associate (opaque)
         // application-specific information with a metric.
 
-    void setUserData(const char                          *categoryName,
+    void setUserData(const char                     *categoryName,
                      MetricDescription::UserDataKey  key,
-                     const void                          *value,
-                     bool                                 prefixFlag = false);
+                     const void                     *value,
+                     bool                            prefixFlag = false);
         // Associate the specified 'value' with the specified 'key' in any
         // metric belonging to a category having the specified 'categoryName',
         // or a category whose name begins with 'categoryName', as determined
-        // by the optionally specified 'prefixFlag'.  If prefixFlag is 'false'
-        // or is not specified, only those metrics belonging to a category
-        // having 'categoryName' will be mapped; otherwise, 'value' will be
-        // associated with 'key' for all metrics belonging to any category
-        // whose name begins with 'categoryName'.  This association applies to
-        // existing metrics as well as any subsequently created ones.  When a
-        // metric is created that matches more than one registered category
-        // prefix, it is not specified which supplied value will be associated
-        // with 'key', unless only one of those values is non-null, in which
-        // case the unique non-null value is used.  The behavior is undefined
-        // unless 'key' was previously returned from 'createUserDataKey'.
+        // by the optionally specified 'prefixFlag'.  If 'prefixFlag' is
+        // 'false' or is not specified, only those metrics belonging to a
+        // category having 'categoryName' will be mapped; otherwise, 'value'
+        // will be associated with 'key' for all metrics belonging to any
+        // category whose name begins with 'categoryName'.  This association
+        // applies to existing metrics as well as any subsequently created
+        // ones.  When a metric is created that matches more than one
+        // registered category prefix, it is not specified which supplied value
+        // will be associated with 'key', unless only one of those values is
+        // non-null, in which case the unique non-null value is used.  The
+        // behavior is undefined unless 'key' was previously returned from
+        // 'createUserDataKey'.
 
     // ACCESSORS
     bsl::size_t numMetrics() const;
@@ -436,19 +441,17 @@ class MetricRegistry {
         // Return the number of categories in this registry.
 
     const Category *findCategory(const char *category) const;
-        // Find the specified 'category' in this registry.  Return
-        // the address of the non-modifiable 'balm::Category' object
-        // corresponding to the specified 'category', or 0 if no such category
-        // has been registered.  The behavior is undefined unless 'category' is
-        // null-terminated.
+        // Find the specified 'category', a null-terminated string, in this
+        // registry.  Return the address of the non-modifiable 'balm::Category'
+        // object corresponding to the 'category', or 0 if no such category has
+        // been registered.
 
     MetricId findId(const char *category, const char *name) const;
-        // Find the specified 'category' and 'name' in this registry.  Return
-        // the 'balm::MetricId' object corresponding to the metric having the
-        // specified 'category' and 'name', if found, or an invalid metric id
-        // if no such metric has been registered (i.e., 'isValid' will return
-        // 'false').  The behavior is undefined unless 'category' and 'name'
-        // are null-terminated.
+        // Find the specified null-terminated strings 'category' and 'name' in
+        // this registry.  Return the 'balm::MetricId' object corresponding to
+        // the metric having the 'category' and 'name', if found, or an invalid
+        // metric id if no such metric has been registered (i.e., 'isValid'
+        // will return 'false').
 
     void getAllCategories(bsl::vector<const Category *> *categories) const;
         // Append to the specified 'categories' the addresses of all the
@@ -471,12 +474,12 @@ class MetricRegistry {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -------------------------
-                          // class balm::MetricRegistry
-                          // -------------------------
+                         // --------------------------
+                         // class balm::MetricRegistry
+                         // --------------------------
 
 }  // close enterprise namespace
 

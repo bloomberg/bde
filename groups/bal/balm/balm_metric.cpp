@@ -6,23 +6,23 @@ BSLS_IDENT_RCSID(balm_metric_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // -----------------
-                          // class balm::Metric
-                          // -----------------
+                             // ------------------
+                             // class balm::Metric
+                             // ------------------
 
 // PRIVATE CONSTANTS
 const bool balm::Metric::k_NOT_ACTIVE = false;
 
 namespace balm {
-                      // --------------------------
-                      // class Metric_MacroImp
-                      // --------------------------
+                           // ---------------------
+                           // class Metric_MacroImp
+                           // ---------------------
 
 // CLASS METHODS
 void Metric_MacroImp::getCollector(Collector      **collector,
-                                        CategoryHolder  *holder,
-                                        const char           *category,
-                                        const char           *metric)
+                                   CategoryHolder  *holder,
+                                   const char      *category,
+                                   const char      *metric)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
     // that the macros have a valid 'collector' when 'holder.enabled()' is
@@ -35,11 +35,11 @@ void Metric_MacroImp::getCollector(Collector      **collector,
 }
 
 void Metric_MacroImp::getCollector(
-                        Collector             **collector,
-                        CategoryHolder         *holder,
-                        const char                  *category,
-                        const char                  *metric,
-                        PublicationType::Value  preferredPublicationType)
+                              Collector             **collector,
+                              CategoryHolder         *holder,
+                              const char             *category,
+                              const char             *metric,
+                              PublicationType::Value  preferredPublicationType)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
     // that the macros have a valid 'collector' when 'holder.enabled()' is

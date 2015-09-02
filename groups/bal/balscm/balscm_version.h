@@ -10,28 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-//  balscm::Version: namespace for RCS and SCCS versioning information for 'bae'
+//  balscm::Version: namespace for versioning information for 'bal'
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
 //@DESCRIPTION: This component provides source control management (versioning)
-// information for the 'bae' package group.  In particular, this component
+// information for the 'bal' package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files
-// that use one or more components from the 'bae' package group.  This version
+// that use one or more components from the 'bal' package group.  This version
 // information may be extracted from binary files using common UNIX utilities
 // (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
 // function in the 'balscm::Version' struct can be used to query version
-// information for the 'bae' package group at runtime.  The following USAGE
+// information for the 'bal' package group at runtime.  The following USAGE
 // examples illustrate these two basic capabilities.
 //
 // Note that unless the 'version' method will be called, it is not necessary to
-// "#include" this component header file to get 'bae' version information
-// embedded in an executable.  It is only necessary to use one or more 'bae'
-// components (and, hence, link in the 'bae' library).
+// "#include" this component header file to get 'bal' version information
+// embedded in an executable.  It is only necessary to use one or more 'bal'
+// components (and, hence, link in the 'bal' library).
 //
 ///USAGE 1
 ///-------
-// The version of the 'bae' package group linked into a program can be
+// The version of the 'bal' package group linked into a program can be
 // obtained at runtime using the 'version' 'static' member function as follows:
 //..
 //        #include <balscm_version.h>
@@ -43,10 +43,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Output similar to the following will be printed to 'stdout':
 //..
-//        BAL version: BLP_LIB_BAL_BAL_0.01.0
+//        BAL version: BLP_LIB_BDE_BAL_0.01.0
 //..
 // The "0.01.0" portion of the string distinguishes different versions of the
-// 'bae' package group.
+// 'bal' package group.
 //
 ///USAGE 2
 ///-------
@@ -55,22 +55,18 @@ BSLS_IDENT("$Id: $")
 //..
 //        $ ident a.out
 //        a.out:
-//             $Id: BLP_LIB_BAL_BAL_0.01.0 $
+//             $Id: BLP_LIB_BDE_BAL_0.01.0 $
 //
 //        $ what a.out | grep BAL
-//                BLP_LIB_BAL_BAL_0.01.0
+//                BLP_LIB_BDE_BAL_0.01.0
 //
 //        $ strings a.out | grep BAL
-//        $Id: BLP_LIB_BAL_BAL_0.01.0 $
-//        @(#)BLP_LIB_BAL_BAL_0.01.0
-//        BLP_LIB_BAL_BAL_0.01.0
+//        $Id: BLP_LIB_BDE_BAL_0.01.0 $
+//        @(#)BLP_LIB_BDE_BAL_0.01.0
+//        BLP_LIB_BDE_BAL_0.01.0
 //..
 // Note that 'ident' and 'what' typically will display many version strings
-// unrelated to 'bae' depending on the libraries used by 'a.out'.
-
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
+// unrelated to 'bal' depending on the libraries used by 'a.out'.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -108,11 +104,11 @@ struct Version {
     // CLASS METHODS
     static const char *version();
         // Return the address of a character string that identifies the version
-        // of the 'bae' package group in use.
+        // of the 'bal' package group in use.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CLASS METHODS
@@ -126,7 +122,7 @@ const char *Version::version()
 // Force linker to pull in this component's object file.
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
-                                          baescm_version_assertion,
+                                          balscm_version_assertion,
                                           balscm::Version::s_version);
 
 }  // close enterprise namespace

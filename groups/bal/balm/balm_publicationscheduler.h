@@ -17,15 +17,15 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION:  This component defines a 'balm::PublicationScheduler' class
-// that provides a scheduling mechanism for the publication of metrics.
-// At construction, a 'balm::PublicationScheduler' is provided the addresses of
-// a 'balm::MetricsManager' and a 'bdlmt::TimerEventScheduler'.  The
-// publication scheduler provides a 'scheduleCategory' method that schedules an
-// individual metric category to be published repeatedly at a given interval,
-// and a 'setDefaultSchedule' method that schedules the publication of any
-// category not given an individual schedule.  The 'balm::PublicationScheduler'
-// creates timer events using the 'bdlmt::TimerEventScheduler'.  At the end of
-// a scheduled time interval, the publication scheduler invokes the metrics
+// that provides a scheduling mechanism for the publication of metrics. At
+// construction, a 'balm::PublicationScheduler' is provided the addresses of a
+// 'balm::MetricsManager' and a 'bdlmt::TimerEventScheduler'.  The publication
+// scheduler provides a 'scheduleCategory' method that schedules an individual
+// metric category to be published repeatedly at a given interval, and a
+// 'setDefaultSchedule' method that schedules the publication of any category
+// not given an individual schedule.  The 'balm::PublicationScheduler' creates
+// timer events using the 'bdlmt::TimerEventScheduler'.  At the end of a
+// scheduled time interval, the publication scheduler invokes the metrics
 // manager's 'publish' operation with the set of categories to publish.  Note
 // that the publication scheduler will combine categories that occur at the
 // same frequency into a single invocation of the metrics manager's 'publish'
@@ -68,7 +68,8 @@ BSLS_IDENT("$Id: $")
 //                          allocator);
 //..
 // We now register the 'publisher' we have created with the metrics 'manager'
-// to publish our categories and 'start' the timer-event scheduler.
+// to publish our categories.  Then, we 'start' the timer-event scheduler we
+// will supply to the 'balm::PublicationScheduler'.
 //..
 //  manager.addGeneralPublisher(publisher);
 //  timer.start();
@@ -140,12 +141,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlmt_timereventscheduler.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -180,9 +185,9 @@ namespace balm {class Category;
 class PublicationScheduler_ClockData;  // defined in implementation
 class PublicationScheduler_Proctor;    // defined in implementation
 
-                   // ===============================
-                   // class PublicationScheduler
-                   // ===============================
+                         // ==========================
+                         // class PublicationScheduler
+                         // ==========================
 
 class PublicationScheduler {
     // This class defines a mechanism for scheduling the periodic publication
@@ -190,18 +195,17 @@ class PublicationScheduler {
     // of a 'MetricsManager' and a 'bdlmt::TimerEventScheduler' at
     // construction.  The metrics manager is used to publish metrics, while
     // the timer-event scheduler provides the underlying scheduling mechanism.
-    // Metrics are scheduled for publication using the 'scheduleCategory'
-    // and 'setDefaultSchedule' methods.  The 'scheduleCategory' method
-    // schedules an individual category to be publisher periodically at the
-    // provided interval, whereas 'setDefaultSchedule' schedules the periodic
+    // Metrics are scheduled for publication using the 'scheduleCategory' and
+    // 'setDefaultSchedule' methods.  The 'scheduleCategory' method schedules
+    // an individual category to be publisher periodically at the provided
+    // interval, whereas 'setDefaultSchedule' schedules the periodic
     // publication of any category not given an individual schedule.  The
     // publication scheduler will create a recurring timer for each unique
     // time interval supplied, and will group together categories that share a
-    // common time interval into a single call to
-    // 'MetricsManager::publish'.  Note that it is left unspecified
-    // whether publication events that occur on a common multiple of
-    // *different* intervals will be grouped into a single invocation of
-    // 'MetricsManager::publish'.
+    // common time interval into a single call to 'MetricsManager::publish'.
+    // Note that it is left unspecified whether publication events that occur
+    // on a common multiple of *different* intervals will be grouped into a
+    // single invocation of 'MetricsManager::publish'.
 
     // PRIVATE TYPES
     typedef PublicationScheduler_ClockData                  ClockData;
@@ -257,8 +261,8 @@ class PublicationScheduler {
 
     void cancelCategory(Categories::iterator categoryIterator);
         // Cancel the periodic publication of the category indicated by the
-        // specified 'categoryIterator'.  Any scheduled publication of
-        // the indicated category is either canceled or completed before this
+        // specified 'categoryIterator'.  Any scheduled publication of the
+        // indicated category is either canceled or completed before this
         // method returns.  The behavior is undefined unless
         // 'categoryIterator'  is a valid iterator over 'd_categories' and
         // 'd_mutex' is *locked*.
@@ -278,9 +282,9 @@ class PublicationScheduler {
                                                     bslma::UsesBslmaAllocator);
 
     // CREATORS
-    PublicationScheduler(MetricsManager      *metricsManager,
-                              bdlmt::TimerEventScheduler *eventScheduler,
-                              bslma::Allocator         *basicAllocator = 0);
+    PublicationScheduler(MetricsManager             *metricsManager,
+                         bdlmt::TimerEventScheduler *eventScheduler,
+                              bslma::Allocator      *basicAllocator = 0);
         // Create a publication scheduler that will use the specified
         // 'metricsManager' to publish metrics, and the specified
         // 'eventScheduler' to supply timer events.  Optionally specify a
@@ -294,20 +298,19 @@ class PublicationScheduler {
         // publications have completed.
 
     // MANIPULATORS
-    void scheduleCategory(const char               *category,
+    void scheduleCategory(const char                *category,
                           const bsls::TimeInterval&  interval);
-        // Schedule the specified 'category' to be published periodically at
-        // the specified 'interval' using the 'MetricManager' supplied at
-        // construction.  If 'category' has *already* been scheduled, change
-        // the scheduled period to 'interval'; any previously scheduled
-        // publication of 'category' is either canceled or completed
-        // (atomically) prior to rescheduling.  If a category is rescheduled
-        // with the same 'interval' as it is currently scheduled, this
-        // operation has no effect.  The behavior is undefined unless
-        // 'bsls::TimeInterval(0, 0) < interval' and 'category' is
-        // null-terminated.
+        // Schedule the specified null-terminated string 'category' to be
+        // published periodically at the specified 'interval' using the
+        // 'MetricManager' supplied at construction.  If 'category' has
+        // *already* been scheduled, change the scheduled period to 'interval';
+        // any previously scheduled publication of 'category' is either
+        // canceled or completed (atomically) prior to rescheduling.  If a
+        // category is rescheduled with the same 'interval' as it is currently
+        // scheduled, this operation has no effect.  The behavior is undefined
+        // unless 'bsls::TimeInterval(0, 0) < interval'.
 
-    void scheduleCategory(const Category      *category,
+    void scheduleCategory(const Category            *category,
                           const bsls::TimeInterval&  interval);
         // Schedule the specified 'category' to be published periodically at
         // the specified 'interval' using the 'MetricManager' supplied at
@@ -323,48 +326,45 @@ class PublicationScheduler {
 
     void setDefaultSchedule(const bsls::TimeInterval& interval);
         // Set, to the specified 'interval', the default interval for metrics
-        // to be periodically published using the 'MetricsManager'
-        // supplied at construction.  This method schedules every metric
-        // category not given a individual schedule (using 'scheduleCategory'),
-        // to be published periodically until that category is either given an
-        // individual schedule, or the default schedule is canceled (using
-        // either 'clearDefaultSchedule' or 'cancelAllPublications').  If a
-        // default publication has *already* been scheduled, change its
-        // schedule to 'interval'; any previously scheduled publication is
-        // either canceled or completed (atomically) before rescheduling.  If
-        // the default publication is rescheduled with the same 'interval' as
-        // it is currently scheduled, this operation has no effect.  The
-        // behavior is undefined unless 'bsls::TimeInterval(0, 0) < interval'.
-        // Note that, to exclude a category from any publication, clients can
-        // disable the category using the 'MetricsManager' object supplied
-        // at construction.
+        // to be periodically published using the 'MetricsManager' supplied at
+        // construction.  This method schedules every metric category not given
+        // a individual schedule (using 'scheduleCategory'), to be published
+        // periodically until that category is either given an individual
+        // schedule, or the default schedule is canceled (using either
+        // 'clearDefaultSchedule' or 'cancelAllPublications').  If a default
+        // publication has *already* been scheduled, change its schedule to
+        // 'interval'; any previously scheduled publication is either canceled
+        // or completed (atomically) before rescheduling.  If the default
+        // publication is rescheduled with the same 'interval' as it is
+        // currently scheduled, this operation has no effect.  The behavior is
+        // undefined unless 'bsls::TimeInterval(0, 0) < interval'.  Note that,
+        // to exclude a category from any publication, clients can disable the
+        // category using the 'MetricsManager' object supplied at construction.
 
     int cancelCategorySchedule(const char *category);
-        // Cancel the periodic publication of the specified 'category'.  Return
-        // 0 on success, and a non-zero value if the specified 'category' is
-        // not scheduled for publication.  Any scheduled publication of
-        // 'category' is either canceled or completed before this method
-        // returns.  The behavior is undefined unless 'category' is
-        // null-terminated.  Note that if a default publication schedule has
-        // been set (using 'setDefaultSchedule'), then 'category' will continue
-        // to be published as part of that scheduled default publication; to
-        // exclude a category from any publication, clients can disable the
-        // category using the 'MetricsManager' object supplied at
-        // construction.
+        // Cancel the periodic publication of the specified null-terminated
+        // string 'category'.  Return 0 on success, and a non-zero value if the
+        // 'category' is not scheduled for publication.  Any scheduled
+        // publication of 'category' is either canceled or completed before
+        // this method returns.  Note that if a default publication schedule
+        // has been set (using 'setDefaultSchedule'), then 'category' will
+        // continue to be published as part of that scheduled default
+        // publication; to exclude a category from any publication, clients
+        // can disable the category using the 'MetricsManager' object supplied
+        // at construction.
 
     int cancelCategorySchedule(const Category *category);
         // Cancel the periodic publication of the specified 'category'.  Return
-        // 0 on success, and a non-zero value if the specified 'category' is
-        // not scheduled for publication.  Any scheduled publication of
-        // 'category' is either canceled or completed before this method
-        // returns.  The behavior is undefined unless 'category' is a valid
-        // address supplied by the 'balm::MetricRegistry' owned by
-        // 'metricsManager'.  Note that if a default publication schedule has
-        // been set (using 'setDefaultSchedule'), then 'category' will continue
-        // to be published as part of that scheduled default publication; to
-        // exclude a category from any publication, clients can disable the
-        // category using the 'MetricsManager' object supplied at
-        // construction.
+        // 0 on success, and a non-zero value if the 'category' is not
+        // scheduled for publication.  Any scheduled publication of 'category'
+        // is either canceled or completed before this method returns.  The
+        // behavior is undefined unless 'category' is a valid address supplied
+        // by the 'balm::MetricRegistry' owned by 'metricsManager'.  Note that
+        // if a default publication schedule has been set (using
+        // 'setDefaultSchedule'), then 'category' will continue to be published
+        // as part of that scheduled default publication; to exclude a category
+        // from any publication, clients can disable the category using the
+        // 'MetricsManager' object supplied at construction.
 
     int clearDefaultSchedule();
         // If the default publication schedule has been set (using
@@ -378,8 +378,8 @@ class PublicationScheduler {
         // Cancel all periodic publication of metrics.  This operation
         // (atomically) clears the default publication schedule and cancels the
         // publication schedule of any category individually scheduled using
-        // the 'scheduleCategory' method.  Any scheduled publication is
-        // either canceled or completed before this method returns.
+        // the 'scheduleCategory' method.  Any scheduled publication is either
+        // canceled or completed before this method returns.
 
     MetricsManager *manager();
         // Return the address of the modifiable metrics manager for which this
@@ -387,26 +387,26 @@ class PublicationScheduler {
 
     // ACCESSORS
     bool findCategorySchedule(bsls::TimeInterval  *result,
-                              const char         *category) const;
-         // Load into the specified 'result' the individual schedule interval
-         // (set using the 'scheduleCategory' method) that corresponds to the
-         // specified 'category', if found, and return 'true', or (if not
-         // found) return 'false' with no effect.  This method will return
-         // 'false' and will not modify 'result' if 'category' is published as
-         // part of the default scheduled publication.  The behavior is
-         // undefined unless 'category' is null-terminated.
+                              const char          *category) const;
+        // Load into the specified 'result' the individual schedule interval
+        // (set using the 'scheduleCategory' method) that corresponds to the
+        // specified null-terminated string 'category', if found, and return
+        // 'true', or (if not found) return 'false' with no effect.  This
+        // method will return 'false' and will not modify 'result' if
+        // 'category' is published as part of the default scheduled
+        // publication.
 
-    bool findCategorySchedule(bsls::TimeInterval   *result,
-                              const Category *category) const;
-         // Load into the specified 'result' the individual schedule interval
-         // (set using the 'scheduleCategory' method) that corresponds to the
-         // specified 'category', if found, and return 'true', or (if not
-         // found) return 'false' with no effect.  This method will return
-         // 'false' and will not modify 'result' if 'category' is published as
-         // part of the default scheduled publication.  The behavior is
-         // undefined unless 'category' is a valid address supplied by the
-         // 'balm::MetricRegistry' owned by the 'MetricsManager' object
-         // supplied at construction.
+    bool findCategorySchedule(bsls::TimeInterval  *result,
+                              const Category      *category) const;
+        // Load into the specified 'result' the individual schedule interval
+        // (set using the 'scheduleCategory' method) that corresponds to the
+        // specified 'category', if found, and return 'true', or (if not
+        // found) return 'false' with no effect.  This method will return
+        // 'false' and will not modify 'result' if 'category' is published as
+        // part of the default scheduled publication.  The behavior is
+        // undefined unless 'category' is a valid address supplied by the
+        // 'balm::MetricRegistry' owned by the 'MetricsManager' object
+        // supplied at construction.
 
     bool getDefaultSchedule(bsls::TimeInterval *result) const;
         // Load into the specified 'result' the default scheduled interval,
@@ -415,21 +415,21 @@ class PublicationScheduler {
         // return 'false' with no effect.
 
     int getCategorySchedule(
-                   bsl::vector<bsl::pair<const Category *,
-                                         bsls::TimeInterval> > *result) const;
+                           bsl::vector<bsl::pair<const Category *,
+                                       bsls::TimeInterval> >    *result) const;
         // Load into the specified 'result' a representation of the current
-        // schedule for publishing categories being followed by this
-        // scheduler and return the number of scheduled categories.  The
-        // schedule is represented using a series of (category address, time
-        // interval) pairs; each pair in the series indicates the periodic time
-        // interval that the associated category will be published.  Note that
-        // the 'result' of this operation contains only those categories
-        // scheduled using the 'scheduleCategory' operation, and does *not*
-        // include categories published as part of the default publication.
+        // schedule for publishing categories being followed by this scheduler
+        // and return the number of scheduled categories.  The schedule is
+        // represented using a series of (category address, time interval)
+        // pairs; each pair in the series indicates the periodic time interval
+        // that the associated category will be published.  Note that the
+        // 'result' of this operation contains only those categories scheduled
+        // using the 'scheduleCategory' operation, and does *not* include
+        // categories published as part of the default publication.
 
     const MetricsManager *manager() const;
-        // Return the address of the non-modifiable metrics manager for
-        // which this publication scheduler will publish metrics.
+        // Return the address of the non-modifiable metrics manager for which
+        // this publication scheduler will publish metrics.
 
     bsl::ostream& print(bsl::ostream&   stream,
                         int             level = 0,
@@ -448,12 +448,12 @@ class PublicationScheduler {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                   // -------------------------------
-                   // class PublicationScheduler
-                   // -------------------------------
+                         // --------------------------
+                         // class PublicationScheduler
+                         // --------------------------
 
 // MANIPULATORS
 inline
@@ -464,7 +464,7 @@ MetricsManager *PublicationScheduler::manager()
 
 inline
 void PublicationScheduler::scheduleCategory(
-                                           const char               *category,
+                                           const char                *category,
                                            const bsls::TimeInterval&  interval)
 {
     scheduleCategory(d_manager_p->metricRegistry().getCategory(category),
@@ -487,8 +487,8 @@ const MetricsManager *PublicationScheduler::manager() const
 
 inline
 bool PublicationScheduler::findCategorySchedule(
-                                           bsls::TimeInterval *result,
-                                           const char        *category) const
+                                            bsls::TimeInterval *result,
+                                            const char         *category) const
 {
     return findCategorySchedule(
                           result,

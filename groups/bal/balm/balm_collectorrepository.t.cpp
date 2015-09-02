@@ -27,6 +27,8 @@
 #define snprintf _snprintf_s
 #endif
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -40,50 +42,34 @@ using bsl::flush;
 //                                 --------
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2]  balm::CollectorRepository(balm::MetricRegistry *,
-//                                bslma::Allocator    *);
-// [ 2]  ~balm::CollectorRepository();
+// [ 2] CollectorRepository(MetricRegistry *, bslma::Allocator *);
+// [ 2] ~CollectorRepository();
 // MANIPULATORS
-// [ 7]  void collect(bsl::vector<balm::MetricRecord> *, const balm::Category *);
-// [ 4]  void collectAndReset(bsl::vector<balm::MetricRecord> *,
-//                            const balm::Category            *);
-// [ 6]  balm::Collector *getDefaultCollector(const bslstl::StringRef& ,
-//                                           const bslstl::StringRef& );
-// [ 3]  balm::Collector *getDefaultCollector(const balm::MetricId& );
-// [ 6]  balm::IntegerCollector *getDefaultIntegerCollector(
-//                                               const bslstl::StringRef& ,
-//                                               const bslstl::StringRef& );
-// [ 3]  balm::IntegerCollector *getDefaultIntegerCollector(
-//                                                  const balm::MetricId& );
-// [ 5]  balm::Collector *addCollector(const bslstl::StringRef& ,
-//                                    const bslstl::StringRef& );
-// [ 2]  balm::Collector *addCollector(const balm::MetricId& metricId);
-// [ 5]  balm::IntegerCollector *addIntegerCollector(
-//                                               const bslstl::StringRef& ,
-//                                               const bslstl::StringRef& );
-// [ 2]  balm::IntegerCollector *addIntegerCollector(const balm::MetricId& );
-// [ 2]  int getAddedCollectors(
-//                      bsl::vector<balm::Collector *>        *,
-//                      bsl::vector<balm::IntegerCollector *> *,
-//                      const balm::MetricId&                  );
-// [ 2]  balm::MetricRegistry &registry();
-// [ 4]  void collectAndReset(bsl::vector<balm::MetricRecord> *,
-//                            const balm::Category            *);
+// [ 7] void collect(v<MetricRecord> *, const Category *);
+// [ 4] void collectAndReset(v<MetricRecord> *, const Category *);
+// [ 6] getDefaultCollector(const StringRef&, const StringRef&);
+// [ 3] getDefaultCollector(const MetricId&);
+// [ 6] getDefaultIntegerCollector(const StringRef&, const StringRef&);
+// [ 3] IntegerCollector *getDefaultIntegerCollector(const MetricId&);
+// [ 5] addCollector(const StringRef&, const StringRef&);
+// [ 2] addCollector(const MetricId& metricId);
+// [ 5] addIntegerCollector(const StringRef&, const StringRef&);
+// [ 2] addIntegerCollector(const MetricId&);
+// [ 2] int getAddedCollectors(v<C *> *, v<IC *> *, const MetricId&);
+// [ 2] MetricRegistry &registry();
+// [ 4] void collectAndReset(v<MetricRecord> *, const Category *);
 // ACCESSORS
-// [ 2]  int getAddedCollectors(
-//                      bsl::vector<const balm::Collector *>        *,
-//                      bsl::vector<const balm::IntegerCollector *> *,
-//                      const balm::MetricId&                        ) const;
-// [ 2]  const balm::MetricRegistry& registry() const;
+// [ 2] int getAddedCollectors(v<C*> *, v<IC*> *, MetricId& ) const;
+// [ 2] const MetricRegistry& registry() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCURRENCY TEST
 // [ 9] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -95,42 +81,30 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::MetricRegistry      Registry;
 typedef balm::CollectorRepository Obj;
@@ -138,14 +112,14 @@ typedef balm::Collector           Col;
 typedef balm::IntegerCollector    ICol;
 typedef balm::MetricId            Id;
 typedef balm::MetricRecord        Rec;
-typedef bsl::shared_ptr<Col>     ColSPtr;
-typedef bsl::shared_ptr<ICol>    IColSPtr;
-typedef bsl::vector<ColSPtr>     ColSPtrVector;
-typedef bsl::vector<IColSPtr>    IColSPtrVector;
+typedef bsl::shared_ptr<Col>      ColSPtr;
+typedef bsl::shared_ptr<ICol>     IColSPtr;
+typedef bsl::vector<ColSPtr>      ColSPtrVector;
+typedef bsl::vector<IColSPtr>     IColSPtrVector;
 
-//=============================================================================
-//                  GLOBAL CLASSES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 GLOBAL CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
@@ -193,10 +167,10 @@ class ThreadTester {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool      d_pool;
+    bdlmt::FixedThreadPool     d_pool;
     bdlqq::Barrier             d_barrier;
     balm::CollectorRepository *d_repository_p;
-    bslma::Allocator         *d_allocator_p;
+    bslma::Allocator          *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -384,13 +358,13 @@ bool vectorEquals(const bsl::vector<T *>&                 lhs,
     return true;
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -460,8 +434,9 @@ int main(int argc, char *argv[])
     intCollector2->update(6);
 //..
 // We can use the repository to collect recorded values from the collectors it
-// manages.  Since there are four collectors, there should be four recorded
-// values.  Note the order in which the records are returned is undefined.
+// manages.  Since there are collectors for four metrics, there should be four
+// recorded values.  Note the order in which the records are returned is
+// undefined.
 //..
     bsl::vector<balm::MetricRecord> records;
     repository.collectAndReset(&records, metricRegistry.getCategory("Test"));
@@ -474,13 +449,12 @@ int main(int argc, char *argv[])
          bsl::cout << *it << bsl::endl;
     }
 //..
-// The exact format of the output is determined by the 'balm::MetricRecord'
-// component, but should contain the following information:
+// The output of the for-loop should be:
 //..
-// [ metric: 1, count: 2, total: 3, min: 1, max: 2 ]
-// [ metric: 2, count: 1, total: 4, min: 4, max: 4 ]
-// [ metric: 3, count: 1, total: 5, min: 5, max: 5 ]
-// [ metric: 4, count: 1, total: 6, min: 6, max: 6 ]
+//  [ Test.C1: 2 3 1 2 ]
+//  [ Test.C2: 1 4 4 4 ]
+//  [ Test.C3: 1 5 5 5 ]
+//  [ Test.C4: 1 6 6 6 ]
 //..
 
       } break;
@@ -505,7 +479,7 @@ int main(int argc, char *argv[])
             ThreadTester tester(10, &mX, &defaultAllocator);
             tester.runTest();
         }
-    } break;
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING BASIC MANIPULATOR: 'collect'
@@ -531,8 +505,7 @@ int main(int argc, char *argv[])
         //   contain their original values (i.e., they have not been modified).
         //
         // Testing:
-        //    void collect(bsl::vector<balm::MetricRecord> *,
-        //                 const balm::Category            *);
+        //   void collect(v<MetricRecord> *, const Category *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
@@ -673,11 +646,8 @@ int main(int argc, char *argv[])
         //   collectors and add a new id to the metric registry.
         //
         // Testing:
-        //   balm::Collector *getDefaultCollector(const bslstl::StringRef& ,
-        //                                const bslstl::StringRef& );
-        //   balm::IntegerCollector *getDefaultIntegerCollector(
-        //                                           const bslstl::StringRef&,
-        //                                           const bslstl::StringRef& );
+        //   getDefaultCollector(const StringRef&, const StringRef&);
+        //   getDefaultIntegerCollector(const StringRef&, const StringRef&);
         // --------------------------------------------------------------------
 
         Registry reg(Z); const Registry& REG = reg;
@@ -780,7 +750,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       case 5: {
         // --------------------------------------------------------------------
         // TESTING AUXILIARY MANIPULATORS: 'addCollector','addIntegerCollector'
@@ -807,12 +776,8 @@ int main(int argc, char *argv[])
         //   collectors and add a new id to the metric registry.
         //
         // Testing:
-        //   bsl::shared_ptr<balm::Collector> addCollector(
-        //                                            const bslstl::StringRef& ,
-        //                                            const bslstl::StringRef& );
-        //   bsl::shared_ptr<balm::IntegerCollector> addIntegerCollector(
-        //                                           const bslstl::StringRef&,
-        //                                           const bslstl::StringRef& );
+        //   addCollector(const StringRef&, const StringRef&);
+        //   addIntegerCollector(const StringRef&, const StringRef&);
         // --------------------------------------------------------------------
 
         Registry reg(Z); const Registry& REG = reg;
@@ -955,8 +920,7 @@ int main(int argc, char *argv[])
         //   original values (i.e., they have not been modified).
         //
         // Testing:
-        //    void collectAndReset(bsl::vector<balm::MetricRecord> *,
-        //                         const balm::Category            *);
+        //   void collectAndReset(v<MetricRecord> *, const Category *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
@@ -1089,9 +1053,8 @@ int main(int argc, char *argv[])
         //   collector.
         //
         // Testing:
-        //   balm::Collector *getDefaultCollector(const balm::MetricId& );
-        //   balm::IntegerCollector *getDefaultIntegerCollector(
-        //                                            const balm::MetricId& );
+        //   getDefaultCollector(const MetricId&);
+        //   IntegerCollector *getDefaultIntegerCollector(const MetricId&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getDefaultCollector' and "
@@ -1207,8 +1170,7 @@ int main(int argc, char *argv[])
                 ASSERT(NUM_ADDITIONAL == iColV.size());
             }
         }
-    } break;
-
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING BASIC MANIPULATORS and ACCESSORS (BOOTSTRAP):
@@ -1242,19 +1204,14 @@ int main(int argc, char *argv[])
         //   does no perform more than 2 memory allocations.
         //
         // Testing:
-        //   CollectorRepository(MetricRegistry *,
-        //                            bslma::Allocator    *);
-        //   ~balm::CollectorRepository();
-        //   bsl::shared_ptr<balm::Collector>
-        //                          addCollector(const balm::MetricId& );
-        //   bsl::shared_ptr<balm::IntegerCollector>
-        //                          addIntegerCollector(const balm::MetricId& );
+        //   addCollector(const MetricId& metricId);
+        //   addIntegerCollector(const MetricId&);
+        //   ~CollectorRepository();
+        //   CollectorRepository(MetricRegistry *, bslma::Allocator *);
+        //   const MetricRegistry& registry() const;
+        //   int getAddedCollectors(v<C *> *, v<IC *> *, const MetricId&);
+        //   int getAddedCollectors(v<C*> *, v<IC*> *, MetricId& ) const;
         //   MetricRegistry &registry();
-        //   int getAddedCollectors(
-        //            bsl::vector<bsl::shared_ptr<balm::Collector> >  *,
-        //            bsl::vector<bsl::shared_ptr<balm::IntegerCollector> >  *,
-        //            const balm::MetricId&                                   );
-        //   const MetricRegistry &registry() const;
         // --------------------------------------------------------------------
 
         Registry reg(Z); const Registry& REG = reg;
@@ -1494,8 +1451,8 @@ int main(int argc, char *argv[])
         {
             Obj mX(&reg, Z); const Obj& MX = mX;
             if (veryVerbose) {
-                cout << "\tTest getDefaultCollector(const bslstl::StringRef &, "
-                     << "const bslstl::StringRef& )" << endl;
+                cout << "\tTest getDefaultCollector(const bslstl::StringRef &,"
+                     << " const bslstl::StringRef& )" << endl;
             }
 
             Col *COL_AA = mX.getDefaultCollector("A", "A");

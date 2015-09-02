@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(balm_category_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                   // -------------------
-                   // class Category
-                   // -------------------
+                               // --------------
+                               // class Category
+                               // --------------
 
 // CREATORS
 Category::~Category()
@@ -55,9 +55,9 @@ bsl::ostream& Category::print(bsl::ostream& stream) const
     return stream;
 }
 
-                        // -------------------------
-                        // class CategoryHolder
-                        // -------------------------
+                            // --------------------
+                            // class CategoryHolder
+                            // --------------------
 
 // MANIPULATORS
 void CategoryHolder::reset()

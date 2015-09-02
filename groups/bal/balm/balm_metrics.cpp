@@ -2,6 +2,7 @@
 #include <balm_metrics.h>
 
 #include <bsls_ident.h>
+#include <bsl_ostream.h>
 
 BSLS_IDENT_RCSID(balm_metrics_cpp,"$Id$ $CSID$")
 
@@ -9,26 +10,25 @@ BSLS_IDENT_RCSID(balm_metrics_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC DATA
-static
-const char LOG_CATEGORY[] = "BALM.METRICS";
-
-static
-const char *TYPE_STRING[] = {
-    "category",
-    "metric",
-};
-
 namespace balm {
-                          // ------------------
-                          // class Metrics
-                          // ------------------
+
+// STATIC DATA
+namespace {
+
+const char k_LOG_CATEGORY[] = "BALM.METRICS";
+const char *k_TYPE_STRING[] = { "category", "metric", };
+
+}  // close unnamed namespace
+
+                               // -------------
+                               // class Metrics
+                               // -------------
 
 // CLASS METHODS
 void Metrics_Helper::logEmptyName(const char *name,
-                                       NameType    type,
-                                       const char *file,
-                                       int         line) {
+                                  NameType    type,
+                                  const char *file,
+                                  int         line) {
 
     // Check to see if 'name' is empty or contains only spaces.
 
@@ -42,9 +42,9 @@ void Metrics_Helper::logEmptyName(const char *name,
 
     // Log the problem.
 
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
+    BALL_LOG_SET_CATEGORY(k_LOG_CATEGORY);
 
-    BALL_LOG_WARN << "Empty " << TYPE_STRING[type] << " \"" << name
+    BALL_LOG_WARN << "Empty " << k_TYPE_STRING[type] << " \"" << name
                   << "\" added at " << file << ":" << line << BALL_LOG_END;
 }
 }  // close package namespace

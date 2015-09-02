@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component defines a protocol class used for publishing
-// metric values.  The protocol's primary method is 'publish', which takes
-// a 'balm::MetricSample'.  The precise meaning of 'publish' is left to derived
-// classes to specify.
+//@DESCRIPTION: This component defines a protocol class 'balm::Publisher' used
+// for publishing metric values.  The protocol's primary method is 'publish',
+// which takes a 'balm::MetricSample'.  The precise meaning of 'publish' is
+// left to derived classes to specify.
 //
 ///Usage
 ///-----
@@ -141,8 +141,8 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //      }
 //..
 // We use a 'balm::Publisher' to publish the metrics recorded by this event
-// manager.  Note that most of the functionality illustrated here is
-// normally provided by the 'balm::MetricsManager'.
+// manager.  Note that most of the functionality illustrated here is normally
+// provided by the 'balm::MetricsManager'.
 //..
 //      void publishMetrics(balm::Publisher *publisher)
 //      {
@@ -172,9 +172,9 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 // In this final example, we publish metrics collected for the 'EventManager'
 // object (defined above).
 //
-// We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'balm::MetricRegistry' object
-// (such as the one owned by a 'balm::MetricsManager').
+// We start by creating a 'balm::MetricId' object by hand, but in practice, an
+// id should be obtained from a 'balm::MetricRegistry' object (such as the one
+// owned by a 'balm::MetricsManager').
 //..
 //  balm::Category           myCategory("MyCategory");
 //  balm::MetricDescription  description(&myCategory, "EventMessageSize");
@@ -215,9 +215,9 @@ namespace BloombergLP {
 
 namespace balm {class MetricSample;
 
-                      // ====================
-                      // class Publisher
-                      // ====================
+                              // ===============
+                              // class Publisher
+                              // ===============
 
 class Publisher {
     // This protocol class provides a 'publish' method to publish collected
@@ -239,12 +239,12 @@ class Publisher {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      // --------------------
-                      // class balm::Publisher
-                      // --------------------
+                           // ---------------------
+                           // class balm::Publisher
+                           // ---------------------
 
 }  // close enterprise namespace
 

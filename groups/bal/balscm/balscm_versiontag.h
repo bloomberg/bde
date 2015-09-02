@@ -7,8 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Provide versioning information for the 'bae' package group.
 //
 //@SEE_ALSO: balscm_version
