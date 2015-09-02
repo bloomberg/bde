@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 //..
 // Then, we set the fixed fields of the record to contain a simple message:
 //..
-    int                 processId = bdlsu::ProcessUtil::getProcessId();
+    int                 processId = bdls::ProcessUtil::getProcessId();
     bsls::Types::Uint64 threadId  = bdlqq::ThreadUtil::selfIdAsUint64();
 
     ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp

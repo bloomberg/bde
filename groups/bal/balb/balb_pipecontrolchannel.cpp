@@ -305,8 +305,8 @@ int PipeControlChannel::readNamedPipe()
                BALL_LOG_TRACE << "Read data from pipe: '";
                bsl::copy(buffer,
                          buffer + bytesRead,
-                         bsl::ostream_iterator<char>(BAEL_STREAM));
-               BAEL_STREAM << "'" << BALL_LOG_END;
+                         bsl::ostream_iterator<char>(BALL_STREAM));
+               BALL_STREAM << "'" << BALL_LOG_END;
 
                d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
                bsl::vector<char>::iterator it = bsl::find(d_buffer.begin(),

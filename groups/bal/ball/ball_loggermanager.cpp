@@ -25,7 +25,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 #include <bdlt_datetime.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_datetimeutil.h>

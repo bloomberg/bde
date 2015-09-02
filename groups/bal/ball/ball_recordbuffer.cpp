@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(ball_recordbuffer_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                           // -----------------------
+                           // ------------------
                            // class RecordBuffer
-                           // -----------------------
+                           // ------------------
 
 // CREATORS
 RecordBuffer::~RecordBuffer()

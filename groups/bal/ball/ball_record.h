@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // default set of attributes:
 //..
 //  ball::Record record;
-//  
+//
 //  ASSERT(ball::RecordAttributes() == record.fixedFields());
 //  ASSERT(0                        == record.userFields().length());
 //..
