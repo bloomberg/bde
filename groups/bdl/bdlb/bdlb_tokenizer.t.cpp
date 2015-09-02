@@ -238,7 +238,7 @@ int main(int argc, char **argv)
         if (verbose) cout << endl
                           << "SECONDARY CONSTRUCTOR" << endl
                           << "====================" << endl;
-        } break;
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
@@ -252,10 +252,10 @@ int main(int argc, char **argv)
         //: 1
         //
         // Testing:
-        //   Tokenizer::delimiter();
-        //   Tokenizer::hasSoft();
+        //   Tokenizer::trailingDelimiter();
+        //   Tokenizer::hasTrailingSoft();
         //   Tokenizer::hasPreviousSoft();
-        //   Tokenizer::isHard();
+        //   Tokenizer::isTrailingHard();
         //   Tokenizer::isPreviousHard());
         //   Tokenizer::previousDelimiter();
         //   Tokenizer::token();
@@ -264,76 +264,259 @@ int main(int argc, char **argv)
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
+
+        if (verbose) cout << "\nTesting accessors." << endl;
         {
+            if (verbose) cout << "\tTesting boolean conversion operator."
+                      << endl;
+
             static const struct {
                 int         d_line;         // line number
                 const char *d_input;        // input string
                 const char *d_soft;         // list of soft delimiters
                 const char *d_hard;         // list of hard delimiters
-                const char *d_token;        // expected token
-                const char *d_delim;        // expected current delimiter
-                const char *d_prevDelim;    // expected previous delimiter
-                bool        d_isValid;      // expected tokenizer validity
-                bool        d_hasSoft;      // expected soft character presence
-                                            // in current delimiter
+                bool        d_isValidCtor;  // expected tokenizer validity
+                                            // after object construction
 
-                bool        d_hasPrevSoft;  // expected soft character presence
-                                            // in previous delimiter
+                bool        d_isValidIncr;  // expected tokenizer validity
+                                            // after increment
+                } DATA[] = {
+                    //LINE  INPUT   SOFT   HARD   VALID   VALID
+                    //                            CTOR    INCR
+                    //----  ------  ----   ----   -----   -----
+                    { L_,   "",     ".",   "#",   false,  false },
+                    { L_,   ".",    ".",   "#",   false,  false },
+                    { L_,   "#",    ".",   "#",   true,   false },
+                    { L_,   "T",    ".",   "#",   true,   false },
+                    { L_,   "..",   ".",   "#",   false,  false },
+                    { L_,   "##",   ".",   "#",   true,   true  },
+                    { L_,   ".#",   ".",   "#",   true,   false },
+                    { L_,   "#.",   ".",   "#",   true,   false },
+                    { L_,   ".T",   ".",   "#",   true,   false },
+                    { L_,   "#T",   ".",   "#",   true,   true  },
+                    { L_,   "T.",   ".",   "#",   true,   false },
+                    { L_,   "T#",   ".",   "#",   true,   false },
+                    { L_,   "TT",   ".",   "#",   true,   false },
+                    { L_,   "...",  ".",   "#",   false,  false },
+                    { L_,   "..#",  ".",   "#",   true,   false },
+                    { L_,   "..T",  ".",   "#",   true,   false },
+                    { L_,   ".#.",  ".",   "#",   true,   false },
+                    { L_,   ".##",  ".",   "#",   true,   true  },
+                    { L_,   ".#T",  ".",   "#",   true,   true  },
+                    { L_,   "#..",  ".",   "#",   true,   false },
+                    { L_,   "#.#",  ".",   "#",   true,   true  },
+                    { L_,   "#.T",  ".",   "#",   true,   true  },
+                    { L_,   "T..",  ".",   "#",   true,   false },
+                    { L_,   "T.#",  ".",   "#",   true,   false },
+                    { L_,   "T.T",  ".",   "#",   true,   true  },
+                    { L_,   "T#.",  ".",   "#",   true,   false },
+                    { L_,   "T##",  ".",   "#",   true,   true  },
+                    { L_,   "T#T",  ".",   "#",   true,   true  },
+                    { L_,   "TT.",  ".",   "#",   true,   false },
+                    { L_,   "TT#",  ".",   "#",   true,   false },
+                    { L_,   "TTT",  ".",   "#",   true,   false },
+                    // Extended cases.
+                    //LINE  INPUT   SOFT   HARD   VALID   VALID
+                    //                            CTOR    INCR
+                    //----  ------  ----   ----   -----   -----
+                    { L_,   ".#.#", ".",   "#",   true,   true  },
+                    { L_,   ".#.T", ".",   "#",   true,   true  },
+                    { L_,   "#.#.", ".",   "#",   true,   true  },
+                    { L_,   "T.##", ".",   "#",   true,   true  },
+                    { L_,   "T.#T", ".",   "#",   true,   true  },
+                    { L_,   "T#.#", ".",   "#",   true,   true  },
+                    { L_,   "T#.T", ".",   "#",   true,   true  },
+                };   // end table DATA
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
-                bool        d_isHard;       // expected hard character presence
-                                            // in current delimiter
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int        LINE       = DATA[i].d_line;
+                const char      *INPUT      = DATA[i].d_input;
+                const StringRef  SOFT       = DATA[i].d_soft
+                                              ? StringRef(DATA[i].d_soft)
+                                              : StringRef();
+                const StringRef  HARD       = DATA[i].d_hard
+                                              ? StringRef(DATA[i].d_hard)
+                                              : StringRef();
+                bool             VALID_CTOR = DATA[i].d_isValidCtor;
+                bool             VALID_INCR = DATA[i].d_isValidIncr;
 
-                bool        d_isPrevHard;   // expected hard character presence
-                                            // in previous delimiter
+                Obj        mT(INPUT, SOFT, HARD);
+                const Obj& T = mT;
+
+                ASSERTV(LINE, T, VALID_CTOR == (!!T));
+
+                ++mT;
+
+                ASSERTV(LINE, T, VALID_INCR == (!!T));
+            }
+        }
+
+        {
+            if (verbose) cout << "\tTesting accessors, returning StringRefs."
+                              << endl;
+
+            static const struct {
+                int         d_line;          // line number
+                const char *d_input;         // input string
+                const char *d_soft;          // list of soft delimiters
+                const char *d_hard;          // list of hard delimiters
+                // expected values after construction
+                const char *d_tokenCtor;     // expected token
+                const char *d_delimCtor;     // expected current delimiter
+                const char *d_prevDelimCtor; // expected previous delimiter
+                // expected values after increment
+                const char *d_tokenIncr;     // expected token
+                const char *d_delimIncr;     // expected current delimiter
+                const char *d_prevDelimIncr; // expected previous delimiter
             } DATA[] = {
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "",     ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   ".",    ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "#",    ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "T",    ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "..",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "##",   ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   ".#",   ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "#.",   ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   ".T",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "#T",   ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "T.",   ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   "T#",   ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "TT",   ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   "...",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   "..#",  ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "..T",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                { L_,   ".#.",  ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   ".##",  ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   ".#T",  ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "#..",  ".",   "#",   "",     "",    "#..",  false,  false,  true,     false,   true    },
-                { L_,   "#.#",  ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   "#.T",  ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
-                { L_,   "T..",  ".",   "#",   "",     "",    "..",   false,  false,  true,     false,   false   },
-                { L_,   "T.#",  ".",   "#",   "",     "",    ".#",   false,  false,  true,     false,   true    },
-                { L_,   "T.T",  ".",   "#",   "T",    "",    ".",    true,   false,  true,     false,   false   },
-                { L_,   "T#.",  ".",   "#",   "",     "",    "#.",   false,  false,  true,     false,   true    },
-                { L_,   "T##",  ".",   "#",   "",     "#",   "#",    true,   false,  false,    true,    true    },
-                { L_,   "T#T",  ".",   "#",   "T",    "",    "#",    true,   false,  false,    false,   true    },
-                { L_,   "TT.",  ".",   "#",   "",     "",    ".",    false,  false,  true,     false,   false   },
-                { L_,   "TT#",  ".",   "#",   "",     "",    "#",    false,  false,  false,    false,   true    },
-                { L_,   "TTT",  ".",   "#",   "",     "",    "",     false,  false,  false,    false,   false   },
-                // Extended cases.
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV    VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
-                //                                           DELIM           SOFT    SOFT               HARD
-                //----  ------  ----   ----   ------  -----  -----   -----   -----   --------  -------  -------
-                { L_,   ".#.#", ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   ".#.T", ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
-                { L_,   "#.#.", ".",   "#",   "",     "#.",  "#.",   true,   true,   true,     true,    true    },
-                { L_,   "T.##", ".",   "#",   "",     "#",   ".#",   true,   false,  true,     true,    true    },
-                { L_,   "T.#T", ".",   "#",   "T",    "",    ".#",   true,   false,  true,     false,   true    },
-                { L_,   "T#.#", ".",   "#",   "",     "#",   "#.",   true,   false,  true,     true,    true    },
-                { L_,   "T#.T", ".",   "#",   "T",    "",    "#.",   true,   false,  true,     false,   true    },
+             //LINE INPUT   SOFT  HARD  TOKEN  DELIM PREV   TOKEN DELIM PREV
+             //                         CTOR   CTOR  DELIM  INCR  INCR  DELIM
+             //                                      CTOR               INCR
+             //---- ------  ----  ----  ------ ----- -----  ----- ----- -----
+             { L_,  "",     ".",  "#",  "",    "",   "",    "",   "",   ""   },
+             { L_,  ".",    ".",  "#",  "",    "",   ".",   "",   "",   ""   },
+             { L_,  "#",    ".",  "#",  "",    "#",  "",    "",   "",   "#"  },
+             { L_,  "T",    ".",  "#",  "T",   "",   "",    "",   "",   ""   },
+             { L_,  "..",   ".",  "#",  "",    "",   "..",  "",   "",   ""   },
+             { L_,  "##",   ".",  "#",  "",    "#",  "",    "",   "#",  "#"  },
+             { L_,  ".#",   ".",  "#",  "",    "#",  ".",   "",   "",   "#"  },
+             { L_,  "#.",   ".",  "#",  "",    "#.", "",    "",   "",   "#." },
+             { L_,  ".T",   ".",  "#",  "T",   "",   ".",   "",   "",   ""   },
+             { L_,  "#T",   ".",  "#",  "",    "#",  "",    "T",  "",   "#"  },
+             { L_,  "T.",   ".",  "#",  "T",   ".",  "",    "",   "",   "."  },
+             { L_,  "T#",   ".",  "#",  "T",   "#",  "",    "",   "",   "#"  },
+             { L_,  "TT",   ".",  "#",  "TT",  "",   "",    "",   "",   ""   },
+             { L_,  "...",  ".",  "#",  "",    "",   "...", "",   "",   ""   },
+             { L_,  "..#",  ".",  "#",  "",    "#",  "..",  "",   "",   "#"  },
+             { L_,  "..T",  ".",  "#",  "T",   "",   "..",  "",   "",   ""   },
+             { L_,  ".#.",  ".",  "#",  "",    "#.", ".",   "",   "",   "#." },
+             { L_,  ".##",  ".",  "#",  "",    "#",  ".",   "",   "#",  "#"  },
+             { L_,  ".#T",  ".",  "#",  "",    "#",  ".",   "T",  "",   "#"  },
+             { L_,  "#..",  ".",  "#",  "",    "#..","",    "",   "",   "#.."},
+             { L_,  "#.#",  ".",  "#",  "",    "#.", "",    "",   "#",  "#." },
+             { L_,  "#.T",  ".",  "#",  "",    "#.", "",    "T",  "",   "#." },
+             { L_,  "T..",  ".",  "#",  "T",   "..", "",    "",   "",   ".." },
+             { L_,  "T.#",  ".",  "#",  "T",   ".#", "",    "",   "",   ".#" },
+             { L_,  "T.T",  ".",  "#",  "T",   ".",  "",    "T",  "",   "."  },
+             { L_,  "T#.",  ".",  "#",  "T",   "#.", "",    "",   "",   "#." },
+             { L_,  "T##",  ".",  "#",  "T",   "#",  "",    "",   "#",  "#"  },
+             { L_,  "T#T",  ".",  "#",  "T",   "#",  "",    "T",  "",   "#"  },
+             { L_,  "TT.",  ".",  "#",  "TT",  ".",  "",    "",   "",   "."  },
+             { L_,  "TT#",  ".",  "#",  "TT",  "#",  "",    "",   "",   "#"  },
+             { L_,  "TTT",  ".",  "#",  "TTT", "",   "",    "",   "",   ""   },
+             // Extended cases.
+             //LINE INPUT   SOFT  HARD  TOKEN  DELIM PREV   TOKEN DELIM PREV
+             //                         CTOR   CTOR  DELIM  INCR  INCR  DELIM
+             //                                      CTOR               INCR
+             //---- ------  ----  ----  ------ ----- -----  ----- ----- -----
+             { L_,  ".#.#", ".",  "#",  "",    "#.", ".",   "",   "#",  "#." },
+             { L_,  ".#.T", ".",  "#",  "",    "#.", ".",   "T",  "",   "#." },
+             { L_,  "#.#.", ".",  "#",  "",    "#.", "",    "",   "#.", "#." },
+             { L_,  "T.##", ".",  "#",  "T",   ".#", "",    "",   "#",  ".#" },
+             { L_,  "T.#T", ".",  "#",  "T",   ".#", "",    "T",  "",   ".#" },
+             { L_,  "T#.#", ".",  "#",  "T",   "#.", "",    "",   "#",  "#." },
+             { L_,  "T#.T", ".",  "#",  "T",   "#.", "",    "T",  "",   "#." },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int        LINE            = DATA[i].d_line;
+                const char      *INPUT           = DATA[i].d_input;
+                const StringRef  SOFT            = StringRef(DATA[i].d_soft);
+                const StringRef  HARD            = StringRef(DATA[i].d_hard);
+                const StringRef  TOKEN_CTOR      = DATA[i].d_tokenCtor;
+                const StringRef  DELIM_CTOR      = DATA[i].d_delimCtor;
+                const StringRef  PREV_DELIM_CTOR = DATA[i].d_prevDelimCtor;
+                const StringRef  TOKEN_INCR      = DATA[i].d_tokenIncr;
+                const StringRef  DELIM_INCR      = DATA[i].d_delimIncr;
+                const StringRef  PREV_DELIM_INCR = DATA[i].d_prevDelimIncr;
+
+                Obj        mT(INPUT, SOFT, HARD);
+                const Obj& T = mT;
+
+                ASSERTV(LINE, DELIM_CTOR      == T.trailingDelimiter());
+                ASSERTV(LINE, PREV_DELIM_CTOR == T.previousDelimiter());
+                ASSERTV(LINE, TOKEN_CTOR      == T.token());
+
+                ++mT;
+
+                ASSERTV(LINE, DELIM_INCR      == T.trailingDelimiter());
+                ASSERTV(LINE, PREV_DELIM_INCR == T.previousDelimiter());
+                ASSERTV(LINE, TOKEN_INCR      == T.token());
+            }
+        }
+
+        {
+            if (verbose) cout <<
+                           "\tTesting accessors, returning previous delimiters"
+                              << endl;
+
+            static const struct {
+                int         d_line;             // line number
+                const char *d_input;            // input string
+                const char *d_soft;             // list of soft delimiters
+                const char *d_hard;             // list of hard delimiters
+                bool        d_hasPrevSoftCtor;  // soft character presence
+                                                // after construction
+
+                bool        d_isPrevHardCtor;   // hard character presence
+                                                // after construction
+
+                bool        d_hasPrevSoftIncr;  // soft character presence
+                                                // after increment
+
+                bool        d_isPrevHardIncr;   // hard character presence
+                                                // after increment
+            } DATA[] = {
+              //LINE  INPUT   SOFT   HARD  HAS_PREV IS_PREV  HAS_PREV IS_PREV
+              //                           SOFT     HARD     SOFT     HARD
+              //                           CTOR     CTOR     INCR     INCR
+              //----  ------  ----   ----  -------- -------  -------- -------
+              { L_,   "",     ".",   "#",  false,   false,   false,   false  },
+              { L_,   ".",    ".",   "#",  true,    false,   false,   false  },
+              { L_,   "#",    ".",   "#",  false,   false,   false,   true   },
+              { L_,   "T",    ".",   "#",  false,   false,   false,   false  },
+              { L_,   "..",   ".",   "#",  true,    false,   false,   false  },
+              { L_,   "##",   ".",   "#",  false,   false,   false,   true   },
+              { L_,   ".#",   ".",   "#",  true,    false,   false,   true   },
+              { L_,   "#.",   ".",   "#",  false,   false,   true,    true   },
+              { L_,   ".T",   ".",   "#",  true,    false,   false,   false  },
+              { L_,   "#T",   ".",   "#",  false,   false,   false,   true   },
+              { L_,   "T.",   ".",   "#",  false,   false,   true,    false  },
+              { L_,   "T#",   ".",   "#",  false,   false,   false,   true   },
+              { L_,   "TT",   ".",   "#",  false,   false,   false,   false  },
+              { L_,   "...",  ".",   "#",  true,    false,   false,   false  },
+              { L_,   "..#",  ".",   "#",  true,    false,   false,   true   },
+              { L_,   "..T",  ".",   "#",  true,    false,   false,   false  },
+              { L_,   ".#.",  ".",   "#",  true,    false,   true,    true   },
+              { L_,   ".##",  ".",   "#",  true,    false,   false,   true   },
+              { L_,   ".#T",  ".",   "#",  true,    false,   false,   true   },
+              { L_,   "#..",  ".",   "#",  false,   false,   true,    true   },
+              { L_,   "#.#",  ".",   "#",  false,   false,   true,    true   },
+              { L_,   "#.T",  ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T..",  ".",   "#",  false,   false,   true,    false  },
+              { L_,   "T.#",  ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T.T",  ".",   "#",  false,   false,   true,    false  },
+              { L_,   "T#.",  ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T##",  ".",   "#",  false,   false,   false,   true   },
+              { L_,   "T#T",  ".",   "#",  false,   false,   false,   true   },
+              { L_,   "TT.",  ".",   "#",  false,   false,   true,    false  },
+              { L_,   "TT#",  ".",   "#",  false,   false,   false,   true   },
+              { L_,   "TTT",  ".",   "#",  false,   false,   false,   false  },
+              // Extended cases.
+              //LINE  INPUT   SOFT   HARD  HAS_PREV IS_PREV  HAS_PREV IS_PREV
+              //                           SOFT     HARD     SOFT     HARD
+              //                           CTOR     CTOR     INCR     INCR
+              //----  ------  ----   ----  -------- -------  -------- -------
+              { L_,   ".#.#", ".",   "#",  true,    false,   true,    true   },
+              { L_,   ".#.T", ".",   "#",  true,    false,   true,    true   },
+              { L_,   "#.#.", ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T.##", ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T.#T", ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T#.#", ".",   "#",  false,   false,   true,    true   },
+              { L_,   "T#.T", ".",   "#",  false,   false,   true,    true   },
             };   // end table DATA
 
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
@@ -347,31 +530,127 @@ int main(int argc, char **argv)
                 const StringRef  HARD          = DATA[i].d_hard
                                                  ? StringRef(DATA[i].d_hard)
                                                  : StringRef();
-                const char      *TOKEN         = DATA[i].d_token;
-                const char      *DELIM         = DATA[i].d_delim;
-                const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-                bool             VALID         = DATA[i].d_isValid;
-                bool             HAS_SOFT      = DATA[i].d_hasSoft;
-                bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
-                bool             IS_HARD       = DATA[i].d_isHard;
-                bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
+                bool             HAS_PREV_SOFT_CTOR =
+                                                     DATA[i].d_hasPrevSoftCtor;
+                bool             IS_PREV_HARD_CTOR  = DATA[i].d_isPrevHardCtor;
+                bool             HAS_PREV_SOFT_INCR =
+                                                     DATA[i].d_hasPrevSoftIncr;
+                bool             IS_PREV_HARD_INCR  = DATA[i].d_isPrevHardIncr;
 
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
+
+                ASSERTV(LINE, HAS_PREV_SOFT_CTOR == T.hasPreviousSoft());
+                ASSERTV(LINE, IS_PREV_HARD_CTOR  == T.isPreviousHard());
+
                 ++mT;
 
-                ASSERTV(LINE, T, VALID      == (!!T));
-                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
-                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
-                ASSERTV(LINE, HAS_SOFT      == T.hasTrailingSoft());
-                ASSERTV(LINE, IS_HARD       == T.isTrailingHard());
-                ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
-
+                ASSERTV(LINE, HAS_PREV_SOFT_INCR == T.hasPreviousSoft());
+                ASSERTV(LINE, IS_PREV_HARD_INCR  == T.isPreviousHard());
             }
         }
 
+        {
+            if (verbose) cout <<
+                           "\tTesting accessors, returning trailing delimiters"
+                              << endl;
+
+            static const struct {
+                int         d_line;         // line number
+                const char *d_input;        // input string
+                const char *d_soft;         // list of soft delimiters
+                const char *d_hard;         // list of hard delimiters
+                bool        d_hasSoftCtor;  // soft character presence
+                                            // after construction
+
+                bool        d_isHardCtor;   // hard character presence
+                                            // after construction
+
+                bool        d_hasSoftIncr;  // soft character presence
+                                            // after increment
+
+                bool        d_isHardIncr;   // hard character presence
+                                           // after increment
+            } DATA[] = {
+                    //LINE  INPUT   SOFT  HARD  HAS    IS_HARD HAS    IS_HARD
+                    //                          SOFT   CTOR    SOFT   INCR
+                    //                          CTOR           INCR
+                    //----  ------  ----  ----  -----  ------- -----  -------
+                    { L_,   "",     ".",  "#",  false, false,  false, false  },
+                    { L_,   ".",    ".",  "#",  false, false,  false, false  },
+                    { L_,   "#",    ".",  "#",  false, true,   false, false  },
+                    { L_,   "T",    ".",  "#",  false, false,  false, false  },
+                    { L_,   "..",   ".",  "#",  false, false,  false, false  },
+                    { L_,   "##",   ".",  "#",  false, true,   false, true   },
+                    { L_,   ".#",   ".",  "#",  false, true,   false, false  },
+                    { L_,   "#.",   ".",  "#",  true,  true,   false, false  },
+                    { L_,   ".T",   ".",  "#",  false, false,  false, false  },
+                    { L_,   "#T",   ".",  "#",  false, true,   false, false  },
+                    { L_,   "T.",   ".",  "#",  true,  false,  false, false  },
+                    { L_,   "T#",   ".",  "#",  false, true,   false, false  },
+                    { L_,   "TT",   ".",  "#",  false, false,  false, false  },
+                    { L_,   "...",  ".",  "#",  false, false,  false, false  },
+                    { L_,   "..#",  ".",  "#",  false, true,   false, false  },
+                    { L_,   "..T",  ".",  "#",  false, false,  false, false  },
+                    { L_,   ".#.",  ".",  "#",  true,  true,   false, false  },
+                    { L_,   ".##",  ".",  "#",  false, true,   false, true   },
+                    { L_,   ".#T",  ".",  "#",  false, true,   false, false  },
+                    { L_,   "#..",  ".",  "#",  true,  true,   false, false  },
+                    { L_,   "#.#",  ".",  "#",  true,  true,   false, true   },
+                    { L_,   "#.T",  ".",  "#",  true,  true,   false, false  },
+                    { L_,   "T..",  ".",  "#",  true,  false,  false, false  },
+                    { L_,   "T.#",  ".",  "#",  true,  true,   false, false  },
+                    { L_,   "T.T",  ".",  "#",  true,  false,  false, false  },
+                    { L_,   "T#.",  ".",  "#",  true,  true,   false, false  },
+                    { L_,   "T##",  ".",  "#",  false, true,   false, true   },
+                    { L_,   "T#T",  ".",  "#",  false, true,   false, false  },
+                    { L_,   "TT.",  ".",  "#",  true,  false,  false, false  },
+                    { L_,   "TT#",  ".",  "#",  false, true,   false, false  },
+                    { L_,   "TTT",  ".",  "#",  false, false,  false, false  },
+                    // Extended cases.
+                    //LINE  INPUT   SOFT  HARD  HAS    IS_HARD HAS    IS_HARD
+                    //                          SOFT   CTOR    SOFT   INCR
+                    //                          CTOR           INCR
+                    //----  ------  ----  ----  -----  ------- -----  -------
+                    { L_,   ".#.#", ".",  "#",  true,  true,   false, true   },
+                    { L_,   ".#.T", ".",  "#",  true,  true,   false, false  },
+                    { L_,   "#.#.", ".",  "#",  true,  true,   true,  true   },
+                    { L_,   "T.##", ".",  "#",  true,  true,   false, true   },
+                    { L_,   "T.#T", ".",  "#",  true,  true,   false, false  },
+                    { L_,   "T#.#", ".",  "#",  true,  true,   false, true   },
+                    { L_,   "T#.T", ".",  "#",  true,  true,   false, false  },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int        LINE          = DATA[i].d_line;
+                const char      *INPUT         = DATA[i].d_input;
+                const StringRef  SOFT          = DATA[i].d_soft
+                                                 ? StringRef(DATA[i].d_soft)
+                                                 : StringRef();
+                const StringRef  HARD          = DATA[i].d_hard
+                                                 ? StringRef(DATA[i].d_hard)
+                                                 : StringRef();
+                bool             HAS_SOFT_CTOR = DATA[i].d_hasSoftCtor;
+                bool             IS_HARD_CTOR  = DATA[i].d_isHardCtor;
+                bool             HAS_SOFT_INCR = DATA[i].d_hasSoftIncr;
+                bool             IS_HARD_INCR  = DATA[i].d_isHardIncr;
+
+                Obj        mT(INPUT, SOFT, HARD);
+                const Obj& T = mT;
+
+                ASSERTV(LINE, HAS_SOFT_CTOR == T.hasTrailingSoft());
+                ASSERTV(LINE, IS_HARD_CTOR  == T.isTrailingHard());
+
+                ++mT;
+
+                ASSERTV(LINE, HAS_SOFT_INCR == T.hasTrailingSoft());
+                ASSERTV(LINE, IS_HARD_INCR  == T.isTrailingHard());
+            }
+        }
+      } break;
+      case 3: {
       } break;
       case 2: {
         // --------------------------------------------------------------------
