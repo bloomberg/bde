@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
         BALM_METRICS_UPDATE("myCategory", "elapsedTime", 2);
         BALM_METRICS_UPDATE("myCategory", "numRequests", 150);
 // Finally, we publish the metric.  Note that in practice, clients of
-// the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
+// the 'balm' package can use the 'balm::PublicationScheduler' to schedule the
 // periodic publication of metrics:
 //..
     balm::DefaultMetricsManager::instance()->publishAll();
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
        BALM_METRICS_UPDATE("myCategory", "avgElapsedTimeMs", .005);
 //..
 // Finally, we publish the metric.  Note that in practice, clients of
-// the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
+// the 'balm' package can use the 'balm::PublicationScheduler' to schedule the
 // periodic publication of metrics:
 //..
     balm::DefaultMetricsManager::instance()->publishAll();
@@ -801,7 +801,7 @@ int main(int argc, char *argv[])
             MMgr mgr(Z); const MMgr& MGR = mgr;
             for (int i = 0; i < NUM_IDS; ++i) {
 
-                // Initialized BAEM_UNSPECIFIED publication type to SPEC1
+                // Initialized 'e_UNSPECIFIED' publication type to SPEC1
                 ASSERT(0 == Obj::setFormatSpec(IDS[i],
                                                IDS[i],
                                                (Type::Value)0,
@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             const MMgr *MGR = balm::DefaultMetricsManager::instance();
-            // Initialized BAEM_UNSPECIFIED publication type to SPEC1
+            // Initialized 'e_UNSPECIFIED' publication type to SPEC1
             ASSERT(0 == Obj::setFormatSpec(IDS[0],
                                            IDS[0],
                                            (Type::Value)0,

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a namespace for a default instance of
 // the 'balm::MetricsManager'.  This 'balm::DefaultMetricsManager' provides
 // static operations to create, access, and destroy the default instance of the
-// 'balm::MetricsManager'.  The 'baem::DefaultMetricsManagedScopedGuard'
+// 'balm::MetricsManager'.  The 'balm::DefaultMetricsManagedScopedGuard'
 // provides a proctor that creates a default metrics manager on construction
 // and destroys it on destruction.
 //
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and publish a single metric to the console.  See the documentation
 // of 'balm_metric' and 'balm_metricsmanager' for information on how to record
 // metrics.

@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
 // First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages

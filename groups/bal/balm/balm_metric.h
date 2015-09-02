@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //..
 ///Example 2 - Create and access the default 'balm::MetricsManager' instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
 // First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
@@ -381,7 +381,7 @@ struct Metric_MacroImp {
     // macros defined by this component.
     //
     // This is an implementation type of this component and *must* *not* be
-    // used by clients of the 'baem' package.
+    // used by clients of the 'balm' package.
 
     // CLASS METHODS
     static void getCollector(Collector      **collector,

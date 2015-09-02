@@ -1454,7 +1454,7 @@ int main(int argc, char *argv[])
         //   Note that the destructor is exercised on each configuration as the
         //   object being tested leaves scope.
         //
-        //   Note that the baem::MetricSampleIterator is the only available
+        //   Note that the balm::MetricSampleIterator is the only available
         //   method to access the records in a sample, so it is incorporated
         //   into this test.
         //

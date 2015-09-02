@@ -1244,7 +1244,7 @@ void ConcurrencyTest::runTest()
 // We obtain the addresses of the respective 'balm::Collector' objects that we
 // will use to collect metrics values, from the metrics managers' collector
 // repository.  Note that in practice, clients can use the
-// 'baem::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
+// 'balm::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
 // 'balm_metric') rather than explicitly pass the address of 'manager'.
 //..
         EventHandler(balm::MetricsManager *manager)
@@ -3085,7 +3085,7 @@ int main(int argc, char *argv[])
         //   metric names to be collected by
         //   'balm::MetricsManager::RecordCollectionCallback' functors.
         //
-        //   Add to the 'baem::MetricManager' object under test: a number
+        //   Add to the 'balm::MetricManager' object under test: a number
         //   ('NUM_PUBLISHER') of general publishers, a number
         //   ('NUM_PUBLISHER') of specific publishers for each category, and a
         //   'TestCallback' functor for each metric to be collected by

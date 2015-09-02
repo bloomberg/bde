@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
             MX.printDescription(buff);
             bsl::string result(buff.str());
 
-            const char *EXP = "[ A.metricA BAEM_MIN format: [ ]  "
+            const char *EXP = "[ A.metricA MIN format: [ ]  "
                               "user data: ( ) ]";
 
             if (veryVerbose) {

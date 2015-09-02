@@ -53,9 +53,9 @@ using bsl::flush;
 // [ 3] const char *format() const;
 // [ 8] bsl::ostream& print(bsl::ostream& ) const;
 // FREE OPERATORS
-// [ 5] bool operator==(const baem::Metricformat& , const baem::Metricformat& );
-// [ 5] bool operator!=(const baem::Metricformat& , const baem::Metricformat& );
-// [ 9] bsl::ostream& operator<<(bsl::ostream& , const baem::Metricformat& );
+// [ 5] bool operator==(const balm::Metricformat& , const balm::Metricformat& );
+// [ 5] bool operator!=(const balm::Metricformat& , const balm::Metricformat& );
+// [ 9] bsl::ostream& operator<<(bsl::ostream& , const balm::Metricformat& );
 //
 // balm::MetricFormat
 // CREATORS
@@ -73,9 +73,9 @@ using bsl::flush;
 //                                         balm::PublicationType::Value ) const;
 // [  ] bsl::ostream& print(bsl::ostream& , int, int ) const;
 // FREE OPERATORS
-// [12] bool operator==(const baem::Metricformat& , const baem::Metricformat& );
-// [12] bool operator!=(const baem::Metricformat& , const baem::Metricformat& );
-// [ 9] bsl::ostream& operator<<(bsl::ostream& , const baem::Metricformat& );
+// [12] bool operator==(const balm::Metricformat& , const balm::Metricformat& );
+// [12] bool operator!=(const balm::Metricformat& , const balm::Metricformat& );
+// [ 9] bsl::ostream& operator<<(bsl::ostream& , const balm::Metricformat& );
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] HELPERS: gg
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and configure a
-// 'balm::MetricFormat'.  Note that clients of the 'baem' package can set the
+// 'balm::MetricFormat'.  Note that clients of the 'balm' package can set the
 // format for a metric through 'balm_configurationutil' or
 // 'balm_metricregistry'.
 //
@@ -514,25 +514,25 @@ int main(int argc, char *argv[])
         X1.print(printBuf, 1, 3);
 
         const char *EXP_1 =
-            "[  BAEM_UNSPECIFIED = NULL "
-            " BAEM_TOTAL = [ scale = 3 format = \"%u\" ] "
-            " BAEM_COUNT = NULL "
-            " BAEM_MIN = NULL "
-            " BAEM_MAX = NULL "
-            " BAEM_AVG = [ scale = 2 format = \"%x\" ] "
-            " BAEM_RATE = NULL "
-            " BAEM_RATE_COUNT = NULL  ] ";
+            "[  UNSPECIFIED = NULL "
+            " TOTAL = [ scale = 3 format = \"%u\" ] "
+            " COUNT = NULL "
+            " MIN = NULL "
+            " MAX = NULL "
+            " AVG = [ scale = 2 format = \"%x\" ] "
+            " RATE = NULL "
+            " RATE_COUNT = NULL  ] ";
 
         const char *EXP_2 =
             "   [\n"
-            "      BAEM_UNSPECIFIED = NULL\n"
-            "      BAEM_TOTAL = [ scale = 3 format = \"%u\" ]\n"
-            "      BAEM_COUNT = NULL\n"
-            "      BAEM_MIN = NULL\n"
-            "      BAEM_MAX = NULL\n"
-            "      BAEM_AVG = [ scale = 2 format = \"%x\" ]\n"
-            "      BAEM_RATE = NULL\n"
-            "      BAEM_RATE_COUNT = NULL\n"
+            "      UNSPECIFIED = NULL\n"
+            "      TOTAL = [ scale = 3 format = \"%u\" ]\n"
+            "      COUNT = NULL\n"
+            "      MIN = NULL\n"
+            "      MAX = NULL\n"
+            "      AVG = [ scale = 2 format = \"%x\" ]\n"
+            "      RATE = NULL\n"
+            "      RATE_COUNT = NULL\n"
             "    ]\n";
 
         bsl::string printVal(printBuf.str());

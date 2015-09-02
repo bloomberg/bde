@@ -1024,14 +1024,14 @@ do {                                                                          \
   BALM_METRICS_TIME_BLOCK_IMP((CATEGORY),                                     \
                                (METRIC),                                      \
                                TIME_UNITS,                                    \
-                               BALM_METRICS_UNIQUE_NAME(_bAeM_CoLlEcToR))
+                               BALM_METRICS_UNIQUE_NAME(_bAlM_CoLlEcToR))
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)         \
   BALM_METRICS_DYNAMIC_TIME_BLOCK_IMP(                                        \
                                   (CATEGORY),                                 \
                                   (METRIC),                                   \
                                   TIME_UNITS,                                 \
-                                  BALM_METRICS_UNIQUE_NAME(_bAeM_CoLlEcToR))
+                                  BALM_METRICS_UNIQUE_NAME(_bAlM_CoLlEcToR))
 
 #define BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)                     \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
@@ -1114,7 +1114,7 @@ do {                                                                          \
        VARIABLE_NAME = 0;                                                     \
     }                                                                         \
     BloombergLP::balm::StopwatchScopedGuard                                   \
-         BALM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
+         BALM_METRICS_UNIQUE_NAME(__bAlM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
 // Declare a pointer to a 'balm::Collector' with the specified 'VARIABLE_NAME'.
 // If the default metrics manager is available, assign to the declared pointer
@@ -1136,7 +1136,7 @@ do {                                                                          \
                                                        (METRIC));             \
     }                                                                         \
     BloombergLP::balm::StopwatchScopedGuard                                   \
-         BALM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
+         BALM_METRICS_UNIQUE_NAME(__bAlM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
                         // ------------------------
                         // Unique line number macro

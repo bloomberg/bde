@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 
 ///Example 2 - Create and access the default 'balm::MetricsManager' instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
 // First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages

@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 ///Usage
 ///-----
 // The following example demonstrates how to create and configure a
-// 'balm::MetricFormat'.  Note that clients of the 'baem' package can set the
+// 'balm::MetricFormat'.  Note that clients of the 'balm' package can set the
 // format for a metric through 'balm_configurationutil' or
 // 'balm_metricregistry'.
 //
@@ -266,7 +266,7 @@ class MetricFormat {
     // and the 'formatSpec' method to retrieve the format spec for a
     // publication type (or 0 if no format spec has been provided for the
     // indicated publication type).  Note that the types of published
-    // aggregates explicitly provided by the 'baem' package are defined in the
+    // aggregates explicitly provided by the 'balm' package are defined in the
     // 'PublicationType' enumeration.
 
     // TYPES

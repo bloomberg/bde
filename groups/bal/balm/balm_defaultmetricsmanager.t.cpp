@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and publish a single metric to the console.  See the documentation
 // of 'balm_metric' and 'balm_metricsmanager' for information on how to record
 // metrics.

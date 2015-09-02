@@ -47,7 +47,7 @@ using bsl::flush;
 // performed on with a macro have the same effect as the same operation
 // performed directly on the "oracle" 'balm::Collector'.  Note that, the
 // "STANDARD" macro variants (i.e., 'BALM_METRICS_UPDATE') and the
-// "THREAD_LOCAL" macro variants (i.e., 'BAEM_METRICS_THREAD_LOCAL_UPDATE')
+// "THREAD_LOCAL" macro variants (i.e., 'BALM_METRICS_THREAD_LOCAL_UPDATE')
 // have more complex behavior with respect to their statically cached (or
 // thread-local statically cached) 'balm::Collector' object.
 //-----------------------------------------------------------------------------
@@ -58,16 +58,16 @@ using bsl::flush;
 // [ 2] BALM_METRICS_TYPED_INCREMENT(CATEGORY, NAME, PREFERRED_TYPE)
 // [ 3] BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
 // [ 3] BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
-// [ 4] BAEM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
-// [ 4] BAEM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
+// [ 4] BALM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
+// [ 4] BALM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
 // [ 5] BALM_METRICS_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 5] BAEM_METRICS_INT_INCREMENT(CATEGORY, NAME)
+// [ 5] BALM_METRICS_INT_INCREMENT(CATEGORY, NAME)
 // [ 5] BALM_METRICS_TYPED_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 5] BAEM_METRICS_TYPED_INT_INCREMENT(CATEGORY, NAME)
+// [ 5] BALM_METRICS_TYPED_INT_INCREMENT(CATEGORY, NAME)
 // [ 6] BALM_METRICS_DYNAMIC_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 6] BAEM_METRICS_DYNAMIC_INT_INCREMENT(CATEGORY, NAME)
-// [ 7] BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 7] BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
+// [ 6] BALM_METRICS_DYNAMIC_INT_INCREMENT(CATEGORY, NAME)
+// [ 7] BALM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
+// [ 7] BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
 // [ 8] BEAM_METRICS_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 // [ 8] BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 // [ 9] BEAM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
@@ -197,7 +197,7 @@ bool withinInt(int value, int min, int max)
 void staticTimeEmptyFunction(const char     *category,
                              const char     *metric,
                              SWGuard::Units  units = SWGuard::k_SECONDS)
-    // Record, using the static 'BAEM_TIME_BLOCK' macro, an empty function to
+    // Record, using the static 'BALM_TIME_BLOCK' macro, an empty function to
     // a metric identified by the specified 'category' and 'name'.  Optionally
     // specify the 'units' to report elapsed time values.  If no 'units' value
     // is supplied, time is reported in seconds.  Note that the identity of
@@ -221,7 +221,7 @@ bool breathingTestIfEnabledA()
     return false;
 }
 
-bool baemMetricsIfCategoryEnabledTestA()
+bool balmMetricsIfCategoryEnabledTestA()
 {
     BALM_METRICS_IF_CATEGORY_ENABLED("A") {
         return true;                                                  // RETURN
@@ -229,7 +229,7 @@ bool baemMetricsIfCategoryEnabledTestA()
     return false;
 }
 
-bool baemMetricsIfCategoryEnabledTest(const char *category)
+bool balmMetricsIfCategoryEnabledTest(const char *category)
 {
     BALM_METRICS_IF_CATEGORY_ENABLED(category) {
         return true;                                                  // RETURN
@@ -582,15 +582,15 @@ void TlsMacroConcurrencyTest::execute()
 
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
-        BAEM_METRICS_THREAD_LOCAL_UPDATE(TEST_CATEGORY, UPDATE, i);
-        BAEM_METRICS_THREAD_LOCAL_INCREMENT(TEST_CATEGORY, INCREMENT);
+        BALM_METRICS_THREAD_LOCAL_UPDATE(TEST_CATEGORY, UPDATE, i);
+        BALM_METRICS_THREAD_LOCAL_INCREMENT(TEST_CATEGORY, INCREMENT);
 
         bool enabled = 0 == i % 2;
 
         mgr.setCategoryEnabled(C2, enabled);
 
-        BAEM_METRICS_THREAD_LOCAL_UPDATE(ENABLED_CATEGORY, UPDATE, i);
-        BAEM_METRICS_THREAD_LOCAL_INCREMENT(ENABLED_CATEGORY, INCREMENT);
+        BALM_METRICS_THREAD_LOCAL_UPDATE(ENABLED_CATEGORY, UPDATE, i);
+        BALM_METRICS_THREAD_LOCAL_INCREMENT(ENABLED_CATEGORY, INCREMENT);
     }
     d_barrier.wait();
 
@@ -1060,15 +1060,15 @@ void TlsIntMacroConcurrencyTest::execute()
 
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
-        BAEM_UPDATE_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, UPDATE, i);
-        BAEM_INCREMENT_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, INCREMENT);
+        BALM_UPDATE_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, UPDATE, i);
+        BALM_INCREMENT_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, INCREMENT);
 
         bool enabled = 0 == i % 2;
 
         mgr.setCategoryEnabled(C2, enabled);
 
-        BAEM_UPDATE_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, UPDATE, i);
-        BAEM_INCREMENT_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, INCREMENT);
+        BALM_UPDATE_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, UPDATE, i);
+        BALM_INCREMENT_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, INCREMENT);
     }
     d_barrier.wait();
 
@@ -1251,7 +1251,7 @@ void TlsIntMacroConcurrencyTest::runTest()
 // so we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to ensure we only perform
 // those operations if metrics collection is enabled.  Finally, we use
 // 'BALM_METRICS_UPDATE3' to update the three metrics, this is (slightly) more
-// efficient than updating each metric individually using 'BAEM_METRIC_UPDATE'.
+// efficient than updating each metric individually using 'BALM_METRIC_UPDATE'.
 //..
     int processEvent2(int eventId, const bsl::string& eventMessage)
         // Process the event described by the specified 'eventId' and
@@ -1324,7 +1324,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1 - Create and access the default 'balm::MetricsManager' instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
 // Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
@@ -1368,13 +1368,13 @@ int main(int argc, char *argv[])
         //    Invoke 'BALM_METRICS_UPDATE' with an empty string as parameter
         //    and verify that the expected warning message is logged.  Also
         //    verify that a warning message is not issued if all the parameters
-        //    are non-empty.  Invoke 'BAEM_METRICS_UPDATEn' with an empty
+        //    are non-empty.  Invoke 'BALM_METRICS_UPDATEn' with an empty
         //    string for parameter 'METRICn' and verify that a warning message
         //    is logged.  Invoke 'BALM_METRICS_INT_UPDATE' with non-empty
         //    parameters and verify that no warning is issued.  Invoke
         //    'BALM_METRICS_INT_UPDATE' again with empty parameters, and verify
         //    that a warning message is logged.  Perform the same test on
-        //    'BAEM_METRICS_INT_UPDATEn' as with 'BALM_METRICS_UPDATE'.
+        //    'BALM_METRICS_INT_UPDATEn' as with 'BALM_METRICS_UPDATE'.
         //
         // Testing:
         //    BALM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
@@ -1785,7 +1785,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_IF_CATEGORY_ENABLED'
+        // TESTING: 'BALM_IF_CATEGORY_ENABLED'
         //
         // Testing:
         //   BALM_METRICS_IF_CATEGORY_ENABLED(CATEGORY)
@@ -1793,19 +1793,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: BAEM_IF_CATEGORY_ENABLEDS" << endl
+                          << "TESTING: BALM_IF_CATEGORY_ENABLEDS" << endl
                           << "==================================" << endl;
 
         if (veryVerbose) cout << "\tVerify basic behavior" << endl;
         {
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
 
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                        balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
 
             registry.setCategoryEnabled(registry.getCategory("A"), false);
             ASSERT(!breathingTestIfEnabledA());
@@ -1817,44 +1817,44 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tVerify category cache is static" << endl;
         {
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
 
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                        balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("B"), false);
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("A"), false);
 
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
-            ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("B"), true);
 
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
-            ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("A"), true);
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
         }
-        ASSERT(!baemMetricsIfCategoryEnabledTestA());
-        ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-        ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+        ASSERT(!balmMetricsIfCategoryEnabledTestA());
+        ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+        ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2153,13 +2153,13 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_METRICS_THREAD_LOCAL_INT_UPDATE',
-        //          'BAEM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE',
+        //          'BALM_INCREMENT_THREADLOCALMETRIC'
         //
         // Concerns:
         //    That the two standard macros
-        //    ('BAEM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //    'BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT') correctly update the
+        //    ('BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
+        //    'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT') correctly update the
         //    appropriate metric, statically cache the identified metrics
         //    identifier, and respect the supplied categories 'enabled'
         //    property.
@@ -2170,8 +2170,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BAEM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //   'BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT' on the identified metric
+        //   then invoke 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
+        //   'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT' on the identified metric
         //   and perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2181,8 +2181,8 @@ int main(int argc, char *argv[])
         //   category on each iteration.
         //
         // Testing:
-        //    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
-        //    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
+        //    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
+        //    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2199,8 +2199,8 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are a no-op without a metrics manager.\n";
         {
             for (int i = 0; i < NUM_IDS; ++i) {
-                BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i], "increment");
-                BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i], "increment");
+                BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                      UPDATES[i]);
             }
         }
@@ -2220,9 +2220,9 @@ int main(int argc, char *argv[])
             balm::IntegerCollector  expIncrement(incrementId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
-                    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
+                    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
                                                            "increment");
-                    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                         UPDATES[i]);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[i]);
@@ -2272,9 +2272,9 @@ int main(int argc, char *argv[])
 
                     bool enabled = 0 == j % 2;
                     registry.setCategoryEnabled(updateId.category(), enabled);
-                    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
+                    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
                                                            "increment");
-                    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                          UPDATES[i]);
                     if (enabled) {
                         expIncrement.update(1);
@@ -2313,11 +2313,11 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING: 'BALM_METRICS_DYNAMIC_INT_UPDATE',
-        //          'BAEM_METRICS_DYNAMIC_INT_INCREMENT'
+        //          'BALM_METRICS_DYNAMIC_INT_INCREMENT'
         //
         // Concerns:
         //    That the two dynamic macros ('BALM_METRICS_DYNAMIC_INT_UPDATE'
-        //    and 'BAEM_METRICS_DYNAMIC_INT_INCREMENT') correctly update the
+        //    and 'BALM_METRICS_DYNAMIC_INT_INCREMENT') correctly update the
         //    appropriate metric and respect the supplied categories 'enabled'
         //    property.
         //
@@ -2328,7 +2328,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
         //   then invoke 'BALM_METRICS_DYNAMIC_INT_UPDATE' and
-        //   'BAEM_METRICS_DYNAMIC_INT_INCREMENT' on the identified metric and
+        //   'BALM_METRICS_DYNAMIC_INT_INCREMENT' on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.
@@ -2428,11 +2428,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_INT_UPDATE', 'BAEM_METRICS_INT_INCREMENT'
-        //          'BAEM_UPDATE_INT_TYPED_METRIC'
+        // TESTING: 'BALM_METRICS_INT_UPDATE', 'BALM_METRICS_INT_INCREMENT'
+        //          'BALM_UPDATE_INT_TYPED_METRIC'
         // Concerns:
         //    That the two standard macros ('BALM_METRICS_INT_UPDATE' and
-        //    'BAEM_METRICS_INT_INCREMENT') correctly update the appropriate
+        //    'BALM_METRICS_INT_INCREMENT') correctly update the appropriate
         //    metric, statically cache the identified metrics identifier, and
         //    respect the supplied categories 'enabled' property.
         //
@@ -2443,7 +2443,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
         //   then invoke 'BALM_METRICS_INT_UPDATE' and
-        //   'BAEM_METRICS_INT_INCREMENT' on the identified metric and perform
+        //   'BALM_METRICS_INT_INCREMENT' on the identified metric and perform
         //   the corresponding operation on the "oracle" collector.  Verify
         //   the collector underlying the metric has the same value as the
         //   "oracle" collector.  Also verify that only the collector for the
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
         // Testing:
         //    BALM_METRICS_INT_UPDATE(CATEGORY, NAME, VALUE
         //    BALM_METRICS_TYPED_INT_UPDATE(CATEGORY, NAME, TYPE, VALUE)
-        //    BAEM_METRICS_INT_INCREMENT(CATEGORY, NAME
+        //    BALM_METRICS_INT_INCREMENT(CATEGORY, NAME
         //    BALM_METRICS_INT_UPDATE2(CATEGORY, METRIC1, VALUE1, ...)
         //    BALM_METRICS_INT_UPDATE3(CATEGORY, METRIC1, VALUE1, ...)
         //    BALM_METRICS_INT_UPDATE4(CATEGORY, METRIC1, VALUE1, ...)
@@ -2798,12 +2798,12 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_METRICS_THREAD_LOCAL_UPDATE',
-        //          'BAEM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: 'BALM_METRICS_THREAD_LOCAL_UPDATE',
+        //          'BALM_INCREMENT_THREADLOCALMETRIC'
         //
         // Concerns:
-        //    That the two standard macros ('BAEM_METRICS_THREAD_LOCAL_UPDATE'
-        //    and 'BAEM_METRICS_THREAD_LOCAL_INCREMENT') correctly update the
+        //    That the two standard macros ('BALM_METRICS_THREAD_LOCAL_UPDATE'
+        //    and 'BALM_METRICS_THREAD_LOCAL_INCREMENT') correctly update the
         //    appropriate metric, statically cache the identified metrics
         //    identifier, and respect the supplied categories 'enabled'
         //    property.
@@ -2814,8 +2814,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BAEM_METRICS_THREAD_LOCAL_UPDATE' and
-        //   'BAEM_METRICS_THREAD_LOCAL_INCREMENT' on the identified metric and
+        //   then invoke 'BALM_METRICS_THREAD_LOCAL_UPDATE' and
+        //   'BALM_METRICS_THREAD_LOCAL_INCREMENT' on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2825,8 +2825,8 @@ int main(int argc, char *argv[])
         //   category on each iteration.
         //
         // Testing:
-        //    BAEM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
-        //    BAEM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
+        //    BALM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
+        //    BALM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2843,8 +2843,8 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are a no-op without a metrics manager.\n";
         {
             for (int i = 0; i < NUM_IDS; ++i) {
-                BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update", UPDATES[i]);
+                BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update", UPDATES[i]);
             }
         }
 
@@ -2863,8 +2863,8 @@ int main(int argc, char *argv[])
             balm::Collector  expIncrement(incId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
-                    BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                    BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                    BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
                                                    UPDATES[i]);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[i]);
@@ -2911,8 +2911,8 @@ int main(int argc, char *argv[])
 
                     bool enabled = 0 == j % 2;
                     registry.setCategoryEnabled(updateId.category(), enabled);
-                    BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                    BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                    BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
                                                    UPDATES[i]);
                     if (enabled) {
                         expIncrement.update(1);
