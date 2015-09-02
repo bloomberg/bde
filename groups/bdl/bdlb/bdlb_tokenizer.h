@@ -482,7 +482,7 @@ class Tokenizer_Data {
         // the union of the two delimiter sequences are unique.
 
     // ACCESSORS
-    int toInputType(char character) const;
+    int inputType(char character) const;
         // Return the input type of the specified 'character': 0 for token,
         // 1 for soft delimiter, 2 for hard delimiter.
 };
@@ -501,15 +501,14 @@ class TokenizerIterator {
     // are invalidated whenever the input string or the delimiters in the
     // parent 'Tokenizer' change.
 
+
     // DATA
-    const char           *d_cursor_p;      // address of tails of parsed input
-    const char           *d_token_p;       // address of current token
-    const char           *d_postDelim_p;   // address of trailing delimiter
-    const char           *d_end_p;         // address of the end of the input
-                                           // 0 when initialized with 'char *'
-    bool                  d_endFlag;       // iterator "end" flag
-    const Tokenizer_Data *d_sharedData_p;  // address of delimiter/token
-                                           // character categories
+    const Tokenizer_Data *d_sharedData_p;  // (address of) character categories
+    const char           *d_cursor_p;      // tail of parsed input
+    const char           *d_token_p;       // current token
+    const char           *d_postDelim_p;   // current (trailing) delimiter
+    const char           *d_end_p;         // one past input; 0 for '(char *)'
+    bool                  d_endFlag;       // set 'true' when at end of input
 
     // FRIENDS
     friend class Tokenizer;
@@ -552,14 +551,14 @@ class Tokenizer {
     // is provided efficiently via 'bslstl::StringRef'.
 
     // DATA
-    const char     *d_input_p;     // address of original input
-    const char     *d_cursor_p;    // address of tail of parsed input
-    const char     *d_prevDelim_p; // address of previous delimiter
-    const char     *d_token_p;     // address of current token
-    const char     *d_postDelim_p; // address of current trailing delimiter
-    const char     *d_end_p;       // one past end of input; 0 for '(char *)'
-    bool            d_endFlag;     // tokenizer "end" flag
     Tokenizer_Data  d_sharedData;  // delimiter/token character categories
+    const char     *d_input_p;     // original input
+    const char     *d_cursor_p;    // tail of parsed input
+    const char     *d_prevDelim_p; // previous delimiter
+    const char     *d_token_p;     // current token
+    const char     *d_postDelim_p; // current (trailing) delimiter
+    const char     *d_end_p;       // one past end of input; 0 for '(char *)'
+    bool            d_endFlag;     // set 'true' when cursor at end of input
 
     // TYPES
     typedef void (Tokenizer::*UnspecifiedBoolType)() const;
@@ -569,9 +568,11 @@ class Tokenizer {
     void resetImplementation(const char *input, const char *endOfInput);
     void internalNotComparable() const;
 
+  private:
     // NOT IMPLEMENTED
     Tokenizer(const Tokenizer&);
     Tokenizer& operator=(const Tokenizer&);
+    Tokenizer& operator++(int);
 
   public:
     // TYPES
@@ -716,8 +717,6 @@ bool  operator==(const Tokenizer& lhs, const T& rhs);
 template <class T>
 bool  operator!=(const Tokenizer& lhs, const T& rhs);
 
-const Tokenizer operator++(Tokenizer& lhs, int);
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -727,7 +726,7 @@ const Tokenizer operator++(Tokenizer& lhs, int);
                         // --------------------------
 // ACCESSORS
 inline
-int Tokenizer_Data::toInputType(char character) const
+int Tokenizer_Data::inputType(char character) const
 {
     return d_charTypes[(unsigned char)character];
 }
@@ -793,11 +792,7 @@ bool bdlb::operator==(const bdlb::TokenizerIterator& lhs,
            return true;                                               // RETURN
     }
 
-    return    lhs.d_cursor_p     == rhs.d_cursor_p
-           && lhs.d_token_p      == rhs.d_token_p
-           && lhs.d_postDelim_p  == rhs.d_postDelim_p
-           && lhs.d_end_p        == rhs.d_end_p
-           && lhs.d_sharedData_p == rhs.d_sharedData_p;
+    return  lhs.d_token_p == rhs.d_token_p;
 }
 
 inline
