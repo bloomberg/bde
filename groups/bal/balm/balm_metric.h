@@ -218,9 +218,6 @@ class Metric {
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
 
-
-            // ARB: Why remove 'volatile'?
-
     const bool *d_isEnabled_p;  // is category enabled (held, not owned)
 
     // NOT IMPLEMENTED

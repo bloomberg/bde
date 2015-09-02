@@ -152,9 +152,6 @@ typedef balm::MetricDescription Desc;
             ++d_numRequests;
             d_totalRequestSize += request.size();
             d_minRequestSize   =  bsl::min(d_minRequestSize,
-
-            // ARB: use static_cast
-
                                            (unsigned int)request.size());
             d_maxRequestSize   =  bsl::max(d_maxRequestSize,
                                            (unsigned int)request.size());
