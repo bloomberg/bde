@@ -21,32 +21,129 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+//..
+//  +--------------------------------------+
+//  |   ,--------------.                   |
+//  |  ( Tokenizer_Data )                  |
+//  |   `--------------'\                  |
+//  |          |         \                 |
+//  |          |     ,----*------------.   |
+//  |          |    ( TokenizerIterator )  |
+//  |          |    /`-----------------'   |
+//  |          |   /                       |
+//  |     ,----*--o-.                      |
+//  |    ( Tokenizer )                     |
+//  |     `---------'                      |
+//  +--------------------------------------+
+//  bdlb_tokenizer
+//..
+// This component consists of a top-level mechanism, 'Tokenizer', that
+// dispenses in-core value-semantic (standard) input iterators, of type
+// 'InputIterator', that can be used to sequence over tokens characterized by
+// delimiter characters maintained in a shared private class, 'Tokenizer_Data'.
+// The 'Tokenizer' mechenism, though not value-semantic, can also be used to
+// sequence of the tokens a given input, supplied at construction, additionally
+// providing access to the previous and current trailing delimiters.
 //
-// Primary Manipulators:
-//: o
-//: o
+// The plan will be to test the (component private) 'Tokenizer_Data' first,
+// followed by the 'Tokenizer' itself, and then finally the 'TokenizerIterator',
+// as these iterators are created (and returned by value) only from a valid
+// 'Tokenizer' object.  Keep in mind that the inertial contract for the
+// 'Tokenizer_Data' states that if the same character is supplied as both a
+// 'soft' and a 'hard' delimiter, it is considered 'hard' by the
+// 'Tokenizer_Data::inputType' method, but supplying that same character to
+// both delimiter inputs of a 'Tokenizer' would be considered library
+// undefined and should be checked (in the appreciate build mode) to ensure
+// that such user are detected.
 //
-/// Basic Accessors:
-//: o
-//: o
-//
+// We will need to make sure that the "unspecified bool" idiom is working
+// -- i.e., attempting to compare two 'Tokenizer' objects fails to compile.
+// The same applies to the use of postfix ++ on a 'Tokenizer'.  We will also
+// want to make sure that 'Tokenizer' is not copy constructable or assignable.
 //-----------------------------------------------------------------------------
+//                      // ----------------------------
+//                      // private class Tokenizer_Data
+//                      // ----------------------------
 // CREATORS
-// [ 2]
-// [ 2] ~Tokenizer();
-//
-// MANIPULATORS
-// [ 2] ;
+//*[ 2] Tokenizer_Data(const StringRef& softDelimiters);
+//*[ 2] Tokenizer_Data(const bslstl::StringRef& sd, const StringRef& hd);
+//*[ 2] ~Tokenizer_Data()
 //
 // ACCESSORS
-// [ 4]
-// [ 4]
-// [ 4]
-// [12]
+//*[ 2] int inputType(char character) const;
+//
+//                        // -----------------------
+//                        // class TokenizerIterator
+//                        // -----------------------
+//
+// CREATORS
+// [  ] TokenizerIterator();
+// [  ] TokenizerIterator(const TokenizerIterator& other);
+// [  ] ~Tokenizer();
+//
+// MANIPULATORS
+// [  ] TokenizerIterator& operator=(const TokenizerIterator& rhs);
+// [  ] TokenizerIterator& operator++();
+//
+// ACCESSORS
+// [  ] StringRef operator*() const;
+//
+// FREE OPERATORS
+// [  ] bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+// [  ] bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+// [  ] const TokenizerIterator operator++(TokenizerIterator& object, int);
+//
+//
+//                             // ===============
+//                             // class Tokenizer
+//                             // ===============
+//
+// TYPES
+//*[ 9] typedef TokenizerIterator iterator;
+//
+// CREATORS
+//*[ 4] Tokenizer(const char *input, const StringRef& soft);
+//*[ 5] Tokenizer(const StringRef& input, const StringRef& soft);
+//*[ 4] Tokenizer(const char *i, const StringRef& s, const StringRef& h);
+//*[ 5] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+//*[ 5] ~Tokenizer();
+
+//
+// MANIPULATORS
+//*[ 5] Tokenizer& operator++();
+//*[ 7] void reset(const char *input);
+//*[ 7] void reset(const bslstl::StringRef& input);
+//
+// ACCESSORS
+//*[ 8] operator UnspecifiedBoolType() const;
+//*[ 6] bool hasPreviousSoft() const;
+//*[ 6] bool hasTrailingSoft() const;
+//*[ 6] bool isPreviousHard() const;
+//*[ 6] bool isTrailingHard() const;
+//*[ 5] StringRef previousDelimiter() const;
+//*[ 5] StringRef token() const;
+//*[ 5] StringRef trailingDelimiter() const;
+//
+//                        // iterators
+//*[ 9] iterator begin() const;
+//*[ 9] iterator end() const;
+//
+// FREE OPERATORS
+// [  ] bool operator==(const Tokenizer& lhs, const TYPE& rhs);
+// [  ] bool operator!=(const Tokenizer& lhs, const TYPE& rhs);
+// [  ] const Tokenizer operator++(Tokenizer& object, int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3]
-// [13] USAGE EXAMPLE
+// [  ] UNSPECIFIED BOOL IDIOM FOR TOKENIZER DOES NOT COMPILE
+// [  ] OPERATOR POSTFIX ++ FOR TOKENIZER DOES NOT COMPILE
+// [  ] TOKENIZER IS NOT COPIABLE OR ASSIGNABLE
+// [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
+// [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
+// [  ] USAGE EXAMPLE #1
+// [  ] USAGE EXAMPLE #2
+// [  ] USAGE EXAMPLE #3
+// [  ] USAGE EXAMPLE #4
+// [  ] USAGE EXAMPLE #5
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

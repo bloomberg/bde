@@ -717,6 +717,8 @@ bool  operator==(const Tokenizer& lhs, const T& rhs);
 template <class T>
 bool  operator!=(const Tokenizer& lhs, const T& rhs);
 
+const Tokenizer operator++(Tokenizer& object, int);
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
