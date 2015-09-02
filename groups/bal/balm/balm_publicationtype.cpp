@@ -183,9 +183,6 @@ int PublicationType::fromString(PublicationType::Value *result,
     return -1;
 }
 
-
-            // ARB: Check standards for enum: always e_ABC -> "ABC", right?
-
 const char *PublicationType::toString(PublicationType::Value value)
 {
     switch (value) {
