@@ -508,7 +508,7 @@ BSLS_IDENT("$Id: $")
 //  // The 'functor' goes out of scope, but the implementation of
 //  // 'timedBufferedRead' retains a shared "copy" of the functor to ensure
 //  // that any user data associated with the functor is preserved until the
-//  // 'ReadCallback' is executed.
+//  // 'BufferedReadCallback' is executed.
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

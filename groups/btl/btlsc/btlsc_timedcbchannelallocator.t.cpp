@@ -607,7 +607,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
 //
 //      if (acceptor.isInvalid()) {
 //          bsl::cout << "Error: Unable to create acceptor" << bsl::endl;
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //
 //      my_TickReporter reporter(bsl::cout, &acceptor, &manager);

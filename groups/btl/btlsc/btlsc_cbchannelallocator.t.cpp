@@ -505,7 +505,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
 //
 //      if (acceptor.isInvalid()) {
 //           bsl::cout << "Error: Unable to create acceptor" << bsl::endl;
-//           return -1;
+//           return -1;                                               // RETURN
 //      }
 //
 //      my_TickReporter reporter(bsl::cout, &acceptor);
@@ -571,7 +571,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
         void writeCb(int                    status,
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *serverChannel,
-                     int                    messageSize);
+                     int                    msgSize);
             // Called when a write operation to the server channel ends.
             // ...
 

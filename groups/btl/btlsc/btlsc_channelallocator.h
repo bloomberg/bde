@@ -363,7 +363,7 @@ BSLS_IDENT("$Id: $")
 //
 //      if (acceptor.isInvalid()) {
 //           bsl::cout << "Error: Unable to create acceptor." << bsl::endl;
-//           return -1;
+//           return -1;                                               // RETURN
 //      }
 //
 //      my_TickReporter reporter(bsl::cout, &acceptor);
@@ -508,10 +508,10 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      if (-1 == augStatus) {  // EOF
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      else {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //  }
 //

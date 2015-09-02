@@ -399,7 +399,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //
 //      if (acceptor.isInvalid()) {
 //           bsl::cout << "Error: Unable to create acceptor." << bsl::endl;
-//           return -1;
+//           return -1;                                               // RETURN
 //      }
 //
 //      my_TickReporter reporter(bsl::cout, &acceptor);
@@ -544,10 +544,10 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         }
 
         if (-1 == augStatus) {  // EOF
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
