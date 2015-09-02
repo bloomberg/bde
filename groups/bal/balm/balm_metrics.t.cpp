@@ -98,11 +98,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -143,8 +144,8 @@ typedef balm::StopwatchScopedGuard  SWGuard;
 
 typedef bsl::shared_ptr<balm::Collector>         ColSPtr;
 typedef bsl::shared_ptr<balm::IntegerCollector>  IColSPtr;
-typedef bsl::vector<ColSPtr>                    ColSPtrVector;
-typedef bsl::vector<IColSPtr>                   IColSPtrVector;
+typedef bsl::vector<ColSPtr>                     ColSPtrVector;
+typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 
 // ============================================================================
 //                     CLASSES FOR AND FUNCTIONS TESTING
@@ -259,7 +260,8 @@ private:
     bsl::string d_message;
 };
 
-void MessageObserver::publish(const ball::Record& record, const ball::Context&) {
+void MessageObserver::publish(const ball::Record& record, const ball::Context&)
+{
     const ball::RecordAttributes& fixedFields = record.fixedFields();
     d_message += fixedFields.message();
 }
@@ -270,9 +272,9 @@ class StandardMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -418,9 +420,9 @@ class DynamicMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -526,9 +528,9 @@ class TlsMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
     bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
@@ -875,9 +877,9 @@ class DynamicIntMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -1004,9 +1006,9 @@ class TlsIntMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
     bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
@@ -1800,7 +1802,7 @@ int main(int argc, char *argv[])
 
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
@@ -1819,7 +1821,7 @@ int main(int argc, char *argv[])
 
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
@@ -1914,7 +1916,7 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK_MICROSECONDS("B", "Us");
                 BALM_METRICS_TIME_BLOCK_NANOSECONDS("B", "Ns");
 
-                BALM_METRICS_TIME_BLOCK("C", "S", TU::k_SECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "S",  TU::k_SECONDS);
                 BALM_METRICS_TIME_BLOCK("C", "Ms", TU::k_MILLISECONDS);
                 BALM_METRICS_TIME_BLOCK("C", "Us", TU::k_MICROSECONDS);
                 BALM_METRICS_TIME_BLOCK("C", "Ns", TU::k_NANOSECONDS);
@@ -1939,26 +1941,20 @@ int main(int argc, char *argv[])
             balm::MetricRecord rC_Us = recordVal(c_Us);
             balm::MetricRecord rC_Ns = recordVal(c_Ns);
 
-            ASSERT(within(rA_S.total(),  TU::k_SECONDS,     expected, 1.0));
-            ASSERT(within(rA_Ms.total(), TU::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Us.total(), TU::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Ns.total(), TU::k_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rA_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rA_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rA_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rB_S.total(),  TU::k_SECONDS,     expected, 1.0));
-            ASSERT(within(rB_Ms.total(), TU::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Us.total(), TU::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Ns.total(), TU::k_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rB_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rB_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rB_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rC_S.total(),  TU::k_SECONDS,     expected, 1.0));
-            ASSERT(within(rC_Ms.total(), TU::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Us.total(), TU::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Ns.total(), TU::k_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rC_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rC_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rC_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
         }
       };
       case 8: {
@@ -2247,7 +2243,8 @@ int main(int argc, char *argv[])
             bsl::vector<balm::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
                 balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incrementId(registry.getId(IDS[i], "increment"));
+                balm::MetricId incrementId(registry.getId(IDS[i],
+                                           "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2300,7 +2297,8 @@ int main(int argc, char *argv[])
             bsl::vector<balm::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
                 balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incrementId(registry.getId(IDS[i], "increment"));
+                balm::MetricId incrementId(registry.getId(IDS[i],
+                                           "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2716,7 +2714,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
@@ -2767,13 +2765,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  balm::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -3121,7 +3126,8 @@ int main(int argc, char *argv[])
                    tupdateId.description()->preferredPublicationType());
 
             balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *tupCol = repository.getDefaultCollector(tupdateId);
+            balm::Collector *tupCol =
+                                     repository.getDefaultCollector(tupdateId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
@@ -3174,7 +3180,8 @@ int main(int argc, char *argv[])
                    tupdateId.description()->preferredPublicationType());
 
             balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *tupCol = repository.getDefaultCollector(tupdateId);
+            balm::Collector *tupCol =
+                                     repository.getDefaultCollector(tupdateId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
@@ -3252,7 +3259,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
@@ -3296,13 +3303,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  balm::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -3341,7 +3355,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
@@ -3431,7 +3445,7 @@ int main(int argc, char *argv[])
 
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(breathingTestIfEnabledA());
@@ -3449,7 +3463,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
@@ -3493,13 +3507,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  balm::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -3518,7 +3539,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
+                                       balm::DefaultMetricsManager::instance();
             balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
@@ -3569,13 +3590,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  balm::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);

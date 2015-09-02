@@ -108,7 +108,9 @@ BSLS_IDENT("$Id: $")
 //
 //      // PRIVATE DATA
 //      balm::Collector *d_eventMessageSizes_p;  // collect the message sizes
-//      balm::Collector *d_eventFailures_p;   // collect the number of failures
+//
+//      balm::Collector *d_eventFailures_p;      // collect the number of
+//                                               // failures
 //
 //  // ...
 //
@@ -431,8 +433,8 @@ class Publisher;
 class MetricRecord;
 class MetricSample;
 
-class MetricsManager_PublisherRegistry;  // defined in implementation
-class MetricsManager_CallbackRegistry;   // defined in implementation
+class MetricsManager_PublisherRegistry;   // defined in implementation
+class MetricsManager_CallbackRegistry;    // defined in implementation
 struct MetricsManager_PublicationHelper;  // defined in implementation
 
                             // ====================
@@ -476,31 +478,31 @@ class MetricsManager {
         // compute the time interval over which a metric was collected.
 
     // DATA
-    MetricRegistry       d_metricRegistry;  // registry of metrics
+    MetricRegistry           d_metricRegistry;  // registry of metrics
 
-    CollectorRepository  d_collectors;      // repository of metric
-                                                 // collectors
+    CollectorRepository      d_collectors;      // repository of metric
+                                                // collectors
 
     bslma::ManagedPtr<MetricsManager_CallbackRegistry>
-                              d_callbacks;       // registry of callbacks
-                                                 // (owned)
+                             d_callbacks;       // registry of callbacks
+                                                // (owned)
 
     bslma::ManagedPtr<MetricsManager_PublisherRegistry>
-                              d_publishers;      // registry of publishers
-                                                 // (owned)
+                             d_publishers;      // registry of publishers
+                                                // (owned)
 
-    bsls::TimeInterval         d_creationTime;    // time this object was
-                                                 // created
+    bsls::TimeInterval       d_creationTime;    // time this object was
+                                                // created
 
-    LastResetTimes            d_prevResetTimes;  // time of a category's
-                                                 // previous reset
+    LastResetTimes           d_prevResetTimes;  // time of a category's
+                                                // previous reset
 
-    bdlqq::Mutex               d_publishLock;     // lock for 'publish',
-                                                 // acquired before 'd_rwLock'
+    bdlqq::Mutex             d_publishLock;     // lock for 'publish',
+                                                // acquired before 'd_rwLock'
 
-    mutable bdlqq::RWMutex     d_rwLock;          // lock for the data maps
+    mutable bdlqq::RWMutex   d_rwLock;          // lock for the data maps
 
-    bslma::Allocator         *d_allocator_p;     // allocator (held not owned)
+    bslma::Allocator        *d_allocator_p;     // allocator (held not owned)
 
     // FRIENDS
     friend struct MetricsManager_PublicationHelper;

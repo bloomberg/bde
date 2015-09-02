@@ -101,7 +101,7 @@ using bsl::flush;
 //                          int                             ,
 //                          bool                            );
 // [10]  void publish(const balm::Category  *, const bsls::TimeInterval& );
-// [ 8]  void publish(const balm::Category *[], int, const bsls::TimeInterval& );
+// [ 8]  void publish(const balm::Category *[], int, const TimeInterval& );
 // [ 9]  void publish(const bsl::set<const balm::Category *>& ,
 //                    const bsls::TimeInterval&               );
 // [11]  void publishAll(const bsls::TimeInterval& );
@@ -114,8 +114,8 @@ using bsl::flush;
 // [ 7]  int findGeneralPublishers(bsl::vector<balm::Publisher *> *) const;
 // [17]  int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
 //                                  const char *        ) const;
-// [ 7]  int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
-//                                  const balm::Category           *) const;
+// [ 7] int findSpecificPublishers(bsl::vector<Publisher *> *,
+//                                 const Category           *) const;
 // [ 5]  const balm::CollectorRepository& collectorRepository() const;
 // [ 5]  const balm::MetricRegistry& metricRegistry() const;
 //-----------------------------------------------------------------------------
@@ -137,11 +137,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -176,7 +177,7 @@ typedef balm::MetricId                 Id;
 typedef balm::Publisher                Pub;
 typedef bsl::shared_ptr<Pub>           PubPtr;
 typedef balm::MetricsManager           Obj;
-typedef balm::MetricRegistry            Registry;
+typedef balm::MetricRegistry           Registry;
 typedef balm::CollectorRepository      Repository;
 typedef Obj::CallbackHandle            CbHandle;
 
@@ -259,19 +260,23 @@ bool withinWindow(const bsls::TimeInterval& value,
 class TestCallback {
     // This class is used to provide a callback matching
     // 'balm::MetricsManager::MetricsCollectionCallback'.  A 'TestCallback' is
-    // supplied a 'balm::MetricId' at construction that determines the id of the
-    // metric returned by the 'recordMetrics' operation.  A 'TestCallback'
-    // object keeps track of the number of times 'recordMetrics' is invoked.
-    // A callback object also provides a 'function' method that returns
-    // a 'bdlf::Function' object matching the
+    // supplied a 'balm::MetricId' at construction that determines the id of
+    // the metric returned by the 'recordMetrics' operation.  A 'TestCallback'
+    // object keeps track of the number of times 'recordMetrics' is invoked.  A
+    // callback object also provides a 'function' method that returns a
+    // 'bdlf::Function' object matching the
     // 'balm::MetricsManager::MetricsCollectionCallback' signature that, on
     // invocation, calls 'recordMetrics' on the object.
 
     // DATA
     bsls::AtomicInt     d_numInvocations; // number of invocations
-    balm::MetricRecord  d_record;         // record to append on 'recordMetrics'
-    bool               d_reset;          // last invocation's resetFlag
-    bslma::Allocator  *d_allocator_p;    // allocator (held, not owned)
+
+    balm::MetricRecord  d_record;         // record to append on
+                                          // 'recordMetrics'
+
+    bool                d_reset;          // last invocation's resetFlag
+
+    bslma::Allocator   *d_allocator_p;    // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     TestCallback(const TestCallback& );
@@ -284,7 +289,8 @@ class TestCallback {
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    TestCallback(const balm::MetricRecord& record, bslma::Allocator *allocator);
+    TestCallback(const balm::MetricRecord& record,
+                 bslma::Allocator *allocator);
         // Create a 'TestCallback' that will populate a metric with the
         // specified 'record'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
@@ -292,7 +298,7 @@ class TestCallback {
 
     // MANIPULATORS
     void recordMetrics(bsl::vector<balm::MetricRecord> *records,
-                       bool                            resetFlag);
+                       bool                             resetFlag);
         // Increment 'invocations()' and append to the specified 'records' a
         // 'balm::MetricRecord' containing the 'balm::MetricId' or matching the
         // 'balm::MetricRecord' supplied at construction.
@@ -315,8 +321,9 @@ class TestCallback {
         // that will be appended on a call to 'recordMetrics'.
 
     balm::MetricId metricId() const;
-        // Return a 'balm::MetricId' object identifying the 'balm::MetricRecord'
-        // that will be appended on a call to 'recordMetrics'.
+        // Return a 'balm::MetricId' object identifying the
+        // 'balm::MetricRecord' that will be appended on a call to
+        // 'recordMetrics'.
 
     int invocations() const;
         // Return the number of invocations of 'recordMetrics' since this
@@ -343,7 +350,7 @@ TestCallback::TestCallback(Id metricId, bslma::Allocator *allocator)
 
 inline
 TestCallback::TestCallback(const balm::MetricRecord&  record,
-                           bslma::Allocator         *allocator)
+                           bslma::Allocator          *allocator)
 : d_numInvocations(0)
 , d_record(record)
 , d_reset(false)
@@ -353,7 +360,7 @@ TestCallback::TestCallback(const balm::MetricRecord&  record,
 
 // MANIPULATORS
 void TestCallback::recordMetrics(bsl::vector<balm::MetricRecord> *records,
-                                 bool                            resetFlag)
+                                 bool                             resetFlag)
 {
     d_reset = resetFlag;
     ++d_numInvocations;
@@ -1224,8 +1231,10 @@ void ConcurrencyTest::runTest()
         // 'balm::MetricsManager'.
 
         // PRIVATE DATA
-        balm::Collector *d_eventMessageSizes_p; // collect the message sizes
-        balm::Collector *d_eventFailures_p;   // collect the number of failures
+        balm::Collector *d_eventMessageSizes_p;  // collect the message sizes
+
+        balm::Collector *d_eventFailures_p;      // collect the number of
+                                                 // failures
 
     // ...
 
@@ -1949,7 +1958,8 @@ int main(int argc, char *argv[])
                                                              METRICS[j]);
                     col->load(&record);
                     if (combIt.includesElement(i)) {
-                        ASSERT(balm::MetricRecord(record.metricId()) == record);
+                        ASSERT(
+                              balm::MetricRecord(record.metricId()) == record);
                     }
                     else {
                         ASSERT(1 == record.count());
@@ -2223,7 +2233,7 @@ int main(int argc, char *argv[])
         if (verbose) cout
             << endl
             << "TEST: findSpecificPublishers(...,const bslstl::StringRef&)\n"
-            << "========================================================\n";
+            << "==========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -2611,7 +2621,8 @@ int main(int argc, char *argv[])
 
                 int  groupIndex = -1;
                 for (int j = 0; j < sample.numGroups(); ++j) {
-                    const balm::MetricSampleGroup& group =sample.sampleGroup(j);
+                    const balm::MetricSampleGroup& group =
+                                                         sample.sampleGroup(j);
 
                     // If 'j' is the sample group for 'CATEGORY' test the
                     // elapsed time.
@@ -2668,8 +2679,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "TEST: void publishAll(bsl::set<const balm::Category *>&,...);\n"
-            << "===========================================================\n";
+            << "TEST: void publishAll(set<const balm::Category *>&,...);\n"
+            << "========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -2922,7 +2933,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == gPub.invocations());
             ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
             ASSERT(gPub.lastElapsedTimes().size() == 1);
-            ASSERT(bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
+            ASSERT(
+                  bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
 
             // Verify the correct "specific" publishers have been invoked.
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -3014,8 +3026,8 @@ int main(int argc, char *argv[])
             }
             const bsl::vector<const Category *>& categories = combIt.current();
             bsl::set<const balm::Category *> categorySet(
-                                        categories.begin(), categories.end(),
-                                        bsl::less<const balm::Category *>(), Z);
+                                       categories.begin(), categories.end(),
+                                       bsl::less<const balm::Category *>(), Z);
 
             // Publish the records.
             bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
@@ -3096,7 +3108,7 @@ int main(int argc, char *argv[])
         //        time stamp, and records published were correct.
         //
         // Testing:
-        //   void publish(const balm::Category **,int,const bsls::TimeInterval&);
+        //   void publish(const balm::Category *[], int, const TimeInterval& );
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -3307,8 +3319,8 @@ int main(int argc, char *argv[])
         //   void publish(const balm::Category *, const bsls::TimeInterval&  );
         //   void publishAll(const bsls::TimeInterval&  );
         //   int findGeneralPublishers(bsl::vector<balm::Publisher *> *) const;
-        //   int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
-        //                              const balm::Category           *) const;
+        //   int findSpecificPublishers(bsl::vector<Publisher *> *,
+        //                              const Category           *) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3763,7 +3775,8 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::TimeInterval ELAPSED_TIME(VALUES[i].d_elapsedTime, 0);
-                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_timeStamp);
+                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                        VALUES[i].d_timeStamp);
                 bdlt::DatetimeTz TIME_STAMP(bdlt::Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);
@@ -4309,7 +4322,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == tpc_2.invocations());
 
         if (verbose) {
-            cout << "\tVerify publish(const balm::Category **categories,...)\n";
+            cout << "\tVerify publish(const Category **categories,...)\n";
         }
 
         // Reset dummy callbacks and dummy publishers
@@ -4390,7 +4403,7 @@ int main(int argc, char *argv[])
                *tpc_2.lastElapsedTimes().begin());
 
         if (verbose) {
-            cout << "\tVerify publishAll(bsl::set<const balm::Category *>&,)\n";
+            cout << "\tVerify publishAll(set<const balm::Category *>&,)\n";
         }
 
         // Reset dummy callbacks and dummy publishers

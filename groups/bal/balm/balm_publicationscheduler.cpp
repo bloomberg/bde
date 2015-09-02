@@ -35,7 +35,7 @@ namespace {
 // ============================================================================
 
 inline
-bsls::TimeInterval f_INVALID_INTERVAL()
+bsls::TimeInterval makeInvalidInterval()
     // Return the invalid scheduling interval value.  Note that this function
     // is provided to avoid creating a statically initialized constant.
 {
@@ -141,7 +141,7 @@ class PublicationScheduler_ClockData {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler_ClockData,
-                                 bslma::UsesBslmaAllocator);
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit PublicationScheduler_ClockData(
@@ -310,7 +310,7 @@ PublicationScheduler_Proctor::~PublicationScheduler_Proctor()
                                                   it->second->handle(), true);
             }
         }
-        d_scheduler_p->d_defaultInterval = f_INVALID_INTERVAL();
+        d_scheduler_p->d_defaultInterval = makeInvalidInterval();
         d_scheduler_p->d_clocks.clear();
         d_scheduler_p->d_categories.clear();
     }
@@ -382,7 +382,7 @@ void PublicationScheduler::cancelCategory(
         // default schedule clock's list of non-default categories (indicating
         // the category should now be published as part of the default
         // publication).
-        if (d_defaultInterval != f_INVALID_INTERVAL()) {
+        if (d_defaultInterval != makeInvalidInterval()) {
             Clocks::iterator dfltIt = d_clocks.find(d_defaultInterval);
             BSLS_ASSERT(d_clocks.end() != dfltIt);
 
@@ -399,12 +399,12 @@ int PublicationScheduler::cancelDefaultSchedule()
     // interval value, and update the associated
     // 'PublicationScheduler_ClockData' object to reflect that change.
 
-    if (d_defaultInterval == f_INVALID_INTERVAL()) {
+    if (d_defaultInterval == makeInvalidInterval()) {
         return -1;                                                    // RETURN
     }
 
     bsls::TimeInterval interval = d_defaultInterval;
-    d_defaultInterval = f_INVALID_INTERVAL();
+    d_defaultInterval = makeInvalidInterval();
 
     Clocks::iterator clockIt = d_clocks.find(interval);
     BSLS_ASSERT(clockIt != d_clocks.end());
@@ -437,7 +437,7 @@ PublicationScheduler::PublicationScheduler(
 , d_manager_p(metricsManager)
 , d_categories(basicAllocator)
 , d_clocks(basicAllocator)
-, d_defaultInterval(f_INVALID_INTERVAL())
+, d_defaultInterval(makeInvalidInterval())
 , d_mutex()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -507,7 +507,7 @@ void PublicationScheduler::scheduleCategory(
     // 'category' to the set of non-default categories maintained by the
     // default schedule's clock (indicating that 'category' should no longer be
     // published as part of the default publication).
-    if (!clock->defaultClock() && d_defaultInterval != f_INVALID_INTERVAL()) {
+    if (!clock->defaultClock() && d_defaultInterval != makeInvalidInterval()) {
         Clocks::iterator dfltIt = d_clocks.find(d_defaultInterval);
         BSLS_ASSERT(d_clocks.end() != dfltIt);
 
@@ -607,7 +607,7 @@ void PublicationScheduler::cancelAll()
     for (; it != d_clocks.end(); ++it) {
         d_scheduler_p->cancelClock(it->second->handle(), true);
     }
-    d_defaultInterval = f_INVALID_INTERVAL();
+    d_defaultInterval = makeInvalidInterval();
     d_clocks.clear();
     d_categories.clear();
 }
@@ -636,7 +636,7 @@ bool
 PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
-    if (d_defaultInterval == f_INVALID_INTERVAL()) {
+    if (d_defaultInterval == makeInvalidInterval()) {
         return false;                                                 // RETURN
     }
     *result = d_defaultInterval;
@@ -683,7 +683,7 @@ PublicationScheduler::print(bsl::ostream&   stream,
     stream << "[" << SEP;
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
     stream << "default interval: ";
-    if (d_defaultInterval != f_INVALID_INTERVAL()) {
+    if (d_defaultInterval != makeInvalidInterval()) {
         stream << d_defaultInterval << SEP;
     }
     else {

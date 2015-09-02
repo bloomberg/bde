@@ -50,10 +50,10 @@ using bsl::flush;
 // [ 2]  balm::MetricRegistry(bslma::Allocator *);
 // [ 2]  ~balm::MetricRegistry();
 // MANIPULATORS
-// [ 2]  balm::MetricId addId(const bslstl::StringRef& , const bslstl::StringRef& );
-// [ 3]  balm::MetricId getId(const bslstl::StringRef& , const bslstl::StringRef& );
-// [ 2]  const balm::Category *addCategory(const bslstl::StringRef& category);
-// [ 4]  const balm::Category *getCategory(const bslstl::StringRef& category);
+// [ 2]  balm::MetricId addId(const StringRef& , const StringRef& );
+// [ 3]  balm::MetricId getId(const StringRef& , const StringRef& );
+// [ 2]  const balm::Category *addCategory(const StringRef& category);
+// [ 4]  const balm::Category *getCategory(const StringRef& category);
 // [ 6]  void setCategoryEnabled(const balm::Category* , isEnabled);
 // [ 6]  void setAllCategoriesEnabled(bool );
 // [10]  void setPreferredPublicationType(const balm::MetricId& ,
@@ -65,9 +65,8 @@ using bsl::flush;
 // ACCESSORS
 // [ 2]  bsl::size_t numMetrics() const;
 // [ 2]  bsl::size_t numCategories() const;
-// [ 2]  balm::MetricId findId(const bslstl::StringRef& ,
-//                           const bslstl::StringRef& ) const;
-// [ 2]  const balm::Category *findCategory(const bslstl::StringRef& ) const;
+// [ 2]  balm::MetricId findId(const StringRef&, const StringRef& ) const;
+// [ 2]  const balm::Category *findCategory(const StringRef& ) const;
 // [ 5]  void getAllCategories(bsl::vector<const balm::Category *> *) const;
 // [ 7]  bsl::ostream& print(bsl::ostream& , int, int) const;
 //-----------------------------------------------------------------------------
@@ -82,11 +81,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -161,10 +161,10 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool      d_pool;
-    bdlqq::Barrier             d_barrier;
-    balm::MetricRegistry      *d_registry_p;
-    bslma::Allocator         *d_allocator_p;
+    bdlmt::FixedThreadPool  d_pool;
+    bdlqq::Barrier          d_barrier;
+    balm::MetricRegistry   *d_registry_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -175,7 +175,7 @@ class ConcurrencyTest {
     // CREATORS
     ConcurrencyTest(int                  numThreads,
                     balm::MetricRegistry *registry,
-                    bslma::Allocator    *basicAllocator)
+                    bslma::Allocator     *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_registry_p(registry)
@@ -1500,7 +1500,7 @@ int main(int argc, char *argv[])
         //   to add a category.
         //
         // Testing:
-        //   const balm::Category *getCategory(const bslstl::StringRef& );
+        //   const balm::Category *getCategory(const StringRef& category);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getCategory'."
@@ -1579,8 +1579,7 @@ int main(int argc, char *argv[])
         //   'addCategory'.
         //
         // Testing:
-        //   balm::MetricId getId(const bslstl::StringRef& ,
-        //                       const bslstl::StringRef& );
+        //   balm::MetricId getId(const StringRef& , const StringRef& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getId'."
@@ -1715,16 +1714,14 @@ int main(int argc, char *argv[])
         //   the modification.
         //
         // Testing:
-        //   MetricRegistry(bslma::Allocator *);
-        //   ~MetricRegistry();
-        //   MetricId addId(const bslstl::StringRef& ,
-        //                       const bslstl::StringRef& );
-        //   const Category *addCategory(const bslstl::StringRef& );
+        //  balm::MetricRegistry(bslma::Allocator *);
+        //   ~balm::MetricRegistry();
+        //   balm::MetricId addId(const StringRef& , const StringRef& );
+        //   const balm::Category *addCategory(const StringRef& category);
         //   bsl::size_t numMetrics() const;
         //   bsl::size_t numCategories() const;
-        //   MetricId findId(const bslstl::StringRef& ,
-        //                        const bslstl::StringRef& ) const;
-        //   const balm::Category *findCategory(const bslstl::StringRef& ) const;
+        //   balm::MetricId findId(const StringRef&, const StringRef& ) const;
+        //   const balm::Category *findCategory(const StringRef& ) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting basic mainpulator and accessors."

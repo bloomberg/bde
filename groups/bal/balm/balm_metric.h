@@ -56,47 +56,12 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricsManager'
-// instance and perform a trivial configuration.
-//
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
-// the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which the default
-// metrics manager will publish metrics.  Note that the default metrics manager
-// is intended to be created and destroyed by the *owner* of 'main'. An
-// instance of the manager should be created during the initialization of an
-// application (while the task has a single thread) and destroyed just prior to
-// termination (when there is similarly a single thread).
-//..
-//  int main(int argc, char *argv[])
-//  {
-//      // ...
-//
-//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
-// The default manager object can be accessed using the 'instance' operation.
-//..
-//      balm::MetricsManager *manager =
-//                                     balm::DefaultMetricsManager::instance();
-//      assert(0 != manager);
-//..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope.  Clients that choose to call
-// 'balm::DefaultMetricsManager::create()' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
-//
-//  }
-//..
-//
-///Example 2 - Metric Collection with 'balm::Metric'
+///Example 1 - Metric collection with 'balm::Metric'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Alternatively we can use a 'balm::Metric' to record metric values.  In this
-// third example we implement a hypothetical event manager object, similar in
-// purpose to the 'processEvent' function of example 2.  We use 'balm::Metric'
-// objects to record metrics for the size of the event data, the elapsed
-// processing time, and the number of failures.
+// We can use 'balm::Metric' objects to record metric values.  In this
+// example we implement a hypothetical event manager object.  We use
+// 'balm::Metric' objects to record metrics for the size of the request, the
+// elapsed processing time, and the number of failures.
 //..
 //  class EventManager {
 //
@@ -106,6 +71,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //      balm::Metric d_failedRequests;
 //
 //    public:
+//
 //      // CREATORS
 //      EventManager()
 //      : d_messageSize("MyCategory", "EventManager/size")
@@ -121,9 +87,9 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //      {
 //         int returnCode = 0;
 //
-//         d_messageSize.update(messageSize.size());
-//         bsls::Stopwatch stopwatch;
-//         stopwatch.start();
+//         d_messageSize.update(eventMessage.size());
+//
+//         bsls::TimeInterval start = bdlt::CurrentTime::now();
 //
 //         // Process 'data' ('returnCode' may change).
 //
@@ -131,14 +97,52 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //             d_failedRequests.increment();
 //         }
 //
-//         d_elapsedTime.update(stopwatch.elapsedTime());
+//         bsls::TimeInterval end = bdlt::CurrentTime::now();
+//         d_elapsedTime.update((end - start).totalMicroseconds());
 //         return returnCode;
 //      }
+//
 //  // ...
 //  };
-//  // ...
+//..
+///Example 2 - Create and access the default 'balm::MetricsManager' instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create the default 'baem::MetricManager'
+// instance and perform a trivial configuration.
 //
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the scoped guard an output stream ('stdout') that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//
+//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
+//..
+// Once the default instance has been created, it can be accessed using the
+// 'instance' operation.
+//..
+//      balm::MetricsManager *manager =
+//                                     balm::DefaultMetricsManager::instance();
+//      assert(0 != manager);
+//..
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// 'balm::DefaultMetricsManager::create' must also explicitly call
+// 'balm::DefaultMetricsManager::release()'.
+//
+// Now that we have created a 'balm::MetricsManager' instance, we can use the
+// instance to publish metrics collected using the event manager described in
+// Example 1:
+//..
 //      EventManager eventManager;
+//
 //      eventManager.handleEvent(0, "ab");
 //      eventManager.handleEvent(0, "abc");
 //      eventManager.handleEvent(0, "abc");
@@ -157,6 +161,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //      eventManager.handleEvent(0, "abdefg");
 //
 //      manager->publishAll();
+//  }
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -212,6 +217,9 @@ class Metric {
     // DATA
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
+
+
+            // ARB: Why remove 'volatile'?
 
     const bool *d_isEnabled_p;  // is category enabled (held, not owned)
 

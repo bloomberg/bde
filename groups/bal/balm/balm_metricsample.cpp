@@ -47,8 +47,8 @@ MetricSampleGroup::print(bsl::ostream& stream,
                              // ------------------
 
 // CREATORS
-MetricSample::MetricSample(const MetricSample& original,
-                           bslma::Allocator   *basicAllocator)
+MetricSample::MetricSample(const MetricSample&  original,
+                           bslma::Allocator    *basicAllocator)
 : d_timeStamp(original.d_timeStamp)
 , d_records(original.d_records, basicAllocator)
 , d_numRecords(original.d_numRecords)

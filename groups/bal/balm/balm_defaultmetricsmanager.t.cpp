@@ -41,15 +41,14 @@ using bsl::flush;
 // CLASS METHODS
 // [ 3] static balm::MetricsManager *manager(balm::MetricsManager *manager);
 // [ 1] static balm::MetricsManager *create(bslma::Allocator *);
-// [ 2] static balm::MetricsManager *create(bsl::ostream& , bslma::Allocator *);
+// [ 2] static balm::MetricsManager *create(ostream& , Allocator *);
 // [ 1] static balm::MetricsManager *instance();
 // [ 1] static void destroy();
 //-----------------------------------------------------------------------------
 // balm::DefaultMetricsManagerScopedGuard
 // CREATORS
 // [ 4] balm::DefaultMetricsManagerScopedGuard(bslma::Allocator *);
-// [ 5] balm::DefaultMetricsManagerScopedGuard(bsl::ostream&,
-//                                            bslma::Allocator *);
+// [ 5] balm::DefaultMetricsManagerScopedGuard(bsl::cout, Allocator)
 // [ 3] ~balm::DefaultMetricsManagerScopedGuard();
 //-----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
@@ -59,11 +58,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -144,34 +144,33 @@ int main(int argc, char *argv[])
 // The following examples demonstrate how to create, configure, and destroy
 // the default 'balm::MetricsManager' instance.
 //
-///Example 1 - Create and access the default 'balm::MetricsManager' instance
+///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'baem::MetricManager'
-// instance and publishes a single metric to the console.  See the
-// documentation of 'balm::Metric' and 'balm::MetricsManager' for information on
-// how to record metrics.
+// instance and publish a single metric to the console.  See the documentation
+// of 'balm_metric' and 'balm_metricsmanager' for information on how to record
+// metrics.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
 // provide the 'balm::DefaultMetricsManagerScopedGuard' an output stream
-// ('stdout') to which it will publish metrics.  Note that the default
-// metrics manager is intended to be created and destroyed by the *owner* of
-// 'main'.  The instance should be created during the initialization of an
-// application (while the task has a single thread) and destroyed just prior to
-// termination (when there is similarly a single thread).
+// ('stdout') to which it will publish metrics.  Note that the default metrics
+// manager is intended to be created and destroyed by the *owner* of 'main'.
+// The instance should be created during the initialization of an application
+// (while the task has a single thread) and destroyed just prior to termination
+// (when there is similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
     {
-
+//
         // ...
-
+//
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
 //..
 // Once the default instance has been created, it can be accessed using the
 // static 'instance' method.
 //..
-       balm::MetricsManager *manager =
-                                       balm::DefaultMetricsManager::instance();
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
        ASSERT(0 != manager);
 //..
 // The default metrics manager, by default, is configured with a
@@ -180,10 +179,13 @@ int main(int argc, char *argv[])
 // for a single metric, and then publish all metrics.
 //..
         balm::Collector *myMetric =
-              manager->collectorRepository().getDefaultCollector(
+                        manager->collectorRepository().getDefaultCollector(
                                                      "MyCategory", "MyMetric");
         myMetric->update(10);
         manager->publishAll();
+//
+        // ... rest of program elided ...
+    }
 //..
 // The output of this example would look similar to:
 //..
@@ -195,7 +197,7 @@ int main(int argc, char *argv[])
 // exits this scope and is destroyed.  Clients that choose to explicitly call
 // 'balm::DefaultMetricsManager::create()' must also explicitly call
 // 'balm::DefaultMetricsManager::destroy()'.
-    }
+
         ASSERT(0 == balm::DefaultMetricsManager::instance());
 
       } break;
@@ -216,14 +218,14 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //   balm::DefaultMetricsManagerScopedGuard(bsl::cout, bslma::Allocator)
+        //   balm::DefaultMetricsManagerScopedGuard(bsl::cout, Allocator)
         //
         // --------------------------------------------------------------------
 
         if (verbose) cout
             << endl
-            << "balm::DefaultMetricsManagerScopedGuard(bsl::cout, ...)" << endl
-            << "=====================================================" << endl;
+            << "balm::DefaultMetricsManagerScopedGuard(cout, ...)" << endl
+            << "=================================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -241,7 +243,8 @@ int main(int argc, char *argv[])
               ASSERT(0 != Obj::instance());
               bsl::vector<balm::Publisher *> publishers;
               ASSERT(1 == Obj::instance()->findGeneralPublishers(&publishers));
-              ASSERT(0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
+              ASSERT(
+                    0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
           }
 
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -260,7 +263,8 @@ int main(int argc, char *argv[])
 
               bsl::vector<balm::Publisher *> publishers;
               ASSERT(1 == Obj::instance()->findGeneralPublishers(&publishers));
-              ASSERT(0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
+              ASSERT(
+                    0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
 
           }
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -293,7 +297,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "balm::DefaultMetricsManagerScopedGuard" << endl
-                          << "=====================================" << endl;
+                          << "======================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -398,9 +402,7 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //  static balm::MetricsManager *create(bsl::ostream&,
-        //                                     bslma::Allocator *);
-        //
+        //   static balm::MetricsManager *create(ostream& , Allocator *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -443,7 +445,7 @@ int main(int argc, char *argv[])
                 bsl::vector<balm::Publisher *> publishers;
                 ASSERT(1 == x->findGeneralPublishers(&publishers));
                 balm::StreamPublisher *streamPublisher =
-                           dynamic_cast<balm::StreamPublisher *>(publishers[0]);
+                          dynamic_cast<balm::StreamPublisher *>(publishers[0]);
                 ASSERT(0 != streamPublisher);
 
 
@@ -498,7 +500,7 @@ int main(int argc, char *argv[])
                 bsl::vector<balm::Publisher *> publishers;
                 ASSERT(1 == x->findGeneralPublishers(&publishers));
                 balm::StreamPublisher *streamPublisher =
-                           dynamic_cast<balm::StreamPublisher *>(publishers[0]);
+                          dynamic_cast<balm::StreamPublisher *>(publishers[0]);
                 ASSERT(0 != streamPublisher);
             }
 

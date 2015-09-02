@@ -166,9 +166,9 @@ class MetricSampleGroup {
 
     // DATA
     const MetricRecord *d_records_p;   // array of records (held, not
-                                            // owned)
+                                       // owned)
 
-    int                      d_numRecords;  // number of records in array
+    int                 d_numRecords;  // number of records in array
 
     bsls::TimeInterval        d_elapsedTime; // interval described by records
 
@@ -472,9 +472,9 @@ MetricSampleGroup::MetricSampleGroup()
 }
 
 inline
-MetricSampleGroup::MetricSampleGroup(const MetricRecord       *records,
-                                     int                       numRecords,
-                                     const bsls::TimeInterval& elapsedTime)
+MetricSampleGroup::MetricSampleGroup(const MetricRecord        *records,
+                                     int                        numRecords,
+                                     const bsls::TimeInterval&  elapsedTime)
 : d_records_p(records)
 , d_numRecords(numRecords)
 , d_elapsedTime(elapsedTime)

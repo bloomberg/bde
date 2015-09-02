@@ -37,11 +37,11 @@ void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
 
 }  // close unnamed namespace
 
-                 // ==========================================
-                 // class balm::CollectorRepository_Collectors
-                 // ==========================================
-
 namespace balm {
+
+                    // ====================================
+                    // class CollectorRepository_Collectors
+                    // ====================================
 
 template <class COLLECTOR>
 class CollectorRepository_Collectors {
@@ -80,7 +80,7 @@ class CollectorRepository_Collectors {
   public:
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository_Collectors,
-                                 bslma::UsesBslmaAllocator);
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     CollectorRepository_Collectors(const balm::MetricId&   metricId,
@@ -142,9 +142,9 @@ class CollectorRepository_Collectors {
         // are collecting values.
 };
 
-             // --------------------------------------------------
-             // class balm::CollectorRepository_CollectorContainer
-             // --------------------------------------------------
+                // --------------------------------------------
+                // class CollectorRepository_CollectorContainer
+                // --------------------------------------------
 
 // CREATORS
 template <class COLLECTOR>
@@ -196,7 +196,7 @@ int CollectorRepository_Collectors<COLLECTOR>::removeCollector(
 template <class COLLECTOR>
 void
 CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
-                                                     MetricRecord *record)
+                                                          MetricRecord *record)
 {
     d_defaultCollector.loadAndReset(record);
     typename CollectorSet::iterator it = d_addedCollectors.begin();
@@ -274,7 +274,7 @@ class CollectorRepository_MetricCollectors {
   public:
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository_MetricCollectors,
-                                 bslma::UsesBslmaAllocator);
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     CollectorRepository_MetricCollectors(const MetricId&   id,
@@ -294,8 +294,7 @@ class CollectorRepository_MetricCollectors {
         // Return a reference to the modifiable container of 'Collector'
         // objects.
 
-    CollectorRepository_Collectors<IntegerCollector>&
-                                                               intCollectors();
+    CollectorRepository_Collectors<IntegerCollector>& intCollectors();
         // Return a reference to the modifiable container of
         // 'IntegerCollector' objects.
 
@@ -316,8 +315,7 @@ class CollectorRepository_MetricCollectors {
         // current values.
 
     // ACCESSORS
-    const CollectorRepository_Collectors<Collector>&
-                                                            collectors() const;
+    const CollectorRepository_Collectors<Collector>& collectors() const;
         // Return a reference to the non-modifiable container of 'Collector'
         // objects.
 
@@ -367,8 +365,7 @@ CollectorRepository_MetricCollectors::intCollectors()
     return d_intCollectors;
 }
 
-void CollectorRepository_MetricCollectors::collectAndReset(
-                                                    MetricRecord *record)
+void CollectorRepository_MetricCollectors::collectAndReset(MetricRecord *record)
 {
     d_collectors.collectAndReset(record);
     MetricRecord tempRecord;
@@ -376,8 +373,7 @@ void CollectorRepository_MetricCollectors::collectAndReset(
     combine(record, tempRecord);
 }
 
-void CollectorRepository_MetricCollectors::collect(
-                                                    MetricRecord *record)
+void CollectorRepository_MetricCollectors::collect(MetricRecord *record)
 {
     d_collectors.collect(record);
     MetricRecord tempRecord;
@@ -442,9 +438,8 @@ CollectorRepository::getMetricCollectors(const MetricId& metricId)
 }
 
 // MANIPULATORS
-void CollectorRepository::collectAndReset(
-                                bsl::vector<MetricRecord> *records,
-                                const Category            *category)
+void CollectorRepository::collectAndReset(bsl::vector<MetricRecord> *records,
+                                          const Category            *category)
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
 
@@ -466,9 +461,8 @@ void CollectorRepository::collectAndReset(
     }
 }
 
-void CollectorRepository::collect(
-                                bsl::vector<MetricRecord> *records,
-                                const Category            *category)
+void CollectorRepository::collect(bsl::vector<MetricRecord> *records,
+                                  const Category            *category)
 {
     // PRIVATE TYPES
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
@@ -491,8 +485,7 @@ void CollectorRepository::collect(
     }
 }
 
-Collector *CollectorRepository::getDefaultCollector(
-                                                 const MetricId& metricId)
+Collector *CollectorRepository::getDefaultCollector(const MetricId& metricId)
 {
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
@@ -511,7 +504,7 @@ Collector *CollectorRepository::getDefaultCollector(
 }
 
 IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
-                                                 const MetricId& metricId)
+                                                      const MetricId& metricId)
 {
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
@@ -530,7 +523,7 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
 }
 
 bsl::shared_ptr<Collector> CollectorRepository::addCollector(
-                                                 const MetricId& metricId)
+                                                      const MetricId& metricId)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).collectors().addCollector();
@@ -544,9 +537,9 @@ CollectorRepository::addIntegerCollector(const MetricId& metricId)
 }
 
 int CollectorRepository::getAddedCollectors(
-         bsl::vector<bsl::shared_ptr<Collector> >         *collectors,
-         bsl::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
-         const MetricId&                                   metricId)
+               bsl::vector<bsl::shared_ptr<Collector> >         *collectors,
+               bsl::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
+               const MetricId&                                   metricId)
 {
     int numFound = 0;
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);

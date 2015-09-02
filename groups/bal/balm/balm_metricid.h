@@ -118,7 +118,7 @@ class MetricId {
 
     // DATA
     const MetricDescription *d_description_p;  // metric description
-                                                    // (held, not owned)
+                                               // (held, not owned)
   public:
     // CREATORS
     MetricId();

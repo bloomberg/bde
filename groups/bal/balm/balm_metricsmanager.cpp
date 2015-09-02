@@ -55,8 +55,8 @@ struct SampleDescription {
     // records in a vector (in case the vector is resized).
 
     // PUBLIC DATA
-    int               d_beginIndex;
-    int               d_size;
+    int                d_beginIndex;
+    int                d_size;
     bsls::TimeInterval d_elapsedTime;
 
     // CREATORS
@@ -1001,7 +1001,7 @@ void MetricsManager::collectSample(MetricSample              *sample,
 
 void MetricsManager::collectSample(MetricSample              *sample,
                                    bsl::vector<MetricRecord> *records,
-                                   const Category      *const categories[],
+                                   const Category * const     categories[],
                                    int                        numCategories,
                                    bool                       resetFlag)
 {

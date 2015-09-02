@@ -57,9 +57,9 @@ bool isPrefix(const char *candidatePrefix, const char *string)
 
 }  // close unnamed namespace
 
-                         // --------------------------
-                         // class balm::MetricRegistry
-                         // --------------------------
+                            // --------------------
+                            // class MetricRegistry
+                            // --------------------
 
 namespace balm {
 
@@ -285,18 +285,16 @@ void MetricRegistry::setAllCategoriesEnabled(bool value)
     }
 }
 
-void MetricRegistry::setPreferredPublicationType(
-                                           const MetricId&        metric,
-                                           PublicationType::Value type)
+void MetricRegistry::setPreferredPublicationType(const MetricId&        metric,
+                                                 PublicationType::Value type)
 {
     MetricDescription *desc =
                  const_cast<MetricDescription *>(metric.description());
     desc->setPreferredPublicationType(type);
 }
 
-void MetricRegistry::registerCategoryHolder(
-                                                const Category *category,
-                                                CategoryHolder *holder)
+void MetricRegistry::registerCategoryHolder(const Category *category,
+                                            CategoryHolder *holder)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -407,8 +405,7 @@ bsl::size_t MetricRegistry::numCategories() const
     return d_categories.size();
 }
 
-const Category *MetricRegistry::findCategory(
-                                                    const char *category) const
+const Category *MetricRegistry::findCategory(const char *category) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     CategoryRegistry::const_iterator it = d_categories.find(category);
@@ -425,7 +422,7 @@ MetricId MetricRegistry::findId(const char *category,
 }
 
 void MetricRegistry::getAllCategories(
-                         bsl::vector<const Category *> *categories) const
+                               bsl::vector<const Category *> *categories) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     categories->reserve(categories->size() + d_categories.size());

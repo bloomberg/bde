@@ -71,11 +71,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -151,6 +152,9 @@ typedef balm::MetricDescription Desc;
             ++d_numRequests;
             d_totalRequestSize += request.size();
             d_minRequestSize   =  bsl::min(d_minRequestSize,
+
+            // ARB: use static_cast
+
                                            (unsigned int)request.size());
             d_maxRequestSize   =  bsl::max(d_maxRequestSize,
                                            (unsigned int)request.size());

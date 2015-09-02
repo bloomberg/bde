@@ -313,6 +313,26 @@ BSLS_IDENT("$Id: $")
 //       'TIME_UNITS' indicates the scale of value to report, but does *not*
 //       affect the precision of the elapsed time measurement.
 //
+//   BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
+//       The behavior of this macro is logically equivalent to
+//       'BALM_METRICS_TIME_BLOCK' called with
+//       'balm::StopwatchScopedGuard::k_SECONDS'.
+//
+//   BALM_METRICS_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)
+//       The behavior of this macro is logically equivalent to
+//       'BALM_METRICS_TIME_BLOCK' called with
+//       'balm::StopwatchScopedGuard::k_MILLISECONDS'.
+//
+//   BALM_METRICS_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)
+//       The behavior of this macro is logically equivalent to
+//       'BALM_METRICS_TIME_BLOCK' called with
+//       'balm::StopwatchScopedGuard::k_MICROSECONDS'.
+//
+//   BALM_METRICS_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
+//       The behavior of this macro is logically equivalent to
+//       'BALM_METRICS_TIME_BLOCK' called with
+//       'balm::StopwatchScopedGuard::k_NANOSECONDS'.
+//
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 //       Update the indicated metric, identified by the specified 'CATEGORY'
 //       and 'METRIC' names, by the elapsed (wall) time, in the specified
@@ -1145,7 +1165,7 @@ do {                                                                          \
 
 // Create a unique variable name by concatenating the specified 'X' string
 // with a unique integer value.
-#define BALM_METRICS_UNIQUE_NAME(X)                                          \
+#define BALM_METRICS_UNIQUE_NAME(X)                                           \
            BALM_METRICS_CAT(X, BALM_METRICS_UNIQNUM)
 
 namespace BloombergLP {

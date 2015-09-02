@@ -56,12 +56,12 @@ BSLS_IDENT("$Id: $")
 //
 // First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
 // the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which it will
-// publish metrics.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// provide the scoped guard an output stream ('stdout') that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {

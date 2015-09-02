@@ -163,9 +163,9 @@ namespace balm {
 
 class MetricFormat;
 
-                         // ==========================
-                         // class balm::MetricRegistry
-                         // ==========================
+                            // ====================
+                            // class MetricRegistry
+                            // ====================
 
 class MetricRegistry {
     // The class defines a thread-aware mechanism for registering metrics and
@@ -262,9 +262,9 @@ class MetricRegistry {
         // metric id is newly-created and 'false' otherwise.  The behavior is
         // undefined unless the calling thread has a *write* lock on 'd_lock'.
 
-    void setCurrentUserData(const char                    *category,
-                            MetricDescription::UserDataKey key,
-                            const void                    *value);
+    void setCurrentUserData(const char                     *category,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value);
         // Associate the specified 'value' with the specified 'key' for every
         // metric belonging to the specified 'category'.  Note that this
         // operation modifies existing metrics, but does not affect metrics

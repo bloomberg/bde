@@ -153,6 +153,9 @@ class MetricFormatSpec {
     const char *d_format;  // 'printf'-style format string for formatting a
                            // single floating-point numeric value
 
+
+            // ARB: s_ or k_?
+
     // PRIVATE CONSTANTS
     static const char *k_DEFAULT_FORMAT;  // default format ("%f")
 

@@ -183,32 +183,35 @@ int PublicationType::fromString(PublicationType::Value *result,
     return -1;
 }
 
+
+            // ARB: Check standards for enum: always e_ABC -> "ABC", right?
+
 const char *PublicationType::toString(PublicationType::Value value)
 {
     switch (value) {
       case e_UNSPECIFIED: {
-        return "BALM_UNSPECIFIED";                                    // RETURN
+        return "UNSPECIFIED";                                         // RETURN
       } break;
       case e_TOTAL: {
-        return "BALM_TOTAL";                                          // RETURN
+        return "TOTAL";                                               // RETURN
       } break;
       case e_COUNT: {
-        return "BALM_COUNT";                                          // RETURN
+        return "COUNT";                                               // RETURN
       } break;
       case e_MIN: {
-        return "BALM_MIN";                                            // RETURN
+        return "MIN";                                                 // RETURN
       } break;
       case e_MAX: {
-        return "BALM_MAX";                                            // RETURN
+        return "MAX";                                                 // RETURN
       } break;
       case e_AVG: {
-        return "BALM_AVG";                                            // RETURN
+        return "AVG";                                                 // RETURN
       } break;
       case e_RATE: {
-        return "BALM_RATE";                                           // RETURN
+        return "RATE";                                                // RETURN
       } break;
       case e_RATE_COUNT: {
-        return "BALM_RATE_COUNT";                                     // RETURN
+        return "RATE_COUNT";                                          // RETURN
       } break;
     }
 

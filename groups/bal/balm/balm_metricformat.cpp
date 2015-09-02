@@ -31,6 +31,9 @@ bsl::ostream& MetricFormatSpec::formatValue(
                                        double                  value,
                                        const MetricFormatSpec& format)
 {
+
+            // ARB: k_
+
     enum { e_INITIAL_BUFFER_SIZE = 32 };
 
     char buffer[e_INITIAL_BUFFER_SIZE];

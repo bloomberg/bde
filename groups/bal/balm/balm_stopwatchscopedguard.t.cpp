@@ -67,11 +67,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -101,7 +102,7 @@ static void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 typedef balm::StopwatchScopedGuard       Obj;
-typedef Obj::Units                      Units;
+typedef Obj::Units                       Units;
 typedef balm::MetricsManager             MetricsManager;
 typedef balm::DefaultMetricsManager      DefaultManager;
 typedef balm::MetricRegistry             Registry;
@@ -168,7 +169,7 @@ class TestPublisher : public balm::Publisher {
     bsl::vector<balm::MetricRecord> d_recordBuffer;    // last samples records
 
     bsl::vector<balm::MetricRecord> d_sortedRecords;   // last sample's records
-                                                      // in sorted order
+                                                       // in sorted order
 
     balm::MetricSample              d_sample;          // reconstructed last
                                                       // sample (using
@@ -447,14 +448,14 @@ int main(int argc, char *argv[])
 // This example demonstrates how to create the default 'baem::MetricManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
 // provide the scoped guard an output stream ('stdout') that it will publish
-// metrics to.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
     {
@@ -630,27 +631,27 @@ int main(int argc, char *argv[])
                 balm::StopwatchScopedGuard gB_D(idB_D);
                 balm::StopwatchScopedGuard gB_S(idB_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gB_Ms(idB_Ms,
-                                                Obj::k_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gB_Us(idB_Us,
-                                                Obj::k_MICROSECONDS);
+                                                 Obj::k_MICROSECONDS);
                 balm::StopwatchScopedGuard gB_Ns(idB_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gC_D(&mC_D);
                 balm::StopwatchScopedGuard gC_S(&mC_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gC_Ms(&mC_Ms,
-                                                Obj::k_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gC_Us(&mC_Us,
-                                                Obj::k_MICROSECONDS);
+                                                 Obj::k_MICROSECONDS);
                 balm::StopwatchScopedGuard gC_Ns(&mC_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gD_D("D", "D");
                 balm::StopwatchScopedGuard gD_S ("D", "S", Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gD_Ms("D", "Ms",
-                                                Obj::k_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gD_Us("D", "Us",
-                                                Obj::k_MICROSECONDS);
+                                                 Obj::k_MICROSECONDS);
                 balm::StopwatchScopedGuard gD_Ns("D", "Ns",
-                                                Obj::k_NANOSECONDS);
+                                                 Obj::k_NANOSECONDS);
 
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
@@ -681,42 +682,29 @@ int main(int argc, char *argv[])
             balm::MetricRecord rD_Us = recordValue(d_Us);
             balm::MetricRecord rD_Ns = recordValue(d_Ns);
 
-            ASSERT(within(rA_D.total(),  Obj::k_SECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_S.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rA_Ms.total(), Obj::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Us.total(), Obj::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Ns.total(), Obj::k_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rA_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rA_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rA_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rB_D.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_S.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_Ms.total(), Obj::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Us.total(), Obj::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Ns.total(), Obj::k_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rB_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rB_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rB_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rC_D.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_S.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_Ms.total(), Obj::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Us.total(), Obj::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Ns.total(), Obj::k_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rC_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rC_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rC_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rD_D.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_S.total(),  Obj::k_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_Ms.total(), Obj::k_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rD_Us.total(), Obj::k_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rD_Ns.total(), Obj::k_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rD_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rD_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rD_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rD_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rD_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
         }
       } break;
       case 4: {
@@ -1012,7 +1000,8 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::TimeInterval ELAPSED_TIME(VALUES[i].d_elapsedTime, 0);
-                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_timeStamp);
+                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                        VALUES[i].d_timeStamp);
                 bdlt::DatetimeTz TIME_STAMP(bdlt::Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);

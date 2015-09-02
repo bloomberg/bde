@@ -190,11 +190,11 @@ class CollectorRepository {
         // for a single metric.
 
     // DATA
-    MetricRegistry   *d_registry_p;   // registry of ids (held, not owned)
-    Collectors             d_collectors;   // collectors (owned)
-    CategorizedCollectors  d_categories;   // map of category => collectors
-    mutable bdlqq::RWMutex  d_rwMutex;      // data lock
-    bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
+    MetricRegistry         *d_registry_p;  // registry of ids (held, not owned)
+    Collectors              d_collectors;  // collectors (owned)
+    CategorizedCollectors   d_categories;  // map of category => collectors
+    mutable bdlqq::RWMutex  d_rwMutex;     // data lock
+    bslma::Allocator       *d_allocator_p; // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     CollectorRepository(const CollectorRepository& );
@@ -218,7 +218,7 @@ class CollectorRepository {
 
     // CREATORS
     CollectorRepository(MetricRegistry        *registry,
-                             bslma::Allocator *basicAllocator = 0);
+                        bslma::Allocator      *basicAllocator = 0);
         // Create an empty collector repository that will use the specified
         // 'registry' to identify the metrics for which it manages collectors.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -279,8 +279,7 @@ class CollectorRepository {
         //  getDefaultIntegerCollector(registry().getId(category, metricName))
         //..
 
-    IntegerCollector *getDefaultIntegerCollector(
-                                                const MetricId& metricId);
+    IntegerCollector *getDefaultIntegerCollector(const MetricId& metricId);
         // Return the address of the modifiable default integer collector
         // identified by the specified 'metricId'.  If a default integer
         // collector for the identified metric does not already exist in the

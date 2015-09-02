@@ -21,8 +21,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_c_stdio.h>
-
 #include <bslim_testutil.h>
 
 using namespace BloombergLP;
@@ -53,8 +51,7 @@ using bsl::flush;
 //                              balm::PublicationType::Value   publicationType,
 //                              const balm::MetricFormatSpec&  formatSpec,
 //                              balm::MetricsManager          *manager = 0);
-// [ 4] static balm::MetricDescription::UserDataKey createUserDataKey(
-//                                                     balm::MetricsManager *);
+// [ 4] createUserDataKey(balm::MetricsManager *);
 // [ 5] static void setUserData(const char *,
 //                              const char *,
 //                              balm::MetricDescription::UserDataKey,
@@ -74,11 +71,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -166,7 +164,7 @@ typedef balm::MetricDescription::UserDataKey Key;
 //
     // CREATORS
     ThresholdPublisher::ThresholdPublisher(
-                              balm::MetricDescription::UserDataKey thresholdKey)
+                             balm::MetricDescription::UserDataKey thresholdKey)
     : d_thresholdKey(thresholdKey)
     {
     }
@@ -292,16 +290,17 @@ int main(int argc, char *argv[])
 // Now we create a user data key for our threshold information:
 //..
         balm::MetricDescription::UserDataKey thresholdKey =
-                                   balm::ConfigurationUtil::createUserDataKey();
+                                  balm::ConfigurationUtil::createUserDataKey();
 //..
 // Now we create an instance of our application specific publisher type,
 // 'ThresholdPublisher', and configure the default metrics manager to publish
 // metrics to it:
 //..
         bsl::shared_ptr<balm::Publisher> publisher(
-              new (*allocator) ThresholdPublisher(thresholdKey),
-              allocator);
-        balm::DefaultMetricsManager::instance()->addGeneralPublisher(publisher);
+                             new (*allocator) ThresholdPublisher(thresholdKey),
+                             allocator);
+        balm::DefaultMetricsManager::instance()->addGeneralPublisher(
+                                                                    publisher);
 //..
 // Next we configure two metric thresholds:
 //..
@@ -726,8 +725,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   balm::MetricDescription::UserDataKey createUserDataKey(
-        //                                              balm::MetricsManager *);
+        //   createUserDataKey(balm::MetricsManager *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

@@ -327,11 +327,11 @@ struct ConfigurationUtil {
         // can be used by clients of 'balm' to associate additional
         // information with a metric.
 
-    static void setUserData(const char                    *category,
-                            const char                    *metricName,
-                            MetricDescription::UserDataKey key,
-                            const void                    *value,
-                            MetricsManager                *manager = 0);
+    static void setUserData(const char                     *category,
+                            const char                     *metricName,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value,
+                            MetricsManager                 *manager = 0);
         // Associate the specified 'value' with the specified data 'key' in the
         // description of the metric having the specified 'category' and
         // 'metricName'.  Optionally specify a metrics 'manager' to configure.
@@ -346,10 +346,10 @@ struct ConfigurationUtil {
         // 'balm' to associate (opaque) application-specific information with a
         // metric.
 
-    static void setUserData(const char                    *categoryName,
-                            MetricDescription::UserDataKey key,
-                            const void                    *value,
-                            MetricsManager                *manager = 0);
+    static void setUserData(const char                     *categoryName,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value,
+                            MetricsManager                 *manager = 0);
         // Associate the specified 'value' with the specified data 'key' in
         // any metric belonging to a category having the specified
         // 'categoryName', or, if 'categoryName' ends with an asterisk ('*'),

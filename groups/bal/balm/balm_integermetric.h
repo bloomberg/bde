@@ -59,57 +59,28 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following examples demonstrate how to configure, collect, and publish
-// integer metrics.
+// metrics.
 //
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricsManager'
-// instance and perform a trivial configuration.
-//
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
-// the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which it will
-// publish metrics.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
-//..
-//  int main(int argc, char *argv[])
-//  {
-//      // ...
-//
-//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
-// Once the default manager object has been created, it can be accessed using
-// the 'instance' operation.
-//..
-//     balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
-//     assert(0 != manager);
-//..
-// Note that the default metrics manager will be released when 'managerGuard'
-// exits this scoped and is destroyed.  Clients that choose to explicitly call
-// 'balm::DefaultMetricsManager::create' must also explicitly call
-// 'balm::DefaultMetricsManager::release()'.
-//
-///Example 2 - Metric Collection with 'balm::Metric'
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Alternatively, we can use a 'balm::Metric' to record metric values.  In this
-// third example we implement a hypothetical event manager object, similar in
-// purpose to the 'handleEvent' function of example 2.  We use
+///Example 1 - Metric collection with 'balm::IntegerMetric'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We can use 'balm::IntegerMetric' objects to record metric values.  In this
+// example we implement a hypothetical event manager object.  We use
 // 'balm::IntegerMetric' objects to record metrics for the size of the request,
-// and the number of failures.
+// the elapsed processing time, and the number of failures.
 //..
 //  class EventManager {
 //
 //      // DATA
 //      balm::IntegerMetric d_messageSize;
+//      balm::IntegerMetric d_elapsedTime;
 //      balm::IntegerMetric d_failedRequests;
 //
 //    public:
+//
 //      // CREATORS
 //      EventManager()
-//      : d_requestSize("MyCategory", "EventManager/size")
+//      : d_messageSize("MyCategory", "EventManager/size")
+//      , d_elapsedTime("MyCategory", "EventManager/elapsedTime")
 //      , d_failedRequests("MyCategory", "EventManager/failedRequests")
 //      {}
 //
@@ -123,16 +94,79 @@ BSLS_IDENT("$Id: $")
 //
 //         d_messageSize.update(eventMessage.size());
 //
+//         bsls::TimeInterval start = bdlt::CurrentTime::now();
+//
 //         // Process 'data' ('returnCode' may change).
 //
 //         if (0 != returnCode) {
 //             d_failedRequests.increment();
 //         }
+//
+//         bsls::TimeInterval end = bdlt::CurrentTime::now();
+//         d_elapsedTime.update((end - start).totalMicroseconds());
 //         return returnCode;
 //      }
 //
 //  // ...
 //  };
+//..
+///Example 2 - Create and access the default 'balm::MetricsManager' instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create the default 'baem::MetricManager'
+// instance and perform a trivial configuration.
+//
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the scoped guard an output stream ('stdout') that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//
+//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
+//..
+// Once the default instance has been created, it can be accessed using the
+// 'instance' operation.
+//..
+//      balm::MetricsManager *manager =
+//                                     balm::DefaultMetricsManager::instance();
+//      assert(0 != manager);
+//..
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// 'balm::DefaultMetricsManager::create' must also explicitly call
+// 'balm::DefaultMetricsManager::release()'.
+//
+// Now that we have created a 'balm::MetricsManager' instance, we can use the
+// instance to publish metrics collected using the event manager described in
+// Example 1:
+//..
+//      EventManager eventManager;
+//
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      manager->publishAll();
+//
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      eventManager.handleEvent(0, "a");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdefg");
+//
+//      manager->publishAll();
+//  }
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

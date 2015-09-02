@@ -81,6 +81,9 @@ BSLS_IDENT("$Id: $")
 //                                                   "MyCategory", "MyMetric");
 //      myMetric->update(10);
 //      manager->publishAll();
+//
+//      // ... rest of program elided ...
+//  }
 //..
 // The output of this example would look similar to:
 //..
@@ -123,7 +126,7 @@ struct DefaultMetricsManager {
 
   private:
     // CLASS DATA
-    static MetricsManager *s_singleton_p; // metrics manager default
+    static MetricsManager      *s_singleton_p; // metrics manager default
                                                // instance
 
     static bslma::Allocator    *s_allocator_p; // allocator used to initialize

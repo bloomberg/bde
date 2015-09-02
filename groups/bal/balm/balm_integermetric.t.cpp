@@ -47,11 +47,11 @@ using bsl::flush;
 // directly on the "oracle" 'balm::IntegerCollector'.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 9] static balm::IntegerCollector *lookupCollector(const bslstl::StringRef&  ,
-//                                             const bslstl::StringRef&  ,
-//                                             balm::MetricsManager    *);
-// [ 9] static balm::IntegerCollector *lookupCollector(const balm::MetricId&  ,
-//                                             balm::MetricsManager  *);
+// [ 9] balm::IntegerCollector *lookupCollector(const bslstl::StringRef&,
+//                                              const bslstl::StringRef&,
+//                                              balm::MetricsManager *);
+// [ 9] balm::IntegerCollector *lookupCollector(const balm::MetricId&,
+//                                              balm::MetricsManager *);
 // CREATORS
 // [ 2] balm::IntegerMetric(const bslstl::StringRef&  ,
 //                  const bslstl::StringRef&  ,
@@ -85,11 +85,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (c) {
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
@@ -128,8 +129,8 @@ typedef balm::PublicationType       Type;
 
 typedef bsl::shared_ptr<balm::Collector>         ColSPtr;
 typedef bsl::shared_ptr<balm::IntegerCollector>  IColSPtr;
-typedef bsl::vector<ColSPtr>                    ColSPtrVector;
-typedef bsl::vector<IColSPtr>                   IColSPtrVector;
+typedef bsl::vector<ColSPtr>                     ColSPtrVector;
+typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 
 // ============================================================================
 //                     CLASSES FOR AND FUNCTIONS TESTING
@@ -281,14 +282,17 @@ void MetricConcurrencyTest::runTest()
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//..
-///Example 2 - Metric collection with 'balm::Metric'
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Alternatively we can use a 'balm::Metric' to record metric values.  In this
-// third example we implement a hypothetical event manager object, similar in
-// purpose to the 'processEvent' function of example 2.  We use 'balm::Metric'
-// objects to record metrics for the size of the request, the elapsed
-// processing time, and the number of failures.
+///Usage
+///-----
+// The following examples demonstrate how to configure, collect, and publish
+// metrics.
+//
+///Example 1 - Metric collection with 'balm::IntegerMetric'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We can use 'balm::IntegerMetric' objects to record metric values.  In this
+// example we implement a hypothetical event manager object.  We use
+// 'balm::IntegerMetric' objects to record metrics for the size of the request,
+// the elapsed processing time, and the number of failures.
 //..
     class EventManager {
 
@@ -370,42 +374,42 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Usage
-///-----
-// The following examples demonstrate how to configure, collect, and publish
-// metrics.
-//
-///Example 1 - Create and configure the default 'balm::MetricsManager' instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2 - Create and access the default 'balm::MetricsManager' instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'baem::MetricManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
 // provide the scoped guard an output stream ('stdout') that it will publish
-// metrics to.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
     {
-    // ...
+        // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
 //..
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation.
 //..
-      balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-      ASSERT(0 != manager);
+        balm::MetricsManager *manager =
+                                       balm::DefaultMetricsManager::instance();
+        ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when 'managerGuard'
 // exits this scoped and is destroyed.  Clients that choose to explicitly call
 // 'balm::DefaultMetricsManager::create' must also explicitly call
 // 'balm::DefaultMetricsManager::release()'.
-
+//
+// Now that we have created a 'balm::MetricsManager' instance, we can use the
+// instance to publish metrics collected using the event manager described in
+// Example 1:
+//..
         EventManager eventManager;
 
         eventManager.handleEvent(0, "ab");
@@ -427,6 +431,7 @@ int main(int argc, char *argv[])
 
         manager->publishAll();
     }
+//..
     } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -469,13 +474,11 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //   static balm::IntegerCollector *lookupCollector(
-        //                                const bslstl::StringRef&  ,
-        //                                const bslstl::StringRef&  ,
-        //                                balm::MetricsManager    *);
-        //   static balm::IntegerCollector *lookupCollector(
-        //                                          const balm::MetricId&  ,
-        //                                          balm::MetricsManager  *);
+        //   balm::IntegerCollector *lookupCollector(const bslstl::StringRef&,
+        //                                           const bslstl::StringRef&,
+        //                                           balm::MetricsManager *);
+        //   balm::IntegerCollector *lookupCollector(const balm::MetricId&,
+        //                                           balm::MetricsManager *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -592,7 +595,9 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.accumulateCountTotalMinMax(VALUES[j].d_count,
@@ -623,7 +628,9 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
 
@@ -692,7 +699,9 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.update(UPDATES[j]);
@@ -716,7 +725,9 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
 
@@ -774,7 +785,9 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < 10; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.increment();
@@ -798,7 +811,9 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric  mX(col); 
+                const balm::IntegerMetric& MX = mX;
+
                 for (int j = 0; j < 10; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
 
@@ -1222,8 +1237,10 @@ int main(int argc, char *argv[])
             b2.accumulateCountTotalMinMax(2, 3, -1, -1);
             b3.accumulateCountTotalMinMax(2, 3, -1, -1);
 
-            ASSERT(balm::MetricRecord(A_ID, 12, 18, -1, 2) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 12, 18, -1, 2) == recordVal(B_COL));
+            ASSERT(
+                  balm::MetricRecord(A_ID, 12, 18, -1, 2) == recordVal(A_COL));
+            ASSERT(
+                  balm::MetricRecord(B_ID, 12, 18, -1, 2) == recordVal(B_COL));
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }

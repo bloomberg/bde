@@ -40,11 +40,11 @@ int ConfigurationUtil::setFormat(const char          *category,
     return 0;
 }
 
-int ConfigurationUtil::setFormatSpec(const char             *category,
-                                     const char             *metricName,
-                                     PublicationType::Value  publicationType,
-                                     const MetricFormatSpec& formatSpec,
-                                     MetricsManager         *manager)
+int ConfigurationUtil::setFormatSpec(const char              *category,
+                                     const char              *metricName,
+                                     PublicationType::Value   publicationType,
+                                     const MetricFormatSpec&  formatSpec,
+                                     MetricsManager          *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {

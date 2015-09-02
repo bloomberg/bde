@@ -47,11 +47,11 @@ void IntegerCollector::loadAndReset(MetricRecord *records)
     records->count()    = count;
     records->total()    = static_cast<double>(total);
     records->min()      = (k_DEFAULT_MIN == min)
-                       ? MetricRecord::k_DEFAULT_MIN
-                       : min;
+                        ? MetricRecord::k_DEFAULT_MIN
+                        : min;
     records->max()      = (k_DEFAULT_MAX == max)
-                       ? MetricRecord::k_DEFAULT_MAX
-                       : max;
+                        ? MetricRecord::k_DEFAULT_MAX
+                        : max;
 }
 
 // ACCESSORS

@@ -18,8 +18,7 @@ BSLS_IDENT_RCSID(balm_defaultmetricsmanager_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 
-namespace balm {class Publisher;
-}  // close package namespace
+namespace balm { class Publisher; }
 
                      // ---------------------------------
                      // class balm::DefaultMetricsManager
@@ -27,12 +26,11 @@ namespace balm {class Publisher;
 
 // CLASS DATA
 balm::MetricsManager *balm::DefaultMetricsManager::s_singleton_p = 0;
-bslma::Allocator    *balm::DefaultMetricsManager::s_allocator_p = 0;
+bslma::Allocator     *balm::DefaultMetricsManager::s_allocator_p = 0;
 
 namespace balm {
 // CLASS METHODS
-MetricsManager *DefaultMetricsManager::create(
-                                              bslma::Allocator *basicAllocator)
+MetricsManager *DefaultMetricsManager::create(bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(0 == s_singleton_p);
     BSLS_ASSERT(0 == s_allocator_p);
@@ -43,8 +41,7 @@ MetricsManager *DefaultMetricsManager::create(
     return s_singleton_p;
 }
 
-MetricsManager *DefaultMetricsManager::create(
-                                              bsl::ostream&     stream,
+MetricsManager *DefaultMetricsManager::create(bsl::ostream&     stream,
                                               bslma::Allocator *basicAllocator)
 {
     MetricsManager *defaultManager = create(basicAllocator);
