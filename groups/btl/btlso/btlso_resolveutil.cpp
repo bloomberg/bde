@@ -4,17 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_sockethandle.h>                 // for testing only
-#include <btlso_socketimputil.h>                // for testing only
-#endif
-
 #include <btlso_ipv4address.h>
 
 #include <bdlqq_lockguard.h>
@@ -33,19 +22,19 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/param.h>  // MAXHOSTNAMELEN (ibm and others)
+#include <sys/param.h>        // MAXHOSTNAMELEN (ibm and others)
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>     // gethostname()
+#include <unistd.h>           // gethostname()
 #include <bsl_c_errno.h>      // errno
-#include <netdb.h>      // h_errno and prototype for _AIX, MAXHOSTNAMELEN
+#include <netdb.h>            // h_errno and prototype for _AIX, MAXHOSTNAMELEN
 
-#else                   // windows
+#else                         // windows
 
 #include <bsl_cstring.h>      // memcpy
 #include <bsl_cstdlib.h>      // atoi()
-#include <winsock2.h>   // getservbyname()
-#include <ws2tcpip.h>   // getaddrinfo() getnameinfo()
+#include <winsock2.h>         // getservbyname()
+#include <ws2tcpip.h>         // getaddrinfo() getnameinfo()
 #define MAXHOSTNAMELEN  256
 
 #endif
@@ -72,9 +61,9 @@ struct IPv4AddressHasher {
 
 }  // close unnamed namespace
 
-#if   defined(BSLS_PLATFORM_OS_HPUX)      \
-   || defined(BSLS_PLATFORM_OS_CYGWIN)    \
-   || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_HPUX)      \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)    \
+ || defined(BSLS_PLATFORM_OS_DARWIN)
     // The re-entrant function 'getservbyname_r', is not available on these
     // platforms, so we create a local version here.
 
@@ -92,22 +81,24 @@ struct servent *getservbyname_r(const char        *name,
     // Return 'result' with all entries filled in upon success, and 0 if
     // 'getservbyname' fails.
 {
-    static BloombergLP::bdlqq::Mutex mutex;
+    static BloombergLP::bdlqq::Mutex                         mutex;
     BloombergLP::bdlqq::LockGuard<BloombergLP::bdlqq::Mutex> lockguard(&mutex);
 
-    struct servent *server = getservbyname((char *)name, (char *)proto);
-    if (server == 0) {
+    struct servent *server = getservbyname(static_cast<char *>(name),
+                                           static_cast<char *>(proto));
+    if (0 == server) {
         return 0;                                                     // RETURN
     }
 
-    char  **alias;
-    int     len = 0;
+    char **alias;
+    int    len = 0;
 
     // Compute size of server data and resize 'buffer' if necessary.
 
     len += bsl::strlen(server->s_proto) + 1;
     len += bsl::strlen(server->s_name) + 1;
     len += sizeof alias;
+
     for (alias = server->s_aliases; *alias != 0; ++alias) {
         len += sizeof *alias + bsl::strlen(*alias) + 1;
     }
@@ -152,9 +143,9 @@ struct servent *getservbyname_r(const char        *name,
 
 static
 int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                            const char                     *hostName,
-                            int                             numAddresses,
-                            int                            *errorCode)
+                            const char                      *hostName,
+                            int                              numAddresses,
+                            int                             *errorCode)
     // Populate the specified vector 'hostAddresses' with the set of IP
     // addresses that refer to the specifed host 'hostName', but only take the
     // the first 'numAddresses' addresses found.  Return 0 on success and a
@@ -174,6 +165,7 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
     int rc = getaddrinfo(hostName, 0, 0, &head);
     if (0 != rc) {
         if (errorCode) {
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
             *errorCode = WSAGetLastError();
 #else
@@ -190,8 +182,9 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
 
     bsl::unordered_set<btlso::IPv4Address, IPv4AddressHasher> addressHT;
 
-    for (it = head; it && (int) addressHT.size() < numAddresses;
-                                                            it = it->ai_next) {
+    for (it = head;
+         it && (int) addressHT.size() < numAddresses;
+         it = it->ai_next) {
         if (AF_INET == it->ai_family) {
             // Since it's 'AF_INET', we know we can cast 'it->ai_addr' (which
             // is a 'struct sockaddr *') to a 'struct sockaddr_in *'.
@@ -208,9 +201,8 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
 
             addressHT.insert(address);
         }
-        else {
-            ;  // AF_INET6, AF_IRDA, AF_BTH, etc. ignored.
-        }
+
+        // AF_INET6, AF_IRDA, AF_BTH, etc. are ignored.
     }
 
     freeaddrinfo(head);
@@ -231,24 +223,25 @@ btlso::ResolveUtil::ResolveByNameCallback s_callback_p =
                                                       &defaultResolveByNameImp;
 
 namespace btlso {
-                          // ------------------------
+                          // ------------------
                           // struct ResolveUtil
-                          // ------------------------
+                          // ------------------
 
 // CLASS METHODS
 int ResolveUtil::getAddress(IPv4Address *result,
-                                  const char        *hostName,
-                                  int               *errorCode)
+                            const char  *hostName,
+                            int         *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
     // Avoid dynamic memory allocation.
 
-    IPv4Address stackBuffer;
-    bdlma::BufferedSequentialAllocator allocator((char *)&stackBuffer,
-                                                sizeof stackBuffer);
-    bsl::vector<IPv4Address> buffer(&allocator);
+    IPv4Address                        stackBuffer;
+    bdlma::BufferedSequentialAllocator allocator(
+                                        reinterpret_cast<char *>(&stackBuffer),
+                                        sizeof stackBuffer);
+    bsl::vector<IPv4Address>           buffer(&allocator);
 
     if (s_callback_p(&buffer, hostName, 1, errorCode) || buffer.size() < 1) {
         return -1;                                                    // RETURN
@@ -259,18 +252,19 @@ int ResolveUtil::getAddress(IPv4Address *result,
 }
 
 int ResolveUtil::getAddressDefault(IPv4Address *result,
-                                         const char        *hostName,
-                                         int               *errorCode)
+                                   const char  *hostName,
+                                   int         *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
     // Avoid dynamic memory allocation.
 
-    IPv4Address stackBuffer;
-    bdlma::BufferedSequentialAllocator allocator((char *)&stackBuffer,
-                                                sizeof stackBuffer);
-    bsl::vector<IPv4Address> buffer(&allocator);
+    IPv4Address                        stackBuffer;
+    bdlma::BufferedSequentialAllocator allocator(
+                                        reinterpret_cast<char *>(&stackBuffer),
+                                        sizeof stackBuffer);
+    bsl::vector<IPv4Address>           buffer(&allocator);
 
     if (defaultResolveByNameImp(&buffer,
                                 hostName,
@@ -284,8 +278,8 @@ int ResolveUtil::getAddressDefault(IPv4Address *result,
 }
 
 int ResolveUtil::getAddresses(bsl::vector<IPv4Address> *result,
-                                    const char                     *hostName,
-                                    int                            *errorCode)
+                              const char               *hostName,
+                              int                      *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
@@ -294,9 +288,9 @@ int ResolveUtil::getAddresses(bsl::vector<IPv4Address> *result,
 }
 
 int ResolveUtil::getServicePort(IPv4Address *result,
-                                      const char        *serviceName,
-                                      const char        *protocol,
-                                      int               *errorCode)
+                                const char  *serviceName,
+                                const char  *protocol,
+                                int         *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(serviceName);
@@ -306,13 +300,10 @@ int ResolveUtil::getServicePort(IPv4Address *result,
     };
 
 #if defined(BSLS_PLATFORM_OS_AIX)
-    servent serverEntry;
+    servent      serverEntry;
     servent_data buffer;
 
-    if (getservbyname_r(serviceName,
-                        protocol,
-                        &serverEntry,
-                        &buffer)) {
+    if (getservbyname_r(serviceName, protocol, &serverEntry, &buffer)) {
         // Note: according to contract, errorCode should not be loaded!
         // This sounds like an insane contract, so we keep the code.
 
@@ -332,11 +323,11 @@ int ResolveUtil::getServicePort(IPv4Address *result,
 
     // Avoid dynamic memory allocation in most common cases.
 
-    char stackBuffer[k_BUF_LEN];
-    int bufferLength = sizeof stackBuffer;
+    char                               stackBuffer[k_BUF_LEN];
+    int                                bufferLength = sizeof stackBuffer;
     bdlma::BufferedSequentialAllocator allocator(stackBuffer, bufferLength);
 
-    bsl::vector<char> buffer(bufferLength, '\0', &allocator);
+    bsl::vector<char>                  buffer(bufferLength, '\0', &allocator);
 
     while (1) {
         #if defined(BSLS_PLATFORM_OS_LINUX) \
@@ -419,21 +410,20 @@ int ResolveUtil::getServicePort(IPv4Address *result,
     return 0;
 }
 
-int ResolveUtil::getHostnameByAddress(
-                                   bsl::string*              canonicalHostname,
-                                   const IPv4Address&  address,
-                                   int                      *errorCode)
+int ResolveUtil::getHostnameByAddress(bsl::string        *canonicalHostname,
+                                      const IPv4Address&  address,
+                                      int                *errorCode)
 {
     BSLS_ASSERT(canonicalHostname);
 
     struct hostent *hp = NULL;
+    unsigned int    addr = address.ipAddress();   // in network order
 
-    unsigned int addr   = address.ipAddress();   // in network order
 #if defined(BSLS_PLATFORM_OS_AIX)
-    struct hostent hent;
+    struct hostent      hent;
     struct hostent_data hdt;
 
-    if (gethostbyaddr_r((char *)&addr,
+    if (gethostbyaddr_r(reinterpret_cast<char *>(&addr),
                         sizeof (struct in_addr),
                         AF_INET,
                         &hent,
@@ -448,10 +438,10 @@ int ResolveUtil::getHostnameByAddress(
 
 #elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
     struct hostent hent;
-    char hdt[2048];
-    int err;
+    char           hdt[2048];
+    int            err;
 
-    hp = gethostbyaddr_r((char *)&addr,
+    hp = gethostbyaddr_r(reinterpret_cast<char *>(&addr),
                          sizeof (struct in_addr),
                          AF_INET,
                          &hent,
@@ -471,10 +461,10 @@ int ResolveUtil::getHostnameByAddress(
 #elif defined(BSLS_PLATFORM_OS_LINUX) \
    || defined(BSLS_PLATFORM_OS_FREEBSD)
     struct hostent hent;
-    char hdt[2048];
-    int err;
+    char           hdt[2048];
+    int            err;
 
-    if (gethostbyaddr_r((char *)&addr,
+    if (gethostbyaddr_r(reinterpret_cast<char *>(&addr),
                         sizeof (struct in_addr),
                         AF_INET,
                         &hent,
@@ -493,10 +483,10 @@ int ResolveUtil::getHostnameByAddress(
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     // Standard call cannot be assumed to be re-entrant (it often is not).
     {
-        static bdlqq::Mutex mutex;
+        static bdlqq::Mutex            mutex;
         bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
 
-        hp = gethostbyaddr((char *)&addr,
+        hp = gethostbyaddr(static_cast<char *>(&addr),
                            sizeof (struct in_addr),
                            AF_INET);
 
@@ -518,20 +508,20 @@ int ResolveUtil::getHostnameByAddress(
     unsigned short port = address.portNumber();  // in host order
 
     struct sockaddr_in saGNI;
-    char hostName[NI_MAXHOST];
-    char servInfo[NI_MAXSERV];
+    char               hostName[NI_MAXHOST];
+    char               servInfo[NI_MAXSERV];
 
     saGNI.sin_family = AF_INET;
     saGNI.sin_addr.s_addr = addr;
     saGNI.sin_port = htons(port);
 
-    if (getnameinfo((SOCKADDR *)&saGNI,
-                          sizeof(sockaddr),
-                          hostName,
-                          sizeof(hostName),
-                          servInfo,
-                          sizeof(servInfo),
-                          NI_NUMERICSERV|NI_NAMEREQD)) {
+    if (getnameinfo(static_cast<SOCKADDR *>(&saGNI),
+                    sizeof(sockaddr),
+                    hostName,
+                    sizeof(hostName),
+                    servInfo,
+                    sizeof(servInfo),
+                    NI_NUMERICSERV|NI_NAMEREQD)) {
         if (errorCode) {
             *errorCode = WSAGetLastError();
         }
@@ -565,8 +555,7 @@ int ResolveUtil::getLocalHostname(bsl::string *result)
 }
 
 ResolveUtil::ResolveByNameCallback
-ResolveUtil::setResolveByNameCallback(
-        ResolveByNameCallback callback)
+ResolveUtil::setResolveByNameCallback(ResolveByNameCallback callback)
 {
     ResolveByNameCallback previousCallback = s_callback_p;
     s_callback_p = callback;
@@ -584,6 +573,7 @@ ResolveUtil::defaultResolveByNameCallback()
 {
     return &defaultResolveByNameImp;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

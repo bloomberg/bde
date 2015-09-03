@@ -279,7 +279,9 @@ btlso::StreamSocket<TestIPAddress> * TestStreamSocketFactory::allocate()
 {
     ++d_allocatedCount;
 
-    return new TestStreamSocket(&d_opCode);
+    bslma::Allocator defaultAllocator = bslma::Default::defaultAllocator();
+
+    return new (*defaultAllocator) TestStreamSocket(&d_opCode);
 }
 
 void TestStreamSocketFactory::deallocate(
@@ -288,7 +290,9 @@ void TestStreamSocketFactory::deallocate(
     --d_allocatedCount;
     ASSERT(d_allocatedCount >= 0);
 
-    delete (TestStreamSocket *) socket;
+    bslma::Allocator defaultAllocator = bslma::Default::defaultAllocator();
+
+    defaultAllocator->deleteObject((TestStreamSocket *) socket);
 }
 
                               // ================

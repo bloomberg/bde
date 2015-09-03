@@ -10,13 +10,13 @@ namespace BloombergLP {
 
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
 
-const btlso::SocketHandle::Handle btlso::SocketHandle::INVALID_SOCKET_HANDLE =
-                                                                INVALID_SOCKET;
+const btlso::SocketHandle::Handle
+btlso::SocketHandle::INVALID_SOCKET_HANDLE = INVALID_SOCKET;
 
 #else
 
-const btlso::SocketHandle::Handle btlso::SocketHandle::INVALID_SOCKET_HANDLE =
-                                                                            -1;
+const btlso::SocketHandle::Handle
+btlso::SocketHandle::INVALID_SOCKET_HANDLE = -1;
 
 #endif
 

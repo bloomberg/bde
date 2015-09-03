@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 //  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
 //                                btlso::TimeMetrics::e_CPU_BOUND);
 //
-//  btlso::DefaultEventManager<btlso::Platform::EPOLL> mX(&timeMetric);
+//  btlso::DefaultEventManager<btlso::Platform::POLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
@@ -214,22 +214,22 @@ BSLS_IDENT("$Id: $")
 //      // event is detected.
 //
 //      enum {
-//          MAX_READ_SIZE  = 8192,   // The numbers are for illustrative
-//          MAX_WRITE_SIZE = 70000   // purposes only.
+//          k_MAX_READ_SIZE  = 8192,   // The numbers are for illustrative
+//          k_MAX_WRITE_SIZE = 70000   // purposes only.
 //      };
 //
 //      switch (event) {
 //        case btlso::EventType::e_READ: {
 //            assert(0 < bytes);
-//            char buffer[MAX_READ_SIZE];
+//            char buffer[k_MAX_READ_SIZE];
 //
 //            int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
 //            assert(0 < rc);
 //        } break;
 //        case btlso::EventType::e_WRITE: {
-//            char wBuffer[MAX_WRITE_SIZE];
+//            char wBuffer[k_MAX_WRITE_SIZE];
 //            assert(0 < bytes);
-//            assert(MAX_WRITE_SIZE >= bytes);
+//            assert(k_MAX_WRITE_SIZE >= bytes);
 //            memset(wBuffer,'4', bytes);
 //            int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
 //            assert(0 < rc);
@@ -250,28 +250,32 @@ BSLS_IDENT("$Id: $")
 #include <btlso_defaulteventmanagerimpl.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_PLATFORM
-#include <btlso_platform.h>
+#ifndef INCLUDED_BTLSO_EVENT
+#include <btlso_event.h>
 #endif
 
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_EVENT
-#include <btlso_event.h>
+#ifndef INCLUDED_BTLSO_EVENTTYPE
+#include <btlso_eventtype.h>
+#endif
+
+#ifndef INCLUDED_BTLSO_PLATFORM
+#include <btlso_platform.h>
 #endif
 
 #ifndef INCLUDED_BTLSO_SOCKETHANDLE
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_EVENTTYPE
-#include <btlso_eventtype.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -301,37 +305,30 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
+namespace bsls { class TimeInterval; }
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
+namespace btlso {
 
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
+class TimeMetrics;
 
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace btlso {class TimeMetrics;
-
-            // =====================================================
+            // =========================================
             // class DefaultEventManager<Platform::POLL>
-            // =====================================================
+            // =========================================
+
 template<>
-class DefaultEventManager<Platform::POLL>
-                                                  : public EventManager {
-    // This specialization of 'DefaultEventManager' for the
-    // 'Platform::POLL' integral template parameter, implements the
-    // 'EventManager' and uses the 'poll' system call as its polling
-    // mechanism.
+class DefaultEventManager<Platform::POLL> : public EventManager {
+    // This specialization of 'DefaultEventManager' for the 'Platform::POLL'
+    // integral template parameter, implements the 'EventManager' and uses the
+    // 'poll' system call as its polling mechanism.
 
     // DATA
     bsl::vector<struct ::pollfd>  d_pollFds;       // array of 'pollfd'
                                                    // structures for each
                                                    // registered socket handle
 
-    bsl::unordered_map<Event,
-                       EventManager::Callback,
-                       EventHash>
+    bsl::unordered_map<Event, EventManager::Callback, EventHash>
                                   d_callbacks;     // container of registered
                                                    // socket events and
                                                    // associated callbacks
@@ -340,7 +337,7 @@ class DefaultEventManager<Platform::POLL>
                                                    // the associated indexes in
                                                    // 'd_pollFds'
 
-    TimeMetrics            *d_timeMetric_p;  // metrics to use for
+    TimeMetrics                  *d_timeMetric_p;  // metrics to use for
                                                    // reporting percent-busy
                                                    // statistics
 
@@ -350,12 +347,13 @@ class DefaultEventManager<Platform::POLL>
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(DefaultEventManager,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(btlso::DefaultEventManager<Platform::POLL>,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit
-    DefaultEventManager(TimeMetrics *timeMetric     = 0,
-                              bslma::Allocator  *basicAllocator = 0);
+    DefaultEventManager(TimeMetrics      *timeMetric     = 0,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a 'poll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
@@ -374,18 +372,18 @@ class DefaultEventManager<Platform::POLL>
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked), (2) the specified absolute
         // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system
-        // call is interrupted by a signal.  Return the number of dispatched
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call
+        // is interrupted by a signal.  Return the number of dispatched
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
         // method will return -1 if 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will
-        // automatically restart (i.e., reissue the identical system call).
-        // Note that all callbacks are invoked in the same thread that invokes
-        // 'dispatch', and the order of invocation, relative to the order of
-        // registration, is unspecified.  Also note that -1 is never returned
-        // unless 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that all
+        // callbacks are invoked in the same thread that invokes 'dispatch',
+        // and the order of invocation, relative to the order of registration,
+        // is unspecified.  Also note that -1 is never returned unless 'flags'
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -397,10 +395,10 @@ class DefaultEventManager<Platform::POLL>
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
-        // and otherwise will automatically restart (i.e., reissue the
-        // identical system call).  Note that all callbacks are invoked in the
-        // same thread that invokes 'dispatch', and the order of invocation,
+        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT' and
+        // otherwise will automatically restart (i.e., reissue the identical
+        // system call).  Note that all callbacks are invoked in the same
+        // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'flags' contains
         // 'bteso_Flag::k_ASYNC_INTERRUPT'.
@@ -413,13 +411,13 @@ class DefaultEventManager<Platform::POLL>
         // 'handle'.  Each socket event registration stays in effect until it
         // is subsequently deregistered; the callback is invoked each time the
         // corresponding event is detected.  'EventType::e_READ' and
-        // 'EventType::e_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  If a registration attempt
-        // is made for an event that is already registered, the callback
-        // associated with this event will be overwritten with the new one.
-        // Simultaneous registration of incompatible events for the same socket
-        // 'handle' will result in undefined behavior.  Return 0 in success and
-        // a non-zero value, which is the same as native error code, on error.
+        // 'EventType::e_WRITE' are the only events that can be registered
+        // simultaneously for a socket.  If a registration attempt is made for
+        // an event that is already registered, the callback associated with
+        // this event will be overwritten with the new one.  Simultaneous
+        // registration of incompatible events for the same socket 'handle'
+        // will result in undefined behavior.  Return 0 in success and a
+        // non-zero value, which is the same as native error code, on error.
 
     void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                EventType::Type             event);
@@ -461,17 +459,17 @@ class DefaultEventManager<Platform::POLL>
 //                      INLINE FUNCTIONS' DEFINITIONS
 //-----------------------------------------------------------------------------
 
-           // =====================================================
+           // =========================================
            // class DefaultEventManager<Platform::POLL>
-           // =====================================================
+           // =========================================
 
 // ACCESSORS
 inline
-bool DefaultEventManager<Platform::POLL>::
-                                               hasLimitedSocketCapacity() const
+bool DefaultEventManager<Platform::POLL>::hasLimitedSocketCapacity() const
 {
     return false;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

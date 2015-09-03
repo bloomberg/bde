@@ -53,25 +53,13 @@ using namespace bsl;  // automatically added by script
 // code branches in the function being tested.
 // ----------------------------------------------------------------------------
 // ACCESSORS
-// [ 1] int getAddress(btlso::IPv4Address *result,
-//                     const char        *hostname,
-//                     int               *errorCode = 0);
-// [ 1] int getAddressDefault(btlso::IPv4Address *result,
-//                            const char        *hostname,
-//                            int               *errorCode = 0);
-// [ 2] int getAddresses(bsl::vector<btlso::IPv4Address> *result,
-//                       const char                     *hostname,
-//                       int                            *errorCode = 0);
-// [ 3] int getServicePort(btlso::IPv4Address *result,
-//                         const char        *servicename,
-//                         const char        *protocol,
-//                         int               *errorCode = 0);
-// [ 4] int getHostnameByAddress(bsl::string              *hostname,
-//                               const btlso::IPv4Address&  address,
-//                               int                      *errorCode);
+// [ 1] int getAddress(btlso::IPv4Address *result, hostname, errorCode = 0);
+// [ 1] int getAddressDefault(btlso::IPv4Address *result, hostname, errorCode);
+// [ 2] int getAddresses(vector<btlso::IPv4Address> *, hostname, errorCode);
+// [ 3] int getServicePort(btlso::IPv4Address *result, svc, proto, errorCode);
+// [ 4] int getHostnameByAddress(hostname, address, errorCode);
 // [ 5] int getLocalHostname(bsl::string *hostname);
-// [ 6] ResolveByNameCallback setResolveByNameCallback(
-//                                             ResolveByNameCallback callback);
+// [ 6] ResolveByNameCallback setResolveByNameCallback(callback);
 // [ 6] ResolveByNameCallback currentResolveByNameCallback();
 // [ 6] ResolveByNameCallback defaultResolveByNameCallback();
 // ----------------------------------------------------------------------------
@@ -145,9 +133,9 @@ typedef bsl::map<bsl::string, bsl::vector<btlso::IPv4Address> >  MyCallbackMap;
 MyCallbackMap myCallbackMap;
 
 int myResolveByNameCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                            const char                     *hostName,
-                            int                             numAddresses,
-                            int                            *errorCode)
+                            const char                      *hostName,
+                            int                              numAddresses,
+                            int                             *errorCode)
     // Resolves the IP address(es) of the specified 'hostname' and the
     // specified 'hostAddresses' with a maximum number equal to the specified
     // 'numAddresses' (or unlimited number if 'numAddresses' is -1) of the IPv4
@@ -229,7 +217,7 @@ int main(int argc, char *argv[])
             //   USAGE EXAMPLE
             // ----------------------------------------------------------------
             if (verbose) cout << "\nTesting Usage Example"
-                              << "\n=======================" << endl;
+                              << "\n=====================" << endl;
 
 ///Usage
 ///-----
@@ -238,13 +226,13 @@ int main(int argc, char *argv[])
 // to store the return value for host 'p111', 'ibm1' respectively, and verify
 // the return addresses:
 //..
-        int retCode=0, errorCode = 0;
+        int                retCode = 0, errorCode = 0;
         btlso::IPv4Address result1, result2;
 
         const char *hostname = "p111";
         retCode = btlso::ResolveUtil::getAddress(&result1,
-                                                hostname,
-                                                &errorCode);
+                                                 hostname,
+                                                 &errorCode);
         ASSERT(0 == retCode);
         ASSERT(0 == errorCode);
         if (verbose)
@@ -253,8 +241,8 @@ int main(int argc, char *argv[])
 
         const char *hostname2 = "ibm1";
         retCode = btlso::ResolveUtil::getAddress(&result2,
-                                                hostname2,
-                                                &errorCode);
+                                                 hostname2,
+                                                 &errorCode);
         ASSERT(0 == retCode);
         ASSERT(0 == errorCode);
         if (verbose)
@@ -269,8 +257,8 @@ int main(int argc, char *argv[])
 
         const char *hostname3 = "n024";
         retCode = btlso::ResolveUtil::getAddresses(&addresses,
-                                                  hostname3,
-                                                  &errorCode);
+                                                   hostname3,
+                                                   &errorCode);
         ASSERT(0 == retCode);
         ASSERT(0 == errorCode);
         if (verbose) {
@@ -278,7 +266,7 @@ int main(int argc, char *argv[])
             bsl::copy(addresses.begin(),
                       addresses.end(),
                       bsl::ostream_iterator<btlso::IPv4Address>(bsl::cout,
-                                                               " "));
+                                                                " "));
             bsl::cout << bsl::endl;
         }
 //..
@@ -288,27 +276,27 @@ int main(int argc, char *argv[])
 //..
         const char *servname = "ftp";
         retCode = btlso::ResolveUtil::getServicePort(&result1,
-                                                    servname,
-                                                    0,
-                                                    &errorCode);
+                                                     servname,
+                                                     0,
+                                                     &errorCode);
         ASSERT(0 == retCode);
         if (verbose)
             bsl::cout << "Port number for 'ftp': " << result1 << bsl::endl;
 
         const char *servname2 = "systat";
         retCode = btlso::ResolveUtil::getServicePort(&result2,
-                                                    servname2,
-                                                    0,
-                                                    &errorCode);
+                                                     servname2,
+                                                     0,
+                                                     &errorCode);
         ASSERT(0 == retCode);
         if (verbose)
             bsl::cout << "Port number for 'systat': " << result1 << bsl::endl;
 
         const char *servname3 = "telnet";
         retCode = btlso::ResolveUtil::getServicePort(&result3,
-                                                    servname3,
-                                                    "tcp",
-                                                    &errorCode);
+                                                     servname3,
+                                                     "tcp",
+                                                     &errorCode);
         ASSERT(0 == retCode);
         if (verbose)
             bsl::cout << "Port number for 'telnet': " << result1 << bsl::endl;
@@ -329,8 +317,7 @@ int main(int argc, char *argv[])
             //   case.
             //
             // Testing
-            //   ResolveByNameCallback setResolveByNameCallback(
-            //                                 ResolveByNameCallback callback);
+            //   ResolveByNameCallback setResolveByNameCallback(callback);
             //   ResolveByNameCallback currentResolveByNameCallback();
             // ----------------------------------------------------------------
 
@@ -812,9 +799,7 @@ int main(int argc, char *argv[])
             //   value is returned.
             //
             // Testing
-            //    getHostnameByAddress(bsl::string              *hostname,
-            //                         const btlso::IPv4Address&  address,
-            //                         int                      *errorCode);
+            //   int getHostnameByAddress(hostname, address, errorCode);
             // ----------------------------------------------------------------
             if (verbose) cout << "\nTesting getHostnameByAddress"
                               << "\n============================" << endl;
@@ -1110,9 +1095,7 @@ int main(int argc, char *argv[])
             //   optionally error code for an invalid name.
             //
             // Testing
-            //   int getAddresses(bsl::vector<btlso::IPv4Address> *result,
-            //                    const char                     *hostname,
-            //                    int                            *errorCode);
+            //   int getAddresses(vector<btlso::IPv4Address> *, host, code);
             // ----------------------------------------------------------------
             if (verbose) cout << "\nTesting getAddress"
                               << "\n==================" << endl;
@@ -1252,11 +1235,11 @@ int main(int argc, char *argv[])
                     if (EXP_RESULT_ARRAY != resultArray) {
                         cout << "Host: " << HOST_NAME << "    Expected: ";
                         copy(EXP_RESULT_ARRAY.begin(), EXP_RESULT_ARRAY.end(),
-                               ostream_iterator<btlso::IPv4Address>(cout, " "));
+                              ostream_iterator<btlso::IPv4Address>(cout, " "));
                         cout << endl;
                         cout << "Got instead: ";
                         copy(resultArray.begin(), resultArray.end(),
-                               ostream_iterator<btlso::IPv4Address>(cout, " "));
+                              ostream_iterator<btlso::IPv4Address>(cout, " "));
                         cout << endl;
 
                     }

@@ -36,8 +36,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] btlso::TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
-// [ 2] btlso::TcpTimerEventManager(Hint infreqRegHint, bslma::Allocator*ba =0);
-// [ 2] btlso::TcpTimerEventManager(btlso::EventManager*, bslma::Allocator*ba=0);
+// [ 2] btlso::TcpTimerEventManager(Hint hint, *allocator);
+// [ 2] btlso::TcpTimerEventManager(btlso::EventManager *, *allocator);
 // [ 2] ~btlso::TcpTimerEventManager();
 
 // MANIPULATORS
@@ -62,8 +62,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
-//=============================================================================
 
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -125,50 +125,50 @@ static void aSsErT(int c, const char *s, int i)
 typedef btlso::TcpTimerEventManager Obj;
 
 class my_CommandMediator {
-    // This class provides a mechanism to invoke a user-installed command
-    // from the user-installed socket event manager's 'dispatch' method.
+    // This class provides a mechanism to invoke a user-installed command from
+    // the user-installed socket event manager's 'dispatch' method.
     // Internally, it creates a socket pair, and monitors one of the pair's
-    // socket handles for incoming data.  The 'invoke' method will write a
-    // byte into the other handle.  On the next call to 'dispatch' method,
-    // read event will be signaled, and an internal callback will be invoked.
-    // This callback, in turn, will read a byte, and invoke the user's command.
+    // socket handles for incoming data.  The 'invoke' method will write a byte
+    // into the other handle.  On the next call to 'dispatch' method, read
+    // event will be signaled, and an internal callback will be invoked.  This
+    // callback, in turn, will read a byte, and invoke the user's command.
 
-    btlso::SocketHandle::Handle  d_client;   // socket handle for "control data"
+    btlso::SocketHandle::Handle  d_client;   // handle for "control data"
     btlso::SocketHandle::Handle  d_server;   // socket handle to monitor
     btlso::TcpTimerEventManager *d_manager_p;// targeted event manager
-    const char                  d_byte;     // control byte
+    const char                   d_byte;     // control byte
     bdlf::Function<void (*)()>   d_command;  // user command.
+
   private:
     void readCb();
         // Read exactly one byte from 'd_server' socket, and, if read
-        // successfully and correctly, invoke the callback currently
-        // installed.
+        // successfully and correctly, invoke the callback currently installed.
 
   public:
     // CREATORS
     my_CommandMediator(btlso::TcpTimerEventManager *manager,
                        bdlf::Function<void (*)()>   command,
-                       bslma::Allocator           *basicAllocator = 0);
-        // Create a mediator attached to the specified 'manager' and
-        // the specified 'command', which will be invoked from 'manager''s
+                       bslma::Allocator            *basicAllocator = 0);
+        // Create a mediator attached to the specified 'manager' and the
+        // specified 'command', which will be invoked from 'manager''s
         // 'dispatch' method.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, global operators 'new'
-        // and 'delete' are used.  The behavior is undefined if 'manager' is 0.
+        // supply memory.  If 'basicAllocator' is 0, global operators 'new' and
+        // 'delete' are used.  The behavior is undefined if 'manager' is 0.
 
     ~my_CommandMediator();
         // Destroy this object.
 
     // MANIPULATORS
     int operator()();
-        // Initiate an invocation of the associated command on the
-        // the next invocation of 'dispatch' method of installed timer
-        // event manager.   Return 0 on success and a non-zero value
-        // otherwise.
+        // Initiate an invocation of the associated command on the the next
+        // invocation of 'dispatch' method of installed timer event manager.
+        // Return 0 on success and a non-zero value otherwise.
 };
 
 // Private member functions
 
-void my_CommandMediator::readCb() {
+void my_CommandMediator::readCb()
+{
     char data;
     ASSERT(1 == btlso::SocketImpUtil::read(&data, d_server, sizeof data));
     ASSERT(data == d_byte);
@@ -177,9 +177,10 @@ void my_CommandMediator::readCb() {
 
 // CREATORS
 inline
-my_CommandMediator::my_CommandMediator(btlso::TcpTimerEventManager *manager,
-                                       bdlf::Function<void (*)()>   command,
-                                       bslma::Allocator    *basicAllocator)
+my_CommandMediator::my_CommandMediator(
+                                   btlso::TcpTimerEventManager *manager,
+                                   bdlf::Function<void (*)()>   command,
+                                   bslma::Allocator            *basicAllocator)
 : d_manager_p(manager)
 , d_byte(0xAF)
 , d_command(command)
@@ -192,13 +193,15 @@ my_CommandMediator::my_CommandMediator(btlso::TcpTimerEventManager *manager,
     d_server = handles[1];
 
     bdlf::Function<void (*)()> functor(
-     bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this), basicAllocator);
+                     bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this),
+                     basicAllocator);
     d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
                                      functor);
 }
 
 inline
-my_CommandMediator::~my_CommandMediator() {
+my_CommandMediator::~my_CommandMediator()
+{
     d_manager_p->deregisterSocketEvent(d_server, btlso::EventType::e_READ);
     ASSERT(0 == d_manager_p->numSocketEvents(d_server));
     btlso::SocketImpUtil::close(d_client);
@@ -207,7 +210,8 @@ my_CommandMediator::~my_CommandMediator() {
 
 // MANIPULATORS
 inline
-int my_CommandMediator::operator()() {
+int my_CommandMediator::operator()()
+{
     return
         btlso::SocketImpUtil::write(d_client, &d_byte, sizeof(char))
         != sizeof(char);
@@ -230,9 +234,9 @@ class TestSocketPair {
     btlso::SocketHandle::Handle  d_client;
     btlso::SocketHandle::Handle  d_server;
     btlso::TcpTimerEventManager *d_manager_p;
-    void                       *d_timerId;
-    char                        d_readCbInvoked;
-    char                        d_timerCbInvoked;
+    void                        *d_timerId;
+    char                         d_readCbInvoked;
+    char                         d_timerCbInvoked;
 
   private:
     void readCb();
@@ -363,82 +367,84 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
-            // ----------------------------------------------------------------
-            // TESTING USAGE EXAMPLE
-            //   The usage example provided in the component header file must
-            //   compile, link, and run on all platforms as shown.
-            //
-            // Plan:
-            //   Incorporate usage example from header into driver, remove
-            //   leading comment characters, and replace 'assert' with
-            //   'ASSERT'.
-            //
-            // Testing:
-            //   USAGE EXAMPLE
-            // ----------------------------------------------------------------
-            ASSERT(0 == btlso::SocketImpUtil::startup());
-            bslma::TestAllocator testAllocator(veryVeryVerbose);
+        // ----------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove
+        //   leading comment characters, and replace 'assert' with
+        //   'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // ----------------------------------------------------------------
 
-            if (verbose) cout << "\nTesting Usage Example"
-                              << "\n=====================" << endl;
+        ASSERT(0 == btlso::SocketImpUtil::startup());
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-            {
-                btlso::TcpTimerEventManager mX(&testAllocator);
-                const btlso::TcpTimerEventManager& X = mX;
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
 
-                char isInvokedFlag = 0;
-                bdlf::Function<void (*)()> command(
+        {
+            btlso::TcpTimerEventManager mX(&testAllocator);
+            const btlso::TcpTimerEventManager& X = mX;
+
+            char isInvokedFlag = 0;
+            bdlf::Function<void (*)()> command(
                         bdlf::BindUtil::bind(&set, &isInvokedFlag));
 
-                my_CommandMediator mediator(&mX, command, &testAllocator);
-                ASSERT(1 == X.numEvents());
-                ASSERT(0 == X.numTimers());
-                ASSERT(0 == mediator());
+            my_CommandMediator mediator(&mX, command, &testAllocator);
+            ASSERT(1 == X.numEvents());
+            ASSERT(0 == X.numTimers());
+            ASSERT(0 == mediator());
 
-                ASSERT(1 == mX.dispatch(0));
-                ASSERT(1 == isInvokedFlag);
-            }
-            ASSERT(0 == testAllocator.numMismatches());
-            ASSERT(0 == btlso::SocketImpUtil::cleanup());
+            ASSERT(1 == mX.dispatch(0));
+            ASSERT(1 == isInvokedFlag);
+        }
+        ASSERT(0 == testAllocator.numMismatches());
+        ASSERT(0 == btlso::SocketImpUtil::cleanup());
       } break;
       case 8: {
-            // ----------------------------------------------------------------
-            // TESTING USAGE EXAMPLE
-            //   The usage example provided in the component header file must
-            //   compile, link, and run on all platforms as shown.
-            //
-            // Plan:
-            //   Incorporate usage example from header into driver, remove
-            //   leading comment characters, and replace 'assert' with
-            //   'ASSERT'.
-            //
-            // Testing:
-            //   USAGE EXAMPLE
-            // ----------------------------------------------------------------
-            ASSERT(0 == btlso::SocketImpUtil::startup());
-            bslma::TestAllocator testAllocator(veryVeryVerbose);
+        // ----------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove
+        //   leading comment characters, and replace 'assert' with
+        //   'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // ----------------------------------------------------------------
 
-            if (verbose) cout << "\nTesting Usage Example"
-                              << "\n=====================" << endl;
+        ASSERT(0 == btlso::SocketImpUtil::startup());
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-            {
-                btlso::TcpTimerEventManager mX(&testAllocator);
-                const btlso::TcpTimerEventManager& X = mX;
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
 
-                TestSocketPair sp(&mX);
-                ASSERT(2 == X.numEvents());
-                ASSERT(1 == X.numTimers());
-                const char controlByte = 0xAB;
-                ASSERT(1 == btlso::SocketImpUtil::write(sp.client(),
-                                                       &controlByte,
-                                                       sizeof(char)));
-                ASSERT(1 == mX.dispatch(0));
-                ASSERT(0 == sp.timerCbInvokedFlag());
-                ASSERT(1 == sp.readCbInvokedFlag());
+        {
+            btlso::TcpTimerEventManager mX(&testAllocator);
+            const btlso::TcpTimerEventManager& X = mX;
 
-            }
-            ASSERT(0 == testAllocator.numMismatches());
-            ASSERT(0 == btlso::SocketImpUtil::cleanup());
+            TestSocketPair sp(&mX);
+            ASSERT(2 == X.numEvents());
+            ASSERT(1 == X.numTimers());
+            const char controlByte = 0xAB;
+            ASSERT(1 == btlso::SocketImpUtil::write(sp.client(),
+                                                    &controlByte,
+                                                    sizeof(char)));
+            ASSERT(1 == mX.dispatch(0));
+            ASSERT(0 == sp.timerCbInvokedFlag());
+            ASSERT(1 == sp.readCbInvokedFlag());
+
+        }
+        ASSERT(0 == testAllocator.numMismatches());
+        ASSERT(0 == btlso::SocketImpUtil::cleanup());
       } break;
       case 7: {
         // --------------------------------------------------------------------

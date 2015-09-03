@@ -97,13 +97,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a
-// 'btlso::DefaultEventManager<btlso::Platform::POLL>' object; also create a
+// 'btlso::DefaultEventManager<btlso::Platform::EPOLL>' object; also create a
 // (locally-connected) socket pair:
 //..
 //  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
 //                                btlso::TimeMetrics::e_CPU_BOUND);
 //
-//  btlso::DefaultEventManager<btlso::Platform::POLL> mX(&timeMetric);
+//  btlso::DefaultEventManager<btlso::Platform::EPOLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
@@ -198,8 +198,8 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == mX.numSocketEvents(socket[1]));
 //  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
 //  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
 //  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
 //..
 // The following snippets of code show what a 'genericCb' may look like:
 //..
@@ -301,12 +301,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_SYS_EPOLL
 #endif
 
-namespace bsl {
-
-template <> struct is_trivially_copyable<epoll_event> : true_type {};
-
-}  // close namespace bsl
-
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
@@ -368,9 +362,11 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
                                                  // number of registered events
 
     // PRIVATE MANIPULATORS
-    int dispatchCallbacks(const bsl::vector<struct ::epoll_event>& signaled);
-        // Invoke the callbacks in the specified 'signaled' vector of events.
-        // Return the number of callbacks that were invoked.
+    int dispatchCallbacks(const bsl::vector<struct ::epoll_event>& signaled,
+                          int                                      numReady);
+        // Invoke the callbacks in the specified 'signaled' vector of events
+        // with the specified 'numReady' number of ready callbacks.  Return the
+        // number of callbacks that were invoked.
 
     int dispatchImp(int flags, const bsls::TimeInterval *timeout = 0);
         // For each pending socket event, invoke the corresponding callback
@@ -493,9 +489,9 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
 //                      INLINE FUNCTIONS' DEFINITIONS
 //-----------------------------------------------------------------------------
 
-           // ==========================================
+           // ------------------------------------------
            // class DefaultEventManager<Platform::EPOLL>
-           // ==========================================
+           // ------------------------------------------
 
 // ACCESSORS
 inline
@@ -507,6 +503,12 @@ bool DefaultEventManager<Platform::EPOLL>::hasLimitedSocketCapacity() const
 }  // close package namespace
 
 }  // close enterprise namespace
+
+namespace bsl {
+
+template <> struct is_trivially_copyable<epoll_event> : true_type {};
+
+}  // close namespace bsl
 
 #endif // BSLS_PLATFORM_OS_LINUX
 

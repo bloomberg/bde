@@ -100,6 +100,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a command mediator
+///- - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows the implementation of a command mediator.
 // Given that this event manager is not thread enabled, a workaround is
 // required if we are to use this manager in a multithreaded program.  Let's
@@ -133,11 +137,12 @@ BSLS_IDENT("$Id: $")
 //      // the user's command.
 //
 //      btlso::SocketHandle::Handle  d_client;   // socket handle for "control
-//                                              // data"
+//                                               // data"
 //      btlso::SocketHandle::Handle  d_server;   // socket handle to monitor
 //      btlso::TcpTimerEventManager *d_manager_p;// targeted event manager
-//      const char                  d_byte;     // control byte
+//      const char                   d_byte;     // control byte
 //      bdlf::Function<void (*)()>   d_command;  // user command.
+//
 //    private:
 //      void readCb();
 //          // Read exactly one byte from the 'd_server' socket, and, if read
@@ -148,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //      // CREATORS
 //      my_CommandMediator(btlso::TcpTimerEventManager *manager,
 //                         bdlf::Function<void (*)()>   command,
-//                         bslma::Allocator           *basicAllocator = 0);
+//                         bslma::Allocator            *basicAllocator = 0);
 //          // Create a mediator attached to the specified 'manager' and
 //          // the specified 'command', which will be invoked from 'manager''s
 //          // 'dispatch' method.  Optionally specify a 'basicAllocator' used
@@ -177,9 +182,10 @@ BSLS_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_CommandMediator::my_CommandMediator(btlso::TcpTimerEventManager *manager,
-//                                         bdlf::Function<void (*)()>   command,
-//                                         bslma::Allocator    *basicAllocator)
+//  my_CommandMediator::my_CommandMediator(
+//                                 btlso::TcpTimerEventManager *manager,
+//                                 bdlf::Function<void (*)()>   command,
+//                                 bslma::Allocator            *basicAllocator)
 //  : d_manager_p(manager)
 //  , d_byte(0xAF)
 //  , d_command(command)
@@ -251,17 +257,15 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
+
+namespace bslma { class Allocator; }
 
 namespace btlso {
 
-                   // ================================
-                   // class TcpTimerEventManager
-                   // ================================
+                   // =================================
+                   // class btlso::TcpTimerEventManager
+                   // =================================
 
 class TcpTimerEventManager : public TimerEventManager
 {
@@ -275,25 +279,30 @@ class TcpTimerEventManager : public TimerEventManager
 
   public:
     enum Hint {
-        e_NO_HINT                  // the registrations may be frequent
-      , e_INFREQUENT_REGISTRATION  // the (de)registrations will be infrequent
+        e_NO_HINT,                 // the registrations may be frequent
+        e_INFREQUENT_REGISTRATION  // the (de)registrations will be infrequent
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_NO_HINT                 = e_NO_HINT
       , BTESO_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
-      , NO_HINT                 = e_NO_HINT
-      , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
+      , NO_HINT                       = e_NO_HINT
+      , INFREQUENT_REGISTRATION       = e_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
   private:
     bdlcc::TimeQueue<bdlf::Function<void (*)()> >
-                        d_timers;       // registered timers
-    EventManager *d_manager_p;    // socket event manager
-    int                 d_isManagedFlag;
-                                        // indicates whether or not the event
-                                        // manager is managed.
-    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
-    TimeMetrics   d_metrics;      // workload counter
+                        d_timers;          // registered timers 
+
+    EventManager       *d_manager_p;       // socket event manager
+
+    int                 d_isManagedFlag;   // indicates whether or not the
+                                           // event manager is managed.
+
+    bslma::Allocator   *d_allocator_p;     // allocator used to supply memory
+
+    TimeMetrics         d_metrics;         // workload counter
 
   private:
     TcpTimerEventManager(const TcpTimerEventManager&);
@@ -303,20 +312,19 @@ class TcpTimerEventManager : public TimerEventManager
     // CREATORS
     TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
         // Create an event manager with timer support optimized for frequent
-        // registrations ('e_NO_HINT').  Optionally specify a
+        // registrations ('e_NO_HINT').  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    TcpTimerEventManager(Hint              hint,
+                         bslma::Allocator *basicAllocator = 0);
+        // Create an event manager with timer support optimized for the
+        // registration frequency as hinted by 'hint'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    TcpTimerEventManager(Hint              infrequentRegistrationHint,
-                               bslma::Allocator *basicAllocator = 0);
-        // Create an event manager with timer support optimized for the
-        // registration frequency as hinted by 'infrequentRegistrationHint'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-
-    TcpTimerEventManager(EventManager *manager,
-                               bslma::Allocator   *basicAllocator = 0);
+    TcpTimerEventManager(EventManager     *manager,
+                         bslma::Allocator *basicAllocator = 0);
         // Create a timer event manager that uses the specified 'manager' for
         // monitoring socket events.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -336,9 +344,9 @@ class TcpTimerEventManager : public TimerEventManager
         // this timer event manager.  If no event is pending, wait until either
         // (1) at least one event occurs (in which case the corresponding
         // callback(s) is invoked), (2) a timer expires or (3) provided that
-        // the specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT',
-        // an underlying system call is interrupted by a signal.  If no socket
-        // and no timer is registered with this event manager, this call will
+        // the specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT', an
+        // underlying system call is interrupted by a signal.  If no socket and
+        // no timer is registered with this event manager, this call will
         // return (with 0) immediately.  Return the number of dispatched
         // callbacks on success, and a negative value otherwise; -1 is reserved
         // to indicate that an underlying system call was interrupted.  When
@@ -347,13 +355,13 @@ class TcpTimerEventManager : public TimerEventManager
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.
-        // Calling this method from a callback invoked through this method will
-        // result in undefined behavior.
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Calling
+        // this method from a callback invoked through this method will result
+        // in undefined behavior.
 
     int registerSocketEvent(const SocketHandle::Handle& handle,
                             EventType::Type             event,
-                            const Callback&                   callBack);
+                            const Callback&             callBack);
         // Register with this event manager the specified 'cb' functor to be
         // invoked whenever the specified 'event' occurs on the socket
         // specified by 'handle'.  Return 0 on success and a negative number on
@@ -365,7 +373,7 @@ class TcpTimerEventManager : public TimerEventManager
         // deregistered).
 
     void *registerTimer(const bsls::TimeInterval& timeout,
-                        const Callback&          callBack);
+                        const Callback&           callBack);
         // Register with this event manager the specified 'cb' functor to be
         // invoked when the absolute time of the specified 'timeout' is reached
         // or exceeded.  Return a timer handle which can be used to deregister
@@ -375,7 +383,7 @@ class TcpTimerEventManager : public TimerEventManager
         // callback is not recurring (i.e., after being invoked it is
         // deregistered automatically).
 
-    int rescheduleTimer(const void               *timerId,
+    int rescheduleTimer(const void                *timerId,
                         const bsls::TimeInterval&  expiryTime);
         // Reschedule the timer indicated by the specified 'timerId' such that
         // the callback function supplied to 'registerTimer' will be invoked
@@ -451,8 +459,7 @@ class TcpTimerEventManager : public TimerEventManager
         // Return the number of timers that are currently registered with this
         // event manager.
 
-    int numSocketEvents(
-                const SocketHandle::Handle& handle) const;
+    int numSocketEvents(const SocketHandle::Handle& handle) const;
         // Return the number of callbacks registered with this event manager,
         // associated with the specified socket 'handle'.
 
@@ -464,6 +471,10 @@ class TcpTimerEventManager : public TimerEventManager
 //-----------------------------------------------------------------------------
 //                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
+
+                   // ---------------------------------
+                   // class btlso::TcpTimerEventManager
+                   // ---------------------------------
 
 // ACCESSORS
 inline

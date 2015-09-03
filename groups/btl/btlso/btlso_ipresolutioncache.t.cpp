@@ -9,6 +9,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsl_iostream.h>
 
@@ -23,8 +24,6 @@
 #include <bdlqq_threadutil.h>
 #include <bdlqq_once.h>
 #include <bdlqq_barrier.h>
-
-#include <bslma_testallocator.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsls_asserttest.h>
@@ -81,7 +80,7 @@ using namespace bsl;
 // [ 5] bdlqq::Mutex& updatingLock();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [ 2] CONCERN: Test apparatus is working as expected.
 // [ 9] CONCERN: btlso::IpResolutionCache works with multiple threads
 // ============================================================================
@@ -149,11 +148,14 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef bslma::TestAllocatorMonitor TestAllocatorMonitor;
+
 namespace BloombergLP {
 namespace btlso {
+
 class IpResolutionCache_Data {
-    // Duplicate of the 'IpResolutionCache_Data' class declaration
-    // defined in 'btlso_ipresolutioncache.cpp'.
+    // Duplicate of the 'IpResolutionCache_Data' class declaration defined in
+    // 'btlso_ipresolutioncache.cpp'.
     //
     // This class provides storage for a set of IP addresses and a
     // 'bdlt::Datetime' to indicate the time these addresses were populated.
@@ -170,8 +172,8 @@ class IpResolutionCache_Data {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IpResolutionCache,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(IpResolutionCache,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATOR
     IpResolutionCache_Data(
@@ -192,6 +194,7 @@ class IpResolutionCache_Data {
         // Return a reference providing non-modifiable access to the time this
         // object was created.
 };
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -228,8 +231,8 @@ enum {
 // 'btlso::ResolveUtil', we must wrap the call to
 // 'btlso::IpResolutionCache::resolveAddress' in a free function.
 //
-// When configuring 'btlso::ResolveUtil', a singleton cache should be created to
-// ensure the cache exist for all calls to 'btlso::ResolveUtil::getAddress'.
+// When configuring 'btlso::ResolveUtil', a singleton cache should be created
+// to ensure the cache exist for all calls to 'btlso::ResolveUtil::getAddress'.
 // First, we create a function that initializes the singleton cache on the
 // first execution and returns the address of the cache:
 //..
@@ -253,9 +256,9 @@ enum {
 //..
     static
     int resolverCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                         const char                     *hostName,
-                         int                             numAddresses,
-                         int                            *errorCode)
+                         const char                      *hostName,
+                         int                              numAddresses,
+                         int                             *errorCode)
     {
         return ipCacheInstance()->resolveAddress(hostAddresses,
                                                  hostName,
@@ -291,9 +294,9 @@ class TestResolver {
   public:
     // CLASS METHOD
     static int callback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                        const char                     *hostName,
-                        int                             maxNumAddresses,
-                        int                            *errorCode);
+                        const char                      *hostName,
+                        int                              maxNumAddresses,
+                        int                             *errorCode);
         // Load, into the specified 'hostAddresses', either the specified
         // 'maxNumAddresses' or 's_numAddresses' (whichever is less) number of
         // IP addresses based on 's_count', regardless of the specified
@@ -330,7 +333,6 @@ class TestResolver {
     static void setNumAddresses(int value);
         // Set the number of IP addresses the 'callback' method will attempt
         // to return to the specified value.
-
 };
 
                          // ------------
@@ -343,9 +345,9 @@ int TestResolver::s_errorCode    = 0;
 int TestResolver::s_numAddresses = 1;
 
 int TestResolver::callback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                           const char                     *hostName,
-                           int                             maxNumAddresses,
-                           int                            *errorCode)
+                           const char                      *hostName,
+                           int                              maxNumAddresses,
+                           int                             *errorCode)
 {
     if (s_errorCode) {
         // Simulate an error.
@@ -362,7 +364,7 @@ int TestResolver::callback(bsl::vector<btlso::IPv4Address> *hostAddresses,
     int size = bsl::min(s_numAddresses, maxNumAddresses);
     for (int i = 0; i < size; ++i) {
         hostAddresses->push_back(
-                          btlso::IPv4Address(BSLS_BYTEORDER_HTONL(s_count), 0));
+                         btlso::IPv4Address(BSLS_BYTEORDER_HTONL(s_count), 0));
     }
 
     (void) hostName;  // quash potential compiler warning
@@ -414,7 +416,7 @@ void TestResolver::setNumAddresses(int value)
 //                     GLOBAL FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 static
-void performanceTest(bdlqq::Mutex    *updateMutex,
+void performanceTest(bdlqq::Mutex   *updateMutex,
                      double         *totalSystemTime,
                      double         *totalUserTime,
                      double         *totalWallTime,
@@ -435,14 +437,13 @@ void performanceTest(bdlqq::Mutex    *updateMutex,
           case DEFAULT: {
             for (int i = 0; i < numCalls; ++i) {
                 int rc = btlso::ResolveUtil::getAddressDefault(&address,
-                                                              it->c_str());
+                                                               it->c_str());
                 BSLS_ASSERT(!rc);
             }
           } break;
           case CACHE: {
             for (int i = 0; i < numCalls; ++i) {
-                int rc = btlso::ResolveUtil::getAddress(&address,
-                                                       it->c_str());
+                int rc = btlso::ResolveUtil::getAddress(&address, it->c_str());
                 BSLS_ASSERT(!rc);
             }
           } break;
@@ -474,14 +475,14 @@ extern "C" void* MyThread(void* arg_p)
 //                      CONCURRENCY CONCERNS RELATED ENTRIES
 //-----------------------------------------------------------------------------
 
-void executeInParallel(int                               numThreads,
+void executeInParallel(int                                numThreads,
                        bdlqq::ThreadUtil::ThreadFunction  func,
-                       void                             *threadArgs)
+                       void                              *threadArgs)
    // Create the specified 'numThreads', each executing the specified 'func'
    // on the specified 'threadArgs'.
 {
     bdlqq::ThreadUtil::Handle *threads =
-                                      new bdlqq::ThreadUtil::Handle[numThreads];
+                                     new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     int rc;
@@ -526,14 +527,14 @@ struct IpAddressData {
 const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
 struct ThreadData {
-    Obj           *d_cache_p;    // cache under test
+    Obj            *d_cache_p;    // cache under test
     bdlqq::Barrier *d_barrier_p;  // testing barrier
 };
 
 int testConcurrencyCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-                            const char                     *hostName,
-                            int                             maxNumAddresses,
-                            int                            *errorCode)
+                            const char                      *hostName,
+                            int                              maxNumAddresses,
+                            int                             *errorCode)
     // Load, into the specified 'hostAddresses', the IP address based on the
     // specified 'hostName'.  Load into the specified 'errorCode', a value of 0
     // if 'errorCode' is not null.  The behavior is undefined unless
@@ -548,7 +549,7 @@ int testConcurrencyCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
     for (int i = 0; i < NUM_DATA; ++i) {
         if (0 == strcmp(DATA[i].d_hostname, hostName)) {
             hostAddresses->push_back(
-              btlso::IPv4Address(BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress), 0));
+             btlso::IPv4Address(BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress), 0));
             break;
         }
     }
@@ -573,7 +574,7 @@ extern "C" void *workerThread(void *arg)
 
     for (int testRun = 0; testRun < 50; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
-            const char              *ID = DATA[i].d_hostname;
+            const char               *ID = DATA[i].d_hostname;
             const btlso::IPv4Address  IP = btlso::IPv4Address(
                                      BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
                                      0);
@@ -588,7 +589,7 @@ extern "C" void *workerThread(void *arg)
 
     for (int testRun = 0; testRun < 50; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
-            const char              *ID = DATA[i].d_hostname;
+            const char               *ID = DATA[i].d_hostname;
             const btlso::IPv4Address  IP = btlso::IPv4Address(
                                      BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
                                      0);
@@ -602,7 +603,7 @@ extern "C" void *workerThread(void *arg)
 
     for (int testRun = 0; testRun < 50; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
-            const char              *ID = DATA[i].d_hostname;
+            const char               *ID = DATA[i].d_hostname;
             const btlso::IPv4Address  IP = btlso::IPv4Address(
                                      BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
                                      0);
@@ -616,104 +617,6 @@ extern "C" void *workerThread(void *arg)
 }
 
 }  // close namespace BTESO_IPRESOLUTIONCACHE_CONCURRENCY
-
-// ============================================================================
-//                               TEST APPARATUS
-// ----------------------------------------------------------------------------
-
-class TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    int                               d_lastInUse;
-    int                               d_lastMax;
-    int                               d_lastTotal;
-    const bslma::TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
-        // TBD
-
-    ~TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-TestAllocatorMonitor::TestAllocatorMonitor(
-                                    const bslma::TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-TestAllocatorMonitor::~TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -1213,7 +1116,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef Obj::ResolveByNameCallback T1;     // 'resolverCallback'
-        typedef bdlt::DatetimeInterval      T2;     // 'timeToLive'
+        typedef bdlt::DatetimeInterval     T2;     // 'timeToLive'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1544,7 +1447,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tdescription" << endl;
             {
                 ASSERT_SAFE_FAIL(mX.setTimeToLive(
-                                          bdlt::DatetimeInterval(0, 0, 0, -1)));
+                                         bdlt::DatetimeInterval(0, 0, 0, -1)));
                 ASSERT_SAFE_PASS(mX.setTimeToLive(bdlt::DatetimeInterval(0)));
             }
         }
@@ -1672,7 +1575,8 @@ int main(int argc, char *argv[])
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const T1  A1 = Entry::DataPtr(new Data(Vec(), bdlt::Datetime(1, 1, 1)));
+        const T1  A1 = Entry::DataPtr(new Data(Vec(),
+                                               bdlt::Datetime(1, 1, 1)));
 
         Entry mX;  const Entry& X = mX;
 
@@ -2022,7 +1926,7 @@ int main(int argc, char *argv[])
         hostnames.push_back("nysbldo1");
 
         ipCacheInstance()->setTimeToLive(
-                                       bdlt::DatetimeInterval(0, 0, 0, 0, 100));
+                                      bdlt::DatetimeInterval(0, 0, 0, 0, 100));
         btlso::ResolveUtil::setResolveByNameCallback(&resolverCallback);
 
         for (int tj = 0; tj < NUM_THREAD_CNT; ++tj) {

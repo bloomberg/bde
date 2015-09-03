@@ -65,14 +65,14 @@ typedef socklen_t ADDRLEN_T;
 //-----------------------------------------------------------------------------
 typedef bsl::pair<const btlso::IPv4Address, const char *> ClientData;
 
-void serverFunction(const btlso::IPv4Address& IP_ADDR,
-                    bdlqq::Barrier *barrier)
+void serverFunction(const btlso::IPv4Address&  IP_ADDR,
+                    bdlqq::Barrier            *barrier)
 {
      btlso::SocketHandle::Handle serverSocket, sessionSocket;
-     const int                  BACKLOG      = 32;
-     const int                  RECEIVE_SIZE = 32;
-     char                       readBuffer[RECEIVE_SIZE];
-     int                        rc, errCode = 0;
+     const int                   BACKLOG      = 32;
+     const int                   RECEIVE_SIZE = 32;
+     char                        readBuffer[RECEIVE_SIZE];
+     int                         rc, errCode = 0;
 
      rc = btlso::SocketImpUtil::startup(&errCode);      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
@@ -81,51 +81,51 @@ void serverFunction(const btlso::IPv4Address& IP_ADDR,
                                       &errCode);
      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
-                                                       IP_ADDR,
-                                                       &errCode);
+                                                         IP_ADDR,
+                                                         &errCode);
      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::listen(serverSocket,
-                                      BACKLOG,
-                                      &errCode);       ASSERT(0 == rc);
+                                       BACKLOG,
+                                       &errCode);       ASSERT(0 == rc);
 
      barrier->wait();
 
      rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
-                                                         serverSocket,
-                                                         &errCode);
+                                                           serverSocket,
+                                                           &errCode);
      ASSERT(0 == rc);
      do {
          // Echo each packet back until the client disconnects
          rc = btlso::SocketImpUtil::read(readBuffer,
-                                        sessionSocket,
-                                        RECEIVE_SIZE,
-                                        &errCode);
+                                         sessionSocket,
+                                         RECEIVE_SIZE,
+                                         &errCode);
          if (rc > 0) {
              btlso::SocketImpUtil::write(sessionSocket,
-                                        readBuffer,
-                                        rc,
-                                        &errCode);
+                                         readBuffer,
+                                         rc,
+                                         &errCode);
          }
      } while (rc > 0);
      rc = btlso::SocketImpUtil::shutDown(sessionSocket,
-                                      btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-                                      &errCode);       ASSERT(0 == rc);
+                                         btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+                                         &errCode);       ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(sessionSocket,
-                                     &errCode);        ASSERT(0 == rc);
+                                      &errCode);        ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(serverSocket,
-                                     &errCode);        ASSERT(0 == rc);
+                                      &errCode);        ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::cleanup(&errCode);      ASSERT(0 == rc);
 }
 
 void clientFunction(const ClientData& clientData)
 {
      btlso::SocketHandle::Handle  sendSocket;
-     const int                   RECEIVE_SIZE = 32;
-     char                        buffer[RECEIVE_SIZE];
-     int                         rc, errorCode = 0;
+     const int                    RECEIVE_SIZE = 32;
+     char                         buffer[RECEIVE_SIZE];
+     int                          rc, errorCode = 0;
      const btlso::IPv4Address&    IP_ADDR = clientData.first;
-     const char                 *DATA = clientData.second;
-     const int                   DATA_SIZE = bsl::strlen(DATA) + 1;
+     const char                  *DATA = clientData.second;
+     const int                    DATA_SIZE = bsl::strlen(DATA) + 1;
 
      rc = btlso::SocketImpUtil::startup(&errorCode);       ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
@@ -134,26 +134,26 @@ void clientFunction(const ClientData& clientData)
                                       &errorCode);
                                                           ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
-                                                          IP_ADDR,
-                                                          &errorCode);
+                                                            IP_ADDR,
+                                                            &errorCode);
                                                           ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::write(sendSocket,
-                                     DATA,
-                                     DATA_SIZE,
-                                     &errorCode);      ASSERT(DATA_SIZE == rc);
+                                      DATA,
+                                      DATA_SIZE,
+                                      &errorCode);     ASSERT(DATA_SIZE == rc);
      rc = btlso::SocketImpUtil::read(buffer,
-                                    sendSocket,
-                                    RECEIVE_SIZE,
-                                    &errorCode);       ASSERT(DATA_SIZE == rc);
+                                     sendSocket,
+                                     RECEIVE_SIZE,
+                                     &errorCode);      ASSERT(DATA_SIZE == rc);
 
      ASSERT(0 == bsl::strcmp(DATA, buffer));
 
      rc = btlso::SocketImpUtil::shutDown(
                                       sendSocket,
                                       btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-                                      &errorCode);      ASSERT(0 == rc);
+                                      &errorCode);         ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(sendSocket,
-                                     &errorCode);         ASSERT(0 == rc);
+                                      &errorCode);         ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::cleanup(&errorCode);       ASSERT(0 == rc);
 }
 
@@ -189,7 +189,8 @@ int countSockets(int base, int max)
 
     for (socketNumber = base; socketNumber <= max; ++socketNumber) {
          int ret = ::getsockname((btlso::SocketHandle::Handle) socketNumber,
-                               (sockaddr *) &address, &len);
+                                 (sockaddr *) &address,
+                                 &len);
 
          if (ret >= 0) ++socketCount;
     }
@@ -302,9 +303,9 @@ int main(int argc, char *argv[])
 
      bdlqq::Barrier barrier(2);
      bdlqq::ThreadUtil::create(&stid,
-                              bdlf::BindUtil::bind(&serverFunction,
-                                                  IP_ADDR,
-                                                  &barrier));
+                               bdlf::BindUtil::bind(&serverFunction,
+                                                    IP_ADDR,
+                                                    &barrier));
      barrier.wait();
 //..
 ///Typical Client Usage

@@ -122,6 +122,9 @@ const char control_byte(0x53);
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef btlso::EventManagerTester EventManagerTester;
+
 // Test success and failure codes.
 enum {
     FAIL    = -1,
@@ -153,7 +156,7 @@ enum {
 static void genericCb(btlso::EventType::Type       event,
                       btlso::SocketHandle::Handle  socket,
                       int                          bytes,
-                      btlso::EventManager         *mX)
+                      btlso::EventManager         *)
 {
     // User specified callback function that will be called after an event
     // is dispatched to do the "real" things.
@@ -302,8 +305,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // -----------------------------------------------------------------
+
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
+
         btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
                                       btlso::TimeMetrics::e_CPU_BOUND);
 
@@ -384,7 +389,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
         ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
         ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
-        }
       } break;
 
       case 13: {
@@ -467,7 +471,7 @@ int main(int argc, char *argv[])
 
         enum { NUM_BYTES = 16 };
 
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         btlso::SocketHandle::Handle socket[2];
 
@@ -705,7 +709,7 @@ int main(int argc, char *argv[])
                     observedFds.insert(fd);
                     LOOP2_ASSERT(i, j,  POLLIN == events[j].events);
                 }
-                ASSERT(rc == observedFds.size());
+                ASSERT(rc == static_cast<int>(observedFds.size()));
             }
             ASSERT(0 == close(epollFd));
         }
@@ -979,8 +983,8 @@ int main(int argc, char *argv[])
                 deadline.addMilliseconds(i % 10);
                 deadline.addNanoseconds(i % 1000);
 
-                LOOP_ASSERT(i, 0 == mX.dispatch(deadline,
-                                                Flag::k_ASYNC_INTERRUPT));
+                LOOP_ASSERT(i, 0 ==
+                        mX.dispatch(deadline, btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP3_ASSERT(deadline, now, i, deadline <= now);

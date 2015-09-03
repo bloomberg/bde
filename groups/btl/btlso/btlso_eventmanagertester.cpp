@@ -40,9 +40,9 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 # include <sys/types.h>
 # include <sys/socket.h>                             // ::socketpair
 
-# if defined(BSLS_PLATFORM_OS_LINUX)  ||                                      \
-     defined(BSLS_PLATFORM_OS_CYGWIN) ||                                      \
-     defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_LINUX)  ||                                      \
+    defined(BSLS_PLATFORM_OS_CYGWIN) ||                                      \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
 #   include <sys/resource.h>
 # endif
 
@@ -90,8 +90,8 @@ enum {
 
     struct ThreadInfo{
         // Use this struct to pass information to the helper thread.
-        btlso::SocketHandle::Handle  d_socket;     // client socket
-        pthread_t                   d_tid;        // the id of the thread to
+        btlso::SocketHandle::Handle d_socket;     // client socket
+        pthread_ t                  d_tid;        // the id of the thread to
                                                   // which a signal's delivered
         int                         d_timeoutFlag;// timeout dispatch or
                                                   // infinite
@@ -103,17 +103,17 @@ enum {
 typedef btlso::EventManagerTestPair SocketPair;
 
 static void genericCb(btlso::EventType::Type event,
-                      int                   fd,
-                      int                   bytes,
+                      int                    fd,
+                      int                    bytes,
                       btlso::EventManager   *mX,
-                      SocketPair           *fds,
-                      const char           *cbScript,
-                      int                   flags);
+                      SocketPair            *fds,
+                      const char            *cbScript,
+                      int                    flags);
 
 static int ggHelper(btlso::EventManager         *mX,
                     btlso::EventManagerTestPair *fds,
-                    const char                 *test,
-                    int                         flags);
+                    const char                  *test,
+                    int                          flags);
 
 extern "C"
 void bteso_eventmanagertester_nullFunctor()
@@ -148,7 +148,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
         bsl::printf("Thread %llu delivered another SIGSYS signal to %d.\n",
                     bdlqq::ThreadUtil::selfIdAsInt(),
                     bdlqq::ThreadUtil::idAsInt(
-                              bdlqq::ThreadUtil::handleToId(socketInfo.d_tid)));
+                             bdlqq::ThreadUtil::handleToId(socketInfo.d_tid)));
         bsl::fflush(stdout);
     }
     if (!socketInfo.d_timeoutFlag) {
@@ -160,11 +160,11 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
         bsl::memset(buf, 0xAB, BUF_SIZE); // to keep purify happy
 
         int len = btlso::SocketImpUtil::write(socketInfo.d_socket,
-                                             buf,
-                                             sizeof buf);
+                                              buf,
+                                              sizeof buf);
 
-        if (socketInfo.d_ctrlFlag &
-                                btlso::EventManagerTester::k_VERY_VERBOSE) {
+        if (socketInfo.d_ctrlFlag
+          & btlso::EventManagerTester::k_VERY_VERBOSE) {
             bsl::printf("Thread %llu writes %d bytes to socket %d.\n",
                         bdlqq::ThreadUtil::selfIdAsUint64(),
                         len,
@@ -172,8 +172,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
             bsl::fflush(stdout);
         }
         if (BUF_SIZE != len) {
-            if (socketInfo.d_ctrlFlag &
-                                       btlso::EventManagerTester::k_ABORT) {
+            if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
@@ -214,11 +213,11 @@ static void registerSignal(int signo, void (*handler)(int) )
 #endif
 
 static const char *getNextCommand(const char *commandSeq)
-    // Get the next command to be executed.  The command may include
-    // commands to be executed in the user-installed
-    // callback function, which is enclosed in '{' and '}'.
-    // Return a pointer to the next command string, on success and 0
-    // if no valid command exists or the end of a command is reached.
+    // Get the next command to be executed.  The command may include commands
+    // to be executed in the user-installed callback function, which is
+    // enclosed in '{' and '}'.  Return a pointer to the next command string,
+    // on success and 0 if no valid command exists or the end of a command is
+    // reached.
 {
     BSLS_ASSERT("command shouldn't be null" && commandSeq);
     int curlyNotBalance = 0;
@@ -242,9 +241,9 @@ static const char *getNextCommand(const char *commandSeq)
 
 static const char *get1stCbCommand(const char *commandSeq)
     // Get the first callback command to be executed in the user-installed
-    // callback function, which is enclosed in '{' and '}'.
-    // Return a pointer to the command string, on success and 0
-    // if no valid command or reaches the end of the script.
+    // callback function, which is enclosed in '{' and '}'.  Return a pointer
+    // to the command string, on success and 0 if no valid command or reaches
+    // the end of the script.
 {
     BSLS_ASSERT("command shouldn't be null" && commandSeq);
 
@@ -257,12 +256,11 @@ static const char *get1stCbCommand(const char *commandSeq)
 }
 
 static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
-    // Return the next callback command in the callback script,
-    // e.g., in command "+0r5,{+1w20,{E0rw}; +0r18}", there are
-    // 2 commands to be executed in the callback, this function is to
-    // return the next callback command.
-    // Return 0 if the end of script is reached or no valid command exists.
-    // and set the 'errCode' to 'FAIL' if no valid command exists.
+    // Return the next callback command in the callback script, e.g., in
+    // command "+0r5,{+1w20,{E0rw}; +0r18}", there are 2 commands to be
+    // executed in the callback, this function is to return the next callback
+    // command.  Return 0 if the end of script is reached or no valid command
+    // exists. and set the 'errCode' to 'FAIL' if no valid command exists.
 {
     int curly = 1;  // the  number of pairs of '{' and '}' flag
 
@@ -303,12 +301,12 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
 
 static void
 genericCb(btlso::EventType::Type event,
-          int                   fd,
-          int                   bytes,
+          int                    fd,
+          int                    bytes,
           btlso::EventManager   *mX,
-          SocketPair           *fds,
-          const char           *cbScript,
-          int                   flags)
+          SocketPair            *fds,
+          const char            *cbScript,
+          int                    flags)
     // This generic callback function performs 'event' specific action.
 {
     if (0 > bytes) {
@@ -417,8 +415,8 @@ genericCb(btlso::EventType::Type event,
 
 static int ggHelper(btlso::EventManager         *mX,
                     btlso::EventManagerTestPair *fds,
-                    const char                 *test,
-                    int                         flags)
+                    const char                  *test,
+                    int                          flags)
     // Execute a specified test script command in 'test'.  The specified
     // 'fds' is an array of connected socket pairs on which the user makes
     // operations managed by the specified event manager 'mX'.  The bit flag
@@ -691,10 +689,11 @@ static int ggHelper(btlso::EventManager         *mX,
 }
 
 namespace btlso {
+
 int EventManagerTester::gg(EventManager *mX,
-                                 SocketPair         *fds,
-                                 const char         *script,
-                                 int                 flags)
+                           SocketPair   *fds,
+                           const char   *script,
+                           int           flags)
     // Break up the passed test script into individual test commands and
     // execute each command by invoking ggHelper().
     // Return 0, on success and  the number of failures otherwise.
@@ -703,8 +702,8 @@ int EventManagerTester::gg(EventManager *mX,
     const char *originalScript = script;
 
     int fails = 0;
-    if ((flags & EventManagerTester::k_DRY_RUN) |
-        (flags & EventManagerTester::k_VERY_VERBOSE))
+    if ((flags & EventManagerTester::k_DRY_RUN)
+      | (flags & EventManagerTester::k_VERY_VERBOSE))
     {
         bsl::printf("Executing: %s\n", script);
         bsl::fflush(stdout);
@@ -735,7 +734,7 @@ int EventManagerTester::gg(EventManager *mX,
 
 int
 EventManagerTester::testRegisterSocketEvent(EventManager *mX,
-                                                  int                 flags)
+                                            int           flags)
 {
     int ret = 0, numFailures = 0;
     if (flags & EventManagerTester::k_VERBOSE) {
@@ -812,7 +811,7 @@ EventManagerTester::testRegisterSocketEvent(EventManager *mX,
 
 int
 EventManagerTester::testDeregisterSocketEvent(EventManager *mX,
-                                                    int                 flags)
+                                              int           flags)
 {
     int ret = 0, numFailures = 0;
     if (flags & EventManagerTester::k_VERBOSE) {
@@ -889,8 +888,7 @@ EventManagerTester::testDeregisterSocketEvent(EventManager *mX,
 }
 
 int
-EventManagerTester::testDeregisterSocket(EventManager *mX,
-                                               int                 flags)
+EventManagerTester::testDeregisterSocket(EventManager *mX, int flags)
 {
     int ret = 0, numFailures = 0;
 
@@ -971,8 +969,7 @@ EventManagerTester::testDeregisterSocket(EventManager *mX,
 }
 
 int
-EventManagerTester::testDeregisterAll(EventManager *mX,
-                                            int                 flags)
+EventManagerTester::testDeregisterAll(EventManager *mX, int flags)
 {
     int ret = 0, numFailures = 0;
     if (flags & EventManagerTester::k_VERBOSE) {
@@ -1050,8 +1047,7 @@ EventManagerTester::testDeregisterAll(EventManager *mX,
 }
 
 int
-EventManagerTester::testAccessors(EventManager *mX,
-                                        int                 flags)
+EventManagerTester::testAccessors(EventManager *mX, int flags)
 {
     int ret = 0, numfailures = 0;
     if (flags & EventManagerTester::k_VERBOSE) {
@@ -1237,13 +1233,13 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             int  d_flags;    // interrupt options
             int  d_expRet;   // dispatch return.
         } VALUES[] =
-        //  line   dispatch      option                      expRet
-        //  ----   --------      ------                      ------
+        //  line   dispatch      option                           expRet
+        //  ----   --------      ------                           ------
         {
-           { L_,    INFINITE,      0,                           1  },
-           { L_,    INFINITE,   btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,   btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,      0,                           0  },
+           { L_,    INFINITE,      0,                                 1  },
+           { L_,    INFINITE,      btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,     TIMEOUT,      btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,     TIMEOUT,      0,                                 0  },
         };
         const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
         bdlqq::ThreadUtil::Handle threadHandle[NUM_VALUES];
@@ -1344,10 +1340,9 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
 }
 
 int
-EventManagerTester::testDispatchPerformance(
-                                     EventManager       *mX,
-                                     const char               *pollingMechName,
-                                     int                       flags)
+EventManagerTester::testDispatchPerformance(EventManager  *mX,
+                                            const char    *pollingMechName,
+                                            int            flags)
 {
 #if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { NUM_MEASUREMENTS = 1 };
@@ -1649,8 +1644,7 @@ EventManagerTester::testDispatchPerformance(
 }
 
 int
-EventManagerTester::testRegisterPerformance(EventManager *mX,
-                                                  int                 flags)
+EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
 {
     enum { NUM_MEASUREMENTS = 10 };
 
@@ -1670,11 +1664,10 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
 
     BSLS_ASSERT_OPT(numSockets >= 10);
 
-    EventManager::Callback nullCb =
-                                         &bteso_eventmanagertester_nullFunctor;
+    EventManager::Callback nullCb = &bteso_eventmanagertester_nullFunctor;
 
-    bslma::TestAllocator testAllocator(flags &
-                        EventManagerTester::k_VERY_VERY_VERBOSE);
+    bslma::TestAllocator testAllocator(flags
+                                    & EventManagerTester::k_VERY_VERY_VERBOSE);
     SocketHandle::Handle *socket = (SocketHandle::Handle *)
                          testAllocator.allocate(numSockets * sizeof (*socket));
 
@@ -1746,9 +1739,9 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
     return 0;
 }
 
-                        // --------------------------
+                        // --------------------
                         // EventManagerTestPair
-                        // --------------------------
+                        // --------------------
 
 // CREATORS
 EventManagerTestPair::EventManagerTestPair(int verboseFlag)
@@ -1775,7 +1768,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
 
     if (d_verboseFlag) {
         bsl::printf("T%llu: socketPair (%d, %d): %d\n",
-                   bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
+                  bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
     }
     if (0 != rc ) {
         d_validFlag = -1;

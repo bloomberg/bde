@@ -15,24 +15,23 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49)
 //
-//@SEE_ALSO:
-//  btlso_resolveutil, btlso_ipv4address
+//@SEE_ALSO: btlso_resolveutil, btlso_ipv4address
 //
 //@DESCRIPTION: This component defines a mechanism, 'btlso::IpResolutionCache',
 // that serves as a cache of 'btlso::IPv4Address' objects that are associated
-// with a hostname.  A 'btlso::IpResolutionCache' object is supplied the address
-// of a 'btlso::ResolveUtil::ResolveByNameCallback' function at construction,
-// which it subsequently uses to obtain the set of IP addresses for a given
-// hostname.  The 'resolveAddress' method returns a set of IP addresses for a
-// supplied hostname.  'resolveAddress' either returns values already residing
-// in the cache (if they haven't expired), or invokes the supplied
-// 'ResolveByNameCallback' to obtain the set of IP addresses, which are then
-// cached for subsequent use.  IP addresses stored in the cache are considered
-// valid for a user-defined time interval, set by the 'setTimeToLive' method.
-// Stored IP addresses older than the configured interval are considered stale,
-// and a subsequent request for the associated hostname will refresh that set
-// of IP addresses by again invoking the 'ResolveByNameCallback' object
-// supplied at construction.
+// with a hostname.  A 'btlso::IpResolutionCache' object is supplied the
+// address of a 'btlso::ResolveUtil::ResolveByNameCallback' function at
+// construction, which it subsequently uses to obtain the set of IP addresses
+// for a given hostname.  The 'resolveAddress' method returns a set of IP
+// addresses for a supplied hostname.  'resolveAddress' either returns values
+// already residing in the cache (if they haven't expired), or invokes the
+// supplied 'ResolveByNameCallback' to obtain the set of IP addresses, which
+// are then cached for subsequent use.  IP addresses stored in the cache are
+// considered valid for a user-defined time interval, set by the
+// 'setTimeToLive' method.  Stored IP addresses older than the configured
+// interval are considered stale, and a subsequent request for the associated
+// hostname will refresh that set of IP addresses by again invoking the
+// 'ResolveByNameCallback' object supplied at construction.
 //
 ///Thread Safety
 ///-------------
@@ -105,8 +104,8 @@ BSLS_IDENT("$Id: $")
 // 'btlso::ResolveUtil', we must wrap the call to
 // 'btlso::IpResolutionCache::resolveAddress' in a free function.
 //
-// When configuring 'btlso::ResolveUtil', a singleton cache should be created to
-// ensure the cache exist for all calls to 'btlso::ResolveUtil::getAddress'.
+// When configuring 'btlso::ResolveUtil', a singleton cache should be created
+// to ensure the cache exist for all calls to 'btlso::ResolveUtil::getAddress'.
 // First, we create a function that initializes the singleton cache on the
 // first execution and returns the address of the cache:
 //..
@@ -130,9 +129,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  static
 //  int resolverCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
-//                       const char                     *hostName,
-//                       int                             numAddresses,
-//                       int                            *errorCode)
+//                       const char                      *hostName,
+//                       int                              numAddresses,
+//                       int                             *errorCode)
 //  {
 //      return ipCacheInstance()->resolveAddress(hostAddresses,
 //                                               hostName,
@@ -196,6 +195,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -210,73 +217,69 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace btlso {
 
-namespace btlso {class IpResolutionCache;
-class IpResolutionCache_Data;  // defined in .cpp
+class IpResolutionCache;
+class IpResolutionCache_Data;
 
-                        // ===================================
+                        // =============================
                         // class IpResolutionCache_Entry
-                        // ===================================
+                        // =============================
 
 class IpResolutionCache_Entry {
     // This class implements an entry type that is used in the 'bsl::map'
-    // contained in a 'IpResolutionCache' object.  This is an
-    // implementation centric class, with each object of this
-    // class containing a shared pointer to a 'IpResolutionCache_Data'
-    // object (which stores a set of IP addresses and its creation time) and a
-    // mutex variable to indicate whether there is a thread updating the data.
-    // This class allows a thread to continue accessing existing data while
-    // another thread lock the mutex variable and update the data.  Note
-    // that synchronization of the data of an entry is managed by the cache
-    // containing the entry.
+    // contained in a 'IpResolutionCache' object.  This is an implementation
+    // centric class, with each object of this class containing a shared
+    // pointer to a 'IpResolutionCache_Data' object (which stores a set of IP
+    // addresses and its creation time) and a mutex variable to indicate
+    // whether there is a thread updating the data.  This class allows a thread
+    // to continue accessing existing data while another thread lock the mutex
+    // variable and update the data.  Note that synchronization of the data of
+    // an entry is managed by the cache containing the entry.
 
   public:
     typedef bsl::shared_ptr<const IpResolutionCache_Data> DataPtr;
         // 'DataPtr' is an alias for a shared pointer to a
-        // 'IpResolutionCache_Data' object (defined in the '.cpp' file)
-        // that is used to contain the set of IP addresses for a hostname
+        // 'IpResolutionCache_Data' object (defined in the '.cpp' file) that is
+        // used to contain the set of IP addresses for a hostname
 
   private:
     // DATA
-    DataPtr     d_data;          // pointer to a 'IpResolutionCache_Data'
-                                 // object
+    DataPtr      d_data;          // pointer to a 'IpResolutionCache_Data'
+                                  // object
 
     bdlqq::Mutex d_updatingLock;  // mutex used to signal that a thread is
-                                 // retrieving new data (but does *not*
-                                 // synchronize access to 'd_data')
+                                  // retrieving new data (but does *not*
+                                  // synchronize access to 'd_data')
 
   private:
     // NOT IMPLEMENTED
-    IpResolutionCache_Entry& operator=(
-                                         const IpResolutionCache_Entry&);
+    IpResolutionCache_Entry& operator=(const IpResolutionCache_Entry&);
 
   public:
     // CREATORS
     IpResolutionCache_Entry();
-        // Create a 'IpResolutionCache_Entry' object.  By default, this
-        // object holds a null reference to a 'IpResolutionCache_Data'
-        // object.
+        // Create a 'IpResolutionCache_Entry' object.  By default, this object
+        // holds a null reference to a 'IpResolutionCache_Data' object.
 
-    IpResolutionCache_Entry(
-                                const IpResolutionCache_Entry& original);
-        // Create a 'IpResolutionCache_Entry' object that refers to the
-        // same 'IpResolutionCache_Data' object as the specified
-        // 'original'.  The newly created entry does not share an
-        // 'updatingLock' with 'original'.  Note that this copy constructor is
-        // provided to allow an entry to be stored in a 'bsl::map'.
+    IpResolutionCache_Entry(const IpResolutionCache_Entry& original);
+        // Create a 'IpResolutionCache_Entry' object that refers to the same
+        // 'IpResolutionCache_Data' object as the specified 'original'.  The
+        // newly created entry does not share an 'updatingLock' with
+        // 'original'.  Note that this copy constructor is provided to allow an
+        // entry to be stored in a 'bsl::map'.
 
     // MANIPULATORS
     void setData(DataPtr value);
-        // Make this object refer to the same 'IpResolutionCache_Data'
-        // object as the specified 'value'.  The behavior is undefined unless
-        // the calling thread has a write lock on the cache containing this
-        // entry.
+        // Make this object refer to the same 'IpResolutionCache_Data' object
+        // as the specified 'value'.  The behavior is undefined unless the
+        // calling thread has a write lock on the cache containing this entry.
 
     void reset();
         // Reset this object to hold a null reference to a
-        // 'IpResolutionCache_Data' object.  The behavior is undefined
-        // unless the calling thread has a write lock on the cache containing
-        // this entry.
+        // 'IpResolutionCache_Data' object.  The behavior is undefined unless
+        // the calling thread has a write lock on the cache containing this
+        // entry.
 
     bdlqq::Mutex& updatingLock();
         // Return a reference providing modifiable access to a mutex used to
@@ -288,14 +291,14 @@ class IpResolutionCache_Entry {
     // ACCESSORS
     DataPtr data() const;
         // Return a shared pointer to the non-modifiable
-        // 'IpResolutionCache_Data' object referred to by this object.
-        // The behavior is undefined unless the calling thread has a read lock
-        // on the cache containing this entry.
+        // 'IpResolutionCache_Data' object referred to by this object.  The
+        // behavior is undefined unless the calling thread has a read lock on
+        // the cache containing this entry.
 };
 
-                        // =============================
+                        // =======================
                         // class IpResolutionCache
-                        // =============================
+                        // =======================
 
 class IpResolutionCache {
     // This class provides an efficient mechanism for retrieving the IPv4
@@ -323,24 +326,24 @@ class IpResolutionCache {
     // DATA
     typedef bsl::map<bsl::string, IpResolutionCache_Entry> AddressMap;
 
-    AddressMap             d_cache;             // map to store the data
+    AddressMap              d_cache;            // map to store the data
 
-    bdlt::DatetimeInterval  d_timeToLive;        // configured interval for old
+    bdlt::DatetimeInterval  d_timeToLive;       // configured interval for old
                                                 // to become stale
 
-    mutable bdlqq::RWMutex  d_rwLock;            // access synchronization for
+    mutable bdlqq::RWMutex  d_rwLock;           // access synchronization for
                                                 // reading/writing to 'd_cache'
                                                 // *and* the shared 'data' in
                                                 // the entries of 'd_cache'
 
-    ResolveByNameCallback  d_resolverCallback;  // callback to get data
+    ResolveByNameCallback   d_resolverCallback; // callback to get data
 
-    bslma::Allocator      *d_allocator_p;       // allocator (held, not owned)
+    bslma::Allocator       *d_allocator_p;      // allocator (held, not owned)
 
   private:
     int getCacheData(IpResolutionCache_Entry::DataPtr *result,
-                     const char                             *hostname,
-                     int                                    *errorCode);
+                     const char                       *hostname,
+                     int                              *errorCode);
         // Load, into the specified 'result', a 'bsl::shared_ptr' referring to
         // a vector of addresses for the specified 'hostname', and, if an error
         // occurs, load into the specified 'errorCode', the error code returned
@@ -358,31 +361,28 @@ class IpResolutionCache {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IpResolutionCache,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(IpResolutionCache,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit IpResolutionCache(
-                                    bslma::Allocator      *basicAllocator = 0);
-    explicit IpResolutionCache(
-                                    ResolveByNameCallback  resolverCallback,
-                                    bslma::Allocator      *basicAllocator = 0);
+    explicit IpResolutionCache(bslma::Allocator      *basicAllocator = 0);
+    explicit IpResolutionCache(ResolveByNameCallback  resolverCallback,
+                               bslma::Allocator      *basicAllocator = 0);
         // Create a 'IpResolutionCache' object.  Optionally specify
         // 'resolverCallback' used to resolve the IP addresses from a hostname.
         // If 'resolverCallback' is not specified,
-        // 'AddressUtil::getAddressDefault' will be used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // 'AddressUtil::getAddressDefault' will be used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     // MANIPULATORS
     void removeAll();
         // Remove all cached data.
 
     int resolveAddress(bsl::vector<IPv4Address> *result,
-                       const char                     *hostname,
-                       int                             maxNumAddresses,
-                       int                            *errorCode = 0);
+                       const char               *hostname,
+                       int                       maxNumAddresses,
+                       int                      *errorCode = 0);
         // Load, into the specified 'result', the resolved IPv4 addresses of
         // the host with the specified 'hostname', up to the specified
         // 'maxNumAddresses' on success.  Optionally specify 'errorCode' to
@@ -400,24 +400,23 @@ class IpResolutionCache {
         // Set the time the cached IP addresses for a particular hostname may
         // exist before they are considered stale.  A 'value' of 0 seconds
         // indicates the addresses will never expire.  The behavior is
-        // undefined unless '0 <= value.seconds()'.  Note that this function
-        // will affect data that is already cached.
+        // undefined unless '0 <= value.totalSeconds()'.  Note that this
+        // function will affect data that is already cached.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.
 
-    int lookupAddressRaw(
-                        bsl::vector<IPv4Address> *result,
-                        const char                     *hostname,
-                        int                             maxNumAddresses) const;
+    int lookupAddressRaw(bsl::vector<IPv4Address> *result,
+                         const char               *hostname,
+                         int                       maxNumAddresses) const;
         // Load, into the specified 'result', the IPv4 addresses of the host
         // with the specified 'hostname' up to the specified 'maxNumAddresses'
         // if the data already exist in the cache (regardless of whether the
         // addresses are stale).  Return 0 if the data has been previously
         // cached (by a call to 'resolveAddress'), and a non-zero value with no
-        // effect on 'result' otherwise.  The behavior is undefined unless '1
-        // <= maxNumAddresses'.  Note that this method will not refresh the
+        // effect on 'result' otherwise.  The behavior is undefined unless
+        // '1 <= maxNumAddresses'.  Note that this method will not refresh the
         // addresses even if they become stale.
 
     ResolveByNameCallback resolverCallback() const;
@@ -435,9 +434,9 @@ class IpResolutionCache {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------------------
+                        // -----------------------------
                         // class IpResolutionCache_Entry
-                        // -----------------------------------
+                        // -----------------------------
 
 // CREATORS
 inline
@@ -449,7 +448,7 @@ IpResolutionCache_Entry::IpResolutionCache_Entry()
 
 inline
 IpResolutionCache_Entry::IpResolutionCache_Entry(
-                                    const IpResolutionCache_Entry& other)
+                                          const IpResolutionCache_Entry& other)
 : d_data(other.d_data)
 , d_updatingLock()
 {
@@ -476,15 +475,14 @@ bdlqq::Mutex& IpResolutionCache_Entry::updatingLock()
 
 // ACCESSORS
 inline
-IpResolutionCache_Entry::DataPtr IpResolutionCache_Entry::data()
-                                                                          const
+IpResolutionCache_Entry::DataPtr IpResolutionCache_Entry::data() const
 {
     return d_data;
 }
 
-                        // -----------------------------
+                        // -----------------------
                         // class IpResolutionCache
-                        // -----------------------------
+                        // -----------------------
 
 // MANIPULATORS
 
@@ -506,7 +504,7 @@ bslma::Allocator *IpResolutionCache::allocator() const
 
 inline
 IpResolutionCache::ResolveByNameCallback
-                              IpResolutionCache::resolverCallback() const
+IpResolutionCache::resolverCallback() const
 {
     return d_resolverCallback;
 }
@@ -517,6 +515,7 @@ const bdlt::DatetimeInterval& IpResolutionCache::timeToLive() const
     bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(&d_rwLock);
     return d_timeToLive;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

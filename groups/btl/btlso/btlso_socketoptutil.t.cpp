@@ -35,30 +35,14 @@ using namespace bsl;  // automatically added by script
 // all methods in the component pass correct parameters through to the
 // system level calls.
 // ----------------------------------------------------------------------------
-// MANIPULATORS
-// template<class T>
-// static int setOption(btlso::SocketHandle::Handle handle, int level,
-//                      int option, const T& value);
-// template<class T>
-// static int setOption(btlso::SocketHandle::Handle handle, int level,
-//                      int option, const T& Value,
-//                      int *errorCode);
-// [ 2] Test this function with protocol levels and options that are both
-//      listed in this component.
-// [ 3] Test this function with protocol levels which are listed in this
-//      component and options which are not listed.
-// [ 4] Test this function with protocol levels and options which are both not
-//      listed in this component.
-// ACCESSORS
-// template<class T>
-// static int getOption(T *result, btlso::SocketHandle::Handle handle,
-//                      int level, int option);
-// template<class T>
-// static int getOption(T *result, btlso::SocketHandle::Handle handle,
-//                      int level, int option,  int *errorCode);
-// [ 1] Test this function by using "read-only" options such as TYPE.
+// CLASS METHODS
+// [  ] template <T> int setOption(handle, level, option, value);
+// [  ] template <T> int setOption(handle, level, option, value, *error);
+// [  ] template <T> int getOption(T *result, handle, level, int option);
+// [  ] template <T> int getOption(T *result, handle, level, option, *error);
+// [ 5] int setSocketOptions(SocketHandle::Handle handle, options);
 // ----------------------------------------------------------------------------
-// [ 5] USAGE example
+// [ 6] USAGE example
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -176,8 +160,8 @@ const unsigned short DUMMY_PORT = 5000;
 //-----------------------------------------------------------------------------
 
 int TIMEOUTS[] = { 0, 1, 2 };
-int DATA[] = { 16, 64, 128 };
-int SIZES[] = { 1024, 2048, 4096 };
+int DATA[]     = { 16, 64, 128 };
+int SIZES[]    = { 1024, 2048, 4096 };
 
 int setOption(SocketOptions *options, const char *specString)
     // Set the spec.  Return the number of characters read.
@@ -271,8 +255,8 @@ int ggg(SocketOptions *object, const char *spec)
             return numRead;                                           // RETURN
         }
         spec += numRead;
-   }
-   return SUCCESS;
+    }
+    return SUCCESS;
 }
 
 SocketOptions& gg(SocketOptions *object, const char *spec)
@@ -518,71 +502,73 @@ int main(int argc, char *argv[])
     ASSERT(0 == errorcode);
 
     switch (test) { case 0:  // always the leading case.
-        case 6: {
-            // ----------------------------------------------------------------
-            // TESTING USAGE EXAMPLE
-            //   The usage example provided in the component header file must
-            //   compile, link, and run on all platforms as shown.
-            //
-            // Plan:
-            //   Incorporate usage example from header into driver, remove
-            //   leading comment characters, and replace 'assert' with
-            //   'ASSERT'.
-            //
-            // Testing:
-            //   USAGE EXAMPLE
-            // ----------------------------------------------------------------
-            int result, errorcode=0;
-            int addropt = 1;
-            if (verbose) cout << "Testing Usage Example" << endl
-                              << "=====================" << endl;
-            btlso::SocketHandle::Handle sockethandle;
+      case 6: {
+        // ----------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove
+        //   leading comment characters, and replace 'assert' with
+        //   'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // ----------------------------------------------------------------
 
-            btlso::SocketImpUtil::open<btlso::IPv4Address>(
+        int result, errorcode=0;
+        int addropt = 1;
+        if (verbose) cout << "Testing Usage Example" << endl
+                          << "=====================" << endl;
+
+        btlso::SocketHandle::Handle sockethandle;
+
+        btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sockethandle,
                                       btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorcode);
-            ASSERT(0 == errorcode);
+        ASSERT(0 == errorcode);
 
-            result = btlso::SocketOptUtil::setOption(
+        result = btlso::SocketOptUtil::setOption(
                                        sockethandle,
                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        btlso::SocketOptUtil::k_REUSEADDRESS,
                                        addropt);
 
-            ASSERT(0 == result);
+        ASSERT(0 == result);
 
-            addropt = 0;
-            result = btlso::SocketOptUtil::getOption(
+        addropt = 0;
+        result = btlso::SocketOptUtil::getOption(
                                       &addropt, sockethandle,
                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                       btlso::SocketOptUtil::k_REUSEADDRESS);
 
-            ASSERT(0 == result);
-            ASSERT(0 != addropt);
+        ASSERT(0 == result);
+        ASSERT(0 != addropt);
 
-            int sockettype = 0;
-            result = btlso::SocketOptUtil::getOption(
+        int sockettype = 0;
+        result = btlso::SocketOptUtil::getOption(
                           &sockettype,
                           sockethandle, btlso::SocketOptUtil::k_SOCKETLEVEL,
                           btlso::SocketOptUtil::k_TYPE);
 
-            ASSERT(0 == result);
-            ASSERT(SOCK_STREAM == sockettype);
+        ASSERT(0 == result);
+        ASSERT(SOCK_STREAM == sockettype);
 
-            // usage 2:
-            btlso::SocketOptUtil::LingerData ld;
-            ld.l_onoff  = 1;   // Enable lingering for
-            ld.l_linger = 2;   // 2 seconds
-            result = btlso::SocketOptUtil::setOption(sockethandle,
+        // usage 2:
+        btlso::SocketOptUtil::LingerData ld;
+        ld.l_onoff  = 1;   // Enable lingering for
+        ld.l_linger = 2;   // 2 seconds
+        result = btlso::SocketOptUtil::setOption(sockethandle,
                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                       btlso::SocketOptUtil::k_LINGER,
                                       ld, &errorcode);
 
-            ASSERT(0 == result);
-            ASSERT(0 == errorcode);
+        ASSERT(0 == result);
+        ASSERT(0 == errorcode);
 
-            #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             /*
             WSAPROTOCOL_INFO protoInfo;
             memset(&ProtoInfo,0,sizeof(ProtoInfo));
@@ -598,34 +584,31 @@ int main(int argc, char *argv[])
             // ASSERT(ProtocolVersion == ProtoInfo.iVersion);
             //            ASSERT(SocketType == ProtoInfo.iSocketType);
             */
-            #endif
+#endif
 
-        } break;
-        case 5: {
-            // ----------------------------------------------------------------
-            // TESTING int 'setSocketOptions' FUNCTION:
-            //
-            // Plan:
-            //
-            // Testing
-            //   static int setSocketOptions(btlso::SocketHandle::Handle  h,
-            //                               const SocketOptions        *opts);
-            //   static int getSocketOptions(SocketOptions              *opts,
-            //                               btlso::SocketHandle::Handle  h);
-            // ----------------------------------------------------------------
+      } break;
+      case 5: {
+        // ----------------------------------------------------------------
+        // TESTING int 'setSocketOptions' FUNCTION:
+        //
+        // Plan:
+        //
+        // Testing
+        //   int setSocketOptions(btlso::SocketHandle::Handle h, options);
+        // ----------------------------------------------------------------
 
-            if (verbose) cout << endl <<
-                        "'setSocketOptions and getSocketOptions' TEST" << endl
-                     << "============================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'setSocketOptions'" << endl
+                          << "==========================" << endl;
 
-            // Boolean options
-            {
-                const struct {
+        // Boolean options
+        {
+            const struct {
                     int         d_line;
                     const char *d_spec_p;
                     int         d_exp0;    // EXP when k == 0
                     int         d_exp1;    // EXP when k == 1
-                } DATA[] = {
+            } DATA[] = {
                   // Line   Spec  Exp
                   // ----   ----  ---
                   {   L_,   "GN",         0, 0 },
@@ -684,53 +667,51 @@ int main(int argc, char *argv[])
 #endif
                 };
 
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-                btlso::SocketHandle::Handle handles[NUM_DATA];
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    const int   LINE = DATA[i].d_line;
-                    const char *SPEC = DATA[i].d_spec_p;
+            btlso::SocketHandle::Handle handles[NUM_DATA];
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec_p;
 
-                    SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
-                    for (int k = 0; k < 2; ++k) {
-                        const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
+                SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
+                for (int k = 0; k < 2; ++k) {
+                    const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
 
-                        btlso::SocketImpUtil::Type type =
+                    btlso::SocketImpUtil::Type type =
                             k
                             ? btlso::SocketImpUtil::k_SOCKET_DATAGRAM
                             : btlso::SocketImpUtil::k_SOCKET_STREAM;
 
-                        if (veryVerbose) {
-                            P_(LINE) P_(k) P_(SPEC) P(EXP)
-                        }
+                    if (veryVerbose) {
+                        P_(LINE) P_(k) P_(SPEC) P(EXP)
+                    }
 
-                        int err = 0;
-                        btlso::SocketImpUtil::open<btlso::IPv4Address>(
-                                                                   &handles[i],
+                    int err = 0;
+                    btlso::SocketImpUtil::open<btlso::IPv4Address>(&handles[i],
                                                                    type,
                                                                    &err);
-                        LOOP_ASSERT(i, 0 == err);
-                        int rc = btlso::SocketOptUtil::setSocketOptions(
-                                                                    handles[i],
+                    LOOP_ASSERT(i, 0 == err);
+                    int rc = btlso::SocketOptUtil::setSocketOptions(handles[i],
                                                                     X);
-                        LOOP4_ASSERT(LINE, k, EXP, rc, EXP == rc);
-                        if (!EXP) {
-                            LOOP3_ASSERT(LINE, k, X, !verify(handles[i], X));
-                        }
+                    LOOP4_ASSERT(LINE, k, EXP, rc, EXP == rc);
+                    if (!EXP) {
+                        LOOP3_ASSERT(LINE, k, X, !verify(handles[i], X));
                     }
                 }
             }
+        }
 
-            // Numerical options
-            {
-                const struct {
+        // Numerical options
+        {
+            const struct {
                     int         d_line;
                     const char *d_spec_p;
                     int         d_exp0;
                     int         d_exp1;
-                } DATA[] = {
-              // Line   Spec
-              // ----   ----
+            } DATA[] = {
+             // Line   Spec
+             // ----   ----
               {   L_,   "A0",         0, 0 },
               {   L_,   "A1",         0, 0 },
               {   L_,   "A2",         0, 0 },
@@ -807,66 +788,64 @@ int main(int argc, char *argv[])
               {   L_,   "A1B2MY2",   0, 0 },
 #endif
                 };
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-                btlso::SocketHandle::Handle handles[NUM_DATA];
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    const int   LINE = DATA[i].d_line;
-                    const char *SPEC = DATA[i].d_spec_p;
+            btlso::SocketHandle::Handle handles[NUM_DATA];
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec_p;
 
-                    SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
-                    for (int k = 0; k < 2; ++k) {
-                        const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
+                SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
+                for (int k = 0; k < 2; ++k) {
+                    const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
 
-                        btlso::SocketImpUtil::Type type =
+                    btlso::SocketImpUtil::Type type =
                             k
                             ? btlso::SocketImpUtil::k_SOCKET_DATAGRAM
                             : btlso::SocketImpUtil::k_SOCKET_STREAM;
 
-                        if (veryVerbose) {
-                            P_(LINE) P_(k) P_(SPEC) P_(type) P(EXP)
-                        }
+                    if (veryVerbose) {
+                        P_(LINE) P_(k) P_(SPEC) P_(type) P(EXP)
+                    }
 
-                        int err = 0;
-                        btlso::SocketImpUtil::open<btlso::IPv4Address>(
-                                                                   &handles[i],
+                    int err = 0;
+                    btlso::SocketImpUtil::open<btlso::IPv4Address>(&handles[i],
                                                                    type,
                                                                    &err);
-                        LOOP_ASSERT(i, 0 == err);
-                        int rc = btlso::SocketOptUtil::setSocketOptions(
-                                                                    handles[i],
+                    LOOP_ASSERT(i, 0 == err);
+                    int rc = btlso::SocketOptUtil::setSocketOptions(handles[i],
                                                                     X);
-                        LOOP5_ASSERT(LINE, k, SPEC, EXP, rc, EXP == rc);
-                        if (!rc) {
-                            LOOP3_ASSERT(LINE, k, SPEC,
-                                         !verify(handles[i], X));
-                        }
+                    LOOP5_ASSERT(LINE, k, SPEC, EXP, rc, EXP == rc);
+                    if (!rc) {
+                        LOOP3_ASSERT(LINE, k, SPEC,
+                                     !verify(handles[i], X));
                     }
                 }
             }
-        } break;
+        }
+      } break;
         case 4: {
-            // ----------------------------------------------------------------
-            // TESTING int setsockopt FUNCTION:
-            //   The function returns zero on success and does not modify
-            //   'errorCode'.  Otherwise it returns -1 on error and return
-            //   the optional native platform error code in the specified
-            //   'errorCode'.
-            //
-            // Plan:
-            //   Test protocol levels and options which are not listed in this
-            //   component.  For a sequence of various protocol levels and
-            //   options, try setting option values and verify their validity.
-            //
-            // Testing
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& value);
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& Value,
-            //                        int *errorCode);
-            // ---------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // TESTING int setsockopt FUNCTION:
+          //   The function returns zero on success and does not modify
+          //   'errorCode'.  Otherwise it returns -1 on error and return
+          //   the optional native platform error code in the specified
+          //   'errorCode'.
+          //
+          // Plan:
+          //   Test protocol levels and options which are not listed in this
+          //   component.  For a sequence of various protocol levels and
+          //   options, try setting option values and verify their validity.
+          //
+          // Testing
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& value);
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& Value,
+          //                        int *errorCode);
+          // ---------------------------------------------------------------
 
             static int result;
             int errorcode = 0;
@@ -1021,25 +1000,25 @@ int main(int argc, char *argv[])
             }
         } break;
         case 3: {
-            // ----------------------------------------------------------------
-            // TESTING 'setOption' FUNCTION:
-            //   The function returns zero on success and does not modify
-            //   'errorCode'.  Otherwise it returns -1 on error and return
-            //   the optional native platform error code in the specified
-            //   'errorCode'.
-            // Plan:
-            //   Test listed protocol levels and non-listed options.
-            //   For a sequence of various protocol levels and options,
-            //   try setting option values and verify their validity.
-            // Testing
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& value);
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& Value,
-            //                        int *errorCode);
-            // ---------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // TESTING 'setOption' FUNCTION:
+          //   The function returns zero on success and does not modify
+          //   'errorCode'.  Otherwise it returns -1 on error and return
+          //   the optional native platform error code in the specified
+          //   'errorCode'.
+          // Plan:
+          //   Test listed protocol levels and non-listed options.
+          //   For a sequence of various protocol levels and options,
+          //   try setting option values and verify their validity.
+          // Testing
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& value);
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& Value,
+          //                        int *errorCode);
+          // ---------------------------------------------------------------
             static int result;
             int errorcode = 0;
             btlso::SocketImpUtil::Type tcp, udp;
@@ -1192,32 +1171,32 @@ int main(int argc, char *argv[])
             }
         } break;
         case 2: {
-            // ----------------------------------------------------------------
-            // TESTING 'setOption' FUNCTION:
-            //   The function returns zero on success and does not modify
-            //   'errorCode'.  Otherwise it returns -1 on error and return
-            //   the optional native platform error code in the specified
-            //   'errorCode'.
-            //
-            // Plan:
-            //   Test listed protocol levels and options.  For a sequence of
-            //   various protocol levels and options, create a socket, set
-            //   different options for the socket and verify their validity.
-            //   Then enable 'linger' for the socket with two seconds time out
-            //   value and next disable linger (SO_DONTLINGER).  Close the
-            //   socket at the end.
-            //   1. Test listed options for SOL_LEVEL level.
-            //   2. Test listed options for IPPROTO_TCP level.
-            //
-            // Testing
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& value);
-            //   template<class T>
-            //   static int setOption(btlso::SocketHandle::Handle handle,
-            //                        int level, int option, const T& Value,
-            //                        int *errorCode);
-            // ---------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // TESTING 'setOption' FUNCTION:
+          //   The function returns zero on success and does not modify
+          //   'errorCode'.  Otherwise it returns -1 on error and return
+          //   the optional native platform error code in the specified
+          //   'errorCode'.
+          //
+          // Plan:
+          //   Test listed protocol levels and options.  For a sequence of
+          //   various protocol levels and options, create a socket, set
+          //   different options for the socket and verify their validity.
+          //   Then enable 'linger' for the socket with two seconds time out
+          //   value and next disable linger (SO_DONTLINGER).  Close the
+          //   socket at the end.
+          //   1. Test listed options for SOL_LEVEL level.
+          //   2. Test listed options for IPPROTO_TCP level.
+          //
+          // Testing
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& value);
+          //   template<class T>
+          //   static int setOption(btlso::SocketHandle::Handle handle,
+          //                        int level, int option, const T& Value,
+          //                        int *errorCode);
+          // ---------------------------------------------------------------
             static int result;
             int errorcode = 0, *errNull = 0;
             btlso::SocketImpUtil::Type tcp, udp;
@@ -1538,31 +1517,31 @@ int main(int argc, char *argv[])
             }
         } break;
         case 1: {
-            // ----------------------------------------------------------------
-            // TESTING 'getOption' FUNCTION:
-            //   Get the socket option specified by 'result' for the
-            //   specified 'level' and store in the specified 'optionValue'.
-            //   The function returns zero on success and does not modify
-            //   'errorCode'.  Otherwise it returns -1 on error and return the
-            //   optional native platform error code in the specified
-            //   'errorCode'.
-            //
-            // Plan:
-            //   Options "TYPE", "SOCKETERROR" can be retrieved because both
-            //   options are set when a socket is created.  Verify the result
-            //   retrieved from the function being tested by comparing it with
-            //   the expected value.
-            //
-            // Testing
-            //   template<class T>
-            //   static int getOption(T                          *result,
-            //                        btlso::SocketHandle::Handle  handle,
-            //                        int level, int option);
-            //   template<class T>
-            //   static int getOption(T                         *result,
-            //                        btlso::SocketHandle::Handle handle,
-            //                        int level, int option, int *errorCode);
-            // ----------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // TESTING 'getOption' FUNCTION:
+          //   Get the socket option specified by 'result' for the
+          //   specified 'level' and store in the specified 'optionValue'.
+          //   The function returns zero on success and does not modify
+          //   'errorCode'.  Otherwise it returns -1 on error and return the
+          //   optional native platform error code in the specified
+          //   'errorCode'.
+          //
+          // Plan:
+          //   Options "TYPE", "SOCKETERROR" can be retrieved because both
+          //   options are set when a socket is created.  Verify the result
+          //   retrieved from the function being tested by comparing it with
+          //   the expected value.
+          //
+          // Testing
+          //   template<class T>
+          //   static int getOption(T                          *result,
+          //                        btlso::SocketHandle::Handle  handle,
+          //                        int level, int option);
+          //   template<class T>
+          //   static int getOption(T                         *result,
+          //                        btlso::SocketHandle::Handle handle,
+          //                        int level, int option, int *errorCode);
+          // ----------------------------------------------------------------
             static int result;
             int errorcode = 0, *errNull = 0;
             btlso::SocketImpUtil::Type tcp, udp;

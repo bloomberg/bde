@@ -171,23 +171,23 @@ genericCb(btlso::EventType::Type      event,
     // be copied to the head file as a part of the usage example.
 
     enum {
-        MAX_READ_SIZE = 8192,
-        MAX_WRITE_SIZE = WRITE_SIZE
+        k_MAX_READ_SIZE = 8192,
+        k_MAX_WRITE_SIZE = WRITE_SIZE
     };
 
     switch (event) {
       case btlso::EventType::e_READ: {
           ASSERT(0 < bytes);
-          char buffer[MAX_READ_SIZE];
+          char buffer[k_MAX_READ_SIZE];
 
           int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
           ASSERT(0 < rc);
 
       } break;
       case btlso::EventType::e_WRITE: {
-          char wBuffer[MAX_WRITE_SIZE];
+          char wBuffer[k_MAX_WRITE_SIZE];
           ASSERT(0 < bytes);
-          ASSERT(MAX_WRITE_SIZE >= bytes);
+          ASSERT(k_MAX_WRITE_SIZE >= bytes);
           memset(wBuffer,'4', bytes);
           int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
           ASSERT(0 < rc);

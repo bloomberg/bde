@@ -31,25 +31,26 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following snippets of code illustrate how to get an IPv4address or a
-// port number from a name.  First we create two 'btlso::IPv4Address' objects to
-// store the return value for host 'p111', 'ibm1' respectively, and verify the
-// return addresses:
+// port number from a name.  First we create two 'btlso::IPv4Address' objects
+// to store the return value for host 'p111', 'ibm1' respectively, and verify
+// the return addresses:
 //..
-//      int retCode=0, errorCode = 0;
+//      int                retCode = 0, errorCode = 0;
 //      btlso::IPv4Address result1, result2;
 //
 //      const char *hostname = "p111";
 //      retCode = btlso::ResolveUtil::getAddress(&result1,
-//                                              hostname,
-//                                              &errorCode);
+//                                               hostname,
+//                                               &errorCode);
 //      assert(0 == retCode);
 //      assert(0 == errorCode);
 //      bsl::cout << "IPv4 address for '" << hostname << "': " << result1
 //                << bsl::endl;
 //
 //      const char *hostname2 = "ibm1";
-//      retCode = btlso::ResolveUtil::getAddress(&result2, hostname2,
-//                                                        &errorCode);
+//      retCode = btlso::ResolveUtil::getAddress(&result2,
+//                                               hostname2,
+//                                               &errorCode);
 //      assert(0 == retCode);
 //      assert(0 == errorCode);
 //      bsl::cout << "IPv4 address for '" << hostname2 << "': " << result2
@@ -59,12 +60,12 @@ BSLS_IDENT("$Id: $")
 // verify the return addresses:
 //..
 //      bsl::vector<btlso::IPv4Address> addr_array;
-//      btlso::IPv4Address result3;
+//      btlso::IPv4Address              result3;
 //
 //      const char *hostname3 = "n024";
 //      retCode = btlso::ResolveUtil::getAddresses(&addr_array,
-//                                                hostname3,
-//                                                &errorCode);
+//                                                 hostname3,
+//                                                 &errorCode);
 //      assert(0 == retCode);
 //      assert(0 == errorCode);
 //      bsl::cout << "IPv4 address for '" << hostname3 << "': " << addr_array
@@ -75,22 +76,25 @@ BSLS_IDENT("$Id: $")
 //..
 //      const char *servname = "ftp";
 //      retCode = btlso::ResolveUtil::getServicePort(&result1,
-//                                                  servname, 0,
-//                                                  &errorCode);
+//                                                   servname,
+//                                                   0,
+//                                                   &errorCode);
 //      assert(0 == retCode);
 //      bsl::cout << "Port number for 'ftp': " << result1 << bsl::endl;
 //
 //      const char *servname2 = "systat";
 //      retCode = btlso::ResolveUtil::getServicePort(&result2,
-//                                                  servname2, 0,
-//                                                  &errorCode);
+//                                                   servname2,
+//                                                   0,
+//                                                   &errorCode);
 //      assert(0 == retCode);
 //      bsl::cout << "Port number for 'systat': " << result1 << bsl::endl;
 //
 //      const char *servname3 = "telnet";
 //      retCode = btlso::ResolveUtil::getServicePort(&result3,
-//                                                  servname3, 0,
-//                                                  &errorCode);
+//                                                   servname3,
+//                                                   0,
+//                                                   &errorCode);
 //      assert(0 == retCode);
 //      bsl::cout << "Port number for 'telnet': " << result1 << bsl::endl;
 //..
@@ -109,12 +113,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace btlso {
 
-namespace btlso {class IPv4Address;
+class IPv4Address;
 
-                        // ========================
+                        // ==================
                         // struct ResolveUtil
-                        // ========================
+                        // ==================
 
 struct ResolveUtil {
     // This class provides a namespace for platform-independent thread-safe
@@ -133,10 +138,10 @@ struct ResolveUtil {
   public:
     // TYPES
     typedef int (*ResolveByNameCallback)(
-                                 bsl::vector<IPv4Address> *hostAddresses,
-                                 const char                     *hostName,
-                                 int                             numAddresses,
-                                 int                            *errorCode);
+                                       bsl::vector<IPv4Address> *hostAddresses,
+                                       const char               *hostName,
+                                       int                       numAddresses,
+                                       int                      *errorCode);
         // Invoked by 'getAddress' and 'getAddresses', 'ResolveByNameCallback'
         // is an alias for a pointer to a re-entrant function that returns
         // 'int' and takes as arguments a vector of 'hostAddresses', the
@@ -153,12 +158,12 @@ struct ResolveUtil {
         // 'hostName', and 'hostAddresses' must be resized accordingly.
 
     // CLASS METHODS
-    static int getAddress       (IPv4Address *result,
-                                 const char        *hostName,
-                                 int               *errorCode = 0);
+    static int getAddress(IPv4Address *result,
+                          const char  *hostName,
+                          int         *errorCode = 0);
     static int getAddressDefault(IPv4Address *result,
-                                 const char        *hostName,
-                                 int               *errorCode = 0);
+                                 const char  *hostName,
+                                 int         *errorCode = 0);
         // Load into the specified 'result' the primary IPv4 address of the
         // specified 'hostName'.  Return 0, with no effect on 'errorCode', on
         // success, and return a negative value otherwise.  If an error occurs,
@@ -168,8 +173,8 @@ struct ResolveUtil {
         // 'getAddressDefault' uses the default resolution mechanism.
 
     static int getAddresses(bsl::vector<IPv4Address> *result,
-                            const char                     *hostName,
-                            int                            *errorCode = 0);
+                            const char               *hostName,
+                            int                      *errorCode = 0);
         // Load into the specified array 'result' all IPv4 addresses of the
         // specified 'hostName'.  Return 0, with no effect on 'errorCode', on
         // success, and return a negative value otherwise.  If an error occurs,
@@ -186,9 +191,9 @@ struct ResolveUtil {
         //                                    errorCode);
         //..
 
-    static int getHostnameByAddress(bsl::string             *canonicalHostname,
-                                    const IPv4Address& address,
-                                    int                     *errorCode = 0);
+    static int getHostnameByAddress(bsl::string        *canonicalHostname,
+                                    const IPv4Address&  address,
+                                    int                *errorCode = 0);
         // Load into the specified 'canonicalHostname' string, the name
         // associated with the specified 'address'.  Return 0, with no effect
         // on 'errorCode', on success, or a negative value otherwise.  If an
@@ -197,9 +202,9 @@ struct ResolveUtil {
         // unchanged.
 
     static int getServicePort(IPv4Address *result,
-                              const char        *serviceName,
-                              const char        *protocol = 0,
-                              int               *errorCode = 0);
+                              const char  *serviceName,
+                              const char  *protocol = 0,
+                              int         *errorCode = 0);
         // Load into the specified 'result' the service port number associated
         // with the specified 'serviceName'.  Optionally specify a 'protocol'
         // string, such as "tcp" or "udp"; if 'protocol is 0, an entry with any
@@ -232,6 +237,7 @@ struct ResolveUtil {
         // Return the default implementation of 'ResolveByNameCallback'
         // function.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

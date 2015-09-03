@@ -7,22 +7,51 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: define a platform independent socket handle type
+//@PURPOSE: Provide a platform-independent socket handle type
 //
 //@CLASSES:
-// btlso::SocketHandle: a namespace for socket handle's type definition
+//  btlso::SocketHandle: a namespace for socket handle's type definition
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
-//@DESCRIPTION: This component defines a platform independent socket
-// handle.
+//@DESCRIPTION: This component provides a 'struct', 'btlso::SocketHandle',
+// that defines a typedef, 'Handle' for a platform-independent type for
+// representing a socket handle.  A unique handle value
+// 'INVALID_SOCKET_HANDLE' is provided to denote an invalid socket handle.
+// Finally, this component enumerates the list of errors encountered while
+// performing socket operations.
 //
 ///Usage
 ///-----
+// Writing portable software involves providing a generic interface while
+// specializing implementations to work with platform-provided interfaces.  As
+// an example, we provide a platform-independent socket 'class', 'my_Socket'
+// below.  The 'my_Socket' 'class' provides functionality to establish a
+// connection and to read and write data on it.  Internally, the 'class' uses a
+// 'btlso::SocketHandle::Handle' object to store the socket handle.  Note that
+// for brevity only portions of this 'class' that are relevant to this example
+// are shown:
 //..
-//           btlso::SocketHandle::Handle handle;
-//..
+//  class my_Socket {
+//      // This 'class' provides a platform-independent socket class.
 //
+//      // DATA
+//      btlso::SocketHandle::Handle d_handle;
+//
+//      // CREATORS
+//      my_Socket();
+//          // Create an unconnected 'my_Socket' object.
+//
+//      // Rest of the interface elided for brevity
+//  };
+//..
+// The default-constructor can then be implemented as follows:
+//..
+//  my_Socket::my_Socket()
+//  : d_handle(btlso::SocketHandle::INVALID_SOCKET_HANDLE)
+//  {
+//  }
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -42,9 +71,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
+
 struct SocketHandle {
-    // This is a namespace for a typedef for the socket handle
-    // which has a platform specific type.
+    // This is a namespace for a typedef for the socket handle which has a
+    // platform specific type.
 
     // TYPES
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
@@ -61,29 +91,30 @@ struct SocketHandle {
         // More than one platform specific code may map onto a single error
         // classification.
 
-        e_ERROR_EOF          = -1  // The peer closed its send side of the
-                                   // connection.  This includes the normal
-                                   // closure of a connection but does not
-                                   // include when connection is terminated by
-                                   // the peer without a normal closure.
+        e_ERROR_EOF          = -1,  // The peer closed its send side of the
+                                    // connection.  This includes the normal
+                                    // closure of a connection but does not
+                                    // include when connection is terminated by
+                                    // the peer without a normal closure.
 
-      , e_ERROR_UNCLASSIFIED = -2  // The platform specific error code could
-                                   // not be mapped onto any error
-                                   // classification.
+        e_ERROR_UNCLASSIFIED = -2,  // The platform specific error code could
+                                    // not be mapped onto any error
+                                    // classification.
 
-      , e_ERROR_CONNDEAD     = -3  // The connection does not represent a
-                                   // connected socket.
+        e_ERROR_CONNDEAD     = -3,  // The connection does not represent a
+                                    // connected socket.
 
-      , e_ERROR_WOULDBLOCK   = -4  // The socket is a non blocking socket and
-                                   // the call would block.
+        e_ERROR_WOULDBLOCK   = -4,  // The socket is a non blocking socket and
+                                    // the call would block.
 
-      , e_ERROR_NORESOURCES  = -5  // Resources were not available to complete
-                                   // the call.
+        e_ERROR_NORESOURCES  = -5,  // Resources were not available to complete
+                                    // the call.
 
-      , e_ERROR_INTERRUPTED  = -6  // The call was interrupted.  For receive
-                                   // and send calls no data was transferred.
+        e_ERROR_INTERRUPTED  = -6,  // The call was interrupted.  For receive
+                                    // and send calls no data was transferred.
 
-      , e_ERROR_TIMEDOUT     = -7  // A system call timed out.
+        e_ERROR_TIMEDOUT     = -7   // A system call timed out.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_ERROR_EOF          = e_ERROR_EOF
       , BTESO_ERROR_UNCLASSIFIED = e_ERROR_UNCLASSIFIED
@@ -92,16 +123,18 @@ struct SocketHandle {
       , BTESO_ERROR_NORESOURCES  = e_ERROR_NORESOURCES
       , BTESO_ERROR_INTERRUPTED  = e_ERROR_INTERRUPTED
       , BTESO_ERROR_TIMEDOUT     = e_ERROR_TIMEDOUT
-      , ERROR_EOF          = e_ERROR_EOF
-      , ERROR_UNCLASSIFIED = e_ERROR_UNCLASSIFIED
-      , ERROR_CONNDEAD     = e_ERROR_CONNDEAD
-      , ERROR_WOULDBLOCK   = e_ERROR_WOULDBLOCK
-      , ERROR_NORESOURCES  = e_ERROR_NORESOURCES
-      , ERROR_INTERRUPTED  = e_ERROR_INTERRUPTED
-      , ERROR_TIMEDOUT     = e_ERROR_TIMEDOUT
+      , ERROR_EOF                = e_ERROR_EOF
+      , ERROR_UNCLASSIFIED       = e_ERROR_UNCLASSIFIED
+      , ERROR_CONNDEAD           = e_ERROR_CONNDEAD
+      , ERROR_WOULDBLOCK         = e_ERROR_WOULDBLOCK
+      , ERROR_NORESOURCES        = e_ERROR_NORESOURCES
+      , ERROR_INTERRUPTED        = e_ERROR_INTERRUPTED
+      , ERROR_TIMEDOUT           = e_ERROR_TIMEDOUT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

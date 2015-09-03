@@ -18,11 +18,12 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//    [TBD - Overview of the test]
+// 
 //-----------------------------------------------------------------------------
-// [XX] [TBD - Method name]
-//=============================================================================
+// [ 2] USAGE TEST
+// [ 1] BREATHING TEST
 
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -97,18 +98,93 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The usage shows the basic usage with a 'btlso::TimeMetrics'.
+//
+// First, we specify an enumeration listing the categories that we want to
+//measure.  For this example, we will specify two categories:
+//..
+    enum {
+        e_CPU_CATEGORY   = 0,
+        e_IO_CATEGORY    = 1,
+        e_NUM_CATEGORIES = IO_CATEGORY + 1
+    };
+//..
+// Then, create a metrics object, keeping two categories, and initially
+// measuring time in the 'CPU' category:
+//..
+    btlso::TimeMetrics metrics(btlso::TimeMetrics::e_NUM_CATEGORIES,
+                               btlso::TimeMetrics::e_CPU_CATEGORY);
+//..
+// In order to measure time spent in I/O, e.g., doing 'select' calls, we do:
+//..
+    // perform initializations for 'select'
+//
+    metrics.switchTo(IO_CATEGORY);
+//
+    // do some IO, e.g., 'select'
+//..
+// To switch to measuring CPU time, e.g., doing event dispatch, we do:
+//..
+    metrics.switchTo(CPU_CATEGORY);
+//
+    // dispatch events
+//..
+// At the end of the computation, or periodically, one may report the time
+// spent in each category as follows:
+//..
+    bsl::cout << "The total time spent in IO was "
+              << metrics.percentage(btlso::TimeMetrics::BTESO_IO_CATEGORY)
+              << bsl::endl;
+//
+    bsl::cout << "The total time spent in CPU was "
+              << metrics.percentage(btlso::TimeMetrics::BTESO_CPU_CATEGORY)
+              << bsl::endl;
+//..
+// This metrics may be reset to its initial state by:
+//..
+    metrics.resetAll();
+//..
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
-        // [TBD - Description]
         //
         // Plan:
-        //
+        //  BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
+
         enum {
             CPU_CATEGORY = 0,
             IO_CATEGORY = 1,
@@ -119,30 +195,30 @@ int main(int argc, char *argv[])
         const btlso::TimeMetrics& X = mX;
 
         ASSERT(NUM_CATEGORIES == X.numCategories());
-        ASSERT(CPU_CATEGORY == X.currentCategory());
+        ASSERT(CPU_CATEGORY   == X.currentCategory());
 
         double x;
         for (int i = 0; i < 5000000; ++i) {
-            x = (i + 2)*(i+1)*i;
+            x = (i + 2) * (i + 1) * i;
         }
         ASSERT(x);
 
         mX.switchTo(IO_CATEGORY);
         ASSERT(IO_CATEGORY == X.currentCategory());
         bdlqq::ThreadUtil::microSleep(1000000); // 1 second
+
         mX.switchTo(CPU_CATEGORY);
 
         ASSERT(100 >= mX.percentage(CPU_CATEGORY));
-        ASSERT(0 <= mX.percentage(CPU_CATEGORY));
+        ASSERT(0   <= mX.percentage(CPU_CATEGORY));
 
         ASSERT(100 >= mX.percentage(IO_CATEGORY));
-        ASSERT(0 <= mX.percentage(IO_CATEGORY));
+        ASSERT(0   <= mX.percentage(IO_CATEGORY));
+
         if (veryVerbose) {
             P(mX.percentage(IO_CATEGORY))
             P(mX.percentage(CPU_CATEGORY))
         }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

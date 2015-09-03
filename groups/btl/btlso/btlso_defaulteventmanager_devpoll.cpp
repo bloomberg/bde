@@ -158,7 +158,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             if (0 > rc) {
                 if (EINTR == savedErrno) {
-                    if (flags & bteso_Flag::k_ASYNC_INTERRUPT) {
+                    if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
                         return -1;                                    // RETURN
                     }
                 }
@@ -226,7 +226,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(bteso_Flag::k_ASYNC_INTERRUPT & flags)
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
               && now < timeout);
 
         if (0 >= rfds) {
@@ -286,7 +286,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
             }
             errno = 0;
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(bteso_Flag::k_ASYNC_INTERRUPT & flags));
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             return rfds
@@ -546,10 +546,7 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterAll()
     d_signaled.clear();
 }
 
-                             // ---------
-                             // ACCESSORS
-                             // ---------
-
+// ACCESSORS
 int DefaultEventManager<Platform::DEVPOLL>::numSocketEvents(
                                       const SocketHandle::Handle& handle) const
 {

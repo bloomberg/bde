@@ -40,7 +40,7 @@ int sleep(int                       *resultErrno,
         struct timespec    ts;
 
         ts.tv_sec  = static_cast<time_t>(currTimeout.seconds());
-        ts.tv_nsec = static_cast<long>(  currTimeout.nanoseconds());
+        ts.tv_nsec = static_cast<long>(currTimeout.nanoseconds());
 
         // Sleep till it's time.
 
@@ -61,6 +61,7 @@ int sleep(int                       *resultErrno,
         *resultErrno = savedErrno;
         if (0 > rc) {
             BSLS_ASSERT(savedErrno == EINTR);
+
             if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
                 // We're allowing async interrupts.
 
@@ -102,15 +103,15 @@ typedef btlso::DefaultEventManager<btlso::Platform::EPOLL> EventManagerName;
 
 // PRIVATE MANIPULATORS
 int EventManagerName::dispatchCallbacks(
-                             const bsl::vector<struct ::epoll_event>& signaled)
+                             const bsl::vector<struct ::epoll_event>& signaled,
+                             int                                      numReady)
 {
     int numCallbacks = 0;
 
     // Letting people know that we're executing user-callbacks.
 
-    const int numReady = signaled.size();
-
     d_isInvokingCb = (0 != numReady);
+
     for (int i = 0; i < numReady; ++i) {
         const struct ::epoll_event *curEvent = &signaled[i];
 
@@ -187,8 +188,9 @@ int EventManagerName::dispatchImp(int                       flags,
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
                                (0 != (btlso::Flag::k_ASYNC_INTERRUPT & flags));
+
     do {
-        int numReady;                    // number of returned sockets
+        int numReady;                // number of returned sockets
         int savedErrno = 0;          // saved errno value set by poll
         while(1) {
             int epollTimeout = -1;
@@ -203,7 +205,7 @@ int EventManagerName::dispatchImp(int                       flags,
 
                     bsls::TimeInterval curr_timeout(*timeout - now);
                     bsls::Types::Int64 totalMs =
-                                             curr_timeout.totalMilliseconds();
+                                              curr_timeout.totalMilliseconds();
                     BSLS_ASSERT(totalMs < INT_MAX);
 
                     // totalMs is rounded down
@@ -224,21 +226,25 @@ int EventManagerName::dispatchImp(int                       flags,
             }
             else {
                 if (d_timeMetric_p) {
-                    d_timeMetric_p->switchTo(
-                                            btlso::TimeMetrics::e_IO_BOUND);
+                    d_timeMetric_p->switchTo(btlso::TimeMetrics::e_IO_BOUND);
                 }
-                numReady = epoll_wait(d_epollFd, &d_signaled.front(),
-                                      d_signaled.size(), epollTimeout);
+
+                numReady = epoll_wait(d_epollFd,
+                                      &d_signaled.front(),
+                                      d_signaled.size(),
+                                      epollTimeout);
+
                 BSLS_ASSERT(-1 != numReady || EINTR == errno);
                 savedErrno = errno;
                 if (d_timeMetric_p) {
-                    d_timeMetric_p->switchTo(
-                                           btlso::TimeMetrics::e_CPU_BOUND);
+                    d_timeMetric_p->switchTo(btlso::TimeMetrics::e_CPU_BOUND);
                 }
             }
             errno = 0;
-            if (numReady > 0 ||
-               (numReady < 0 && EINTR == savedErrno && allowAsyncInterrupts)) {
+            if (numReady > 0
+             || (numReady < 0
+              && EINTR == savedErrno
+              && allowAsyncInterrupts)) {
                 // Either a fd is ready or we've been interrupted and the user
                 // wants to know.
 
@@ -314,10 +320,11 @@ void EventManagerName::deregisterAll()
     for (EventMap::iterator it = d_events.begin();
          d_events.end() != it;
          ++it) {
+
         if (!it->second.d_isValid) {
             continue;
         }
-        struct epoll_event event = {0,{0}};
+        struct epoll_event event = { 0, { 0 } };
         int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, it->first, &event);
 
         // epoll removes closed file descriptors automatically.
@@ -368,7 +375,7 @@ void EventManagerName::deregisterSocketEvent(
     }
     else {
         if (!(regEvents->d_writeCallback
-              && event == regEvents->d_writeEventType)) {
+         && event == regEvents->d_writeEventType)) {
             return;                                                   // RETURN
         }
         regEvents->d_writeCallback = btlso::EventManager::Callback();
@@ -385,7 +392,7 @@ void EventManagerName::deregisterSocketEvent(
         // There is no more event to monitor for this handle.  Remove it from
         // epoll.
 
-        struct epoll_event epollEvent = {0, {0}};
+        struct epoll_event epollEvent = { 0, { 0 } };
         int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &epollEvent);
 
         // epoll removes closed file descriptors automatically.
@@ -415,9 +422,11 @@ void EventManagerName::deregisterSocketEvent(
     // 'event' from the set we're monitoring with epoll.
 
     regEvents->d_mask = newMask;
-    struct epoll_event epollEvent = {0,{0}};
+
+    struct epoll_event epollEvent = { 0, { 0 } };
     epollEvent.events = newMask;
     epollEvent.data.ptr = (void *) &*it;
+
     int ret = epoll_ctl(d_epollFd, EPOLL_CTL_MOD, handle, &epollEvent);
     BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 }
@@ -429,11 +438,12 @@ int EventManagerName::deregisterSocket(
     if (d_events.end() == it || !it->second.d_isValid) {
         return 0;                                                     // RETURN
     }
+
     int numEvents = it->second.d_readCallback ? 1 : 0;
     numEvents += it->second.d_writeCallback ? 1 : 0;
     BSLS_ASSERT(numEvents);
 
-    struct epoll_event epollEvent = {0,{0}};
+    struct epoll_event epollEvent = { 0, { 0 } };
     int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &epollEvent);
 
     // epoll removes closed file descriptors automatically.
@@ -487,6 +497,7 @@ int EventManagerName::registerSocketEvent(
                                  const btlso::EventManager::Callback& callback)
 {
     EventMap::iterator it = d_events.find(handle);
+
     if (d_events.end() == it) {
         bsl::pair<EventMap::iterator, bool> ret = d_events.insert(
                                        bsl::make_pair(handle, HandleEvents()));
@@ -501,14 +512,17 @@ int EventManagerName::registerSocketEvent(
 
     // Register the callback and event type.
 
-    HandleEvents *regEvents = &it->second;
+    HandleEvents                  *regEvents = &it->second;
     btlso::EventManager::Callback *modifiedCallback = 0;
+
     if (btlso::EventType::e_READ == event
      || btlso::EventType::e_ACCEPT == event) {
+
         BSLS_ASSERT(!it->second.d_isValid
                  || !regEvents->d_readCallback
                  || event == regEvents->d_readEventType);
-        regEvents->d_readCallback = callback;
+
+        regEvents->d_readCallback  = callback;
         regEvents->d_readEventType = event;
         modifiedCallback = &regEvents->d_readCallback;
     }
@@ -516,7 +530,8 @@ int EventManagerName::registerSocketEvent(
         BSLS_ASSERT(!it->second.d_isValid
                  || !regEvents->d_writeCallback
                  || event == regEvents->d_writeEventType);
-        regEvents->d_writeCallback = callback;
+
+        regEvents->d_writeCallback  = callback;
         regEvents->d_writeEventType = event;
         modifiedCallback = &regEvents->d_writeCallback;
     }
@@ -549,7 +564,7 @@ int EventManagerName::registerSocketEvent(
              || (btlso::EventType::e_READ == regEvents->d_readEventType
               && btlso::EventType::e_WRITE == regEvents->d_writeEventType));
 
-    struct epoll_event epollEvent = {0,{0}};
+    struct epoll_event epollEvent = { 0, { 0 } };
     epollEvent.events = newMask;
     epollEvent.data.ptr = (void *) &*it;
 
@@ -629,18 +644,23 @@ int EventManagerName::isRegistered(
                                 const btlso::EventType::Type       event) const
 {
     EventMap::const_iterator it = d_events.find(handle);
+
     if (d_events.end() == it || !it->second.d_isValid) {
         return 0;                                                     // RETURN
     }
+
     const HandleEvents& regEvents = it->second;
+
     if (regEvents.d_readCallback
      && event == regEvents.d_readEventType) {
         return 1;                                                     // RETURN
     }
+
     if (regEvents.d_writeCallback
      && event == regEvents.d_writeEventType) {
         return 1;                                                     // RETURN
     }
+
     return 0;
 }
 

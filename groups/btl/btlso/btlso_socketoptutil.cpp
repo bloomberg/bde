@@ -7,76 +7,74 @@ BSLS_IDENT_RCSID(btlso_socketoptutil_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptions.h>
 #include <btlso_lingeroptions.h>
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_socketimputil.h>                // for testing only
-#include <btlso_ipv4address.h>                  // for testing only
-#endif
-
 namespace BloombergLP {
 
 namespace btlso {
+
+                        // --------------------------
+                        // class btlso::SocketOptUtil
+                        // --------------------------
+
 int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
-                                          const SocketOptions& options)
+                                    const SocketOptions& options)
 {
     if (!options.debugFlag().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_SOCKETLEVEL,
-                                 SocketOptUtil::k_DEBUGINFO,
-                                 (int) options.debugFlag().value());
+        const int rc = setOption(
+                                handle,
+                                SocketOptUtil::k_SOCKETLEVEL,
+                                SocketOptUtil::k_DEBUGINFO,
+                                static_cast<int>(options.debugFlag().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
     }
 
     if (!options.allowBroadcasting().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_SOCKETLEVEL,
-                                 SocketOptUtil::k_BROADCAST,
-                                 (int) options.allowBroadcasting().value());
+        const int rc = setOption(
+                        handle,
+                        SocketOptUtil::k_SOCKETLEVEL,
+                        SocketOptUtil::k_BROADCAST,
+                        static_cast<int>(options.allowBroadcasting().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
     }
 
     if (!options.reuseAddress().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_SOCKETLEVEL,
-                                 SocketOptUtil::k_REUSEADDRESS,
-                                 (int) options.reuseAddress().value());
+        const int rc = setOption(
+                             handle,
+                             SocketOptUtil::k_SOCKETLEVEL,
+                             SocketOptUtil::k_REUSEADDRESS,
+                             static_cast<int>(options.reuseAddress().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
     }
 
     if (!options.keepAlive().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_SOCKETLEVEL,
-                                 SocketOptUtil::k_KEEPALIVE,
-                                 (int) options.keepAlive().value());
+        const int rc = setOption(
+                                handle,
+                                SocketOptUtil::k_SOCKETLEVEL,
+                                SocketOptUtil::k_KEEPALIVE,
+                                static_cast<int>(options.keepAlive().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
     }
 
     if (!options.bypassNormalRouting().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_SOCKETLEVEL,
-                                 SocketOptUtil::k_DONTROUTE,
-                                 (int) options.bypassNormalRouting().value());
+        const int rc = setOption(
+                      handle,
+                      SocketOptUtil::k_SOCKETLEVEL,
+                      SocketOptUtil::k_DONTROUTE,
+                      static_cast<int>(options.bypassNormalRouting().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
     }
 
     if (!options.linger().isNull()) {
-        const LingerOptions&      lingerOptions =
-                                                     options.linger().value();
+        const LingerOptions&      lingerOptions = options.linger().value();
         SocketOptUtil::LingerData lingerData;
 
         lingerData.l_onoff  = lingerOptions.lingerFlag();
@@ -93,10 +91,10 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.leaveOutOfBandDataInline().isNull()) {
         const int rc = setOption(
-                              handle,
-                              SocketOptUtil::k_SOCKETLEVEL,
-                              SocketOptUtil::k_OOBINLINE,
-                             (int) options.leaveOutOfBandDataInline().value());
+                 handle,
+                 SocketOptUtil::k_SOCKETLEVEL,
+                 SocketOptUtil::k_OOBINLINE,
+                 static_cast<int>(options.leaveOutOfBandDataInline().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -163,10 +161,11 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
     }
 
     if (!options.tcpNoDelay().isNull()) {
-        const int rc = setOption(handle,
-                                 SocketOptUtil::k_TCPLEVEL,
-                                 SocketOptUtil::k_TCPNODELAY,
-                                 (int) options.tcpNoDelay().value());
+        const int rc = setOption(
+                               handle,
+                               SocketOptUtil::k_TCPLEVEL,
+                               SocketOptUtil::k_TCPNODELAY,
+                               static_cast<int>(options.tcpNoDelay().value()));
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -174,6 +173,7 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     return 0;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace
