@@ -86,12 +86,12 @@ BSLS_IDENT("$Id: $")
 //                                  log to indicate whether a series of log
 //                                  records were logged due to either a Trigger
 //                                  or Trigger-All event; if this attribute is
-//                                  'BAEL_BEGIN_END_MARKERS', then
+//                                  'e_BEGIN_END_MARKERS', then
 //                                  "BEGIN RECORD DUMP" and "END RECORD DUMP"
 //                                  will be written before and after each
 //                                  sequence of records logged due to a Trigger
 //                                  or Trigger-All event; default is
-//                                  'BAEL_BEGIN_END_MARKERS'.
+//                                  'e_BEGIN_END_MARKERS'.
 //..
 // The constraints are as follows:
 //..
@@ -184,9 +184,9 @@ BSLS_IDENT("$Id: $")
 // following methods cannot fail and return 'void'):
 //..
 //    config.setUserFieldsSchema(schema, &exampleCallback);
-//    config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
+//    config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
 //    config.setTriggerMarkers(
-//                          ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+//                          ball::LoggerManagerConfiguration::e_NO_MARKERS);
 //..
 // Then, we verify the options are configured correctly:
 //..
@@ -332,21 +332,22 @@ class LoggerManagerConfiguration {
         // The 'TriggerMarkers' enumeration defines whether text will be
         // written to the log to indicate whether a series of log records were
         // logged due to either a Trigger or Trigger-All event.  If this
-        // attribute is 'BAEL_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
+        // attribute is 'e_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
         // "END RECORD DUMP" will be written before and after each sequence of
         // records logged due to a Trigger or Trigger-All event.  The default
-        // value of this attribute is 'BAEL_BEGIN_END_MARKERS'.
+        // value of this attribute is 'e_BEGIN_END_MARKERS'.
 
         e_NO_MARKERS,        // don't print any markers
 
         e_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
-                                // "END RECORD DUMP" markers (default)
+                             // "END RECORD DUMP" markers (default)
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_NO_MARKERS = e_NO_MARKERS
+      , BAEL_NO_MARKERS        = e_NO_MARKERS
       , BAEL_BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
-      , NO_MARKERS        = e_NO_MARKERS
-      , BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
+
+      , NO_MARKERS             = e_NO_MARKERS
+      , BEGIN_END_MARKERS      = e_BEGIN_END_MARKERS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

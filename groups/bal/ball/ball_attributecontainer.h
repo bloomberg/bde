@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //     ball::AttributeContainer: a protocol for a collection of attributes
 //
-//@SEE_ALSO: ball_attribute, bael_attributeset
+//@SEE_ALSO: ball_attribute, ball_attributeset
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // more efficient than a more general set-based implementation if the container
 // is frequently created, destroyed, or modified.  We will develop a
 // 'ball::AttributeContainer' implementation that can hold any
-// 'ball::Attribute' value in example 2 (and one is provided by the 'bael'
+// 'ball::Attribute' value in example 2 (and one is provided by the 'ball'
 // package in the 'ball_defaultattributecontainer' component).
 //..
 //    // serviceattributes.h
@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 // created for a particular group of attributes needed by an application (as
 // shown in example 1).
 //
-// Note that the 'bael' package provides a similar 'ball::AttributeContainer'
+// Note that the 'ball' package provides a similar 'ball::AttributeContainer'
 // implementation in the 'ball_defaultattributecontainer' component.
 //..
 //   // attributeset.h

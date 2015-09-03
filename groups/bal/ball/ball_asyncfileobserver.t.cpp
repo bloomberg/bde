@@ -290,16 +290,16 @@ bsl::string tempFileName(bool verboseFlag)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "bael", 0, tmpNameBuf);
+    GetTempFileName(tmpPathBuf, "ball", 0, tmpNameBuf);
     result = tmpNameBuf;
 #elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
-    result = tempnam(tmpPathBuf, "bael");
+    result = tempnam(tmpPathBuf, "ball");
 #else
-    char *fn = tempnam(0, "bael");
+    char *fn = tempnam(0, "ball");
     if (0 == fn) {
         ASSERTV("Unable to generate temporary file name", false);
-        return "bael.faketempfile";                                   // RETURN
+        return "ball.faketempfile";                                   // RETURN
     }
     else {
         result = fn;
@@ -519,7 +519,7 @@ typedef LogRotationCallbackTester RotCb;
 }  // close unnamed namespace
 
 
-namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
+namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
 void executeInParallel(int                                numThreads,
                        Obj                               *mX,
@@ -542,7 +542,7 @@ void executeInParallel(int                                numThreads,
 
 extern "C" void *workerThread(void *arg)
 {
-    BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+    BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
     (void)arg;
 
     for (int i = 0;i < 10000; ++i) {
@@ -554,7 +554,7 @@ extern "C" void *workerThread(void *arg)
 
 extern "C" void *workerThread2(void *arg)
 {
-    BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+    BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
     Obj *mX = (Obj*)arg;
     int ret;
     for (int i = 0;i < 100; ++i) {
@@ -577,7 +577,7 @@ extern "C" void *workerThread2(void *arg)
     return 0;
 }
 
-}  // close namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
+}  // close namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManager::initSingleton(&asyncFileObserver, configuration);
 
-        BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
         asyncFileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m",
                                        "%d %p:%t %s %f:%l %c %m");
@@ -857,7 +857,7 @@ int main(int argc, char *argv[])
             cout << endl << "Testing Concurrent Publication" << endl
                          << "==============================" << endl;
 
-        using namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
+        using namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
 
         bsl::string fileName = tempFileName(veryVerbose);
 
@@ -964,7 +964,7 @@ int main(int argc, char *argv[])
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
-        BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
         if (veryVerbose) cout << "Testing absolute time reference" << endl;
         {
@@ -1101,7 +1101,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             // We want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
@@ -1208,7 +1208,7 @@ int main(int argc, char *argv[])
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
@@ -1400,7 +1400,7 @@ int main(int argc, char *argv[])
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
@@ -1572,7 +1572,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
             mX.enableFileLogging(fileName.c_str());
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             ASSERT(0 == bdls::FilesystemUtil::getFileSize(fileName));
 
@@ -1610,7 +1610,7 @@ int main(int argc, char *argv[])
             multiplexObserver.registerObserver(&mX);
 
             mX.enableFileLogging(fileName.c_str());
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             ball::Context context;
             for (int i = 0;i < numTestRecords; ++i)
@@ -1721,7 +1721,7 @@ int main(int argc, char *argv[])
                             ball::Severity::e_OFF));
                 ball::LoggerManagerScopedGuard guard(&mX, configuration);
 
-                BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
                 // Throw fair large amount of logs into the queue
 
@@ -1904,7 +1904,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             int beginFileOffset = bdls::FilesystemUtil::getFileSize(fileName);
             if (verbose)
@@ -1954,7 +1954,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -2078,7 +2078,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -2158,7 +2158,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -2175,7 +2175,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log WARN " << "\n";
+                      " ball::AsyncFileObserverTest log WARN " << "\n";
             {
                 // Wait up to 3 seconds for the async logging to complete
 
@@ -2192,7 +2192,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log ERROR " << "\n";
+                      " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
                 // Wait up to 3 seconds for the async logging to complete
 
@@ -2215,7 +2215,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
             testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log FATAL " << "\n";
+                      " ball::AsyncFileObserverTest log FATAL " << "\n";
             {
                 // Replace the spaces after pid, __FILE__ to make dos match the
                 // file
@@ -2269,7 +2269,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -2286,7 +2286,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log WARN " << "\n";
+                      " ball::AsyncFileObserverTest log WARN " << "\n";
             {
                 // Wait up to 3 seconds for the async logging to complete
 
@@ -2303,7 +2303,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log ERROR " << "\n";
+                      " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
                 // Wait up to 3 seconds for the async logging to complete
 
@@ -2326,7 +2326,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
             testOs << "FATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael::AsyncFileObserverTest log FATAL " << "\n";
+                      " ball::AsyncFileObserverTest log FATAL " << "\n";
             // Replace the spaces after pid, __FILE__
             {
                 bsl::string temp = dos.str();
@@ -2421,7 +2421,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(ss.rdbuf());
@@ -2561,7 +2561,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(os.rdbuf());
@@ -2625,7 +2625,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bdlt::Datetime startDatetime, endDatetime;
 
@@ -2793,7 +2793,7 @@ int main(int argc, char *argv[])
 
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             // Redirect 'stdout' to a string stream
 

@@ -30,8 +30,8 @@ using namespace bsl;  // automatically added by script
 // For the sake of brevity in the Test Plan below, the following abbreviations
 // are used as needed:
 //..
-//    bael::LMC   ball::LoggerManagerConfiguration
-//    bael::LMD   ball::LoggerManagerDefaults
+//    ball::LMC   ball::LoggerManagerConfiguration
+//    ball::LMD   ball::LoggerManagerDefaults
 //    Descriptors ball::UserFieldsSchema
 //    Populator   bdlf::Function<void(*)(UserFields*,const Descriptors&)>
 //    CNF         bdlf::Function<void (*)(bsl::string *, const char *)>
@@ -43,15 +43,15 @@ using namespace bsl;  // automatically added by script
 // [ 1] ball::LoggerManagerConfiguration(const LoggerManagerConfiguration&)
 // [ 1] ~ball::LoggerManagerConfiguration();
 //
-// [ 1] bael::LMC& operator=(const ball::LoggerManagerConfiguration& rhs);
-// [ 1] void setDefaultValues(const bael::LMD& defaults);
+// [ 1] ball::LMC& operator=(const ball::LoggerManagerConfiguration& rhs);
+// [ 1] void setDefaultValues(const ball::LMD& defaults);
 // [ 5] void setLogOrder(LogOrder value);
 // [ 6] void setTriggerMarkers(TriggerMarkers value);
 // [ 1] void setUserFieldsSchema(const Schema& , const Populator& );
 // [ 1] void setCategoryNameFilterCallback(const CNF& nameFilter);
 // [ 1] void setDefaultThresholdLevelsCallback(const DTC& );
 // [ 2] void setDefaultThresholdLevelsIfValid(int)
-// [ 1] const bael::LMD& defaults() const;
+// [ 1] const ball::LMD& defaults() const;
 // [ 1] const ball::UserFieldsSchema& userFieldsSchema() const;
 // [ 5] const LogOrder logOrder() const;
 // [ 6] const TriggerMarkers triggerMarkers() const;
@@ -60,9 +60,9 @@ using namespace bsl;  // automatically added by script
 // [ 1] const DTC& defaultThresholdLevelsCallback() const;
 // [ 1] bsl::ostream& print(bsl::ostream& stream, int level, int spacesPerLev)
 //
-// [ 1] bool operator==(const bael::LMC& lhs, const bael::LMC& rhs);
-// [ 1] bool operator!=(const bael::LMC& lhs, const bael::LMC& rhs);
-// [ 1] bsl::ostream& operator<<(bsl::ostream&, const bael::LMC);
+// [ 1] bool operator==(const ball::LMC& lhs, const ball::LMC& rhs);
+// [ 1] bool operator!=(const ball::LMC& lhs, const ball::LMC& rhs);
+// [ 1] bsl::ostream& operator<<(bsl::ostream&, const ball::LMC);
 //-----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -202,9 +202,9 @@ typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
 // following methods cannot fail and return 'void'):
 //..
       config.setUserFieldsSchema(schema, &exampleCallback);
-      config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
+      config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
       config.setTriggerMarkers(
-                            ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+                            ball::LoggerManagerConfiguration::e_NO_MARKERS);
 //..
 // Then, we verify the options are configured correctly:
 //..
@@ -363,9 +363,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   1. Create a logger manager and verify 'logOrder'.
-        //   2. Invoke 'setTriggerMarkers' with 'BAEL_NO_MARKERS' and verify
+        //   2. Invoke 'setTriggerMarkers' with 'e_NO_MARKERS' and verify
         //      'triggerMarkers'.
-        //   3. Invoke 'setTriggerMarkers' with 'BAEL_BEGIN_END_MARKERS' and
+        //   3. Invoke 'setTriggerMarkers' with 'e_BEGIN_END_MARKERS' and
         //      verify 'triggerMarkers'.
         //
         // Testing:
@@ -397,8 +397,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a logger manager and verify 'logOrder'.
-        //   Invoke 'setLogOrder' with 'BAEL_FIFO' and verify 'logOrder'.
-        //   Invoke 'setLogOrder' with 'BAEL_LIFO' and verify 'logOrder'.
+        //   Invoke 'setLogOrder' with 'e_FIFO' and verify 'logOrder'.
+        //   Invoke 'setLogOrder' with 'e_LIFO' and verify 'logOrder'.
         //
         // Testing:
         //   void setLogOrder(LogOrder value);

@@ -356,23 +356,23 @@ void my_DummyDeleter::deleteObject(ball::Record *)
         // Process the specified 'handle', based on it's severity.  Records
         // (encapsulated in 'handle') with severity equal to or *greater*
         // severe than (i.e., with *numerical* value *less* than or equal to)
-        // 'ball::Severity::BAEL_WARN' are pushed back into the specified
+        // 'ball::Severity::e_WARN' are pushed back into the specified
         // 'buffer'.  Records with a severity equal to or more severe than
-        // 'ball::Severity::BAEL_ERROR' are (in addition to get pushed back
+        // 'ball::Severity::e_ERROR' are (in addition to get pushed back
         // into the 'buffer') printed to 'stdout', and then each record
         // contained in 'buffer' is in turn printed to 'stdout' and then
         // removed from 'buffer'.  That is, any severity level equal to or
-        // more severe than 'ball::Severity::BAEL_ERROR' triggers a trace-back
+        // more severe than 'ball::Severity::e_ERROR' triggers a trace-back
         // of all records accumulated in the buffer and flushes the buffer.
         // The function is thread safe and thus allows multiple concurrent
         // invocations of this function with the same record buffer.
     {
         int severity = handle->fixedFields().severity();
 //
-        if (ball::Severity::BAEL_WARN >= severity) {
+        if (ball::Severity::e_WARN >= severity) {
             buffer.pushBack(handle);
         }
-        if (ball::Severity::BAEL_ERROR >= severity) {
+        if (ball::Severity::e_ERROR >= severity) {
             bsl::cout << *handle;
             buffer.beginSequence(); // lock the buffer before traversing
             int length = buffer.length();

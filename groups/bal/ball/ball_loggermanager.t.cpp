@@ -374,7 +374,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
 //..
           ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..
-// The application is now prepared to log messages using the 'bael' logging
+// The application is now prepared to log messages using the 'ball' logging
 // subsystem:
 //..
           // ...
@@ -579,7 +579,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
           ball::LoggerManagerScopedGuard guard(&observer, configuration);
           ball::LoggerManager& manager = ball::LoggerManager::singleton();
 //..
-// The application is now prepared to log messages using the 'bael' logging
+// The application is now prepared to log messages using the 'ball' logging
 // subsystem, but first we will demonstrate the functors and client-supplied
 // default threshold overrides.
 //
@@ -617,20 +617,20 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
           ASSERT( 64 == blpCategory->triggerLevel());
           ASSERT( 32 == blpCategory->triggerAllLevel());
 //..
-// Next add a second category named "BloombergLP.bae.bael" (by calling
+// Next add a second category named "BloombergLP.bal.ball" (by calling
 // 'setCategory') and 'ASSERT' that the threshold levels are "inherited" from
 // category "BloombergLP":
 //..
-          const ball::Category *baelCategory =
-                             loggerManager.setCategory("BloombergLP.bae.bael");
-          ASSERT(baelCategory ==
-                         loggerManager.lookupCategory("bloomberglp.bae.bael"));
-          ASSERT(  0 == bsl::strcmp("bloomberglp.bae.bael",
-                                    baelCategory->categoryName()));
-          ASSERT(128 == baelCategory->recordLevel());
-          ASSERT( 96 == baelCategory->passLevel());
-          ASSERT( 64 == baelCategory->triggerLevel());
-          ASSERT( 32 == baelCategory->triggerAllLevel());
+          const ball::Category *ballCategory =
+                             loggerManager.setCategory("BloombergLP.bal.ball");
+          ASSERT(ballCategory ==
+                         loggerManager.lookupCategory("bloomberglp.bal.ball"));
+          ASSERT(  0 == bsl::strcmp("bloomberglp.bal.ball",
+                                    ballCategory->categoryName()));
+          ASSERT(128 == ballCategory->recordLevel());
+          ASSERT( 96 == ballCategory->passLevel());
+          ASSERT( 64 == ballCategory->triggerLevel());
+          ASSERT( 32 == ballCategory->triggerAllLevel());
 //..
 // Finally add a third category named "Other.equities", again by calling
 // 'setCategory'.  This category has no ancestor currently in the registry, so
@@ -2040,14 +2040,14 @@ int main(int argc, char *argv[])
 
             // add a category
 
-            const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+            const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
             ASSERT(cat);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
+            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+            ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
             ASSERT(64  == cat->recordLevel());
             ASSERT(48  == cat->passLevel());
             ASSERT(32  == cat->triggerLevel());
@@ -2071,7 +2071,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << R << endl;
 
             const Attr& A = R.fixedFields();
-            ASSERT(0                == bsl::strcmp("Bloomberg.Bae",
+            ASSERT(0                == bsl::strcmp("Bloomberg.Bal",
                                                    A.category()));
             ASSERT(A.severity() == cat->passLevel());
             ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
@@ -2284,14 +2284,14 @@ int main(int argc, char *argv[])
 
             // add a category
 
-            const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+            const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
             ASSERT(cat);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
+            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+            ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
             ASSERT(64  == cat->recordLevel());
             ASSERT(48  == cat->passLevel());
             ASSERT(32  == cat->triggerLevel());
@@ -2315,7 +2315,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << R << endl;
 
             const Attr& A = R.fixedFields();
-            ASSERT(0                == bsl::strcmp("Bloomberg.Bae",
+            ASSERT(0                == bsl::strcmp("Bloomberg.Bal",
                                                    A.category()));
             ASSERT(A.severity() == cat->passLevel());
             ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
@@ -3732,20 +3732,20 @@ int main(int argc, char *argv[])
         const int dfltTrigLevel    = mLM.defaultTriggerThresholdLevel();
         const int dfltTrigAllLevel = mLM.defaultTriggerAllThresholdLevel();
 
-        Cat       *cat1 = mLM.addCategory("BLOOMBERG.BAE", 64, 48, 32, 16);
+        Cat       *cat1 = mLM.addCategory("BLOOMBERG.BAL", 64, 48, 32, 16);
         ASSERT(cat1);
         ASSERT(2    == mLM.numCategories());
-        ASSERT(cat1 == mLM.lookupCategory("BLOOMBERG.bae"));
-        ASSERT( 0   == bsl::strcmp("bloomberg.bae", cat1->categoryName()));
+        ASSERT(cat1 == mLM.lookupCategory("BLOOMBERG.bal"));
+        ASSERT( 0   == bsl::strcmp("bloomberg.bal", cat1->categoryName()));
         ASSERT(64   == cat1->recordLevel());
         ASSERT(48   == cat1->passLevel());
         ASSERT(32   == cat1->triggerLevel());
         ASSERT(16   == cat1->triggerAllLevel());
 
-        const Cat *cat2 = mLM.setCategory("bloomberg.bae.bael");
+        const Cat *cat2 = mLM.setCategory("bloomberg.bal.ball");
         ASSERT(cat2);
         ASSERT(3    == mLM.numCategories());
-        ASSERT(cat2 == mLM.lookupCategory("Bloomberg.Bae.Bael"));
+        ASSERT(cat2 == mLM.lookupCategory("Bloomberg.Bal.Ball"));
         // verify inheritance of levels
         ASSERT(64 == cat2->recordLevel());
         ASSERT(48 == cat2->passLevel());
@@ -3785,7 +3785,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const char *CAT_NAME = "Bloomberg.Bae.Bael";
+        const char *CAT_NAME = "Bloomberg.Bal.Ball";
         const int   NUM_CAT  = mLM.numCategories();
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -3815,7 +3815,7 @@ int main(int argc, char *argv[])
         ASSERT(20 == cat2->triggerLevel());
         ASSERT(10 == cat2->triggerAllLevel());
 
-        const Cat *cat6 = mLM.setCategory("Bloomberg.Bae.Bael.logging",
+        const Cat *cat6 = mLM.setCategory("Bloomberg.Bal.Ball.logging",
                                          80, 60, 40, 20);
         ASSERT(cat6);
         ASSERT(0  == (cat2 == cat6));
@@ -3970,9 +3970,9 @@ int main(int argc, char *argv[])
         ASSERT(mLM.lookupCategory("Equities"));
         ASSERT(mLM.lookupCategory("Equities.Graphics"));
         ASSERT(mLM.lookupCategory("Equities.Graphics.G"));
-        ASSERT(mLM.lookupCategory("Bloomberg.Bae.Bael"));
-        ASSERT(mLM.lookupCategory("Bloomberg.Bae.Bael.Logging"));
-        ASSERT(mLM.lookupCategory("Bloomberg.Bae"));
+        ASSERT(mLM.lookupCategory("Bloomberg.Bal.Ball"));
+        ASSERT(mLM.lookupCategory("Bloomberg.Bal.Ball.Logging"));
+        ASSERT(mLM.lookupCategory("Bloomberg.Bal"));
 
         // ...but cannot add new categories
         ASSERT(0 == mLM.addCategory("one_more_category", 0, 0, 0, 0));
@@ -4075,11 +4075,11 @@ int main(int argc, char *argv[])
             ASSERT(13 == dfltCat.triggerLevel());
             ASSERT(11 == dfltCat.triggerAllLevel());
 
-            const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+            const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
             ASSERT(cat);
-            ASSERT(cat == mLM.lookupCategory("BLOOMBERG.bae"));
-            ASSERT( 0  == bsl::strcmp("bloomberg.bae", cat->categoryName()));
+            ASSERT(cat == mLM.lookupCategory("BLOOMBERG.bal"));
+            ASSERT( 0  == bsl::strcmp("bloomberg.bal", cat->categoryName()));
             ASSERT(64  == cat->recordLevel());
             ASSERT(48  == cat->passLevel());
             ASSERT(32  == cat->triggerLevel());
@@ -4191,10 +4191,10 @@ int main(int argc, char *argv[])
         ASSERT(13 == dfltCat.triggerLevel());
         ASSERT(11 == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4296,10 +4296,10 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGER    == dfltCat.triggerLevel());
         ASSERT(FACTORY_TRIGGERALL == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4398,10 +4398,10 @@ int main(int argc, char *argv[])
         ASSERT(13 == dfltCat.triggerLevel());
         ASSERT(11 == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4496,10 +4496,10 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGER    == dfltCat.triggerLevel());
         ASSERT(FACTORY_TRIGGERALL == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4597,10 +4597,10 @@ int main(int argc, char *argv[])
         ASSERT(13 == dfltCat.triggerLevel());
         ASSERT(11 == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4772,10 +4772,10 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGER    == dfltCat.triggerLevel());
         ASSERT(FACTORY_TRIGGERALL == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -4944,10 +4944,10 @@ int main(int argc, char *argv[])
         ASSERT(13 == dfltCat.triggerLevel());
         ASSERT(11 == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -5084,10 +5084,10 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGER    == dfltCat.triggerLevel());
         ASSERT(FACTORY_TRIGGERALL == dfltCat.triggerAllLevel());
 
-        const Cat *cat = mLM.addCategory("Bloomberg.Bae", 64, 48, 32, 16);
+        const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
         ASSERT(cat);
-        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bae"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bae", cat->categoryName()));
+        ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
+        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
         ASSERT(64  == cat->recordLevel());
         ASSERT(48  == cat->passLevel());
         ASSERT(32  == cat->triggerLevel());
@@ -5231,21 +5231,21 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGER    == dfltCat.triggerLevel());
         ASSERT(FACTORY_TRIGGERALL == dfltCat.triggerAllLevel());
 
-        const Cat *cat1 = mLM.addCategory("BLOOMBERG.BAE", 64, 48, 32, 16);
+        const Cat *cat1 = mLM.addCategory("BLOOMBERG.BAL", 64, 48, 32, 16);
         ASSERT(cat1);
         ASSERT(2    == mLM.numCategories());
-        ASSERT(cat1 == mLM.lookupCategory("BLOOMBERG.bae"));
-        ASSERT( 0   == bsl::strcmp("bloomberg.bae", cat1->categoryName()));
+        ASSERT(cat1 == mLM.lookupCategory("BLOOMBERG.bal"));
+        ASSERT( 0   == bsl::strcmp("bloomberg.bal", cat1->categoryName()));
         ASSERT(64   == cat1->recordLevel());
         ASSERT(48   == cat1->passLevel());
         ASSERT(32   == cat1->triggerLevel());
         ASSERT(16   == cat1->triggerAllLevel());
 
-        const Cat *cat2 = mLM.setCategory("Bloomberg.BAE.LOGGING");
+        const Cat *cat2 = mLM.setCategory("Bloomberg.BAL.LOGGING");
         ASSERT(cat2);
         ASSERT(3    == mLM.numCategories());
-        ASSERT(cat2 == mLM.lookupCategory("BLOOMBERG.BAE.LOGGING"));
-        ASSERT(0    == bsl::strcmp("bloomberg.bae.logging",
+        ASSERT(cat2 == mLM.lookupCategory("BLOOMBERG.BAL.LOGGING"));
+        ASSERT(0    == bsl::strcmp("bloomberg.bal.logging",
                                    cat2->categoryName()));
         ASSERT(64   == cat2->recordLevel());
         ASSERT(48   == cat2->passLevel());
@@ -5264,14 +5264,14 @@ int main(int argc, char *argv[])
         ASSERT(FACTORY_TRIGGERALL == cat3->triggerAllLevel());
 
         Cat *cat4 = mLM.setCategory(
-               "Bloomberg.Bae.Logging.Component.LoggerManager.Test.Breathing",
+               "Bloomberg.Bal.Logging.Component.LoggerManager.Test.Breathing",
                65, 49, 33, 17);
         ASSERT(cat4);
         ASSERT(5    == mLM.numCategories());
         ASSERT(cat4 == mLM.lookupCategory(
-              "BLOOMBERG.bae.LOGGING.component.LOGGERMANAGER.test.BREATHING"));
+              "BLOOMBERG.bal.LOGGING.component.LOGGERMANAGER.test.BREATHING"));
         ASSERT(0    == bsl::strcmp(
-                "bloomberg.bae.logging.component.loggermanager.test.breathing",
+                "bloomberg.bal.logging.component.loggermanager.test.breathing",
                 cat4->categoryName()));
         ASSERT(65   == cat4->recordLevel());
         ASSERT(49   == cat4->passLevel());

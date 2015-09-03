@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of using a file
-// observer within a 'bael' logging system.
+// observer within a 'ball' logging system.
 //
 // First we create a 'ball::AsyncFileObserver' named 'asyncFileObserver' that
 // by default has a queue of records whose maximum length is 8,192, and which
@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  asyncFileObserver.startPublicationThread();
 //..
-// Next, the async file observer must then be installed within a 'bael' logging
+// Next, the async file observer must then be installed within a 'ball' logging
 // system.  All messages that are published to the logging system will be
 // transmitted to the 'publish' method of 'asyncFileObserver'.  Set the log
 // category once this is done by passing the async file observer object to the
@@ -223,7 +223,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  ball::LoggerManagerConfiguration configuration;
 //  ball::LoggerManager::initSingleton(&asyncFileObserver, configuration);
-//  BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
+//  BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 //..
 // Then, the logging format can be optionally changed by calling the
 // 'setLogFormat' method.  The statement below outputs timestamps in ISO 8601
@@ -244,7 +244,7 @@ BSLS_IDENT("$Id: $")
 // Then, change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
-//  asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_INFO);
+//  asyncFileObserver.setStdoutThreshold(ball::Severity::e_INFO);
 //  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
 //                 << BALL_LOG_END;
 //  BALL_LOG_INFO  << "This info will be published on 'stdout'."
@@ -258,7 +258,7 @@ BSLS_IDENT("$Id: $")
 //  asyncFileObserver.enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
 //
-//  asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_OFF);
+//  asyncFileObserver.setStdoutThreshold(ball::Severity::e_OFF);
 //      // Disable 'stdout' logging.
 //
 //  asyncFileObserver.rotateOnSize(1024 * 256);
@@ -483,17 +483,16 @@ class AsyncFileObserver : public Observer {
         // severity us at least as severe as the optionally specified
         // 'stdoutThreshold'.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
-        // severe as 'Severity::BAEL_WARN'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The timestamp
-        // attribute of published records is written in UTC time.  Published
-        // records are added onto the end of a queue having a maximum length of
-        // 8,192 records, and then later published by an independent
-        // publication thread.  If 'publish' is called when the record queue is
-        // full, the published record is discarded (and a warning may be
-        // written to 'stderr').  Note that user-defined fields are published
-        // to 'stdout' by default.  Also note that file logging is initially
-        // disabled.
+        // severe as 'Severity::e_WARN'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The timestamp attribute of
+        // published records is written in UTC time.  Published records are
+        // added onto the end of a queue having a maximum length of 8,192
+        // records, and then later published by an independent publication
+        // thread.  If 'publish' is called when the record queue is full, the
+        // published record is discarded (and a warning may be written to
+        // 'stderr').  Note that user-defined fields are published to 'stdout'
+        // by default.  Also note that file logging is initially disabled.
 
     AsyncFileObserver(Severity::Level   stdoutThreshold,
                       bool              publishInLocalTime,
@@ -661,13 +660,13 @@ class AsyncFileObserver : public Observer {
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
         // async file observer (i.e., the supplied callback should *not*
-        // attempt to write to the 'bael' log).
+        // attempt to write to the 'ball' log).
 
     void setStdoutThreshold(Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
         // observer to the specified 'stdoutThreshold' level.  Note that if the
-        // value of 'stdoutThreshold' is 'Severity::BAEL_OFF', logging to
-        // 'stdout' is disabled.
+        // value of 'stdoutThreshold' is 'Severity::e_OFF', logging to 'stdout'
+        // is disabled.
 
     void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
         // Set the format of log records written to the log file and to

@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 //
 // Note that we use the 'AttributeSet' implementation of the
 // 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer' (the 'bael' package provides a similar class
+// for 'ball_attributecontainer' (the 'ball' package provides a similar class
 // in the 'ball_defaultattributecontainer' component).
 //..
     {

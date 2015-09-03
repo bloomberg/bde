@@ -18,7 +18,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // Standard enumeration test plan.
 //
-// 'bael::Trans' is sometimes used in the documentation as an abbreviation for
+// 'ball::Trans' is sometimes used in the documentation as an abbreviation for
 // 'ball::Transmission'.
 //-----------------------------------------------------------------------------
 // 'ball::Transmission' private methods (tested indirectly):
@@ -169,16 +169,16 @@ int main(int argc, char *argv[])
 
         my_Logger logger(out);
 
-        const char *MSG_BAEL_PASSTHROUGH = "report relatively minor problem";
-        const char *MSG_BAEL_TRIGGER     =
+        const char *MSG_BALL_PASSTHROUGH = "report relatively minor problem";
+        const char *MSG_BALL_TRIGGER     =
                                       "report serious thread-specific problem";
-        const char *MSG_BAEL_TRIGGER_ALL = "report process-impacting problem";
+        const char *MSG_BALL_TRIGGER_ALL = "report process-impacting problem";
 
-        logger.publish(MSG_BAEL_PASSTHROUGH,
+        logger.publish(MSG_BALL_PASSTHROUGH,
                        ball::Transmission::e_PASSTHROUGH);
-        logger.publish(MSG_BAEL_TRIGGER,
+        logger.publish(MSG_BALL_TRIGGER,
                        ball::Transmission::e_TRIGGER);
-        logger.publish(MSG_BAEL_TRIGGER_ALL,
+        logger.publish(MSG_BALL_TRIGGER_ALL,
                        ball::Transmission::e_TRIGGER_ALL);
 
         if (veryVerbose) { out << ends; cout << buf << endl; }

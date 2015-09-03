@@ -30,7 +30,7 @@ using namespace bsl;  // automatically added by script
 //
 // 'ball::Severity' public interface:
 // [ 1] enum Level { ... };
-// [ 1] enum { BAEL_LENGTH = ... };
+// [ 1] enum { e_LENGTH = ... };
 // [ 1] int fromAscii(ball::Severity::Level *value, const char *string, int);
 // [ 1] const char *toAscii(ball::Severity::Level value);
 //-----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   print(bsl::ostream& stream, ball::Severity::Level value);
         //   enum Level { ... };
-        //   enum { BAEL_LENGTH = ... };
+        //   enum { e_LENGTH = ... };
         //   int fromAscii(ball::Severity::Level *value,
         //                 const char *s,
         //                 int len);

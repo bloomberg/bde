@@ -59,7 +59,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
 // [ 6] bool operator==(const ball::Rule& lhs, const ball::Rule& rhs);
 // [ 6] bool operator!=(const ball::Rule& lhs, const ball::Rule& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::PS&) const;
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMITIVE TEST APPARATUS: 'gg'
@@ -1235,7 +1235,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::PS&) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
         //   bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
         // --------------------------------------------------------------------
 

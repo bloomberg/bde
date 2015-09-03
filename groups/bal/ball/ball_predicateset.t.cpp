@@ -38,16 +38,16 @@ using namespace bsl;  // automatically added by script
 // [ 2] int addPredicate(const ball::Predicate& predicate);
 // [ 2] int removePredicate(const ball::Predicate& predicate);
 // [11] void removeAllPredicates();
-// [ 9] const ball::PredicateSet& operator=(const bael::PS& other)
+// [ 9] const ball::PredicateSet& operator=(const ball::PS& other)
 // [ 4] int numPredicates() const;
-// [12] bool evaluate(const bael::AttributeSet& context) const;
+// [12] bool evaluate(const ball::AttributeSet& context) const;
 // [ 4] bool isMember(const ball::Predicate&) const;
 // [10] const_iterator begin() const;
 // [10] const_iterator end() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const bael::PS& lhs, const bael::PS& rhs)
-// [ 6] bool operator!=(const bael::PS& lhs, const bael::PS& rhs)
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::PS&) const;
+// [ 6] bool operator==(const ball::PS& lhs, const ball::PS& rhs)
+// [ 6] bool operator!=(const ball::PS& lhs, const ball::PS& rhs)
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMITIVE TEST APPARATUS: 'gg' and 'hh'
@@ -272,7 +272,7 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
-// gg function for 'bael::AttributeSet'; used for testing 'evaluate' method
+// gg function for 'ball::AttributeSet'; used for testing 'evaluate' method
 
 static AttributeSet& hh(AttributeSet *obj, const char *spec)
 {
@@ -515,11 +515,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set of pairs of a 'ball::PredicateSet' object and a
-        //   'bael::AttributeSet' object.  For each pair, verify that the
+        //   'ball::AttributeSet' object.  For each pair, verify that the
         //   'evaluate' method returns the expected value.
         //
         // Testing:
-        //   bool evaluate(const bael::AttributeSet& context) const;
+        //   bool evaluate(const ball::AttributeSet& context) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'evaluate'"
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const ball::PredicateSet& operator=(const bael::PS& other)
+        //   const ball::PredicateSet& operator=(const ball::PS& other)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n===========================" << endl;
@@ -925,8 +925,8 @@ int main(int argc, char *argv[])
         //   correct value.
 
         // Testing:
-        //   bool operator==(const bael::AS& lhs, const bael::AS& rhs)
-        //   bool operator!=(const bael::AS& lhs, const bael::AS& rhs)
+        //   bool operator==(const ball::AS& lhs, const ball::AS& rhs)
+        //   bool operator!=(const ball::AS& lhs, const ball::AS& rhs)
         // --------------------------------------------------------------------
 
         static const struct {
@@ -1124,7 +1124,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::PS&) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
         //   bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
         // --------------------------------------------------------------------
 
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   Obj& gg(Obj *address, const char *spec);
-        //   bael::AttributeSet& hh(bael::AttributeSet *obj, const char *spec);
+        //   ball::AttributeSet& hh(ball::AttributeSet *obj, const char *spec);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
             << "Testing 'gg' and 'hh' generator functions" << endl

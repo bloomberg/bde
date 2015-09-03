@@ -24,18 +24,18 @@ using namespace bsl;  // automatically added by script
 // [12] static int hash(const ball::ThresholdAggregate&, int size);
 // [11] static bool areValidThresholdLevels(int, int, int, int);
 // [ 2] ball::ThresholdAggregate(int, int, int, int);
-// [ 7] ball::ThresholdAggregate(const bael::TA&, bdema::Alct * = 0);
+// [ 7] ball::ThresholdAggregate(const ball::TA&, bdema::Alct * = 0);
 // [ 2] ~ball::ThresholdAggregate();
 // [10] int setLevels(int, int, int, int);
-// [ 9] const bael::TA& operator=(const bael::TA& other);
+// [ 9] const ball::TA& operator=(const ball::TA& other);
 // [ 4] int recordLevel() const;
 // [ 4] int passLevel() const;
 // [ 4] int triggerLevel() const;
 // [ 4] int triggerAllLevel() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const bael::TA& lhs, const bael::TA& rhs);
-// [ 6] bool operator!=(const bael::TA& lhs, const bael::TA& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::TA&);
+// [ 6] bool operator==(const ball::TA& lhs, const ball::TA& rhs);
+// [ 6] bool operator!=(const ball::TA& lhs, const ball::TA& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::TA&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] UNUSED
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const bael::TA& operator=(const bael::TA& other)
+        //   const ball::TA& operator=(const ball::TA& other)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assigment Operator"
                           << "\n==========================" << endl;
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::ThresholdAggregate(const bael::TA&, bdema::Alct * = 0)
+        //   ball::ThresholdAggregate(const ball::TA&, bdema::Alct * = 0)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -610,8 +610,8 @@ int main(int argc, char *argv[])
         //   cross product S X S.
         //
         // Testing:
-        //   bool operator==(const bael::TA& lhs, const bael::TA& rhs)
-        //   bool operator!=(const bael::TA& lhs, const bael::TA& rhs)
+        //   bool operator==(const ball::TA& lhs, const ball::TA& rhs)
+        //   bool operator!=(const ball::TA& lhs, const ball::TA& rhs)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::TA&)
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::TA&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

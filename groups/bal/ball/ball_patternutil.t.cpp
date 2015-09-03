@@ -247,7 +247,7 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BAEL_PATTERNUTIL_TEST_CASE_2
+namespace BALL_PATTERNUTIL_TEST_CASE_2
 {
 
 enum {
@@ -325,7 +325,7 @@ bool isMatch(const char *input, const char *pattern)
     return state == RT;
 }
 
-}  // close namespace BAEL_PATTERNUTIL_TEST_CASE_2
+}  // close namespace BALL_PATTERNUTIL_TEST_CASE_2
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest state-machine-based 'isMatch'." << endl;
 
-        using namespace BAEL_PATTERNUTIL_TEST_CASE_2;
+        using namespace BALL_PATTERNUTIL_TEST_CASE_2;
         ASSERT(NUMCLASSES * NUMCLASSES + 1
                                           == sizeof ACTION / sizeof ACTION[0]);
 

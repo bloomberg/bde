@@ -37,13 +37,13 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following code fragments illustrate the essentials of using a default
-// observer within a 'bael' logging system.
+// observer within a 'ball' logging system.
 //
 // First create a 'ball::DefaultObserver' named 'defaultObserver':
 //..
 //     ball::DefaultObserver defaultObserver(&bsl::cout);
 //..
-// The default observer must then be installed within a 'bael' logging system.
+// The default observer must then be installed within a 'ball' logging system.
 // This is done by passing 'defaultObserver' to the 'ball::LoggerManager'
 // constructor, which also requires a 'ball::LoggerManagerConfiguration'
 // object.

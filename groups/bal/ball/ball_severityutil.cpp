@@ -23,43 +23,43 @@ int SeverityUtil::fromAsciiCaseless(Severity::Level *level,
     BSLS_ASSERT(level);
     BSLS_ASSERT(name);
 
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
+    enum { BALL_SUCCESS = 0, BALL_FAILURE = -1 };
 
     if (bdlb::String::areEqualCaseless("OFF", 3, name)) {
         *level = Severity::e_OFF;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("FATAL", 5, name)) {
         *level = Severity::e_FATAL;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("ERROR", 5, name)) {
         *level = Severity::e_ERROR;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("WARN", 4, name)) {
         *level = Severity::e_WARN;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("INFO", 4, name)) {
         *level = Severity::e_INFO;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("DEBUG", 5, name)) {
         *level = Severity::e_DEBUG;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
     if (bdlb::String::areEqualCaseless("TRACE", 5, name)) {
         *level = Severity::e_TRACE;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     if (bdlb::String::areEqualCaseless("NONE", 4, name)) {
         *level = Severity::BAEL_NONE;
-        return BAEL_SUCCESS;                                          // RETURN
+        return BALL_SUCCESS;                                          // RETURN
     }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-    return BAEL_FAILURE;
+    return BALL_FAILURE;
 }
 
 bool SeverityUtil::isValidNameCaseless(const char *name)

@@ -64,10 +64,10 @@ using bsl::string;
 // [13] ball::RecordStringFormatter(bool, *ba = 0);
 // [10] ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0);
 // [13] ball::RecordStringFormatter(const char *, bool, *ba = 0);
-// [ 7] ball::RecordStringFormatter(const bael::RSF&, *ba = 0);
+// [ 7] ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
 // [ 2] ~ball::RecordStringFormatter();
 // MANIPULATORS
-// [ 9] const bael::RSF& operator=(const bael::RSF& other);
+// [ 9] const ball::RSF& operator=(const ball::RSF& other);
 // [13] void disablePublishInLocalTime();
 // [13] void enablePublishInLocalTime();
 // [ 2] void setFormat(const char *format);
@@ -78,9 +78,9 @@ using bsl::string;
 // [ 2] const bdlt::DatetimeInterval& timestampOffset() const;
 // [11] void operator()(bsl::ostream&, const ball::Record&) const;
 // FREE OPERATORS
-// [ 6] bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
-// [ 6] bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
+// [ 6] bool operator==(const ball::RSF& lhs, const ball::RSF& rhs);
+// [ 6] bool operator!=(const ball::RSF& lhs, const ball::RSF& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::RSF&);
 // ----------------------------------------------------------------------------
 // [ 1] breathing test
 // [12] USAGE example
@@ -1094,7 +1094,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const bael::RSF& operator=(const bael::RSF& other);
+        //   const ball::RSF& operator=(const ball::RSF& other);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n===========================" << endl;
@@ -1215,7 +1215,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::RecordStringFormatter(const bael::RSF&, *ba = 0);
+        //   ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1282,8 +1282,8 @@ int main(int argc, char *argv[])
         //    S X S.
         //
         // Testing:
-        //   bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
-        //   bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
+        //   bool operator==(const ball::RSF& lhs, const ball::RSF& rhs);
+        //   bool operator!=(const ball::RSF& lhs, const ball::RSF& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -1392,7 +1392,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::RSF&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

@@ -379,7 +379,7 @@ BSLS_IDENT("$Id: $")
 //..
 //        ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..
-// The application is now prepared to log messages using the 'bael' logging
+// The application is now prepared to log messages using the 'ball' logging
 // subsystem:
 //..
 //        // ...
@@ -577,7 +577,7 @@ BSLS_IDENT("$Id: $")
 //        ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 //..
-// The application is now prepared to log messages using the 'bael' logging
+// The application is now prepared to log messages using the 'ball' logging
 // subsystem, but first we will demonstrate the functors and client-supplied
 // default threshold overrides.
 //
@@ -615,20 +615,20 @@ BSLS_IDENT("$Id: $")
 //        assert( 64 == blpCategory->triggerLevel());
 //        assert( 32 == blpCategory->triggerAllLevel());
 //..
-// Next add a second category named "BloombergLP.bae.bael" (by calling
+// Next add a second category named "BloombergLP.bal.ball" (by calling
 // 'setCategory') and 'assert' that the threshold levels are "inherited" from
 // category "BloombergLP":
 //..
-//        const ball::Category *baelCategory =
-//                           loggerManager.setCategory("BloombergLP.bae.bael");
-//        assert(baelCategory ==
-//                       loggerManager.lookupCategory("bloomberglp.bae.bael"));
-//        assert(  0 == bsl::strcmp("bloomberglp.bae.bael",
-//                                  baelCategory->categoryName()));
-//        assert(128 == baelCategory->recordLevel());
-//        assert( 96 == baelCategory->passLevel());
-//        assert( 64 == baelCategory->triggerLevel());
-//        assert( 32 == baelCategory->triggerAllLevel());
+//        const ball::Category *ballCategory =
+//                           loggerManager.setCategory("BloombergLP.bal.ball");
+//        assert(ballCategory ==
+//                       loggerManager.lookupCategory("bloomberglp.bal.ball"));
+//        assert(  0 == bsl::strcmp("bloomberglp.bal.ball",
+//                                  ballCategory->categoryName()));
+//        assert(128 == ballCategory->recordLevel());
+//        assert( 96 == ballCategory->passLevel());
+//        assert( 64 == ballCategory->triggerLevel());
+//        assert( 32 == ballCategory->triggerAllLevel());
 //..
 //..
 // Finally add a third category named "Other.equities", again by calling

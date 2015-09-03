@@ -51,7 +51,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 //
 ///Single-Threaded vs. Multi-Threaded Logger Manager
 ///-------------------------------------------------
-// Prior releases of 'bael' were appropriate only for single-threaded
+// Prior releases of 'ball' were appropriate only for single-threaded
 // applications.  Thus, 'ball::LoggerManager::singleton().getLogger()' returns
 // a reference to an instance of 'ball::Logger' useful for logging.  The same
 // 'ball::Logger' is returned each time 'getLogger()' is called.  In this
@@ -159,7 +159,7 @@ static bdlqq::QLock s_bslsLogLock = BDLQQ_QLOCK_INITIALIZER;
 void bslsLogMessage(const char *fileName,
                     int         lineNumber,
                     const char *message)
-    // Write a 'bael' record having the specified 'fileName', 'lineNumber', and
+    // Write a 'ball' record having the specified 'fileName', 'lineNumber', and
     // 'message'.  Note that this function signature matches
     // 'bsls_Log::LogMessageHandler' and is intended to be installed a
     // 'bsls_Log' message handler.
@@ -513,7 +513,7 @@ void LoggerManager::initSingletonImpl(
                               bslma::Default::globalAllocator(globalAllocator);
         new(*allocator) LoggerManager(observer, configuration, allocator);
 
-        // Configure 'bsls_log' to publish records using 'bael' via the
+        // Configure 'bsls_log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
 
         // TBD: The bsls_log integration is being disabled for BDE 2.23 (see
@@ -529,7 +529,7 @@ void LoggerManager::initSingletonImpl(
                        Severity::e_WARN,
                        __FILE__,
                        __LINE__,
-                       "BAEL logger manager has already been initialized!");
+                       "BALL logger manager has already been initialized!");
     }
 }
 
@@ -1235,13 +1235,13 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
                                              int triggerLevel,
                                              int triggerAllLevel)
 {
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
+    enum { BALL_SUCCESS = 0, BALL_FAILURE = -1 };
 
     if (!Category::areValidThresholdLevels(recordLevel,
                                                 passLevel,
                                                 triggerLevel,
                                                 triggerAllLevel)) {
-        return BAEL_FAILURE;                                          // RETURN
+        return BALL_FAILURE;                                          // RETURN
     }
 
     d_defaultThresholdLevels.setLevels(recordLevel,
@@ -1249,7 +1249,7 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
                                        triggerLevel,
                                        triggerAllLevel);
 
-    return BAEL_SUCCESS;
+    return BALL_SUCCESS;
 }
 
 void LoggerManager::resetDefaultThresholdLevels()

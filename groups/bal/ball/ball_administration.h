@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace, 'ball::Administration',
 // containing a suite of utility functions to facilitate administration of the
-// 'bael' logging subsystem from a console operator's perspective.  Utilities
+// 'ball' logging subsystem from a console operator's perspective.  Utilities
 // are provided for adding a category to the registry maintained by the
 // singleton instance of a 'ball::LoggerManager' (hereafter "the logger
 // manager"), for setting the threshold levels of a category, for setting a
@@ -62,10 +62,10 @@ BSLS_IDENT("$Id: $")
 //     for (int i = 0; i < NUM_CATEGORIES; ++i) {
 //         int retValue = ball::Administration::addCategory(
 //                                             equityCategories[i],
-//                                             ball::Severity::BAEL_TRACE + i,
-//                                             ball::Severity::BAEL_WARN  + i,
-//                                             ball::Severity::BAEL_ERROR + i,
-//                                             ball::Severity::BAEL_FATAL + i);
+//                                             ball::Severity::e_TRACE + i,
+//                                             ball::Severity::e_WARN  + i,
+//                                             ball::Severity::e_ERROR + i,
+//                                             ball::Severity::e_FATAL + i);
 //         assert(0 == retValue);  // added new category
 //     }
 //..
@@ -123,10 +123,10 @@ BSLS_IDENT("$Id: $")
 //         const int returnValue =
 //                   ball::Administration::setThresholdLevels(
 //                                             equityCategories[i],
-//                                             ball::Severity::BAEL_TRACE - i,
-//                                             ball::Severity::BAEL_WARN  - i,
-//                                             ball::Severity::BAEL_ERROR - i,
-//                                             ball::Severity::BAEL_FATAL - i);
+//                                             ball::Severity::e_TRACE - i,
+//                                             ball::Severity::e_WARN  - i,
+//                                             ball::Severity::e_ERROR - i,
+//                                             ball::Severity::e_FATAL - i);
 //         assert(1 == returnValue);  // modified one category
 //     }
 //..
@@ -181,9 +181,9 @@ namespace ball {
 
 struct Administration {
     // This struct provides a namespace for a suite of utility functions that
-    // simplify administration of the 'bael' logging subsystem, and insulate
+    // simplify administration of the 'ball' logging subsystem, and insulate
     // administrative clients from changes to lower-level components of the
-    // 'bael' package.  Note that all manipulation of categories is by name
+    // 'ball' package.  Note that all manipulation of categories is by name
     // only.
 
     // CLASS METHODS

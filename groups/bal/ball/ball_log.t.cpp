@@ -120,7 +120,7 @@ using bsl::flush;
 // [11] C++ MACRO PERFORMANCE TEST WITH 1 THREAD
 // [12] PRINTF MACRO PERFORMANCE TEST WITH MULTIPLE THREADS
 // [13] PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD
-// [14] BAEL_IS_ENABLED(SEVERITY) UTILITY MACRO
+// [14] BALL_IS_ENABLED(SEVERITY) UTILITY MACRO
 // [15] STRESS TEST
 // [16] TESTING OSTRSTREAM MACROS WITH CALLBACK
 // [17] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
@@ -433,7 +433,7 @@ int veryVeryVerbose;
 // We add our attributes to the generic "default" attribute container.  In
 // practice we could create a more efficient attribute container
 // implementation specifically for these three attributes (uuid, luw, and
-// terminalNumber).  See the 'bael::attributeContainer' component documentation
+// terminalNumber).  See the 'ball::attributeContainer' component documentation
 // for an example.
 //..
       ball::DefaultAttributeContainer attributes;
@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[])
         //      severity value with 'BALL_LOG_IS_ENABLED' severity value. (C-3)
         //
         // Testing:
-        //   BAEL_IS_ENABLED(SEVERITY)
+        //   BALL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2036,8 +2036,8 @@ int main(int argc, char *argv[])
   {  L_,  0,        0,        1,        0,       "AA1",     "z.cpp",      3 },
   {  L_,  0,        0,        0,        1,       "AA2",     "hello.c",    4 },
   {  L_,  16,       32,       48,       64,      "AB",      __FILE__,     5 },
-  {  L_,  64,       48,       32,       16,      "AC",      "bael",       6 },
-  {  L_,  16,       32,       64,       48,      "AD",      "baelu",      7 },
+  {  L_,  64,       48,       32,       16,      "AC",      "ball",       6 },
+  {  L_,  16,       32,       64,       48,      "AD",      "ballu",      7 },
   {  L_,  16,       48,       32,       64,      "AAA",     "aaa",        8 },
   {  L_,  32,       16,       48,       64,      "ABC",     "ABCD",       9 },
   {  L_,  255,      0,        0,        0,       "ABCD1",   "w.c",        10 },
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[])
   {  L_,  254,      0,        0,        0,       "ALL.FS",  __FILE__,     15 },
   {  L_,  0,        254,      0,        0,       "ALL.TCP", __FILE__,     16 },
   {  L_,  0,        0,        254,      0,       "ALL.1.2", __FILE__,     17 },
-  {  L_,  0,        0,        0,        254,     "BAEL1",   __FILE__,     18 },
+  {  L_,  0,        0,        0,        254,     "BALL1",   __FILE__,     18 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2092,7 +2092,7 @@ int main(int argc, char *argv[])
                                     mL.record()->fixedFields().fileName()));
 //             BALL_LOG_SET_CATEGORY(CAT_NAME);
 //             BALL_LOG_TRACE << "Random Trace";
-//             LOOP_ASSERT(LINE, BAEL_STREAM == mL.stream());
+//             LOOP_ASSERT(LINE, BALL_STREAM == mL.stream());
 //             BALL_LOG_END;
         }
       } break;
@@ -2777,7 +2777,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // BAEL_IS_ENABLED(SEVERITY) UTILITY MACRO TEST:
+        // BALL_IS_ENABLED(SEVERITY) UTILITY MACRO TEST:
         //
         // Concerns:
         //   We are concerned that the macro can distinguish between severity
@@ -2796,12 +2796,12 @@ int main(int argc, char *argv[])
         //   enabled.
         //
         // Testing:
-        //   BAEL_IS_ENABLED(SEVERITY)
+        //   BALL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "BAEL_IS_ENABLED(SEVERITY) Utility MACRO TEST"
+                      << "BALL_IS_ENABLED(SEVERITY) Utility MACRO TEST"
                       << bsl::endl
                       << "============================================"
                       << bsl::endl;
@@ -3326,7 +3326,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   Suppose a function 'f()' logs some data (say "message1")
         //   using c++ macro, and return some data (say "message2"), then
-        //   'BALL_LOG_SEVERITY << f() << BAEL_END' should result in
+        //   'BALL_LOG_SEVERITY << f() << BALL_END' should result in
         //   logging "message1" followed by "message2".
         //
         // Plan:
@@ -3373,12 +3373,12 @@ int main(int argc, char *argv[])
         // Concerns:
         //   A logging macros must be safe against being invoked before the
         //   logger manager is instantiated, and it must be safe to use the
-        //   bael macros after the singleton has been destroyed.
+        //   ball macros after the singleton has been destroyed.
         //
         // Plan:
         //   Invoke the macro and confirm that the process continues normally.
-        //   An object with BAEL macro calls in the d'tor is created before the
-        //   bael singleton is created, so those macro calls happen after the
+        //   An object with BALL macro calls in the d'tor is created before the
+        //   ball singleton is created, so those macro calls happen after the
         //   singleton is destroyed, testing that the macros will work with a
         //   destroyed singleton.
         //
@@ -3476,7 +3476,7 @@ int main(int argc, char *argv[])
             }
         };
 
-        // This static object is created before the bael singleton is created,
+        // This static object is created before the ball singleton is created,
         // so it will be destroyed AFTER the singleton is destroyed, so the
         // macro calls in the d'tor will be called after the singleton is
         // destroyed.
@@ -6009,19 +6009,19 @@ int main(int argc, char *argv[])
         // IBM MULTITHREADED SPEWING TEST
         //
         // Concerns:
-        //   That multiple threads writing with bael will not crash.  Streams
+        //   That multiple threads writing with ball will not crash.  Streams
         //   on ibm have a problem where they are not thread-safe.  Ibm solved
         //   this by having ONE global mutex shaved by all streams, including
         //   cin, cout, cerr and even stringstreams, which undermined
         //   multithreading.  We set a compilation flag to not use this
-        //   mutex, and we changed bael to use 'FILE *' i/o instead of streams
+        //   mutex, and we changed ball to use 'FILE *' i/o instead of streams
         //   wherever possible.  There are some who believe the thread-unsafe
         //   part was only to do with locales, which are going to be completely
         //   set up before any multithreading begins, so it shouldn't be a
         //   problem.
         //
         // Plan:
-        //   Have 10 threads, each in an infinite loop spewing BAEL messages,
+        //   Have 10 threads, each in an infinite loop spewing BALL messages,
         //   make sure that the task doesn't crash.  Run this test with
         //   output redirected to /dev/null leave it for hours, and see if it
         //   crashes.  This test need only be performed on ibm.

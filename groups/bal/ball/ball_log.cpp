@@ -221,16 +221,16 @@ Log_Formatter::~Log_Formatter()
 ///--------------------
 // The stream-style logging macro (without a callback) is reproduced here:
 //..
-//#define BALL_LOG_STREAM(BAEL_SEVERITY) {                                   \@
+//#define BALL_LOG_STREAM(BALL_SEVERITY) {                                   \@
 //    using BloombergLP::ball::Log;                                          \@
 //    using BloombergLP::ball::Log_Stream;                                   \@
 //    using BloombergLP::ball::Severity;                                     \@
-//    if (BALL_LOG_THRESHOLD >= BAEL_SEVERITY) {                             \@
-//        if (ball::Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER,         \@
-//                                        BAEL_SEVERITY)) {                  \@
-//            ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,\@
-//                                              __LINE__, BAEL_SEVERITY);    \@
-//            BAEL_STREAM
+//    if (BALL_LOG_THRESHOLD >= BALL_SEVERITY) {                             \@
+//        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \@
+//                                        BALL_SEVERITY)) {                  \@
+//            ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,\@
+//                                              __LINE__, BALL_SEVERITY);    \@
+//            BALL_STREAM
 //..
 // Note that '@' is appended to each line in the macro that ends with '\' to
 // quell a diagnostic from gcc ("warning: multi-line comment").
@@ -249,7 +249,7 @@ Log_Formatter::~Log_Formatter()
 // are initialized to a value outside the range '[0 .. 255]'.  Category holders
 // corresponding to "static" categories ('BALL_LOG_SET_CATEGORY' macro') have
 // their thresholds initialized to
-// 'ball::CategoryHolder::BAEL_UNINITIALIZED_CATEGORY'.  The thresholds of
+// 'ball::CategoryHolder::e_UNINITIALIZED_CATEGORY'.  The thresholds of
 // category holders corresponding to "dynamic" categories
 // ('BALL_LOG_SET_DYNAMIC_CATEGORY' macro) are initialized to
 // 'ball::CategoryHolder::DYNAMIC_CATEGORY'.  The threshold of a static
@@ -259,16 +259,16 @@ Log_Formatter::~Log_Formatter()
 //
 // The general idea is that the condition:
 //..
-//    (BALL_LOG_THRESHOLD >= BAEL_SEVERITY)
+//    (BALL_LOG_THRESHOLD >= BALL_SEVERITY)
 //..
 // evaluates to 'true' if there is a *possibility* of a logging event based
 // simply on the current threshold of the corresponding category holder
-// ('BAEL_LOG_CATEGORYHOLDER').  For static categories, this condition is
+// ('BALL_LOG_CATEGORYHOLDER').  For static categories, this condition is
 // 'true' if the logger manager either has not yet been initialized, or it has
 // been destroyed.  The 'isCategoryEnabled' method performs a more-refined
 // (but relatively cheap, in the vast majority of cases) analysis of whether a
 // record must actually be logged (after possibly calling 'setCategory' on
-// 'BAEL_LOG_CATEGORYNAME').  Only if 'isCategoryEnabled' returns 'true' is a
+// 'BALL_LOG_CATEGORYNAME').  Only if 'isCategoryEnabled' returns 'true' is a
 // 'ball::Log_Stream' object constructed (or a 'ball::Log_Formatter' object in
 // the case of the 'printf'-style macros) and a record logged.
 //
@@ -293,7 +293,7 @@ Log_Formatter::~Log_Formatter()
 //      {
 //          using BloombergLP::ball::Log;
 //          using BloombergLP::ball::Severity;
-//          if (ball::Log::isEnabled(category, ball::Severity::BAEL_INFO)) {
+//          if (ball::Log::isEnabled(category, ball::Severity::e_INFO)) {
 //              const char *formatSpec = "%d shares of %s sold at %f\n";
 //              snprintf(ball::Log::messageBuffer(),
 //                       ball::Log::messageBufferSize(),
@@ -302,7 +302,7 @@ Log_Formatter::~Log_Formatter()
 //              record->fixedFields().setLineNumber(__LINE__);
 //              record->fixedFields().setFileName(__FILE__);
 //              record->fixedFields().setMessage(ball::Log::messageBuffer());
-//              ball::Log::logMessage(category, ball::Severity::BAEL_INFO,
+//              ball::Log::logMessage(category, ball::Severity::e_INFO,
 //                                   record);
 //          }
 //      }
@@ -312,7 +312,7 @@ Log_Formatter::~Log_Formatter()
 // established (first time only), by calling 'ball::Log::setCategory'.  The
 // remaining code mimics the expansion of the 'BALL_LOG3_INFO' macro.  First
 // the category is queried to determine if it has logging enabled for the
-// 'ball::Severity::BAEL_INFO' severity level.  If so, the message is formatted
+// 'ball::Severity::e_INFO' severity level.  If so, the message is formatted
 // into a static buffer managed by 'ball::LoggerManager' and then logged with
 // the call to 'ball::Log::logMessage'.  It is readily apparent from this
 // example that using the macros defined in this component is much simpler,

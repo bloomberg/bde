@@ -29,9 +29,9 @@ BSLS_IDENT("$Id: $")
 // usage scenario.)
 //
 // First create a variable 'level' of type 'ball::Severity::Level' and
-// initialize it to the value 'ball::Severity::BAEL_ERROR'.
+// initialize it to the value 'ball::Severity::e_ERROR'.
 //..
-//      ball::Severity::Level level = ball::Severity::BAEL_ERROR;
+//      ball::Severity::Level level = ball::Severity::e_ERROR;
 //..
 // Next, store a pointer to its ASCII representation in a variable 'asciiLevel'
 // of type 'const char *'.
@@ -139,14 +139,15 @@ struct Severity {
         e_TRACE = 192   // execution trace data
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_OFF = e_OFF
+      , BAEL_OFF   = e_OFF
       , BAEL_FATAL = e_FATAL
       , BAEL_ERROR = e_ERROR
-      , BAEL_WARN = e_WARN
-      , BAEL_INFO = e_INFO
+      , BAEL_WARN  = e_WARN
+      , BAEL_INFO  = e_INFO
       , BAEL_DEBUG = e_DEBUG
       , BAEL_TRACE = e_TRACE
-      , BAEL_NONE = 224
+      , BAEL_NONE  = 224
+
       , OFF   = e_OFF
       , FATAL = e_FATAL
       , ERROR = e_ERROR
@@ -164,7 +165,7 @@ struct Severity {
       , BAEL_LENGTH = e_LENGTH + 1
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
-        // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
+        // Define 'e_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
 
   private:

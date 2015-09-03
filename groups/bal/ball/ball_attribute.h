@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //     ball::Attribute: (literal) name/value pair
 //
-//@SEE_ALSO: bael_attributeset
+//@SEE_ALSO: ball_attributeset
 //
 //@AUTHOR: Gang Chen (gchen20)
 //

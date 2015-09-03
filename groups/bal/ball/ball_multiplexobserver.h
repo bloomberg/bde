@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Multiplexing observers are used to interface a 'bael' logging system, which
+// Multiplexing observers are used to interface a 'ball' logging system, which
 // generates log records, with the multiplicity of observers that are to
 // receive the generated records that are published.  Establishing this
 // interface proceeds in three logical steps:
@@ -61,10 +61,10 @@ BSLS_IDENT("$Id: $")
 //        that a 'ball::MultiplexObserver' may be registered with another
 //        'ball::MultiplexObserver'.)
 //    (3) Install the distinguished multiplexor from step (1) within the
-//        'bael' logging system.
+//        'ball' logging system.
 //..
 // This example demonstrates the use of a multiplexing observer to forward log
-// records from a 'bael' logging system to three registered observers.  Each of
+// records from a 'ball' logging system to three registered observers.  Each of
 // the three registered observers performs distinct actions upon receipt of log
 // records:
 //..
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //     multiplexor.registerObserver(&encryptingObserver);
 //     assert(3 == multiplexor.numRegisteredObservers());
 //..
-// Then, 'multiplexor' is installed within a 'bael' logging system to be the
+// Then, 'multiplexor' is installed within a 'ball' logging system to be the
 // direct recipient of published log records.  This registration is done by
 // supplying 'multiplexor' to the 'ball::LoggerManager::initSingleton' method
 // that is used to initialize the singleton logger manager:

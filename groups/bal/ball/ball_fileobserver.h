@@ -184,13 +184,13 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following code fragments illustrate the essentials of using a file
-// observer within a 'bael' logging system.
+// observer within a 'ball' logging system.
 //
 // First create a 'ball::FileObserver' named 'fileObserver':
 //..
 //  ball::FileObserver fileObserver;
 //..
-// The file observer must then be installed within a 'bael' logging system.
+// The file observer must then be installed within a 'ball' logging system.
 // This is done by passing 'fileObserver' to the 'ball::LoggerManager'
 // 'initSingleton' method:
 //..
@@ -218,7 +218,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::FileObserver' constructor or by calling the 'setStdoutThreshold'
 // method:
 //..
-//  fileObserver.setStdoutThreshold(ball::Severity::BAEL_INFO);
+//  fileObserver.setStdoutThreshold(ball::Severity::e_INFO);
 //  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
 //                 << BALL_LOG_END;
 //  BALL_LOG_INFO  << "This info will be published on 'stdout'."
@@ -232,7 +232,7 @@ BSLS_IDENT("$Id: $")
 //  fileObserver.enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
 //
-//  fileObserver.setStdoutThreshold(ball::Severity::BAEL_OFF);
+//  fileObserver.setStdoutThreshold(ball::Severity::e_OFF);
 //      // Disable 'stdout' logging.
 //
 //  fileObserver.rotateOnSize(1024 * 256);
@@ -367,7 +367,7 @@ class FileObserver : public Observer {
         // their severity is at least as severe as the optionally specified
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
-        // severe as 'Severity::BAEL_WARN'.  The timestamp attribute of
+        // severe as 'Severity::e_WARN'.  The timestamp attribute of
         // published records is written in UTC time by default.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -557,13 +557,13 @@ class FileObserver : public Observer {
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
         // file observer (i.e., the supplied callback should *not* attempt to
-        // write to the 'bael' log).
+        // write to the 'ball' log).
 
     void setStdoutThreshold(Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
         // observer to the specified 'stdoutThreshold' level.  Note that if the
-        // value of 'stdoutThreshold' is 'Severity::BAEL_OFF', logging to
-        // 'stdout' is disabled.
+        // value of 'stdoutThreshold' is 'Severity::e_OFF', logging to 'stdout'
+        // is disabled.
 
     void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
         // Set the format of log records written to the log file and to

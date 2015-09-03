@@ -31,7 +31,7 @@ namespace ball {
 // 'hasRelevantActiveRules' and the 'getThresholdLevels' methods for a
 // category.  When accessing this cache, the singleton rule mutex,
 // 's_categoryManager_p->_ruleMutex()', is intentionally *not* locked.  For
-// performance reasons this component (and the 'bael' package in general)
+// performance reasons this component (and the 'ball' package in general)
 // attempts to be consistent, but does *not* provide a *guarantee* that
 // messages will (or will not) be logged if any state is modified while the
 // logging occurs.  When using the cached rule evaluations - if the

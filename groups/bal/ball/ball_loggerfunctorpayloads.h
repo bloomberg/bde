@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Support for Hierarchical Category Names
 ///---------------------------------------
-// The 'bael' logging toolkit does not explicitly support any structure in the
+// The 'ball' logging toolkit does not explicitly support any structure in the
 // registry of category names; each unique sequence of characters defines a
 // unique category that is, from the logger's perspective, a "peer" to all
 // other categories.  The toolkit does, however, provides several callback
@@ -279,7 +279,7 @@ struct LoggerFunctorPayloads {
                                            char                delimiter);
         // Load into the specified 'recordLevel', 'passLevel', 'triggerLevel',
         // and 'triggerAllLevel' the respective threshold levels of the
-        // category in the (singleton) registry of the 'bael' logger that is
+        // category in the (singleton) registry of the 'ball' logger that is
         // the most proximate parent category among existing hierarchically
         // named categories in the registry, if such a parent category exists,
         // or the default thresholds otherwise; use the specified 'delimiter'

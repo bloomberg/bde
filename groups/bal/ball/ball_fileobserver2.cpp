@@ -312,7 +312,7 @@ static bdlt::Datetime computeNextRotationTime(
     // Notice that the logic for computing the next time interval must
     // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
     // possible use of 'bsls::Log' to report warnings about date math.  Such
-    // warnings, when issued from within a function in BAEL cause an attempt
+    // warnings, when issued from within a function in BALL cause an attempt
     // to recursively re-enter the file-observer (and a dead-lock).  Once
     // 'bdlt' no longer uses bsls log to report date arithmetic this logic can
     // be returned to:
