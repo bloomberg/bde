@@ -304,6 +304,7 @@ def build(bld):
         is_bde = False
 
     bld(name='inteldfp_pc',
+        idx=1,
         target=config['lib_target'] + '.pc',
         source='inteldfp.pc.in',
         features = ['subst'],
@@ -316,6 +317,7 @@ def build(bld):
     )
 
     bld(name='inteldfp_lib',
+        idx=1,
         target=config['lib_target'],
         source=source_files,
         export_includes='LIBRARY/src',
