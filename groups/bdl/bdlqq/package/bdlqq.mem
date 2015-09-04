@@ -3,6 +3,7 @@ bdlqq_condition
 bdlqq_conditionimpl_pthread
 bdlqq_conditionimpl_win32
 bdlqq_configuration
+bdlqq_entrypointfunctoradapter
 bdlqq_lockguard
 bdlqq_meteredmutex
 bdlqq_mutex
@@ -25,7 +26,6 @@ bdlqq_semaphoreimpl_darwin
 bdlqq_semaphoreimpl_pthread
 bdlqq_semaphoreimpl_win32
 bdlqq_sluice
-bdlqq_threadargument
 bdlqq_threadattributes
 bdlqq_threadgroup
 bdlqq_threadlocalvariable

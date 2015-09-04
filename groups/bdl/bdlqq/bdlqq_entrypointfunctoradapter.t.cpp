@@ -1,13 +1,15 @@
-// bdlqq_threadargument.t.cpp
-#include <bdlqq_threadargument.h>
+// bdlqq_entrypointfunctoradapter.t.cpp
+#include <bdlqq_entrypointfunctoradapter.h>
 
-#include <bsltf_alloctesttype.h>  
-#include <bsltf_simpletesttype.h>  
+#include <bslalg_typetraits.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
 
 #include <bsls_asserttest.h>   
 #include <bsls_bsltestutil.h>  
 #include <bslma_testallocator.h> 
 #include <bslma_default.h>
+
+#include <bsl_string.h>
 
 #include <stdio.h>   // printf
 
@@ -67,6 +69,78 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+extern "C" {
+   typedef void *(*CallbackFunction)(void*);
+}
+
+void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
+   return funcPtr(argument);
+}
+
+class WordCountJob {
+    // DATA
+    bsl::string  d_message;
+    int         *d_result_p; // held, not owned
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(WordCountJob,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    WordCountJob(const bslstl::StringRef&  message,
+                 int                      *result,
+                 bslma::Allocator         *basicAllocator = 0);
+      // Create a new functor that, upon execution, counts the number of
+      // words (contiguous sequences of non-space characters) in the
+      // specified 'message' and stores the count in the specified
+      // 'result' address.  Use the specified 'basicAllocator' to supply
+      // memory.  If 'basicAllocator' is 0, the currently installed default
+      // allocator is used.
+
+    WordCountJob(const WordCountJob&  other,
+                 bslma::Allocator    *basicAllocator = 0);
+      // Create a new functor that performs the same calculation as the
+      // specified 'other' functor.  Use the specified 'basicAllocator'
+      // to supply memory.  If 'basicAllocator' is 0, the currently installed
+      // default allocator is used.
+  
+    // MANIPULATORS
+    void operator()();
+      // Count the number of words in the message and store the count in
+      // the address specified on construction.
+};
+
+inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
+                                  int                      *result,
+                                  bslma::Allocator         *basicAllocator) 
+: d_message(message, basicAllocator)
+, d_result_p(result)
+{}
+
+inline WordCountJob::WordCountJob(const WordCountJob&  other,
+                                  bslma::Allocator    *basicAllocator)
+: d_message(other.d_message, basicAllocator)
+, d_result_p(other.d_result_p)
+{}
+
+void WordCountJob::operator()() {
+  bool inWord = false;
+  *d_result_p = 0;
+  for (int i = 0; i < d_message.length(); ++i) {
+    if (isspace(d_message[i])) {
+       inWord = false;
+    } else if (!inWord) {
+       inWord = true;
+       ++(*d_result_p);
+    }
+  }
+}
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -86,89 +160,45 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
-        // --------------------------------------------------------------------
-        // ALLOCATOR-USING TYPE
-        //
-        // Concerns: (all for parameterized TYPEs using 'bslma::Allocator')
-        //: 1 The original value is copied
-        //: 2 The provided allocator is stored
-        //: 3 Accessors are const
-        //: 4 Memory is allocated from the specified allocator and not leaked
-        //:
-        //
-        // Testing:
-        //   Parameterized types that do use bslma::Allocator
-        // --------------------------------------------------------------------
-        bslma::TestAllocator testAllocator("test", veryVeryVerbose);
-
-        enum {
-            TEST_VALUE = 999
-        };
-        {
-            bsltf::AllocTestType data(TEST_VALUE, &testAllocator);
-            bdlqq::ThreadArgument<bsltf::AllocTestType> mX(data, 0,
-                                                          &testAllocator);
-            const bdlqq::ThreadArgument<bsltf::AllocTestType>& X = mX;
-            
-            ASSERTV(X.object()->data(),
-                    TEST_VALUE == X.object()->data());
-            ASSERTV(X.object()->allocator(),
-                    &testAllocator == X.allocator());
-        }
-        
-        ASSERTV(testAllocator.numBlocksTotal(),
-                0 != testAllocator.numBlocksTotal());
-        ASSERTV(testAllocator.numBytesInUse(),
-                0 == testAllocator.numBytesInUse());
-      } break;
-
     case 1: {
         // --------------------------------------------------------------------
-        // NON-ALLOCATOR-USING TYPE
+        // USAGE EXAMPLE TEST
         //
-        // Concerns: (all for parameterized TYPEs not using 'bslma::Allocator')
-        //: 1 The original value is copied
-        //: 2 The provided allocator is stored
-        //: 3 Accessors are const
-        //: 4 No memory should be used or leaked
-        //:
+        // Concerns:
+        //: The usage example must compile and run as shown.
         //
         // Testing:
-        //   Parameterized types that do not use bslma::Allocator
+        //   Usage example
         // --------------------------------------------------------------------
-        bslma::TestAllocator testAllocator("test", veryVeryVerbose);
-
-        enum {
-            TEST_VALUE = 999
-        };
-        bsltf::SimpleTestType data(TEST_VALUE);
+        {
+            int result = 0;
+            WordCountJob job("The quick brown fox jumped over the lazy dog.",
+                             &result);
+            
+            bslma::ManagedPtr<
+                bdlqq::EntryPointFunctorAdapter<WordCountJob> > threadData;
+            bdlqq::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                                                                 job);
+            
+            executeWithArgument(bdlqq_EntryPointFunctorAdapter_invoker,
+                                threadData.ptr());
+            threadData.release();
+            ASSERT(9 == result);
+        }
         
-        bdlqq::ThreadArgument<bsltf::SimpleTestType> mX(data, 0, 
-                                                        &testAllocator);
-        const bdlqq::ThreadArgument<bsltf::SimpleTestType>& X = mX;
+        ASSERT(0 == defaultAllocator.numBytesInUse());
+        ASSERT(0 != defaultAllocator.numBlocksTotal());
 
-        ASSERTV(X.object()->data(),
-                TEST_VALUE == X.object()->data());
-        ASSERTV(X.allocator(),
-                &testAllocator == X.allocator());
-        
-        ASSERTV(testAllocator.numBlocksTotal(),
-                0 == testAllocator.numBlocksTotal());
-      } break;
-
-      default: {
+    }  break;
+    default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
-      }
     }
-
-    // No memory should be ever used by the global or default allocators in
-    // this test driver.
+    }
+    // No memory should be ever used by the global allocator in this test
+    // driver.
     ASSERTV(globalAllocator.numBlocksTotal(),
             0 == globalAllocator.numBlocksTotal());
-    ASSERTV(defaultAllocator.numBlocksTotal(),
-            0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
