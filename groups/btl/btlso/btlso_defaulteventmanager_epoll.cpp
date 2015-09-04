@@ -16,7 +16,6 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
-#include <bsl_iostream.h>
 #include <bsl_utility.h>
 
 #include <bsl_cstdio.h>
@@ -277,8 +276,7 @@ int EventManagerName::dispatchImp(int                       flags,
 }
 
 // PUBLIC CLASS METHODS
-bool
-EventManagerName::isSupported()
+bool EventManagerName::isSupported()
 {
     int fd = epoll_create(128);
     if (-1 == fd) {
