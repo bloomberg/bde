@@ -385,8 +385,8 @@ static void connectToEndpoint(btls5::Negotiator::NegotiationHandle negotiation)
         << static_cast<unsigned char>(TCP_STREAM_CONNECTION)
         << static_cast<unsigned char>(0x00);                  // reserved
 
-    const bool dottedDecimal = (0 == btlso::IPv4Address::isValid(
-                               negotiation->d_destination.hostname().c_str()));
+    const bool dottedDecimal = btlso::IPv4Address::isValidAddress(
+                               negotiation->d_destination.hostname().c_str());
     if (dottedDecimal) {
         req << static_cast<unsigned char>(IPv4ADDRESS);       // address type
         btlso::IPv4Address   ipv4Address(

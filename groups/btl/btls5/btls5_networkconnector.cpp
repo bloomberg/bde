@@ -627,7 +627,7 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
             return 0;                                                 // RETURN
         }
     }
-    rc = socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+    rc = socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
     if (rc) {
         error->setDescription("Unable to set socket mode to non-blocking.");
         return 0;                                                     // RETURN
@@ -675,7 +675,8 @@ static void tcpConnect(
         const btlso::Endpoint& destination = it->address();
         btlso::IPv4Address server;
 
-        if (0 == btlso::IPv4Address::isValid(destination.hostname().c_str())) {
+        if (btlso::IPv4Address::isValidAddress(
+                                             destination.hostname().c_str())) {
 
             // if 'hostname' just an IP address use it
 
