@@ -733,6 +733,7 @@ class AsyncFileObserver : public Observer {
         // file rotation by this async file observer if rotation-on-size is in
         // effect, and 0 otherwise.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bdlt::DatetimeInterval localTimeOffset() const;
         // [!DEPRECATED!] Use 'bdlt::LocalTimeOffset' instead.
         //
@@ -742,6 +743,8 @@ class AsyncFileObserver : public Observer {
         // may become incorrect when the difference between the local time and
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 
     Severity::Level stdoutThreshold() const;
         // Return the minimum severity of messages that will be logged to
@@ -893,11 +896,13 @@ int AsyncFileObserver::rotationSize() const
     return d_fileObserver.rotationSize();
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 bdlt::DatetimeInterval AsyncFileObserver::localTimeOffset() const
 {
     return d_fileObserver.localTimeOffset();
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 Severity::Level AsyncFileObserver::stdoutThreshold() const
