@@ -56,8 +56,12 @@ BSLS_IDENT("$Id: $")
 // In both those cases a, b, c, and d can each be represented in decimal,
 // octal, or (upper or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
 // 'btlso::IPv4Address' object.  First create a default object 'ip1'.
 //..
@@ -364,6 +368,10 @@ bsl::ostream& operator<<(bsl::ostream& output, const IPv4Address& address);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                            // ------------------
+                            // struct IPv4Address
+                            // ------------------
+
 // CLASS METHODS
 inline
 bool IPv4Address::isValidAddress(const char *address)
@@ -483,7 +491,8 @@ STREAM& IPv4Address::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        const unsigned char *ip = (const unsigned char *) &d_address;
+        const unsigned char *ip =
+                           reinterpret_cast<const unsigned char *>(&d_address);
         stream.putUint8(ip[0]);
         stream.putUint8(ip[1]);
         stream.putUint8(ip[2]);

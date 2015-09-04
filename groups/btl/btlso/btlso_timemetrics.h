@@ -42,20 +42,19 @@ BSLS_IDENT("$Id: $")
 // Then, create a metrics object, keeping two categories, and initially
 // measuring time in the 'CPU' category:
 //..
-//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_NUM_CATEGORIES,
-//                             btlso::TimeMetrics::e_CPU_CATEGORY);
+//  btlso::TimeMetrics metrics(e_NUM_CATEGORIES, e_CPU_CATEGORY);
 //..
 // In order to measure time spent in I/O, e.g., doing 'select' calls, we do:
 //..
 //  // perform initializations for 'select'
 //
-//  metrics.switchTo(IO_CATEGORY);
+//  metrics.switchTo(e_IO_CATEGORY);
 //
 //  // do some IO, e.g., 'select'
 //..
 // To switch to measuring CPU time, e.g., doing event dispatch, we do:
 //..
-//  metrics.switchTo(CPU_CATEGORY);
+//  metrics.switchTo(e_CPU_CATEGORY);
 //
 //  // dispatch events
 //..
@@ -63,11 +62,11 @@ BSLS_IDENT("$Id: $")
 // spent in each category as follows:
 //..
 //  bsl::cout << "The total time spent in IO was "
-//            << metrics.percentage(btlso::TimeMetrics::BTESO_IO_CATEGORY)
+//            << metrics.percentage(e_IO_CATEGORY)
 //            << bsl::endl;
 //
 //  bsl::cout << "The total time spent in CPU was "
-//            << metrics.percentage(btlso::TimeMetrics::BTESO_CPU_CATEGORY)
+//            << metrics.percentage(e_CPU_CATEGORY)
 //            << bsl::endl;
 //..
 // This metrics may be reset to its initial state by:
@@ -103,9 +102,9 @@ namespace BloombergLP {
 
 namespace btlso {
 
-                           // ========================
-                           // class btlso::TimeMetrics
-                           // ========================
+                           // =================
+                           // class TimeMetrics
+                           // =================
 
 class TimeMetrics {
     // This class provides a set of metrics data and a mechanism to accumulate
@@ -194,9 +193,9 @@ class TimeMetrics {
 //                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
-                           // ------------------------
-                           // class btlso::TimeMetrics
-                           // ------------------------
+                           // -----------------
+                           // class TimeMetrics
+                           // -----------------
 
 inline
 int TimeMetrics::numCategories() const

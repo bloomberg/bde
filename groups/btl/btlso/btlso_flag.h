@@ -251,6 +251,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Flag::IOWaitType rhs);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                        // ----------
+                        // class Flag
+                        // ----------
 // FREE OPERATORS
 inline
 bsl::ostream& btlso::operator<<(bsl::ostream&         stream,

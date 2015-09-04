@@ -31,6 +31,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a default event manager
+///- - - - - - - - - - - - - - - - - - - - - -
 // In the following usage example we show how to create an default instance of
 // a default event manager.  First, we need to include this file (shown here
 // for completeness):
@@ -79,6 +83,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
+
+                     // =========================
+                     // class DefaultEventManager
+                     // =========================
 
 template <class POLLING_MECHANISM = Platform::DEFAULT_POLLING_MECHANISM>
 class DefaultEventManager;

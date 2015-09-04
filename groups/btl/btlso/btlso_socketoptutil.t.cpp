@@ -522,6 +522,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing Usage Example" << endl
                           << "=====================" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Setting 'k_REUSEADDRESS' option on a socket
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to set 'k_REUSEADDRESS' flag
+// on a socket.  Note that we assume that a socket of type 'SOCK_STREAM' is
+// already created and socket allocation 'btlso_socketimputil' can be used.
+//..
         btlso::SocketHandle::Handle sockethandle;
 
         btlso::SocketImpUtil::open<btlso::IPv4Address>(
@@ -556,7 +566,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == result);
         ASSERT(SOCK_STREAM == sockettype);
 
-        // usage 2:
+//..
+///Example 2: Setting linger options
+///- - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to set and get linger data
+// option values for a socket.  First set the linger interval to 2 seconds:
+//..
         btlso::SocketOptUtil::LingerData ld;
         ld.l_onoff  = 1;   // Enable lingering for
         ld.l_linger = 2;   // 2 seconds
@@ -568,6 +583,11 @@ int main(int argc, char *argv[])
         ASSERT(0 == result);
         ASSERT(0 == errorcode);
 
+//..
+///Example 3: Illustrating pass-through ability
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate the pass-through ability.
+//..
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             /*
             WSAPROTOCOL_INFO protoInfo;

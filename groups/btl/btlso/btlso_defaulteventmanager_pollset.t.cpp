@@ -194,7 +194,6 @@ btlso::SocketHandle::Handle& SocketPair::serverFd()
     return d_fds[1];
 }
 
-static void
 static void genericCb(btlso::EventType::Type       event,
                       btlso::SocketHandle::Handle  socket,
                       int                          bytes,
@@ -305,10 +304,17 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
         btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
                                       btlso::TimeMetrics::e_CPU_BOUND);
 
-        btlso::DefaultEventManager<Platform::POLLSET> mX(&timeMetric);
+        btlso::DefaultEventManager<btlso::Platform::POLLSET> mX(&timeMetric);
 
         btlso::SocketHandle::Handle socket[2];
 
@@ -801,7 +807,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 if (now < deadline) {
@@ -839,7 +845,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 if (now < deadline) {

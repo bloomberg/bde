@@ -438,8 +438,6 @@ int main(int argc, char *argv[]) {
                                                         testFactory.allocate();
 
             ASSERT(newSocket);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 1));
 
             btlso::SocketHandle::Handle newHandle = newSocket->handle();
 
@@ -463,8 +461,6 @@ int main(int argc, char *argv[]) {
 
             ASSERT(newSocket1);
             ASSERT(newSocket2);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 2));
 
             ASSERT(newSocket1->handle() != newSocket2->handle());
 
@@ -497,8 +493,6 @@ int main(int argc, char *argv[]) {
 
             ASSERT(newSocket1);
             ASSERT(newSocket2);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 2));
 
             ASSERT(newSocket1->handle() != newSocket2->handle());
 

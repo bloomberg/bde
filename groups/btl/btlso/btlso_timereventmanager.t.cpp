@@ -65,6 +65,12 @@ static void aSsErT(int c, const char *s, int i)
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a timed socket multiplexer
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 class my_TimerInfo {
     // This is a helper class that stores information about the timer
     // associated with a socket/event pair (an instance of 'btlso::Event').

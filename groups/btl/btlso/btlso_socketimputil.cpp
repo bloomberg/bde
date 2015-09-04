@@ -29,6 +29,10 @@ namespace BloombergLP {
 
 namespace btlso {
 
+                        // --------------------
+                        // struct SocketImpUtil
+                        // --------------------
+
 int SocketImpUtil::cleanup(int *errorCode)
 {
     int rc;
@@ -128,6 +132,10 @@ int SocketImpUtil_Util::getErrorCode(void)
 }
 
 // ============================ COMMON FUNCTIONS ==============================
+
+                        // -------------------------
+                        // struct SocketImpUtil_Util
+                        // -------------------------
 
 int SocketImpUtil_Util::mapErrorCode(int errorNumber)
 {
@@ -655,6 +663,10 @@ int btlso::SocketImpUtil::read(void                               *buffer,
     return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
 }
 
+                        // --------------------
+                        // struct SocketImpUtil
+                        // --------------------
+
 int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
                                 const btlso::SocketHandle::Handle&  socket,
                                 int                                 size,
@@ -781,6 +793,9 @@ int btlso::SocketImpUtil::shutDown(
     return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : 0;
 }
 
+                        // ------------------------
+                        // struct SocketImpUtil_Imp
+                        // ------------------------
 template <>
 int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
                                        btlso::SocketHandle::Handle *newSockets,

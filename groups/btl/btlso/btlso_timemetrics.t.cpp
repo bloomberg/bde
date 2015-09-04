@@ -134,26 +134,25 @@ int main(int argc, char *argv[])
     enum {
         e_CPU_CATEGORY   = 0,
         e_IO_CATEGORY    = 1,
-        e_NUM_CATEGORIES = IO_CATEGORY + 1
+        e_NUM_CATEGORIES = e_IO_CATEGORY + 1
     };
 //..
 // Then, create a metrics object, keeping two categories, and initially
 // measuring time in the 'CPU' category:
 //..
-    btlso::TimeMetrics metrics(btlso::TimeMetrics::e_NUM_CATEGORIES,
-                               btlso::TimeMetrics::e_CPU_CATEGORY);
+    btlso::TimeMetrics metrics(e_NUM_CATEGORIES, e_CPU_CATEGORY);
 //..
 // In order to measure time spent in I/O, e.g., doing 'select' calls, we do:
 //..
     // perform initializations for 'select'
 //
-    metrics.switchTo(IO_CATEGORY);
+    metrics.switchTo(e_IO_CATEGORY);
 //
     // do some IO, e.g., 'select'
 //..
 // To switch to measuring CPU time, e.g., doing event dispatch, we do:
 //..
-    metrics.switchTo(CPU_CATEGORY);
+    metrics.switchTo(e_CPU_CATEGORY);
 //
     // dispatch events
 //..
@@ -161,11 +160,11 @@ int main(int argc, char *argv[])
 // spent in each category as follows:
 //..
     bsl::cout << "The total time spent in IO was "
-              << metrics.percentage(btlso::TimeMetrics::BTESO_IO_CATEGORY)
+              << metrics.percentage(e_IO_CATEGORY)
               << bsl::endl;
 //
     bsl::cout << "The total time spent in CPU was "
-              << metrics.percentage(btlso::TimeMetrics::BTESO_CPU_CATEGORY)
+              << metrics.percentage(e_CPU_CATEGORY)
               << bsl::endl;
 //..
 // This metrics may be reset to its initial state by:

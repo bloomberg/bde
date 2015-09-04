@@ -43,9 +43,9 @@ namespace BloombergLP {
 
 namespace {
 
-                      // ===============================
-                      // local functor IPv4AddressHasher
-                      // ===============================
+                      // ========================
+                      // struct IPv4AddressHasher
+                      // ========================
 
 struct IPv4AddressHasher {
     // ACCESSOR
@@ -66,10 +66,6 @@ struct IPv4AddressHasher {
  || defined(BSLS_PLATFORM_OS_DARWIN)
     // The re-entrant function 'getservbyname_r', is not available on these
     // platforms, so we create a local version here.
-
-                       // ==============================
-                       // local function getservbyname_r
-                       // ==============================
 
 static
 struct servent *getservbyname_r(const char        *name,
@@ -136,10 +132,6 @@ struct servent *getservbyname_r(const char        *name,
 }
 
 #endif
-
-                // ======================================
-                // local function defaultResolveByNameImp
-                // ======================================
 
 static
 int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
@@ -214,10 +206,6 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
 
     return 0;
 }
-
-                          // ========================
-                          // static data s_callback_p
-                          // ========================
 
 btlso::ResolveUtil::ResolveByNameCallback s_callback_p =
                                                       &defaultResolveByNameImp;

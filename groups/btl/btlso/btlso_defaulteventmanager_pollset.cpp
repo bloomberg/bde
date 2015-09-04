@@ -38,6 +38,10 @@ namespace BloombergLP {
 
 namespace btlso {
 
+          // --------------------------------------------
+          // class DefaultEventManager<Platform::POLLSET>
+          // --------------------------------------------
+
 // PRIVATE CLASS METHODS
 int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
                                                          int numSignaled) const

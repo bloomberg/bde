@@ -234,6 +234,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a client and server
+///- - - - - - - - - - - - - - - - - - - - - -
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,
 // either the "client" or the "server".  Note that the 'shutDown' operation
@@ -362,9 +368,6 @@ int main(int argc, char *argv[])
 
         ASSERT(s[0] != s[1]);
 
-        ASSERT(initialSockets < 0 ||
-               (initialSockets + 2) == countSockets(0, 20));
-
         const char buffer[] = { 10, 9, 1, 2, 3, 4, 5 };
         char readBuffer[sizeof(buffer) + 1];
 
@@ -435,8 +438,6 @@ int main(int argc, char *argv[])
 
         T::close(s[0]);
         T::close(s[1]);
-        ASSERT(initialSockets < 0 ||
-               initialSockets == countSockets(0, 20));
 
         if (veryVerbose) cout << "socketPair(BTESO_SOCKET_RAW)" << endl;
         s[0] = -1;                             // set socket var

@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
       case 0:
       case 14: {
         // ----------------------------------------------------------------
-      // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
@@ -170,26 +170,60 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
         {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code illustrate how to create and use a
+// 'btlso::IPv4Address' object.  First create a default object 'ip1'.
+//..
             btlso::IPv4Address ip1;
+//..
+// Next, set the value of 'ip1' to have IP address "127.0.0.1" and port number
+// 8142.
+//..
 
             ip1.setIpAddress("127.0.0.1");
             ip1.setPortNumber(8142);
             char ip[16];
             ip1.loadIpAddress(ip);  ASSERT( 0 == strcmp("127.0.0.1", ip) );
                                     ASSERT( 8142 == ip1.portNumber() );
+//..
+// Then create 'ip2' as a copy of 'ip1'.
+//..
 
             btlso::IPv4Address ip2(ip1);
             ip2.loadIpAddress(ip);  ASSERT( 0 == strcmp("127.0.0.1", ip) );
                                     ASSERT( 8142 == ip2.portNumber() );
-
+//..
+// Now confirm that 'ip2' has the same value as that of 'ip1'.
+//..
             ASSERT( ip2 == ip1 );
+//..
+// Alternately, set 'ip2' to have a 32-bit IP address in network byte order
+// specified as an 'int' on the local platform.
+//..
 
             const int IP = htonl(0x7f000001UL);
             ip2.setIpAddress(IP);   ASSERT( IP == ip2.ipAddress() );
+//..
+// Confirm that 'ip2' still has the same IP address as 'ip1', as the 32-bit IP
+// address 0x7f000001 has the dotted decimal notation "127.0.0.1".
+//..
 
             ASSERT( ip2.ipAddress() == ip1.ipAddress() );
+//..
+// Finally, write the value of 'ip2' to 'stdout'.
+//..
 
             if (verbose) cout << ip2 << endl;
+//..
+// The output operator produces the following (single-line) format:
+//..
+//    127.0.0.1:8142
+//..
         }
       } break;
       case 13: {
@@ -265,7 +299,6 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            const int NUM_BAD = 14;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE   = VALUES[i].d_lineNum;
@@ -836,10 +869,8 @@ int main(int argc, char *argv[])
                 bslx::ByteOutStream out(VERSION_SELECTOR);
                 X.bdexStreamOut(out, VERSION);
 
-                LOOP_ASSERT(LINE, LEN == out.length());
-                LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
-                                              FMT,
-                                              LEN));
+                LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
+                LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                 if (verbose && memcmp(out.data(),
                                       FMT,
@@ -1276,8 +1307,10 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(i, LINE,    0  == strcmp(IPSTRINGPORT, IPSP));
                 LOOP2_ASSERT(i, LINE,   IP  == X.ipAddress());
                 LOOP2_ASSERT(i, LINE, PORT  == X.portNumber());
-                LOOP2_ASSERT(i, LINE, bsl::strlen(IPS) +1  == rLen);
-                LOOP2_ASSERT(i, LINE, bsl::strlen(IPSP)+1  == rLongLen);
+                LOOP2_ASSERT(i, LINE,
+                             static_cast<int>(bsl::strlen(IPS)) +1  == rLen);
+                LOOP2_ASSERT(i, LINE,
+                           static_cast<int>(bsl::strlen(IPSP)) +1 == rLongLen);
 
                 // Must + 1 for the null char (not picked up by strlen).
 

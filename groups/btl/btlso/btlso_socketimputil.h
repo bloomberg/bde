@@ -172,6 +172,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a client and server
+///- - - - - - - - - - - - - - - - - - - - - -
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,
 // either the "client" or the "server".  Note that the 'shutDown' operation is
@@ -237,50 +241,58 @@ BSLS_IDENT("$Id: $")
 // implemented using 'btlso_socketimputil'.  Note that the server binds to and
 // the client connects to the specified IP_ADDR.
 //..
-//      btlso::SocketHandle::Handle serverSocket, sessionSocket;
-//      const int                   BACKLOG      = 32;
-//      const int                   RECEIVE_SIZE = 32;
-//      char                        readBuffer[RECEIVE_SIZE];
-//      int                         rc, errCode = 0;
+//  btlso::SocketHandle::Handle serverSocket, sessionSocket;
+//  const int                   BACKLOG      = 32;
+//  const int                   RECEIVE_SIZE = 32;
+//  char                        readBuffer[RECEIVE_SIZE];
+//  int                         rc, errCode = 0;
 //
-//      rc = btlso::SocketImpUtil::startup(&errCode);      assert(0 == rc);
-//      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
-//                                    &serverSocket,
-//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
-//                                    &errCode);
-//                                                         assert(0 == rc);
-//      rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
-//                                                          IP_ADDR,
-//                                                          &errCode);
-//                                                         assert(0 == rc);
-//      rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &errCode);
-//                                                         assert(0 == rc);
-//      rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
-//                                                            serverSocket,
-//                                                            &errCode);
-//                                                         assert(0 == rc);
-//      do {
-//          // Echo each packet back until the client disconnects
-//          rc = btlso::SocketImpUtil::read(readBuffer,
-//                                          sessionSocket,
-//                                          RECEIVE_SIZE,
-//                                          &errCode);
-//          if (rc > 0) {
-//              btlso::SocketImpUtil::write(sessionSocket,
-//                                          readBuffer,
-//                                          rc,
-//                                          &errCode);
-//          }
-//      } while (rc > 0);
-//      rc = btlso::SocketImpUtil::shutDown(
-//                                    sessionSocket,
-//                                    btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-//                                    &errCode);           assert(0 == rc);
-//      rc = btlso::SocketImpUtil::close(sessionSocket, &errCode);
-//                                                         assert(0 == rc);
-//      rc = btlso::SocketImpUtil::close(serverSocket, &errCode);
-//                                                         assert(0 == rc);
-//      rc = btlso::SocketImpUtil::cleanup(&errCode);      assert(0 == rc);
+//  rc = btlso::SocketImpUtil::startup(&errCode);      assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+//                                       &serverSocket,
+//                                       btlso::SocketImpUtil::k_SOCKET_STREAM,
+//                                       &errCode);    assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
+//                                                      IP_ADDR,
+//                                                      &errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
+//                                                        serverSocket,
+//                                                        &errCode);
+//                                                     assert(0 == rc);
+//
+//  do {
+//      // Echo each packet back until the client disconnects
+//      rc = btlso::SocketImpUtil::read(readBuffer,
+//                                      sessionSocket,
+//                                      RECEIVE_SIZE,
+//                                      &errCode);
+//      if (rc > 0) {
+//          btlso::SocketImpUtil::write(sessionSocket,
+//                                      readBuffer,
+//                                      rc,
+//                                      &errCode);
+//      }
+//  } while (rc > 0);
+//
+//  rc = btlso::SocketImpUtil::shutDown(
+//                                sessionSocket,
+//                                btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+//                                &errCode);           assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(sessionSocket, &errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(serverSocket, &errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::cleanup(&errCode);      assert(0 == rc);
 //..
 //
 ///Typical Client Usage
@@ -288,41 +300,47 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code illustrate a simple client implemented using
 // 'bteso_socketutil'.
 //..
-//      btlso::SocketHandle::Handle  sendSocket;
-//      const int                    RECEIVE_SIZE = 32;
-//      char                         buffer[RECEIVE_SIZE];
-//      int                          rc, errorCode = 0;
-//      const char                  *DATA = "Is it raining in London now?";
-//      const int                    DATA_SIZE = bsl::strlen(DATA) + 1;
+//  btlso::SocketHandle::Handle  sendSocket;
+//  const int                    RECEIVE_SIZE = 32;
+//  char                         buffer[RECEIVE_SIZE];
+//  int                          rc, errorCode = 0;
+//  const char                  *DATA = "Is it raining in London now?";
+//  const int                    DATA_SIZE = bsl::strlen(DATA) + 1;
 //
-//      rc = btlso::SocketImpUtil::startup(&errorCode);       assert(0 == rc);
-//      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
-//                                    &sendSocket,
-//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
-//                                    &errorCode);
-//                                                            assert(0 == rc);
-//      rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
-//                                                             IP_ADDR,
-//                                                             &errorCode);
-//                                                            assert(0 == rc);
-//      rc = btlso::SocketImpUtil::write(sendSocket,
-//                                       DATA,
-//                                       DATA_SIZE,
-//                                       &errorCode);  assert(DATA_SIZE == rc);
-//      rc = btlso::SocketImpUtil::read(buffer,
-//                                      sendSocket,
-//                                      RECEIVE_SIZE,
-//                                      &errorCode);   assert(DATA_SIZE == rc);
+//  rc = btlso::SocketImpUtil::startup(&errorCode);       assert(0 == rc);
 //
-//      assert(0 == bsl::strcmp(DATA, buffer));
+//  rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+//                                &sendSocket,
+//                                btlso::SocketImpUtil::k_SOCKET_STREAM,
+//                                &errorCode);
+//                                                        assert(0 == rc);
 //
-//      rc = btlso::SocketImpUtil::shutDown(
-//                                    sendSocket,
-//                                    btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-//                                    &errorCode);            assert(0 == rc);
-//      rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
-//                                                            assert(0 == rc);
-//      rc = btlso::SocketImpUtil::cleanup(&errorCode);       assert(0 == rc);
+//  rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
+//                                                         IP_ADDR,
+//                                                         &errorCode);
+//                                                        assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::write(sendSocket,
+//                                   DATA,
+//                                   DATA_SIZE,
+//                                   &errorCode);  assert(DATA_SIZE == rc);
+//
+//  rc = btlso::SocketImpUtil::read(buffer,
+//                                  sendSocket,
+//                                  RECEIVE_SIZE,
+//                                  &errorCode);   assert(DATA_SIZE == rc);
+//
+//  assert(0 == bsl::strcmp(DATA, buffer));
+//
+//  rc = btlso::SocketImpUtil::shutDown(
+//                                sendSocket,
+//                                btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+//                                &errorCode);            assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
+//                                                        assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::cleanup(&errorCode);       assert(0 == rc);
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
@@ -839,9 +857,9 @@ struct SocketImpUtil {
         // otherwise representing an error classification.
 };
 
-                          // ================================
-                          // struct btlso::SocketImpUtil_Util
-                          // ================================
+                          // =========================
+                          // struct SocketImpUtil_Util
+                          // =========================
 
 struct SocketImpUtil_Util {
     // This struct provides a namespace for typedefs, enums and static
@@ -999,9 +1017,9 @@ class SocketImpUtil_Imp {
                                const SocketHandle::Handle&  socket,
                                int                         *errorCode);
 
-    static int getPeerAddress(ADDRESS                      *peerAddress,
-                              const SocketHandle::Handle&   socket,
-                              int                          *errorCode);
+    static int getPeerAddress(ADDRESS                     *peerAddress,
+                              const SocketHandle::Handle&  socket,
+                              int                         *errorCode);
 
     static int open(SocketHandle::Handle *newSocket,
                     SocketImpUtil::Type   type,
@@ -1042,14 +1060,18 @@ class SocketImpUtil_Imp {
 
 template <>
 int SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
-                                      btlso::SocketHandle::Handle  *newSockets,
-                                      btlso::SocketImpUtil::Type    type,
-                                      int                           protocol,
-                                      int                          *errorCode);
+                                      btlso::SocketHandle::Handle *newSockets,
+                                      btlso::SocketImpUtil::Type   type,
+                                      int                          protocol,
+                                      int                         *errorCode);
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                        // --------------------
+                        // struct SocketImpUtil
+                        // --------------------
 
 template <class ADDRESS>
 inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
@@ -1068,9 +1090,7 @@ inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
                                  const SocketHandle::Handle&  socket,
                                  int                         *errorCode)
 {
-    return SocketImpUtil_Imp<ADDRESS>::accept(newSocket,
-                                              socket,
-                                              errorCode);
+    return SocketImpUtil_Imp<ADDRESS>::accept(newSocket, socket, errorCode);
 }
 
 template <class ADDRESS>
@@ -1111,9 +1131,7 @@ inline int SocketImpUtil::connect(const SocketHandle::Handle&  socket,
                                   const ADDRESS&               address,
                                   int                         *errorCode)
 {
-    return SocketImpUtil_Imp<ADDRESS>::connect(socket,
-                                               address,
-                                               errorCode);
+    return SocketImpUtil_Imp<ADDRESS>::connect(socket, address, errorCode);
 }
 
 template <class ADDRESS>
@@ -1160,9 +1178,7 @@ inline int SocketImpUtil::getPeerAddress(
                                       ADDRESS                     *peerAddress,
                                       const SocketHandle::Handle&  socket)
 {
-    return SocketImpUtil_Imp<ADDRESS>::getPeerAddress(peerAddress,
-                                                      socket,
-                                                      0);
+    return SocketImpUtil_Imp<ADDRESS>::getPeerAddress(peerAddress, socket, 0);
 }
 
 template <class ADDRESS>
@@ -1181,11 +1197,8 @@ template <class ADDRESS>
 inline int SocketImpUtil::open(SocketHandle::Handle *newSocket,
                                SocketImpUtil::Type   type,
                                int                   protocol)
-        {
-    return SocketImpUtil_Imp<ADDRESS>::open(newSocket,
-                                            type,
-                                            protocol,
-                                            0);
+{
+    return SocketImpUtil_Imp<ADDRESS>::open(newSocket, type, protocol, 0);
 }
 
 template <class ADDRESS>
@@ -1196,6 +1209,7 @@ inline int SocketImpUtil::open(SocketHandle::Handle  *newSocket,
     // The protocol has not been specified so 0 is used.  This is appropriate
     // for most socket types and protocol families, where only one protocol
     // exists.
+
     return SocketImpUtil_Imp<ADDRESS>::open(newSocket,
                                             type,
                                             0,
@@ -1209,6 +1223,7 @@ inline int SocketImpUtil::open(SocketHandle::Handle *newSocket,
     // The protocol has not been specified so 0 is used.  This is appropriate
     // for most socket types and protocol families, where only one protocol
     // exists.
+
     return SocketImpUtil_Imp<ADDRESS>::open(newSocket, type, 0, 0);
 }
 
@@ -1255,10 +1270,7 @@ template <class ADDRESS>
 inline int SocketImpUtil::socketPair(SocketHandle::Handle *newSockets,
                                      SocketImpUtil::Type   type)
 {
-    return SocketImpUtil_Imp<ADDRESS>::socketPair(newSockets,
-                                                  type,
-                                                  0,
-                                                  0);
+    return SocketImpUtil_Imp<ADDRESS>::socketPair(newSockets, type, 0, 0);
 }
 
 template <class ADDRESS>
@@ -1328,6 +1340,10 @@ inline int SocketImpUtil::writevTo(const SocketHandle::Handle&  socket,
 // ============================================================================
 //                 NON-INLINE TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
+
+                        // ------------------------
+                        // struct SocketImpUtil_Imp
+                        // ------------------------
 
 template <class ADDRESS>
 int SocketImpUtil_Imp<ADDRESS>::accept(
@@ -1523,12 +1539,12 @@ int SocketImpUtil_Imp<ADDRESS>::readFrom(
     SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof address.d_address;
 
     int rc = static_cast<int>(
-                        ::recvfrom(socket,
-                                   static_cast<char *>(buffer),
-                                   numBytes,
-                                   0,
-                                   static_cast<sockaddr *>(&address.d_address),
-                                   &siLen));
+                   ::recvfrom(socket,
+                              static_cast<char *>(buffer),
+                              numBytes,
+                              0,
+                              reinterpret_cast<sockaddr *>(&address.d_address),
+                              &siLen));
 
     address.fromSocketAddress(fromAddress);
     if (rc >= 0) {
@@ -1555,12 +1571,12 @@ int SocketImpUtil_Imp<ADDRESS>::writeTo(const SocketHandle::Handle&  socket,
 
     if (!numBytes) return 0;                                          // RETURN
     rc = static_cast<int>(
-                      ::sendto(socket,
-                               static_cast<const char *>(buffer),
-                               numBytes,
-                               0,
-                               static_cast<sockaddr *>(&sockAddress.d_address),
-                               sizeof sockAddress.d_address));
+                 ::sendto(socket,
+                          static_cast<const char *>(buffer),
+                          numBytes,
+                          0,
+                          reinterpret_cast<sockaddr *>(&sockAddress.d_address),
+                          sizeof sockAddress.d_address));
 
     int errorNumber = rc >= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
 

@@ -70,6 +70,12 @@ typedef btlso::EventType::Type      EventType;
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Monitoring a set of sockets
+///- - - - - - - - - - - - - - - - - - -
 int monitorSet(btlso::SocketHandle::Handle      *sockets,
                int                               numSockets,
                void (*function)(btlso::SocketHandle::Handle),

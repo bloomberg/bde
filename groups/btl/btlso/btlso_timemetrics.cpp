@@ -14,9 +14,9 @@ namespace BloombergLP {
 
 namespace btlso {
 
-                           // ------------------------
-                           // class btlso::TimeMetrics
-                           // ------------------------
+                           // -----------------
+                           // class TimeMetrics
+                           // -----------------
 
 // CREATORS
 TimeMetrics::TimeMetrics(int               numCategories,

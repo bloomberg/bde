@@ -11,9 +11,9 @@ namespace BloombergLP {
 
 namespace btlso {
 
-                        // --------------------------
-                        // class btlso::SocketOptUtil
-                        // --------------------------
+                        // -------------------
+                        // class SocketOptUtil
+                        // -------------------
 
 int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
                                     const SocketOptions& options)

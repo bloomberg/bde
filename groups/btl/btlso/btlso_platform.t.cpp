@@ -48,6 +48,10 @@ int typeTest(const btlso::Platform::WinSockets&) { return 2; }
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Defining a 'my_Socket' class
+///- - - - - - - - - - - - - - - - - - - -
 // Writing portable software sometimes involves specializing implementations
 // to work with platform-specific interfaces.  For example, a socket-level
 // communications framework would need to operate differently on a platform

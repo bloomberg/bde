@@ -25,45 +25,46 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Changing the blocking mode on a socket
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to make a socket non-blocking.
 //..
-//      btlso::SocketHandle::Handle socketHandle;
-//      int                         nativeErrNo, s;
-//      btlso::IoUtil::BlockingMode option = btlso::IoUtil::e_NONBLOCKING;
-//      btlso::IoUtil::BlockingMode result;
+//  btlso::SocketHandle::Handle socketHandle;
+//  int                         nativeErrNo, s;
+//  btlso::IoUtil::BlockingMode option = btlso::IoUtil::e_NONBLOCKING;
+//  btlso::IoUtil::BlockingMode result;
 //
-//      btlso::SocketImpUtil::open<btlso::IPv4Address>(
+//  btlso::SocketImpUtil::open<btlso::IPv4Address>(
 //                                       &socketHandle,
 //                                       btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                       &nativeErrNo);
-//      s = btlso::IoUtil::setBlockingMode(socketHandle, option, &nativeErrNo);
-//      assert(0 == s);
-//      assert(0 == nativeErrNo);
+//  s = btlso::IoUtil::setBlockingMode(socketHandle, option, &nativeErrNo);
+//  assert(0 == s);
+//  assert(0 == nativeErrNo);
 //..
 //  Next use 'getBlockingMode' to verify the mode is set correctly:
 //..
-//      s = btlso::IoUtil::getBlockingMode(&result,
-//                                         socketHandle,
-//                                         &nativeErrNo);
-//      assert(0 == s);
-//      assert(0 == nativeErrNo);
-//      assert(btlso::IoUtil::e_NONBLOCKING == result);
+//  s = btlso::IoUtil::getBlockingMode(&result, socketHandle, &nativeErrNo);
+//
+//  assert(0 == s);
+//  assert(0 == nativeErrNo);
+//  assert(btlso::IoUtil::e_NONBLOCKING == result);
 //..
 //  Now set blocking mode on the socket:
 //..
-//      option = btlso::IoUtil::e_BLOCKING;
-//      s = btlso::IoUtil::setBlockingMode(socketHandle,
-//                                         option,
-//                                         &nativeErrNo);
-//      assert(0 == s);   assert(0 == nativeErrNo);
+//  option = btlso::IoUtil::e_BLOCKING;
+//  s = btlso::IoUtil::setBlockingMode(socketHandle, option, &nativeErrNo);
+//
+//  assert(0 == s);   assert(0 == nativeErrNo);
 //..
 //  And get blocking mode value again:
 //..
-//      s = btlso::IoUtil::getBlockingMode(&result,
-//                                         socketHandle,
-//                                         &nativeErrNo);
-//      assert(0 == s);   assert(btlso::IoUtil::e_BLOCKING == result);
-//      assert(0 == nativeErrNo);
+//  s = btlso::IoUtil::getBlockingMode(&result, socketHandle, &nativeErrNo);
+//
+//  assert(0 == s);   assert(btlso::IoUtil::e_BLOCKING == result);
+//  assert(0 == nativeErrNo);
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
@@ -78,9 +79,9 @@ namespace BloombergLP {
 
 namespace btlso {
 
-                            // ====================
-                            // struct btlso::IoUtil
-                            // ====================
+                            // =============
+                            // struct IoUtil
+                            // =============
 
 struct IoUtil {
     // This class provides a namespace for platform-independent pure procedures

@@ -22,9 +22,9 @@ BSLS_IDENT_RCSID(btlso_ipv4address_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace btlso {
 
-                       // =================
+                       // -----------------
                        // class IPv4Address
-                       // =================
+                       // -----------------
 
 
 // PRIVATE CLASS METHODS

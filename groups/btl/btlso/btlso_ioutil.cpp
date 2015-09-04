@@ -28,9 +28,9 @@ namespace BloombergLP {
 
 namespace btlso {
 
-                        // ====================
-                        // struct btlso::IoUtil
-                        // ====================
+                        // -------------
+                        // struct IoUtil
+                        // -------------
 
 int IoUtil::setBlockingMode(SocketHandle::Handle  handle,
                             IoUtil::BlockingMode  value,

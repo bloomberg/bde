@@ -94,9 +94,9 @@ int translateEventToMask(btlso::EventType::Type event)
 
 }  // close unnamed namespace
 
-           // --------------------------------------------------------
-           // class btlso::DefaultEventManager<btlso::Platform::EPOLL>
-           // --------------------------------------------------------
+           // ------------------------------------------
+           // class DefaultEventManager<Platform::EPOLL>
+           // ------------------------------------------
 
 typedef btlso::DefaultEventManager<btlso::Platform::EPOLL> EventManagerName;
     // Alias for brevity.

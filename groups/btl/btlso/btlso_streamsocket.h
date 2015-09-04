@@ -27,11 +27,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code demonstrate how to use the
-// 'btlso::StreamSocket' protocol.
+// This section illustrates intended use of this component.
 //
-///Example 1
-///- - - - -
+///Example 1: Implementing a simple client
+///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates a simple dictionary client.  The client program
 // connects to a dictionary server at a know address and port, transmits a word
 // to be defined, and reads and prints the definition.
@@ -107,8 +106,8 @@ BSLS_IDENT("$Id: $")
 //     client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 // }
 //..
-///Example 2
-///- - - - -
+///Example 2: Implementing a simple server
+///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates a simple dictionary server.  The server accepts
 // connections on a well known address/port, receives a word, looks up the
 // definition of the word, and transmits this definition to the client.  Since

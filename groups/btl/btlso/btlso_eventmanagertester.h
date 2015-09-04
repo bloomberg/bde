@@ -548,7 +548,7 @@ struct EventManagerTester {
         k_ABORT             = 8,  // If this flag is on, the test will be
                                   // aborted upon an error.
 
-        k_DRY_RUN           = 16, // If this flag is on, the test will not
+        k_DRY_RUN           = 16  // If this flag is on, the test will not
                                   // execute the test script, but only parse
                                   // the test script to the standard output.
 
@@ -558,11 +558,11 @@ struct EventManagerTester {
       , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
       , BTESO_ABORT             = k_ABORT
       , BTESO_DRY_RUN           = k_DRY_RUN
-      , VERBOSE           = k_VERBOSE
-      , VERY_VERBOSE      = k_VERY_VERBOSE
-      , VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
-      , ABORT             = k_ABORT
-      , DRY_RUN           = k_DRY_RUN
+      , VERBOSE                 = k_VERBOSE
+      , VERY_VERBOSE            = k_VERY_VERBOSE
+      , VERY_VERY_VERBOSE       = k_VERY_VERY_VERBOSE
+      , ABORT                   = k_ABORT
+      , DRY_RUN                 = k_DRY_RUN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

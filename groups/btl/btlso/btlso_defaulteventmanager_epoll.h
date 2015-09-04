@@ -95,6 +95,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a
 // 'btlso::DefaultEventManager<btlso::Platform::EPOLL>' object; also create a

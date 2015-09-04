@@ -219,6 +219,9 @@ void assertCb()
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
+
+    (void) argc, (void) argv;
+
 #ifdef BTESO_EVENTMANAGER_ENABLETEST
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;                 globalVerbose = verbose;
@@ -265,6 +268,12 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
         btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
                                       btlso::TimeMetrics::e_CPU_BOUND);
 

@@ -103,6 +103,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Setting the socket option on a socket
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // 'btlso::SocketOptions' can be used to specify whether local addresses should
 // be reused.  The following snippets of code illustrate how to set the
 // 'BTESO_REUSEADDRESS' flag on a socket.  Note that we assume that a socket of
@@ -111,22 +115,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  bool                 reuseLocalAddr = true;
 //  btlso::SocketOptions options;
-//  options.reuseAddress().makeValue(reuseLocalAddr);
+//  options.setReuseAddress(reuseLocalAddr);
+//  assert(reuseLocalAddr == options.reuseAddress().value());
 //
-//  int rc = btlso::SocketOptUtil::setSocketOptions(socketHandle, options);
-//  assert(0 == rc);
-//..
-// Now we will verify that the address option was set correctly:
-//..
-//  int addropt = 0;
-//  rc = btlso::SocketOptUtil::getOption(
-//                                    &addropt,
-//                                    socketHandle,
-//                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
-//                                    btlso::SocketOptUtil::k_REUSEADDRESS);
+//  // Set 'options' on 'socketHandle'
 //
-//  assert(0 == rc);
-//  assert(0 != addropt);
+//  // . . .
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

@@ -9,6 +9,20 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 //=============================================================================
+//                             TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+//
+// Verify that the typedefs and enums are accessible and compile on this
+// platform.
+//-----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+//=============================================================================
+
+
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -26,25 +40,15 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                             TEST PLAN
-//-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-//
-// Verify that the typedefs and enums are accessible and compile on this
-// platform.
-//-----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
-// [ 1] BREATHING TEST
-//=============================================================================
-
-
-//=============================================================================
 //                  GLOBAL METHODS FOR TESTING
 //-----------------------------------------------------------------------------
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a socket class
+///- - - - - - - - - - - - - - - - - - -
 // Writing portable software involves providing a generic interface while
 // specializing implementations to work with platform-provided interfaces.  As
 // an example, we provide a platform-independent socket 'class', 'my_Socket'

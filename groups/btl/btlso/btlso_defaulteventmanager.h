@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  btlso::DefaultEventManager<TYPE>: event manager interface
-//  btlso::EventMgr: namespace for the default event manager type
 //
 //@SEE_ALSO: btlso_eventmanager, btlso_timereventmanager
 //
@@ -45,6 +44,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a default event manager
+///- - - - - - - - - - - - - - - - - - - - - -
 // In the following usage example we show how to create an instance of a
 // default event manager.  First, we need to include this file (shown here for
 // completeness):

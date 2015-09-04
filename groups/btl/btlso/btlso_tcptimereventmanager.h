@@ -263,9 +263,9 @@ namespace bslma { class Allocator; }
 
 namespace btlso {
 
-                   // =================================
-                   // class btlso::TcpTimerEventManager
-                   // =================================
+                   // ==========================
+                   // class TcpTimerEventManager
+                   // ==========================
 
 class TcpTimerEventManager : public TimerEventManager
 {
@@ -472,9 +472,9 @@ class TcpTimerEventManager : public TimerEventManager
 //                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
-                   // ---------------------------------
-                   // class btlso::TcpTimerEventManager
-                   // ---------------------------------
+                   // --------------------------
+                   // class TcpTimerEventManager
+                   // --------------------------
 
 // ACCESSORS
 inline

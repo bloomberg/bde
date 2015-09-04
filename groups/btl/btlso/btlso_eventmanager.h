@@ -35,6 +35,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Monitoring a set of sockets
+///- - - - - - - - - - - - - - - - - - -
 // Let's suppose that we would like to monitor a set of sockets, obtained
 // through some other means, for incoming data and invoke a given function for
 // each when data is detected.  (For simplicity, we assume that the function to

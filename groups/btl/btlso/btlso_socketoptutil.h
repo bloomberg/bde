@@ -191,9 +191,9 @@ namespace btlso {
 
 class SocketOptions;
 
-                        // ===========================
-                        // struct btlso::SocketOptUtil
-                        // ===========================
+                        // ====================
+                        // struct SocketOptUtil
+                        // ====================
 
 struct SocketOptUtil {
     // This class provides a namespace for platform independent pure procedures
@@ -401,6 +401,10 @@ struct SocketOptUtil {
 // ============================================================================
 //                     INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                        // --------------------
+                        // struct SocketOptUtil
+                        // --------------------
 
 template <class T>
 inline int

@@ -6,6 +6,10 @@ BSLS_IDENT_RCSID(btlso_sockethandle_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+                        // ------------------
+                        // class SocketHandle
+                        // ------------------
+
 // CLASS DATA
 
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS

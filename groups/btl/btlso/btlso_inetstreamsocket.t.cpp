@@ -333,9 +333,6 @@ void TestStreamSocketFactory<ADDRESS>::deallocate(
 {
     btlso::SocketImpUtil::close(socket->handle());
 
-    btlso::InetStreamSocket<ADDRESS> *inetSocket =
-                      dynamic_cast<btlso::InetStreamSocket<ADDRESS> *>(socket);
-
     d_allocator_p->deleteObject(socket);
 }
 
@@ -347,9 +344,6 @@ void TestStreamSocketFactory<ADDRESS>::deallocate(
     if (closeFlag) {
         btlso::SocketImpUtil::close(socket->handle());
     }
-
-    btlso::InetStreamSocket<ADDRESS> *inetSocket =
-                      dynamic_cast<btlso::InetStreamSocket<ADDRESS> *>(socket);
 
     d_allocator_p->deleteObject(socket);
 }
@@ -461,7 +455,7 @@ int main(int argc, char *argv[]) {
 //..
 // Next, we will write a message through 'clientSocket'.
 //..
-    char      *writeBuffer    = "Hello World!";
+    char       writeBuffer[]  = "Hello World!";
     const int  writeBufferLen = bsl::strlen(writeBuffer);
         
     rc = clientSocket.write(writeBuffer, writeBufferLen);

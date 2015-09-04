@@ -177,7 +177,7 @@ void checkDeadConnectCallback(btlso::SocketHandle::Handle  handle,
 static void genericCb(btlso::EventType::Type       event,
                       btlso::SocketHandle::Handle  socket,
                       int                          bytes,
-                      btlso::EventManager         *mX)
+                      btlso::EventManager         *)
 {
     // User specified callback function that will be called after an event is
     // dispatched to do the "real" things.  This callback is only used in the
@@ -277,6 +277,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
         btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
                                       btlso::TimeMetrics::e_CPU_BOUND);
 

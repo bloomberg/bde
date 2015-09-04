@@ -221,6 +221,10 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Resolving an IP address
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to get an IPv4address or
 // a port number from a name.  First we create two 'btlso::IPv4Address' objects
 // to store the return value for host 'p111', 'ibm1' respectively, and verify

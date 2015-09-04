@@ -208,8 +208,12 @@ public:
 //                               USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// Example 1
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
+///Example 1: Implementing a simple client
+///- - - - - - - - - - - - - - - - - - - -
 void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
 {
     enum {
@@ -278,8 +282,8 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
     client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 }
 
-// Example 2
-//
+///Example 2: Implementing a simple server
+///- - - - - - - - - - - - - - - - - - - -
 const char *lookupWord(const char *)
 {
     return 0;

@@ -54,9 +54,9 @@ int createCacheData(
 
 namespace btlso {
 
-                        // ============================
+                        // ----------------------------
                         // class IpResolutionCache_Data
-                        // ============================
+                        // ----------------------------
 
 class IpResolutionCache_Data {
     // This class provides storage for a set of IP addresses and a
@@ -96,10 +96,6 @@ class IpResolutionCache_Data {
         // Return a reference providing non-modifiable access to the time this
         // object was created.
 };
-
-                        // ----------------------------
-                        // class IpResolutionCache_Data
-                        // ----------------------------
 
 // CREATORS
 IpResolutionCache_Data::IpResolutionCache_Data(

@@ -480,6 +480,14 @@ int main(int argc, char *argv[])
                  << "=====================" << endl;
         }
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Changing the blocking mode on a socket
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to make a socket non-blocking.
+//..
         btlso::SocketHandle::Handle socketHandle;
         btlso::IoUtil::BlockingMode option =
                                           btlso::IoUtil::e_NONBLOCKING;

@@ -110,6 +110,10 @@ int main(int argc, char *argv[]) {
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a default event manager
+///- - - - - - - - - - - - - - - - - - - - - -
 // In the following usage example we show how to create an instance of a
 // default event manager.  First, we need to include this file (shown here for
 // completeness):

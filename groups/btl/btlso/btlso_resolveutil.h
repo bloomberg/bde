@@ -30,73 +30,77 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Resolving an IP address
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to get an IPv4address or a
 // port number from a name.  First we create two 'btlso::IPv4Address' objects
 // to store the return value for host 'p111', 'ibm1' respectively, and verify
 // the return addresses:
 //..
-//      int                retCode = 0, errorCode = 0;
-//      btlso::IPv4Address result1, result2;
+//  int                retCode = 0, errorCode = 0;
+//  btlso::IPv4Address result1, result2;
 //
-//      const char *hostname = "p111";
-//      retCode = btlso::ResolveUtil::getAddress(&result1,
-//                                               hostname,
-//                                               &errorCode);
-//      assert(0 == retCode);
-//      assert(0 == errorCode);
-//      bsl::cout << "IPv4 address for '" << hostname << "': " << result1
-//                << bsl::endl;
+//  const char *hostname = "p111";
+//  retCode = btlso::ResolveUtil::getAddress(&result1,
+//                                           hostname,
+//                                           &errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout << "IPv4 address for '" << hostname << "': " << result1
+//            << bsl::endl;
 //
-//      const char *hostname2 = "ibm1";
-//      retCode = btlso::ResolveUtil::getAddress(&result2,
-//                                               hostname2,
-//                                               &errorCode);
-//      assert(0 == retCode);
-//      assert(0 == errorCode);
-//      bsl::cout << "IPv4 address for '" << hostname2 << "': " << result2
-//                << bsl::endl;
+//  const char *hostname2 = "ibm1";
+//  retCode = btlso::ResolveUtil::getAddress(&result2,
+//                                           hostname2,
+//                                           &errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout << "IPv4 address for '" << hostname2 << "': " << result2
+//            << bsl::endl;
 //..
 // Next we try retrieving all IPv4 addresses for the given host name 'n024' and
 // verify the return addresses:
 //..
-//      bsl::vector<btlso::IPv4Address> addr_array;
-//      btlso::IPv4Address              result3;
+//  bsl::vector<btlso::IPv4Address> addr_array;
+//  btlso::IPv4Address              result3;
 //
-//      const char *hostname3 = "n024";
-//      retCode = btlso::ResolveUtil::getAddresses(&addr_array,
-//                                                 hostname3,
-//                                                 &errorCode);
-//      assert(0 == retCode);
-//      assert(0 == errorCode);
-//      bsl::cout << "IPv4 address for '" << hostname3 << "': " << addr_array
-//                << bsl::endl;
+//  const char *hostname3 = "n024";
+//  retCode = btlso::ResolveUtil::getAddresses(&addr_array,
+//                                             hostname3,
+//                                             &errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout << "IPv4 address for '" << hostname3 << "': " << addr_array
+//            << bsl::endl;
 //..
 // Finally, we try to get the service port number of the given service names
 // 'ftp', 'systat', 'telnet' respectively, and verify the result:
 //..
-//      const char *servname = "ftp";
-//      retCode = btlso::ResolveUtil::getServicePort(&result1,
-//                                                   servname,
-//                                                   0,
-//                                                   &errorCode);
-//      assert(0 == retCode);
-//      bsl::cout << "Port number for 'ftp': " << result1 << bsl::endl;
+//  const char *servname = "ftp";
+//  retCode = btlso::ResolveUtil::getServicePort(&result1,
+//                                               servname,
+//                                               0,
+//                                               &errorCode);
+//  assert(0 == retCode);
+//  bsl::cout << "Port number for 'ftp': " << result1 << bsl::endl;
 //
-//      const char *servname2 = "systat";
-//      retCode = btlso::ResolveUtil::getServicePort(&result2,
-//                                                   servname2,
-//                                                   0,
-//                                                   &errorCode);
-//      assert(0 == retCode);
-//      bsl::cout << "Port number for 'systat': " << result1 << bsl::endl;
+//  const char *servname2 = "systat";
+//  retCode = btlso::ResolveUtil::getServicePort(&result2,
+//                                               servname2,
+//                                               0,
+//                                               &errorCode);
+//  assert(0 == retCode);
+//  bsl::cout << "Port number for 'systat': " << result1 << bsl::endl;
 //
-//      const char *servname3 = "telnet";
-//      retCode = btlso::ResolveUtil::getServicePort(&result3,
-//                                                   servname3,
-//                                                   0,
-//                                                   &errorCode);
-//      assert(0 == retCode);
-//      bsl::cout << "Port number for 'telnet': " << result1 << bsl::endl;
+//  const char *servname3 = "telnet";
+//  retCode = btlso::ResolveUtil::getServicePort(&result3,
+//                                               servname3,
+//                                               0,
+//                                               &errorCode);
+//  assert(0 == retCode);
+//  bsl::cout << "Port number for 'telnet': " << result1 << bsl::endl;
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

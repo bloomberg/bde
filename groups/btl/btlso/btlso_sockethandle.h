@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a socket class
+///- - - - - - - - - - - - - - - - - - -
 // Writing portable software involves providing a generic interface while
 // specializing implementations to work with platform-provided interfaces.  As
 // an example, we provide a platform-independent socket 'class', 'my_Socket'
@@ -71,6 +75,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
+
+                        // ==================
+                        // class SocketHandle
+                        // ==================
 
 struct SocketHandle {
     // This is a namespace for a typedef for the socket handle which has a

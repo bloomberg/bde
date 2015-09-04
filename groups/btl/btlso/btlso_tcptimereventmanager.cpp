@@ -33,9 +33,9 @@ enum {
 
 namespace btlso {
 
-                     // ---------------------------------
-                     // class btlso::TcpTimerEventManager
-                     // ---------------------------------
+                     // --------------------------
+                     // class TcpTimerEventManager
+                     // --------------------------
 
 // CREATORS
 

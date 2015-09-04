@@ -148,8 +148,6 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslma::TestAllocatorMonitor TestAllocatorMonitor;
-
 namespace BloombergLP {
 namespace btlso {
 
@@ -1169,7 +1167,7 @@ int main(int argc, char *argv[])
 
             mX.setTimeToLive(A2);
 
-            TestAllocatorMonitor oam(oa), dam(da);
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T1& resolverCallback = X.resolverCallback();
             LOOP2_ASSERT(A1, resolverCallback, A1 == resolverCallback);
@@ -1395,7 +1393,7 @@ int main(int argc, char *argv[])
 
             // 'timeToLive'
             {
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setTimeToLive(A2);
                 LOOP_ASSERT(CONFIG, D1 == X.resolverCallback());
