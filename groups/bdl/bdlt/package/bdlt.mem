@@ -12,6 +12,7 @@ bdlt_delegatingdateimputil
 bdlt_epochutil
 bdlt_intervalconversionutil
 bdlt_iso8601util
+bdlt_iso8601utilconfiguration
 bdlt_localtimeoffset
 bdlt_monthofyear
 bdlt_posixdateimputil

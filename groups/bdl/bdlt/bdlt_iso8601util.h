@@ -11,10 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlt::Iso8601Util: namespace for ISO 8601 date/time conversion functions
-//  bdlt::Iso8601UtilConfiguration: configuration for generated strings
 //
-//@SEE_ALSO: bdlt_date, bdlt_datetz, bdlt_datetime, bdlt_datetimetz, bdlt_time,
-//           bdlt_timetz
+//@SEE_ALSO: bdlt_iso8601utilconfiguration
 //
 //@DESCRIPTION: This component provides a namespace, 'bdlt::Iso8601Util',
 // containing functions that convert 'bdlt' date, time, and datetime objects to
@@ -44,7 +42,8 @@ BSLS_IDENT("$Id: $")
 // Since the generate functions always succeed, no status value is returned.
 // Instead, either the number of characters output to the 'char *' buffer or a
 // reference to the stream is returned.  (Note that the generating functions
-// also take an optional "configuration" object, which is discussed shortly.)
+// also take an optional 'bdlt::Iso8601UtilConfiguration' object, which is
+// discussed shortly.)
 //
 // Each function that *parses* ISO 8601 strings (named 'parse') take the
 // address of a target 'bdlt' object and a 'const char *', and loads the object
@@ -86,46 +85,32 @@ BSLS_IDENT("$Id: $")
 //..
 ///Configuration
 ///- - - - - - -
-// This component also provides a (value-semantic) attribute class,
-// 'bdlt::Iso8601UtilConfiguration', that enables configuration of a few
-// aspects of string generation.  The 'generate' and 'generateRaw' functions
-// come in matched pairs, where the two functions in each pair are
-// distinguished as to whether or not a 'Iso8601UtilConfiguration' object is
-// supplied.
-//
-// Three aspects of ISO 8601 string generation are adjustable via the
-// 'Iso8601UtilConfiguration' type:
+// The 'generate' and 'generateRaw' functions come in matching pairs, where the
+// two functions in each pair are distinguished by whether or not an
+// 'Iso8601UtilConfiguration' object is supplied.  This optional argument
+// enables configuration of three aspects of ISO 8601 string generation:
 //: o The decimal sign to use in fractional seconds: '.' or ','.
 //:
 //: o Whether ':' is optional in zone designators.
 //:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// Hence, 'Iso8601UtilConfiguration' has these three unconstrained attributes:
-//..
-//              Name            Type   Default
-//  -------------------------   ----   -------
-//  omitColonInZoneDesignator   bool    false
-//  useCommaForDecimalSign      bool    false
-//  useZAbbreviationForUtc      bool    false
-//..
-// For generate methods not passed an 'Iso8601UtilConfiguration' object, a
-// process-wide configuration takes effect.  This "default" configuration,
-// returned by 'Iso8601UtilConfiguration::defaultConfiguration', may be set by
-// the client.  The initial setting for the process-wide configuration (i.e.,
-// as established at start-up) has the default value for a
-// 'Iso8601UtilConfiguration' object.
+// 'Iso8601UtilConfiguration' has three attributes that directly correspond to
+// these aspects.  In addition, for generate methods that are not supplied with
+// a configuration argument, a process-wide configuration takes effect.  See
+// 'bdlt_iso8601utilconfiguration' for details.
 //
 ///ISO 8601 String Parsing
 ///-----------------------
 // The parse functions accept *all* strings that are produced by the generate
 // functions.  In addition, the parse functions accept some variation in the
 // generated strings, the details of which are discussed next.  Note that the
-// parse methods are not configurable like the generate methods; in particular,
-// the process-wide configuration has no effect on parsing.  Instead, the parse
-// methods automatically accept '.' or ',' as the decimal sign in fractional
-// seconds, and treat '+00:00', '+0000', and 'Z' as equivalent zone designators
-// (all denoting UTC).
+// parse methods are not configurable like the generate methods (i.e., via an
+// optional 'Iso8601UtilConfiguration' argument).  Moreover, the process-wide
+// configuration has no effect on parsing either.  Instead, the parse methods
+// automatically accept '.' or ',' as the decimal sign in fractional seconds,
+// and treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
+// denoting UTC).
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -461,12 +446,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
+#ifndef INCLUDED_BDLT_ISO8601UTILCONFIGURATION
+#include <bdlt_iso8601utilconfiguration.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
@@ -773,127 +758,6 @@ struct Iso8601Util {
         // '0 <= length'.
 };
 
-                        // ==============================
-                        // class Iso8601UtilConfiguration
-                        // ==============================
-
-class Iso8601UtilConfiguration {
-    // This unconstrained (value-semantic) attribute class characterizes how to
-    // configure certain behavior in 'Iso8601Util' functions.  Currently, only
-    // the 'generate' and 'generateRaw' methods of that utility are affected
-    // by 'Iso8601UtilConfiguration' settings.  See the Attributes section
-    // under @DESCRIPTION in the component-level documentation for information
-    // on the class attributes.
-
-  private:
-    // PRIVATE TYPES
-    enum {
-        // This enumeration denotes the distinct bits that define the values of
-        // each of the three configuration attributes.
-
-        k_omitColonInZoneDesignatorBit = 0x1,
-        k_useCommaForDecimalSignBit    = 0x2,
-        k_useZAbbreviationForUtcBit    = 0x4
-    };
-
-    // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Int
-                    s_defaultConfiguration;  // process-wide configuration
-
-    // DATA
-    int             d_configurationMask;     // bitmask defining configuration
-
-    // FRIENDS
-    friend bool operator==(const Iso8601UtilConfiguration&,
-                           const Iso8601UtilConfiguration&);
-    friend bool operator!=(const Iso8601UtilConfiguration&,
-                           const Iso8601UtilConfiguration&);
-
-  private:
-    // PRIVATE CREATORS
-    explicit Iso8601UtilConfiguration(int configurationMask);
-        // Create an 'Iso8601UtilConfiguration' object having the value
-        // indicated by the specified 'configurationMask'.  The behavior is
-        // undefined unless 'configurationMask' represents a valid
-        // 'Iso8601UtilConfiguration' value.
-
-  public:
-    // CLASS METHODS
-    static Iso8601UtilConfiguration defaultConfiguration();
-        // Return the value of the process-wide 'Iso8601UtilConfiguration' that
-        // is currently in effect.
-
-    static void setDefaultConfiguration(
-                                const Iso8601UtilConfiguration& configuration);
-        // Set the value of the process-wide 'Iso8601UtilConfiguration' to the
-        // specified 'configuration'.  Note that the expected usage is that the
-        // process-wide configuration will be established *once*, early in
-        // 'main', and not changed throughout the lifetime of a process.
-
-    // CREATORS
-    Iso8601UtilConfiguration();
-        // Create an 'Iso8601UtilConfiguration' object having the (default)
-        // attribute values:
-        //..
-        //  omitColonInZoneDesignator() == false
-        //  useCommaForDecimalSign()    == false
-        //  useZAbbreviationForUtc()    == false
-        //..
-
-    Iso8601UtilConfiguration(const Iso8601UtilConfiguration& original);
-        // Create an 'Iso8601UtilConfiguration' object having the value of the
-        // specified 'original' configuration.
-
-    ~Iso8601UtilConfiguration();
-        // Destroy this object.
-
-    // MANIPULATORS
-    Iso8601UtilConfiguration& operator=(const Iso8601UtilConfiguration& rhs);
-        // Assign to this object the value of the specified 'rhs'
-        // configuration, and return a reference providing modifiable access to
-        // this object.
-
-    void setOmitColonInZoneDesignator(bool value);
-        // Set the 'omitColonInZoneDesignator' attribute of this object to the
-        // specified 'value'.
-
-    void setUseCommaForDecimalSign(bool value);
-        // Set the 'useCommaForDecimalSign' attribute of this object to the
-        // specified 'value'.
-
-    void setUseZAbbreviationForUtc(bool value);
-        // Set the 'useZAbbreviationForUtc' attribute of this object to the
-        // specified 'value'.
-
-    // ACCESSORS
-    bool omitColonInZoneDesignator() const;
-        // Return the value of the 'omitColonInZoneDesignator' attribute of
-        // this object.
-
-    bool useCommaForDecimalSign() const;
-        // Return the value of the 'useCommaForDecimalSign' attribute of this
-        // object.
-
-    bool useZAbbreviationForUtc() const;
-        // Return the value of the 'useZAbbreviationForUtc' attribute of this
-        // object.
-};
-
-// FREE OPERATORS
-bool operator==(const Iso8601UtilConfiguration& lhs,
-                const Iso8601UtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
-    // have the same value if each of their attributes (respectively) have the
-    // same value.
-
-bool operator!=(const Iso8601UtilConfiguration& lhs,
-                const Iso8601UtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
-    // objects do not have the same value if any of their attributes
-    // (respectively) do not have the same value.
-
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
@@ -1174,108 +1038,13 @@ int Iso8601Util::generateRaw(char *buffer, const DatetimeTz& object)
                        Iso8601UtilConfiguration::defaultConfiguration());
 }
 
-                        // ------------------------------
-                        // class Iso8601UtilConfiguration
-                        // ------------------------------
-
-// PRIVATE CREATORS
-inline
-Iso8601UtilConfiguration::Iso8601UtilConfiguration(int configurationMask)
-: d_configurationMask(configurationMask)
-{
-    BSLS_ASSERT_SAFE(0 == (configurationMask
-                           & ~(k_omitColonInZoneDesignatorBit
-                             | k_useCommaForDecimalSignBit
-                             | k_useZAbbreviationForUtcBit)));
-}
-
-// CLASS METHODS
-inline
-Iso8601UtilConfiguration Iso8601UtilConfiguration::defaultConfiguration()
-{
-    return Iso8601UtilConfiguration(
-               bsls::AtomicOperations::getIntRelaxed(&s_defaultConfiguration));
-}
-
-inline
-void Iso8601UtilConfiguration::setDefaultConfiguration(
-                                 const Iso8601UtilConfiguration& configuration)
-{
-    bsls::AtomicOperations::setIntRelease(&s_defaultConfiguration,
-                                          configuration.d_configurationMask);
-}
-
-// CREATORS
-inline
-Iso8601UtilConfiguration::Iso8601UtilConfiguration()
-: d_configurationMask(0)
-{
-}
-
-inline
-Iso8601UtilConfiguration::Iso8601UtilConfiguration(
-                                      const Iso8601UtilConfiguration& original)
-: d_configurationMask(original.d_configurationMask)
-{
-}
-
-inline
-Iso8601UtilConfiguration::~Iso8601UtilConfiguration()
-{
-}
-
-// MANIPULATORS
-inline
-Iso8601UtilConfiguration& Iso8601UtilConfiguration::operator=(
-                                           const Iso8601UtilConfiguration& rhs)
-{
-    d_configurationMask = rhs.d_configurationMask;
-
-    return *this;
-}
-
-// ACCESSORS
-inline
-bool Iso8601UtilConfiguration::omitColonInZoneDesignator() const
-{
-    return d_configurationMask & k_omitColonInZoneDesignatorBit;
-}
-
-inline
-bool Iso8601UtilConfiguration::useCommaForDecimalSign() const
-{
-    return d_configurationMask & k_useCommaForDecimalSignBit;
-}
-
-inline
-bool Iso8601UtilConfiguration::useZAbbreviationForUtc() const
-{
-    return d_configurationMask & k_useZAbbreviationForUtcBit;
-}
-
 }  // close package namespace
-
-// FREE OPERATORS
-inline
-bool bdlt::operator==(const Iso8601UtilConfiguration& lhs,
-                      const Iso8601UtilConfiguration& rhs)
-{
-    return lhs.d_configurationMask == rhs.d_configurationMask;
-}
-
-inline
-bool bdlt::operator!=(const Iso8601UtilConfiguration& lhs,
-                      const Iso8601UtilConfiguration& rhs)
-{
-    return lhs.d_configurationMask != rhs.d_configurationMask;
-}
-
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

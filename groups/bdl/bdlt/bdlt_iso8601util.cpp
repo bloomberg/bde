@@ -1113,50 +1113,11 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     return 0;
 }
 
-                        // ------------------------------
-                        // class Iso8601UtilConfiguration
-                        // ------------------------------
-
-// CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Int
-Iso8601UtilConfiguration::s_defaultConfiguration = { 0 };
-
-// MANIPULATORS
-void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_omitColonInZoneDesignatorBit;
-    }
-    else {
-        d_configurationMask &= ~k_omitColonInZoneDesignatorBit;
-    }
-}
-
-void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_useCommaForDecimalSignBit;
-    }
-    else {
-        d_configurationMask &= ~k_useCommaForDecimalSignBit;
-    }
-}
-
-void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_useZAbbreviationForUtcBit;
-    }
-    else {
-        d_configurationMask &= ~k_useZAbbreviationForUtcBit;
-    }
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

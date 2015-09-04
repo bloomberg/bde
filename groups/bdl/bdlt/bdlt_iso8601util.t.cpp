@@ -47,81 +47,51 @@ using namespace bsl;
 //: o No memory is ever allocated from the global allocator.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
-//                         ==================
-//                         struct Iso8601Util
-//                         ==================
 // CLASS METHODS
-// [ 2] int generate(char *, const Date&, int);
-// [ 2] int generate(char *, const Date&, int, const Config&);
-// [ 3] int generate(char *, const Time&, int);
-// [ 3] int generate(char *, const Time&, int, const Config&);
-// [ 4] int generate(char *, const Datetime&, int);
-// [ 4] int generate(char *, const Datetime&, int, const Config&);
-// [ 5] int generate(char *, const DateTz&, int);
-// [ 5] int generate(char *, const DateTz&, int, const Config&);
-// [ 6] int generate(char *, const TimeTz&, int);
-// [ 6] int generate(char *, const TimeTz&, int, const Config&);
-// [ 7] int generate(char *, const DatetimeTz&, int);
-// [ 7] int generate(char *, const DatetimeTz&, int, const Config&);
-// [ 2] ostream generate(ostream&, const Date&);
-// [ 2] ostream generate(ostream&, const Date&, const Config&);
-// [ 3] ostream generate(ostream&, const Time&);
-// [ 3] ostream generate(ostream&, const Time&, const Config&);
-// [ 4] ostream generate(ostream&, const Datetime&);
-// [ 4] ostream generate(ostream&, const Datetime&, const Config&);
-// [ 5] ostream generate(ostream&, const DateTz&);
-// [ 5] ostream generate(ostream&, const DateTz&, const Config&);
-// [ 6] ostream generate(ostream&, const TimeTz&);
-// [ 6] ostream generate(ostream&, const TimeTz&, const Config&);
-// [ 7] ostream generate(ostream&, const DatetimeTz&);
-// [ 7] ostream generate(ostream&, const DatetimeTz&, const Config&);
-// [ 2] int generateRaw(char *, const Date&);
-// [ 2] int generateRaw(char *, const Date&, const Config&);
-// [ 3] int generateRaw(char *, const Time&);
-// [ 3] int generateRaw(char *, const Time&, const Config&);
-// [ 4] int generateRaw(char *, const Datetime&);
-// [ 4] int generateRaw(char *, const Datetime&, const Config&);
-// [ 5] int generateRaw(char *, const DateTz&);
-// [ 5] int generateRaw(char *, const DateTz&, const Config&);
-// [ 6] int generateRaw(char *, const TimeTz&);
-// [ 6] int generateRaw(char *, const TimeTz&, const Config&);
-// [ 7] int generateRaw(char *, const DatetimeTz&);
-// [ 7] int generateRaw(char *, const DatetimeTz&, const Config&);
-// [ 8] int parse(Date *, const char *, int);
-// [ 9] int parse(Time *, const char *, int);
-// [10] int parse(Datetime *, const char *, int);
-// [ 8] int parse(DateTz *, const char *, int);
-// [ 9] int parse(TimeTz *, const char *, int);
-// [10] int parse(DatetimeTz *, const char *, int);
-//
-//                         ==============================
-//                         class Iso8601UtilConfiguration
-//                         ==============================
-// CLASS METHODS
-// [ 1] static Config defaultConfiguration();
-// [ 1] static void setDefaultConfiguration(const Config& config);
-//
-// CREATORS
-// [ 1] Iso8601UtilConfiguration();
-// [ 1] Iso8601UtilConfiguration(const Config& original);
-// [ 1] ~Iso8601UtilConfiguration();
-//
-// MANIPULATORS
-// [ 1] Config& operator=(const Config& rhs);
-// [ 1] void setOmitColonInZoneDesignator(bool value);
-// [ 1] void setUseCommaForDecimalSign(bool value);
-// [ 1] void setUseZAbbreviationForUtc(bool value);
-//
-// ACCESSORS
-// [ 1] bool omitColonInZoneDesignator() const;
-// [ 1] bool useCommaForDecimalSign() const;
-// [ 1] bool useZAbbreviationForUtc() const;
-//
-// FREE OPERATORS
-// [ 1] bool operator==(const Config& lhs, const Config& rhs);
-// [ 1] bool operator!=(const Config& lhs, const Config& rhs);
+// [ 1] int generate(char *, const Date&, int);
+// [ 1] int generate(char *, const Date&, int, const Config&);
+// [ 2] int generate(char *, const Time&, int);
+// [ 2] int generate(char *, const Time&, int, const Config&);
+// [ 3] int generate(char *, const Datetime&, int);
+// [ 3] int generate(char *, const Datetime&, int, const Config&);
+// [ 4] int generate(char *, const DateTz&, int);
+// [ 4] int generate(char *, const DateTz&, int, const Config&);
+// [ 5] int generate(char *, const TimeTz&, int);
+// [ 5] int generate(char *, const TimeTz&, int, const Config&);
+// [ 6] int generate(char *, const DatetimeTz&, int);
+// [ 6] int generate(char *, const DatetimeTz&, int, const Config&);
+// [ 1] ostream generate(ostream&, const Date&);
+// [ 1] ostream generate(ostream&, const Date&, const Config&);
+// [ 2] ostream generate(ostream&, const Time&);
+// [ 2] ostream generate(ostream&, const Time&, const Config&);
+// [ 3] ostream generate(ostream&, const Datetime&);
+// [ 3] ostream generate(ostream&, const Datetime&, const Config&);
+// [ 4] ostream generate(ostream&, const DateTz&);
+// [ 4] ostream generate(ostream&, const DateTz&, const Config&);
+// [ 5] ostream generate(ostream&, const TimeTz&);
+// [ 5] ostream generate(ostream&, const TimeTz&, const Config&);
+// [ 6] ostream generate(ostream&, const DatetimeTz&);
+// [ 6] ostream generate(ostream&, const DatetimeTz&, const Config&);
+// [ 1] int generateRaw(char *, const Date&);
+// [ 1] int generateRaw(char *, const Date&, const Config&);
+// [ 2] int generateRaw(char *, const Time&);
+// [ 2] int generateRaw(char *, const Time&, const Config&);
+// [ 3] int generateRaw(char *, const Datetime&);
+// [ 3] int generateRaw(char *, const Datetime&, const Config&);
+// [ 4] int generateRaw(char *, const DateTz&);
+// [ 4] int generateRaw(char *, const DateTz&, const Config&);
+// [ 5] int generateRaw(char *, const TimeTz&);
+// [ 5] int generateRaw(char *, const TimeTz&, const Config&);
+// [ 6] int generateRaw(char *, const DatetimeTz&);
+// [ 6] int generateRaw(char *, const DatetimeTz&, const Config&);
+// [ 7] int parse(Date *, const char *, int);
+// [ 8] int parse(Time *, const char *, int);
+// [ 9] int parse(Datetime *, const char *, int);
+// [ 7] int parse(DateTz *, const char *, int);
+// [ 8] int parse(TimeTz *, const char *, int);
+// [ 9] int parse(DatetimeTz *, const char *, int);
 //-----------------------------------------------------------------------------
-// [11] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -648,7 +618,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -833,7 +803,7 @@ if (veryVerbose)
 // GMT.
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // PARSE: DATETIME & DATETIMETZ
         //
@@ -1368,7 +1338,7 @@ if (veryVerbose)
             }
         }
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // PARSE: TIME & TIMETZ
         //
@@ -1605,7 +1575,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // PARSE: DATE & DATETZ
         //
@@ -1827,7 +1797,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // GENERATE 'DatetimeTz'
         //
@@ -2167,7 +2137,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // GENERATE 'TimeTz'
         //
@@ -2486,7 +2456,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // GENERATE 'DateTz'
         //
@@ -2800,7 +2770,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // GENERATE 'Datetime'
         //
@@ -3119,7 +3089,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // GENERATE 'Time'
         //
@@ -3410,7 +3380,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
         // GENERATE 'Date'
         //
@@ -3700,272 +3670,6 @@ if (veryVerbose)
         }
 
       } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // TESTING 'Iso8601UtilConfiguration'
-        //
-        // Concerns:
-        //: 1 Our concerns include those that apply to unconstrained attribute
-        //:   types, with the simplification that the class under test lacks a
-        //:   'print' method and free 'operator<<'.
-        //:
-        //: 2 The two class methods that manage the process-wide configuration
-        //:   work correctly.
-        //
-        // Plan:
-        //: 1 Follow the standard regimen for testing an unconstrained
-        //:   attribute type.  (C-1)
-        //:
-        //: 2 Exercise the class methods on all possible configurations and
-        //:   verify that the behavior is as expected.  (C-2)
-        //
-        // Testing:
-        //   static Config defaultConfiguration();
-        //   static void setDefaultConfiguration(const Config& config);
-        //   Iso8601UtilConfiguration();
-        //   Iso8601UtilConfiguration(const Config& original);
-        //   ~Iso8601UtilConfiguration();
-        //   Config& operator=(const Config& rhs);
-        //   void setOmitColonInZoneDesignator(bool value);
-        //   void setUseCommaForDecimalSign(bool value);
-        //   void setUseZAbbreviationForUtc(bool value);
-        //   bool omitColonInZoneDesignator() const;
-        //   bool useCommaForDecimalSign() const;
-        //   bool useZAbbreviationForUtc() const;
-        //   bool operator==(const Config& lhs, const Config& rhs);
-        //   bool operator!=(const Config& lhs, const Config& rhs);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'Iso8601UtilConfiguration'" << endl
-                          << "==================================" << endl;
-
-        const int                  NUM_DATA        = NUM_DEFAULT_CNFG_DATA;
-        const DefaultCnfgDataRow (&DATA)[NUM_DATA] = DEFAULT_CNFG_DATA;
-
-        // Testing:
-        //   Iso8601UtilConfiguration();
-        //   ~Iso8601UtilConfiguration();
-        {
-            const Config X;
-
-            ASSERT(!X.omitColonInZoneDesignator());
-            ASSERT(!X.useCommaForDecimalSign());
-            ASSERT(!X.useZAbbreviationForUtc());
-        }
-
-        // Testing:
-        //   void setOmitColonInZoneDesignator(bool value);
-        //   void setUseCommaForDecimalSign(bool value);
-        //   void setUseZAbbreviationForUtc(bool value);
-        //   bool omitColonInZoneDesignator() const;
-        //   bool useCommaForDecimalSign() const;
-        //   bool useZAbbreviationForUtc() const;
-        {
-            {
-                Config mX;  const Config& X = mX;
-
-                mX.setOmitColonInZoneDesignator(true);
-
-                ASSERT( X.omitColonInZoneDesignator());
-                ASSERT(!X.useCommaForDecimalSign());
-                ASSERT(!X.useZAbbreviationForUtc());
-            }
-
-            {
-                Config mX;  const Config& X = mX;
-
-                mX.setUseCommaForDecimalSign(true);
-
-                ASSERT(!X.omitColonInZoneDesignator());
-                ASSERT( X.useCommaForDecimalSign());
-                ASSERT(!X.useZAbbreviationForUtc());
-            }
-
-            {
-                Config mX;  const Config& X = mX;
-
-                mX.setUseZAbbreviationForUtc(true);
-
-                ASSERT(!X.omitColonInZoneDesignator());
-                ASSERT(!X.useCommaForDecimalSign());
-                ASSERT( X.useZAbbreviationForUtc());
-            }
-
-            Config mX;  const Config& X = mX;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE      = DATA[ti].d_line;
-                const bool OMITCOLON = DATA[ti].d_omitColon;
-                const bool USECOMMA  = DATA[ti].d_useComma;
-                const bool USEZ      = DATA[ti].d_useZ;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
-                }
-
-                mX.setOmitColonInZoneDesignator(OMITCOLON);
-                mX.setUseCommaForDecimalSign(USECOMMA);
-                mX.setUseZAbbreviationForUtc(USEZ);
-
-                ASSERTV(LINE, OMITCOLON == X.omitColonInZoneDesignator());
-                ASSERTV(LINE, USECOMMA  == X.useCommaForDecimalSign());
-                ASSERTV(LINE, USEZ      == X.useZAbbreviationForUtc());
-            }
-        }
-
-        // Testing:
-        //   bool operator==(const Config& lhs, const Config& rhs);
-        //   bool operator!=(const Config& lhs, const Config& rhs);
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  ILINE      = DATA[ti].d_line;
-                const bool IOMITCOLON = DATA[ti].d_omitColon;
-                const bool IUSECOMMA  = DATA[ti].d_useComma;
-                const bool IUSEZ      = DATA[ti].d_useZ;
-
-                if (veryVerbose) {
-                    T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
-                }
-
-                for (int tj = 0; tj < NUM_DATA; ++tj) {
-                    const int  JLINE      = DATA[tj].d_line;
-                    const bool JOMITCOLON = DATA[tj].d_omitColon;
-                    const bool JUSECOMMA  = DATA[tj].d_useComma;
-                    const bool JUSEZ      = DATA[tj].d_useZ;
-
-                    if (veryVerbose) {
-                        T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
-                    }
-
-                    Config mX;  const Config& X = mX;
-                    gg(&mX, IOMITCOLON, IUSECOMMA, IUSEZ);
-
-                    Config mY;  const Config& Y = mY;
-                    gg(&mY, JOMITCOLON, JUSECOMMA, JUSEZ);
-
-                    const bool EXP = ti == tj;  // expected for '==' comparison
-
-                    ASSERTV(ILINE, JLINE,  EXP == (X == Y));
-                    ASSERTV(ILINE, JLINE,  EXP == (Y == X));
-
-                    ASSERTV(ILINE, JLINE, !EXP == (X != Y));
-                    ASSERTV(ILINE, JLINE, !EXP == (Y != X));
-                }
-            }
-        }
-
-        // Testing:
-        //   Iso8601UtilConfiguration(const Config& original);
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE      = DATA[ti].d_line;
-                const bool OMITCOLON = DATA[ti].d_omitColon;
-                const bool USECOMMA  = DATA[ti].d_useComma;
-                const bool USEZ      = DATA[ti].d_useZ;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
-                }
-
-                Config mX;  const Config& X = mX;
-                gg(&mX, OMITCOLON, USECOMMA, USEZ);
-
-                const Config Y(X);
-
-                ASSERTV(LINE, X == Y);
-            }
-        }
-
-        // Testing:
-        //   Config& operator=(const Config& rhs);
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  ILINE      = DATA[ti].d_line;
-                const bool IOMITCOLON = DATA[ti].d_omitColon;
-                const bool IUSECOMMA  = DATA[ti].d_useComma;
-                const bool IUSEZ      = DATA[ti].d_useZ;
-
-                if (veryVerbose) {
-                    T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
-                }
-
-                Config mZ;  const Config& Z = mZ;
-                gg(&mZ, IOMITCOLON, IUSECOMMA, IUSEZ);
-
-                for (int tj = 0; tj < NUM_DATA; ++tj) {
-                    const int  JLINE      = DATA[tj].d_line;
-                    const bool JOMITCOLON = DATA[tj].d_omitColon;
-                    const bool JUSECOMMA  = DATA[tj].d_useComma;
-                    const bool JUSEZ      = DATA[tj].d_useZ;
-
-                    if (veryVerbose) {
-                        T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
-                    }
-
-                    Config mX;  const Config& X = mX;
-                    gg(&mX, JOMITCOLON, JUSECOMMA, JUSEZ);
-
-                    ASSERTV(ILINE, JLINE, (Z == X) == (ILINE == JLINE));
-
-                    Config *mR = &(mX = Z);
-
-                    ASSERTV(ILINE, JLINE,  Z == X);
-                    ASSERTV(ILINE, JLINE, mR == &mX);
-                }
-
-                // self-assignment
-
-                {
-                    Config mX;
-                    gg(&mX, IOMITCOLON, IUSECOMMA, IUSEZ);
-
-                    Config mZZ;  const Config& ZZ = mZZ;
-                    gg(&mZZ, IOMITCOLON, IUSECOMMA, IUSEZ);
-
-                    const Config& Z = mX;
-
-                    ASSERTV(ILINE, ZZ == Z);
-
-                    Config *mR = &(mX = Z);
-
-                    ASSERTV(ILINE, mR == &mX);
-                    ASSERTV(ILINE, ZZ == Z);
-                }
-            }
-        }
-
-        // Testing:
-        //   static void setDefaultConfiguration(const Config& config);
-        //   static Config defaultConfiguration();
-        {
-            ASSERT(Config() == Config::defaultConfiguration());
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE      = DATA[ti].d_line;
-                const bool OMITCOLON = DATA[ti].d_omitColon;
-                const bool USECOMMA  = DATA[ti].d_useComma;
-                const bool USEZ      = DATA[ti].d_useZ;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
-                }
-
-                Config mX;  const Config& X = mX;
-                gg(&mX, OMITCOLON, USECOMMA, USEZ);
-
-                {
-                    Config mY;  const Config& Y = mY;
-                    gg(&mY, OMITCOLON, USECOMMA, USEZ);
-
-                    Config::setDefaultConfiguration(Y);
-                }
-
-                ASSERTV(LINE, X == Config::defaultConfiguration());
-            }
-        }
-
-      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
@@ -3979,7 +3683,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
