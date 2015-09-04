@@ -17,55 +17,85 @@ using namespace BloombergLP;
 using namespace bsl;
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+//                                 Overview
+//                                 --------
+// This component consists of a top-level mechanism, 'Tokenizer', that
+// dispenses in-core value-semantic (standard) input iterators, of type
+// 'InputIterator', which in turn can be used to sequence over tokens
+// characterized by "soft" and "hard" delimiter characters maintained in a
+// shared private class, 'Tokenizer_Data'.  The 'Tokenizer' mechanism, though
+// not value-semantic, can also be used to sequence of the tokens a given
+// input, supplied at construction, additionally providing access to the
+// previous and current trailing delimiters.
 //..
 //  +--------------------------------------+
 //  |   ,--------------.                   |
 //  |  ( Tokenizer_Data )                  |
 //  |   `--------------'\                  |
-//  |          |         \                 |
-//  |          |     ,----*------------.   |
+//  |          |     ,---*-------------.   |
 //  |          |    ( TokenizerIterator )  |
 //  |          |    /`-----------------'   |
-//  |          |   /                       |
-//  |     ,----*--o-.                      |
+//  |     ,----*---o.                      |
 //  |    ( Tokenizer )                     |
 //  |     `---------'                      |
 //  +--------------------------------------+
 //  bdlb_tokenizer
 //..
-// This component consists of a top-level mechanism, 'Tokenizer', that
-// dispenses in-core value-semantic (standard) input iterators, of type
-// 'InputIterator', that can be used to sequence over tokens characterized by
-// delimiter characters maintained in a shared private class, 'Tokenizer_Data'.
-// The 'Tokenizer' mechenism, though not value-semantic, can also be used to
-// sequence of the tokens a given input, supplied at construction, additionally
-// providing access to the previous and current trailing delimiters.
-//
 // The plan will be to test the (component private) 'Tokenizer_Data' first,
-// followed by the 'Tokenizer' itself, and then finally the 'TokenizerIterator',
-// as these iterators are created (and returned by value) only from a valid
-// 'Tokenizer' object.  Keep in mind that the inertial contract for the
-// 'Tokenizer_Data' states that if the same character is supplied as both a
-// 'soft' and a 'hard' delimiter, it is considered 'hard' by the
-// 'Tokenizer_Data::inputType' method, but supplying that same character to
-// both delimiter inputs of a 'Tokenizer' would be considered library
-// undefined and should be checked (in the appreciate build mode) to ensure
-// that such user are detected.
+// followed by 'Tokenizer' itself, and finally the 'TokenizerIterator', as
+// these iterators are created (and returned by value) only from a valid
+// 'Tokenizer' object.
 //
-// We will need to make sure that the "unspecified bool" idiom is working
-// -- i.e., attempting to compare two 'Tokenizer' objects fails to compile.
-// The same applies to the use of postfix ++ on a 'Tokenizer'.  We will also
-// want to make sure that 'Tokenizer' is not copy constructable or assignable.
+///Tokenizer_Data
+///--------------
+//: o Primary Manipulators:
+//:   - Tokenizer_Data(const bslstl::StringRef& sd, const StringRef& hd);
+//: o Basic Accessors:
+//:   - int inputType(char character) const;
+//
+///Tokenizer
+///---------
+//: o Primary Manipulators:
+//:   - Tokenizer(const StringRef& i, const StringRef& s, const StringRef& h);
+//:   - Tokenizer(const char *i, const StringRef& s, const StringRef& h);
+//:   - Tokenizer& operator++();
+//: o Basic Accessors:
+//:   - bool isValid() const;
+//:   - StringRef previousDelimiter() const;
+//:   - StringRef token() const;
+//:   - StringRef trailingDelimiter() const;
+//
+///TokenizerIterator
+///-----------------
+//: o Primary Manipulators:
+//:   - Tokenizer::begin() const;
+//:   - Tokenizer::end() const;
+//:   - TokenizerIterator();
+//:   - TokenizerIterator& operator++();
+//: o Basic Accessors:
+//:   - StringRef operator*() const;
+//:   - bool operator==(const TokenizerIterator&, const TokenizerIterator&);
+//
+// Keep in mind that the inertial contract for the 'Tokenizer_Data' states that
+// if the same character is supplied as both a 'soft' or 'hard' delimiter, it
+// is considered 'hard' by the 'Tokenizer_Data::inputType' method, yet
+// supplying that same character to both delimiter sets of a 'Tokenizer' would
+// be considered (library) undefined and must be checked (in the appreciate
+// build mode) to ensure that such user are detected (and similarly for
+// repeated characters in the same delimiter set).
+//
+// We will need to make sure that  the use of postfix ++ on a 'Tokenizer'
+// object fails to compile.  We will also want to make sure that neither
+// 'Tokenizer_Data' or 'Tokenizer' is not copy constructable or assignable.
+//
 //-----------------------------------------------------------------------------
 //                      // ----------------------------
 //                      // private class Tokenizer_Data
 //                      // ----------------------------
-// CREATORS
-//*[ 2] Tokenizer_Data(const StringRef& softDelimiters);
+// CREATERS
+//*[ 3] Tokenizer_Data(const StringRef& softDelimiters);
 //*[ 2] Tokenizer_Data(const bslstl::StringRef& sd, const StringRef& hd);
 //*[ 2] ~Tokenizer_Data()
 //
@@ -89,52 +119,47 @@ using namespace bsl;
 // [  ] StringRef operator*() const;
 //
 // FREE OPERATORS
-// [  ] bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
-// [  ] bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+// [  ] bool operator==(const TokenizerIterator&, const TokenizerIterator& );
+// [  ] bool operator!=(const TokenizerIterator&, const TokenizerIterator& );
 // [  ] const TokenizerIterator operator++(TokenizerIterator& object, int);
-//
 //
 //                             // ===============
 //                             // class Tokenizer
 //                             // ===============
 //
 // TYPES
-//*[ 9] typedef TokenizerIterator iterator;
+// [  ] typedef TokenizerIterator iterator;
 //
 // CREATORS
-//*[ 4] Tokenizer(const char *input, const StringRef& soft);
-//*[ 5] Tokenizer(const StringRef& input, const StringRef& soft);
-//*[ 4] Tokenizer(const char *i, const StringRef& s, const StringRef& h);
-//*[ 5] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+// [  ] Tokenizer(const char *input, const StringRef& soft);
+// [  ] Tokenizer(const StringRef& input, const StringRef& soft);
+//*[ 5] Tokenizer(const char *i, const StringRef& s, const StringRef& h);
+//*[ 4] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
 //*[ 5] ~Tokenizer();
-
 //
 // MANIPULATORS
 //*[ 5] Tokenizer& operator++();
-//*[ 7] void reset(const char *input);
-//*[ 7] void reset(const bslstl::StringRef& input);
+// [  ] void reset(const char *input);
+// [  ] void reset(const bslstl::StringRef& input);
 //
 // ACCESSORS
-//*[ 8] operator UnspecifiedBoolType() const;
-//*[ 6] bool hasPreviousSoft() const;
-//*[ 6] bool hasTrailingSoft() const;
-//*[ 6] bool isPreviousHard() const;
-//*[ 6] bool isTrailingHard() const;
-//*[ 5] StringRef previousDelimiter() const;
-//*[ 5] StringRef token() const;
-//*[ 5] StringRef trailingDelimiter() const;
+// [  ] bool hasPreviousSoft() const;
+// [  ] bool hasTrailingSoft() const;
+// [  ] bool isPreviousHard() const;
+// [  ] bool isTrailingHard() const;
+//*[ 6] bool isValid () const;
+//*[ 7] StringRef previousDelimiter() const;
+//*[ 7] StringRef token() const;
+//*[ 7] StringRef trailingDelimiter() const;
 //
 //                        // iterators
-//*[ 9] iterator begin() const;
-//*[ 9] iterator end() const;
+// [  ] iterator begin() const;
+// [  ] iterator end() const;
 //
 // FREE OPERATORS
-// [  ] bool operator==(const Tokenizer& lhs, const TYPE& rhs);
-// [  ] bool operator!=(const Tokenizer& lhs, const TYPE& rhs);
 // [  ] const Tokenizer operator++(Tokenizer& object, int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] UNSPECIFIED BOOL IDIOM FOR TOKENIZER DOES NOT COMPILE
 // [  ] OPERATOR POSTFIX ++ FOR TOKENIZER DOES NOT COMPILE
 // [  ] TOKENIZER IS NOT COPIABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
@@ -441,11 +466,11 @@ int main(int argc, char **argv)
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, T, VALID_CTOR == (!!T));
+                ASSERTV(LINE, VALID_CTOR == T.isValid());
 
                 ++mT;
 
-                ASSERTV(LINE, T, VALID_INCR == (!!T));
+                ASSERTV(LINE, VALID_INCR == T.isValid());
             }
         }
 
@@ -748,248 +773,193 @@ int main(int argc, char **argv)
         }
       } break;
       case 3: {
-      } break;
-      case 2: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS
+        //   Bring the object to every state relevant for thorough testing.
         //
         // Concerns:
+        //:  1 We cover all (including internal) relevant states.
+        //:  2 Multiple distinct characters of the same type work.
+        //:  3 Repeated characters behave the same as above.
+        //:  4 The null character behave the same as any other character.
+        //:  5 Non-ASCII characters behave the same as ASCII ones.
+        //:  6 Inputs requiring many iterations succeed.
+        //:  7 Inputs having large tokens/delimiters succeed.
+        //:  8 Supplying a null input is detected (DEBUG).
+        //:  9 Non-unique delimiter characters are detected (DEBUG).
+        //: 10 Iterating from an invalid state (DEBUG).
         //
         // Plan:
+        //: 1 Using the table-driven technique, apply depth-ordered enumeration
+        //:   on the length of the input string to parse all unique inputs (in
+        //:   lexicographic order) up to a "depth" of 4 (note that for this
+        //:   first test, we have hard-coded "stuv" to be set of soft delimiter
+        //:   characters, and "HIJK" to be the set of hard ones, leaving the
+        //:   digit characters "1234" to be used as unique token characters).
+        //:   The input string as well as the sequence of expected "parsed"
+        //:   strings will be provided -- each on a single row of the table.
+        //:   Failing to supply a token (followed by its trailing delimiter)
+        //:   implies that the iterator has become invalid (which is tested)
+        //:   after the internal iteration loop exits. [C 1..2]
+        //:
+        //: 2 Additional add-hoc tests are provided to address remaining
+        //:   concerns. [C 3..7]
+        //: 3 Finally defensive checks are addressed. [C 8..10]
         //
         // Testing:
-        //   Tokenizer(const char *, const StringRef&, const StringRef&);
-        //   Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+        //   Tokenizer(const char *i, const StringRef& sd, const StringRef& hd)
+        //   Tokenizer(const StringRef&, const StringRef&, const StringRef&)
         //   Tokenizer::operator++()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS" << endl
                           << "====================" << endl;
-
-        if (verbose) cout << "\nTesting Tokenizer constructors" << endl;
+        if (verbose) cout <<
+                "\nTesting all input combinations to a depth of four." << endl;
         {
+            enum { MAX_ITER = 4 };  // Maximum iterations
+
             static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input string
-                const char *d_soft;         // list of soft delimiters
-                const char *d_hard;         // list of hard delimiters
-                const char *d_token;        // expected token
-                const char *d_delim;        // expected current delimiter
-                const char *d_prevDelim;    // expected previous delimiter
+                int         d_line;                         // line number
+                const char *d_stringData_p[3 + 2*MAX_ITER]; // input + expected
             } DATA[] = {
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
-                //                                           DELIM
-                //----  ------  ----   ----   ------  -----  -----
-                { L_,   "",     0,     0,     "",     "",    ""    },
-                { L_,   "",     0,     "",    "",     "",    ""    },
-                { L_,   "",     "",    0,     "",     "",    ""    },
-                { L_,   "",     "",    "",    "",     "",    ""    },
-                { L_,   "",     "",    "#",   "",     "",    ""    },
-                { L_,   "",     ".",   "",    "",     "",    ""    },
-                { L_,   "",     ".",   "#",   "",     "",    ""    },
-                { L_,   ".",    ".",   "",    "",     "",    "."   },
-                { L_,   ".",    ".",   "#",   "",     "",    "."   },
-                { L_,   "#",    "",    "#",   "",     "#",   ""    },
-                { L_,   "#",    ".",   "#",   "",     "#",   ""    },
-                { L_,   "T",    "",    "",    "T",    "",    ""    },
-                { L_,   "T",    "",    "#",   "T",    "",    ""    },
-                { L_,   "T",    ".",   "",    "T",    "",    ""    },
-                { L_,   "T",    ".",   "#",   "T",    "",    ""    },
-                { L_,   "..",   ".",   "#",   "",     "",    ".."  },
-                { L_,   "##",   "",    "#",   "",     "#",   ""    },
-                { L_,   "##",   ".",   "#",   "",     "#",   ""    },
-                { L_,   ".#",   ".",   "#",   "",     "#",   "."   },
-                { L_,   "#.",   ".",   "#",   "",     "#.",  ""    },
-                { L_,   ".T",   ".",   "",    "T",    "",    "."   },
-                { L_,   ".T",   ".",   "#",   "T",    "",    "."   },
-                { L_,   "#T",   "",    "#",   "",     "#",   ""    },
-                { L_,   "#T",   ".",   "#",   "",     "#",   ""    },
-                { L_,   "T.",   ".",   "",    "T",    ".",   ""    },
-                { L_,   "T.",   ".",   "#",   "T",    ".",   ""    },
-                { L_,   "T#",   "",    "#",   "T",    "#",   ""    },
-                { L_,   "T#",   ".",   "#",   "T",    "#",   ""    },
-                { L_,   "TT",   "",    "",    "TT",   "",    ""    },
-                { L_,   "TT",   "",    "#",   "TT",   "",    ""    },
-                { L_,   "TT",   ".",   "",    "TT",   "",    ""    },
-                { L_,   "TT",   ".",   "#",   "TT",   "",    ""    },
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
-                //                                           DELIM
-                //----  ------  ----   ----   ------  -----  -----
-                { L_,   "...",  ".",   "#",   "",     "",    "..." },
-                { L_,   "..#",  ".",   "#",   "",     "#",   ".."  },
-                { L_,   "..T",  ".",   "#",   "T",    "",    ".."  },
-                { L_,   ".#.",  ".",   "#",   "",     "#.",  "."   },
-                { L_,   ".##",  ".",   "#",   "",     "#",   "."   },
-                { L_,   ".#T",  ".",   "#",   "",     "#",   "."   },
-                { L_,   "#..",  ".",   "#",   "",     "#..", ""    },
-                { L_,   "#.#",  ".",   "#",   "",     "#.",  ""    },
-                { L_,   "#.T",  ".",   "#",   "",     "#.",  ""    },
-                { L_,   "T..",  ".",   "#",   "T",    "..",  ""    },
-                { L_,   "T.#",  ".",   "#",   "T",    ".#",  ""    },
-                { L_,   "T.T",  ".",   "#",   "T",    ".",   ""    },
-                { L_,   "T#.",  ".",   "#",   "T",    "#.",  ""    },
-                { L_,   "T##",  ".",   "#",   "T",    "#",   ""    },
-                { L_,   "T#T",  ".",   "#",   "T",    "#",   ""    },
-                { L_,   "TT.",  ".",   "#",   "TT",   ".",   ""    },
-                { L_,   "TT#",  ".",   "#",   "TT",   "#",   ""    },
-                { L_,   "TTT",  ".",   "#",   "TTT",  "",    ""    },
-
-            };   // end table DATA
-            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
-
-            if (verbose) cout << "\tTesting 'bdlb::Tokenizer(const char*, "
-                              << "const StringRef&, const StringRef&)'."
-                              << endl;
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int        LINE          = DATA[i].d_line;
-                const char      *INPUT         = DATA[i].d_input;
-                const StringRef  SOFT          = DATA[i].d_soft
-                                                 ? StringRef(DATA[i].d_soft)
-                                                 : StringRef();
-                const StringRef  HARD          = DATA[i].d_hard
-                                                 ? StringRef(DATA[i].d_hard)
-                                                 : StringRef();
-                const char      *TOKEN         = DATA[i].d_token;
-                const char      *DELIM         = DATA[i].d_delim;
-                const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-
-                Obj        mT(INPUT, SOFT, HARD);
-                const Obj& T = mT;
-
-                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
-            }
-
-            if (verbose) cout << "\tTesting 'bdlb::Tokenizer("
-                              << "const StringRef&, "
-                              << "const StringRef&, "
-                              << "const StringRef&)'."
-                              << endl;
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int        LINE          = DATA[i].d_line;
-                const StringRef  INPUT         = StringRef(DATA[i].d_input);
-                const StringRef  SOFT          = DATA[i].d_soft
-                                                 ? StringRef(DATA[i].d_soft)
-                                                 : StringRef();
-                const StringRef  HARD          = DATA[i].d_hard
-                                                 ? StringRef(DATA[i].d_hard)
-                                                 : StringRef();
-                const char      *TOKEN         = DATA[i].d_token;
-                const char      *DELIM         = DATA[i].d_delim;
-                const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-
-                Obj        mT(INPUT, SOFT, HARD);
-                const Obj& T = mT;
-
-                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
-            }
-        }
-
-        if (verbose) cout << "\nTesting Tokenizer::operator++()" << endl;
-        {
-            static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input string
-                const char *d_soft;         // list of soft delimiters
-                const char *d_hard;         // list of hard delimiters
-                const char *d_token;        // expected token
-                const char *d_delim;        // expected current delimiter
-                const char *d_prevDelim;    // expected previous delimiter
-                  // Those fields contain expected values after operator++
-                const char *d_token1;       // expected token
-                const char *d_delim1;       // expected current delimiter
-                const char *d_prevDelim1;   // expected previous delimiter
-            } DATA[] = {
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
-                //                                           DELIM
-                //----  ------  ----   ----   ------  -----  -----
-                { L_,   "",     ".",   "#",   "",     "",    "",     "",     "",    ""    },
-                { L_,   ".",    ".",   "#",   "",     "",    ".",    "",     "",    ""    },
-                { L_,   "#",    ".",   "#",   "",     "#",   "",     "",     "",    "#"   },
-                { L_,   "T",    ".",   "#",   "T",    "",    "",     "",     "",    ""    },
-                { L_,   "..",   ".",   "#",   "",     "",    "..",   "",     "",    ""    },
-                { L_,   "##",   ".",   "#",   "",     "#",   "",     "",     "#",   "#"   },
-                { L_,   ".#",   ".",   "#",   "",     "#",   ".",    "",     "",    "#"   },
-                { L_,   "#.",   ".",   "#",   "",     "#.",  "",     "",     "",    "#."  },
-                { L_,   ".T",   ".",   "#",   "T",    "",    ".",    "",     "",    ""    },
-                { L_,   "#T",   ".",   "#",   "",     "#",   "",     "T",    "",    "#"   },
-                { L_,   "T.",   ".",   "#",   "T",    ".",   "",     "",     "",    "."   },
-                { L_,   "T#",   ".",   "#",   "T",    "#",   "",     "",     "",    "#"   },
-                { L_,   "TT",   ".",   "#",   "TT",   "",    "",     "",     "",    ""    },
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
-                //                                           DELIM
-                //----  ------  ----   ----   ------  -----  -----
-                { L_,   "...",  ".",   "#",   "",     "",    "...",  "",     "",    ""    },
-                { L_,   "..#",  ".",   "#",   "",     "#",   "..",   "",     "",    "#"   },
-                { L_,   "..T",  ".",   "#",   "T",    "",    "..",   "",     "",    ""    },
-                { L_,   ".#.",  ".",   "#",   "",     "#.",  ".",    "",     "",    "#."  },
-                { L_,   ".##",  ".",   "#",   "",     "#",   ".",    "",     "#",   "#"   },
-                { L_,   ".#T",  ".",   "#",   "",     "#",   ".",    "T",    "",    "#"   },
-                { L_,   "#..",  ".",   "#",   "",     "#..", "",     "",     "",    "#.." },
-                { L_,   "#.#",  ".",   "#",   "",     "#.",  "",     "",     "#",   "#."  },
-                { L_,   "#.T",  ".",   "#",   "",     "#.",  "",     "T",    "",    "#."  },
-                { L_,   "T..",  ".",   "#",   "T",    "..",  "",     "",     "",    ".."  },
-                { L_,   "T.#",  ".",   "#",   "T",    ".#",  "",     "",     "",    ".#"  },
-                { L_,   "T.T",  ".",   "#",   "T",    ".",   "",     "T",    "",    "."   },
-                { L_,   "T#.",  ".",   "#",   "T",    "#.",  "",     "",     "",    "#."  },
-                { L_,   "T##",  ".",   "#",   "T",    "#",   "",     "",     "#",   "#"   },
-                { L_,   "T#T",  ".",   "#",   "T",    "#",   "",     "T",    "",    "#"   },
-                { L_,   "TT.",  ".",   "#",   "TT",   ".",   "",     "",     "",    "."   },
-                { L_,   "TT#",  ".",   "#",   "TT",   "#",   "",     "",     "",    "#"   },
-                { L_,   "TTT",  ".",   "#",   "TTT",  "",    "",     "",     "",    ""    },
-                // Extended cases.
-                //LINE  INPUT   SOFT   HARD   TOKEN   DELIM  PREV
-                //                                           DELIM
-                //----  ------  ----   ----   ------  -----  -----
-                { L_,   ".#.#", ".",   "#",   "",     "#.",  ".",    "",     "#",   "#."  },
-                { L_,   ".#.T", ".",   "#",   "",     "#.",  ".",    "T",    "",    "#."  },
-                { L_,   "#.#.", ".",   "#",   "",     "#.",  "",     "",     "#.",  "#."  },
-                { L_,   "T.##", ".",   "#",   "T",    ".#",  "",     "",     "#",   ".#"  },
-                { L_,   "T.#T", ".",   "#",   "T",    ".#",  "",     "T",    "",    ".#"  },
-                { L_,   "T#.#", ".",   "#",   "T",    "#.",  "",     "",     "#",   "#."  },
-                { L_,   "T#.T", ".",   "#",   "T",    "#.",  "",     "T",    "",    "#."  },
-            };   // end table DATA
+//            _____________________Expected Parse of INPUT__________________
+//L# INPUT    LEADER TOKEN0 DELIM0 TOKEN1 DELIM1 TOKEN2 DELIM2 TOKEN3 DELIM3
+//-- ------   ------ ------ ------ ------ ------ ------ ------ ------ ------
+{L_, { "HI",   "",    "",    "H",    "",   "I"                             } },
+{L_, { "H0",   "",    "",    "H",    "0",  ""                              } },
+{L_, { "sH0",  "s",   "",    "H",    "0",  ""                              } },
+{L_, { "s0t1", "s",   "0",   "t",    "1",  ""                              } },
+{L_, { "HIJK", "",    "",    "H",    "",   "I",    "",   "J",    "",   "K" } },
+//--------------v
+            };  // DATA
 
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int        LINE          = DATA[i].d_line;
-                const char      *INPUT         = DATA[i].d_input;
-                const StringRef  SOFT          = DATA[i].d_soft
-                                                 ? StringRef(DATA[i].d_soft)
-                                                 : StringRef();
-                const StringRef  HARD          = DATA[i].d_hard
-                                                 ? StringRef(DATA[i].d_hard)
-                                                 : StringRef();
-                const char      *TOKEN         = DATA[i].d_token;
-                const char      *DELIM         = DATA[i].d_delim;
-                const char      *PREV_DELIM    = DATA[i].d_prevDelim;
-                // Expected after operator++()
-                const char      *TOKEN1         = DATA[i].d_token1;
-                const char      *DELIM1         = DATA[i].d_delim1;
-                const char      *PREV_DELIM1    = DATA[i].d_prevDelim1;
+            // Specification of character types used in this test.
 
-                Obj        mT(INPUT, SOFT, HARD);
+            const char SOFT_DELIM_CHARS[] = "stuv";
+            const char HARD_DELIM_CHARS[] = "HIJK";
+            const char TOKEN_CHARS[]      = "0123";
+
+            // Used inside the loop to ensure the input is composed
+            // of only the valid characters above.
+
+            const char VALID_CHARS[] = "stuvHIJK0123";
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_stringData_p[0];
+                const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
+
+                // Make sure that each character in the input string is unique
+                // and among the characters in the three strings listed above.
+
+                const size_t INPUT_LENGTH = strlen(INPUT);
+
+                bool uniqueCharsInInputFlag = true;
+
+                for (size_t i = 0; i < INPUT_LENGTH; ++i) {
+                    for (size_t j = i + 1; j < INPUT_LENGTH; ++j) {
+                        if (INPUT[i] == INPUT[j]) {
+                            uniqueCharsInInputFlag = false;
+                            ASSERTV(LINE, i, j, INPUT, uniqueCharsInInputFlag);
+                        }
+                    }
+                }
+
+                bool allCharsInInputAreValidFlag =
+                                   strlen(INPUT) == strspn(INPUT, VALID_CHARS);
+
+                ASSERTV(LINE, INPUT, VALID_CHARS, allCharsInInputAreValidFlag);
+
+                if (!uniqueCharsInInputFlag || !allCharsInInputAreValidFlag) {
+                    continue;  // The input for this row of the table is bad.
+                }
+
+                // Make sure that the characters in the input string occur in
+                // the same relative order as they do in each of the respective
+                // character sets defined above, and that they do NOT skip over
+                // any characters in those respective sets.
+
+#if 0
+                //TBD: PLEASE WRITE THIS CODE HERE (AND VERIFY THAT *EVERY*
+                     ASPECT WORKS);  IF IT FAILS, ASSERT AND CONTINUE
+                     (AS ABOVE).  Please either provide explicit tests in the
+                     test driver for these and the above tests (implemented as
+                     functions, and tested in an earlier test case) or make
+                     "damn" sure (by deliberately breaking the input that all
+                     such defects are always reported.  ITS ON YOU! Keep in
+                     mind that test apparatus is a valid entry (below the line)
+                     and I think all of these qualify.  I encourage you to test
+                     all such test apparatus in the new test case 3, and to make
+                     this one test case 4.  :)
+#endif
+
+                Obj        mT(INPUT,
+                              StringRef(SOFT_DELIM_CHARS),
+                              StringRef(HARD_DELIM_CHARS));
                 const Obj& T = mT;
 
-                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN         == T.token());
-                ASSERTV(LINE, DELIM         == T.trailingDelimiter());
+                // Initially 'cursor' is the address of the first token string.
+                for (const char * const *cursor = EXPECTED+1;
+                                        *cursor;
+                                        cursor += 2) {
 
-                ++mT;
+                    ASSERTV(LINE, T.isValid());  // Table: tokanizer's valid!
 
-                ASSERTV(LINE, PREV_DELIM1    == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN1         == T.token());
-                ASSERTV(LINE, DELIM1         == T.trailingDelimiter());
-            }
+                    // Extract iteration number, N; use in error reporting.
+
+                    const int N = (cursor - EXPECTED) / 2;  // Nth token
+
+            //------^
+            // Expected values at (this) iteration, N, of Tokenizer's op++:
+
+            const char *EXP_PREV  = cursor[-1];  // initially the "leader"
+            const char *EXP_TOKEN = cursor[ 0];  // current token
+            const char *EXP_POST  = cursor[+1];  // current (trailing) delim.
+
+            // Shorten for better error messages.
+
+            const StringRef RET_PREV  = T.previousDelimiter();
+            const StringRef RET_TOKEN = T.token();
+            const StringRef RET_POST  = T.trailingDelimiter();
+
+            ASSERTV(LINE, N, EXP_PREV,  RET_PREV,   EXP_PREV  == RET_PREV);
+            ASSERTV(LINE, N, EXP_TOKEN, RET_TOKEN,  EXP_TOKEN == RET_TOKEN);
+            ASSERTV(LINE, N, EXP_POST,  RET_POST,   EXP_POST  == RET_POST);
+            //------v
+                    ++mT;
+
+                }  // for current token in input row
+
+                ASSERTV(LINE, !T.isValid());
+
+            }  // for each row in table
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
+        if (verbose) cout <<
+                   "\nAd hoc testing of various character properties." << endl;
         {
+            // 3. Repeated characters behaves the same as above.
+            // 4. The null character behave the same as any other character.
+            // 5. Non-ASCII characters behave the same as ASCII ones.
+        }
+
+        if (verbose) cout <<
+                  "\nAd hoc 'stress' testing for iterations and size." << endl;
+        {
+            // 6. Inputs requiring many iterations work as expected.
+            // 7. Inputs having large tokens/delimeters work as expected.
+        }
+
+        if (verbose) cout <<
+                  "\nNeagtive tests: repeated delimiters; null input." << endl;
+        {
+            //  8. Supplying a null input is detected (DEBUG).
+            //  9. Non-unique delimiter characters are detected (DEBUG).
+            // 10. Iterating from an invalid state (DEBUG).
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
@@ -999,71 +969,9 @@ int main(int argc, char **argv)
             ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef()));
             ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef(), StringRef()));
         }
+      } break;
 
-        if (verbose) cout << "\nDelimiter parameters testing." << endl;
-        {
-            if (verbose) cout << "\tSingle delimiter testing." << endl;
-            {
-                for (int i = 0; i < 256; ++i) {
-                    char delim;
-                    delim = static_cast<char>(i);
-
-                    char input[256];
-                    int j = 0;
-                    for( int k = 0; k<256; ++k) {
-                        if (k != i) {
-                            input[j++] = static_cast<char>(k);
-                        }
-                    }
-
-                    Obj mT1(StringRef(input, 255),
-                            StringRef(&delim, 1),
-                            StringRef());
-
-                    ASSERT(""                    == mT1.previousDelimiter());
-                    ASSERT(StringRef(input, 255) == mT1.token());
-                    ASSERT(""                    == mT1.trailingDelimiter());
-
-                    Obj mT2(StringRef(input, 255),
-                            StringRef(),
-                            StringRef(&delim, 1));
-
-                    ASSERT(""                    == mT2.previousDelimiter());
-                    ASSERT(StringRef(input, 255) == mT2.token());
-                    ASSERT(""                    == mT2.trailingDelimiter());
-                }
-            }
-
-            if (verbose) cout << "\tMultiple delimiter testing." << endl;
-            {
-                char input[256];
-                char delim[256];
-                for (int i = 1; i < 255; ++i) {
-                    for (int j = 0; j < i; ++j) {
-                        input[j] = static_cast<char>(j);
-                    }
-                    for (int j = i; j < 255; ++j) {
-                        delim[j - i] = static_cast<char>(j);
-                    }
-
-                    Obj mT1(StringRef(input, i),
-                            StringRef(delim, 255-i),
-                            StringRef());
-
-                    ASSERT(""                  == mT1.previousDelimiter());
-                    ASSERT(StringRef(input, i) == mT1.token());
-                    ASSERT(""                  == mT1.trailingDelimiter());
-
-                    Obj mT2(StringRef(input, i),
-                            StringRef(),
-                            StringRef(delim, 255-i));
-
-                    ASSERT(""                  == mT2.previousDelimiter());
-                    ASSERT(StringRef(input, i) == mT2.token());
-                    ASSERT(""                  == mT2.trailingDelimiter());
-                }
-            }
-        }
+      case 2: {
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1090,7 +998,7 @@ int main(int argc, char **argv)
         {
             Obj tokenizer("Hello, world,,,", " ,");
 
-            while (tokenizer) {
+            while (tokenizer.isValid()) {
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -1110,7 +1018,7 @@ int main(int argc, char **argv)
                           StringRef(" "),
                           StringRef(","));
 
-            while (tokenizer) {
+            while (tokenizer.isValid()) {
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -1130,7 +1038,7 @@ int main(int argc, char **argv)
                           StringRef(" "),
                           StringRef(":/"));
 
-            for (; tokenizer; ++tokenizer) {
+            for (; tokenizer.isValid(); ++tokenizer) {
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -1244,7 +1152,7 @@ int main(int argc, char **argv)
         {
             for (int i = 0; i < 1000000; ++i) {
                 for (Obj it(INPUT, StringRef(" "));
-                         it;
+                         it.isValid();
                          ++it) {
                      it.token();
                 }
@@ -1267,7 +1175,7 @@ int main(int argc, char **argv)
         {
             for (int i = 0; i < 1000000; ++i) {
                 for (Obj it(StringRef(INPUT), StringRef(" "));
-                         it;
+                         it.isValid();
                          ++it) {
                      it.token();
                 }
