@@ -60,22 +60,32 @@ Iso8601UtilConfiguration::print(bsl::ostream& stream,
                                 int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
-
     printer.start();
-
     printer.printAttribute("omitColonInZoneDesignator",
                                                   omitColonInZoneDesignator());
-
     printer.printAttribute("useCommaForDecimalSign", useCommaForDecimalSign());
-
     printer.printAttribute("useZAbbreviationForUtc", useZAbbreviationForUtc());
-
     printer.end();
 
     return stream;
 }
 
 }  // close package namespace
+
+// FREE OPERATORS
+bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
+                               const Iso8601UtilConfiguration& object)
+{
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.printValue(object.omitColonInZoneDesignator());
+    printer.printValue(object.useCommaForDecimalSign());
+    printer.printValue(object.useZAbbreviationForUtc());
+    printer.end();
+
+    return stream;
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

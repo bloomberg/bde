@@ -300,15 +300,13 @@ bool operator!=(const Iso8601UtilConfiguration& lhs,
     // (respectively) do not have the same value.
 
 bsl::ostream& operator<<(bsl::ostream&                   stream,
-                         const Iso8601UtilConfiguration& configuration);
-    // Write the value of the specified 'configuration' to the specified output
+                         const Iso8601UtilConfiguration& object);
+    // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified, can change
-    // without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -412,13 +410,6 @@ bool bdlt::operator!=(const Iso8601UtilConfiguration& lhs,
                       const Iso8601UtilConfiguration& rhs)
 {
     return lhs.d_configurationMask != rhs.d_configurationMask;
-}
-
-inline
-bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
-                               const Iso8601UtilConfiguration& configuration)
-{
-    return configuration.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
