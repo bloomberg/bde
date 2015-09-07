@@ -95,8 +95,8 @@ using namespace bsl;
 //                      // private class Tokenizer_Data
 //                      // ----------------------------
 // CREATERS
-//*[ 3] Tokenizer_Data(const StringRef& softDelimiters);
-//*[ 2] Tokenizer_Data(const bslstl::StringRef& sd, const StringRef& hd);
+//*[ 3] Tokenizer_Data(const StringRef& softD);
+//*[ 2] Tokenizer_Data(const bslstl::StringRef& softD, const StringRef& hardD);
 //*[ 2] ~Tokenizer_Data()
 //
 // ACCESSORS
@@ -406,11 +406,8 @@ int main(int argc, char **argv)
                     //LINE  INPUT   SOFT   HARD   VALID   VALID
                     //                            CTOR    INCR
                     //----  ------  ----   ----   -----   -----
-                    { L_,   "",     ".",   "#",   false,  false },
-                    { L_,   ".",    ".",   "#",   false,  false },
                     { L_,   "#",    ".",   "#",   true,   false },
                     { L_,   "T",    ".",   "#",   true,   false },
-                    { L_,   "..",   ".",   "#",   false,  false },
                     { L_,   "##",   ".",   "#",   true,   true  },
                     { L_,   ".#",   ".",   "#",   true,   false },
                     { L_,   "#.",   ".",   "#",   true,   false },
@@ -419,7 +416,6 @@ int main(int argc, char **argv)
                     { L_,   "T.",   ".",   "#",   true,   false },
                     { L_,   "T#",   ".",   "#",   true,   false },
                     { L_,   "TT",   ".",   "#",   true,   false },
-                    { L_,   "...",  ".",   "#",   false,  false },
                     { L_,   "..#",  ".",   "#",   true,   false },
                     { L_,   "..T",  ".",   "#",   true,   false },
                     { L_,   ".#.",  ".",   "#",   true,   false },
@@ -496,37 +492,15 @@ int main(int argc, char **argv)
              //                         CTOR   CTOR  DELIM  INCR  INCR  DELIM
              //                                      CTOR               INCR
              //---- ------  ----  ----  ------ ----- -----  ----- ----- -----
-             { L_,  "",     ".",  "#",  "",    "",   "",    "",   "",   ""   },
-             { L_,  ".",    ".",  "#",  "",    "",   ".",   "",   "",   ""   },
-             { L_,  "#",    ".",  "#",  "",    "#",  "",    "",   "",   "#"  },
-             { L_,  "T",    ".",  "#",  "T",   "",   "",    "",   "",   ""   },
-             { L_,  "..",   ".",  "#",  "",    "",   "..",  "",   "",   ""   },
              { L_,  "##",   ".",  "#",  "",    "#",  "",    "",   "#",  "#"  },
-             { L_,  ".#",   ".",  "#",  "",    "#",  ".",   "",   "",   "#"  },
-             { L_,  "#.",   ".",  "#",  "",    "#.", "",    "",   "",   "#." },
-             { L_,  ".T",   ".",  "#",  "T",   "",   ".",   "",   "",   ""   },
              { L_,  "#T",   ".",  "#",  "",    "#",  "",    "T",  "",   "#"  },
-             { L_,  "T.",   ".",  "#",  "T",   ".",  "",    "",   "",   "."  },
-             { L_,  "T#",   ".",  "#",  "T",   "#",  "",    "",   "",   "#"  },
-             { L_,  "TT",   ".",  "#",  "TT",  "",   "",    "",   "",   ""   },
-             { L_,  "...",  ".",  "#",  "",    "",   "...", "",   "",   ""   },
-             { L_,  "..#",  ".",  "#",  "",    "#",  "..",  "",   "",   "#"  },
-             { L_,  "..T",  ".",  "#",  "T",   "",   "..",  "",   "",   ""   },
-             { L_,  ".#.",  ".",  "#",  "",    "#.", ".",   "",   "",   "#." },
              { L_,  ".##",  ".",  "#",  "",    "#",  ".",   "",   "#",  "#"  },
              { L_,  ".#T",  ".",  "#",  "",    "#",  ".",   "T",  "",   "#"  },
-             { L_,  "#..",  ".",  "#",  "",    "#..","",    "",   "",   "#.."},
              { L_,  "#.#",  ".",  "#",  "",    "#.", "",    "",   "#",  "#." },
              { L_,  "#.T",  ".",  "#",  "",    "#.", "",    "T",  "",   "#." },
-             { L_,  "T..",  ".",  "#",  "T",   "..", "",    "",   "",   ".." },
-             { L_,  "T.#",  ".",  "#",  "T",   ".#", "",    "",   "",   ".#" },
              { L_,  "T.T",  ".",  "#",  "T",   ".",  "",    "T",  "",   "."  },
-             { L_,  "T#.",  ".",  "#",  "T",   "#.", "",    "",   "",   "#." },
              { L_,  "T##",  ".",  "#",  "T",   "#",  "",    "",   "#",  "#"  },
              { L_,  "T#T",  ".",  "#",  "T",   "#",  "",    "T",  "",   "#"  },
-             { L_,  "TT.",  ".",  "#",  "TT",  ".",  "",    "",   "",   "."  },
-             { L_,  "TT#",  ".",  "#",  "TT",  "#",  "",    "",   "",   "#"  },
-             { L_,  "TTT",  ".",  "#",  "TTT", "",   "",    "",   "",   ""   },
              // Extended cases.
              //LINE INPUT   SOFT  HARD  TOKEN  DELIM PREV   TOKEN DELIM PREV
              //                         CTOR   CTOR  DELIM  INCR  INCR  DELIM
@@ -558,15 +532,15 @@ int main(int argc, char **argv)
                 Obj        mT(INPUT, SOFT, HARD);
                 const Obj& T = mT;
 
-                ASSERTV(LINE, DELIM_CTOR      == T.trailingDelimiter());
-                ASSERTV(LINE, PREV_DELIM_CTOR == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN_CTOR      == T.token());
+                ASSERTV(LINE, INPUT, DELIM_CTOR      == T.trailingDelimiter());
+                ASSERTV(LINE, INPUT, PREV_DELIM_CTOR == T.previousDelimiter());
+                ASSERTV(LINE, INPUT, TOKEN_CTOR      == T.token());
 
                 ++mT;
 
-                ASSERTV(LINE, DELIM_INCR      == T.trailingDelimiter());
-                ASSERTV(LINE, PREV_DELIM_INCR == T.previousDelimiter());
-                ASSERTV(LINE, TOKEN_INCR      == T.token());
+                ASSERTV(LINE, INPUT, DELIM_INCR      == T.trailingDelimiter());
+                ASSERTV(LINE, INPUT, PREV_DELIM_INCR == T.previousDelimiter());
+                ASSERTV(LINE, INPUT, TOKEN_INCR      == T.token());
             }
         }
 
@@ -596,37 +570,15 @@ int main(int argc, char **argv)
               //                           SOFT     HARD     SOFT     HARD
               //                           CTOR     CTOR     INCR     INCR
               //----  ------  ----   ----  -------- -------  -------- -------
-              { L_,   "",     ".",   "#",  false,   false,   false,   false  },
-              { L_,   ".",    ".",   "#",  true,    false,   false,   false  },
-              { L_,   "#",    ".",   "#",  false,   false,   false,   true   },
-              { L_,   "T",    ".",   "#",  false,   false,   false,   false  },
-              { L_,   "..",   ".",   "#",  true,    false,   false,   false  },
-              { L_,   "##",   ".",   "#",  false,   false,   false,   true   },
-              { L_,   ".#",   ".",   "#",  true,    false,   false,   true   },
-              { L_,   "#.",   ".",   "#",  false,   false,   true,    true   },
-              { L_,   ".T",   ".",   "#",  true,    false,   false,   false  },
-              { L_,   "#T",   ".",   "#",  false,   false,   false,   true   },
-              { L_,   "T.",   ".",   "#",  false,   false,   true,    false  },
-              { L_,   "T#",   ".",   "#",  false,   false,   false,   true   },
-              { L_,   "TT",   ".",   "#",  false,   false,   false,   false  },
-              { L_,   "...",  ".",   "#",  true,    false,   false,   false  },
-              { L_,   "..#",  ".",   "#",  true,    false,   false,   true   },
-              { L_,   "..T",  ".",   "#",  true,    false,   false,   false  },
-              { L_,   ".#.",  ".",   "#",  true,    false,   true,    true   },
               { L_,   ".##",  ".",   "#",  true,    false,   false,   true   },
               { L_,   ".#T",  ".",   "#",  true,    false,   false,   true   },
-              { L_,   "#..",  ".",   "#",  false,   false,   true,    true   },
               { L_,   "#.#",  ".",   "#",  false,   false,   true,    true   },
               { L_,   "#.T",  ".",   "#",  false,   false,   true,    true   },
-              { L_,   "T..",  ".",   "#",  false,   false,   true,    false  },
               { L_,   "T.#",  ".",   "#",  false,   false,   true,    true   },
               { L_,   "T.T",  ".",   "#",  false,   false,   true,    false  },
-              { L_,   "T#.",  ".",   "#",  false,   false,   true,    true   },
               { L_,   "T##",  ".",   "#",  false,   false,   false,   true   },
               { L_,   "T#T",  ".",   "#",  false,   false,   false,   true   },
-              { L_,   "TT.",  ".",   "#",  false,   false,   true,    false  },
               { L_,   "TT#",  ".",   "#",  false,   false,   false,   true   },
-              { L_,   "TTT",  ".",   "#",  false,   false,   false,   false  },
               // Extended cases.
               //LINE  INPUT   SOFT   HARD  HAS_PREV IS_PREV  HAS_PREV IS_PREV
               //                           SOFT     HARD     SOFT     HARD
@@ -669,106 +621,6 @@ int main(int argc, char **argv)
 
                 ASSERTV(LINE, HAS_PREV_SOFT_INCR == T.hasPreviousSoft());
                 ASSERTV(LINE, IS_PREV_HARD_INCR  == T.isPreviousHard());
-            }
-        }
-
-        {
-            if (verbose) cout <<
-                           "\tTesting accessors, returning trailing delimiters"
-                              << endl;
-
-            static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input string
-                const char *d_soft;         // list of soft delimiters
-                const char *d_hard;         // list of hard delimiters
-                bool        d_hasSoftCtor;  // soft character presence
-                                            // after construction
-
-                bool        d_isHardCtor;   // hard character presence
-                                            // after construction
-
-                bool        d_hasSoftIncr;  // soft character presence
-                                            // after increment
-
-                bool        d_isHardIncr;   // hard character presence
-                                           // after increment
-            } DATA[] = {
-                    //LINE  INPUT   SOFT  HARD  HAS    IS_HARD HAS    IS_HARD
-                    //                          SOFT   CTOR    SOFT   INCR
-                    //                          CTOR           INCR
-                    //----  ------  ----  ----  -----  ------- -----  -------
-                    { L_,   "",     ".",  "#",  false, false,  false, false  },
-                    { L_,   ".",    ".",  "#",  false, false,  false, false  },
-                    { L_,   "#",    ".",  "#",  false, true,   false, false  },
-                    { L_,   "T",    ".",  "#",  false, false,  false, false  },
-                    { L_,   "..",   ".",  "#",  false, false,  false, false  },
-                    { L_,   "##",   ".",  "#",  false, true,   false, true   },
-                    { L_,   ".#",   ".",  "#",  false, true,   false, false  },
-                    { L_,   "#.",   ".",  "#",  true,  true,   false, false  },
-                    { L_,   ".T",   ".",  "#",  false, false,  false, false  },
-                    { L_,   "#T",   ".",  "#",  false, true,   false, false  },
-                    { L_,   "T.",   ".",  "#",  true,  false,  false, false  },
-                    { L_,   "T#",   ".",  "#",  false, true,   false, false  },
-                    { L_,   "TT",   ".",  "#",  false, false,  false, false  },
-                    { L_,   "...",  ".",  "#",  false, false,  false, false  },
-                    { L_,   "..#",  ".",  "#",  false, true,   false, false  },
-                    { L_,   "..T",  ".",  "#",  false, false,  false, false  },
-                    { L_,   ".#.",  ".",  "#",  true,  true,   false, false  },
-                    { L_,   ".##",  ".",  "#",  false, true,   false, true   },
-                    { L_,   ".#T",  ".",  "#",  false, true,   false, false  },
-                    { L_,   "#..",  ".",  "#",  true,  true,   false, false  },
-                    { L_,   "#.#",  ".",  "#",  true,  true,   false, true   },
-                    { L_,   "#.T",  ".",  "#",  true,  true,   false, false  },
-                    { L_,   "T..",  ".",  "#",  true,  false,  false, false  },
-                    { L_,   "T.#",  ".",  "#",  true,  true,   false, false  },
-                    { L_,   "T.T",  ".",  "#",  true,  false,  false, false  },
-                    { L_,   "T#.",  ".",  "#",  true,  true,   false, false  },
-                    { L_,   "T##",  ".",  "#",  false, true,   false, true   },
-                    { L_,   "T#T",  ".",  "#",  false, true,   false, false  },
-                    { L_,   "TT.",  ".",  "#",  true,  false,  false, false  },
-                    { L_,   "TT#",  ".",  "#",  false, true,   false, false  },
-                    { L_,   "TTT",  ".",  "#",  false, false,  false, false  },
-                    // Extended cases.
-                    //LINE  INPUT   SOFT  HARD  HAS    IS_HARD HAS    IS_HARD
-                    //                          SOFT   CTOR    SOFT   INCR
-                    //                          CTOR           INCR
-                    //----  ------  ----  ----  -----  ------- -----  -------
-                    { L_,   ".#.#", ".",  "#",  true,  true,   false, true   },
-                    { L_,   ".#.T", ".",  "#",  true,  true,   false, false  },
-                    { L_,   "#.#.", ".",  "#",  true,  true,   true,  true   },
-                    { L_,   "T.##", ".",  "#",  true,  true,   false, true   },
-                    { L_,   "T.#T", ".",  "#",  true,  true,   false, false  },
-                    { L_,   "T#.#", ".",  "#",  true,  true,   false, true   },
-                    { L_,   "T#.T", ".",  "#",  true,  true,   false, false  },
-            };   // end table DATA
-
-            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
-
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int        LINE          = DATA[i].d_line;
-                const char      *INPUT         = DATA[i].d_input;
-                const StringRef  SOFT          = DATA[i].d_soft
-                                                 ? StringRef(DATA[i].d_soft)
-                                                 : StringRef();
-                const StringRef  HARD          = DATA[i].d_hard
-                                                 ? StringRef(DATA[i].d_hard)
-                                                 : StringRef();
-                bool             HAS_SOFT_CTOR = DATA[i].d_hasSoftCtor;
-                bool             IS_HARD_CTOR  = DATA[i].d_isHardCtor;
-                bool             HAS_SOFT_INCR = DATA[i].d_hasSoftIncr;
-                bool             IS_HARD_INCR  = DATA[i].d_isHardIncr;
-
-                Obj        mT(INPUT, SOFT, HARD);
-                const Obj& T = mT;
-
-                ASSERTV(LINE, HAS_SOFT_CTOR == T.hasTrailingSoft());
-                ASSERTV(LINE, IS_HARD_CTOR  == T.isTrailingHard());
-
-                ++mT;
-
-                ASSERTV(LINE, HAS_SOFT_INCR == T.hasTrailingSoft());
-                ASSERTV(LINE, IS_HARD_INCR  == T.isTrailingHard());
             }
         }
       } break;
@@ -1132,8 +984,9 @@ int main(int argc, char **argv)
             // 7. Inputs having large tokens/delimeters work as expected.
         }
 
-        if (verbose) cout <<
-                  "\nNeagtive tests: repeated delimiters; null input." << endl;
+        if (verbose) cout << "\nNegative tests: null input, iterating in "
+                          << "invalid state."
+                          << endl;
         {
             //  8. Supplying a null input is detected (DEBUG).
             //  9. Non-unique delimiter characters are detected (DEBUG).
@@ -1150,6 +1003,288 @@ int main(int argc, char **argv)
       } break;
 
       case 2: {
+        // --------------------------------------------------------------------
+        // Tokenizer_Data test
+        //   Ensure that types of characters are specified correctly by
+        //   'Tokenizer_Data' constructors and accessor returns them properly.
+        //
+        // Concerns:
+        //: 1 Any character can be specified as either token, soft delimiter or
+        //:   hard delimiter input type.
+        //:
+        //: 2 Both constructors correctly map soft and hard delimiters sets,
+        //:   supplied at construction, to corresponding input types.
+        //:
+        //: 3 'inputType' method returns the actual input type of the specified
+        //:    character.
+        //
+        // Plan:
+        //: 1 Create a 'Tokenizer_Data' object, using one argument constructor
+        //:   for soft delimiter set categories of "empty", one character,
+        //:   multiple characters and all characters.  Verify that all
+        //:   characters from the supplied set are mapped to a soft delimiter
+        //:   input type and all other characters are mapped to a token input
+        //:   type.  (C-1..3)
+        //:
+        //: 2 Create a 'Tokenizer_Data' object, using two argument constructor
+        //:   for cross product of soft and hard delimiter sets categories of
+        //:   "empty", one character, multiple characters and all characters.
+        //:   Verify that:
+        //:
+        //:   1 All characters, not presented in the soft and hard delimiter
+        //:     sets, are mapped to token input type.  (C-2..3)
+        //:
+        //:   2 Characters, presented only in one set (soft or hard delimiter)
+        //:     are mapped to the soft and hard delimiter input types
+        //:     respectively.  (C-2..3)
+        //:
+        //:   3 Characters, presented in both sets simultaneously, are mapped
+        //:     to the hard delimiter input type (hard delimiter  precedence
+        //:     over soft).  (C-2..3)
+        //:
+        //
+        // Testing:
+        //   Tokenizer_Data(const StringRef& softD);
+        //   Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+        //   int inputType(char character);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Testing Tokenizer_Data" << endl
+                          << "======================" << endl;
+
+        // Copy of the input character to input type mapping.
+        enum InputType {
+            TOK = 0,  // token character
+            SFT = 1,  // soft delimiter character
+            HRD = 2,  // hard delimiter character
+        };
+
+        typedef bdlb::Tokenizer_Data Obj;
+
+        if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&)."
+                          << endl;
+        {
+            if (veryVerbose) cout << "\tEmpty soft delimiter test." << endl;
+            {
+                StringRef  nS;
+                // Constructing with Obj mD(StringRef()); fails due to vexing
+                // parse issue.
+                Obj        mD(nS);
+                const Obj& D = mD;
+
+                for (int i = 0; i < 256; ++i) {
+                    ASSERTV(i, TOK == D.inputType(i));
+                }
+            }
+            {
+                Obj        mD(StringRef(""));
+                const Obj& D = mD;
+
+                for (int i = 0; i < 256; ++i) {
+                    ASSERTV(i, TOK == D.inputType(i));
+                }
+            }
+
+            if (veryVerbose) cout << "\tSingle delimiter test." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[1];
+                    delim[0] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(delim, 1));
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, SFT == D.inputType(j));
+                        }
+                    }
+                }
+            }
+            if (veryVerbose) cout <<"\tDuplicate delimiter test." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[2];
+                    delim[0] = static_cast<char>(i);
+                    delim[1] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(delim, 2));
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, SFT == D.inputType(j));
+                        }
+                    }
+                }
+            }
+
+            if (veryVerbose) cout << "\tMultiple delimiter test." << endl;
+            {
+                char delim[256];
+                for (int i = 0; i < 256; ++i) {
+                    for (int j = 0; j < i; ++j) {
+                        delim[j] = static_cast<char>(j);
+                    }
+
+                    Obj        mD(StringRef(delim, i));
+                    const Obj& D = mD;
+
+                    for (int k = 0; k < 256; ++k) {
+                        if (k >= i) {
+                            ASSERTV(k, i, TOK == D.inputType(k));
+                        } else {
+                            ASSERTV(k, i, SFT == D.inputType(k));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&, "
+                          << "const StringRef&)."
+                          << endl;
+        {
+            if (veryVerbose) cout << "\tEmpty delimiter test." << endl;
+            {
+                StringRef  nS;
+                Obj        mD(nS, nS);
+                const Obj& D = mD;
+
+                for (int i = 0; i < 256; ++i) {
+                    ASSERTV(i, TOK == D.inputType(i));
+                }
+            }
+            {
+                Obj        mD(StringRef(""), StringRef(""));
+                const Obj& D = mD;
+
+                for (int i = 0; i < 256; ++i) {
+                    ASSERTV(i, TOK == D.inputType(i));
+                }
+            }
+
+            if (veryVerbose) cout << "\tSingle delimiter test." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[1];
+                    delim[0] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(delim, 1), StringRef());
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, SFT == D.inputType(j));
+                        }
+                    }
+                }
+            }
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[1];
+                    delim[0] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(""), StringRef(delim, 1));
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, HRD == D.inputType(j));
+                        }
+                    }
+                }
+            }
+
+            if (veryVerbose) cout << "\tDuplicate delimiter test." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[2];
+                    delim[0] = static_cast<char>(i);
+                    delim[1] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(""), StringRef(delim, 2));
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, HRD == D.inputType(j));
+                        }
+                    }
+                }
+            }
+
+            if (veryVerbose) cout << "\tMultiple delimiter test." << endl;
+            {
+                char delim[256];
+                for (int i = 0; i < 256; ++i) {
+                    for (int j = 0; j < i; ++j) {
+                        delim[j] = static_cast<char>(j);
+                    }
+
+                    Obj        mD(StringRef(""), StringRef(delim, i));
+                    const Obj& D = mD;
+
+                    for (int k = 0; k < 256; ++k) {
+                        if (k >= i) {
+                            ASSERTV(k, i, TOK == D.inputType(k));
+                        } else {
+                            ASSERTV(k, i, HRD == D.inputType(k));
+                        }
+                    }
+                }
+            }
+
+            if (veryVerbose) cout
+                << "\tHard delimiter precedence test." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim[1];
+                    delim[0] = static_cast<char>(i);
+
+                    Obj        mD(StringRef(delim, 1), StringRef(delim, 1));
+                    const Obj& D = mD;
+
+                    for (int j = 0; j < 256; j++) {
+                        if (i != j) {
+                            ASSERTV(i, j, TOK == D.inputType(j));
+                        } else {
+                            ASSERTV(i, j, HRD == D.inputType(j));
+                        }
+                    }
+                }
+            }
+            {
+                char delim[256];
+                for (int i = 0; i < 256; ++i) {
+                    for (int j = 0; j < i; ++j) {
+                        delim[j] = static_cast<char>(j);
+                    }
+
+                    Obj        mD(StringRef(delim, i), StringRef(delim, i));
+                    const Obj& D = mD;
+
+                    for (int k = 0; k < 256; ++k) {
+                        if (k >= i) {
+                            ASSERTV(k, i, TOK == D.inputType(k));
+                        } else {
+                            ASSERTV(k, i, HRD == D.inputType(k));
+                        }
+                    }
+                }
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1235,8 +1370,8 @@ int main(int argc, char **argv)
                           StringRef(" "),
                           StringRef(":/"));
 
-            for (Obj::iterator it=tokenizer.begin();
-                               it != tokenizer.end();
+            for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
+                               it != end;
                                ++it) {
                 cout << "|\t"
                      << '"' << *it << '"'
@@ -1246,8 +1381,8 @@ int main(int argc, char **argv)
             ++tokenizer;
             ++tokenizer;
 
-            for (Obj::iterator it=tokenizer.begin();
-                               it != tokenizer.end();
+            for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
+                               it != end;
                                ++it) {
                 cout << "|\t"
                      << '"' << *it << '"'
@@ -1262,8 +1397,8 @@ int main(int argc, char **argv)
                           StringRef(" "),
                           StringRef(":/"));
 
-            for (Obj::iterator it=tokenizer.begin();
-                               it != tokenizer.end();
+            for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
+                               it != end;
                                ++it) {
                 cout << "|\t"
                      << '"' << *it << '"'
@@ -1305,8 +1440,8 @@ int main(int argc, char **argv)
         {
             Obj      tokenizer(INPUT, StringRef(" "));
             for (int i = 0; i < 1000000; ++i) {
-                Obj::iterator end = tokenizer.end();
-                for (Obj::iterator it = tokenizer.begin();
+                for (Obj::iterator it  = tokenizer.begin(),
+                                   end = tokenizer.end();
                                    it != end;
                                    ++it) {
                      *it;
@@ -1329,9 +1464,7 @@ int main(int argc, char **argv)
         if (verbose) cout << "\n'bdlb::Tokenizer' test." << endl;
         {
             for (int i = 0; i < 1000000; ++i) {
-                for (Obj it(INPUT, StringRef(" "));
-                         it.isValid();
-                         ++it) {
+                for (Obj it(INPUT, StringRef(" ")); it.isValid(); ++it) {
                      it.token();
                 }
             }
