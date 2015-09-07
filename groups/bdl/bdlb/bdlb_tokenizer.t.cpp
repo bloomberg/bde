@@ -12,6 +12,7 @@
 #include <bsl_cstdlib.h>                  // 'bsl::atoi()'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -164,6 +165,7 @@ using namespace bsl;
 // [  ] TOKENIZER IS NOT COPIABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
+//*[ 3] bool isValid(const StrRef,const StrRef,const StrRef,const StrRef);
 // [  ] USAGE EXAMPLE #1
 // [  ] USAGE EXAMPLE #2
 // [  ] USAGE EXAMPLE #3
@@ -239,11 +241,50 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlb::Tokenizer    Obj;
 typedef bslstl::StringRef  StringRef;
 
+// Specification of character types used in this test driver
+const char TOKEN_CHARS[]      = "0123";
+const char SOFT_DELIM_CHARS[] = "stuv";
+const char HARD_DELIM_CHARS[] = "HIJK";
+
+// Input string used in performance tests
 const char INPUT[] = {  "aaaaaaaaaaaaaaaaaaaaaaaaaaaa "
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
 };
+
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+bool isValid(const StringRef input,
+             const StringRef soft,
+             const StringRef hard,
+             const StringRef token)
+{
+    int currentSoftIndex  = 0;
+    int currentHardIndex  = 0;
+    int currentTokenIndex = 0;
+    int inputLength       = static_cast<int>(input.length());
+    int softLength        = static_cast<int>(soft.length());
+    int hardLength        = static_cast<int>(hard.length());
+    int tokenLength       = static_cast<int>(token.length());
+
+    for (int i = 0; i < inputLength; ++i) {
+        if (softLength > currentSoftIndex &&
+            input[i] == soft[currentSoftIndex]) {
+            ++currentSoftIndex;
+        } else if (hardLength > currentHardIndex &&
+                   input[i] == hard[currentHardIndex]) {
+            ++currentHardIndex;
+        } else if (tokenLength > currentTokenIndex &&
+                   input[i] == token[currentTokenIndex]) {
+            ++currentTokenIndex;
+        } else {
+            return false;                                             // RETURN
+        }
+    }
+    return true;
+}
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -283,7 +324,7 @@ int main(int argc, char **argv)
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TokenIterator operator++
         //
@@ -301,7 +342,7 @@ int main(int argc, char **argv)
                           << "Secondary" << endl
                           << "====================" << endl;
         } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'begin' METHOD
         //
@@ -321,7 +362,7 @@ int main(int argc, char **argv)
                           << "Secondary" << endl
                           << "====================" << endl;
         } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'reset' METHOD
         //
@@ -340,7 +381,7 @@ int main(int argc, char **argv)
                           << "TESTING 'reset' METHOD" << endl
                           << "======================" << endl;
         } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // SECONDARY CONSTRUCTOR
         //   Ensure that constructor with two parameters is "wired-up" and
@@ -361,7 +402,7 @@ int main(int argc, char **argv)
                           << "SECONDARY CONSTRUCTOR" << endl
                           << "====================" << endl;
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //   Verify the basic accessors functionality.
@@ -772,7 +813,7 @@ int main(int argc, char **argv)
             }
         }
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS
         //   Bring the object to every state relevant for thorough testing.
@@ -786,8 +827,7 @@ int main(int argc, char **argv)
         //:  6 Inputs requiring many iterations succeed.
         //:  7 Inputs having large tokens/delimiters succeed.
         //:  8 Supplying a null input is detected (DEBUG).
-        //:  9 Non-unique delimiter characters are detected (DEBUG).
-        //: 10 Iterating from an invalid state (DEBUG).
+        //: 10 Iterating from an invalid state fails (DEBUG).
         //
         // Plan:
         //: 1 Using the table-driven technique, apply depth-ordered enumeration
@@ -800,11 +840,12 @@ int main(int argc, char **argv)
         //:   strings will be provided -- each on a single row of the table.
         //:   Failing to supply a token (followed by its trailing delimiter)
         //:   implies that the iterator has become invalid (which is tested)
-        //:   after the internal iteration loop exits. [C 1..2]
+        //:   after the internal iteration loop exits. (C-1..2)
         //:
         //: 2 Additional add-hoc tests are provided to address remaining
-        //:   concerns. [C 3..7]
-        //: 3 Finally defensive checks are addressed. [C 8..10]
+        //:   concerns. (C-3..7)
+        //:
+        //: 3 Finally defensive checks are addressed. (C-8..10)
         //
         // Testing:
         //   Tokenizer(const char *i, const StringRef& sd, const StringRef& hd)
@@ -884,7 +925,7 @@ int main(int argc, char **argv)
   {L_, {"0sH",  "",     "0",    "sH"                                       } },
   {L_, {"0s1",  "",     "0",    "s",   "1",   ""                           } },
   //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0Is",  "",     "0",    "Is"                                       } },
+  {L_, {"0Hs",  "",     "0",    "Hs"                                       } },
   {L_, {"0HI",  "",     "0",    "H",   "",    "I"                          } },
   {L_, {"0H1",  "",     "0",    "H",   "1",   ""                           } },
   //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
@@ -975,7 +1016,7 @@ int main(int argc, char **argv)
   // Depth 4-0: LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
   //-- -------- ------  ------  ------ ------ ------ ----- ----- ----  ----
   {L_, {"0stu", "",     "0",    "stu"                                      } },
-  {L_, {"0stI", "",     "0",    "stI"                                      } },
+  {L_, {"0stH", "",     "0",    "stH"                                      } },
   {L_, {"0st1", "",     "0",    "st",  "1",   ""                           } },
   //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
   {L_, {"0sHt", "",     "0",    "sHt"                                      } },
@@ -1015,65 +1056,21 @@ int main(int argc, char **argv)
 
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
-            // Specification of character types used in this test.
-
-            const char SOFT_DELIM_CHARS[] = "stuv";
-            const char HARD_DELIM_CHARS[] = "HIJK";
-            const char TOKEN_CHARS[]      = "0123";
-
-            // Used inside the loop to ensure the input is composed
-            // of only the valid characters above.
-
-            const char VALID_CHARS[] = "stuvHIJK0123";
-
             for (int ti = 0; ti < DATA_LEN; ++ti) {
                 const int    LINE     = DATA[ti].d_line;
                 const char  *INPUT    = DATA[ti].d_stringData_p[0];
                 const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
-
-                // Make sure that each character in the input string is unique
-                // and among the characters in the three strings listed above.
-
-                const size_t INPUT_LENGTH = strlen(INPUT);
-
-                bool uniqueCharsInInputFlag = true;
-
-                for (size_t i = 0; i < INPUT_LENGTH; ++i) {
-                    for (size_t j = i + 1; j < INPUT_LENGTH; ++j) {
-                        if (INPUT[i] == INPUT[j]) {
-                            uniqueCharsInInputFlag = false;
-                            ASSERTV(LINE, i, j, INPUT, uniqueCharsInInputFlag);
-                        }
-                    }
-                }
-
-                bool allCharsInInputAreValidFlag =
-                                   strlen(INPUT) == strspn(INPUT, VALID_CHARS);
-
-                ASSERTV(LINE, INPUT, VALID_CHARS, allCharsInInputAreValidFlag);
-
-                if (!uniqueCharsInInputFlag || !allCharsInInputAreValidFlag) {
-                    continue;  // The input for this row of the table is bad.
-                }
 
                 // Make sure that the characters in the input string occur in
                 // the same relative order as they do in each of the respective
                 // character sets defined above, and that they do NOT skip over
                 // any characters in those respective sets.
 
-#if 0
-                //TBD: PLEASE WRITE THIS CODE HERE (AND VERIFY THAT *EVERY*
-                     ASPECT WORKS);  IF IT FAILS, ASSERT AND CONTINUE
-                     (AS ABOVE).  Please either provide explicit tests in the
-                     test driver for these and the above tests (implemented as
-                     functions, and tested in an earlier test case) or make
-                     "damn" sure (by deliberately breaking the input that all
-                     such defects are always reported.  ITS ON YOU! Keep in
-                     mind that test apparatus is a valid entry (below the line)
-                     and I think all of these qualify.  I encourage you to test
-                     all such test apparatus in the new test case 3, and to make
-                     this one test case 4.  :)
-#endif
+                bool VALID = isValid(INPUT,
+                                     SOFT_DELIM_CHARS,
+                                     HARD_DELIM_CHARS,
+                                     TOKEN_CHARS);
+                ASSERTV(LINE, INPUT, true == VALID);
 
                 Obj        mT(INPUT,
                               StringRef(SOFT_DELIM_CHARS),
@@ -1148,7 +1145,131 @@ int main(int argc, char **argv)
             ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef(), StringRef()));
         }
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TEST APPARATUS
+        //   Verify the auxiliary function used in the test driver. Note that
+        //   the tested function is not part of the component and used only to
+        //   check test inputs correctness.
+        //
+        // Concerns:
+        //: 1 All characters in the input string occur in the same relative
+        //:   order as they do in each of the respective character sets and
+        //:   that they do NOT skip over any characters in those respective
+        //:   sets.
+        //:
+        //: 2 Only characters from the respective character sets appear in the
+        //:   input string.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, test function on various input
+        //:   strings containing both valid and invalid character sequences.
+        //:   (C-1..2)
+        //
+        // Testing:
+        //   bool isValid(const StrRef,const StrRef,const StrRef,const StrRef);
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "TEST APPARATUS" << endl
+                          << "==============" << endl;
+        if (verbose) cout << "\nChecking input verification." << endl;
+        {
+
+            static const struct {
+                    int         d_line;         // line number
+                    const char *d_input;        // input string
+                    const char *d_soft;         // list of soft delimiters
+                    const char *d_hard;         // list of hard delimiters
+                    const char *d_token;        // list of tokens
+                    bool        d_isValid;      // expected tokenizer validity
+            } DATA[] = {
+                //LINE  INPUT     SOFT   HARD    TOKEN  VALID
+                //----  -------   -----  -----   -----  -----
+                // valid inputs
+                { L_,   "",       "st",  "HI",   "01",  true  },
+                { L_,   "s",      "st",  "HI",   "01",  true  },
+                { L_,   "H",      "st",  "HI",   "01",  true  },
+                { L_,   "0",      "st",  "HI",   "01",  true  },
+                { L_,   "st",     "st",  "HI",   "01",  true  },
+                { L_,   "HI",     "st",  "HI",   "01",  true  },
+                { L_,   "01",     "st",  "HI",   "01",  true  },
+                { L_,   "sH",     "st",  "HI",   "01",  true  },
+                { L_,   "s0",     "st",  "HI",   "01",  true  },
+                { L_,   "Hs",     "st",  "HI",   "01",  true  },
+                { L_,   "H0",     "st",  "HI",   "01",  true  },
+                { L_,   "0s",     "st",  "HI",   "01",  true  },
+                { L_,   "0H",     "st",  "HI",   "01",  true  },
+                { L_,   "stH",    "st",  "HI",   "01",  true  },
+                { L_,   "st0",    "st",  "HI",   "01",  true  },
+                { L_,   "sHt",    "st",  "HI",   "01",  true  },
+                { L_,   "sHI",    "st",  "HI",   "01",  true  },
+                { L_,   "sH0",    "st",  "HI",   "01",  true  },
+                { L_,   "s0t",    "st",  "HI",   "01",  true  },
+                { L_,   "s0H",    "st",  "HI",   "01",  true  },
+                { L_,   "s01",    "st",  "HI",   "01",  true  },
+                { L_,   "Hst",    "st",  "HI",   "01",  true  },
+                { L_,   "HsI",    "st",  "HI",   "01",  true  },
+                { L_,   "Hs0",    "st",  "HI",   "01",  true  },
+                { L_,   "HIs",    "st",  "HI",   "01",  true  },
+                { L_,   "HI0",    "st",  "HI",   "01",  true  },
+                { L_,   "H0s",    "st",  "HI",   "01",  true  },
+                { L_,   "H0I",    "st",  "HI",   "01",  true  },
+                { L_,   "H01",    "st",  "HI",   "01",  true  },
+                { L_,   "0st",    "st",  "HI",   "01",  true  },
+                { L_,   "0sH",    "st",  "HI",   "01",  true  },
+                { L_,   "0s1",    "st",  "HI",   "01",  true  },
+                { L_,   "0Hs",    "st",  "HI",   "01",  true  },
+                { L_,   "0H1",    "st",  "HI",   "01",  true  },
+                { L_,   "01s",    "st",  "HI",   "01",  true  },
+                { L_,   "01H",    "st",  "HI",   "01",  true  },
+                { L_,   "stHI01", "st",  "HI",   "01",  true  },
+                { L_,   "st01HI", "st",  "HI",   "01",  true  },
+                { L_,   "HIst01", "st",  "HI",   "01",  true  },
+                { L_,   "HI01st", "st",  "HI",   "01",  true  },
+                { L_,   "01stHI", "st",  "HI",   "01",  true  },
+                { L_,   "01HIst", "st",  "HI",   "01",  true  },
+                { L_,   "sH0tI1", "st",  "HI",   "01",  true  },
+                //LINE  INPUT     SOFT   HARD    TOKEN  VALID
+                //----  -------   -----  -----   -----  -----
+                // invalid inputs
+                // invalid character
+                { L_,   "x",      "st",  "HI",   "01",  false },
+                { L_,   "sx",     "st",  "HI",   "01",  false },
+                { L_,   "Hx",     "st",  "HI",   "01",  false },
+                { L_,   "0x",     "st",  "HI",   "01",  false },
+                // wrong order
+                { L_,   "t",      "st",  "HI",   "01",  false },
+                { L_,   "I",      "st",  "HI",   "01",  false },
+                { L_,   "1",      "st",  "HI",   "01",  false },
+                { L_,   "sI",     "st",  "HI",   "01",  false },
+                { L_,   "H1",     "st",  "HI",   "01",  false },
+                { L_,   "0t",     "st",  "HI",   "01",  false },
+                { L_,   "sH1",    "st",  "HI",   "01",  false },
+                { L_,   "H0t",    "st",  "HI",   "01",  false },
+                { L_,   "0sI",    "st",  "HI",   "01",  false },
+                // duplicate characters
+                { L_,   "ss",     "st",  "HI",   "01",  false },
+                { L_,   "HH",     "st",  "HI",   "01",  false },
+                { L_,   "00",     "st",  "HI",   "01",  false },
+                { L_,   "sHs",    "st",  "HI",   "01",  false },
+                { L_,   "H0H",    "st",  "HI",   "01",  false },
+                { L_,   "0sO",    "st",  "HI",   "01",  false },
+            };
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+            for (size_t i = 0; i < DATA_LEN; ++i ) {
+                const int       LINE      = DATA[i].d_line;
+                const StringRef INPUT     = StringRef(DATA[i].d_input);
+                const StringRef SOFT      = StringRef(DATA[i].d_soft);
+                const StringRef HARD      = StringRef(DATA[i].d_hard);
+                const StringRef TOKEN     = StringRef(DATA[i].d_token);
+                const bool      EXP_VALID = DATA[i].d_isValid;
+
+                bool VALID = isValid(INPUT, SOFT, HARD, TOKEN);
+                ASSERTV(LINE, INPUT, EXP_VALID == VALID);
+            }
+        }
+      } break;
       case 2: {
       } break;
       case 1: {
