@@ -941,7 +941,7 @@ int main(int argc, char **argv)
 
                     // Extract iteration number, N; use in error reporting.
 
-                    const int N = (cursor - EXPECTED) / 2;  // Nth token
+                    const long int N = (cursor - EXPECTED) / 2;  // Nth token
 
             //------^
             // Expected values at (this) iteration, N, of Tokenizer's op++:
@@ -1032,7 +1032,7 @@ int main(int argc, char **argv)
         //:   Verify that:
         //:
         //:   1 All characters, not presented in the soft and hard delimiter
-        //:     sets, are mapped to token input type.  (C-2..3)
+        //:     sets, are mapped to the token input type.  (C-2..3)
         //:
         //:   2 Characters, presented only in one set (soft or hard delimiter)
         //:     are mapped to the soft and hard delimiter input types
@@ -1074,7 +1074,8 @@ int main(int argc, char **argv)
                 const Obj& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    ASSERTV(i, TOK == D.inputType(i));
+                    char ch = static_cast<char>(i);
+                    ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
             {
@@ -1082,7 +1083,8 @@ int main(int argc, char **argv)
                 const Obj& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    ASSERTV(i, TOK == D.inputType(i));
+                    char ch = static_cast<char>(i);
+                    ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
 
@@ -1096,10 +1098,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(j));
+                            ASSERTV(i, j, SFT == D.inputType(ch));
                         }
                     }
                 }
@@ -1115,10 +1118,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(j));
+                            ASSERTV(i, j, SFT == D.inputType(ch));
                         }
                     }
                 }
@@ -1135,11 +1139,12 @@ int main(int argc, char **argv)
                     Obj        mD(StringRef(delim, i));
                     const Obj& D = mD;
 
-                    for (int k = 0; k < 256; ++k) {
-                        if (k >= i) {
-                            ASSERTV(k, i, TOK == D.inputType(k));
+                    for (int j = 0; j < 256; ++j) {
+                        char ch = static_cast<char>(j);
+                        if (j >= i) {
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(k, i, SFT == D.inputType(k));
+                            ASSERTV(i, j, SFT == D.inputType(ch));
                         }
                     }
                 }
@@ -1157,7 +1162,8 @@ int main(int argc, char **argv)
                 const Obj& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    ASSERTV(i, TOK == D.inputType(i));
+                    char ch = static_cast<char>(i);
+                    ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
             {
@@ -1165,7 +1171,8 @@ int main(int argc, char **argv)
                 const Obj& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    ASSERTV(i, TOK == D.inputType(i));
+                    char ch = static_cast<char>(i);
+                    ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
 
@@ -1179,10 +1186,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(j));
+                            ASSERTV(i, j, SFT == D.inputType(ch));
                         }
                     }
                 }
@@ -1196,10 +1204,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(j));
+                            ASSERTV(i, j, HRD == D.inputType(ch));
                         }
                     }
                 }
@@ -1216,10 +1225,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(j));
+                            ASSERTV(i, j, HRD == D.inputType(ch));
                         }
                     }
                 }
@@ -1236,11 +1246,12 @@ int main(int argc, char **argv)
                     Obj        mD(StringRef(""), StringRef(delim, i));
                     const Obj& D = mD;
 
-                    for (int k = 0; k < 256; ++k) {
-                        if (k >= i) {
-                            ASSERTV(k, i, TOK == D.inputType(k));
+                    for (int j = 0; j < 256; ++j) {
+                        char ch = static_cast<char>(j);
+                        if (j >= i) {
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(k, i, HRD == D.inputType(k));
+                            ASSERTV(i, j, HRD == D.inputType(ch));
                         }
                     }
                 }
@@ -1257,10 +1268,11 @@ int main(int argc, char **argv)
                     const Obj& D = mD;
 
                     for (int j = 0; j < 256; j++) {
+                        char ch = static_cast<char>(j);
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(j));
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(j));
+                            ASSERTV(i, j, HRD == D.inputType(ch));
                         }
                     }
                 }
@@ -1275,11 +1287,12 @@ int main(int argc, char **argv)
                     Obj        mD(StringRef(delim, i), StringRef(delim, i));
                     const Obj& D = mD;
 
-                    for (int k = 0; k < 256; ++k) {
-                        if (k >= i) {
-                            ASSERTV(k, i, TOK == D.inputType(k));
+                    for (int j = 0; j < 256; ++j) {
+                        char ch = static_cast<char>(j);
+                        if (j >= i) {
+                            ASSERTV(i, j, TOK == D.inputType(ch));
                         } else {
-                            ASSERTV(k, i, HRD == D.inputType(k));
+                            ASSERTV(i, j, HRD == D.inputType(ch));
                         }
                     }
                 }
