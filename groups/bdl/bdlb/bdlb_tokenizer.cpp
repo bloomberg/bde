@@ -64,13 +64,13 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters)
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
+    unsigned char index;
+
     for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
             it != softDelimiters.end();
             ++it) {
-        // DUPLICATION TEST
-        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-        // END OF DUPLICATION TEST
-        d_charTypes[(unsigned char)*it] = SFT;
+        index = static_cast<unsigned char>(*it);
+        d_charTypes[index] = SFT;
     }
 }
 
@@ -79,22 +79,20 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters,
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
+    unsigned char index;
+
     for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
             it != softDelimiters.end();
             ++it) {
-        // DUPLICATION TEST
-        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-        // END OF DUPLICATION TEST
-        d_charTypes[(unsigned char)*it] = SFT;
+        index = static_cast<unsigned char>(*it);
+        d_charTypes[index] = SFT;
     }
 
     for(bslstl::StringRef::const_iterator it = hardDelimiters.begin();
             it != hardDelimiters.end();
             ++it) {
-        // DUPLICATION TEST
-        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-        // END OF DUPLICATION TEST
-        d_charTypes[(unsigned char)*it] = HRD;
+        index = static_cast<unsigned char>(*it);
+        d_charTypes[index] = HRD;
     }
 }
 
@@ -155,6 +153,9 @@ TokenizerIterator::TokenizerIterator(const TokenizerIterator&  other)
 // MANIPULATORS
 TokenizerIterator& TokenizerIterator::operator++()
 {
+    // Operator++ called on invalid iterator
+    BSLS_ASSERT_SAFE(!d_endFlag);
+
     if (d_end_p) {
         d_token_p     = d_cursor_p;
         d_postDelim_p = d_cursor_p;
@@ -275,7 +276,9 @@ Tokenizer::~Tokenizer()
 
 Tokenizer& Tokenizer::operator++()
 {
-    // This function does not use slow isEos() for performance reasons
+    // Operator++ called on invalid tokenizer
+    BSLS_ASSERT_SAFE(!d_endFlag);
+
     if (d_end_p) {
 
         d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
@@ -416,6 +419,8 @@ bool Tokenizer::hasPreviousSoft() const
 bool Tokenizer::hasTrailingSoft() const
 {
     if (d_endFlag) {
+        // Called on invalid tokenizer
+        BSLS_ASSERT_SAFE(!d_endFlag);
         return false;                                                 // RETURN
     }
 
@@ -446,6 +451,8 @@ bool Tokenizer::isPreviousHard() const
 bool Tokenizer::isTrailingHard() const
 {
     if (d_endFlag) {
+        // Called on invalid tokenizer
+        BSLS_ASSERT_SAFE(!d_endFlag);
         return false;                                                 // RETURN
     }
 

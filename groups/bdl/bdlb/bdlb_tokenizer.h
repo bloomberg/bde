@@ -745,6 +745,8 @@ int Tokenizer_Data::inputType(char character) const
 inline
 bslstl::StringRef TokenizerIterator::operator*() const
 {
+    // Called on invalid iterator
+    BSLS_ASSERT_SAFE(!d_endFlag);
     return bslstl::StringRef(d_token_p, d_postDelim_p);
 }
 
@@ -767,12 +769,16 @@ bslstl::StringRef Tokenizer::previousDelimiter() const
 inline
 bslstl::StringRef Tokenizer::token() const
 {
+    // Called on invalid tokenizer
+    BSLS_ASSERT_SAFE(!d_endFlag);
     return bslstl::StringRef(d_token_p, d_postDelim_p);
 }
 
 inline
 bslstl::StringRef Tokenizer::trailingDelimiter() const
 {
+    // Called on invalid tokenizer
+    BSLS_ASSERT_SAFE(!d_endFlag);
     return bslstl::StringRef(d_postDelim_p, d_cursor_p);
 }
 
