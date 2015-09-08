@@ -415,13 +415,15 @@ int main(int argc, char **argv)
         //: 1
         //
         // Testing:
-        //   Tokenizer::trailingDelimiter();
-        //   Tokenizer::hasTrailingSoft();
-        //   Tokenizer::hasPreviousSoft();
-        //   Tokenizer::isTrailingHard();
-        //   Tokenizer::isPreviousHard());
-        //   Tokenizer::previousDelimiter();
-        //   Tokenizer::token();
+        //   bool Tokenizer::isValid();
+        //   StringRef Tokenizer::trailingDelimiter();
+        //   StringRef Tokenizer::previousDelimiter();
+        //   StringRef Tokenizer::token();
+        //   bool Tokenizer::hasTrailingSoft();
+        //   bool Tokenizer::hasPreviousSoft();
+        //   bool Tokenizer::isTrailingHard();
+        //   bool Tokenizer::isPreviousHard());
+        //
         //
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -429,86 +431,18 @@ int main(int argc, char **argv)
                           << "===============" << endl;
 
         if (verbose) cout << "\nTesting accessors." << endl;
+
+        if (verbose) cout << "\tTesting 'isValid'." << endl;
         {
-            if (verbose) cout << "\tTesting boolean conversion operator."
-                      << endl;
+            Obj        invalidMT("", SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& invalidT = invalidMT;
 
-            static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input string
-                const char *d_soft;         // list of soft delimiters
-                const char *d_hard;         // list of hard delimiters
-                bool        d_isValidCtor;  // expected tokenizer validity
-                                            // after object construction
+            ASSERT(false == invalidT.isValid());
 
-                bool        d_isValidIncr;  // expected tokenizer validity
-                                            // after increment
-                } DATA[] = {
-                    //LINE  INPUT   SOFT   HARD   VALID   VALID
-                    //                            CTOR    INCR
-                    //----  ------  ----   ----   -----   -----
-                    { L_,   "#",    ".",   "#",   true,   false },
-                    { L_,   "T",    ".",   "#",   true,   false },
-                    { L_,   "##",   ".",   "#",   true,   true  },
-                    { L_,   ".#",   ".",   "#",   true,   false },
-                    { L_,   "#.",   ".",   "#",   true,   false },
-                    { L_,   ".T",   ".",   "#",   true,   false },
-                    { L_,   "#T",   ".",   "#",   true,   true  },
-                    { L_,   "T.",   ".",   "#",   true,   false },
-                    { L_,   "T#",   ".",   "#",   true,   false },
-                    { L_,   "TT",   ".",   "#",   true,   false },
-                    { L_,   "..#",  ".",   "#",   true,   false },
-                    { L_,   "..T",  ".",   "#",   true,   false },
-                    { L_,   ".#.",  ".",   "#",   true,   false },
-                    { L_,   ".##",  ".",   "#",   true,   true  },
-                    { L_,   ".#T",  ".",   "#",   true,   true  },
-                    { L_,   "#..",  ".",   "#",   true,   false },
-                    { L_,   "#.#",  ".",   "#",   true,   true  },
-                    { L_,   "#.T",  ".",   "#",   true,   true  },
-                    { L_,   "T..",  ".",   "#",   true,   false },
-                    { L_,   "T.#",  ".",   "#",   true,   false },
-                    { L_,   "T.T",  ".",   "#",   true,   true  },
-                    { L_,   "T#.",  ".",   "#",   true,   false },
-                    { L_,   "T##",  ".",   "#",   true,   true  },
-                    { L_,   "T#T",  ".",   "#",   true,   true  },
-                    { L_,   "TT.",  ".",   "#",   true,   false },
-                    { L_,   "TT#",  ".",   "#",   true,   false },
-                    { L_,   "TTT",  ".",   "#",   true,   false },
-                    // Extended cases.
-                    //LINE  INPUT   SOFT   HARD   VALID   VALID
-                    //                            CTOR    INCR
-                    //----  ------  ----   ----   -----   -----
-                    { L_,   ".#.#", ".",   "#",   true,   true  },
-                    { L_,   ".#.T", ".",   "#",   true,   true  },
-                    { L_,   "#.#.", ".",   "#",   true,   true  },
-                    { L_,   "T.##", ".",   "#",   true,   true  },
-                    { L_,   "T.#T", ".",   "#",   true,   true  },
-                    { L_,   "T#.#", ".",   "#",   true,   true  },
-                    { L_,   "T#.T", ".",   "#",   true,   true  },
-                };   // end table DATA
-            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+            Obj        validMT("sH0", SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& validT = validMT;
 
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int        LINE       = DATA[i].d_line;
-                const char      *INPUT      = DATA[i].d_input;
-                const StringRef  SOFT       = DATA[i].d_soft
-                                              ? StringRef(DATA[i].d_soft)
-                                              : StringRef();
-                const StringRef  HARD       = DATA[i].d_hard
-                                              ? StringRef(DATA[i].d_hard)
-                                              : StringRef();
-                bool             VALID_CTOR = DATA[i].d_isValidCtor;
-                bool             VALID_INCR = DATA[i].d_isValidIncr;
-
-                Obj        mT(INPUT, SOFT, HARD);
-                const Obj& T = mT;
-
-                ASSERTV(LINE, VALID_CTOR == T.isValid());
-
-                ++mT;
-
-                ASSERTV(LINE, VALID_INCR == T.isValid());
-            }
+            ASSERT(true  == validT.isValid());
         }
 
         {
@@ -662,6 +596,380 @@ int main(int argc, char **argv)
 
                 ASSERTV(LINE, HAS_PREV_SOFT_INCR == T.hasPreviousSoft());
                 ASSERTV(LINE, IS_PREV_HARD_INCR  == T.isPreviousHard());
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'hasPreviousSoft' accessor." << endl;
+        {
+            const char *INPUT = "0s1H2tI3JuK";
+            ASSERT(isValid(INPUT,
+                           SOFT_DELIM_CHARS,
+                           HARD_DELIM_CHARS,
+                           TOKEN_CHARS));
+
+            static const struct {
+                int         d_line;         // line number
+                const char *d_prevDelim;    // previous delimiter
+                const char *d_token;        // trailing token
+                const bool  d_hasPrevSoft;  // soft character presence in
+                                            // previous delimiter
+            } DATA[] = {
+                //LINE  PREV    TOKEN   HAS
+                //      DELIM           PREV
+                //                      SOFT
+                //----  ------  ------  ------
+                {L_,    "",     "0",    false },
+                {L_,    "s",    "1",    true  },
+                {L_,    "H",    "2",    false },
+                {L_,    "tI",   "3",    true  },
+                {L_,    "Ju",   "",     true  },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& T = mT;
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int       LINE          = DATA[i].d_line;
+                const StringRef PREV_DELIM    = DATA[i].d_prevDelim;
+                const StringRef TOKEN         = DATA[i].d_token;
+                bool            HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
+
+                ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
+                ASSERTV(LINE, TOKEN         == T.token());
+                ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
+
+                ++mT;
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'hasPreviousSoft' accessor." << endl;
+        {
+            const int  NUM_ITERATIONS = 5;
+            static const struct {
+                int               d_line;                    // line number
+                const char       *d_input;                   // input
+                const struct {
+                    const char *d_prevDelim;    // previous delimiter
+                    const bool  d_hasPrevSoft;  // has soft character
+                }                 d_values[NUM_ITERATIONS];  // values array
+            } DATA[] = {
+                //LINE  INPUT           PREV    HAS
+                //                      DELIM   PREV
+                //                              SOFT
+                //----  -------------   ------  -----
+                  L_,   "0s1H2tI3JuK", {{"",    false },
+                                        {"s",   true  },
+                                        {"H",   false },
+                                        {"tI",  true  },
+                                        {"Ju",  true  }}
+            };
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_input;
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+
+                enum { VALUES_LEN =
+                        sizeof DATA[ti].d_values / sizeof *DATA[ti].d_values };
+                for (int i = 0; i < VALUES_LEN; ++i) {
+                    const StringRef PREV_DELIM    =
+                                              DATA[ti].d_values[i].d_prevDelim;
+                    bool            HAS_PREV_SOFT =
+                                            DATA[ti].d_values[i].d_hasPrevSoft;
+
+                    ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
+                    ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
+
+                    ++mT;
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'isPreviousHard' accessor." << endl;
+        {
+            const char *INPUT = "0s1H2tI3JuK";
+            ASSERT(isValid(INPUT,
+                           SOFT_DELIM_CHARS,
+                           HARD_DELIM_CHARS,
+                           TOKEN_CHARS));
+
+            static const struct {
+                int         d_line;         // line number
+                const char *d_prevDelim;    // previous delimiter
+                const char *d_token;        // trailing token
+                const bool  d_isPrevHard;   // hard character presence in
+                                            // previous delimiter
+            } DATA[] = {
+                //LINE  PREV    TOKEN   IS
+                //      DELIM           PREV
+                //                      HARD
+                //----  ------  ------  ------
+                {L_,    "",     "0",    false },
+                {L_,    "s",    "1",    false },
+                {L_,    "H",    "2",    true  },
+                {L_,    "tI",   "3",    true  },
+                {L_,    "Ju",   "",     true  },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& T = mT;
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int       LINE         = DATA[i].d_line;
+                const StringRef PREV_DELIM   = DATA[i].d_prevDelim;
+                const StringRef TOKEN        = DATA[i].d_token;
+                bool            IS_PREV_HARD = DATA[i].d_isPrevHard;
+
+                ASSERTV(LINE, PREV_DELIM   == T.previousDelimiter());
+                ASSERTV(LINE, TOKEN        == T.token());
+                ASSERTV(LINE, IS_PREV_HARD == T.isPreviousHard());
+
+                ++mT;
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'isPreviousHard' accessor." << endl;
+        {
+            const int  NUM_ITERATIONS = 5;
+            static const struct {
+                int               d_line;                    // line number
+                const char       *d_input;                   // input
+                const struct {
+                    const char *d_prevDelim;   // previous delimiter
+                    const bool  d_isPrevHard;  // has hard character
+                }                 d_values[NUM_ITERATIONS];  // values array
+            } DATA[] = {
+                //LINE  INPUT           PREV    IS
+                //                      DELIM   PREV
+                //                              HARD
+                //----  -------------   ------  -----
+                  L_,   "0s1H2tI3JuK", {{"",    false },
+                                        {"s",   false },
+                                        {"H",   true  },
+                                        {"tI",  true  },
+                                        {"Ju",  true  }}
+            };
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input;
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+
+                enum { VALUES_LEN =
+                        sizeof DATA[ti].d_values / sizeof *DATA[ti].d_values };
+                for (int i = 0; i < VALUES_LEN; ++i) {
+                    const StringRef PREV_DELIM =
+                                              DATA[ti].d_values[i].d_prevDelim;
+                    bool            IS_PREV_HARD =
+                                            DATA[ti].d_values[i].d_isPrevHard;
+
+                    ASSERTV(LINE, PREV_DELIM   == T.previousDelimiter());
+                    ASSERTV(LINE, IS_PREV_HARD == T.isPreviousHard());
+
+                    ++mT;
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'hasTrailingSoft' accessor." << endl;
+        {
+            const char *INPUT = "H0s1tI2Ju3";
+            ASSERT(isValid(INPUT,
+                           SOFT_DELIM_CHARS,
+                           HARD_DELIM_CHARS,
+                           TOKEN_CHARS));
+
+            static const struct {
+                int         d_line;     // line number
+                const char *d_delim;    // trailing delimiter
+                const char *d_token;    // trailing token
+                const bool  d_hasSoft;  // soft character presence in delimiter
+            } DATA[] = {
+                //LINE  DELIM   TOKEN   HAS
+                //                      SOFT
+                //----  ------  ------  ------
+                {L_,    "H",    "",     false },
+                {L_,    "s",    "0",    true  },
+                {L_,    "tI",   "1",    true  },
+                {L_,    "Ju",   "2",    true  },
+                {L_,    "",     "3",    false },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& T = mT;
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int       LINE     = DATA[i].d_line;
+                const StringRef DELIM    = DATA[i].d_delim;
+                const StringRef TOKEN    = DATA[i].d_token;
+                bool            HAS_SOFT = DATA[i].d_hasSoft;
+
+                ASSERTV(LINE, DELIM    == T.trailingDelimiter());
+                ASSERTV(LINE, TOKEN    == T.token());
+                ASSERTV(LINE, HAS_SOFT == T.hasTrailingSoft());
+
+                ++mT;
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'hasTrailingSoft' accessor." << endl;
+        {
+            const int  NUM_ITERATIONS = 5;
+            static const struct {
+                int               d_line;                    // line number
+                const char       *d_input;                   // input
+                const struct {
+                    const char *d_delim;    // previous delimiter
+                    const bool  d_hasSoft;  // has soft character
+                }                 d_values[NUM_ITERATIONS];  // values array
+            } DATA[] = {
+                //LINE  INPUT           DELIM   HAS
+                //                              SOFT
+                //----  -------------   ------  -----
+                  L_,   "H0s1tI2Ju3",  {{"H",   false },
+                                        {"s",   true  },
+                                        {"tI",  true  },
+                                        {"Ju",  true  },
+                                        {"",    false }}
+            };
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_input;
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+
+                enum { VALUES_LEN =
+                        sizeof DATA[ti].d_values / sizeof *DATA[ti].d_values };
+                for (int i = 0; i < VALUES_LEN; ++i) {
+                    const StringRef DELIM    = DATA[ti].d_values[i].d_delim;
+                    bool            HAS_SOFT = DATA[ti].d_values[i].d_hasSoft;
+
+                    ASSERTV(LINE, DELIM    == T.trailingDelimiter());
+                    ASSERTV(LINE, HAS_SOFT == T.hasTrailingSoft());
+
+                    ++mT;
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'isTrailingHard' accessor." << endl;
+        {
+            const char *INPUT = "H0s1tI2Ju3";
+            ASSERT(isValid(INPUT,
+                           SOFT_DELIM_CHARS,
+                           HARD_DELIM_CHARS,
+                           TOKEN_CHARS));
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_delim;   // previous delimiter
+                const char *d_token;   // trailing token
+                const bool  d_isHard;  // hard character presence in previous
+                                       // delimiter
+            } DATA[] = {
+                //LINE  DELIM   TOKEN   IS
+                //                      HARD
+                //----  ------  ------  ------
+                {L_,    "H",    "",     true  },
+                {L_,    "s",    "0",    false },
+                {L_,    "tI",   "1",    true  },
+                {L_,    "Ju",   "2",    true  },
+                {L_,    "",     "3",    false },
+            };   // end table DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+            const Obj& T = mT;
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int       LINE    = DATA[i].d_line;
+                const StringRef DELIM   = DATA[i].d_delim;
+                const StringRef TOKEN   = DATA[i].d_token;
+                bool            IS_HARD = DATA[i].d_isHard;
+
+                ASSERTV(LINE, DELIM   == T.trailingDelimiter());
+                ASSERTV(LINE, TOKEN   == T.token());
+                ASSERTV(LINE, IS_HARD == T.isTrailingHard());
+
+                ++mT;
+            }
+        }
+        if (verbose) cout << "\tTesting 'isTrailingHard' accessor." << endl;
+        {
+            const int  NUM_ITERATIONS = 5;
+            static const struct {
+                int               d_line;                    // line number
+                const char       *d_input;                   // input
+                const struct {
+                    const char *d_delim;  // previous delimiter
+                    const bool  d_isHard;     // has hard character
+                }                 d_values[NUM_ITERATIONS];  // values array
+            } DATA[] = {
+                //LINE  INPUT           DELIM   IS
+                //                              HARD
+                //----  -------------   ------  -----
+                  L_,   "H0s1tI2Ju3",  {{"H",   true  },
+                                        {"s",   false },
+                                        {"tI",  true  },
+                                        {"Ju",  true  },
+                                        {"",    false }}
+            };
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input;
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+
+                enum { VALUES_LEN =
+                        sizeof DATA[ti].d_values / sizeof *DATA[ti].d_values };
+                for (int i = 0; i < VALUES_LEN; ++i) {
+                    const StringRef DELIM   = DATA[ti].d_values[i].d_delim;
+                    bool            IS_HARD = DATA[ti].d_values[i].d_isHard;
+
+                    ASSERTV(LINE, DELIM   == T.trailingDelimiter());
+                    ASSERTV(LINE, IS_HARD == T.isTrailingHard());
+
+                    ++mT;
+                }
             }
         }
       } break;
