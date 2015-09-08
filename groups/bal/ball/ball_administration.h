@@ -249,7 +249,6 @@ struct Administration {
         // that is, only a '*' located at the end of 'regularExpression' is
         // recognized as a special character.
 
-
     static void resetDefaultThresholdLevels();
         // Reset the default threshold levels to the original
         // "factory-supplied" values.  The behavior is undefined unless the

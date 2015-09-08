@@ -355,7 +355,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
 //
           // ...
 //
-          static ball::DefaultObserver observer(bsl::cout);
+          static ball::DefaultObserver observer(&bsl::cout);
 //..
 // Next, we create a 'ball::LoggerManagerConfiguration' object,
 // 'configuration', and set the logging "pass-through" level -- the level at
@@ -526,7 +526,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 //
           // ...
 //
-          static ball::DefaultObserver observer(bsl::cout);
+          static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
 // 'bdlf::Function' functor:
@@ -1371,7 +1371,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
 
-        ball::DefaultObserver observer(cout);
+        ball::DefaultObserver observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         ball::LoggerManager& mLM = ball::LoggerManager::singleton();
@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
 
-        ball::DefaultObserver observer(cout);
+        ball::DefaultObserver observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         ball::LoggerManager& mLM = ball::LoggerManager::singleton();
@@ -1576,7 +1576,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_TEST_CASE_30;
 
-        ball::DefaultObserver observer(cout);
+        ball::DefaultObserver observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
@@ -2003,6 +2003,11 @@ int main(int argc, char *argv[])
         //   ~ball::LoggerManager();
         // --------------------------------------------------------------------
 
+        // The public constructor and test case are deprecated and maintained
+        // in the internal code base only.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
         if (verbose)
             cout << endl << "Testing 'ball::LoggerManager' constructor" << endl
                          << "========================================" << endl;
@@ -2083,6 +2088,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -2451,7 +2457,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_TEST_CASE_22;
 
-        ball::DefaultObserver observer(cout);
+        ball::DefaultObserver observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         Cnf nameFilter(&toLower);
         configuration.setCategoryNameFilterCallback(nameFilter);
@@ -2517,7 +2523,7 @@ int main(int argc, char *argv[])
         int i;
         for (i = 0; i < NUM_THREADS; ++i) {
             data[i].index = i;
-            data[i].observer = new ball::DefaultObserver(bsl::cout);
+            data[i].observer = new ball::DefaultObserver(&bsl::cout);
         }
 
         bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
@@ -2581,7 +2587,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_TEST_CASE_20;
 
-        ball::DefaultObserver observer(cout);
+        ball::DefaultObserver observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
@@ -2626,7 +2632,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_TEST_CASE_19;
 
-        ball::DefaultObserver            observer(cout);
+        ball::DefaultObserver            observer(&cout);
         ball::LoggerManagerConfiguration configuration;
         static bslma::TestAllocator      ta(veryVeryVerbose);
 
@@ -3084,7 +3090,9 @@ int main(int argc, char *argv[])
                 const int MAX_LIMIT = 1000000;
                 mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 
-                Obj mLM(&testObserver, mLMC);
+                ball::LoggerManagerScopedGuard(&testObserver, mLMC);
+                
+                Obj &mLM = Obj::singleton();
 
                 // Set the default threshold.
                 mLM.setDefaultThresholdLevels(RECORD, PASS, TRIGGER,

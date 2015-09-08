@@ -360,7 +360,7 @@ BSLS_IDENT("$Id: $")
 //
 //        // ...
 //
-//        static ball::DefaultObserver observer(bsl::cout);
+//        static ball::DefaultObserver observer(&bsl::cout);
 //..
 // Next, we create a 'ball::LoggerManagerConfiguration' object,
 // 'configuration', and set the logging "pass-through" level -- the level at
@@ -524,7 +524,7 @@ BSLS_IDENT("$Id: $")
 //
 //        // ...
 //
-//        static ball::DefaultObserver observer(bsl::cout);
+//        static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
 // 'bdlf::Function' functor:
@@ -1336,7 +1336,6 @@ class LoggerManager {
 
   public:
 #endif
-
     // CREATORS
     LoggerManager(Observer                          *observer,
                   const LoggerManagerConfiguration&  configuration,
@@ -1349,13 +1348,13 @@ class LoggerManager {
         // undefined if this (singleton) constructor is called more than once,
         // or if 'observer' is 0, goes out of scope, or is otherwise destroyed.
 
+  public:
+    // CREATORS
     ~LoggerManager();
         // Destroy this logger manager.  Note that since the logger manager is
         // a singleton, this destructor should be called only with great care.
         // Unless you *know* that it is valid to do so, don't!
 
-
-  public:
     // CLASS METHODS
     static LoggerManager& initSingleton(
                        Observer                          *observer,

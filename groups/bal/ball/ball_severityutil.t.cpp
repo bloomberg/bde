@@ -196,6 +196,10 @@ int main(int argc, char *argv[])
         //   bool isValidName(const char *severityName);
         // --------------------------------------------------------------------
 
+        // This function and test case are deprecated and maintained in the
+        // internal code base only.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "BASIC TEST 'isValidName'" << endl
                           << "========================" << endl;
 
@@ -266,6 +270,7 @@ int main(int argc, char *argv[])
                 bool result = Util::isValidName(SEVERITYNAME);
                 LOOP_ASSERT(LINE, result == RESULT);
             }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED 
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -294,6 +299,10 @@ int main(int argc, char *argv[])
         //                 const char           *severityName);
         // --------------------------------------------------------------------
 
+        // This function and test case are deprecated and maintained in the
+        // internal code base only.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) cout << "BASIC TEST 'fromAscii'" << endl
                           << "======================" << endl;
 
@@ -365,6 +374,7 @@ int main(int argc, char *argv[])
             const int   status = Util::fromAscii(&result, SEVERITYNAME);
             LOOP_ASSERT(LINE, status == STATUS && result == RESULT);
          }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 3: {
         // --------------------------------------------------------------------

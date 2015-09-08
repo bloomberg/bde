@@ -1012,7 +1012,7 @@ int main(int argc, char *argv[])
 // the 'ball::Severity::DEBUG' level, which is below the default configured
 // logging threshold.
 //..
-    ball::DefaultObserver observer(bsl::cout);
+    ball::DefaultObserver observer(&bsl::cout);
     ball::LoggerManagerConfiguration lmc;
     ball::LoggerManagerScopedGuard lmg(&observer, lmc);
 
@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { OFF, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
         const int NUM_DATA = sizeof (DATA) / sizeof (*DATA);
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(OFF, OFF, OFF, OFF);
 
@@ -2806,7 +2806,7 @@ int main(int argc, char *argv[])
                       << "============================================"
                       << bsl::endl;
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -2896,7 +2896,7 @@ int main(int argc, char *argv[])
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -2961,7 +2961,7 @@ int main(int argc, char *argv[])
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3025,7 +3025,7 @@ int main(int argc, char *argv[])
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                 BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3090,7 +3090,7 @@ int main(int argc, char *argv[])
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(bsl::cout);
+        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3219,7 +3219,7 @@ int main(int argc, char *argv[])
                       << "==========================" << bsl::endl;
 
         bsl::ostrstream os;
-        BloombergLP::ball::DefaultObserver observer(os);
+        BloombergLP::ball::DefaultObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
 
         // for simplicity we keep the passthrough level to be 'FATAL', so that
@@ -3280,7 +3280,7 @@ int main(int argc, char *argv[])
                       << "====================================" << bsl::endl;
 
         bsl::ostrstream os;
-        BloombergLP::ball::DefaultObserver observer(os);
+        BloombergLP::ball::DefaultObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setLogOrder(
                   BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
@@ -3346,7 +3346,7 @@ int main(int argc, char *argv[])
         using namespace BALL_LOG_TEST_CASE_6;
 
         bsl::ostrstream os;
-        BloombergLP::ball::DefaultObserver observer(os);
+        BloombergLP::ball::DefaultObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -6029,7 +6029,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOG_TEST_CASE_MINUS_1;
 
-        ball::DefaultObserver observer(bsl::cout);
+        ball::DefaultObserver observer(&bsl::cout);
         ball::LoggerManager::initSingleton( &observer, 0 );
 
         bdlqq::ThreadAttributes attributes;

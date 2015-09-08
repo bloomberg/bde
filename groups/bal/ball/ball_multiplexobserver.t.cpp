@@ -356,9 +356,9 @@ int main(int argc, char *argv[])
             ball::MultiplexObserver multiplexor;
             ASSERT(0 == multiplexor.numRegisteredObservers());
 
-            ball::DefaultObserver   defaultObserver(bsl::cout);
-            my_LogfileObserver     logfileObserver(bsl::cout);
-            my_EncryptingObserver  encryptingObserver(bsl::cout);
+            ball::DefaultObserver  defaultObserver(&bsl::cout);
+            my_LogfileObserver     logfileObserver(&bsl::cout);
+            my_EncryptingObserver  encryptingObserver(&bsl::cout);
 
             ASSERT(0 == multiplexor.registerObserver(&defaultObserver));
             ASSERT(0 == multiplexor.registerObserver(&logfileObserver));

@@ -287,11 +287,11 @@ int main(int argc, char *argv[])
         devnull.open("/dev/null");
     }
 
-    ball::DefaultObserver observer(9 == test ? devnull
-                                             : test < 0 ? bsl::cerr
-                                                        : bsl::cout);
+    ball::DefaultObserver observer(9 == test ? &devnull
+                                             : test < 0 ? &bsl::cerr
+                                                        : &bsl::cout);
 #else
-    ball::DefaultObserver observer(test < 0 ? bsl::cerr : bsl::cout);
+    ball::DefaultObserver observer(test < 0 ? &bsl::cerr : &bsl::cout);
 #endif
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager::initSingleton(&observer, configuration);

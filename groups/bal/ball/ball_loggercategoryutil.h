@@ -170,7 +170,6 @@ struct LoggerCategoryUtil {
         // unless 'loggerManager' is not null and 'categoryNamePrefix' is
         // null-terminated.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int setThresholdLevels(LoggerManager *loggerManager,
                                   const char    *regularExpression,
                                   int            recordLevel,
@@ -194,9 +193,8 @@ struct LoggerCategoryUtil {
         // one category in the registry, where X is an arbitrary string not
         // ending in '*'; that is, only a '*' located at the end of
         // 'regularExpression' is recognized as a special character.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

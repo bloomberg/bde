@@ -149,7 +149,6 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
     return matchCount;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
                                            const char    *regularExpression,
                                            int            recordLevel,
@@ -161,9 +160,9 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
     BSLS_ASSERT(regularExpression);
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return -1;                                                    // RETURN
     }
 
@@ -192,7 +191,6 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
                                             triggerLevel,
                                             triggerAllLevel);
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 
