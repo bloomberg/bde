@@ -404,14 +404,15 @@ template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void hashAppend(HASHALG& hashAlg,
                 const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input)
 {
-    using bslh::hashAppend;
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
 }
 ..
 This technique can be applied to any case where you want to hash contiguous
 data.  It is especially important that the your data is completely contiguous,
 because padding bits and the like could result in the same data hashing to
-different values, which violates the first rule of hashing.
+different values, which violates the first rule of hashing.  Note that this
+example did not require the 'using' directive since there was no invocation of
+'hashAppend'.
 
 /Converting Existing Types
 /- - - - - - - - - - - - -
