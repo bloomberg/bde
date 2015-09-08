@@ -8,6 +8,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
@@ -60,6 +61,7 @@ using namespace bsl;
 // [12] bool operator> (const bdlb::Guid& lhs, const bdlb::Guid& rhs);
 // [12] bool operator>=(const bdlb::Guid& lhs, const bdlb::Guid& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream& stream, const Guid& guid);
+// [15] bslh::Hash<>
 //
 // TRAITS
 // [13] bslmf::IsBitwiseEqualityComparable
@@ -69,7 +71,7 @@ using namespace bsl;
 // [ 4] bdlb::Guid& gg(bdlb::Guid *object, const char *spec);
 // [ 8] bdlb::Guid g(const char *spec);
 // [ 4] int ggg(bdlb::Guid *object, const char *spec, int vF = 1);
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [10] int maxSupportedBdexVersion() const;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -371,7 +373,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test)  { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -406,6 +408,53 @@ int main(int argc, char *argv[])
             previousFileName = uniqueFileName;
         }
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING HASH FUNCTION
+        //
+        // Concerns:
+        //: 1 A guid object can be hashed by instances of
+        //:   'bsl::hash<bdlb::Guid>'.
+        //:
+        //: 2 A small sample of different guid objects produce different
+        //:   hashes.
+        //:
+        //: 3 Invoking 'bsl::hash<bdlb::Guid>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the guid
+        //:   object.
+        //
+        // Plan:
+        //: 1 Hash some different guid objects and verify that the result of
+        //:   using 'bsl::hash<bdlb::Guid>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the guid
+        //:   object.
+        //:
+        //: 2 Hash a number of different guid objects and verify that they
+        //:   produce distinct hashes.
+        //
+        // Testing:
+        //   bsl::hash<bdlb::Guid>
+        //   bslh::Hash<>
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING HASH FUNCTION" << endl
+                          << "=====================" << endl;
+
+        const bsl::size_t NUM_VALUES = sizeof(VALUES) / sizeof(VALUES[0]);
+
+        bsl::hash<Obj>        bslHashFunction;
+        bsl::set<bsl::size_t> hashResults;
+
+        for (bsl::size_t i = 0; i < NUM_VALUES; ++i) {
+            Obj guid(VALUES[i]);
+            bslh::DefaultHashAlgorithm defaultHashAlgorithm;
+            defaultHashAlgorithm(guid.data(), 16);
+            ASSERT(bslHashFunction(guid) ==
+                                           defaultHashAlgorithm.computeHash());
+            hashResults.insert(bslHashFunction(guid));
+        }
+        ASSERT(hashResults.size() == NUM_VALUES);
       } break;
       case 14: {
         // --------------------------------------------------------------------
