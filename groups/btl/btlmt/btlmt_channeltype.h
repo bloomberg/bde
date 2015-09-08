@@ -14,19 +14,23 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides a namespace for enumerating
-// channel types, and provides a function that converts each of
-// these enumerators to its corresponding string representation.
-// Functionality is also provided to write the string form directly
-// to a standard 'ostream'.
+//@DESCRIPTION: This component provides a namespace for enumerating channel
+// types, and provides a function that converts each of these enumerators to
+// their corresponding string representation.  Functionality is also provided
+// to write the string form directly to a standard 'ostream'.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // First, create a variable 'channelType' of type 'btlmt::ChannelType::Value'
-// and initialize it to the value 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL'.
+// and initialize it to the value
+// 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL':
 //..
-//  btlmt::ChannelType::Value channelType
-//                                = btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL;
+//  btlmt::ChannelType::Value channelType =
+//                                 btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
