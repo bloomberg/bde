@@ -433,9 +433,6 @@ int main(int argc, char *argv[])
         ASSERT(rc == sizeof(buffer));
         if (veryVerbose) P(rc);
 
-        ASSERT(initialSockets < 0 ||
-              (initialSockets + 2)== countSockets(0, 20));
-
         T::close(s[0]);
         T::close(s[1]);
 

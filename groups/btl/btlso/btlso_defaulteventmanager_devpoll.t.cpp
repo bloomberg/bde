@@ -1002,7 +1002,7 @@ int main(int argc, char *argv[]) {
                 deadline.addNanoseconds(i % 1000);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(deadline,
-                    bteso_Flag::k_ASYNC_INTERRUPT));
+                    btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -1030,7 +1030,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 LOOP2_ASSERT(i, (finish - start).totalSecondsAsDouble(),
