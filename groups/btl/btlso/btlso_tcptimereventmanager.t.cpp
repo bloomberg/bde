@@ -32,7 +32,9 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//    [TBD - Overview of the test]
+// We are testing a component that provides an implementation of a pure
+// protocol.  We need to verify that all the functions in the protocol have
+// been overridden and works as expected.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] btlso::TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
