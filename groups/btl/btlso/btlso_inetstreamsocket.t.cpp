@@ -457,7 +457,7 @@ int main(int argc, char *argv[]) {
 //..
     char       writeBuffer[]  = "Hello World!";
     const int  writeBufferLen = bsl::strlen(writeBuffer);
-        
+
     rc = clientSocket.write(writeBuffer, writeBufferLen);
     ASSERT(rc == writeBufferLen);
 //..
@@ -1896,12 +1896,12 @@ int main(int argc, char *argv[]) {
         char bufrcv[10];
         resp = streamSocketA->write(buf1, sizeof(buf1));
         ASSERT(resp == sizeof(buf1));
-        
+
         resp = streamSocketB->read(bufrcv, sizeof(bufrcv));
         ASSERT(resp == sizeof(buf1));
-        
+
         ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
-        
+
         testFactory.deallocate(streamSocketA);
         testFactory.deallocate(streamSocketB);
       } break;

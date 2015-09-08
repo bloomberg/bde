@@ -293,8 +293,8 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode = 0)
         else if ('}' == *cbCmd) {
             curly--;
             if (0 == curly) { // No any more callback command
-                return 0;     // If there're valid commands, a ';' should be
-                                                                      // RETURN
+                return 0;                                             // RETURN
+                              // If there're valid commands, a ';' should be
                               // before this '}'.
             }
         }
@@ -655,7 +655,7 @@ static int ggHelper(btlso::EventManager         *mX,
               default: {
                 return e_FAIL;                                        // RETURN
               }
-            } 
+            }
             deadline.addMilliseconds(msecs);
             ret = mX->dispatch(deadline, flags);
 

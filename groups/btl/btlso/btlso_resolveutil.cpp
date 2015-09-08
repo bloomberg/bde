@@ -207,13 +207,12 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
     return 0;
 }
 
-btlso::ResolveUtil::ResolveByNameCallback s_callback_p =
-                                                      &defaultResolveByNameImp;
-
 namespace btlso {
                           // ------------------
                           // struct ResolveUtil
                           // ------------------
+
+ResolveUtil::ResolveByNameCallback s_callback_p = &defaultResolveByNameImp;
 
 // CLASS METHODS
 int ResolveUtil::getAddress(IPv4Address *result,

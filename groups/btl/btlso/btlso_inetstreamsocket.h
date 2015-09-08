@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  char      *writeBuffer    = "Hello World!";
 //  const int  writeBufferLen = bsl::strlen(writeBuffer);
-//      
+//
 //  rc = clientSocket.write(writeBuffer, writeBufferLen);
 //  assert(rc == writeBufferLen);
 //..

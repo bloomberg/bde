@@ -293,7 +293,7 @@ class TcpTimerEventManager : public TimerEventManager
 
   private:
     bdlcc::TimeQueue<bdlf::Function<void (*)()> >
-                        d_timers;          // registered timers 
+                        d_timers;          // registered timers
 
     EventManager       *d_manager_p;       // socket event manager
 

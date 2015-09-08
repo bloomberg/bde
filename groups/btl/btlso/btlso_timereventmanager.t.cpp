@@ -520,7 +520,7 @@ int main(int argc, char *argv[]) {
         //   int registerSocketEvent(handle, event, callback);
         //   void *registerTimer(expiryTime, callback);
         //   int rescheduleTimer(timerId, expiryTime);
-        //   int deregisterSocketEvent(handle, event); 
+        //   int deregisterSocketEvent(handle, event);
         //   int deregisterSocket(const btlso::SocketHandle::Handle& handle);
         //   void deregisterAllSocketEvents();
         //   int deregisterTimer(const void *handle);

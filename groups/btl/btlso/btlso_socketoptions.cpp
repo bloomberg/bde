@@ -1,9 +1,8 @@
 // btlso_socketoptions.cpp                                            -*-C++-*-
+#include <btlso_socketoptions.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_socketoptions_cpp,"$Id$ $CSID$")
-
-#include <btlso_socketoptions.h>
 
 #include <bdlat_valuetypefunctions.h>
 #include <bdlb_print.h>
