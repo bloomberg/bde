@@ -16,10 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Cheenu Srinivasan (csriniva)
 //
-//@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the 'poll' system call to monitor for socket events and adheres to
-// the 'btlso::EventManager' protocol.  In particular, this protocol supports
-// the registration of socket events, along with an associated 'bdlf::Function'
+//@DESCRIPTION: This component provides an implementation of an event manager,
+// 'btlso::DefaultEventManager<btlso::Platform::POLL>', that uses the 'poll'
+// system call to monitor for socket events and adheres to the
+// 'btlso::EventManager' protocol.  In particular, this protocol supports the
+// registration of socket events, along with an associated 'bdlf::Function'
 // callback functor, which is invoked when the corresponding socket event
 // occurs.
 //
@@ -460,7 +461,7 @@ class DefaultEventManager<Platform::POLL> : public EventManager {
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTIONS DEFINITIONS
 //-----------------------------------------------------------------------------
 
            // -----------------------------------------

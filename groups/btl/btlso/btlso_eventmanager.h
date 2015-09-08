@@ -137,7 +137,7 @@ class EventManager {
         // corresponding callback registered with this event manager.  If no
         // event is pending, wait until either (1) at least one event occurs
         // (in which case the corresponding callback(s) is invoked) or (2)
-        // provided that the specified 'flags' contains
+        // provided that the optionally-specified 'flags' contains
         // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
         // interrupted by a signal.  Return the number of dispatched callbacks
         // on success, and a negative value otherwise; -1 is reserved to
@@ -181,13 +181,13 @@ class EventManager {
         // success and a non-zero value otherwise.  Socket event registrations
         // stay in effect until they are subsequently deregistered; the
         // callback is invoked each time the specified 'event' is seen.
-        // Typically, 'EventType::e_READ' and
-        // 'EventType::e_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  Simultaneously registering
-        // for incompatible events for the same socket 'handle' may result in
-        // undefined behavior.  If a registration attempt is made for an event
-        // that is already registered, the callback associated with this event
-        // will be overwritten with the new one.
+        // Typically, 'EventType::e_READ' and 'EventType::e_WRITE' are the only
+        // events that can be registered simultaneously for a socket.
+        // Simultaneously registering for incompatible events for the same
+        // socket 'handle' may result in undefined behavior.  If a registration
+        // attempt is made for an event that is already registered, the
+        // callback associated with this event will be overwritten with the new
+        // one.
 
     virtual void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                        EventType::Type             event) = 0;

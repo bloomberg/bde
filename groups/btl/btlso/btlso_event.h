@@ -203,22 +203,25 @@ class Event {
     BSLMF_NESTED_TRAIT_DECLARATION(Event, bsl::is_trivially_copyable)
 
     // CREATORS
-    Event(const SocketHandle::Handle& handle,
-          const EventType::Type       type);
-        // Construct an event of type 'type' on socket 'handle'.
+    Event(const SocketHandle::Handle& handle, const EventType::Type type);
+        // Construct an 'Event' object corresponding to the specified event
+        // 'type' on the specified socket 'handle'.
 
     Event(const Event& original);
-        // Copy constructor.
+        // Create an 'Event' object having the same value as the specified
+        // 'original' object.
 
     ~Event();
         // Destroy this event object.
 
     // MANIPULATORS
     void setHandle(const SocketHandle::Handle& handle);
-        // Reset handle to 'handle'.  The type is unchanged.
+        // Reset the handle stored by this object to the specified 'handle'.
+        // The type remains unchanged.
 
     void setType(EventType::Type type);
-        // Reset type to 'type'.  The socket handle is unchanged.
+        // Reset the type stored by this object to the specified 'type'.  The
+        // socket handle remains unchanged.
 
     // ACCESSORS
     SocketHandle::Handle handle() const;

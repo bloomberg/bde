@@ -418,9 +418,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bsls { class TimeInterval; }
-        
+
 namespace btlso {
-        
+
                    // =======================
                    // class TimerEventManager
                    // =======================

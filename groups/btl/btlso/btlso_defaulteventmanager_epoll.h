@@ -16,12 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
-//@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the Linux 'epoll' system calls to monitor for socket events and
-// adheres to the 'btlso::EventManager' protocol.  In particular, this protocol
-// supports the registration of level-triggered socket events, along with an
-// associated 'bdlf::Function' callback functor, which is invoked when the
-// corresponding socket event occurs.
+//@DESCRIPTION: This component provides an implementation of an event manager,
+// 'btlso::DefaultEventManager<btlso::Platform::EPOLL>', that uses the Linux
+// 'epoll' system calls to monitor for socket events and adheres to the
+// 'btlso::EventManager' protocol.  In particular, this protocol supports the
+// registration of level-triggered socket events, along with an associated
+// 'bdlf::Function' callback functor, which is invoked when the corresponding
+// socket event occurs.
 //
 // Registering a socket event requires specifying a socket handle and the type
 // of event to monitor on the indicated socket.  Socket event registrations
@@ -352,8 +353,8 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
                                                  // reporting percent-busy
                                                  // statistics
 
-    EventMap                           d_events; // map of socket handles
-                                                 // to associated events
+    EventMap                           d_events; // map of socket handles to
+                                                 // associated events
 
     bsl::vector<EventMap::iterator>    d_entriesBeingRemoved;
                                                  // if we're in a user cb, we
@@ -490,7 +491,7 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
            // ------------------------------------------

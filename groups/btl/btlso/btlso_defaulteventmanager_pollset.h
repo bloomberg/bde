@@ -16,12 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the 'pollset' system call to monitor for socket events and adheres
-// to the 'btlso::EventManager' protocol.  In particular, this protocol
-// supports the registration of socket events, along with an associated
-// 'bdlf::Function' callback functor, which is invoked when the corresponding
-// socket event occurs.
+//@DESCRIPTION: This component provides an implementation of an event manager,
+// 'btlso::DefaultEventManager<btlso::Platform::POLLSET>', that uses the
+// 'pollset' system call to monitor for socket events and adheres to the
+// 'btlso::EventManager' protocol.  In particular, this protocol supports the
+// registration of socket events, along with an associated 'bdlf::Function'
+// callback functor, which is invoked when the corresponding socket event
+// occurs.
 //
 // Registering a socket event requires specifying a socket handle and the type
 // of event to monitor on the indicated socket.  Socket event registrations

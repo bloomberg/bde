@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an interface for default event manager.
 //
 //@CLASSES:
-//  btlso::DefaultEventManager<TYPE>: event manager interface
+//  btlso::DefaultEventManager: event manager interface
 //
 //@SEE_ALSO: btlso_eventmanager, btlso_timereventmanager
 //
@@ -198,14 +198,13 @@ class DefaultEventManager : public EventManager {
         // 'callback' functor is invoked when 'event' occurs.  Return 0 on
         // success and a non-zero value otherwise.  Socket event registrations
         // stay in effect until they are subsequently deregistered; the
-        // callback is invoked each time the specified 'event' is seen.
-        // Typically, 'EventType::e_READ' and 'EventType::e_WRITE' are the only
-        // events that can be registered simultaneously for a socket.
-        // Simultaneously registering for incompatible events for the same
-        // socket 'handle' may result in undefined behavior.  If a registration
-        // attempt is made for an event that is already registered, the
-        // callback associated with this event will be overwritten with the new
-        // one.
+        // callback is invoked each time 'event' is seen.  Typically,
+        // 'EventType::e_READ' and 'EventType::e_WRITE' are the only events
+        // that can be registered simultaneously for a socket.  Simultaneously
+        // registering for incompatible events for the same socket 'handle' may
+        // result in undefined behavior.  If a registration attempt is made for
+        // an event that is already registered, the callback associated with
+        // this event will be overwritten with the new one.
 
     void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                EventType::Type             event);

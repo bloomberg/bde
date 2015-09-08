@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -329,8 +329,8 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
     typedef bsl::unordered_map<Event, EventManager::Callback, EventHash>
                                                                       EventMap;
 
-    // Due to the initialization dependency between 'd_eventsAllocator'
-    // and 'd_events' their declaration order should always be as follows.
+    // Due to the initialization dependency between 'd_eventsAllocator' and
+    // 'd_events' their declaration order should always be as follows.
 
     bdlma::ConcurrentPoolAllocator  d_eventsAllocator;  // event map allocator
 
@@ -384,9 +384,9 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
 
   public:
     // CREATORS
-    explicit DefaultEventManager(bslma::Allocator  *basicAllocator = 0);
-    explicit DefaultEventManager(TimeMetrics *timeMetric,
-                                 bslma::Allocator  *basicAllocator = 0);
+    explicit DefaultEventManager(bslma::Allocator *basicAllocator = 0);
+    explicit DefaultEventManager(TimeMetrics      *timeMetric,
+                                 bslma::Allocator *basicAllocator = 0);
         // Create a 'select'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
@@ -436,9 +436,9 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
         // is unspecified.  Also note that -1 is never returned unless 'flags'
         // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
-     int registerSocketEvent(const SocketHandle::Handle&   handle,
-                             const EventType::Type         event,
-                             const EventManager::Callback& callback);
+    int registerSocketEvent(const SocketHandle::Handle&   handle,
+                            const EventType::Type         event,
+                            const EventManager::Callback& callback);
         // Register with this event manager the specified 'callback' to be
         // invoked when the specified 'event' occurs on the specified socket
         // 'handle'.  Each socket event registration stays in effect until it
@@ -494,7 +494,7 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTIONS DEFINITIONS
 //-----------------------------------------------------------------------------
 
            // -------------------------------------------

@@ -7,9 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide forward declaration and common constants for event managers
+//@PURPOSE: Provide forward declaration and constants for event managers.
 //
 //@CLASSES:
+//  btlso::DefaultEventManager<POLLING_MECHANISM>: default multiplexer
 //
 //@SEE_ALSO: btlso_defaulteventmanager
 //
