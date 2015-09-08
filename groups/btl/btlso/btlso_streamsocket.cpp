@@ -4,16 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_streamsocket_cpp,"$Id$ $CSID$")
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_ipv4address.h>              // for testing only
-#endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

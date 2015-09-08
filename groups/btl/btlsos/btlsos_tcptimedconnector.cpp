@@ -60,7 +60,7 @@ RESULT *allocate(int                                            *status,
     if (!socket_p) {
         return NULL;                                                  // RETURN
     }
-    int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
+    int rc = socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
 
     BSLS_ASSERT(0 == rc);
     while (1) {
@@ -99,7 +99,7 @@ RESULT *timedAllocate(
         return NULL;                                                  // RETURN
     }
 
-    int rc = socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+    int rc = socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     int s = socket->connect(peerAddress);

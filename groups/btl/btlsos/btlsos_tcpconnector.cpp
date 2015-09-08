@@ -66,7 +66,7 @@ inline
     if (!socket_p) {
         return NULL;                                                  // RETURN
     }
-    int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
+    int rc = socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
 
     BSLS_ASSERT(0 == rc);
     while (1) {

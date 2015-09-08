@@ -4,6 +4,7 @@
 #include <btlso_timemetrics.h>
 #include <btlso_eventmanagertester.h>
 #include <btlso_flag.h>
+#include <btlso_platform.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -39,8 +40,6 @@ using namespace bsl;  // automatically added by script
 // the same script interpreting defined in 'btlso::EventManagerTester' function
 // but a new set of data to test this specific event manager component.
 //-----------------------------------------------------------------------------
-// CLASS btlso::DefaultEventManager<btlso::Platform::SELECT>
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATORS
 // [ 3] btlso::DefaultEventManager
 // [ 3] ~btlso::DefaultEventManager
@@ -175,6 +174,54 @@ void checkDeadConnectCallback(btlso::SocketHandle::Handle  handle,
     }
 }
 
+static void genericCb(btlso::EventType::Type       event,
+                      btlso::SocketHandle::Handle  socket,
+                      int                          bytes,
+                      btlso::EventManager         *)
+{
+    // User specified callback function that will be called after an event is
+    // dispatched to do the "real" things.  This callback is only used in the
+    // 'usage example' test case, and will be copied to the head file as a part
+    // of the usage example.
+
+    enum {
+        k_MAX_READ_SIZE  = 8192,
+        k_MAX_WRITE_SIZE = WRITE_SIZE
+    };
+
+    switch (event) {
+      case btlso::EventType::e_READ: {
+          ASSERT(0 < bytes);
+          char buffer[k_MAX_READ_SIZE];
+
+          int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
+          ASSERT(0 < rc);
+
+      } break;
+      case btlso::EventType::e_WRITE: {
+          char wBuffer[k_MAX_WRITE_SIZE];
+          ASSERT(0 < bytes);
+          ASSERT(k_MAX_WRITE_SIZE >= bytes);
+          memset(wBuffer,'4', bytes);
+          int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
+          ASSERT(0 < rc);
+      } break;
+      case btlso::EventType::e_ACCEPT: {
+          int errCode;
+          int rc = btlso::SocketImpUtil::close(socket, &errCode);
+          ASSERT(0 == rc);
+      } break;
+      case btlso::EventType::e_CONNECT: {
+          int errCode = 0;
+          btlso::SocketImpUtil::close(socket, &errCode);
+          ASSERT(0 == errCode);
+      } break;
+      default: {
+          ASSERT("Invalid event code" && 0);
+      } break;
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -226,15 +273,98 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // -----------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING USAGE EXAMPLE" << endl
-                          << "=====================" << endl;
 
-        if (verbose)
-            cout << "For a comprehensive usage example, see " << endl
-                 << "'btlso_defaulteventmanager_poll' component." << endl;
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
+        btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                      btlso::TimeMetrics::e_CPU_BOUND);
+
+        btlso::DefaultEventManager<btlso::Platform::SELECT> mX(&timeMetric);
+
+        btlso::SocketHandle::Handle socket[2];
+
+        int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                                        socket,
+                                        btlso::SocketImpUtil::k_SOCKET_STREAM);
+
+        ASSERT(0 == rc);
+
+        int numBytes = 5;
+        btlso::EventManager::Callback readCb(
+                                 bdlf::BindUtil::bind(&genericCb,
+                                                      btlso::EventType::e_READ,
+                                                      socket[0],
+                                                      numBytes,
+                                                      &mX));
+
+        mX.registerSocketEvent(socket[0], btlso::EventType::e_READ, readCb);
+
+        numBytes = 25;
+        btlso::EventManager::Callback writeCb1(
+                                bdlf::BindUtil::bind(&genericCb,
+                                                     btlso::EventType::e_WRITE,
+                                                     socket[0],
+                                                     numBytes,
+                                                     &mX));
+        mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE, writeCb1);
+
+        numBytes = 15;
+        btlso::EventManager::Callback writeCb2(
+                                bdlf::BindUtil::bind(&genericCb,
+                                                     btlso::EventType::e_WRITE,
+                                                     socket[1],
+                                                     numBytes,
+                                                     &mX));
+        mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE, writeCb2);
+
+        ASSERT(3 == mX.numEvents());
+        ASSERT(2 == mX.numSocketEvents(socket[0]));
+        ASSERT(1 == mX.numSocketEvents(socket[1]));
+        ASSERT(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+        ASSERT(1 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+        ASSERT(1 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+
+        int flags = 0;
+        bsls::TimeInterval deadline(bdlt::CurrentTime::now());
+        deadline += 5;    // timeout 5 seconds from now.
+
+        rc = mX.dispatch(deadline, flags);   ASSERT(2 == rc);
+
+        mX.deregisterSocketEvent(socket[0], btlso::EventType::e_WRITE);
+        ASSERT(2 == mX.numEvents());
+        ASSERT(1 == mX.numSocketEvents(socket[0]));
+        ASSERT(1 == mX.numSocketEvents(socket[1]));
+        ASSERT(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+        ASSERT(1 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+        ASSERT(1 == mX.deregisterSocket(socket[1]));
+        ASSERT(1 == mX.numEvents());
+        ASSERT(1 == mX.numSocketEvents(socket[0]));
+        ASSERT(0 == mX.numSocketEvents(socket[1]));
+        ASSERT(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+        ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+
+        mX.deregisterAll();
+        ASSERT(0 == mX.numEvents());
+        ASSERT(0 == mX.numSocketEvents(socket[0]));
+        ASSERT(0 == mX.numSocketEvents(socket[1]));
+        ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+        ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+        ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
       } break;
+
       case 18: {
         // --------------------------------------------------------------------
         // TESTING 'dispatchCallbacks'
@@ -341,13 +471,13 @@ int main(int argc, char *argv[])
 
                 bdlf::Function<void (*)()> cb1, cb2;
                 int rc = mX.registerSocketEvent(
-                                           (btlso::SocketHandle::Handle) handle,
+                                          (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
                                            cb1);
                 ASSERT(!rc);
 
                 rc = mX.registerSocketEvent(
-                                           (btlso::SocketHandle::Handle) handle,
+                                          (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_WRITE,
                                            cb2);
                 ASSERT(!rc);
@@ -366,12 +496,12 @@ int main(int argc, char *argv[])
 
                 bdlf::Function<void (*)()> cb1, cb2;
                 ASSERT_FAIL(mX.registerSocketEvent(
-                                           (btlso::SocketHandle::Handle) handle,
+                                          (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
                                            cb1));
 
                 ASSERT_FAIL(mX.registerSocketEvent(
-                                           (btlso::SocketHandle::Handle) handle,
+                                          (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_WRITE,
                                            cb2));
 
@@ -418,9 +548,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == errorCode);
 
                 bool hasExecutedCallback = false;
-                connectCallback = bdlf::BindUtil::bind(&checkDeadConnectCallback
-                                                     , sendSocket
-                                                     , &hasExecutedCallback);
+                connectCallback = bdlf::BindUtil::bind(
+                                                      &checkDeadConnectCallback
+                                                      , sendSocket
+                                                      , &hasExecutedCallback);
 
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(sendSocket,
@@ -428,8 +559,8 @@ int main(int argc, char *argv[])
                                        connectCallback);
 
                 if (0 == btlso::SocketImpUtil::connect(sendSocket,
-                                                      btlso::IPv4Address(),
-                                                      &errorCode)) {
+                                                       btlso::IPv4Address(),
+                                                       &errorCode)) {
                     if (veryVerbose)
                         cout << "Connection initiated, attempt: " << i << endl;
 
@@ -444,7 +575,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == errorCode);
                     LOOP_ASSERT(i, 1 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
                     LOOP_ASSERT(i, hasExecutedCallback);
                 } else {
                     if (veryVerbose)
@@ -563,7 +694,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -592,7 +723,7 @@ int main(int argc, char *argv[])
                 deadline.addNanoseconds(i % 1000);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(deadline,
-                     bteso_Flag::k_ASYNC_INTERRUPT));
+                     btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -873,8 +1004,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int Obj::dispatch();
-        //   int Obj::dispatch(
-        //                                      const bsls::TimeInterval&, ...);
+        //   int Obj::dispatch(const bsls::TimeInterval&, ...);
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
@@ -925,8 +1055,8 @@ int main(int argc, char *argv[])
                 }
 
                 int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
-                                                         controlFlag);
+                                                          SCRIPTS[i].d_script,
+                                                          controlFlag);
 
                 LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
 
@@ -948,7 +1078,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -978,7 +1108,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -1077,7 +1207,7 @@ int main(int argc, char *argv[])
         {
             Obj mX(&timeMetric, &testAllocator);
             btlso::EventManagerTester::testDeregisterSocketEvent(&mX,
-                                                                controlFlag);
+                                                                 controlFlag);
         }
 
         if (verbose)
@@ -1111,8 +1241,8 @@ int main(int argc, char *argv[])
                 }
 
                 int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
-                                                         controlFlag);
+                                                          SCRIPTS[i].d_script,
+                                                          controlFlag);
 
                 LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
 
@@ -1192,8 +1322,8 @@ int main(int argc, char *argv[])
                 }
 
                 int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
-                                                         controlFlag);
+                                                          SCRIPTS[i].d_script,
+                                                          controlFlag);
 
                 LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
 

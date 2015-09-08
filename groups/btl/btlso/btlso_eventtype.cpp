@@ -4,6 +4,50 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_eventtype_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
+
+#include <bsl_ostream.h>
+
+namespace BloombergLP {
+namespace btlso {
+
+                            // ----------------
+                            // struct EventType
+                            // ----------------
+
+// CLASS METHODS
+bsl::ostream& EventType::print(bsl::ostream&   stream,
+                               EventType::Type value,
+                               int             level,
+                               int             spacesPerLevel)
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+
+    printer.start(true);
+    stream << toAscii(value);
+    printer.end(true);
+
+    return stream;
+}
+
+const char *EventType::toAscii(EventType::Type value)
+{
+#define CASE(X) case(e_ ## X): return #X;
+
+    switch (value) {
+      CASE(ACCEPT)
+      CASE(CONNECT)
+      CASE(READ)
+      CASE(WRITE)
+      default: return "(* UNKNOWN *)";
+    }
+
+#undef CASE
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

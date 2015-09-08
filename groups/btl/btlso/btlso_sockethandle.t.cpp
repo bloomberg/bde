@@ -4,8 +4,23 @@
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+//=============================================================================
+//                             TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+//
+// Verify that the typedefs and enums are accessible and compile on this
+// platform.
+//-----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+//=============================================================================
+
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -25,19 +40,54 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                             TEST PLAN
+//                  GLOBAL METHODS FOR TESTING
 //-----------------------------------------------------------------------------
-//                            * Overview *
-// Verify that the typedefs and enums are accessible and compile on this
-// platform.
-//-----------------------------------------------------------------------------
-// [ 1] USAGE
-//=============================================================================
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a socket class
+///- - - - - - - - - - - - - - - - - - -
+// Writing portable software involves providing a generic interface while
+// specializing implementations to work with platform-provided interfaces.  As
+// an example, we provide a platform-independent socket 'class', 'my_Socket'
+// below.  The 'my_Socket' 'class' provides functionality to establish a
+// connection and to read and write data on it.  Internally, the 'class' uses a
+// 'btlso::SocketHandle::Handle' object to store the socket handle.  Note that
+// for brevity only portions of this 'class' that are relevant to this example
+// are shown:
+//..
+    class my_Socket {
+        // This 'class' provides a platform-independent socket class.
+//
+        // DATA
+        btlso::SocketHandle::Handle d_handle;
+//
+        // CREATORS
+        my_Socket();
+            // Create an unconnected 'my_Socket' object.
+//
+        // Rest of the interface elided for brevity
+    };
+//..
+// The default-constructor can then be implemented as follows:
+//..
+    my_Socket::my_Socket()
+    : d_handle(btlso::SocketHandle::INVALID_SOCKET_HANDLE)
+    {
+    }
+//..
+
 
 // Verify that the Handle is accessible.
 struct Assertion {
     btlso::SocketHandle::Handle handle;
 };
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -47,6 +97,30 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        // The usage example is a class declaration and definition.
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -68,7 +142,7 @@ int main(int argc, char *argv[]) {
         // Verify that the error codes are accessible.
 
         ASSERT(btlso::SocketHandle::e_ERROR_EOF !=
-               btlso::SocketHandle::e_ERROR_UNCLASSIFIED);
+                                    btlso::SocketHandle::e_ERROR_UNCLASSIFIED);
 
         // Verify that the invalid is correctly set.
 

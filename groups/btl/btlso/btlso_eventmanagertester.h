@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide programmable and preset test apparatus for event managers.
 //
 //@CLASSES:
-//    btlso::EventManagerTester: namespace for a set of testing utilities
+//  btlso::EventManagerTester: namespace for a set of testing utilities
 //  btlso::EventManagerTestPair: a pair of locally-connected TCP/IPv4 sockets
 //
 //@SEE_ALSO:  btlso_eventmanager btlso_defaulteventmanager
@@ -25,11 +25,11 @@ BSLS_IDENT("$Id: $")
 // component are sufficient to test each virtual method in the
 // 'btlso::EventManager' protocol.
 //
-// The test apparatus consists of the 'btlso::EventManagerTestPair' class, which
-// defines a pair of connected sockets to facilitate the testing, a set of
-// utility methods to exercise the methods of the event manager under test, and
-// a custom language specification that is used as input for the "programmable"
-// 'gg' test method.
+// The test apparatus consists of the 'btlso::EventManagerTestPair' class,
+// which defines a pair of connected sockets to facilitate the testing, a set
+// of utility methods to exercise the methods of the event manager under test,
+// and a custom language specification that is used as input for the
+// "programmable" 'gg' test method.
 //
 ///Synopsis
 ///--------
@@ -94,9 +94,10 @@ BSLS_IDENT("$Id: $")
 //
 // Data                  : operation information sent to the 'TestGenerator'
 //
-// TestGenerator         : the execution part in the 'btlso::EventManagerTester'
-//                         to perform programmable (customized) test for the
-//                         event manager based on data passed in
+// TestGenerator         : the execution part in the
+//                         'btlso::EventManagerTester' to perform programmable
+//                         (customized) test for the event manager based on
+//                         data passed in.
 //
 // [Bm]                  : a control button in the 'btlso::EventManagerTester'
 //                         to  perform a pre-set ("canned") test for a function
@@ -140,8 +141,8 @@ BSLS_IDENT("$Id: $")
 //              under test.
 //
 // a r w c      These characters must appear as written, and represent the
-//              four events as enumerated in 'btlso::EventType', i.e., 'ACCEPT',
-//              'READ', 'WRITE', and 'CONNECT', respectively.
+//              four events as enumerated in 'btlso::EventType', i.e.,
+//              'ACCEPT', 'READ', 'WRITE', and 'CONNECT', respectively.
 //
 // T D E R W    These seven characters must appear as written, and represent
 // + -          commands as described in the rules defined in the "Language
@@ -299,12 +300,12 @@ BSLS_IDENT("$Id: $")
 //..
 ///Thread-safety
 ///-------------
-// The thread-safety of 'btlso::EventManagerTester' depends on the event manager
-// to be tested.  If the event manager is not thread safe (thread enabled) then
-// the 'btlso::EventManagerTester' will consequently not be thread safe (thread
-// enabled).  When operations are invoked on a function of the
-// 'btlso::EventManagerTester' with the same instance of an event manager under
-// test from different threads, the 'btlso::EventManagerTester' is *not*
+// The thread-safety of 'btlso::EventManagerTester' depends on the event
+// manager to be tested.  If the event manager is not thread safe (thread
+// enabled) then the 'btlso::EventManagerTester' will consequently not be
+// thread safe (thread enabled).  When operations are invoked on a function of
+// the 'btlso::EventManagerTester' with the same instance of an event manager
+// under test from different threads, the 'btlso::EventManagerTester' is *not*
 // *thread* *safe*.  When operations are invoked on a function of the
 // 'btlso::EventManagerTester' with *distinct* *instances* of a *thread* *safe*
 // (thread enabled) event manager under test from different threads, the
@@ -361,23 +362,21 @@ BSLS_IDENT("$Id: $")
 //      k_ABORT
 //      k_DRY_RUN
 //..
-// The three 'BTESOVERBOSE' flags indicate increasing amounts of diagnostic
+// The three 'k_VERBOSE*' flags indicate increasing amounts of diagnostic
 // printout during the test method operation.  The 'ABORT' flag indicates that
 // the test method should terminate after the first occurrence of a test error.
 // The 'DRY_RUN' flag indicates that no event manager tests should be
 // performed, but that any input test script will be echoed to 'stdout'.
 //
-///USAGE EXAMPLES
-///--------------
-// For these usage examples, let's assume that a new event manager,
-// 'my_FastEventManager', needs to be tested.  Both white-box and block-box,
-// "canned", tests need to be executed.  This ('bteso_eventmanagertest')
-// component is used to perform tests:
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-///USAGE 1
-///-------
-// In this usage example, block-box test for 'registerSocketEvent' is
-// performed.  First, create an object under test:
+///Example 1: Testing 'registerSocketEvent' method
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In this usage example, block-box test for 'registerSocketEvent' is performed
+// for an event manager class, 'my_FastEventManager'.  First, create an object
+// under test:
 //..
 //  my_FastEventManager mX;
 //..
@@ -389,8 +388,8 @@ BSLS_IDENT("$Id: $")
 //  ctrlFlag |= btlso::EventManagerTester::k_ABORT;
 //  btlso::EventManagerTester::testRegisterSocketEvent(&mX, ctrlFlag);
 //..
-///USAGE 2
-///-------
+///Example 2: Testing using test specification
+///- - - - - - - - - - - - - - - - - - - - - -
 // Because different event managers may be implemented differently, it's
 // important to make sure the test covers all possible situations based on the
 // specific implementation for the event manager.  The following snippets of
@@ -417,8 +416,10 @@ BSLS_IDENT("$Id: $")
 //  int ctrlFlag = 0;
 //  ctrlFlag |= btlso::EventManagerTester::k_VERBOSE;
 //  ctrlFlag |= btlso::EventManagerTester::k_ABORT;    // abort on failure
-//  int failures = btlso::EventManagerTester::gg(&mX1, socketPairs,
-//                                              LINE, script, ctrlFlag);
+//  int failures = btlso::EventManagerTester::gg(&mX1,
+//                                               socketPairs,
+//                                               LINE,
+//                                               script, ctrlFlag);
 //  assert(0 == failures);
 //..
 
@@ -436,21 +437,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bsls { class TimeInterval; }
 
+namespace btlso {
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
+class EventManager;
 
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace btlso {class EventManager;
-
-                        // ================================
+                        // ==========================
                         // class EventManagerTestPair
-                        // ================================
+                        // ==========================
 
 class EventManagerTestPair {
     // This class provides a pair of connected sockets to facilitate testing.
@@ -458,17 +453,17 @@ class EventManagerTestPair {
     // used to observe the results.  By default, the sockets are non-blocking
     // with the Nagle algorithm turned off.
 
-    SocketHandle::Handle d_fds[2];    // sockets' descriptors
-    int                        d_validFlag; // flag indicating whether the
-                                            // socket pair is valid
-    int                        d_verboseFlag;
-                                            // whether to log the states to
-                                            // 'stdout'
-    // not implemented
-    EventManagerTestPair(const EventManagerTestPair& original);
+    SocketHandle::Handle d_fds[2];      // sockets' descriptors
 
-    EventManagerTestPair operator=(
-                                       const EventManagerTestPair& rhs);
+    int                  d_validFlag;   // flag indicating whether the socket
+                                        // pair is valid
+
+    int                  d_verboseFlag; // whether to log the states to
+                                        // 'stdout'
+    // NOT IMPLEMENTED
+    EventManagerTestPair(const EventManagerTestPair& original);
+    EventManagerTestPair operator=(const EventManagerTestPair& rhs);
+
   public:
     // CREATORS
     EventManagerTestPair(int verboseFlag = 0);
@@ -478,7 +473,7 @@ class EventManagerTestPair {
         // If 'verboseFlag' is not 0, the detailed information about underlying
         // calls is printed to 'stdout' along with additional debugging
         // information.  By default, i.e., when 'verboseFlag' is 0, no messages
-        //  are displayed.
+        // are displayed.
 
     ~EventManagerTestPair();
         // Close the managed sockets and destroy the object.
@@ -529,9 +524,9 @@ class EventManagerTestPair {
         // may be used to observe test results.
 };
 
-                        // ==============================
+                        // ========================
                         // class EventManagerTester
-                        // ==============================
+                        // ========================
 
 struct EventManagerTester {
     // This class provides in one place the implementation to test different
@@ -540,22 +535,22 @@ struct EventManagerTester {
     // tested.
 
     enum {
-        k_VERBOSE           = 1  // If this flag is on, print the name of
-                                 // functions under test.
+        k_VERBOSE           = 1,  // If this flag is on, print the name of
+                                  // functions under test.
 
-      , k_VERY_VERBOSE      = 2  // If this flag is on, print the test script
-                                 // to be executed and execution results after
-                                 // executing each command of the test script.
+        k_VERY_VERBOSE      = 2,  // If this flag is on, print the test script
+                                  // to be executed and execution results after
+                                  // executing each command of the test script.
 
-      , k_VERY_VERY_VERBOSE = 4  // If this flag is on, print all values after
-                                 // executing each command of a test script.
+        k_VERY_VERY_VERBOSE = 4,  // If this flag is on, print all values after
+                                  // executing each command of a test script.
 
-      , k_ABORT             = 8  // If this flag is on, the test will be
-                                 // aborted upon an error.
+        k_ABORT             = 8,  // If this flag is on, the test will be
+                                  // aborted upon an error.
 
-      , k_DRY_RUN           = 16 // If this flag is on, the test will not
-                                 // execute the test script, but only parse the
-                                 // test script to the standard output.
+        k_DRY_RUN           = 16  // If this flag is on, the test will not
+                                  // execute the test script, but only parse
+                                  // the test script to the standard output.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_VERBOSE           = k_VERBOSE
@@ -563,18 +558,18 @@ struct EventManagerTester {
       , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
       , BTESO_ABORT             = k_ABORT
       , BTESO_DRY_RUN           = k_DRY_RUN
-      , VERBOSE           = k_VERBOSE
-      , VERY_VERBOSE      = k_VERY_VERBOSE
-      , VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
-      , ABORT             = k_ABORT
-      , DRY_RUN           = k_DRY_RUN
+      , VERBOSE                 = k_VERBOSE
+      , VERY_VERBOSE            = k_VERY_VERBOSE
+      , VERY_VERY_VERBOSE       = k_VERY_VERY_VERBOSE
+      , ABORT                   = k_ABORT
+      , DRY_RUN                 = k_DRY_RUN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static int gg(EventManager         *eventManager,
                   EventManagerTestPair *fds,
-                  const char                 *script,
-                  int                         flags);
+                  const char           *script,
+                  int                   flags);
         // Execute the specified 'script' to test the specified 'eventManager',
         // using the specified 'fds' array of connected socket pair and the
         // specified 'flags' to control execution.  Return the number of
@@ -584,12 +579,12 @@ struct EventManagerTester {
         // will force the test to abort.
 
     static int testAccessors(EventManager *eventManager, int flags);
-        // Exercise a pre-defined ("canned") test of the accessor
-        // methods 'numSocketEvents', 'numEvents' and 'isRegistered' of the
-        // specified 'eventManager' using the specified 'flags' to control
-        // execution.  Return the number of failures detected.  Note that if
-        // the 'ABORT' bit is set in 'flags', a detected failure will force the
-        // test to abort.
+        // Exercise a pre-defined ("canned") test of the accessor methods
+        // 'numSocketEvents', 'numEvents' and 'isRegistered' of the specified
+        // 'eventManager' using the specified 'flags' to control execution.
+        // Return the number of failures detected.  Note that if the 'ABORT'
+        // bit is set in 'flags', a detected failure will force the test to
+        // abort.
 
     static int testDeregisterAll(EventManager *eventManager, int flags);
         // Exercise a pre-defined ("canned") test of the 'deregisterAll' method
@@ -599,7 +594,7 @@ struct EventManagerTester {
         // force the test to abort.
 
     static int testDeregisterSocket(EventManager *eventManager,
-                                    int                 flags);
+                                    int           flags);
         // Exercise a pre-defined ("canned") test of the 'deregisterSocket'
         // method of the specified 'eventManager' using the specified 'flags'
         // to control execution.  Return the number of failures detected.  Note
@@ -607,15 +602,14 @@ struct EventManagerTester {
         // failure will force the test to abort.
 
     static int testDeregisterSocketEvent(EventManager *eventManager,
-                                         int                 flags);
+                                         int           flags);
         // Exercise a pre-defined ("canned") test of the
         // 'deregisterSocketEvent' method of the specified 'eventManager' using
         // the specified 'flags' to control execution.  Return the number of
         // failures detected.  Note that if the 'ABORT' bit flag is specified
         // in 'flags', a detected failure will force the test to abort.
 
-    static int testDispatch(EventManager *eventManager,
-                            int                 flags);
+    static int testDispatch(EventManager *eventManager, int flags);
         // Exercise a pre-defined ("canned") test of the 'dispatch' methods of
         // the specified 'eventManager' using the specified 'flags' to control
         // execution.  Return the number of failures detected.  Note that if
@@ -623,17 +617,16 @@ struct EventManagerTester {
         // test to abort.
 
     static int testRegisterSocketEvent(EventManager *eventManager,
-                                       int                 flags);
+                                       int           flags);
         // Exercise a pre-defined ("canned") test of the 'registerSocketEvent'
         // method of the specified 'eventManager' using the specified 'flags'
         // to control execution.  Return the number of failures detected.  Note
         // that if the 'ABORT' bit is set in 'flags', a detected failure will
         // force the test to abort.
 
-    static int testDispatchPerformance(
-                                     EventManager       *mX,
-                                     const char               *pollingMechName,
-                                     int                       flags);
+    static int testDispatchPerformance(EventManager *mX,
+                                       const char   *pollingMechName,
+                                       int           flags);
         // Test the performance of the 'mX->dispatch' function.  Specify
         // 'pollingMechName' which reflects the name of the type of event
         // manager used.  4 paramters are read interactively from 'cin':
@@ -652,9 +645,7 @@ struct EventManagerTester {
         // verbosity in 'flags' with verbosity flags defined in this class.
         // Return 0 on success and a non-zero value if any failures occurred.
 
-    static int testRegisterPerformance(
-                                     EventManager       *mX,
-                                     int                       flags);
+    static int testRegisterPerformance(EventManager *mX, int flags);
         // Test the performance of the 'registerSocketEvent' method of the
         // specified eventManager '*mX', prompting the user interactively for
         // int 'numSockets' and double 'fractionRegistered', registering
@@ -668,6 +659,11 @@ struct EventManagerTester {
 //-----------------------------------------------------------------------------
 //                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
+
+                        // ----------------------------
+                        // class EventManagerTesterPair
+                        // ----------------------------
+
 inline
 SocketHandle::Handle EventManagerTestPair::controlFd() const
 {
@@ -685,6 +681,7 @@ SocketHandle::Handle EventManagerTestPair::observedFd() const
 {
     return d_fds[0];
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

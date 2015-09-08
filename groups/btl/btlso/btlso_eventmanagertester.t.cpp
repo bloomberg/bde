@@ -49,8 +49,8 @@ using namespace BloombergLP;
 // ACCESSORS
 // [ 2] int testAccessor();
 // ----------------------------------------------------------------------------
-// [ 1] Breathing Test
-// [ 8] USAGE Example
+// [ 1] BREATHING TEST
+// [ 8] USAGE EXAMPLE
 
 //=============================================================================
 //          CENTRAL TABLE OF RESULTS OF TESTS OF 'testDispatchPerforamnce'
@@ -359,12 +359,12 @@ enum {
 //=============================================================================
 //                             HELPER CLASS
 //-----------------------------------------------------------------------------
-class HelperEventManager : public btlso::EventManager
-{
+class HelperEventManager : public btlso::EventManager {
     // This helper class provides a dummy event manager to create an instance
-    // of btlso::EventManager, which is used to test 'btlso::EventManagerTester'.
+    // of btlso::EventManager, which is used to test
+    // 'btlso::EventManagerTester'.
 
-public:
+  public:
     enum {
         UNSET                 = -1, // The value is unset.
         DISPATCH              =  1, // Call dispatch() w/o timeout requirement.
@@ -385,7 +385,7 @@ public:
        int                        d_timeout;     // timeout in milliseconds
     };
 
-private:
+  private:
     mutable bsl::vector<OperationDetails> d_parameters;
 
     // not implemented
@@ -463,6 +463,7 @@ private:
         // functions under test.
 };
 
+// CREATORS
 HelperEventManager::HelperEventManager(bslma::Allocator *basicAllocator)
 : d_parameters(basicAllocator)
 {
@@ -472,10 +473,7 @@ HelperEventManager::~HelperEventManager()
 {
 }
 
-                             // ------------
-                             // MANIPULATORS
-                             // ------------
-
+// MANIPULATORS
 int HelperEventManager::dispatch(const bsls::TimeInterval& deadline,
                                  int)
 {
@@ -559,10 +557,7 @@ const bsl::vector<HelperEventManager::OperationDetails>&
     return d_parameters;
 }
 
-                             // ---------
-                             // ACCESSORS
-                             // ---------
-
+// ACCESSORS
 bool HelperEventManager::hasLimitedSocketCapacity() const
 {
     return false;
@@ -611,8 +606,9 @@ int buildOpDetails(
     // 'opDetails'.  Return "SUCCESS", on success and FAIL otherwise.
 {
     ASSERT(script);
-    int fd(-1), nt(0);
-    int rc(FAIL);
+
+    int  fd(-1), nt(0);
+    int  rc(FAIL);
     char buf[BUF_LEN], c[2];
     c[0] = -1;
 
@@ -855,6 +851,7 @@ int buildOpDetails(
    }
    return SUCCESS;
 }
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

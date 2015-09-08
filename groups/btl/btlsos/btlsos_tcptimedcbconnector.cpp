@@ -319,7 +319,7 @@ int TcpTimedCbConnector::initiateTimedConnection(
     }
 
     if (0 != d_connectingSocket_p->
-                           setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE))
+                           setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE))
     {
         d_factory_p->deallocate(d_connectingSocket_p);
         d_connectingSocket_p = NULL;
@@ -410,7 +410,7 @@ int TcpTimedCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
     }
 
     if (0 != d_connectingSocket_p->
-                           setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE))
+                           setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE))
     {
         d_factory_p->deallocate(d_connectingSocket_p);
         d_connectingSocket_p = NULL;

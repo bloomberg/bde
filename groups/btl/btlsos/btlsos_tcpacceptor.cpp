@@ -31,8 +31,8 @@ namespace BloombergLP {
                      // ===============================
 
 enum {
-    e_BLOCKING_MODE    = bteso_Flag::e_BLOCKING_MODE,
-    e_NONBLOCKING_MODE = bteso_Flag::e_NONBLOCKING_MODE
+    e_BLOCKING_MODE    = btlso::Flag::e_BLOCKING_MODE,
+    e_NONBLOCKING_MODE = btlso::Flag::e_NONBLOCKING_MODE
 };
 
 enum {
@@ -65,7 +65,7 @@ static RESULT *allocate(int                                     *status,
     BSLS_ASSERT(status);
 
     // Bring the listening socket into blocking mode.
-    int rc = socket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
+    int rc = socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     btlso::IPv4Address peer;
@@ -77,19 +77,19 @@ static RESULT *allocate(int                                     *status,
 
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED;
-            socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+            socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
             return NULL;                                              // RETURN
         }
 
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
-            socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+            socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 
             return NULL;                                              // RETURN
         }
     }
 
-    socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+    socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 
     RESULT *channel = new (*pool) RESULT(acceptedConnection);
 
@@ -307,7 +307,7 @@ int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                             bteso_Flag::e_NONBLOCKING_MODE)) {
+                                            btlso::Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;                                    // RETURN

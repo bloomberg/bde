@@ -29,54 +29,22 @@ using namespace bsl;  // automatically added by script
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-//  The btlso::InetStreamSocket represents the lowest layer at which all socket
-//  functionality is combined.  This means that in addition to testing that
-//  functions forward onto the lower layer functions, the functionality
-//  with regards to all of a sockets implementation must be tested.
+//                              --------
 //
-//  Each socket implementation is different in its behavior including
-//  their interpretation of the BSD sockets interface.
-//
+// 'btlso::InetStreamSocketFactory' is a concrete implementation of the
+// 'btlso::StreamSocketFactory' protocol providing a factory for creating
+// btlso::InetStreamSocket objects.  We invoke all the methods in the protocol
+// and confirm that the allocate and deallocate methods work as expected.
 //-----------------------------------------------------------------------------
-// Class btlso::InetStreamSocketFactory
-// ============================================================================
 // [ 2] btlso::InetStreamSocketFactory(basicAllocator = 0);
 // [ 2] ~btlso::InetStreamSocketFactory();
 // [ 2] btlso::StreamSocket<ADDRESS> *allocate();
 // [ 3] btlso::StreamSocket<ADDRESS> *allocate(handle);
 // [ 2] void deallocate(btlso::StreamSocket<ADDRESS> *socket);
-// [ 2] void deallocate(btlso::StreamSocket<ADDRESS> *socket, bool closeFlag);
-//
-// Class btlso::InetStreamSocket
-// ============================================================================
-// [ 2] btlso::InetStreamSocket(handle, bslma::Allocator *allocator);
-// [ 2] ~btlso::InetStreamSocket<ADDRESS>();
-// [  ] int accept(result);
-// [ 4] int accept(socket, ADDRESS *peerAddress);
-// [ 4] int bind(const ADDRESS& address);
-// [ 4] int connect(const ADDRESS& address);
-// [ 4] int listen(int backlog);
-// [ 8] int read(char *buffer, int length);
-// [ 8] int readv(const btls::Iovec *buffers, int numBuffers);
-// [ 7] int write(const char *buffer, int length);
-// [ 7] int writev(const btls::Iovec *buffers, int numBuffers);
-// [ 7] int writev(const btls::Ovec *buffers, int numBuffers);
-// [ 4] int setBlockingMode(mode);
-// [ 4] int shutdown(streamOption);
-// [10] int waitForConnect(const bsls::TimeInterval& timeout);
-// [ 9] int waitForAccept(const bsls::TimeInterval& timeout);
-// [ 6] int waitForIO(type,const bsls::TimeInterval& timeout);
-// [  ] int setLingerOption(options);
-// [11] int setOption(int level, int option, int value);
-// [ 4] int blockingMode(result) const;
-// [ 4] int localAddress(ADDRESS *result) const;
-// [ 4] int peerAddress(ADDRESS *result) const;
-// [ 2] btlso::SocketHandle::Handle handle() const;
-// [10] int connectionStatus() const;
-// [  ] int lingerOption(btlso::SocketOptUtil::LingerData *result) const;
-// [11] int socketOption(int *result, int level, int option) const;
+// [ 2] void deallocate(btlso::StreamSocket<ADDRESS> *socket, bool flag);
 //-----------------------------------------------------------------------------
-// [ 5] createConnectedStreamSockets()
+// [ 4] USAGE EXAMPLE
+// [ 1] BREATHING TEST
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -156,14 +124,14 @@ int countSockets(int base, int max)
 
     return -1;
 #else
-    int socketNumber;
-    int socketCount = 0;
-    char address[20];
+    int       socketNumber;
+    int       socketCount = 0;
+    char      address[20];
     ADDRLEN_T len = sizeof(address);
 
     for (socketNumber = base; socketNumber <= max; ++socketNumber) {
          int ret = ::getsockname((btlso::SocketHandle::Handle) socketNumber,
-                               (sockaddr *) &address, &len);
+                                 (sockaddr *) &address, &len);
 
          if (ret >= 0) ++socketCount;
     }
@@ -273,24 +241,26 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-        case 13: {
-            // ----------------------------------------------------------------
-            // TESTING USAGE EXAMPLE
-            //   The usage example provided in the component header file must
-            //   compile, link, and run on all platforms as shown.
-            //
-            // Plan:
-            //   Incorporate usage example from header into driver, remove
-            //   leading comment characters, and replace 'assert' with
-            //   'ASSERT'.
-            //
-            // Testing:
-            //   USAGE EXAMPLE
-            // ----------------------------------------------------------------
-            if (verbose) cout << "\nTesting Usage Example"
-                              << "\n=====================" << endl;
+      case 4: {
+        // ----------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove
+        //   leading comment characters, and replace 'assert' with
+        //   'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // ----------------------------------------------------------------
 
-            bslma::TestAllocator ta;
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
+
+        bslma::TestAllocator ta;
+
 {
 ///Usage
 ///-----
@@ -303,7 +273,7 @@ int main(int argc, char *argv[]) {
 //
 // First, we create a 'btlso::InetStreamSocketFactory' object:
 //..
-    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
 //..
 // Then, we create a stream socket:
 //..
@@ -324,24 +294,25 @@ int main(int argc, char *argv[]) {
 // Alternatively, we can use 'btlso::InetStreamSocketFactory' to allocate a
 // 'btlso::StreamSocket' object that attaches to an existing socket handle.
 // This socket handle may be created from a third-party library (such as
-// OpenSSL).  Using a 'btlso::StreamSocket' object rather than the socket handle
-// directly is highly desirable as it enables the use of other BTE components
-// on the socket.  In this example, the socket handle is created from the
-// 'btlso_socketimputil' component for illustrative purpose.
+// OpenSSL).  Using a 'btlso::StreamSocket' object rather than the socket
+// handle directly is highly desirable as it enables the use of other BTE
+// components on the socket.  In this example, the socket handle is created
+// from the 'btlso_socketimputil' component for illustrative purpose.
 //
 // First, we create a socket handle 'fd':
 //..
     btlso::SocketHandle::Handle fd;
-    int nativeErrNo = 0;
+    int                         nativeErrNo = 0;
+
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
-                                      &fd,
-                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
-                                      &nativeErrNo);
+                                         &fd,
+                                         btlso::SocketImpUtil::k_SOCKET_STREAM,
+                                         &nativeErrNo);
     ASSERT(0 == nativeErrNo);
 //..
 // Then, we create factory:
 //..
-    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
 //..
 // Next, we allocate a stream socket attached to 'fd':
 //..
@@ -357,1875 +328,10 @@ int main(int argc, char *argv[]) {
     factory.deallocate(mySocket);
 //..
 }
-        }break;
-        case 12:
-        // --------------------------------------------------------------------
-        // TESTING SETLINGEROPTION
-        //
-        // Plan:
-        //
-        // Testing:
-        //   setLingerOption()
-        // --------------------------------------------------------------------
-        {
-
-            if (verbose) cout << endl
-                          << "Testing setLingerOption" << endl
-                          << "=======================" << endl;
-
-          {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-
-               btlso::StreamSocket<btlso::IPv4Address> *testSocket =
-                     testFactory.allocate();
-
-               btlso::SocketOptUtil::LingerData lingerResult;
-               lingerResult.l_onoff = 2;
-               lingerResult.l_linger = 99;
-               int resp = testSocket->lingerOption(&lingerResult);
-               if (veryVerbose) {
-                   P_(lingerResult.l_onoff);
-                   P(lingerResult.l_linger);
-               }
-               ASSERT(resp == 0);
-               ASSERT(lingerResult.l_onoff == 0);
-
-               btlso::SocketOptUtil::LingerData ling;
-               ling.l_onoff = 1;
-               ling.l_linger = 0;
-               testSocket->setLingerOption(ling);
-
-               ASSERT(resp == 0);
-
-               lingerResult.l_onoff = 2;
-               lingerResult.l_linger = 99;
-               resp = testSocket->lingerOption(&lingerResult);
-               if (veryVerbose) {
-                   P_(lingerResult.l_onoff);
-                   P(lingerResult.l_linger);
-               }
-
-               ASSERT(resp == 0);
-               ASSERT(lingerResult.l_onoff != 0);
-               ASSERT(lingerResult.l_linger == 0);
-
-               ling.l_onoff = 1;
-               ling.l_linger = 10;
-               testSocket->setLingerOption(ling);
-
-               ASSERT(resp == 0);
-
-               lingerResult.l_onoff = 2;
-               lingerResult.l_linger = 99;
-               resp = testSocket->lingerOption(&lingerResult);
-               if (veryVerbose) {
-                   P_(lingerResult.l_onoff);
-                   P(lingerResult.l_linger);
-               }
-
-               ASSERT(resp == 0);
-               ASSERT(lingerResult.l_onoff != 0);
-               ASSERT(lingerResult.l_linger > 0);
-
-               ling.l_onoff = 0;
-               ling.l_linger = 10;
-               testSocket->setLingerOption(ling);
-
-               ASSERT(resp == 0);
-
-               lingerResult.l_onoff = 2;
-               lingerResult.l_linger = 99;
-               resp = testSocket->lingerOption(&lingerResult);
-               if (veryVerbose) {
-                   P_(lingerResult.l_onoff);
-                   P(lingerResult.l_linger);
-               }
-
-               ASSERT(resp == 0);
-               ASSERT(lingerResult.l_onoff == 0);
-
-               testFactory.deallocate(testSocket);
-          }
-        } break;
-        case 11:
-        // --------------------------------------------------------------------
-        // TESTING SETOPTION
-        //
-        // Plan:
-        //
-        // Testing:
-        //   setOption()
-        // --------------------------------------------------------------------
-        {
-
-            if (verbose) cout << endl
-                          << "Testing setOption" << endl
-                          << "=================" << endl;
-
-          {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-
-               btlso::StreamSocket<btlso::IPv4Address> *testSocket =
-                     testFactory.allocate();
-
-               int result = -1;
-
-               int resp = testSocket->socketOption(
-                     &result,
-                     btlso::SocketOptUtil::k_SOCKETLEVEL,
-                     btlso::SocketOptUtil::k_SENDBUFFER);
-
-               ASSERT(resp == 0);
-               ASSERT(result > 0);
-               if (veryVerbose) cout << "SENDBUFFER " << result << endl;
-
-               resp = testSocket->socketOption(
-                     &result,
-                     btlso::SocketOptUtil::k_SOCKETLEVEL,
-                     btlso::SocketOptUtil::k_RECEIVEBUFFER);
-
-               ASSERT(resp == 0);
-               ASSERT(result > 0);
-               if (veryVerbose) cout << "RECEIVEBUFFER " << result << endl;
-
-               resp = testSocket->setOption(
-                     btlso::SocketOptUtil::k_SOCKETLEVEL,
-                     btlso::SocketOptUtil::k_SENDBUFFER,
-                                                32768);
-
-               ASSERT(resp == 0);
-
-               result = -1;
-               resp = testSocket->socketOption(
-                     &result,
-                     btlso::SocketOptUtil::k_SOCKETLEVEL,
-                     btlso::SocketOptUtil::k_SENDBUFFER);
-
-               ASSERT(resp == 0);
-               ASSERT(result > 0);
-               if (veryVerbose) P(result);
-
-               testFactory.deallocate(testSocket);
-          }
-        } break;
-
-        case 10:
-        // --------------------------------------------------------------------
-        // TESTING WAITFORCONNECT
-        //
-        // Plan:
-        //   Connect non-blocking to an address known to be invalid.
-        //   Connect non-blocking to a local valid port.
-        //
-        // Testing:
-        //   waitForConnect()
-        // --------------------------------------------------------------------
-        {
-
-            if (verbose) cout << endl
-                          << "Testing waitForConnect" << endl
-                          << "======================" << endl;
-
-          // Test bind() with "bad" external address.  Non Blocking client
-          // This address is a non-routable address and the connection cannot
-          // succeed.
-          {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::IPv4Address serverAddress;
-               serverAddress.setIpAddress("169.254.1.1");
-               serverAddress.setPortNumber(1);
-
-               // Create the client socket.
-
-               btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
-                     testFactory.allocate();
-
-               ASSERT(clientSocket);
-
-               clientSocket->setBlockingMode(
-                                           bteso_Flag::e_NONBLOCKING_MODE);
-
-               int resp = clientSocket->connect(serverAddress);
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-               int status = 0;
-
-               // Poll status
-               bsls::TimeInterval negtwoseconds = bdlt::CurrentTime::now() - 2;
-               resp = clientSocket->waitForConnect(negtwoseconds);
-               ASSERT(resp == 0
-                   || resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
-
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-               enum { WAITS = 200 };
-#else
-               enum { WAITS = 100 };
-#endif
-
-               for (int x = 0; x < WAITS; ++x) {
-                   bsls::TimeInterval twoseconds = bdlt::CurrentTime::now() + 2;
-
-                   if (veryVerbose) { cout << "waitForConnect "; P(resp); }
-                   resp = clientSocket->waitForConnect(twoseconds);
-
-                   if (resp == 0) {
-                       status = clientSocket->connectionStatus();
-                       if (veryVerbose) {
-                           cout << "connectionStatus ";P(status);
-                       }
-                       break;
-                   }
-                   else {
-                       ASSERT(resp ==
-                                     btlso::SocketHandle::e_ERROR_TIMEDOUT);
-                   }
-               }
-
-               resp = clientSocket->waitForConnect(negtwoseconds);
-               ASSERT(resp == 0);
-
-               ASSERT(status != 0);
-
-               testFactory.deallocate(clientSocket);
-
-           }
-           {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                     testFactory.allocate();
-               ASSERT(serverSocket);
-
-               // Bind to localhost with anon port number
-               btlso::IPv4Address localAnonPort;
-               localAnonPort.setIpAddress("127.0.0.1");
-               localAnonPort.setPortNumber(0);
-
-               // bind to a anon port
-               int resp = serverSocket->bind(localAnonPort);
-               ASSERT(resp == 0);
-
-               btlso::IPv4Address serverAddress;
-               resp = serverSocket->localAddress(&serverAddress);
-               ASSERT(resp == 0);
-
-               // The address must be the same.
-               ASSERT(localAnonPort.ipAddress() == serverAddress.ipAddress());
-               // The port number may not be zero.
-               ASSERT(serverAddress.portNumber() > 0);
-
-               resp = serverSocket->listen(10);
-               ASSERT(resp == 0);
-
-               // Create the client socket.
-
-               btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
-                     testFactory.allocate();
-
-               ASSERT(clientSocket);
-
-               clientSocket->setBlockingMode(
-                                           bteso_Flag::e_NONBLOCKING_MODE);
-
-               resp = clientSocket->connect(serverAddress);
-               ASSERT(resp == 0 ||
-                      resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-               int status = -1;
-
-               for (int x = 0; x < 100; ++x) {
-
-                   bsls::TimeInterval twoseconds = bdlt::CurrentTime::now() + 2;
-
-                   resp = clientSocket->waitForConnect(twoseconds);
-                   if (veryVerbose) { cout << "waitForConnect "; P(resp); }
-
-                   if (resp == 0) {
-                       status = clientSocket->connectionStatus();
-                       if (veryVerbose) {
-                           cout << "connectionStatus ";P(status);
-                       }
-                       break;
-                   }
-                   else {
-                       ASSERT(resp ==
-                                     btlso::SocketHandle::e_ERROR_TIMEDOUT);
-                   }
-               }
-
-               ASSERT(status == 0);
-
-               // Accept the connection
-               btlso::StreamSocket<btlso::IPv4Address> *serviceSocket;
-               btlso::IPv4Address clientAddress;
-
-               resp = serverSocket->accept(&serviceSocket, &clientAddress);
-
-               // shutdown service socket
-               resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-
-               status = clientSocket->connectionStatus();
-               ASSERT(status == 0);
-               if (veryVerbose) P(status);
-               testFactory.deallocate(serviceSocket);
-
-               testFactory.deallocate(serverSocket);
-               testFactory.deallocate(clientSocket);
-
-           }
-      } break;
-
-        case 9:
-        // --------------------------------------------------------------------
-        // TESTING WAITFORACCEPT
-        //
-        // Plan:
-        //   For blocking listening socket:
-        //      no pending incoming connection
-        //      pending incoming connection
-        //      pending incoming connection closed before wait
-        //      pending incoming connection reset before wait (not impl***
-        //
-        // Testing:
-        //   waitForAccept()
-        // --------------------------------------------------------------------
-        {
-
-            if (verbose) cout << endl
-                          << "Testing waitForAccept" << endl
-                          << "=====================" << endl;
-
-           {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                     testFactory.allocate();
-               ASSERT(serverSocket);
-
-               // Bind to localhost with anon port number
-               btlso::IPv4Address localAnonPort;
-               localAnonPort.setIpAddress("127.0.0.1");
-               localAnonPort.setPortNumber(0);
-
-               // bind to a anon port
-               int resp = serverSocket->bind(localAnonPort);
-               ASSERT(resp == 0);
-
-               btlso::IPv4Address serverAddress;
-               resp = serverSocket->localAddress(&serverAddress);
-               ASSERT(resp == 0);
-
-               // The address must be the same.  The port number may not
-               // be zero.
-               ASSERT(localAnonPort.ipAddress() == serverAddress.ipAddress());
-               ASSERT(serverAddress.portNumber() > 0);
-
-               resp = serverSocket->listen(10);
-               ASSERT(resp == 0);
-
-               // Create the client socket.
-
-               btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
-                     testFactory.allocate();
-               ASSERT(clientSocket);
-
-               bsls::TimeInterval timeBefore = bdlt::CurrentTime::now();
-               bsls::TimeInterval timeout = timeBefore + 2;
-
-               // There is no pending incoming connection.  Expect timeout.
-               resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
-               if (veryVerbose) { P(resp); };
-
-               resp = clientSocket->connect(serverAddress);
-               ASSERT(resp == 0);
-               if (veryVerbose) { P(resp); };
-
-               bsls::TimeInterval timeAfter;
-               timeBefore = bdlt::CurrentTime::now();
-               timeout = timeBefore + 2;
-
-               // There is a pending connection so expect success.
-               resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == 0);
-               if (veryVerbose) { P(resp); };
-
-               timeBefore = bdlt::CurrentTime::now();
-               timeout = timeBefore + 2;
-
-               // There is a pending connection so expect success.
-               resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == 0);
-               if (veryVerbose) { P(resp); };
-
-               // Accept the connection
-               btlso::StreamSocket<btlso::IPv4Address> *serviceSocket;
-               btlso::IPv4Address clientAddress;
-
-               resp = serverSocket->accept(&serviceSocket, &clientAddress);
-               ASSERT(resp == 0);
-               if (veryVerbose) { P(resp); };
-
-               timeBefore = bdlt::CurrentTime::now();
-               timeout = timeBefore + 2;
-
-               // There is no pending incoming connection.  Expect timeout.
-               resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
-
-               // If a timeout occurred, time must be > (timeout - 10ms)
-               // and within 5 seconds
-               timeAfter = bdlt::CurrentTime::now();
-               ASSERT((timeAfter + 0.01) > timeout);
-               ASSERT(timeAfter < (timeout + 5));
-
-               timeBefore = bdlt::CurrentTime::now();
-               timeout = timeBefore - 0.02;
-               // Timeout is in the past (>= 20ms).  Don't wait just return
-               // status.
-
-               resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
-
-               // If a timeout occurred, time must be > (timeout - 10ms)
-               // and within 5 seconds
-               timeAfter = bdlt::CurrentTime::now();
-               ASSERT((timeAfter + 0.01) > timeout);
-               ASSERT((timeAfter + 0.01) > timeBefore);
-               ASSERT(timeAfter < (timeout + (5 + 0.02)));
-
-               testFactory.deallocate(serviceSocket);
-
-               testFactory.deallocate(serverSocket);
-               testFactory.deallocate(clientSocket);
-
-          }
-
-        } break;
-        case 8:
-        // --------------------------------------------------------------------
-        // TESTING READ
-        //
-        // Plan:
-        //    test read  normal
-        //    test readv normal
-        //
-        // Testing:
-        //   read()
-        //   readv()
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing read and readv" << endl
-                          << "========================" << endl;
-
-        {
-         {
-             if (veryVerbose) cout
-              << "\n   test read normal data"
-              << endl;
-
-               // Create a server socket
-
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-               int resp = createConnectedStreamSockets(&testFactory,
-                                 &streamSocketA, &streamSocketB);
-
-               ASSERT(resp);
-
-               // Fill the outgoing socket buffer for socket A
-               char buf1[] = { 10, 9, 88, 6, 2, 10, 0, 51, 7, 99 };
-
-               char rcvbuf1[100];
-               char rcvbuf2[100];
-
-               resp = streamSocketA->write(buf1, sizeof(buf1));
-               ASSERT(resp == sizeof(buf1));
-
-               // Latency
-               bdlqq::ThreadUtil::microSleep(500 * 1000);
-
-               resp = streamSocketB->read(rcvbuf1, 1);
-               ASSERT(resp == 1);
-
-               resp = streamSocketB->read(rcvbuf2, 5);
-               ASSERT(resp == 5);
-
-               ASSERT(memcmp(buf1, rcvbuf1, 1) == 0);
-               ASSERT(memcmp(buf1 + 1, rcvbuf2, 5) == 0);
-
-             testFactory.deallocate(streamSocketA);
-             testFactory.deallocate(streamSocketB);
-         }
-
-         {
-             if (veryVerbose) cout
-              << "\n   test readv normal data"
-              << endl;
-
-               // Create a server socket
-
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-               int resp = createConnectedStreamSockets(&testFactory,
-                                 &streamSocketA, &streamSocketB);
-
-               ASSERT(resp);
-
-               // Fill the outgoing socket buffer for socket A
-               char buf1[] = { 10, 9, 88, 6, 2, 10, 0, 51, 7, 99 };
-
-               char rcvbuf1[100];
-               char rcvbuf2[100];
-               char rcvbuf3[100];
-
-               resp = streamSocketA->write(buf1, sizeof(buf1));
-               ASSERT(resp == sizeof(buf1));
-
-               int totalSent = resp;
-
-               // Latency
-               bdlqq::ThreadUtil::microSleep(500 * 1000);
-
-               btls::Iovec vec[2];
-               vec[0].setBuffer(rcvbuf1, 1);
-               vec[1].setBuffer(rcvbuf2, 5);
-
-               resp = streamSocketB->readv(vec, 2);
-               ASSERT(resp == 6);
-
-               // Test for zero data to be read and no EOF
-
-               vec[0].setBuffer(rcvbuf1, 0);
-               vec[1].setBuffer(rcvbuf2, 0);
-
-               resp = streamSocketB->readv(vec, 2);
-               ASSERT(resp == 0);
-
-               resp = streamSocketB->read(rcvbuf3, 2);
-               ASSERT(resp == 2);
-
-               ASSERT(memcmp(buf1, rcvbuf1, 1) == 0);
-               ASSERT(memcmp(buf1 + 1, rcvbuf2, 5) == 0);
-               ASSERT(memcmp(buf1 + 6, rcvbuf3, 2) == 0);
-
-               // shutdown A
-               resp = streamSocketA->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-
-               // First receive what has been sent.
-               vec[0].setBuffer(rcvbuf1, 10);
-               vec[1].setBuffer(rcvbuf2, 10);
-
-               resp = streamSocketB->readv(vec, 2);
-
-               ASSERT(resp == (totalSent - 6 - 2));
-
-               // EOF is expected next.
-               vec[0].setBuffer(rcvbuf1, 1);
-               vec[1].setBuffer(rcvbuf2, 5);
-
-               resp = streamSocketB->readv(vec, 2);
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
-
-             testFactory.deallocate(streamSocketA);
-             testFactory.deallocate(streamSocketB);
-         }
-      } break;
-      case 7:
-        // --------------------------------------------------------------------
-        // TESTING WRITE
-        //
-        // Plan:
-        //    test write
-        //    test writev
-        //    test response btlso::SocketHandle::e_ERROR_INTERRUPTED (UNIX
-        //                                                               only)
-        //    test response btlso::SocketHandle::e_ERROR_CONNDEAD
-        //    test response btlso::SocketHandle::e_ERROR_WOULDBLOCK
-        //
-        // Testing:
-        //   write()
-        //   writev()
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing write and writev" << endl
-                          << "========================" << endl;
-
-        {
-         {
-             if (veryVerbose) cout
-              << "\n   test write normal data"
-              << endl;
-
-               // Create a server socket
-
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-               int resp = createConnectedStreamSockets(&testFactory,
-                                 &streamSocketA, &streamSocketB);
-
-               ASSERT(resp);
-
-               // Fill the outgoing socket buffer for socket A
-               char buf1[] = { 10, 9, 8, 6, 2, 10 };
-               char buf2[] = { 100, 5, 15, 0, 1 };
-
-               char rcvbuf[100];
-
-               resp = streamSocketA->write(buf1, sizeof(buf1));
-               ASSERT(resp == sizeof(buf1));
-
-               resp = streamSocketA->write(buf2, sizeof(buf2));
-               ASSERT(resp == sizeof(buf2));
-
-               bdlqq::ThreadUtil::microSleep(500 * 1000);
-
-               resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
-               ASSERT(resp == (sizeof(buf1) + sizeof(buf2)));
-
-               ASSERT(memcmp(buf1, rcvbuf, sizeof(buf1)) == 0);
-               ASSERT(memcmp(buf2, rcvbuf + sizeof(buf1), sizeof(buf2)) == 0);
-
-             testFactory.deallocate(streamSocketA);
-             testFactory.deallocate(streamSocketB);
-         }
-         {
-             if (veryVerbose) cout
-              << "\n   test writev normal data"
-              << endl;
-
-               // Create a server socket
-
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-               int resp = createConnectedStreamSockets(&testFactory,
-                                 &streamSocketA, &streamSocketB);
-
-               ASSERT(resp);
-
-               // Fill the outgoing socket buffer for socket A
-               char buf1[] = { 10, 9, 8, 6, 2, 10 };
-               char buf2[] = { 100, 5, 15, 0, 1 };
-               char buf3[] = { 1 };
-
-               char rcvbuf[100];
-
-               btls::Ovec vec[2];
-               vec[0].setBuffer(buf1, sizeof(buf1));
-               vec[1].setBuffer(buf2, sizeof(buf2));
-               resp = streamSocketA->writev(vec, 2);
-               ASSERT(resp == sizeof(buf1) + sizeof(buf2));
-               if (veryVerbose) P(resp);
-
-               btls::Ovec vec2[1];
-               vec2[0].setBuffer(buf3, sizeof(buf3));
-               resp = streamSocketA->writev(vec2, 1);
-               ASSERT(resp == sizeof(buf3));
-               if (veryVerbose) P(resp);
-
-               bdlqq::ThreadUtil::microSleep(500 * 1000);
-
-               resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
-               ASSERT(resp == (sizeof(buf1) + sizeof(buf2) + sizeof(buf3)));
-               if (veryVerbose) P(resp);
-
-               ASSERT(memcmp(buf1, rcvbuf, sizeof(buf1)) == 0);
-               ASSERT(memcmp(buf2, rcvbuf + sizeof(buf1), sizeof(buf2)) == 0);
-               ASSERT(memcmp(buf3,
-                             rcvbuf + sizeof(buf1) + sizeof(buf2),
-                             sizeof(buf3)) == 0);
-
-             testFactory.deallocate(streamSocketA);
-             testFactory.deallocate(streamSocketB);
-         }
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
-         {
-         if (veryVerbose) cout
-          << "\n   test write response ERROR_INTERRUPTED (UNIX only)"
-          << endl;
-
-         int packetSize;
-
-         for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
-           // Create a server socket
-           if (veryVerbose) P(packetSize);
-
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           // Fill the outgoing socket buffer for socket A
-           char zerobuf[1024*64];
-           memset(zerobuf, 0, sizeof zerobuf);
-
-           globalAlarmCount = 0;
-
-           // Set a one second timeout.  A blocking system call such as a
-           // write will fail when this timeout occurs.  The signal handler
-           // will restart the timer.
-           struct sigaction oact, act;
-           act.sa_handler = sigalarm;
-           sigemptyset(&act.sa_mask);
-           act.sa_flags = 0;
-           ::sigaction(SIGALRM, &act, &oact);
-           ::alarm(1);
-
-           int totalSent = 0;
-
-           // Keep going until write fails for interrupted call.
-           int i = 0;
-           while (1) {
-               resp = streamSocketA->write(zerobuf, packetSize);
-               if (resp <= 0) break;
-               ASSERT(resp <= packetSize);
-
-               if ((veryVerbose && resp < packetSize) || veryVeryVerbose) {
-                   P_(i); P(resp);
-               }
-               totalSent += resp;
-               ++i;
-           }
-
-           // Cancel the alarm
-
-           ::sigaction(SIGALRM, &oact, &act);
-           ::alarm(0);
-
-           if (veryVerbose) {
-               cout << "        ";
-               P_(i); P_(globalAlarmCount); P(totalSent);
-           }
-
-           ASSERT(globalAlarmCount > 0);
-
-           ASSERT(resp == btlso::SocketHandle::e_ERROR_INTERRUPTED);
-
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-         }
-         }
-
-         {
-         if (veryVerbose) cout
-          << "\n   test writev response ERROR_INTERRUPTED (UNIX only)"
-          << endl;
-
-         int packetSize;
-
-         for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
-           // Create a server socket
-           if (veryVerbose) P(packetSize);
-
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           // Fill the outgoing socket buffer for socket A
-           char zerobuf[1024*64];
-           memset(zerobuf, 0, sizeof zerobuf);
-
-           globalAlarmCount = 0;
-
-           // Set a one second timeout.  A blocking system call such as a
-           // write will fail when this timeout occurs.  The signal handler
-           // will restart the timer.
-           struct sigaction oact, act;
-           act.sa_handler = sigalarm;
-           sigemptyset(&act.sa_mask);
-           act.sa_flags = 0;
-           ::sigaction(SIGALRM, &act, &oact);
-           ::alarm(1);
-
-           int totalSent = 0;
-
-           // Keep going until writev fails for interrupted call.
-           int i = 0;
-           while (1) {
-               btls::Ovec vec[2];
-               vec[0].setBuffer(zerobuf, packetSize);
-               vec[1].setBuffer(zerobuf, 2);
-               resp = streamSocketA->writev(vec, 2);
-               if (resp <= 0) break;
-               ASSERT(resp <= (packetSize + 2));
-
-               if ((veryVerbose && resp < packetSize) || veryVeryVerbose) {
-                   P_(i); P(resp);
-               }
-               totalSent += resp;
-               ++i;
-           }
-
-           // Cancel the alarm
-
-           ::sigaction(SIGALRM, &oact, &act);
-           ::alarm(0);
-
-           if (veryVerbose) {
-               cout << "        ";
-               P_(i); P_(globalAlarmCount); P(totalSent);
-           }
-
-           ASSERT(globalAlarmCount > 0);
-
-           ASSERT(resp == btlso::SocketHandle::e_ERROR_INTERRUPTED);
-
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-         }
-         }
-#endif
-
-         {
-#ifdef BSLS_PLATFORM_OS_UNIX
-               // Under UNIX a write to a closed blocking socket causes the
-               // signal SIGPIPE which by default will terminate the process.
-               // Set the signal to be ignored.  This behavior does not
-               // exist under Windows.
-               ::signal(SIGPIPE, SIG_IGN );
-#endif
-         }
-
-         if (veryVerbose) cout
-         << "\n   test write response btlso::SocketHandle::e_ERROR_CONNDEAD"
-         << endl;
-
-         // Verify error response when remote socket closed.
-         // Try the write with different sizes because the behavior
-         // of underlying sockets vary.  We don't try larger than
-         // 32K per write because some platforms have a limit.
-         for (int tolerance = 3, size = 1; size < 32; ++size)
-         {
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           char zerobuf[1024*32] = {0};
-
-           testFactory.deallocate(streamSocketB);
-
-           bdlqq::ThreadUtil::microSleep(200 * 1000);
-
-           // The first write to the socket after the remote socket
-           // has been closed may succeed.  Eventually the write will
-           // fail (normally after the first or second write).
-
-           int i;
-           for (i = 0; i < 10; ++i) {
-               resp = streamSocketA->write(zerobuf, 1024 * size);
-               if (resp < 0) break;
-               ASSERT(resp <= (1024 * size));
-           }
-
-           if (veryVerbose) { P_(resp); P(tolerance); }
-           if (resp > 0 && tolerance-- <= 0) {
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_CONNDEAD);
-           }
-           testFactory.deallocate(streamSocketA);
-         }
-
-         if (veryVerbose) cout
-        << "\n   test writev response btlso::SocketHandle::e_ERROR_CONNDEAD"
-        << endl;
-
-         // Verify error response when remote socket closed.
-         // Try the write with different sizes because the behavior
-         // of underlying sockets vary.  We don't try larger than
-         // 32K per write because some platforms have a limit.
-         for (int tolerance = 3, size = 1; size < 32; ++size)
-         {
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           char zerobuf[1024*32] = {0};
-
-           testFactory.deallocate(streamSocketB);
-
-           bdlqq::ThreadUtil::microSleep(200 * 1000);
-
-           // The first write to the socket after the remote socket
-           // has been closed may succeed.  Eventually the write will
-           // fail (normally after the first or second write).
-
-           for (int i = 0; i < 10; ++i) {
-               btls::Ovec vec[2];
-               vec[0].setBuffer(zerobuf, 1024 * size);
-               vec[1].setBuffer(zerobuf, 2);
-               resp = streamSocketA->writev(vec, 2);
-               if (resp < 0) break;
-               ASSERT(resp <= (1024 * size + 2));
-           }
-
-           if (veryVerbose) { P_(resp); P(tolerance); }
-           if (resp > 0 && tolerance-- <= 0) {
-               ASSERT(resp == btlso::SocketHandle::e_ERROR_CONNDEAD);
-           }
-           testFactory.deallocate(streamSocketA);
-         }
-
-         {
-         if (veryVerbose) cout
-       << "\n   test write response btlso::SocketHandle::e_ERROR_WOULDBLOCK"
-       << endl;
-
-         int packetSize;
-
-         for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
-           // Create a server socket
-           if (veryVerbose) P(packetSize);
-
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-           streamSocketB->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-           // Fill the outgoing socket buffer for socket A
-           char zerobuf[1024*64];
-           memset(zerobuf, 0, sizeof zerobuf);
-
-           int totalSent = 0;
-
-           // Keep going until write fails for "would block"
-           // Note that this test does not require that both the receive
-           // and send buffers be filled.
-           int i = 0;
-           while (1) {
-               resp = streamSocketA->write(zerobuf, packetSize);
-               if (resp <= 0) break;
-
-               ASSERT(resp <= packetSize);
-               if ((veryVerbose && resp < packetSize) || veryVeryVerbose) {
-                   P_(i); P(resp);
-               }
-               totalSent += resp;
-               ++i;
-           }
-
-           if (veryVerbose) {
-               P(i);
-               P(totalSent);
-           }
-
-           LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-           // Verify that when receiver takes all the data, sender
-           // can send again.
-
-           char receiveBuf[sizeof(zerobuf)];
-
-           int totalReceived = 0;
-           int iterations = 0;
-
-           while (1) {
-               resp = streamSocketB->read(receiveBuf, sizeof(receiveBuf));
-               if (resp <= 0) {
-                   if (totalReceived < totalSent && iterations < 30) {
-                       if (veryVerbose) {
-                           P_(iterations); P_(totalReceived); P(totalSent);
-                       }
-                       bdlqq::ThreadUtil::microSleep(100 * 1000);
-                       iterations++;
-                   }
-                   else break;
-               }
-               else {
-                   totalReceived += resp;
-                   LOOP_ASSERT(packetSize, resp <= (int)sizeof(receiveBuf));
-               }
-           }
-
-           LOOP_ASSERT(packetSize, totalReceived == totalSent);
-           LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-           // Latency
-
-           bdlqq::ThreadUtil::microSleep(1000 * 1000);
-
-           // Write data and verify that it writes OK
-
-           resp = streamSocketA->write(zerobuf, packetSize);
-
-           if (veryVerbose) P(resp);
-           LOOP_ASSERT(packetSize, resp > 0 && resp <= packetSize);
-
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-         }
-         }
-
-         {
-         if (veryVerbose) cout
-      << "\n   test writev response btlso::SocketHandle::e_ERROR_WOULDBLOCK"
-      << endl;
-
-         int packetSize;
-
-         for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
-           // Create a server socket
-           if (veryVerbose) P(packetSize);
-
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-
-           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-           streamSocketB->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-           // Fill the outgoing socket buffer for socket A
-           char zerobuf[1024*64];
-           memset(zerobuf, 0, sizeof zerobuf);
-
-           int totalSent = 0;
-
-           // Keep going until write fails for "would block"
-           // Note that this test does not require that both the receive
-           // and send buffers be filled.
-           int i = 0;
-           while (1) {
-               btls::Ovec vec[2];
-               vec[0].setBuffer(zerobuf, packetSize);
-               vec[1].setBuffer(zerobuf, 2);
-               resp = streamSocketA->writev(vec, 2);
-               if (resp <= 0) break;
-
-               ASSERT(resp <= (packetSize + 2));
-               if ((veryVerbose && resp < (packetSize + 2)) || veryVeryVerbose)
-               {
-                   P_(i); P(resp);
-               }
-               totalSent += resp;
-               ++i;
-           }
-
-           if (veryVerbose) P(i);
-           if (veryVerbose) cout << "Total Sent " << totalSent << endl;
-
-           ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-           // Verify that when receiver takes all the data, sender
-           // can send again.
-
-           char receiveBuf[sizeof(zerobuf)];
-           int totalReceived = 0;
-           int iterations = 0;
-
-           while (1) {
-               resp = streamSocketB->read(receiveBuf, sizeof(receiveBuf));
-               if (resp <= 0) {
-                   if (totalReceived < totalSent && iterations < 30) {
-                       if (veryVerbose) {
-                           P_(iterations); P_(totalReceived); P(totalSent);
-                       }
-                       bdlqq::ThreadUtil::microSleep(100 * 1000);
-                       iterations++;
-                   }
-                   else break;
-               }
-               else {
-                   totalReceived += resp;
-                   LOOP_ASSERT(packetSize, resp <= (int)sizeof(receiveBuf));
-               }
-           }
-
-           LOOP_ASSERT(packetSize, totalReceived == totalSent);
-           LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-           // Latency
-
-           bdlqq::ThreadUtil::microSleep(1000 * 1000);
-
-           // Write data and verify that it writes OK
-
-           btls::Ovec vec[2];
-           vec[0].setBuffer(zerobuf, packetSize);
-           vec[1].setBuffer(zerobuf, 2);
-           resp = streamSocketA->writev(vec, 2);
-
-           if (veryVerbose) P(resp);
-           ASSERT(resp > 0 && resp <= (packetSize + 2));
-
-#ifndef BSLS_PLATFORM_OS_CYGWIN
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-#else
-           // Cygwin is doing something funky in its close() function, which
-           // force us to close the client socket first.
-
-           testFactory.deallocate(streamSocketB);
-           testFactory.deallocate(streamSocketA);
-#endif
-         }
-         }
-      } break;
-      case 6:
-        // --------------------------------------------------------------------
-        // TESTING WAITFORIO
-        //
-        // Plan:
-        //   Create a pair of connected sockets (A and B).  Set socket A to
-        //   non-blocking.  Fill the write queue of socket A by writing to it
-        //   and not reading from socket B.
-        //   Write will eventually return ERROR_WOULDBLOCK.
-        //   Call waitFor(read/write, 10) on socket A; (all 3 permutations)
-        //   1) no prior extra read/write
-        //   2) alarm 5 seconds.  UNIX only - tests interrupted call
-        //   3) read 10K bytes from socket B first (sleep first)
-        //   4) write 1 byte to socket B first.
-        //   5) read 10K bytes from B and write 1 byte to socket B first.
-        //
-        //   Test with and without TCPNODELAY option (Nagle algorithm).
-        //
-        // Testing:
-        //   waitForIO()
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing waitForIO" << endl
-                          << "=================" << endl;
-
-        {
-// TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_AIX
-           const bteso_Flag::IOWaitType RD = bteso_Flag::e_IO_READ;
-           const bteso_Flag::IOWaitType WR = bteso_Flag::e_IO_WRITE;
-           const bteso_Flag::IOWaitType RW = bteso_Flag::e_IO_RW;
-           const int                    TO = btlso::SocketHandle::e_ERROR_TIMEDOUT;
-
-           typedef bteso_Flag S;
-           static const struct {
-               int           d_lineNum;      // source line number
-               S::IOWaitType d_io;           // what to wait for
-               int           d_seconds;      // how many seconds to wait
-               int           d_microseconds; // how many microseconds to wait
-               int           d_readPercent;  // percent of the written bytes to
-                                             // read
-               int           d_writebytes;   // num of bytes to write to B
-               int           d_delay;        // delay in millisecs before wait
-               int           d_tcpndelay;    // 1 if nagle off
-               int           d_expected;     // expected result
-           } DATA[] = {
-                //line io  secs  usecs  read   write  delay  tcpndelay expected
-                //---- --  ----  -----  -----  -----  -----  --------- --------
-                { L_,  RD,    0,     0,     0,     0,     0,         0, TO },
-                { L_,  WR,    0,     0,     0,     0,     0,         0, TO },
-                { L_,  RW,    0,     0,     0,     0,     0,         0, TO },
-                { L_,  RD,    0,     0,    75,     0,  2000,         0, TO },
-                { L_,  WR,    0,     0,    75,     0,  2000,         0, WR },
-                { L_,  RW,    0,     0,    75,     0,  2000,         0, WR },
-                { L_,  RD,    0,     0,    75,  1000,  2000,         0, RD },
-                { L_,  WR,    0,     0,    75,  1000,  2000,         0, WR },
-                { L_,  RW,    0,     0,    75,  1000,  2000,         0, RW },
-                { L_,  RD,    0,     0,     0,  1000,     0,         0, RD },
-                { L_,  WR,    0,     0,     0,  1000,  2000,         0, TO },
-                { L_,  RW,    0,     0,     0,  1000,  2000,         0, RD },
-                { L_,  RD,    0,  2000,     0,     0,     0,         0, TO },
-                { L_,  WR,    0,  2000,     0,     0,     0,         0, TO },
-                { L_,  RW,    0,  2000,     0,     0,     0,         0, TO },
-                { L_,  RD,    0,  2000,    75,     0,  2000,         0, TO },
-                { L_,  WR,    0,  2000,    75,     0,  2000,         0, WR },
-                { L_,  RW,    0,  2000,    75,     0,  2000,         0, WR },
-                { L_,  RD,    0,  2000,    75,  1000,  2000,         0, RD },
-                { L_,  WR,    0,  2000,    75,  1000,  2000,         0, WR },
-                { L_,  RW,    0,  2000,    75,  1000,  2000,         0, RW },
-                { L_,  RD,    0,  2000,     0,  1000,     0,         0, RD },
-                { L_,  WR,    0,  2000,     0,  1000,     0,         0, TO },
-                { L_,  RW,    0,  2000,     0,  1000,     0,         0, RD },
-                { L_,  RD,   10,     0,     0,     0,     0,         0, TO },
-                { L_,  WR,   10,     0,     0,     0,     0,         0, TO },
-                { L_,  RW,   10,     0,     0,     0,     0,         0, TO },
-                { L_,  RD,   10,     0,    75,     0,     0,         0, TO },
-                { L_,  WR,   10,     0,    75,     0,     0,         0, WR },
-                { L_,  RW,   10,     0,    75,     0,     0,         0, WR },
-                { L_,  RD,   10,     0,    75,  1000,  2000,         0, RD },
-                { L_,  WR,   10,     0,    75,  1000,  2000,         0, WR },
-                { L_,  RW,   10,     0,    75,  1000,  2000,         0, RW },
-                { L_,  RD,   10,     0,     0,  1000,     0,         0, RD },
-                { L_,  WR,   10,     0,     0,  1000,     0,         0, TO },
-                { L_,  RW,   10,     0,     0,  1000,     0,         0, RD },
-                { L_,  RD,    0,     0,     0,     0,     0,         1, TO },
-                { L_,  WR,    0,     0,     0,     0,     0,         1, TO },
-                { L_,  RW,    0,     0,     0,     0,     0,         1, TO },
-                { L_,  RD,    0,     0,    75,     0,   500,         1, TO },
-                { L_,  WR,    0,     0,    75,     0,   500,         1, WR },
-                { L_,  RW,    0,     0,    75,     0,   500,         1, WR },
-           };
-
-           enum {
-               NUM_DATA      = sizeof DATA / sizeof *DATA,
-
-               DATASIZE      = 10000,    // total amount of initial data
-               PACKETSIZE    = 2000      // read/write packet size
-           };
-
-           for (int ti = 0; ti < NUM_DATA; ++ti) {
-
-           if (veryVerbose) {
-               T_(); T_(); P_(ti);
-                           P(DATA[ti].d_lineNum);
-           }
-           // Create a stream socket pair
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           LOOP_ASSERT(ti, resp);
-           if (resp == 0) {
-               // could not create connected socket pair
-               break;
-           }
-
-           // Turn off Nagle for sending side (A) if specified
-           streamSocketA->setOption(btlso::SocketOptUtil::k_TCPLEVEL,
-                                    btlso::SocketOptUtil::k_TCPNODELAY,
-                                    DATA[ti].d_tcpndelay);
-
-           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-           // Fill the output buffer for socket A.
-           char zerobuf[DATASIZE] = {0};
-           int  totalSent = 0;
-
-           // Attempt to fill the output buffer of A by writing until we
-           // receive an ERROR_WOULDBLOCK response.  Then, try several times
-           // more to ensure that ERROR_WOULDBLOCK is persistent, and that
-           // the write buffer is *really* full.
-
-           for (int attempt = 0; attempt < 10; ++attempt ) {
-               bsls::TimeInterval before = bdlt::CurrentTime::now();
-               while (1) {
-                   resp = streamSocketA->write(zerobuf, DATASIZE);
-                   if (resp <= 0) break;
-                   totalSent += resp;
-               }
-
-               bdlqq::ThreadUtil::microSleep(50 * 1000);
-               bsls::TimeInterval interval = bdlt::CurrentTime::now() - before;
-
-               if (veryVeryVerbose) {
-                   P_(attempt); P_(resp); P_(totalSent); P(interval);
-               }
-
-               LOOP_ASSERT(ti, resp ==
-                                   btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-           }
-
-           // Read input on B, PACKETSIZE bytes at a time, until all input is
-           // consumed.  Then write data back on B.  Total read will be total
-           // sent on A or specified in table, whichever is less.  The total
-           // sent is platform- and system-specific, and can be modified
-           // dynamically.  Reads and writes are chunked in order to exercise
-           // the 'read' and 'write' functions several times over the data
-           // stream.
-
-           char buf[DATASIZE];
-
-           if (veryVeryVerbose) cout << "reading..." << endl;
-           int leftToRead = DATA[ti].d_readPercent * totalSent / 100;
-           while (leftToRead) {
-               int count = leftToRead > PACKETSIZE ? PACKETSIZE : leftToRead;
-               int bytesRead;
-               if (veryVeryVerbose) { P_(count); P(leftToRead); }
-               bytesRead = streamSocketB->read(buf, count);
-               leftToRead -= bytesRead;
-           }
-
-           // Write even if we have previously not read anything.
-           if (veryVeryVerbose) cout << "writing..." << endl;
-           int leftToWrite = DATA[ti].d_writebytes;
-           while (leftToWrite) {
-               int count = leftToWrite > PACKETSIZE ? PACKETSIZE : leftToWrite;
-               if (veryVeryVerbose) { P_(count); P(leftToWrite); }
-               streamSocketB->write(buf, count);
-               leftToWrite -= count;
-           }
-
-           // delay before testing for IO to allow for latency.
-           if (DATA[ti].d_delay) {
-               if (veryVerbose) {
-                   P(DATA[ti].d_delay);
-               }
-               bdlqq::ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
-           }
-
-           // some platforms require latency between writes and reads
-#if   defined(BSLS_PLATFORM_OS_HPUX)
-           const int sleepTime = 20 * 1000;
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-           const int sleepTime = 1000;
-#else
-           const int sleepTime = 0;
-#endif
-           if (sleepTime) bdlqq::ThreadUtil::microSleep(sleepTime);
-
-           bsls::TimeInterval timeBefore = bdlt::CurrentTime::now();
-
-           bsls::TimeInterval timeout = timeBefore;
-           timeout.addSeconds(DATA[ti].d_seconds);
-           timeout.addMicroseconds(DATA[ti].d_microseconds);
-           resp = streamSocketA->waitForIO(DATA[ti].d_io, timeout);
-
-           bsls::TimeInterval timeAfter = bdlt::CurrentTime::now();
-
-           if (veryVerbose) { P_(resp); P(DATA[ti].d_expected); }
-
-           // Assuming the latency and system responsiveness is
-           // never worse than 5 seconds.
-
-           if (resp == btlso::SocketHandle::e_ERROR_TIMEDOUT)
-           {
-               // If a timeout occurred, time must be > (timeout - 10ms)
-               // and within 5 seconds
-               LOOP_ASSERT(ti, (timeAfter + 0.01) > timeout);
-               LOOP_ASSERT(ti, timeAfter < (timeout + 5));
-           } else {
-               // If a timeout did not occur, event must occur with 5
-               // seconds
-               LOOP_ASSERT(ti, (timeBefore + 5) > timeAfter);
-           }
-           if (veryVeryVerbose) {
-               P_(timeBefore); P_(timeAfter); P(timeout);
-           }
-
-           LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
-                        resp == DATA[ti].d_expected);
-
-#ifndef BSLS_PLATFORM_OS_CYGWIN
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-#else
-           // Cygwin is doing something funky in its close() function, which
-           // force us to close the client socket first.
-
-           testFactory.deallocate(streamSocketB);
-           testFactory.deallocate(streamSocketA);
-#endif
-           }
-#endif
-      } break;
-      case 5:
-      {
-        // --------------------------------------------------------------------
-        // TESTING SOCKET CREATION FUNCTION
-        //
-        // Plan:
-        //
-        // Testing:
-        //   createConnectedStreamSockets()
-        // --------------------------------------------------------------------
-
-           // Test socket creation tool
-
-           if (verbose) cout << endl
-                          << "Testing Socket Creation Function" << endl
-                          << "================================" << endl;
-
-           btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketA = 0;
-           btlso::StreamSocket<btlso::IPv4Address> *streamSocketB = 0;
-           int resp = createConnectedStreamSockets(&testFactory,
-                             &streamSocketA, &streamSocketB);
-
-           ASSERT(resp);
-           ASSERT(streamSocketA);
-           ASSERT(streamSocketB);
-           ASSERT(streamSocketA != streamSocketB);
-           ASSERT(streamSocketA->handle() != streamSocketB->handle());
-
-           // Verify send and receive of data through the sockets.
-           const char buf1[] = { 10, 9, 1, 7, 3 };
-           char bufrcv[10];
-           resp = streamSocketA->write(buf1, sizeof(buf1));
-           ASSERT(resp == sizeof(buf1));
-
-           resp = streamSocketB->read(bufrcv, sizeof(bufrcv));
-           ASSERT(resp == sizeof(buf1));
-
-           ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
-
-           testFactory.deallocate(streamSocketA);
-           testFactory.deallocate(streamSocketB);
-      } break;
-
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING BREATHING BIND ACCEPT CONNECT
-        //
-        // Plan:
-        //
-        // Testing:
-        //   localAddress()
-        //   peerAddress()
-        //   bind()  BREATHING
-        //   accept()  BREATHING
-        //   connect()  BREATHING
-        //   listen()  BREATHING
-        //   shutdown() BREATHING
-        //   setBlockingMode() BREATHING
-        //   blockingMode() BREATHING
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "TESTING Breathing bind/accept/connect/listen" << endl
-                 << "============================================" << endl;
-
-        // Counts number of sockets currently open (on certain platforms
-        // only).
-        int initialSockets =
-            countSockets(MIN_SOCKET_HANDLE, MAX_SOCKET_HANDLE);
-        btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-
-        // Test bind() with bad port number < 1024 (we are not root)
-        // On windows, this is allowed.
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
-        if (verbose)
-            cout << "\tBinding to a bad port number." << endl;
-        {
-            btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                testFactory.allocate();
-
-            ASSERT(serverSocket);
-
-            // Bind to localhost with a low port number
-
-            btlso::IPv4Address localLowPort;
-            localLowPort.setIpAddress("127.0.0.1");
-            localLowPort.setPortNumber(1);
-
-            if (veryVerbose) {
-                P(localLowPort);
-            }
-            int resp = serverSocket->bind(localLowPort);
-
-            ASSERT(resp != 0);
-            testFactory.deallocate(serverSocket);
-        }
-#endif
-
-        {
-#ifdef BSLS_PLATFORM_OS_UNIX
-            // Under UNIX, a write to a closed blocking socket causes the
-            // signal SIGPIPE which by default will terminate the process.
-            // Set the signal to be ignored.
-            ::signal(SIGPIPE, SIG_IGN);
-#endif
-        }
-
-        if (verbose)
-            cout << "\tBinding to port 0 (anonymous)." << endl;
-        {
-            // Test bind() with anon port number.
-            btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                testFactory.allocate();
-
-            ASSERT(serverSocket);
-
-            // Bind to localhost with anon port number
-
-            btlso::IPv4Address localLowPort;
-            localLowPort.setIpAddress("127.0.0.1");
-            localLowPort.setPortNumber(0);
-
-            // bind to a anon port
-            int resp = serverSocket->bind(localLowPort);
-            ASSERT(resp == 0);
-
-            btlso::IPv4Address serverAddress;
-            resp = serverSocket->localAddress(&serverAddress);
-            ASSERT(resp == 0);
-
-            if (veryVerbose) {
-                P(serverAddress);
-            }
-
-            // The address must be the same.  The port number may not
-            // be zero.
-            ASSERT(localLowPort.ipAddress() == serverAddress.ipAddress());
-            ASSERT(serverAddress.portNumber() > 0);
-
-            resp = serverSocket->listen(10);
-            ASSERT(resp == 0);
-
-            // Create the client socket.
-
-            btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
-                testFactory.allocate();
-
-            ASSERT(clientSocket);
-
-            if (verbose)
-                cout << "\tBlocking connect to " << serverAddress << endl;
-            resp = clientSocket->connect(serverAddress);
-            ASSERT(resp == 0);
-
-            // Accept the connection
-            btlso::StreamSocket<btlso::IPv4Address> *serviceSocket;
-            btlso::IPv4Address clientAddress;
-
-            resp = serverSocket->accept(&serviceSocket, &clientAddress);
-            ASSERT(resp == 0);
-
-            if (verbose)
-                cout << "\tSending packets." << endl;
-            const char buf1[] = { 10, 9, 1, 7, 3 };
-            const char buf2[] = { 100, 51 };
-            char bufrcv[10];
-            resp = serviceSocket->write(buf1, sizeof(buf1));
-            ASSERT(resp == sizeof(buf1));
-
-            resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1));
-
-            ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
-
-            // Send as 2 writes + 1 read.  If truly a stream socket
-            // then the read with retrieve data for both writes.  The
-            // behavior would be different for a datagram socket.
-
-            resp = clientSocket->write(buf2, sizeof(buf2));
-            ASSERT(resp == sizeof(buf2));
-
-            resp = clientSocket->write(buf1, sizeof(buf1));
-            ASSERT(resp == sizeof(buf1));
-
-            // Some implementations of sockets will delay the second
-              // packet due to the Nagle algorithm
-            bdlqq::ThreadUtil::microSleep(2000 * 1000);
-
-            resp = serviceSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1) + sizeof(buf2));
-            ASSERT(memcmp(bufrcv, buf2, sizeof(buf2)) == 0);
-            ASSERT(memcmp(bufrcv + sizeof(buf2), buf1, sizeof(buf1)) == 0);
-
-            // Verify shutdown()
-
-            // Shutdown of receive is not universally supported - it may be
-            // ignored.  'both' is always supported but the implementation
-            // may not shutdown receive.
-
-            resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-            ASSERT(resp == 0);
-
-            resp = serviceSocket->write(buf1, sizeof(buf1));
-
-            resp = clientSocket->read(bufrcv, sizeof(buf1));
-
-            ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
-
-            testFactory.deallocate(serviceSocket);
-            testFactory.deallocate(serverSocket);
-            testFactory.deallocate(clientSocket);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == initialSockets);
-        }
-        if (verbose)
-            cout << "\tNon-blocking connect to anonymous port." << endl;
-
-        {
-            // Test bind() with anon port number.  Non Blocking client
-            btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                testFactory.allocate();
-
-            ASSERT(serverSocket);
-
-            // Bind to localhost with anon port number
-
-            btlso::IPv4Address localLowPort;
-            localLowPort.setIpAddress("127.0.0.1");
-            localLowPort.setPortNumber(0);
-
-            // bind to a anon port
-            int resp = serverSocket->bind(localLowPort);
-            ASSERT(resp == 0);
-
-            btlso::IPv4Address serverAddress;
-            resp = serverSocket->localAddress(&serverAddress);
-            ASSERT(resp == 0);
-
-            if (veryVerbose)
-                P(serverAddress);
-
-            // The address must be the same.  The port number may not
-            // be zero.
-            ASSERT(localLowPort.ipAddress() == serverAddress.ipAddress());
-            ASSERT(serverAddress.portNumber() > 0);
-
-            resp = serverSocket->listen(0);
-            ASSERT(resp == 0);
-
-            // Create the client socket.
-
-            btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
-                testFactory.allocate();
-
-            ASSERT(clientSocket);
-
-            bteso_Flag::BlockingMode result =
-                                            bteso_Flag::e_NONBLOCKING_MODE;
-
-            resp = clientSocket->blockingMode(&result);
-            if (resp == 0) {
-                // If this platform supports this feature, verify result.
-                ASSERT(result == bteso_Flag::e_BLOCKING_MODE);
-            }
-
-            clientSocket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-
-            resp = clientSocket->blockingMode(&result);
-            if (resp == 0) {
-                // If this platform supports this feature, verify result.
-                ASSERT(result == bteso_Flag::e_NONBLOCKING_MODE);
-            }
-
-            // In non-blocking mode, some platforms will return 0
-            // and others return btlso::SocketHandle::e_ERROR_WOULDBLOCK
-            if (verbose)
-                cout << "\tNon-blocking connect to " << serverAddress << endl;
-            resp = clientSocket->connect(serverAddress);
-            ASSERT(resp == 0 ||
-                   resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-            // Accept the connection
-            btlso::StreamSocket<btlso::IPv4Address> *serviceSocket;
-            btlso::IPv4Address clientAddress;
-
-            resp = serverSocket->accept(&serviceSocket, &clientAddress);
-            ASSERT(resp == 0);
-
-            btlso::IPv4Address servicePeerAddress;
-            resp = serviceSocket->peerAddress(&servicePeerAddress);
-            ASSERT(resp == 0);
-            ASSERT(servicePeerAddress == clientAddress);
-
-            btlso::IPv4Address clientLocalAddress;
-            resp = clientSocket->localAddress(&clientLocalAddress);
-            ASSERT(servicePeerAddress == clientLocalAddress);
-
-            btlso::IPv4Address clientPeerAddress;
-            resp = clientSocket->peerAddress(&clientPeerAddress);
-            ASSERT(resp == 0);
-
-            btlso::IPv4Address serviceLocalAddress;
-            resp = serviceSocket->localAddress(&serviceLocalAddress);
-            ASSERT(clientPeerAddress == serviceLocalAddress);
-            ASSERT(clientPeerAddress == serverAddress);
-            ASSERT(clientLocalAddress != serviceLocalAddress);
-            ASSERT(clientPeerAddress != servicePeerAddress);
-
-            if (veryVerbose) {
-                P(clientPeerAddress);
-                P_(clientLocalAddress); P(servicePeerAddress);
-            }
-            if (verbose)
-                cout << "\tSending packets." << endl;
-            const char buf1[] = { 10, 9, 1, 7, 3 };
-            const char buf2[] = { 100, 51 };
-            char bufrcv[10];
-
-            resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
-            resp = serviceSocket->write(buf1, sizeof(buf1));
-            ASSERT(resp == sizeof(buf1));
-
-#if defined(BSLS_PLATFORM_OS_HPUX) || \
-    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-            bdlqq::ThreadUtil::microSleep(20 * 1000);
-#endif
-
-            resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1));
-
-            ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
-
-            // Send as 2 writes + 1 read.  If truly a stream socket
-            // then the read with retrieve data for both writes.  The
-            // behavior would be different for a datagram socket.
-
-            resp = clientSocket->write(buf2, sizeof(buf2));
-            ASSERT(resp == sizeof(buf2));
-
-            resp = clientSocket->write(buf1, sizeof(buf1));
-            ASSERT(resp == sizeof(buf1));
-
-            // Some implementations of sockets will delay the second
-            // packet due to the Nagle algorithm
-            bdlqq::ThreadUtil::microSleep(2000 * 1000);
-
-            resp = serviceSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1) + sizeof(buf2));
-            ASSERT(memcmp(bufrcv, buf2, sizeof(buf2)) == 0);
-            ASSERT(memcmp(bufrcv + sizeof(buf2), buf1, sizeof(buf1)) == 0);
-
-            // Verify shutdown()
-
-            resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-            ASSERT(resp == 0);
-
-            resp = serviceSocket->write(buf1, sizeof(buf1));
-            ASSERT(resp < 0);
-
-#if defined(BSLS_PLATFORM_OS_HPUX) || \
-    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-            bdlqq::ThreadUtil::microSleep(20 * 1000);
-#endif
-
-            resp = clientSocket->read(bufrcv, sizeof(buf1));
-            ASSERT(btlso::SocketHandle::e_ERROR_EOF == resp ||
-                   btlso::SocketHandle::e_ERROR_CONNDEAD == resp);
-
-            testFactory.deallocate(serviceSocket);
-            testFactory.deallocate(serverSocket);
-            testFactory.deallocate(clientSocket);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == initialSockets);
-        }
-
-           // Test accept when the connecting socket (client) closes before
-           // the accept is performed.
-           {
-               btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketA;
-               btlso::StreamSocket<btlso::IPv4Address> *streamSocketB;
-               streamSocketA = 0;
-               streamSocketB = 0;
-               btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
-                 testFactory.allocate();
-
-               ASSERT(serverSocket);
-
-               // Bind to localhost with anon port number
-
-               btlso::IPv4Address localLowPort;
-               localLowPort.setIpAddress("127.0.0.1");
-               localLowPort.setPortNumber(0);
-
-               // bind to a anon port
-               int resp = serverSocket->bind(localLowPort);
-               ASSERT(resp == 0);
-
-               btlso::IPv4Address serverAddress;
-               resp = serverSocket->localAddress(&serverAddress);
-               ASSERT(resp == 0);
-
-               resp = serverSocket->listen(2);
-               ASSERT(resp == 0);
-
-               // Create the client socket.
-               streamSocketA = testFactory.allocate();
-               streamSocketB = testFactory.allocate();
-
-               resp = (streamSocketA)->connect(serverAddress);
-               ASSERT(resp == 0);
-
-               if (streamSocketA) {
-                   // Accept the connection
-                   btlso::IPv4Address clientAddress;
-
-                   // Generate a "rst" (linger time = 0, followed by shutdown)
-                   btlso::SocketOptUtil::LingerData ling;
-                   ling.l_onoff = 1;
-                   ling.l_linger = 0;
-                   (streamSocketA)->setLingerOption(ling);
-
-                   // kill the connection before accept
-                   (streamSocketA)->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-
-                   // close connection  after rst
-                   testFactory.deallocate(streamSocketA);
-
-                   // Wait for 2 seconds
-                   bdlqq::ThreadUtil::microSleep(2000 * 1000);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                   ::signal(SIGALRM, sigalarm);
-                   ::alarm(5);
-#endif
-
-                   resp = serverSocket->accept(&streamSocketB, &clientAddress);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                   // Cancel the alarm
-                   ::signal(SIGALRM, SIG_IGN);
-                   ::alarm(0);
-#endif
-
-                   // The behavior after the connecting socket has closed is
-                   // implementation dependent.
-                   // Possible responses can be:
-                   //  1) incoming connection is discarded so accept will
-                   //     block.  ERROR_INTERRUPTED
-                   //  2) accept returns an error.  ERROR_CONNDEAD
-                   //  3) accept returns the socket but a read confirms the
-                   //     socket has gone.  ERROR_EOF or ERROR_CONNDEAD
-                   //
-                   typedef btlso::SocketHandle SH;
-
-                   if (resp != 0) {
-#if defined(BSLS_PLATFORM_OS_HPUX)
-                       LOOP_ASSERT(resp,SH::e_ERROR_UNCLASSIFIED == resp ||
-                                        SH::e_ERROR_CONNDEAD     == resp ||
-                                        SH::e_ERROR_INTERRUPTED  == resp);
-#else
-                       LOOP_ASSERT(resp,SH::e_ERROR_CONNDEAD     == resp ||
-                                        SH::e_ERROR_INTERRUPTED  == resp);
-#endif
-                   }
-                   else {
-                       char buf[1];
-                       resp = streamSocketB->read(buf,1 );
-                       ASSERT(SH::e_ERROR_CONNDEAD == resp ||
-                              SH::e_ERROR_EOF      == resp);
-                   }
-                   testFactory.deallocate(streamSocketB);
-               } else {
-                   testFactory.deallocate(serverSocket);
-               }
-          }
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FACTORY ALLOCATE WITH HANDLE
-        //   We have the following concerns:
         //   Created btlso::StreamSocket behaves correctly and is associated
         //   with the correct socket handle.
         //
@@ -2239,8 +345,6 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   btlso::StreamSocket<ADDRESS> *allocate(handle);
-        //   read() BREATHING
-        //   write() BREATHING
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2271,12 +375,14 @@ int main(int argc, char *argv[]) {
            ASSERT(handles[1] == newHandleB);
 
            // Send data via the streamsockets.
+
            const char buf1[] = { 10, 9, 1, 7, 3 };
            char bufrcv[10];
            resp = newSocketA->write(buf1, sizeof(buf1));
            ASSERT(resp == sizeof(buf1));
 
            // Verify that the data was received as sent.
+
            resp = newSocketB->read(bufrcv, sizeof(bufrcv));
            ASSERT(resp == sizeof(buf1));
 
@@ -2287,6 +393,7 @@ int main(int argc, char *argv[]) {
            resp = newSocketB->read(bufrcv, sizeof(bufrcv));
 
            // socket A is closed so expect EOF
+
            ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
 
            testFactory.deallocate(newSocketB);
@@ -2298,39 +405,39 @@ int main(int argc, char *argv[]) {
       case 2: {
         // --------------------------------------------------------------------
         // TESTING FACTORY ALLOCATE WITHOUT HANDLE
-        //   We have the following concerns:
         //
         // Plan:
         //
         // Testing:
         //   btlso::StreamSocket<ADDRESS> *allocate();
-        //   deallocate
-        //   handle()
+        //   void deallocate(btlso::StreamSocket<ADDRESS> *socket);
+        //   void deallocate(btlso::StreamSocket<ADDRESS> *socket, bool flag);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Testing Factory allocate()" << endl
-                          << "================================" << endl;
+                          << "==========================" << endl;
 
         // Counts number of sockets currently open (on certain platforms
         // only).
-        int initialSockets =
-              countSockets(MIN_SOCKET_HANDLE, MAX_SOCKET_HANDLE);
+
+        int initialSockets = countSockets(MIN_SOCKET_HANDLE,
+                                          MAX_SOCKET_HANDLE);
 
         // Ensure that there are enough unassigned handles in the range
         // counted.
+
         ASSERT(initialSockets < 0 ||
                (MAX_SOCKET_HANDLE - MIN_SOCKET_HANDLE + 1) >=
                (initialSockets + MAX_SOCKETS_USED));
+
         btlso::InetStreamSocketFactory<btlso::IPv4Address> testFactory;
 
         {
             btlso::StreamSocket<btlso::IPv4Address> *newSocket =
-                  testFactory.allocate();
+                                                        testFactory.allocate();
 
             ASSERT(newSocket);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 1));
 
             btlso::SocketHandle::Handle newHandle = newSocket->handle();
 
@@ -2354,8 +461,6 @@ int main(int argc, char *argv[]) {
 
             ASSERT(newSocket1);
             ASSERT(newSocket2);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 2));
 
             ASSERT(newSocket1->handle() != newSocket2->handle());
 
@@ -2388,8 +493,6 @@ int main(int argc, char *argv[]) {
 
             ASSERT(newSocket1);
             ASSERT(newSocket2);
-            ASSERT(initialSockets < 0 ||
-                   countSockets(0,20) == (initialSockets + 2));
 
             ASSERT(newSocket1->handle() != newSocket2->handle());
 
@@ -2419,9 +522,25 @@ int main(int argc, char *argv[]) {
         }
 
       } break;
-      case 1:
-      {
-        // breathing test.  currently empty
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

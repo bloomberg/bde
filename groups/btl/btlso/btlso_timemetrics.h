@@ -14,11 +14,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  btlso::TimeMetrics: accumulator for time-based categorized metrics
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component provides a clock that measures time and
-// accumulates it into one of two categories: 'e_IO_BOUND' or
-// 'e_CPU_BOUND'.
+// accumulates it into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.
 //
 ///Thread-safety
 ///-------------
@@ -27,33 +24,50 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The usage is very simple.  First create a metrics object, keeping two
-// categories, and initially measuring time in the 'CPU' category:
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The usage shows the basic usage with a 'btlso::TimeMetrics'.
+//
+// First, we specify an enumeration listing the categories that we want to
+//measure.  For this example, we will specify two categories:
 //..
-//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-//                            btlso::TimeMetrics::BTESO_CPU_CATEGORY);
+//  enum {
+//      e_CPU_CATEGORY   = 0,
+//      e_IO_CATEGORY    = 1,
+//      e_NUM_CATEGORIES = IO_CATEGORY + 1
+//  };
 //..
-// In order to measure time spent in I/O, e.g., doing 'select' calls:
+// Then, create a metrics object, keeping two categories, and initially
+// measuring time in the 'CPU' category:
+//..
+//  btlso::TimeMetrics metrics(e_NUM_CATEGORIES, e_CPU_CATEGORY);
+//..
+// In order to measure time spent in I/O, e.g., doing 'select' calls, we do:
 //..
 //  // perform initializations for 'select'
-//  metrics.switchTo(IO_CATEGORY);
+//
+//  metrics.switchTo(e_IO_CATEGORY);
+//
 //  // do some IO, e.g., 'select'
 //..
-// To switch to measuring CPU time, e.g., doing event dispatch:
+// To switch to measuring CPU time, e.g., doing event dispatch, we do:
 //..
-//  metrics.switchTo(CPU_CATEGORY);
+//  metrics.switchTo(e_CPU_CATEGORY);
+//
 //  // dispatch events
 //..
 // At the end of the computation, or periodically, one may report the time
 // spent in each category as follows:
 //..
 //  bsl::cout << "The total time spent in IO was "
-//       << metrics.percentage(btlso::TimeMetrics::BTESO_IO_CATEGORY)
-//       << bsl::endl;
+//            << metrics.percentage(e_IO_CATEGORY)
+//            << bsl::endl;
 //
 //  bsl::cout << "The total time spent in CPU was "
-//       << metrics.percentage(btlso::TimeMetrics::BTESO_CPU_CATEGORY)
-//       << bsl::endl;
+//            << metrics.percentage(e_CPU_CATEGORY)
+//            << bsl::endl;
 //..
 // This metrics may be reset to its initial state by:
 //..
@@ -72,7 +86,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -87,22 +101,22 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
-                           // =======================
+
+                           // =================
                            // class TimeMetrics
-                           // =======================
+                           // =================
 
 class TimeMetrics {
     // This class provides a set of metrics data and a mechanism to accumulate
-    // time into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.
-    // Use the method 'switchTo' to switch back and forth between these
-    // categories.
+    // time into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.  Use the
+    // method 'switchTo' to switch back and forth between these categories.
 
     // DATA
     bsl::vector<bsls::TimeInterval> d_categoryStartTimes;
-    bsl::vector<int>               d_categoryTimes;
+    bsl::vector<int>                d_categoryTimes;
 
-    int                            d_currentCategory;
-    int                            d_currentTotal;
+    int                             d_currentCategory;
+    int                             d_currentTotal;
 
     mutable bdlqq::Mutex            d_dataLock;
 
@@ -114,28 +128,30 @@ class TimeMetrics {
   public:
     // PUBLIC TYPES
     enum {
-        e_IO_BOUND           = 0  // the processing unit (i.e., thread or
+        e_IO_BOUND           = 0, // the processing unit (i.e., thread or
                                   // process) is blocked in an IO operation
 
-      , e_CPU_BOUND          = 1  // the processing unit (i.e., thread or
+        e_CPU_BOUND          = 1, // the processing unit (i.e., thread or
                                   // process) is executing CPU-bound block of
                                   // code
 
-      , e_MIN_NUM_CATEGORIES = e_CPU_BOUND + 1
+        e_MIN_NUM_CATEGORIES = e_CPU_BOUND + 1
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_IO_BOUND           = e_IO_BOUND
       , BTESO_CPU_BOUND          = e_CPU_BOUND
       , BTESO_MIN_NUM_CATEGORIES = e_MIN_NUM_CATEGORIES
-      , IO_BOUND           = e_IO_BOUND
-      , CPU_BOUND          = e_CPU_BOUND
-      , MIN_NUM_CATEGORIES = e_MIN_NUM_CATEGORIES
+      , IO_BOUND                 = e_IO_BOUND
+      , CPU_BOUND                = e_CPU_BOUND
+      , MIN_NUM_CATEGORIES       = e_MIN_NUM_CATEGORIES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     // CREATORS
     TimeMetrics(int               numCategories,
-                      int               initialCategory,
-                      bslma::Allocator *basicAllocator = 0);
+                int               initialCategory,
+                bslma::Allocator *basicAllocator = 0);
         // Create a metrics that distinguishes between the specified
         // 'numCategories' different categories having the specified
         // 'initialCategory'.  Optionally specify a 'basicAllocator' used to
@@ -155,8 +171,8 @@ class TimeMetrics {
         // never happened).
 
     void switchTo(int category);
-        // Switch from the current category to the specified 'category'.
-        // The behavior is undefined unless '0 <= category < numCategories()'.
+        // Switch from the current category to the specified 'category'.  The
+        // behavior is undefined unless '0 <= category < numCategories()'.
 
     void resetAll();
         // Reset the time values for each category to 0.
@@ -174,18 +190,19 @@ class TimeMetrics {
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
-                           // -----------------------
+                           // -----------------
                            // class TimeMetrics
-                           // -----------------------
+                           // -----------------
 
 inline
 int TimeMetrics::numCategories() const
 {
     return static_cast<int>(d_categoryTimes.size());
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

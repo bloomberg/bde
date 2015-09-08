@@ -9,9 +9,10 @@ BSLS_IDENT_RCSID(btlso_event_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlso {
-                           // ---------------------
+
+                           // ---------------
                            // class EventHash
-                           // ---------------------
+                           // ---------------
 
 // ACCESSORS
 bsl::size_t EventHash::operator()(const Event& value) const
@@ -19,6 +20,7 @@ bsl::size_t EventHash::operator()(const Event& value) const
     bsl::hash<int> hasher;
     return hasher((value.type() << 24) ^ (int) value.handle());
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

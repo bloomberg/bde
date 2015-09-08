@@ -1,8 +1,8 @@
-// btlso_streamsocketfactory.cpp                                      -*-C++-*-
-#include <btlso_streamsocketfactory.h>
+// btlso_inetstreamsocket.cpp                                         -*-C++-*-
+#include <btlso_inetstreamsocket.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(btlso_streamsocketfactory_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlso_inetstreamsocket_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

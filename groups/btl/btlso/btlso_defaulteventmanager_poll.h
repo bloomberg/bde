@@ -14,14 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: btlso_eventmanager btlso_defaulteventmanager btlso_timemetrics
 //
-//@SEE_ALSO: btlso_tcptimereventmanager  bteso_eventmanagertest
-//
 //@AUTHOR: Cheenu Srinivasan (csriniva)
 //
-//@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the 'poll' system call to monitor for socket events and adheres to
-// the 'btlso::EventManager' protocol.  In particular, this protocol supports
-// the registration of socket events, along with an associated 'bdlf::Function'
+//@DESCRIPTION: This component provides an implementation of an event manager,
+// 'btlso::DefaultEventManager<btlso::Platform::POLL>', that uses the 'poll'
+// system call to monitor for socket events and adheres to the
+// 'btlso::EventManager' protocol.  In particular, this protocol supports the
+// registration of socket events, along with an associated 'bdlf::Function'
 // callback functor, which is invoked when the corresponding socket event
 // occurs.
 //
@@ -99,19 +98,25 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a
 // 'btlso::DefaultEventManager<btlso::Platform::POLL>' object; also create a
 // (locally-connected) socket pair:
 //..
 //  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-//                               btlso::TimeMetrics::e_CPU_BOUND);
+//                                btlso::TimeMetrics::e_CPU_BOUND);
+//
 //  btlso::DefaultEventManager<btlso::Platform::POLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
 //  int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-//                           socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
+//                                      socket,
+//                                      btlso::SocketImpUtil::k_SOCKET_STREAM);
 //
 //  assert(0 == rc);
 //..
@@ -122,22 +127,30 @@ BSLS_IDENT("$Id: $")
 //..
 //  int numBytes = 5;
 //  btlso::EventManager::Callback readCb(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_READ,
-//                              socket[0], numBytes, &mX));
+//                               bdlf::BindUtil::bind(&genericCb,
+//                                                    btlso::EventType::e_READ,
+//                                                    socket[0],
+//                                                    numBytes,
+//                                                    &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_READ, readCb);
 //
 //  numBytes = 25;
 //  btlso::EventManager::Callback writeCb1(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[0], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[0],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE, writeCb1);
 //
 //  numBytes = 15;
 //  btlso::EventManager::Callback writeCb2(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[1], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[1],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE, writeCb2);
-//
 //
 //  assert(3 == mX.numEvents());
 //  assert(2 == mX.numSocketEvents(socket[0]));
@@ -153,11 +166,11 @@ BSLS_IDENT("$Id: $")
 // have a timeout requirement, a different version of 'dispatch' (in which no
 // timeout is specified) can also be called.
 //..
-//  btlso::EventManager::InterruptOpt opt =
-//                                      btlso::EventManager::NON_INTERRUPTIBLE;
+//  int                flags = 0;
 //  bsls::TimeInterval deadline(bdlt::CurrentTime::now());
+//
 //  deadline += 5;    // timeout 5 seconds from now.
-//  rc = mX.dispatch(deadline, opt);   assert(2 == rc);
+//  rc = mX.dispatch(deadline, flags);   assert(2 == rc);
 //..
 // Now we try to remove the write request of 'socket[0]' from the event manager
 // by calling 'deregisterSocketEvent()' and verify the state:
@@ -197,30 +210,31 @@ BSLS_IDENT("$Id: $")
 //..
 // The following snippets of code show what a 'genericCb' may look like:
 //..
-//  static void
-//  genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
-//            int bytes, btlso::EventManager *mX)
+//  static void genericCb(btlso::EventType::Type       event,
+//                        btlso::SocketHandle::Handle  socket,
+//                        int                          bytes,
+//                        btlso::EventManager         *mX)
 //  {
 //      // User specified callback function that is invoked when a socket
 //      // event is detected.
 //
 //      enum {
-//          MAX_READ_SIZE  = 8192,   // The numbers are for illustrative
-//          MAX_WRITE_SIZE = 70000   // purposes only.
+//          k_MAX_READ_SIZE  = 8192,   // The numbers are for illustrative
+//          k_MAX_WRITE_SIZE = 70000   // purposes only.
 //      };
 //
 //      switch (event) {
 //        case btlso::EventType::e_READ: {
 //            assert(0 < bytes);
-//            char buffer[MAX_READ_SIZE];
+//            char buffer[k_MAX_READ_SIZE];
 //
 //            int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
 //            assert(0 < rc);
 //        } break;
 //        case btlso::EventType::e_WRITE: {
-//            char wBuffer[MAX_WRITE_SIZE];
+//            char wBuffer[k_MAX_WRITE_SIZE];
 //            assert(0 < bytes);
-//            assert(MAX_WRITE_SIZE >= bytes);
+//            assert(k_MAX_WRITE_SIZE >= bytes);
 //            memset(wBuffer,'4', bytes);
 //            int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
 //            assert(0 < rc);
@@ -241,28 +255,32 @@ BSLS_IDENT("$Id: $")
 #include <btlso_defaulteventmanagerimpl.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_PLATFORM
-#include <btlso_platform.h>
+#ifndef INCLUDED_BTLSO_EVENT
+#include <btlso_event.h>
 #endif
 
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_EVENT
-#include <btlso_event.h>
+#ifndef INCLUDED_BTLSO_EVENTTYPE
+#include <btlso_eventtype.h>
+#endif
+
+#ifndef INCLUDED_BTLSO_PLATFORM
+#include <btlso_platform.h>
 #endif
 
 #ifndef INCLUDED_BTLSO_SOCKETHANDLE
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_EVENTTYPE
-#include <btlso_eventtype.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -292,37 +310,30 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
+namespace bsls { class TimeInterval; }
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
+namespace btlso {
 
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
+class TimeMetrics;
 
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace btlso {class TimeMetrics;
-
-            // =====================================================
+            // =========================================
             // class DefaultEventManager<Platform::POLL>
-            // =====================================================
+            // =========================================
+
 template<>
-class DefaultEventManager<Platform::POLL>
-                                                  : public EventManager {
-    // This specialization of 'DefaultEventManager' for the
-    // 'Platform::POLL' integral template parameter, implements the
-    // 'EventManager' and uses the 'poll' system call as its polling
-    // mechanism.
+class DefaultEventManager<Platform::POLL> : public EventManager {
+    // This specialization of 'DefaultEventManager' for the 'Platform::POLL'
+    // integral template parameter, implements the 'EventManager' and uses the
+    // 'poll' system call as its polling mechanism.
 
     // DATA
     bsl::vector<struct ::pollfd>  d_pollFds;       // array of 'pollfd'
                                                    // structures for each
                                                    // registered socket handle
 
-    bsl::unordered_map<Event,
-                       EventManager::Callback,
-                       EventHash>
+    bsl::unordered_map<Event, EventManager::Callback, EventHash>
                                   d_callbacks;     // container of registered
                                                    // socket events and
                                                    // associated callbacks
@@ -331,7 +342,7 @@ class DefaultEventManager<Platform::POLL>
                                                    // the associated indexes in
                                                    // 'd_pollFds'
 
-    TimeMetrics            *d_timeMetric_p;  // metrics to use for
+    TimeMetrics                  *d_timeMetric_p;  // metrics to use for
                                                    // reporting percent-busy
                                                    // statistics
 
@@ -341,12 +352,13 @@ class DefaultEventManager<Platform::POLL>
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(DefaultEventManager,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(btlso::DefaultEventManager<Platform::POLL>,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit
-    DefaultEventManager(TimeMetrics *timeMetric     = 0,
-                              bslma::Allocator  *basicAllocator = 0);
+    DefaultEventManager(TimeMetrics      *timeMetric     = 0,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a 'poll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
@@ -365,18 +377,18 @@ class DefaultEventManager<Platform::POLL>
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked), (2) the specified absolute
         // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system
-        // call is interrupted by a signal.  Return the number of dispatched
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call
+        // is interrupted by a signal.  Return the number of dispatched
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
         // method will return -1 if 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will
-        // automatically restart (i.e., reissue the identical system call).
-        // Note that all callbacks are invoked in the same thread that invokes
-        // 'dispatch', and the order of invocation, relative to the order of
-        // registration, is unspecified.  Also note that -1 is never returned
-        // unless 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that all
+        // callbacks are invoked in the same thread that invokes 'dispatch',
+        // and the order of invocation, relative to the order of registration,
+        // is unspecified.  Also note that -1 is never returned unless 'flags'
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -388,10 +400,10 @@ class DefaultEventManager<Platform::POLL>
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
-        // and otherwise will automatically restart (i.e., reissue the
-        // identical system call).  Note that all callbacks are invoked in the
-        // same thread that invokes 'dispatch', and the order of invocation,
+        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT' and
+        // otherwise will automatically restart (i.e., reissue the identical
+        // system call).  Note that all callbacks are invoked in the same
+        // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'flags' contains
         // 'bteso_Flag::k_ASYNC_INTERRUPT'.
@@ -404,13 +416,13 @@ class DefaultEventManager<Platform::POLL>
         // 'handle'.  Each socket event registration stays in effect until it
         // is subsequently deregistered; the callback is invoked each time the
         // corresponding event is detected.  'EventType::e_READ' and
-        // 'EventType::e_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  If a registration attempt
-        // is made for an event that is already registered, the callback
-        // associated with this event will be overwritten with the new one.
-        // Simultaneous registration of incompatible events for the same socket
-        // 'handle' will result in undefined behavior.  Return 0 in success and
-        // a non-zero value, which is the same as native error code, on error.
+        // 'EventType::e_WRITE' are the only events that can be registered
+        // simultaneously for a socket.  If a registration attempt is made for
+        // an event that is already registered, the callback associated with
+        // this event will be overwritten with the new one.  Simultaneous
+        // registration of incompatible events for the same socket 'handle'
+        // will result in undefined behavior.  Return 0 in success and a
+        // non-zero value, which is the same as native error code, on error.
 
     void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                EventType::Type             event);
@@ -449,20 +461,20 @@ class DefaultEventManager<Platform::POLL>
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTIONS DEFINITIONS
 //-----------------------------------------------------------------------------
 
-           // =====================================================
+           // -----------------------------------------
            // class DefaultEventManager<Platform::POLL>
-           // =====================================================
+           // -----------------------------------------
 
 // ACCESSORS
 inline
-bool DefaultEventManager<Platform::POLL>::
-                                               hasLimitedSocketCapacity() const
+bool DefaultEventManager<Platform::POLL>::hasLimitedSocketCapacity() const
 {
     return false;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

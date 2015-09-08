@@ -4,17 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_eventmanagertester.h>          // for testing only
-#include <btlso_socketimputil.h>               // for testing only
-#endif
-
 #include <btlso_timemetrics.h>
 #include <btlso_flag.h>
 
@@ -86,16 +75,15 @@ static inline void copySet(fd_set *dst, const fd_set& src)
 #endif
 }
 
-static void convert(struct timeval           *result,
-                    const bsls::TimeInterval&  value)
+static void convert(struct timeval *result, const bsls::TimeInterval& value)
     // Convert the specified 'value' of 'bsls::TimeInterval' to a 'timeval',
     // and load into the specified 'result'.
 {
     BSLS_ASSERT(result);
 
     result->tv_sec = value.seconds() > 0
-                   ? (bsl::time_t)value.seconds()
-                   : 0;
+                     ? (bsl::time_t)value.seconds()
+                     : 0;
     result->tv_usec = value.nanoseconds() / 1000; // microseconds
     result->tv_usec += value.nanoseconds() % 1000 > 0;
 
@@ -110,12 +98,12 @@ static void convert(struct timeval           *result,
 }
 
 namespace btlso {
-           // -------------------------------------------------------
-           // class DefaultEventManager<Platform::SELECT>
-           // -------------------------------------------------------
 
-bool DefaultEventManager<Platform::SELECT>::
-                                                checkInternalInvariants() const
+           // -------------------------------------------
+           // class DefaultEventManager<Platform::SELECT>
+           // -------------------------------------------
+
+bool DefaultEventManager<Platform::SELECT>::checkInternalInvariants() const
 {
     EventMap::const_iterator it(d_events.begin()), end(d_events.end());
     fd_set readControl, writeControl, exceptControl;
@@ -227,8 +215,8 @@ DefaultEventManager<Platform::SELECT>::DefaultEventManager(
 }
 
 DefaultEventManager<Platform::SELECT>::DefaultEventManager(
-                                             TimeMetrics *timeMetric,
-                                             bslma::Allocator  *basicAllocator)
+                                              TimeMetrics      *timeMetric,
+                                              bslma::Allocator *basicAllocator)
 : d_eventsAllocator(basicAllocator)
 , d_events(&d_eventsAllocator)
 , d_numRead(0)
@@ -274,17 +262,20 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
         errno = 0;
         if (d_timeMetric) {
             d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
+
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, NULL);
+
             savedErrno = errno;
             d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, NULL);
+
             savedErrno = errno;
         }
     } while (ret < 0
           && EINTR == savedErrno
-          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT));
+          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT));
 
     if (ret < 0) {
         return EINTR == savedErrno ? -1 : ret;                        // RETURN
@@ -295,8 +286,8 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
 }
 
 int DefaultEventManager<Platform::SELECT>::dispatch(
-                                              const bsls::TimeInterval& timeout,
-                                              int                      flags)
+                                             const bsls::TimeInterval& timeout,
+                                             int                       flags)
 {
     int ret;
     fd_set readSet, writeSet, exceptSet;
@@ -334,7 +325,9 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
     else {
         if (d_timeMetric) {
             d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
+
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
+
             d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
@@ -354,16 +347,19 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
         errno = 0;
         if (d_timeMetric) {
             d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
+
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
-            savedErrno = errno;
+
+           savedErrno = errno;
             d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
             savedErrno = errno;
         }
-    } while ((ret < 0 && EINTR == savedErrno
-          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT))
+    } while ((ret < 0
+          && EINTR == savedErrno
+          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT))
              #ifdef BSLS_PLATFORM_OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will
@@ -386,9 +382,9 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
 }
 
 int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
-                                 const SocketHandle::Handle&   handle,
-                                 const EventType::Type         eventType,
-                                 const EventManager::Callback& callback)
+                                       const SocketHandle::Handle&   handle,
+                                       const EventType::Type         eventType,
+                                       const EventManager::Callback& callback)
 {
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
     BSLS_ASSERT(handle < k_MAX_NUM_HANDLES);
@@ -399,8 +395,7 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
     Event ev(handle, eventType);
     d_events[ev] = callback;
 
-    if (eventType == EventType::e_READ
-     || eventType == EventType::e_ACCEPT) {
+    if (eventType == EventType::e_READ || eventType == EventType::e_ACCEPT) {
         if (!FD_ISSET(handle, &d_readSet)) {
             FD_SET(handle, &d_readSet);
             ++d_numRead;
@@ -425,14 +420,13 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
 }
 
 void DefaultEventManager<Platform::SELECT>::deregisterSocketEvent(
-                                      const SocketHandle::Handle& handle,
-                                      EventType::Type             event)
+                                            const SocketHandle::Handle& handle,
+                                            EventType::Type             event)
 {
     Event ev(handle, event);
 
     if (1 == d_events.erase(ev)) {
-        if (event == EventType::e_READ
-         || event == EventType::e_ACCEPT) {
+        if (event == EventType::e_READ || event == EventType::e_ACCEPT) {
             FD_CLR(handle, &d_readSet);
             --d_numRead;
         }
@@ -447,7 +441,7 @@ void DefaultEventManager<Platform::SELECT>::deregisterSocketEvent(
 }
 
 int DefaultEventManager<Platform::SELECT>::deregisterSocket(
-                                      const SocketHandle::Handle& handle)
+                                            const SocketHandle::Handle& handle)
 {
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
     if (handle == d_maxFd - 1) {
@@ -462,18 +456,22 @@ int DefaultEventManager<Platform::SELECT>::deregisterSocket(
     }
 #endif
     int ncbs = 0;
+
     if (isRegistered(handle, EventType::e_READ)) {
         deregisterSocketEvent(handle, EventType::e_READ);
         ++ncbs;
     }
+
     if (isRegistered(handle, EventType::e_WRITE)) {
         deregisterSocketEvent(handle, EventType::e_WRITE);
         ++ncbs;
     }
+
     if (isRegistered(handle, EventType::e_ACCEPT)) {
         deregisterSocketEvent(handle, EventType::e_ACCEPT);
         ++ncbs;
     }
+
     if (isRegistered(handle, EventType::e_CONNECT)) {
         deregisterSocketEvent(handle, EventType::e_CONNECT);
         ++ncbs;
@@ -493,8 +491,7 @@ void DefaultEventManager<Platform::SELECT>::deregisterAll()
 }
 
 // ACCESSORS
-bool DefaultEventManager<Platform::SELECT>::canRegisterSockets()
-                                                                          const
+bool DefaultEventManager<Platform::SELECT>::canRegisterSockets() const
 {
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
     return bsl::max(d_numRead, d_numWrite) < k_MAX_NUM_HANDLES;
@@ -504,14 +501,14 @@ bool DefaultEventManager<Platform::SELECT>::canRegisterSockets()
 }
 
 int DefaultEventManager<Platform::SELECT>::isRegistered(
-                                 const SocketHandle::Handle& handle,
-                                 const EventType::Type       event) const
+                                       const SocketHandle::Handle& handle,
+                                       const EventType::Type       event) const
 {
     return d_events.end() != d_events.find(Event(handle, event));
 }
 
 int DefaultEventManager<Platform::SELECT>::numSocketEvents (
-                                const SocketHandle::Handle& handle) const
+                                      const SocketHandle::Handle& handle) const
 {
     return   isRegistered(handle, EventType::e_READ)
            + isRegistered(handle, EventType::e_WRITE)
