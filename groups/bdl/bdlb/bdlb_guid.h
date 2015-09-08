@@ -360,6 +360,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Guid& guid);
     //  print(stream, 0, -1);
     //..
 
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const Guid& guid);
+    // Invoke the specified 'hashAlgorithm' on the underlying buffer held by
+    // the specified 'guid' object.
+
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
@@ -540,6 +545,12 @@ bool bdlb::operator!=(const bdlb::Guid& lhs, const bdlb::Guid& rhs)
 {
     return !bsl::equal(
         lhs.d_buffer, lhs.d_buffer + lhs.k_GUID_NUM_BYTES, rhs.d_buffer);
+}
+
+template <class HASH_ALGORITHM>
+void bdlb::hashAppend(HASH_ALGORITHM& hashAlgorithm, const Guid& guid)
+{
+    hashAlgorithm(guid.data(), Guid::k_GUID_NUM_BYTES);
 }
 
 }  // close enterprise namespace
