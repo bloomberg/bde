@@ -109,7 +109,7 @@ using namespace bsl;
 //
 // CREATORS
 // [  ] TokenizerIterator();
-// [  ] TokenizerIterator(const TokenizerIterator& other);
+// [  ] TokenizerIterator(const TokenizerIterator& origin);
 // [  ] ~Tokenizer();
 //
 // MANIPULATORS
@@ -239,6 +239,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bdlb::Tokenizer    Obj;
+typedef Obj::iterator      ObjIt;
 typedef bslstl::StringRef  StringRef;
 
 // Specification of character types used in this test driver
@@ -247,80 +248,113 @@ const char SOFT_DELIM_CHARS[] = "stuv";
 const char HARD_DELIM_CHARS[] = "HIJK";
 
 // Input string used in performance tests
-const char INPUT[] = {  "aaaaaaaaaaaaaaaaaaaaaaaaaaaa "
-                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
-                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
-                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+const char INPUT[] = {  "012345678901234567890123456789012 "
+                        "ddddddddddddddddddddddddddddddddd "
+                        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+                        "ddddddddddddddddddddddddddddddddd "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "
+                        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee "
+                        "fffffffffffffffffffffffffffffffff "
 };
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+bool isValid(const StringRef input,
+             const StringRef soft,
+             const StringRef hard,
+             const StringRef token);
+    // Validate the specified 'input', 'soft', 'hard' and 'token' character
+    // sets and return 'true' if the supplied character sets are valid and
+    // 'false' otherwise.  Valid character sets must confirm to the following
+    // rules:
+    // o There are no duplicates in the soft, hard and token character
+    //   sets.
+    //
+    // o There are no duplicates in the input character set.
+    //
+    // o All characters in the input string occur in the same relative
+    //   order as they do in each of the respective character sets and
+    //   that they do NOT skip over any characters in those respective
+    //   sets.
+    //
+    // o Only characters from the respective character sets appear in the
+    //   input string.
+    //
+    // All strings that do not confirm the to rules above are invalid.
 bool isValid(const StringRef input,
              const StringRef soft,
              const StringRef hard,
              const StringRef token)
 {
-    size_t inputLength       = input.length();
-    size_t softLength        = soft.length();
-    size_t hardLength        = hard.length();
-    size_t tokenLength       = token.length();
+    int inputLength = static_cast<int>(input.length());
+    int softLength  = static_cast<int>(soft.length());
+    int hardLength  = static_cast<int>(hard.length());
+    int tokenLength = static_cast<int>(token.length());
 
     // Sets under test are small, using brute force implementation
 
-    // Check for duplicates in input
-    for (size_t i = 0; i < inputLength; ++i) {
-        for (size_t j = i+1; j < inputLength; ++j) {
+    // Check for duplicates in input.  We need to test for duplicates
+    // separately for the cases when soft, hard and token character sets are
+    // empty.
+    for (int i = 0; i < inputLength; ++i) {
+        for (int j = i+1; j < inputLength; ++j) {
             if (input[i] == input[j]) {
                 return false;                                          //RETURN
             }
         }
     }
 
-    // Check for duplicates in soft,hard, token character sets.
-    for (size_t i = 0; i < softLength; ++i) {
-        for (size_t j = i+1; j < softLength; ++j) {
+    // Check for duplicates in and across soft, hard and token character sets.
+    for (int i = 0; i < softLength; ++i) {
+        for (int j = i+1; j < softLength; ++j) {
             if (soft[i] == soft[j]) {
                 return false;                                          //RETURN
             }
         }
-        for (size_t j = 0; j < hardLength; ++j) {
+        for (int j = 0; j < hardLength; ++j) {
             if (soft[i] == hard[j]) {
                 return false;                                          //RETURN
             }
         }
-        for (size_t j = 0; j < tokenLength; ++j) {
+        for (int j = 0; j < tokenLength; ++j) {
             if (soft[i] == token[j]) {
                 return false;                                          //RETURN
             }
         }
     }
 
-    for (size_t i = 0; i < hardLength; ++i) {
-        for (size_t j = i+1; j < hardLength; ++j) {
+    for (int i = 0; i < hardLength; ++i) {
+        for (int j = i+1; j < hardLength; ++j) {
             if (hard[i] == hard[j]) {
                 return false;                                          //RETURN
             }
         }
-        for (size_t j = 0; j < tokenLength; ++j) {
+        for (int j = 0; j < tokenLength; ++j) {
             if (hard[i] == token[j]) {
                 return false;                                          //RETURN
             }
         }
     }
 
-    for (size_t i = 0; i < tokenLength; ++i) {
-        for (size_t j = i+1; j < tokenLength; ++j) {
+    for (int i = 0; i < tokenLength; ++i) {
+        for (int j = i+1; j < tokenLength; ++j) {
             if (token[i] == token[j]) {
                 return false;                                          //RETURN
             }
         }
     }
 
-    size_t softIndex  = 0;
-    size_t hardIndex  = 0;
-    size_t tokenIndex = 0;
-    for (size_t i = 0; i < inputLength; ++i) {
+    // Check that all characters in the input string occur in the same relative
+    // order as they do in each of the respective character sets and that they
+    // do NOT skip over any characters in those respective sets.
+    int softIndex  = 0;
+    int hardIndex  = 0;
+    int tokenIndex = 0;
+    for (int i = 0; i < inputLength; ++i) {
         if (softIndex < softLength &&
             input[i] == soft[softIndex]) {
             ++softIndex;
@@ -377,7 +411,7 @@ int main(int argc, char **argv)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING TokenIterator operator++
+        // TEST CASE TEMPLATE
         //
         // Concerns:
         //: 1
@@ -386,32 +420,296 @@ int main(int argc, char **argv)
         //: 1
         //
         // Testing:
-        //   TokenIterator::operator++()
+        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Secondary" << endl
-                          << "====================" << endl;
+                          << "TEST CASE TEMPLATE" << endl
+                          << "==================" << endl;
         } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'begin' METHOD
+        // 'TokenizerIterator' PRIMARY MANIPULATORS
+        //   Bring the object to every state relevant for thorough testing.
         //
         // Concerns:
         //: 1
         //
         // Plan:
-        //: 1
+        //: 1 Using the table-driven technique, apply depth-ordered enumeration
+        //:   on the length of the input string to parse all unique inputs (in
+        //:   lexicographic order) up to a "depth" of 4 (note that for this
+        //:   first test, we have hard-coded "stuv" to be set of soft delimiter
+        //:   characters, and "HIJK" to be the set of hard ones, leaving the
+        //:   digit characters "0123" to be used as unique token characters).
+        //:   The input string as well as the sequence of expected "parsed"
+        //:   strings will be provided -- each on a single row of the table.
+        //:   Failing to supply a token implies that the iterator has become
+        //:   invalid after the internal iteration loop exits. (C-1..2)
+        //:
+        //: 2 Additional add-hoc tests are provided to address remaining
+        //:   concerns. (C-3..7)
+        //:
+        //: 3 Finally defensive checks are addressed. (C-8..10)
         //
         // Testing:
-        //   Tokenizer::begin();
-        //   Tokenizer::end();
-        //   TokenIterator::operator*();
+        //   Tokenizer::begin()
+        //   TokenizerIterator(const TokenizerIterator& other);
+        //   TokenizerIterrator::operator++()
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Secondary" << endl
-                          << "====================" << endl;
+        if (verbose)
+                    cout << endl
+                         << "'TokenizerIterator' PRIMARY MANIPULATORS" << endl
+                         << "========================================" << endl;
+
+        if (verbose) cout <<
+                "\nTesting all input combinations to a depth of four." << endl;
+        {
+            enum { MAX_ITER = 4 };  // Maximum iterations
+
+            static const struct {
+                int         d_line;                       // line number
+                const char *d_stringData_p[3 + MAX_ITER]; // input + expected
+            } DATA[] = {
+                //________________Expected Parse of INPUT__________________
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //--  ------  ------  ------ ----- ----
+
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //--  ------  ------  ------ ----- ----
+                {L_, {"",                              } }, // Depth 0
+
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //--  ------  ------  ------ ----- ----
+                {L_, {"s",                             } }, // Depth 1
+                {L_, {"H",    "",                      } },
+                {L_, {"0",    "0",                     } },
+
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //--  ------  ------  ------ ----- ----
+                {L_, {"st",                            } }, // Depth 2
+                {L_, {"sH",   "",                      } },
+                {L_, {"s0",   "0",                     } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"Hs",   "",                      } },
+                {L_, {"HI",   "",     "",              } },
+                {L_, {"H0",   "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0s",   "0",                     } },
+                {L_, {"0H",   "0",                     } },
+                {L_, {"01",   "01",                    } },
+
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //--  ------  ------  ------ ----- ----
+                {L_, {"stu",                           } }, // Depth 3
+                {L_, {"stH",  "",                      } },
+                {L_, {"st0",  "0",                     } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"sHt",  "",                      } },
+                {L_, {"sHI",  "",     "",              } },
+                {L_, {"sH0",  "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"s0t",  "0",                     } },
+                {L_, {"s0H",  "0",                     } },
+                {L_, {"s01",  "01",                    } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"Hst",  "",                      } },
+                {L_, {"HsI",  "",     "",              } },
+                {L_, {"Hs0",  "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"HIs",  "",     "",              } },
+                {L_, {"HIJ",  "",     "",    "",       } },
+                {L_, {"HI0",  "",     "",    "0",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"H0s",  "",     "0",             } },
+                {L_, {"H0I",  "",     "0",             } },
+                {L_, {"H01",  "",     "01",            } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0st",  "0",                     } },
+                {L_, {"0sH",  "0",                     } },
+                {L_, {"0s1",  "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0Hs",  "0",                     } },
+                {L_, {"0HI",  "0",    "",              } },
+                {L_, {"0H1",  "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"01s",  "01",                    } },
+                {L_, {"01H",  "01",                    } },
+                {L_, {"012",  "012",                   } },
+
+                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
+                //-- -------- ------  ------ ----- ----
+                {L_, {"stuv",                          } }, // Depth 4
+                {L_, {"stuH", "",                      } },
+                {L_, {"stu0", "0",                     } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"stHu", "",                      } },
+                {L_, {"stHI", "",     "",              } },
+                {L_, {"stH0", "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"st0u", "0",                     } },
+                {L_, {"st0H", "0",                     } },
+                {L_, {"st01", "01",                    } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"sHtu", "",                      } },
+                {L_, {"sHtI", "",     "",              } },
+                {L_, {"sHt0", "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"sHIt", "",     "",              } },
+                {L_, {"sHIJ", "",     "",    "",       } },
+                {L_, {"sHI0", "",     "",    "0",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"sH0t", "",     "0",             } },
+                {L_, {"sH0I", "",     "0",             } },
+                {L_, {"sH01", "",     "01",            } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"s0tu", "0",                     } },
+                {L_, {"s0tH", "0",                     } },
+                {L_, {"s0t1", "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"s0Ht", "0",                     } },
+                {L_, {"s0HI", "0",    "",              } },
+                {L_, {"s0H1", "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"s01t", "01",                    } },
+                {L_, {"s01H", "01",                    } },
+                {L_, {"s012", "012",                   } },
+
+                // Depth 4-H: TOK0    TOK1   TOK2  TOK3
+                //-- -------- ------  ------ ----- ----
+                {L_, {"Hstu", "",                      } },
+                {L_, {"HstI", "",     "",              } },
+                {L_, {"Hst0", "",     "0",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"HsIt", "",     "",              } },
+                {L_, {"HsIJ", "",     "",    "",       } },
+                {L_, {"HsI0", "",     "",    "0",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"Hs0t", "",     "0",             } },
+                {L_, {"Hs0I", "",     "0",             } },
+                {L_, {"Hs01", "",     "01",            } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"HIst", "",     "",              } },
+                {L_, {"HIsJ", "",     "",    "",       } },
+                {L_, {"HIs0", "",     "",    "0",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"HIJs", "",     "",    "",       } },
+                {L_, {"HIJK", "",     "",    "",   "", } },
+                {L_, {"HIJ0", "",     "",    "",   "0",} },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"HI0s", "",     "",    "0",      } },
+                {L_, {"HI0J", "",     "",    "0",      } },
+                {L_, {"HI01", "",     "",    "01",     } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"H0st", "",     "0",             } },
+                {L_, {"H0sI", "",     "0",             } },
+                {L_, {"H0s1", "",     "0",   "1",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"H0Is", "",     "0",             } },
+                {L_, {"H0IJ", "",     "0",   "",       } },
+                {L_, {"H0I1", "",     "0",   "1",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"H01s", "",     "01",            } },
+                {L_, {"H01I", "",     "01",            } },
+                {L_, {"H012", "",     "012",           } },
+
+                // Depth 4-0: TOK0    TOK1   TOK2  TOK3
+                //-- -------- ------  ------ ----- ----
+                {L_, {"0stu", "0",                     } },
+                {L_, {"0stH", "0",                     } },
+                {L_, {"0st1", "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0sHt", "0",                     } },
+                {L_, {"0sHI", "0",    "",              } },
+                {L_, {"0sH1", "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0s1t", "0",    "1",             } },
+                {L_, {"0s1H", "0",    "1",             } },
+                {L_, {"0s12", "0",    "12",            } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0Hst", "0",                     } },
+                {L_, {"0HsI", "0",    "",              } },
+                {L_, {"0Hs1", "0",    "1",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0HIs", "0",    "",              } },
+                {L_, {"0HIJ", "0",    "",    "",       } },
+                {L_, {"0HI1", "0",    "",    "1",      } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"0Hst", "0",                     } },
+                {L_, {"0HsI", "0",    "",              } },
+                {L_, {"0Hs1", "0",    "1",             } },
+
+                //--  ------  ------  ------ ----- ----
+                {L_, {"01st", "01",                    } },
+                {L_, {"01sH", "01",                    } },
+                {L_, {"01s2", "01",   "2",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"01Hs", "01",                    } },
+                {L_, {"01HI", "01",   "",              } },
+                {L_, {"01H2", "01",   "2",             } },
+                //--  ------  ------  ------ ----- ----
+                {L_, {"012s", "012",                   } },
+                {L_, {"012H", "012",                   } },
+                {L_, {"0123", "0123",                  } },
+            };  // DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const char        *INPUT    = DATA[ti].d_stringData_p[0];
+                const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
+
+                if (veryVeryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+                // Validate the input string and tokenizer parameters.
+                bool VALID = isValid(INPUT,
+                                     SOFT_DELIM_CHARS,
+                                     HARD_DELIM_CHARS,
+                                     TOKEN_CHARS);
+                ASSERTV(LINE, INPUT, true == VALID);
+
+                Obj        mT(INPUT,
+                              StringRef(SOFT_DELIM_CHARS),
+                              StringRef(HARD_DELIM_CHARS));
+
+                ObjIt        mIt = mT.begin();
+                const ObjIt& IT  = mIt;
+
+                // Initially 'cursor' is the address of the first token string.
+                for (const char * const *cursor = EXPECTED;
+                                        *cursor;
+                                        ++cursor) {
+
+                    // Extract iteration number, N; use in error reporting.
+                    const long int N = cursor - EXPECTED;  // Nth token
+
+                    // Expected token at this iteration, N, of
+                    // TokenizerIterator op++:
+                    const char *EXP_TOKEN = *cursor;  // current token
+
+                    const StringRef RET_TOKEN = *IT;
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(N) P_(EXP_TOKEN) P(RET_TOKEN)
+                    }
+                    ASSERTV(LINE, N, EXP_TOKEN, RET_TOKEN, EXP_TOKEN
+                                                                 == RET_TOKEN);
+
+                    ++mIt;
+
+                }  // for current token in input row
+            }  // for each row in table
+        }
         } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -841,7 +1139,7 @@ int main(int argc, char **argv)
         //:   lexicographic order) up to a "depth" of 4 (note that for this
         //:   first test, we have hard-coded "stuv" to be set of soft delimiter
         //:   characters, and "HIJK" to be the set of hard ones, leaving the
-        //:   digit characters "1234" to be used as unique token characters).
+        //:   digit characters "0123" to be used as unique token characters).
         //:   The input string as well as the sequence of expected "parsed"
         //:   strings will be provided -- each on a single row of the table.
         //:   Failing to supply a token (followed by its trailing delimiter)
@@ -1067,11 +1365,11 @@ int main(int argc, char **argv)
                 const char  *INPUT    = DATA[ti].d_stringData_p[0];
                 const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
 
-                // Make sure that the characters in the input string occur in
-                // the same relative order as they do in each of the respective
-                // character sets defined above, and that they do NOT skip over
-                // any characters in those respective sets.
+                if (veryVeryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
 
+                // Validate the input string and tokenizer parameters.
                 bool VALID = isValid(INPUT,
                                      SOFT_DELIM_CHARS,
                                      HARD_DELIM_CHARS,
@@ -1102,10 +1400,15 @@ int main(int argc, char **argv)
             const char *EXP_POST  = cursor[+1];  // current (trailing) delim.
 
             // Shorten for better error messages.
-
             const StringRef RET_PREV  = T.previousDelimiter();
             const StringRef RET_TOKEN = T.token();
             const StringRef RET_POST  = T.trailingDelimiter();
+
+            if (veryVeryVerbose) {
+                T_ T_ P_(N) T_ P_(EXP_PREV)  P(RET_PREV)
+                T_ T_       T_ P_(EXP_TOKEN) P(RET_TOKEN)
+                T_ T_       T_ P_(EXP_POST)  P(RET_POST)
+            }
 
             ASSERTV(LINE, N, EXP_PREV,  RET_PREV,   EXP_PREV  == RET_PREV);
             ASSERTV(LINE, N, EXP_TOKEN, RET_TOKEN,  EXP_TOKEN == RET_TOKEN);
@@ -1160,16 +1463,18 @@ int main(int argc, char **argv)
         //   check test inputs correctness.
         //
         // Concerns:
-        //: 1 All characters in the input string occur in the same relative
+        //: 1 There are no duplicates in the soft, hard and token character
+        //:  sets.
+        //:
+        //: 2 There are no duplicates in the input character set.
+        //:
+        //: 3 All characters in the input string occur in the same relative
         //:   order as they do in each of the respective character sets and
         //:   that they do NOT skip over any characters in those respective
         //:   sets.
         //:
-        //: 2 Only characters from the respective character sets appear in the
+        //: 4 Only characters from the respective character sets appear in the
         //:   input string.
-        //:
-        //: 3 There are no duplicates in the individual soft, hard, token and
-        //:   input character sets
         //
         // Plan:
         //: 1 Using the table-driven technique, test function on various input

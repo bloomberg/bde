@@ -15,9 +15,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_stringref
 //
-//@AUTHOR: John Lakos (jlakos)
-//
-//@DESCRIPTION: This component defines a mechanism, 'bdlb::tokenizer', that
+//@DESCRIPTION: This component defines a mechanism, 'bdlb::Tokenizer', that
 // provides non-destructive sequential (read-only) access to tokens in a given
 // input string as characterized by two disjoint sets of user-specified
 // delimiter characters, each of which is supplied at construction via either a
@@ -58,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // been made soft.
 //
 // All members within each respective character set are considered equivalent
-// with respect to tokanization.  For example, making '/' and ':' *soft*
+// with respect to tokenization.  For example, making '/' and ':' *soft*
 // *delimiter* characters on the questionably formatted date "2015/:10:/31"
 // would yield the token sequence ["2015", "10", "31"], whereas making '/' and
 // ':' *hard* *delimiter* characters would result in the token sequence
@@ -136,8 +134,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // The 'parse_1' function above produces each (non-whitespace) token in the
-// supplied input string on a separate line.  So, were 'parse_1' to be given
-// a reference to 'bsl::cout' and the input string
+// supplied input string on a separate line.  So, were 'parse_1' to be given a
+// reference to 'bsl::cout' and the input string
 //..
 //  " Times  like \tthese\n  try \n \t men's\t \tsouls.\n"
 //..
@@ -216,8 +214,8 @@ BSLS_IDENT("$Id: $")
 ///Comprehensive Detailed Parsing Specification
 ///--------------------------------------------
 // This section provides a comprehensive (length-ordered) enumeration of how
-// the 'bdlb::tokanizer' performs, according to its three (non-null)
-// character types:
+// the 'bdlb::Tokenizer' performs, according to its three (non-null) character
+// types:
 //..
 //  '.' = any *soft* delimiter character
 //  '#' = any *hard* delimiter character
@@ -238,8 +236,8 @@ BSLS_IDENT("$Id: $")
 // after advancing the tokenizer, the second line of that row shows the
 // current state of iteration with the previous delimiter being a '#' as well
 // as the current one.  The current token is again shown as empty.  After
-// advancing the tokenizer again, we now see that the iterater is invalid,
-// yet the previous delimiter (still accessible) is a '#').
+// advancing the tokenizer again, we now see that the iterater is invalid, yet
+// the previous delimiter (still accessible) is a '#').
 //..
 //  (%) = repeat   Previous   Current   Current   Iterator
 //  Input String   Delimiter   Token   Delimiter   Status
@@ -447,7 +445,7 @@ class Tokenizer_Data {
     //..
 
     enum {
-         k_MAX_CHARS = 256  // maximum # of unique values for an 8-bit 'char'
+        k_MAX_CHARS = 256  // maximum # of unique values for an 8-bit 'char'
     };
 
     char d_charTypes[k_MAX_CHARS];  // table of SOFT / HARD / TOKEN characters
@@ -459,16 +457,17 @@ class Tokenizer_Data {
 
   public:
     // CREATORS
-    Tokenizer_Data(const bslstl::StringRef& softDelimiters);
+    explicit Tokenizer_Data(const bslstl::StringRef& softDelimiters);
     Tokenizer_Data(const bslstl::StringRef& softDelimiters,
                    const bslstl::StringRef& hardDelimiters);
-        // Load the 'd_charTypes' data member such that it has the same value
-        // *as* *if* this (overly prescriptive) algorithm were used: (I)
-        // initialize each entry in 'd_charTypes' array to a value indicating
-        // that the character having that 'index' as its (e.g., ASCII)
-        // representation is a *token* character; (II) then, for each character
-        // in the specified 'softDeliters' sequence, overwrite the element at
-        // the corresponding index in 'd_charTypes' with a value that indicates
+        // Create a 'Tokenizer_Data' object and load the 'd_charTypes' data
+        // member such that it has the same value *as* *if* this (overly
+        // prescriptive) algorithm were used: (I) initialize each entry in
+        // 'd_charTypes' array to a value indicating that the character having
+        // that 'index' as its (e.g., ASCII) representation is a *token*
+        // character; (II) then, for each character in the specified
+        // 'softDelimiters' sequence, overwrite the element at the
+        // corresponding index in 'd_charTypes' with a value that indicates
         // that the character is a *soft* delimiter character; (III) finally,
         // for each character in the specified 'hardDelimiters' sequence,
         // overwrite the element at the corresponding index with a distinct
@@ -519,22 +518,28 @@ class TokenizerIterator {
                       const char           *end,
                       const Tokenizer_Data *sharedData);
         // Create a 'TokenizerIterator' object bound to the specified sequence
-        // of 'input' characters.  TO BE COMPLETED
+        // of 'input' characters ending at the specified 'end' and the
+        // specified delimiter and token mapper 'sharedData'.
 
   public:
     // CREATORS
     TokenizerIterator();
-    TokenizerIterator(const TokenizerIterator& other);
+    TokenizerIterator(const TokenizerIterator& origin);
+        // Create a 'TokenizerIterator' object having the value of the
+        // specified 'origin' iterator.
 
     // MANIPULATORS
     TokenizerIterator& operator=(const TokenizerIterator& rhs);
+        // Assign to this object the value of the specified 'rhs' iterator, and
+        // return a reference providing modifiable access to this object.
+
     TokenizerIterator& operator++();
         // Advance the iteration state of this object to refer to the next
         // token in the underlying input sequence, and return a reference
         // providing modifiable access to this object.  The behavior is
         // undefined unless the iteration state of this object is initially
         // valid, or if the underlying input has been modified or destroyed
-        // since this object was most recently reset (or created).
+        // since this object was created.
 
     // ACCESSORS
     bslstl::StringRef operator*() const;
@@ -545,13 +550,33 @@ class TokenizerIterator {
         // existence) of this object.  The behavior is undefined unless the
         // iteration state of this object is initially valid, or if the
         // underlying input has been modified or destroyed since this object
-        // was most recently reset (or created).
+        // was created.
 };
 
 // FREE OPERATORS
 bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'TokenizerIterator' objects have the
+    // same value if both of them are pointing to the same token within the
+    // same tokenized string or if they both point past the tokenized string.
+    // The behaviour is undefined unless the iterators returned by the same
+    // 'Tokenizer' object or if the underlying input has been modified or
+    // destroyed since any of those objects were created.
+
 bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  The behaviour is undefined unless
+    // the iterators returned by the same 'Tokenizer' object or if the
+    // underlying input has been modified or destroyed since any of those
+    // objects were created.
+
 const TokenizerIterator operator++(TokenizerIterator& object, int);
+    // Advance the iteration state of the specified 'object' to refer to the
+    // next token in the underlying input sequence, and return a copy of this
+    // object prior advancing the iteration state.  The behavior is undefined
+    // unless the iteration state of this object is initially valid, or if the
+    // underlying input has been modified or destroyed since this object was
+    // created.
 
 
                             // ===============
@@ -659,8 +684,8 @@ class Tokenizer {
         // destroyed since this object was most recently reset (or created).
 
     bool hasTrailingSoft() const;
-        // Return 'true' if the current (trailing) delimiter contains a
-        // *soft* delimiter character, and 'false' otherwise.  The behavior is
+        // Return 'true' if the current (trailing) delimiter contains a *soft*
+        // delimiter character, and 'false' otherwise.  The behavior is
         // undefined unless the iteration state of this object is initially
         // valid, or if the underlying input has been modified or destroyed
         // since this object was most recently reset (or created).
@@ -725,7 +750,7 @@ class Tokenizer {
 const Tokenizer operator++(Tokenizer& object, int);
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                               INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------------
