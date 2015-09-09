@@ -327,21 +327,16 @@ int main(int argc, char *argv[])
                      << " address2 = " << address2
                      << endl;
             }
-            address1.swap(address2);
-            ASSERT(address1.hostname() == "bloomberg.com");
-            ASSERT(address1.port() == 80);
-            ASSERT(address2.hostname() == "localhost");
-            ASSERT(address2.port() == 8194);
 
             address1 = address2;
-            ASSERT(address1.hostname() == "localhost");
-            ASSERT(address1.port() == 8194);
+            ASSERT(address1.hostname() == "bloomberg.com");
+            ASSERT(address1.port() == 80);
         }
 
         btlso::Endpoint address3("localhost", 8194);
         ASSERT(address3.hostname() == "localhost");
         ASSERT(address3.port() == 8194);
-        ASSERT(address1 == address3);
+        ASSERT(address1 != address3);
 
         {
             btlso::Endpoint address4;
@@ -350,6 +345,24 @@ int main(int argc, char *argv[])
 
             address4 = address1;
             ASSERT(address1 == address4);
+        }
+
+        {
+            btlso::Endpoint address3, address4;
+            address3.set("localhost", 8194);
+            address4.set("bloomberg.com", 80);
+
+            ASSERT(address3.hostname() == "localhost");
+            ASSERT(address3.port() == 8194);
+            ASSERT(address4.hostname() == "bloomberg.com");
+            ASSERT(address4.port() == 80);
+
+            address3.swap(address4);
+
+            ASSERT(address3.hostname() == "bloomberg.com");
+            ASSERT(address3.port() == 80);
+            ASSERT(address4.hostname() == "localhost");
+            ASSERT(address4.port() == 8194);
         }
 
         // verify that the default allocator was not used

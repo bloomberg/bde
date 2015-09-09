@@ -164,7 +164,7 @@ typedef btlso::LingerOptions Obj;
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::VALUE);
 
 // ============================================================================
 //                             GLOBAL TEST DATA

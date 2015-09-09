@@ -90,7 +90,6 @@ int SocketImpUtil::startup(int *errorCode)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <bsl_cstring.h>
 #include <bsl_c_errno.h>
 
 // manifest constants for shutdown()
