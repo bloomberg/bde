@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  TokenizerIterator: input iterator for user-delimited tokens within a string
-//  Tokenizer: lexor for tokens defined via *hard* and/or *soft* delimiters
+//  Tokenizer: lexer for tokens defined via *hard* and/or *soft* delimiters
 //
 //@SEE_ALSO: bslstl_stringref
 //
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // delimiter characters are to be treated as just a single delimiter.  For
 // example, if we want the input string "Sticks  and stones" to parse into a
 // sequence of three non-empty tokens ["Sticks", "and", "stones"], rather than
-// the five-token sequence ["Sticks", "". "". "and", "stones"], we would make
+// the five-token sequence ["Sticks", "", "", "and", "stones"], we would make
 // the space (' ') a soft-delimiter character.
 //
 // Hard delimiters are used in applications where consecutive delimiter
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //  +--------+---------+-------------+---...---+---------+-------------+
 //  (optional)                                              (optional)
 //..
-// The tokenization of a string can also be expressed as pseodo-Posix regular
+// The tokenization of a string can also be expressed as pseudo-Posix regular
 // expression notation:
 //..
 //   delimiter = [[:soft:]]+ | [[:soft:]]* [[:hard:]] [[:soft:]]*
@@ -602,7 +602,14 @@ class Tokenizer {
 
   private:
     // PRIVATE MANIPULATORS
-    void resetImplementation(const char *input, const char *endOfInput);
+    void resetImpl(const char *input, const char *endOfInput);
+        // Rebind this object to refer to the specified sequence of 'input'
+        // characters ending at the specified "endOfInput" pointer.
+        // The state of the tokenizer following this call is *as* *if* it had
+        // been constructed with 'input' and its current sets of *soft* and
+        // *hard* delimiter characters.  Note that the behavior is also
+        // undefined if this object is used in any way (other than to reset or
+        // destroy it) after its underlying 'input' string is modified.
 
   private:
     // NOT IMPLEMENTED
@@ -635,19 +642,19 @@ class Tokenizer {
         // delimiter characters in 'input', any intervening *soft* delimiter
         // characters are associated with the previous (*hard*) delimiter.  Any
         // leading soft delimiter characters -- i.e., those preceding the first
-        // *token* or *hard* delimiter character (a.k.a. the *leader*) -- are
-        // available immediately after construction via the 'previousDelimiter'
-        // method.  The behavior is undefined unless all supplied delimiter
-        // characters are unique.  Note that the behavior is also undefined if
-        // this object is used in any way (other than to reset or destroy it)
-        // after its underlying 'input' string is modified.  Also note that the
-        // current token and (trailing) delimiter may be accessed only while
-        // this object is in the valid state; however, the previous delimiter
-        // (or *leader*) is always accessible.  Finally note that all token and
-        // delimiter strings are returned as references into the underlying
-        // 'input' string, and hence remain valid so long as that string is not
-        // modified or destroyed -- irrespective of the state (or even the
-        // existence) of this object.
+        // *token* or *hard* delimiter character (referred to as the *leader*)
+        // -- are available immediately after construction via the
+        // 'previousDelimiter' method.  The behavior is undefined unless all
+        // supplied delimiter characters are unique.  Note that the behavior is
+        // also undefined if this object is used in any way (other than to
+        // reset or destroy it) after its underlying 'input' string is
+        // modified.  Also note that the current token and (trailing) delimiter
+        // may be accessed only while this object is in the valid state;
+        // however, the previous delimiter (or *leader*) is always accessible.
+        // Finally note that all token and delimiter strings are returned as
+        // references into the underlying 'input' string, and hence remain
+        // valid so long as that string is not modified or destroyed --
+        // irrespective of the state (or even the existence) of this object.
 
     ~Tokenizer();
         // Destroy this object.
@@ -743,7 +750,17 @@ class Tokenizer {
 
                          // iterators
     iterator begin() const;
+        // Return an iterator referring to the first token in this object's
+        // input string (the past-the-end iterator if this object iteration
+        // state is initially invalid).  This reference remains valid as long
+        // as the underlying input has not been modified or destroyed since
+        // this object was most recently reset (or created).
+
     iterator end() const;
+        // Return an iterator referring to position beyond the last token in
+        // this object's input string.  This reference remains valid as long as
+        // the underlying input has not been modified or destroyed since this
+        // object was most recently reset (or created).
 };
 
 // FREE OPERATORS

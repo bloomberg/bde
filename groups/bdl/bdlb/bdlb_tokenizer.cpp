@@ -439,8 +439,7 @@ bool Tokenizer::isTrailingHard() const
     return false;
 }
 
-void Tokenizer::resetImplementation(const char  *input,
-                                    const char  *endOfInput)
+void Tokenizer::resetImpl(const char *input, const char *endOfInput)
 {
     d_input_p     = input;
     d_cursor_p    = input;
@@ -470,13 +469,13 @@ void Tokenizer::resetImplementation(const char  *input,
 void Tokenizer::reset(const char *input)
 {
     BSLS_ASSERT(input);
-    return resetImplementation(input, 0);
+    return resetImpl(input, 0);
 }
 
 void Tokenizer::reset(const bslstl::StringRef& input)
 {
     BSLS_ASSERT(input.begin());
-    return resetImplementation(input.begin(), input.end());
+    return resetImpl(input.begin(), input.end());
 }
 
 }  // close package namespace
