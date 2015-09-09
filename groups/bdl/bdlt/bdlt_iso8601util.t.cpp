@@ -48,18 +48,18 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 1] int generate(char *, const Date&, int);
-// [ 1] int generate(char *, const Date&, int, const Config&);
-// [ 2] int generate(char *, const Time&, int);
-// [ 2] int generate(char *, const Time&, int, const Config&);
-// [ 3] int generate(char *, const Datetime&, int);
-// [ 3] int generate(char *, const Datetime&, int, const Config&);
-// [ 4] int generate(char *, const DateTz&, int);
-// [ 4] int generate(char *, const DateTz&, int, const Config&);
-// [ 5] int generate(char *, const TimeTz&, int);
-// [ 5] int generate(char *, const TimeTz&, int, const Config&);
-// [ 6] int generate(char *, const DatetimeTz&, int);
-// [ 6] int generate(char *, const DatetimeTz&, int, const Config&);
+// [ 1] int generate(char *, int, const Date&);
+// [ 1] int generate(char *, int, const Date&, const Config&);
+// [ 2] int generate(char *, int, const Time&);
+// [ 2] int generate(char *, int, const Time&, const Config&);
+// [ 3] int generate(char *, int, const Datetime&);
+// [ 3] int generate(char *, int, const Datetime&, const Config&);
+// [ 4] int generate(char *, int, const DateTz&);
+// [ 4] int generate(char *, int, const DateTz&, const Config&);
+// [ 5] int generate(char *, int, const TimeTz&);
+// [ 5] int generate(char *, int, const TimeTz&, const Config&);
+// [ 6] int generate(char *, int, const DatetimeTz&);
+// [ 6] int generate(char *, int, const DatetimeTz&, const Config&);
 // [ 1] ostream generate(ostream&, const Date&);
 // [ 1] ostream generate(ostream&, const Date&, const Config&);
 // [ 2] ostream generate(ostream&, const Time&);
@@ -767,8 +767,8 @@ if (veryVerbose)
 // accommodate a null terminator:
 //..
     rc = bdlt::Iso8601Util::generate(buffer,
-                                     sourceTimeTz,
                                      BUFLEN,
+                                     sourceTimeTz,
                                      configuration);
     ASSERT(BUFLEN - 2 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
@@ -1848,8 +1848,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const DatetimeTz&, int);
-        //   int generate(char *, const DatetimeTz&, int, const Config&);
+        //   int generate(char *, int, const DatetimeTz&);
+        //   int generate(char *, int, const DatetimeTz&, const Config&);
         //   ostream generate(ostream&, const DatetimeTz&);
         //   ostream generate(ostream&, const DatetimeTz&, const Config&);
         //   int generateRaw(char *, const DatetimeTz&);
@@ -1954,7 +1954,7 @@ if (veryVerbose)
                             }
 
                             ASSERTV(ILINE, JLINE, KLINE, k, OUTLEN,
-                                    OUTLEN == Util::generate(buffer, X, k));
+                                    OUTLEN == Util::generate(buffer, k, X));
 
                             ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
                                     0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2040,7 +2040,7 @@ if (veryVerbose)
                             }
 
                             ASSERTV(ILINE, k, OUTLEN,
-                                    OUTLEN == Util::generate(buffer, X, k, C));
+                                    OUTLEN == Util::generate(buffer, k, X, C));
 
                             ASSERTV(ILINE, EXPECTED, buffer,
                                     0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2110,17 +2110,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2185,8 +2185,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const TimeTz&, int);
-        //   int generate(char *, const TimeTz&, int, const Config&);
+        //   int generate(char *, int, const TimeTz&);
+        //   int generate(char *, int, const TimeTz&, const Config&);
         //   ostream generate(ostream&, const TimeTz&);
         //   ostream generate(ostream&, const TimeTz&, const Config&);
         //   int generateRaw(char *, const TimeTz&);
@@ -2276,7 +2276,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, JLINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k));
+                                OUTLEN == Util::generate(buffer, k, X));
 
                         ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2361,7 +2361,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k, C));
+                                OUTLEN == Util::generate(buffer, k, X, C));
 
                         ASSERTV(ILINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2429,17 +2429,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2504,8 +2504,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const DateTz&, int);
-        //   int generate(char *, const DateTz&, int, const Config&);
+        //   int generate(char *, int, const DateTz&);
+        //   int generate(char *, int, const DateTz&, const Config&);
         //   ostream generate(ostream&, const DateTz&);
         //   ostream generate(ostream&, const DateTz&, const Config&);
         //   int generateRaw(char *, const DateTz&);
@@ -2590,7 +2590,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, JLINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k));
+                                OUTLEN == Util::generate(buffer, k, X));
 
                         ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2675,7 +2675,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k, C));
+                                OUTLEN == Util::generate(buffer, k, X, C));
 
                         ASSERTV(ILINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2743,17 +2743,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2818,8 +2818,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const Datetime&, int);
-        //   int generate(char *, const Datetime&, int, const Config&);
+        //   int generate(char *, int, const Datetime&);
+        //   int generate(char *, int, const Datetime&, const Config&);
         //   ostream generate(ostream&, const Datetime&);
         //   ostream generate(ostream&, const Datetime&, const Config&);
         //   int generateRaw(char *, const Datetime&);
@@ -2909,7 +2909,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, JLINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k));
+                                OUTLEN == Util::generate(buffer, k, X));
 
                         ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -2994,7 +2994,7 @@ if (veryVerbose)
                         }
 
                         ASSERTV(ILINE, k, OUTLEN,
-                                OUTLEN == Util::generate(buffer, X, k, C));
+                                OUTLEN == Util::generate(buffer, k, X, C));
 
                         ASSERTV(ILINE, EXPECTED, buffer,
                                 0 == bsl::memcmp(EXPECTED.c_str(),
@@ -3062,17 +3062,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3133,8 +3133,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const Time&, int);
-        //   int generate(char *, const Time&, int, const Config&);
+        //   int generate(char *, int, const Time&);
+        //   int generate(char *, int, const Time&, const Config&);
         //   ostream generate(ostream&, const Time&);
         //   ostream generate(ostream&, const Time&, const Config&);
         //   int generateRaw(char *, const Time&);
@@ -3204,7 +3204,7 @@ if (veryVerbose)
                     }
 
                     ASSERTV(ILINE, k, OUTLEN,
-                            OUTLEN == Util::generate(buffer, X, k));
+                            OUTLEN == Util::generate(buffer, k, X));
 
                     ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(EXPECTED.c_str(),
@@ -3287,7 +3287,7 @@ if (veryVerbose)
                     }
 
                     ASSERTV(ILINE, k, OUTLEN,
-                            OUTLEN == Util::generate(buffer, X, k, C));
+                            OUTLEN == Util::generate(buffer, k, X, C));
 
                     ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(EXPECTED.c_str(),
@@ -3353,17 +3353,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3424,8 +3424,8 @@ if (veryVerbose)
         //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
-        //   int generate(char *, const Date&, int);
-        //   int generate(char *, const Date&, int, const Config&);
+        //   int generate(char *, int, const Date&);
+        //   int generate(char *, int, const Date&, const Config&);
         //   ostream generate(ostream&, const Date&);
         //   ostream generate(ostream&, const Date&, const Config&);
         //   int generateRaw(char *, const Date&);
@@ -3494,7 +3494,7 @@ if (veryVerbose)
                     }
 
                     ASSERTV(ILINE, k, OUTLEN,
-                            OUTLEN == Util::generate(buffer, X, k));
+                            OUTLEN == Util::generate(buffer, k, X));
 
                     ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(EXPECTED.c_str(),
@@ -3577,7 +3577,7 @@ if (veryVerbose)
                     }
 
                     ASSERTV(ILINE, k, OUTLEN,
-                            OUTLEN == Util::generate(buffer, X, k, C));
+                            OUTLEN == Util::generate(buffer, k, X, C));
 
                     ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(EXPECTED.c_str(),
@@ -3643,17 +3643,17 @@ if (veryVerbose)
                 const TYPE X;
                 char       buffer[OBJLEN];
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
 
-                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;

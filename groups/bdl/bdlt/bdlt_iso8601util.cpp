@@ -492,8 +492,8 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
 
 // CLASS METHODS
 int Iso8601Util::generate(char                            *buffer,
-                          const Date&                      object,
                           int                              bufferLength,
+                          const Date&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
@@ -509,8 +509,8 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(char                            *buffer,
-                          const Time&                      object,
                           int                              bufferLength,
+                          const Time&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
@@ -526,8 +526,8 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(char                            *buffer,
-                          const Datetime&                  object,
                           int                              bufferLength,
+                          const Datetime&                  object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
@@ -543,8 +543,8 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(char                            *buffer,
-                          const DateTz&                    object,
                           int                              bufferLength,
+                          const DateTz&                    object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
@@ -563,8 +563,8 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(char                            *buffer,
-                          const TimeTz&                    object,
                           int                              bufferLength,
+                          const TimeTz&                    object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
@@ -583,8 +583,8 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(char                            *buffer,
-                          const DatetimeTz&                object,
                           int                              bufferLength,
+                          const DatetimeTz&                object,
                           const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);

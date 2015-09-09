@@ -186,35 +186,45 @@ BSLS_IDENT("$Id: $")
 //
 ///Leap Seconds
 /// - - - - - -
-// Although leap seconds are not representable by 'bdlt::Time', positive leap
-// seconds are supported by the parse functions.  A leap second is recognized
-// when the value parsed for the 'second' attribute of a 'Time' is 60.  When a
-// leap second is detected, the 'second' attribute is taken to be 59, so that
-// the value of the 'Time' object can be validly set, then an additional second
-// is added to the object.  Note that the possible carry incurred by a leap
-// second has the same potential for overflow as may occur with fractional
-// seconds that are rounded up (although in admittedly pathological cases).
+// Leap seconds are not representable by 'bdlt::Time'.  Hence, they are not
+// produced by any of the 'Iso8601Util' generate functions.  However, positive
+// leap seconds *are* supported by the parse functions.  A leap second is
+// recognized when the value parsed for the 'second' attribute of a 'Time' is
+// 60--regardless of the values parsed for the 'hour', 'minute', and
+// 'millisecond' attributes.  Note that this behavior is more generous than
+// that afforded by the ISO 8601 specification (which indicates that a positive
+// leap second can only be represented as "23:59:60Z").
 //
-// TBD Should we tighten up our handling of leap seconds?  The ISO 8601
-// specification seems to suggest that a positive leap second can only be
-// represented as "23:59:60Z", but we allow 60 (for the 'second') to be coupled
-// with any 'hour', 'minute', 'millisecond', and zone designator.
+// When a leap second is detected during parsing of an ISO 8601 string, the
+// 'second' attribute is taken to be 59, so that the value of the 'Time' object
+// can be validly set; then an additional second is added to the object.  Note
+// that the possible carry incurred by a leap second (i.e., when loading the
+// result of parsing into a 'Datetime' or 'DatetimeTz' object) has the same
+// potential for overflow as may occur with fractional seconds that are rounded
+// up (although in admittedly pathological cases).
 //
 ///The Time 24:00
 /// - - - - - - -
 // According to the ISO 8601 specification, the time 24:00 is interpreted as
 // midnight, i.e., the last instant of a day.  However, this concept is not
-// representable by 'bdlt'.  Furthermore, 24:00 can only be paired (i.e., in a
-// 'Datetime' or 'DatetimeTz' object) with the default date, 0001/01/01, and
-// the timezone offset (if any) must be 0.  If 24:00 is detected while parsing
-// an ISO 8601 string, the 'hour' attribute of 'Time' is set to 24 only if
-// needed to preserve the default value for a 'Time', 'TimeTz', 'Datetime', or
-// 'DatetimeTz'.  Otherwise, if 24:00 is paired with any date other than the
-// default, the resulting object is set to represent the first instant of the
-// next day (i.e., the date component is advanced by one day and the time
-// component is set to 00:00).  Note that parsing fails if the zone designator
-// is not equivalent to "+00:00", whether implied or explicit, when 24:00 is
-// encountered:
+// supported by 'bdlt'.  Although 24:00 is *representable* by 'bdlt', i.e., as
+// the default value for 'bdlt::Time', 'Time(24, 0)' does *not* represent
+// midnight when it is the value for the "time" attribute of a 'Datetime' (or
+// 'DatetimeTz') object.  For example:
+//..
+//  bdlt::Datetime notMidnight =
+//              bdlt::Datetime(bdlt::Date(2002, 03, 17), bdlt::Time(24, 0, 0));
+//
+//  notMidnight.addSeconds(1);
+//  assert(notMidnight ==
+//              bdlt::Datetime(bdlt::Date(2002, 03, 17), bdlt::Time( 0, 0, 1));
+//..
+// It is important to be aware of this peculiarity of 'Datetime' (and
+// 'DatetimeTz') as it relates to ISO 8601.
+//
+// The following table shows some examples of parsing an ISO 8601 string
+// containing "24:00".  Note that parsing fails if the zone designator is not
+// equivalent to "+00:00" when the time 24:00 is encountered:
 //..
 //  +------------------------------------+-----------------------------------+
 //  |       Parsed ISO 8601 String       |        Result Object Value        |
@@ -230,15 +240,23 @@ BSLS_IDENT("$Id: $")
 //  |                                    |  # preserve 'Datetime' default    |
 //  |                                    |  # value                          |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17T24:00:00.000           |  Datetime(Date(2002, 03, 18),     |
-//  |                                    |           Time(0, 0, 0, 0))       |
-//  |                                    |  # first instant of the next day  |
-//  |                                    |  # if 'Date' not 0001/01/01       |
+//  |  2002-03-17T24:00:00.000           |  Datetime(Date(2002, 03, 17),     |
+//  |                                    |           Time(24, 0, 0, 0))      |
+//  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
 //..
-// TBD the implementation has not yet been changed to match the above table
-// with respect to 24:00 being treated as the first instant of the next day.
-// This warrants some discussion before doing so.
+// An 'hour' attribute value of 24 is also "preserved" by the generate
+// functions provided by this component:
+//..
+//  +------------------------------------+-----------------------------------+
+//  |        Source Object Value         |     Generated ISO 8601 String     |
+//  +====================================+===================================+
+//  |  Time(24, 0, 0, 0)                 |  24:00:00.000                     |
+//  +------------------------------------+-----------------------------------+
+//  |  Datetime(Date(2002, 03, 17),      |  2002-03-17T24:00:00.000          |
+//  |           Time(24, 0, 0, 0))       |                                   |
+//  +------------------------------------+-----------------------------------+
+//..
 //
 ///Summary of Supported ISO 8601 Representations
 ///- - - - - - - - - - - - - - - - - - - - - - -
@@ -407,8 +425,8 @@ BSLS_IDENT("$Id: $")
 // accommodate a null terminator:
 //..
 //  rc = bdlt::Iso8601Util::generate(buffer,
-//                                   sourceTimeTz,
 //                                   BUFLEN,
+//                                   sourceTimeTz,
 //                                   configuration);
 //  assert(BUFLEN - 2 == rc);
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
@@ -503,52 +521,52 @@ struct Iso8601Util {
 
     // CLASS METHODS
     static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const Date&                      object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
                         const Date&                      object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const Date&                      object,
-                        int                              bufferLength,
                         const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const Time&                      object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
                         const Time&                      object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const Time&                      object,
-                        int                              bufferLength,
                         const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const Datetime&                  object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
                         const Datetime&                  object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const Datetime&                  object,
-                        int                              bufferLength,
                         const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const DateTz&                    object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
                         const DateTz&                    object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const DateTz&                    object,
-                        int                              bufferLength,
                         const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
-                        const TimeTz&                    object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const TimeTz&                    object,
                         int                              bufferLength,
+                        const TimeTz&                    object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const TimeTz&                    object,
                         const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
-                        const DatetimeTz&                object,
-                        int                              bufferLength);
-    static int generate(char                            *buffer,
-                        const DatetimeTz&                object,
                         int                              bufferLength,
+                        const DatetimeTz&                object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const DatetimeTz&                object,
                         const Iso8601UtilConfiguration&  configuration);
         // Write the ISO 8601 representation of the specified 'object' to the
-        // specified 'buffer', truncating (if necessary) to the specified
-        // 'bufferLength'.  Optionally specify a 'configuration' to affect the
-        // format of the generated string.  If 'configuration' is not supplied,
-        // the process-wide default value
+        // specified 'buffer' of the specified 'bufferLength' (in bytes),
+        // truncating (if necessary) to 'bufferLength'.  Optionally specify a
+        // 'configuration' to affect the format of the generated string.  If
+        // 'configuration' is not supplied, the process-wide default value
         // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.  Return
         // the number of characters in the formatted string before truncation
         // (not counting a null terminator).  If 'bufferLength' indicates
@@ -676,11 +694,13 @@ struct Iso8601Util {
         // to the nearest value in milliseconds.  If the optional zone
         // designator is present in 'string', the resulting 'Time' value is
         // converted to the equivalent GMT time; if the zone designator is
-        // absent, GMT is assumed.  TBD doc the treatment of leap seconds here
-        // after it is decided how they will be handled.  If the "hh:mm:ss"
-        // portion of 'string' is "24:00:00", then the fractional second must
-        // be absent or 0, and the zone designator must be absent or indicate
-        // GMT.  The behavior is undefined unless '0 <= length'.
+        // absent, GMT is assumed.  If a leap second is detected (i.e., the
+        // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
+        // the 'second' attribute is taken to be 59, then an additional second
+        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
+        // 'string' is "24:00:00", then the fractional second must be absent or
+        // 0, and the zone designator must be absent or indicate GMT.  The
+        // behavior is undefined unless '0 <= length'.
 
     static int parse(Datetime *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -697,11 +717,13 @@ struct Iso8601Util {
         // to the nearest value in milliseconds.  If the optional zone
         // designator is present in 'string', the resulting 'Datetime' value is
         // converted to the equivalent GMT value; if the zone designator is
-        // absent, GMT is assumed.  TBD doc the treatment of leap seconds here
-        // after it is decided how they will be handled.  If the "hh:mm:ss"
-        // portion of 'string' is "24:00:00", then the fractional second must
-        // be absent or 0, and the zone designator must be absent or indicate
-        // GMT.  The behavior is undefined unless '0 <= length'.
+        // absent, GMT is assumed.  If a leap second is detected (i.e., the
+        // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
+        // the 'second' attribute is taken to be 59, then an additional second
+        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
+        // 'string' is "24:00:00", then the fractional second must be absent or
+        // 0, and the zone designator must be absent or indicate GMT.  The
+        // behavior is undefined unless '0 <= length'.
 
     static int parse(DateTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -730,11 +752,13 @@ struct Iso8601Util {
         // entire 'length' characters do not.  If an optional fractional second
         // having more than three digits is present in 'string', it is rounded
         // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', GMT is assumed.  TBD doc the
-        // treatment of leap seconds here after it is decided how they will be
-        // handled.  If the "hh:mm:ss" portion of 'string' is "24:00:00", then
-        // the fractional second must be absent or 0, and the zone designator
-        // must be absent or indicate GMT.  The behavior is undefined unless
+        // designator is not present in 'string', GMT is assumed.  If a leap
+        // second is detected (i.e., the parsed value of the 'second' attribute
+        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
+        // 59, then an additional second is added to 'result' at the end.  If
+        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
+        // fractional second must be absent or 0, and the zone designator must
+        // be absent or indicate GMT.  The behavior is undefined unless
         // '0 <= length'.
 
     static int parse(DatetimeTz *result, const char *string, int length);
@@ -750,12 +774,67 @@ struct Iso8601Util {
         // entire 'length' characters do not.  If an optional fractional second
         // having more than three digits is present in 'string', it is rounded
         // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', GMT is assumed.  TBD doc the
-        // treatment of leap seconds here after it is decided how they will be
-        // handled.  If the "hh:mm:ss" portion of 'string' is "24:00:00", then
-        // the fractional second must be absent or 0, and the zone designator
-        // must be absent or indicate GMT.  The behavior is undefined unless
+        // designator is not present in 'string', GMT is assumed.  If a leap
+        // second is detected (i.e., the parsed value of the 'second' attribute
+        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
+        // 59, then an additional second is added to 'result' at the end.  If
+        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
+        // fractional second must be absent or 0, and the zone designator must
+        // be absent or indicate GMT.  The behavior is undefined unless
         // '0 <= length'.
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    static int generate(char              *buffer,
+                        const Date&        object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const Time&        object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const Datetime&    object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const DateTz&      object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const DateTz&      object,
+                        int                bufferLength,
+                        bool               useZAbbreviationForUtc);
+    static int generate(char              *buffer,
+                        const TimeTz&      object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const TimeTz&      object,
+                        int                bufferLength,
+                        bool               useZAbbreviationForUtc);
+    static int generate(char              *buffer,
+                        const DatetimeTz&  object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const DatetimeTz&  object,
+                        int                bufferLength,
+                        bool               useZAbbreviationForUtc);
+
+    static bsl::ostream& generate(bsl::ostream&     stream,
+                                  const DateTz&     object,
+                                  bool              useZAbbreviationForUtc);
+    static bsl::ostream& generate(bsl::ostream&     stream,
+                                  const TimeTz&     object,
+                                  bool              useZAbbreviationForUtc);
+    static bsl::ostream& generate(bsl::ostream&     stream,
+                                  const DatetimeTz& object,
+                                  bool              useZAbbreviationForUtc);
+
+    static int generateRaw(char              *buffer,
+                           const DateTz&      object,
+                           bool               useZAbbreviationForUtc);
+    static int generateRaw(char              *buffer,
+                           const TimeTz&      object,
+                           bool               useZAbbreviationForUtc);
+    static int generateRaw(char              *buffer,
+                           const DatetimeTz&  object,
+                           bool               useZAbbreviationForUtc);
+#endif
 };
 
 // ============================================================================
@@ -768,76 +847,76 @@ struct Iso8601Util {
 
 // CLASS METHODS
 inline
-int Iso8601Util::generate(char *buffer, const Date& object, int bufferLength)
+int Iso8601Util::generate(char *buffer, int bufferLength, const Date& object)
 {
     BSLS_ASSERT_SAFE(buffer);
     BSLS_ASSERT_SAFE(0 <= bufferLength);
 
     return generate(buffer,
-                    object,
                     bufferLength,
+                    object,
                     Iso8601UtilConfiguration::defaultConfiguration());
 }
 
 inline
-int Iso8601Util::generate(char *buffer, const Time& object, int bufferLength)
+int Iso8601Util::generate(char *buffer, int bufferLength, const Time& object)
 {
     BSLS_ASSERT_SAFE(buffer);
     BSLS_ASSERT_SAFE(0 <= bufferLength);
 
     return generate(buffer,
-                    object,
                     bufferLength,
-                    Iso8601UtilConfiguration::defaultConfiguration());
-}
-
-inline
-int
-Iso8601Util::generate(char *buffer, const Datetime& object, int bufferLength)
-{
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
-
-    return generate(buffer,
                     object,
-                    bufferLength,
-                    Iso8601UtilConfiguration::defaultConfiguration());
-}
-
-inline
-int Iso8601Util::generate(char *buffer, const DateTz& object, int bufferLength)
-{
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
-
-    return generate(buffer,
-                    object,
-                    bufferLength,
-                    Iso8601UtilConfiguration::defaultConfiguration());
-}
-
-inline
-int Iso8601Util::generate(char *buffer, const TimeTz& object, int bufferLength)
-{
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
-
-    return generate(buffer,
-                    object,
-                    bufferLength,
                     Iso8601UtilConfiguration::defaultConfiguration());
 }
 
 inline
 int
-Iso8601Util::generate(char *buffer, const DatetimeTz& object, int bufferLength)
+Iso8601Util::generate(char *buffer, int bufferLength, const Datetime& object)
 {
     BSLS_ASSERT_SAFE(buffer);
     BSLS_ASSERT_SAFE(0 <= bufferLength);
 
     return generate(buffer,
-                    object,
                     bufferLength,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+int Iso8601Util::generate(char *buffer, int bufferLength, const DateTz& object)
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= bufferLength);
+
+    return generate(buffer,
+                    bufferLength,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+int Iso8601Util::generate(char *buffer, int bufferLength, const TimeTz& object)
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= bufferLength);
+
+    return generate(buffer,
+                    bufferLength,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+int
+Iso8601Util::generate(char *buffer, int bufferLength, const DatetimeTz& object)
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= bufferLength);
+
+    return generate(buffer,
+                    bufferLength,
+                    object,
                     Iso8601UtilConfiguration::defaultConfiguration());
 }
 
@@ -857,7 +936,7 @@ bsl::ostream& Iso8601Util::generate(
 {
     char buffer[k_DATE_STRLEN + 1];
 
-    const int len = generate(buffer, object, k_DATE_STRLEN, configuration);
+    const int len = generate(buffer, k_DATE_STRLEN, object, configuration);
     BSLS_ASSERT_SAFE(k_DATE_STRLEN >= len);
 
     return stream.write(buffer, len);
@@ -879,7 +958,7 @@ bsl::ostream& Iso8601Util::generate(
 {
     char buffer[k_TIME_STRLEN + 1];
 
-    const int len = generate(buffer, object, k_TIME_STRLEN, configuration);
+    const int len = generate(buffer, k_TIME_STRLEN, object, configuration);
     BSLS_ASSERT_SAFE(k_TIME_STRLEN >= len);
 
     return stream.write(buffer, len);
@@ -902,7 +981,7 @@ bsl::ostream& Iso8601Util::generate(
 {
     char buffer[k_DATETIME_STRLEN + 1];
 
-    const int len = generate(buffer, object, k_DATETIME_STRLEN, configuration);
+    const int len = generate(buffer, k_DATETIME_STRLEN, object, configuration);
     BSLS_ASSERT_SAFE(k_DATETIME_STRLEN >= len);
 
     return stream.write(buffer, len);
@@ -924,7 +1003,7 @@ bsl::ostream& Iso8601Util::generate(
 {
     char buffer[k_DATETZ_STRLEN + 1];
 
-    const int len = generate(buffer, object, k_DATETZ_STRLEN, configuration);
+    const int len = generate(buffer, k_DATETZ_STRLEN, object, configuration);
     BSLS_ASSERT_SAFE(k_DATETZ_STRLEN >= len);
 
     return stream.write(buffer, len);
@@ -946,7 +1025,7 @@ bsl::ostream& Iso8601Util::generate(
 {
     char buffer[k_TIMETZ_STRLEN + 1];
 
-    const int len = generate(buffer, object, k_TIMETZ_STRLEN, configuration);
+    const int len = generate(buffer, k_TIMETZ_STRLEN, object, configuration);
     BSLS_ASSERT_SAFE(k_TIMETZ_STRLEN >= len);
 
     return stream.write(buffer, len);
@@ -970,8 +1049,8 @@ bsl::ostream& Iso8601Util::generate(
     char buffer[k_DATETIMETZ_STRLEN + 1];
 
     const int len = generate(buffer,
-                             object,
                              k_DATETIMETZ_STRLEN,
+                             object,
                              configuration);
     BSLS_ASSERT_SAFE(k_DATETIMETZ_STRLEN >= len);
 
@@ -1037,6 +1116,150 @@ int Iso8601Util::generateRaw(char *buffer, const DatetimeTz& object)
                        object,
                        Iso8601UtilConfiguration::defaultConfiguration());
 }
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+inline
+int Iso8601Util::generate(char *buffer, const Date& object, int bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char *buffer, const Time& object, int bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char            *buffer,
+                          const Datetime&  object,
+                          int              bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char *buffer, const DateTz& object, int bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char          *buffer,
+                          const DateTz&  object,
+                          int            bufferLength,
+                          bool           useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(buffer, bufferLength, object, configuration);
+}
+
+inline
+int Iso8601Util::generate(char *buffer, const TimeTz& object, int bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char          *buffer,
+                          const TimeTz&  object,
+                          int            bufferLength,
+                          bool           useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(buffer, bufferLength, object, configuration);
+}
+
+inline
+int Iso8601Util::generate(char              *buffer,
+                          const DatetimeTz&  object,
+                          int                bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char              *buffer,
+                          const DatetimeTz&  object,
+                          int                bufferLength,
+                          bool               useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(buffer, bufferLength, object, configuration);
+}
+
+inline
+bsl::ostream& Iso8601Util::generate(bsl::ostream& stream,
+                                    const DateTz& object,
+                                    bool          useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(stream, object, configuration);
+}
+
+inline
+bsl::ostream& Iso8601Util::generate(bsl::ostream& stream,
+                                    const TimeTz& object,
+                                    bool          useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(stream, object, configuration);
+}
+
+inline
+bsl::ostream& Iso8601Util::generate(bsl::ostream&     stream,
+                                    const DatetimeTz& object,
+                                    bool              useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generate(stream, object, configuration);
+}
+
+inline
+int Iso8601Util::generateRaw(char          *buffer,
+                             const DateTz&  object,
+                             bool           useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generateRaw(buffer, object, configuration);
+}
+
+inline
+int Iso8601Util::generateRaw(char          *buffer,
+                             const TimeTz&  object,
+                             bool           useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generateRaw(buffer, object, configuration);
+}
+
+inline
+int Iso8601Util::generateRaw(char              *buffer,
+                             const DatetimeTz&  object,
+                             bool               useZAbbreviationForUtc)
+{
+    Iso8601UtilConfiguration configuration;
+    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
+
+    return generateRaw(buffer, object, configuration);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace
