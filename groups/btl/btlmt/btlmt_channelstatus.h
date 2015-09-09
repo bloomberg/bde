@@ -7,21 +7,21 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a set of enumerations for the channel status codes.
+//@PURPOSE: Enumerate the set of channel status codes.
 //
 //@CLASSES:
-//   btlmt::ChannelStatus:  namespace for channel status codes 'enum'
+//   btlmt::ChannelStatus:  namespace for channel status codes
 //
 //@AUTHOR: Chen He (che2)
 //
 //@SEE ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
 //
-//@DESCRIPTION: This component provides namespaces for the 'enum'
-// type listing the possible return codes for methods that operate on a
-// channel.
+//@DESCRIPTION: This component provides namespace, 'btlmt::ChannelStatus', for
+// the 'enum' type listing the possible return codes for methods that operate
+// on a channel.
 //
-///'btlmt::ChannelStatus::Enum' Enumerators
-///---------------------------------------
+///Enumerators
+///-----------
 //..
 //  Name                      Descriptions
 //  ---------------------     -------------------------------------------------
