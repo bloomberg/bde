@@ -20,9 +20,9 @@ bool Bind_TestSlotsAlloc::verifySlots(
 {
     bool equalFlag = true;
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-    // Note: the calls to 'verifyAllocSlots' are disabled on Windows.
-    // Their success depends on the "Return Value Optimization" (RVO)
-    // which Windows does not seem to be applying.
+    // Note: the calls to 'verifyAllocSlots' are disabled on Windows.  Their
+    // success depends on the "Return Value Optimization" (RVO) which Windows
+    // does not seem to be applying.
 
     for (int i = 0; i < k_NUM_SLOTS; ++i) {
         if (EXPECTED[i] != getSlot(i)) {
@@ -45,8 +45,8 @@ bool Bind_TestSlotsAlloc::verifySlots(
 
     return equalFlag;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

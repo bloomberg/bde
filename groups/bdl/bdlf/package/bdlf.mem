@@ -15,6 +15,7 @@ bdlf_bind_test6
 bdlf_bind_test7
 bdlf_bind_test8
 bdlf_bind_test9
+bdlf_bind_testn
 bdlf_function
 bdlf_memfn
 bdlf_placeholder
