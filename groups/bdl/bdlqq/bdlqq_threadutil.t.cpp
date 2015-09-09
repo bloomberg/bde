@@ -6,7 +6,6 @@
 #include <bsls_atomic.h>
 #include <bdlqq_platform.h>
 
-#include <bdlf_bind.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 #include <bdlt_currenttime.h>
@@ -172,6 +171,20 @@ class ThreadChecker {
     bsls::AtomicInt d_count;
 
   public:
+    // TYPES
+    class ThreadCheckerFunctor {
+        ThreadChecker *d_checker_p;
+
+      public:
+        ThreadCheckerFunctor(ThreadChecker *checker) {
+            d_checker_p = checker;
+        }
+
+        void operator()() {
+            d_checker_p->eval();
+        }
+    };
+        
     // CREATORS
     ThreadChecker() : d_count(0) {}
 
@@ -180,12 +193,12 @@ class ThreadChecker {
     {
        ++d_count;
     }
-
-    bdlf::Function<void(*)()> getFunctor()
+    
+    ThreadCheckerFunctor getFunctor()
     {
-       return bdlf::BindUtil::bind(&ThreadChecker::eval, this);
+        return ThreadCheckerFunctor(this);
     }
-
+    
     // ACCESSORS
     int count() const
     {

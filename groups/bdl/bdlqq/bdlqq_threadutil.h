@@ -323,7 +323,7 @@ extern "C" {
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry-point
         // functions to 'bdlqq::ThreadUtil::create'.  Note that 'create' also
-        // accepts 'bdlf::Function<void(*)()>' objects as well.
+        // accepts any invokable C++ "functor" object.
 
     typedef void (*bcemt_KeyDestructorFunction)(void *);
         // 'bcemt_KeyDestructorFunction' is an alias for a function type taking

@@ -121,9 +121,7 @@ extern "C" {
         // 'bcemt_ThreadFunction' is an alias for a function type taking a
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry point
-        // functions to 'bdlqq::ThreadUtil::create'.  Note that 'create'
-        // also
-        // accepts 'bdlf::Function<void(*)()>' objects as well.
+        // functions to 'bdlqq::ThreadUtil::create'.  
 
     typedef void (*bcemt_KeyDestructorFunction)(void *);
         // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
