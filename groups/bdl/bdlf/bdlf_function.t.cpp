@@ -1,6 +1,8 @@
 // bdlf_function.t.cpp                                                -*-C++-*-
-
 #include <bdlf_function.h>
+
+#include <bslim_testutil.h>
+
 #include <bdlf_memfn.h>                         // for testing only
 
 #ifdef WARNING
@@ -57,10 +59,10 @@ using namespace bsl;  // automatically added by script
 // representation.  This, however, implies implementing the equality comparison
 // operator within this test driver, which in turn requires all the invocable
 // types in this test driver to be registered with a central authority.  We do
-// so in the generating function.  The primary manipulators for 'bdlf::Function'
-// are the default constructor (with or without allocator), the
-// 'operator=<FUNC>' assignment operator template, and the 'clear' method.  We
-// have chosen for basic accessors the 'operator bool' conversion operator,
+// so in the generating function.  The primary manipulators for
+// 'bdlf::Function' are the default constructor (with or without allocator),
+// the 'operator=<FUNC>' assignment operator template, and the 'clear' method.
+// We have chosen for basic accessors the 'operator bool' conversion operator,
 // invocation operator (of signature compatible with the type), and 'isInPlace'
 // method.
 //
@@ -113,58 +115,48 @@ using namespace bsl;  // automatically added by script
 // [19] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
 namespace {
 
-void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // current Line number
-
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -804,11 +796,11 @@ int testBinding(const Obj& functor)
 //-----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Selected
-// uppercase letters in [A .. Z] correspond to arbitrary (but unique) functor
-// types (and for some types, values in [0 .. 9]) to be assigned to the
-// 'bdlf::Function<PROTOTYPE>' object.  A tilde ('~') indicates that the logical
-// (but not necessarily physical) state of the object is to be set to its
-// initial, empty state (via the 'clear' method).  For readability, allow
+// uppercase letters in '[A .. Z]' correspond to arbitrary (but unique) functor
+// types (and for some types, values in '[0 .. 9])' to be assigned to the
+// 'bdlf::Function<PROTOTYPE>' object.  A tilde ('~') indicates that the
+// logical (but not necessarily physical) state of the object is to be set to
+// its initial, empty state (via the 'clear' method).  For readability, allow
 // spaces or semicolons to separate elements.
 //
 // LANGUAGE SPECIFICATION:
@@ -1026,8 +1018,8 @@ ggg(bdlf::Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
 
 template <class PROTOTYPE>
 bdlf::Function<PROTOTYPE>& gg(bdlf::Function<PROTOTYPE> *object,
-                             const char               *spec)
-    // Return, by reference, the specified object with its value adjusted
+                             const char                 *spec)
+    // Return, by reference, the specified 'object' with its value adjusted
     // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
@@ -1280,6 +1272,7 @@ class MyFunctionObject {
 
   public:
     // CREATORS
+
     // None on purpose.
 
     // MANIPULATORS
@@ -1294,14 +1287,14 @@ class MyFunctionObject {
         return 1;
     }
 
-    int operator()(int v1, int v2 )
+    int operator()(int v1, int v2)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
         return 2;
     }
 
-    int operator()(int v1, int v2, int v3 )
+    int operator()(int v1, int v2, int v3)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1309,7 +1302,7 @@ class MyFunctionObject {
         return 3;
     }
 
-    int operator()(int v1, int v2, int v3, int v4 )
+    int operator()(int v1, int v2, int v3, int v4)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1318,7 +1311,7 @@ class MyFunctionObject {
         return 4;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5 )
+    int operator()(int v1, int v2, int v3, int v4, int v5)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1328,8 +1321,7 @@ class MyFunctionObject {
         return 5;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5,
-                   int v6 )
+    int operator()(int v1, int v2, int v3, int v4, int v5, int v6)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1340,8 +1332,7 @@ class MyFunctionObject {
         return 6;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5,
-                   int v6, int v7 )
+    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1353,8 +1344,8 @@ class MyFunctionObject {
         return 7;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5,
-                   int v6, int v7, int v8 )
+    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+                   int v8 )
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1367,8 +1358,8 @@ class MyFunctionObject {
         return 8;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5,
-                                  int v6, int v7, int v8, int v9)
+    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+                   int v8, int v9)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1382,8 +1373,8 @@ class MyFunctionObject {
         return 9;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5,
-                                   int v6, int v7, int v8,int v9, int v10)
+    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+                   int v8, int v9, int v10)
     {
         ASSERT(1==v1);
         ASSERT(2==v2);
@@ -1398,7 +1389,7 @@ class MyFunctionObject {
         return 10;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+    int operator()(int v1, int v2, int v3,  int v4, int v5, int v6, int v7,
                    int v8, int v9, int v10, int v11)
     {
         ASSERT(1==v1);
@@ -1415,7 +1406,7 @@ class MyFunctionObject {
         return 11;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+    int operator()(int v1, int v2, int v3,  int v4,  int v5, int v6, int v7,
                    int v8, int v9, int v10, int v11, int v12)
     {
         ASSERT(1==v1);
@@ -1433,7 +1424,7 @@ class MyFunctionObject {
         return 12;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+    int operator()(int v1, int v2, int v3,  int v4,  int v5,  int v6, int v7,
                    int v8, int v9, int v10, int v11, int v12, int v13)
     {
         ASSERT(1==v1);
@@ -1452,7 +1443,7 @@ class MyFunctionObject {
         return 13;
     }
 
-    int operator()(int v1, int v2, int v3, int v4, int v5, int v6, int v7,
+    int operator()(int v1, int v2, int v3,  int v4,  int v5,  int v6,  int v7,
                    int v8, int v9, int v10, int v11, int v12, int v13, int v14)
     {
         ASSERT(1==v1);
@@ -1534,9 +1525,9 @@ int oldsvc_Entry_createService(
 struct InProcessServiceManager {
 
     typedef bdlf::Function<int (*)(SharedPtr               *requestRouter,
-                                  bassvc::ServiceManifest *manifest,
-                                  const Aggregate&         configuration,
-                                  bslma::Allocator        *basicAllocator)>
+                                   bassvc::ServiceManifest *manifest,
+                                   const Aggregate&         configuration,
+                                   bslma::Allocator        *basicAllocator)>
                                                      CreateBlobServiceCallback;
 
     int registerBlobRouter(const char                       *name,
@@ -1569,9 +1560,9 @@ namespace USAGE_EXAMPLE_NAMESPACE {
 
 ///Declaring a Functor
 ///-------------------
-// The 'bdlf::Function' functor takes a single c-style function pointer template
-// argument that describes the prototype of the functor.  For example, the
-// declaration of a functor that return a 'void' result and accept no
+// The 'bdlf::Function' functor takes a single c-style function pointer
+// template argument that describes the prototype of the functor.  For example,
+// the declaration of a functor that return a 'void' result and accept no
 // arguments, would look as follows:
 //..
     bdlf::Function< void (*)() > voidFunctor;
@@ -1636,9 +1627,9 @@ namespace USAGE_EXAMPLE_NAMESPACE {
 // Note that member function pointers cannot be directly invoked by a functor
 // since for a given function pointer 'p' to a member function on the object
 // 'o' that accepts two arguments X, and Y, the invocation syntax is
-// 'o.*p(X,Y)' which is syntactically different for 'p(X,Y)'.  The 'bdlf::MemFn'
-// component provides an adapter to allow member function pointers to be
-// invoked through the functors.  For example:
+// 'o.*p(X,Y)' which is syntactically different for 'p(X,Y)'.  The
+// 'bdlf::MemFn' component provides an adapter to allow member function
+// pointers to be invoked through the functors.  For example:
 //..
     class MyClass {
       public:
@@ -1650,8 +1641,8 @@ namespace USAGE_EXAMPLE_NAMESPACE {
         MyClass o;
         FUNC    func;
 
-        // func = &MyClass::myMember;  //  ILLEGAL!!!!
-        // func(100, "Can't work -- On which instance anyway???");
+        //  func = &MyClass::myMember;  //  ILLEGAL!!!!
+        //  func(100, "Can't work -- On which instance anyway???");
 
         func = bdlf::MemFnUtil::memFn(&MyClass::myMember, &o); // LEGAL
         func(100, "This works -- on instance 'o'");
@@ -1708,8 +1699,8 @@ namespace USAGE_EXAMPLE_NAMESPACE {
         void processMessages(bsl::istream &stream);
     };
 
-    int MessageProcessor::extractMessage(Message *messageBuffer,
-                                         bsl::istream &stream)
+    int MessageProcessor::extractMessage(Message       *messageBuffer,
+                                         bsl::istream&  stream)
     {
         // Read data from the stream and fill 'messageBuffer'
         // ...
@@ -1792,8 +1783,8 @@ namespace USAGE_EXAMPLE_NAMESPACE {
     {
     }
 
-    int MessageProcessor2::extractMessage(Message *messageBuffer,
-                                          bsl::istream &stream)
+    int MessageProcessor2::extractMessage(Message       *messageBuffer,
+                                          bsl::istream&  stream)
     {
         return 1;
     }
@@ -1882,12 +1873,12 @@ void testCase19(int argc)
 
             int result = -1;
 
-            // Unfortunately, there is no way to test this in a loop
-            // because we must instantiate the ctor with various 'FUNC'
-            // template parameters.  A 'switch' statement will allow to
-            // reuse the rest of the test loop infrastructure.  Since the
-            // test must be performed inside the 'case' block, we use a
-            // macro to avoid repetition:
+            // Unfortunately, there is no way to test this in a loop because we
+            // must instantiate the ctor with various 'FUNC' template
+            // parameters.  A 'switch' statement will allow to reuse the rest
+            // of the test loop infrastructure.  Since the test must be
+            // performed inside the 'case' block, we use a macro to avoid
+            // repetition:
 
             switch (strlen(U_SPEC)) {
               case 0: {
@@ -1965,11 +1956,11 @@ void testCase19(int argc)
 
     if (verbose) cout << "Testing bassvc test case.\n";
     {
-        // Inexplicably, at some point (bdlf_function.h version dev/62),
-        // this code would not compile in bassvc_inprocessservicemanager,
-        // so it is here extracted with bogus types.  It would compile on
-        // all platforms but create an internal compiler error with the AIX
-        // xlC compiler.  Versions dev/63 seem to remove the error.
+        // Inexplicably, at some point (bdlf_function.h version dev/62), this
+        // code would not compile in bassvc_inprocessservicemanager, so it is
+        // here extracted with bogus types.  It would compile on all platforms
+        // but create an internal compiler error with the AIX xlC compiler.
+        // Versions dev/63 seem to remove the error.
 
         using namespace TEST_CASE_BASSVC;
 
@@ -2082,12 +2073,12 @@ int main(int argc, char *argv[])
         // TESTING BINDING TO A FUNCTION WITH "C" LINKAGE
         //
         // Concern: That a function object can be implicitly converted to a
-        //   'bdlf::Function' instance that can be invoked and dispatch the call
-        //   properly.
+        //   'bdlf::Function' instance that can be invoked and dispatch the
+        //   call properly.
         //
         // Plan:
-        //   Assign various function objects to a 'bdlf::Function' object as the
-        //   argument of a function and verify that the proper function has
+        //   Assign various function objects to a 'bdlf::Function' object as
+        //   the argument of a function and verify that the proper function has
         //   been called.
         //
         // Testing:
@@ -2110,12 +2101,12 @@ int main(int argc, char *argv[])
         // TESTING BINDING TO A 'bdlf::Function' ARGUMENT IMPLICITLY
         //
         // Concern: That a function object can be implicitly converted to a
-        //   'bdlf::Function' instance that can be invoked and dispatch the call
-        //   properly.
+        //   'bdlf::Function' instance that can be invoked and dispatch the
+        //   call properly.
         //
         // Plan:
-        //   Assign various function objects to a 'bdlf::Function' object as the
-        //   argument of a function and verify that the proper function has
+        //   Assign various function objects to a 'bdlf::Function' object as
+        //   the argument of a function and verify that the proper function has
         //   been called.
         //
         // Testing:
@@ -2194,18 +2185,18 @@ int main(int argc, char *argv[])
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int)> f8;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int)> f9;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int,int)> f10;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                         int,int,int,int)> f11;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                     int,int,int,int,int)> f12;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                 int,int,int,int,int,int)> f13;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                             int,int,int,int,int,int,int)> f14;
+        bdlf::Function<int (*)(
+                             int,int,int,int,int,int,int,int,int,int,int)> f11;
+        bdlf::Function<int (*)(
+                         int,int,int,int,int,int,int,int,int,int,int,int)> f12;
+        bdlf::Function<int (*)(
+                     int,int,int,int,int,int,int,int,int,int,int,int,int)> f13;
+        bdlf::Function<int (*)(
+                 int,int,int,int,int,int,int,int,int,int,int,int,int,int)> f14;
 
         MyFunctionObject obj;
         ASSERT(bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE >=
-                                                  sizeof(MyFunctionObject *));
+                                                   sizeof(MyFunctionObject *));
 
         ASSERT(!f0);
         f0 = rawBCPointerWrapper(&obj);
@@ -2318,14 +2309,14 @@ int main(int argc, char *argv[])
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int)> f8;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int)> f9;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int,int)> f10;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                         int,int,int,int)> f11;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                     int,int,int,int,int)> f12;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                 int,int,int,int,int,int)> f13;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                             int,int,int,int,int,int,int)> f14;
+        bdlf::Function<int (*)(
+                             int,int,int,int,int,int,int,int,int,int,int)> f11;
+        bdlf::Function<int (*)(
+                         int,int,int,int,int,int,int,int,int,int,int,int)> f12;
+        bdlf::Function<int (*)(
+                     int,int,int,int,int,int,int,int,int,int,int,int,int)> f13;
+        bdlf::Function<int (*)(
+                 int,int,int,int,int,int,int,int,int,int,int,int,int,int)> f14;
 
         MyBCFunctionObject obj; MyBCFunctionObject const &OBJ = obj;
         ASSERT(bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE <
@@ -2440,14 +2431,14 @@ int main(int argc, char *argv[])
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int)> f8;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int)> f9;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int,int)> f10;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                         int,int,int,int)> f11;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                     int,int,int,int,int)> f12;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                 int,int,int,int,int,int)> f13;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                             int,int,int,int,int,int,int)> f14;
+        bdlf::Function<int (*)(
+                             int,int,int,int,int,int,int,int,int,int,int)> f11;
+        bdlf::Function<int (*)(
+                         int,int,int,int,int,int,int,int,int,int,int,int)> f12;
+        bdlf::Function<int (*)(
+                     int,int,int,int,int,int,int,int,int,int,int,int,int)> f13;
+        bdlf::Function<int (*)(
+                 int,int,int,int,int,int,int,int,int,int,int,int,int,int)> f14;
 
         MyFunctionObject obj;
         ASSERT(bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE >=
@@ -2562,14 +2553,14 @@ int main(int argc, char *argv[])
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int)> f8;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int)> f9;
         bdlf::Function<int (*)(int,int,int,int,int,int,int, int,int,int)> f10;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                         int,int,int,int)> f11;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                     int,int,int,int,int)> f12;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                                 int,int,int,int,int,int)> f13;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                                             int,int,int,int,int,int,int)> f14;
+        bdlf::Function<int (*)(
+                             int,int,int,int,int,int,int,int,int,int,int)> f11;
+        bdlf::Function<int (*)(
+                         int,int,int,int,int,int,int,int,int,int,int,int)> f12;
+        bdlf::Function<int (*)(
+                     int,int,int,int,int,int,int,int,int,int,int,int,int)> f13;
+        bdlf::Function<int (*)(
+                 int,int,int,int,int,int,int,int,int,int,int,int,int,int)> f14;
 
         MyFunctionObject obj; MyFunctionObject const &OBJ = obj;
         ASSERT(bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE <
@@ -2678,20 +2669,17 @@ int main(int argc, char *argv[])
         bdlf::Function<int (*)(int,int,int,int,int)> f5;
         bdlf::Function<int (*)(int,int,int,int,int,int)> f6;
         bdlf::Function<int (*)(int,int,int,int,int,int,int)> f7;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int)> f8;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int)> f9;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int,int)> f10;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int,int,int)> f11;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int,int,int,int)> f12;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int,int,int,int,int)> f13;
-        bdlf::Function<int (*)(int,int,int,int,int,int,int,
-                              int,int,int,int,int,int,int)> f14;
+        bdlf::Function<int (*)(int,int,int,int,int,int,int,int)> f8;
+        bdlf::Function<int (*)(int,int,int,int,int,int,int,int,int)> f9;
+        bdlf::Function<int (*)(int,int,int,int,int,int,int,int,int,int)> f10;
+        bdlf::Function<int (*)(
+                             int,int,int,int,int,int,int,int,int,int,int)> f11;
+        bdlf::Function<int (*)(
+                         int,int,int,int,int,int,int,int,int,int,int,int)> f12;
+        bdlf::Function<int (*)(
+                     int,int,int,int,int,int,int,int,int,int,int,int,int)> f13;
+        bdlf::Function<int (*)(
+                 int,int,int,int,int,int,int,int,int,int,int,int,int,int)> f14;
 
         ASSERT(!f0);
         f0 = &freeFunc0;
@@ -3480,6 +3468,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR:
+        //
         // We have the following concerns:
         //   1.  The value represented by any instance can be assigned to any
         //         other instance regardless of how either value is represented
@@ -3966,11 +3955,11 @@ int main(int argc, char *argv[])
         //   should have.  This 'functionsHaveSameValue' function will stand in
         //   for the traditional 'operator==' in subsequent test cases.  We can
         //   define this function locally as we control the set of functors
-        //   that will be used in 'bdlf::Function' instantiations throughout the
-        //   test driver, and so can arrange intrusively for the function to
-        //   produce the desired result.  It is not possible to implement such
-        //   a function in the general case, which is way it is specifically
-        //   *not* a part of the 'bdlf::Function' interface.
+        //   that will be used in 'bdlf::Function' instantiations throughout
+        //   the test driver, and so can arrange intrusively for the function
+        //   to produce the desired result.  It is not possible to implement
+        //   such a function in the general case, which is way it is
+        //   specifically *not* a part of the 'bdlf::Function' interface.
         //
         //   Since 'operators==' is implemented in terms of basic accessors,
         //   it is sufficient to verify only that a difference in value of any
@@ -4902,6 +4891,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //
         // Developer's sandbox
         //
         // Plan:

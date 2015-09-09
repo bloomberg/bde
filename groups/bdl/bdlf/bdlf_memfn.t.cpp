@@ -1,6 +1,7 @@
 // bdlf_memfn.t.cpp                                                   -*-C++-*-
-
 #include <bdlf_memfn.h>
+
+#include <bslim_testutil.h>
 
 #include <bslalg_typetraithaspointersemantics.h>
 #include <bslalg_typetraits.h>
@@ -47,40 +48,103 @@ using namespace bsl;  // automatically added by script
 // [10] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-        if (!(X)) { cout << #I << " = " << I << endl; \
-                    aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
-        if (!(X)) { cout << #I << " = " << I << ", " \
-                         << #J << " = " << J << endl; \
-                            aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
+//                MACROS FOR MULTIPLE ARGUMENT EXPANSION
+// ============================================================================
+
+// Numbered items separated by given separator
+
+#define S1(F,S)             F(1)
+#define S2(F,S)  S1(F,S)  S F(2)
+#define S3(F,S)  S2(F,S)  S F(3)
+#define S4(F,S)  S3(F,S)  S F(4)
+#define S5(F,S)  S4(F,S)  S F(5)
+#define S6(F,S)  S5(F,S)  S F(6)
+#define S7(F,S)  S6(F,S)  S F(7)
+#define S8(F,S)  S7(F,S)  S F(8)
+#define S9(F,S)  S8(F,S)  S F(9)
+#define S10(F,S) S9(F,S)  S F(10)
+#define S11(F,S) S10(F,S) S F(11)
+#define S12(F,S) S11(F,S) S F(12)
+#define S13(F,S) S12(F,S) S F(13)
+#define S14(F,S) S13(F,S) S F(14)
+
+// Comma-separated numbered items
+
+#define C1(F)          F(1)
+#define C2(F)  C1(F),  F(2)
+#define C3(F)  C2(F),  F(3)
+#define C4(F)  C3(F),  F(4)
+#define C5(F)  C4(F),  F(5)
+#define C6(F)  C5(F),  F(6)
+#define C7(F)  C6(F),  F(7)
+#define C8(F)  C7(F),  F(8)
+#define C9(F)  C8(F),  F(9)
+#define C10(F) C9(F),  F(10)
+#define C11(F) C10(F), F(11)
+#define C12(F) C11(F), F(12)
+#define C13(F) C12(F), F(13)
+#define C14(F) C13(F), F(14)
+
+// Space-separated numbered items
+
+#define L1(F)         F(1)
+#define L2(F)  L1(F)  F(2)
+#define L3(F)  L2(F)  F(3)
+#define L4(F)  L3(F)  F(4)
+#define L5(F)  L4(F)  F(5)
+#define L6(F)  L5(F)  F(6)
+#define L7(F)  L6(F)  F(7)
+#define L8(F)  L7(F)  F(8)
+#define L9(F)  L8(F)  F(9)
+#define L10(F) L9(F)  F(10)
+#define L11(F) L10(F) F(11)
+#define L12(F) L11(F) F(12)
+#define L13(F) L12(F) F(13)
+#define L14(F) L13(F) F(14)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -96,29 +160,14 @@ struct TestObject {
     int test2 (int a1, const char* a2) { return a1; }
 };
 
-#define DECLARE_TEST_ARG(name)                                                \
-struct name {                                                                 \
+#undef M
+#define M(n)                                                                  \
+struct TestArg##n {                                                           \
     int d_value;                                                              \
-    name() : d_value(-1) {}                                                   \
-    name(int value) : d_value(value) {}                                       \
-    name& operator= (const name &rhs) { return d_value = rhs.d_value, *this;} \
-    bool operator== (const name &rhs) { return d_value == rhs.d_value; }      \
+    TestArg##n(int value = -1) : d_value(value) { }                           \
+    bool operator==(const TestArg##n &rhs) { return d_value == rhs.d_value; } \
 };
-
-DECLARE_TEST_ARG(TestArg1)
-DECLARE_TEST_ARG(TestArg2)
-DECLARE_TEST_ARG(TestArg3)
-DECLARE_TEST_ARG(TestArg4)
-DECLARE_TEST_ARG(TestArg5)
-DECLARE_TEST_ARG(TestArg6)
-DECLARE_TEST_ARG(TestArg7)
-DECLARE_TEST_ARG(TestArg8)
-DECLARE_TEST_ARG(TestArg9)
-DECLARE_TEST_ARG(TestArg10)
-DECLARE_TEST_ARG(TestArg11)
-DECLARE_TEST_ARG(TestArg12)
-DECLARE_TEST_ARG(TestArg13)
-DECLARE_TEST_ARG(TestArg14)
+L14(M)
 
                             // ====================
                             // class InplaceTestObj
@@ -127,91 +176,46 @@ DECLARE_TEST_ARG(TestArg14)
 class InplaceTestObj {
     // This class is an invocable with any number from 0 up to 14 arguments, of
     // distinct types 'TestArg1' up to 'TestArg14'.  Invoking the test function
-    // with 'N' arguments on a modifiable (resp. non-modifiable) instance will
-    // set the first 'N' instance (resp. class) data members.  The class data
+    // with 'N' arguments on a modifiable (resp., non-modifiable) instance will
+    // set the first 'N' instance (resp., class) data members.  The class data
     // members can be reset to -1 (their default value) using the 'reset' class
     // method.
 
     // DATA
-    TestArg1  d_a1;
-    TestArg2  d_a2;
-    TestArg3  d_a3;
-    TestArg4  d_a4;
-    TestArg5  d_a5;
-    TestArg6  d_a6;
-    TestArg7  d_a7;
-    TestArg8  d_a8;
-    TestArg9  d_a9;
-    TestArg10 d_a10;
-    TestArg11 d_a11;
-    TestArg12 d_a12;
-    TestArg13 d_a13;
-    TestArg14 d_a14;
+#undef M
+#define M(n) TestArg##n d_a##n;
+L14(M)
 
   public:
     // CLASS DATA
-    static TestArg1  s_a1;
-    static TestArg2  s_a2;
-    static TestArg3  s_a3;
-    static TestArg4  s_a4;
-    static TestArg5  s_a5;
-    static TestArg6  s_a6;
-    static TestArg7  s_a7;
-    static TestArg8  s_a8;
-    static TestArg9  s_a9;
-    static TestArg10 s_a10;
-    static TestArg11 s_a11;
-    static TestArg12 s_a12;
-    static TestArg13 s_a13;
-    static TestArg14 s_a14;
+#undef M
+#define M(n) static TestArg##n s_a##n;
+L14(M)
 
     // CLASS METHODS
     static void reset()
     {
-        s_a1  = -1;
-        s_a2  = -1;
-        s_a3  = -1;
-        s_a4  = -1;
-        s_a5  = -1;
-        s_a6  = -1;
-        s_a7  = -1;
-        s_a8  = -1;
-        s_a9  = -1;
-        s_a10 = -1;
-        s_a11 = -1;
-        s_a12 = -1;
-        s_a13 = -1;
-        s_a14 = -1;
+#undef M
+#define M(n) s_a##n = -1;
+L14(M)
     }
 
     // CREATORS
-    InplaceTestObj(TestArg1  a1  = -1, TestArg2  a2  = -1, TestArg3  a3  = -1,
-                   TestArg4  a4  = -1, TestArg5  a5  = -1, TestArg6  a6  = -1,
-                   TestArg7  a7  = -1, TestArg8  a8  = -1, TestArg9  a9  = -1,
-                   TestArg10 a10 = -1, TestArg11 a11 = -1, TestArg12 a12 = -1,
-                   TestArg13 a13 = -1, TestArg14 a14 = -1)
-    : d_a1 (a1 )
-    , d_a2 (a2 )
-    , d_a3 (a3 )
-    , d_a4 (a4 )
-    , d_a5 (a5 )
-    , d_a6 (a6 )
-    , d_a7 (a7 )
-    , d_a8 (a8 )
-    , d_a9 (a9 )
-    , d_a10(a10)
-    , d_a11(a11)
-    , d_a12(a12)
-    , d_a13(a13)
-    , d_a14(a14)
+#undef N
+#define N(n) TestArg##n a##n = -1
+#undef M
+#define M(n) d_a##n(a##n)
+    InplaceTestObj(C14(N))
+    : C14(M)
     {
     }
 
     // CLASS METHODS (continued)
     static InplaceTestObj statics()
     {
-        return InplaceTestObj(s_a1, s_a2, s_a3,  s_a4,  s_a5,  s_a6,  s_a7,
-                              s_a8, s_a9, s_a10, s_a11, s_a12, s_a13, s_a14);
+#undef M
+#define M(n) s_a##n
+        return InplaceTestObj(C14(M));
     }
 
     // MANIPULATORS
@@ -220,217 +224,25 @@ class InplaceTestObj {
         return 0;
     }
 
-    int testFunc1(TestArg1 a1)
-    {
-        d_a1 = a1;
-        return 1;
+#undef H
+#define H(n) d_a##n = a##n;
+#undef N
+#define N(n) TestArg##n a##n
+#undef M
+#define M(n)                                                                  \
+    int testFunc##n(C##n(N))                                                  \
+    {                                                                         \
+        S##n(H,)                                                              \
+        return n;                                                             \
     }
-
-    int  testFunc2(TestArg1 const &a1, TestArg2 const &a2)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        return 2;
-    }
-
-    int testFunc3(TestArg1 a1, TestArg2 a2, TestArg3 a3)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        return 3;
-    }
-
-    int testFunc4(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        return 4;
-    }
-
-    int testFunc5(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                  TestArg5 a5)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        d_a5 = a5;
-        return 5;
-    }
-
-    int testFunc6(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                  TestArg5 a5, TestArg6 a6)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        d_a5 = a5;
-        d_a6 = a6;
-        return 6;
-    }
-
-    int testFunc7(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                  TestArg5 a5, TestArg6 a6, TestArg7 a7)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        d_a5 = a5;
-        d_a6 = a6;
-        d_a7 = a7;
-        return 7;
-    }
-
-    int testFunc8(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                  TestArg5 a5, TestArg6 a6, TestArg7 a7, TestArg8 a8)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        d_a5 = a5;
-        d_a6 = a6;
-        d_a7 = a7;
-        d_a8 = a8;
-        return 8;
-    }
-
-    int testFunc9(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                  TestArg5 a5, TestArg6 a6, TestArg7 a7, TestArg8 a8,
-                  TestArg9 a9)
-    {
-        d_a1 = a1;
-        d_a2 = a2;
-        d_a3 = a3;
-        d_a4 = a4;
-        d_a5 = a5;
-        d_a6 = a6;
-        d_a7 = a7;
-        d_a8 = a8;
-        d_a9 = a9;
-        return 9;
-    }
-
-    int testFunc10(TestArg1 a1, TestArg2  a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6  a6, TestArg7 a7, TestArg8 a8,
-                   TestArg9 a9, TestArg10 a10)
-    {
-        d_a1  = a1;
-        d_a2  = a2;
-        d_a3  = a3;
-        d_a4  = a4;
-        d_a5  = a5;
-        d_a6  = a6;
-        d_a7  = a7;
-        d_a8  = a8;
-        d_a9  = a9;
-        d_a10 = a10;
-        return 10;
-    }
-
-    int testFunc11(TestArg1 a1, TestArg2  a2,  TestArg3  a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6  a6,  TestArg7  a7, TestArg8 a8,
-                   TestArg9 a9, TestArg10 a10, TestArg11 a11)
-    {
-        d_a1  = a1;
-        d_a2  = a2;
-        d_a3  = a3;
-        d_a4  = a4;
-        d_a5  = a5;
-        d_a6  = a6;
-        d_a7  = a7;
-        d_a8  = a8;
-        d_a9  = a9;
-        d_a10 = a10;
-        d_a11 = a11;
-        return 11;
-    }
-
-    int testFunc12(TestArg1 a1, TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                   TestArg5 a5, TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                   TestArg9 a9, TestArg10 a10, TestArg11 a11, TestArg12 a12)
-    {
-        d_a1  = a1;
-        d_a2  = a2;
-        d_a3  = a3;
-        d_a4  = a4;
-        d_a5  = a5;
-        d_a6  = a6;
-        d_a7  = a7;
-        d_a8  = a8;
-        d_a9  = a9;
-        d_a10 = a10;
-        d_a11 = a11;
-        d_a12 = a12;
-        return 12;
-    }
-
-    int testFunc13(TestArg1 a1, TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                   TestArg5 a5, TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                   TestArg9 a9, TestArg10 a10, TestArg11 a11, TestArg12 a12,
-                   TestArg13 a13)
-    {
-        d_a1  = a1;
-        d_a2  = a2;
-        d_a3  = a3;
-        d_a4  = a4;
-        d_a5  = a5;
-        d_a6  = a6;
-        d_a7  = a7;
-        d_a8  = a8;
-        d_a9  = a9;
-        d_a10 = a10;
-        d_a11 = a11;
-        d_a12 = a12;
-        d_a13 = a13;
-        return 13;
-    }
-
-    int testFunc14(TestArg1  a1,  TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                   TestArg5  a5,  TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                   TestArg9  a9,  TestArg10 a10, TestArg11 a11, TestArg12 a12,
-                   TestArg13 a13, TestArg14 a14)
-    {
-        d_a1  = a1;
-        d_a2  = a2;
-        d_a3  = a3;
-        d_a4  = a4;
-        d_a5  = a5;
-        d_a6  = a6;
-        d_a7  = a7;
-        d_a8  = a8;
-        d_a9  = a9;
-        d_a10 = a10;
-        d_a11 = a11;
-        d_a12 = a12;
-        d_a13 = a13;
-        d_a14 = a14;
-        return 14;
-    }
+L14(M)
 
     // ACCESSORS
     bool operator==(InplaceTestObj const &rhs) const
     {
-        return d_a1.d_value  == rhs.d_a1.d_value &&
-               d_a1.d_value  == rhs.d_a1.d_value &&
-               d_a2.d_value  == rhs.d_a2.d_value &&
-               d_a3.d_value  == rhs.d_a3.d_value &&
-               d_a4.d_value  == rhs.d_a4.d_value &&
-               d_a5.d_value  == rhs.d_a5.d_value &&
-               d_a6.d_value  == rhs.d_a6.d_value &&
-               d_a7.d_value  == rhs.d_a7.d_value &&
-               d_a8.d_value  == rhs.d_a8.d_value &&
-               d_a9.d_value == rhs.d_a9.d_value &&
-               d_a10.d_value == rhs.d_a10.d_value &&
-               d_a11.d_value == rhs.d_a11.d_value &&
-               d_a12.d_value == rhs.d_a12.d_value &&
-               d_a13.d_value == rhs.d_a13.d_value &&
-               d_a14.d_value == rhs.d_a14.d_value;
+#undef M
+#define M(n) d_a##n.d_value == rhs.d_a##n.d_value
+        return S14(M,&&);
     }
 
     int testCFunc0() const
@@ -438,234 +250,30 @@ class InplaceTestObj {
         return 0;
     }
 
-    int testCFunc1(TestArg1 a1) const
-    {
-        s_a1 = a1;
-        return 1;
+#undef H
+#define H(n) s_a##n = a##n;
+#undef N
+#define N(n) TestArg##n a##n
+#undef M
+#define M(n)                                                                  \
+    int testCFunc##n(C##n(N)) const                                           \
+    {                                                                         \
+        S##n(H,)                                                              \
+        return n;                                                             \
     }
-
-    int  testCFunc2(TestArg1 const &a1, TestArg2 const &a2) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        return 2;
-    }
-
-    int testCFunc3(TestArg1 a1, TestArg2 a2, TestArg3 a3) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        return 3;
-    }
-
-    int testCFunc4(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        return 4;
-    }
-
-    int testCFunc5(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        s_a5 = a5;
-        return 5;
-    }
-
-    int testCFunc6(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6 a6) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        s_a5 = a5;
-        s_a6 = a6;
-        return 6;
-    }
-
-    int testCFunc7(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6 a6, TestArg7 a7) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        s_a5 = a5;
-        s_a6 = a6;
-        s_a7 = a7;
-        return 7;
-    }
-
-    int testCFunc8(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6 a6, TestArg7 a7, TestArg8 a8) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        s_a5 = a5;
-        s_a6 = a6;
-        s_a7 = a7;
-        s_a8 = a8;
-        return 8;
-    }
-
-    int testCFunc9(TestArg1 a1, TestArg2 a2, TestArg3 a3, TestArg4 a4,
-                   TestArg5 a5, TestArg6 a6, TestArg7 a7, TestArg8 a8,
-                   TestArg9 a9) const
-    {
-        s_a1 = a1;
-        s_a2 = a2;
-        s_a3 = a3;
-        s_a4 = a4;
-        s_a5 = a5;
-        s_a6 = a6;
-        s_a7 = a7;
-        s_a8 = a8;
-        s_a9 = a9;
-        return 9;
-    }
-
-    int testCFunc10(TestArg1 a1, TestArg2  a2, TestArg3 a3, TestArg4 a4,
-                    TestArg5 a5, TestArg6  a6, TestArg7 a7, TestArg8 a8,
-                    TestArg9 a9, TestArg10 a10) const
-    {
-        s_a1  = a1;
-        s_a2  = a2;
-        s_a3  = a3;
-        s_a4  = a4;
-        s_a5  = a5;
-        s_a6  = a6;
-        s_a7  = a7;
-        s_a8  = a8;
-        s_a9  = a9;
-        s_a10 = a10;
-        return 10;
-    }
-
-    int testCFunc11(TestArg1 a1, TestArg2  a2,  TestArg3  a3, TestArg4 a4,
-                    TestArg5 a5, TestArg6  a6,  TestArg7  a7, TestArg8 a8,
-                    TestArg9 a9, TestArg10 a10, TestArg11 a11) const
-    {
-        s_a1  = a1;
-        s_a2  = a2;
-        s_a3  = a3;
-        s_a4  = a4;
-        s_a5  = a5;
-        s_a6  = a6;
-        s_a7  = a7;
-        s_a8  = a8;
-        s_a9  = a9;
-        s_a10 = a10;
-        s_a11 = a11;
-        return 11;
-    }
-
-    int testCFunc12(TestArg1 a1, TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                    TestArg5 a5, TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                    TestArg9 a9, TestArg10 a10, TestArg11 a11, TestArg12 a12)
-                                                                          const
-    {
-        s_a1  = a1;
-        s_a2  = a2;
-        s_a3  = a3;
-        s_a4  = a4;
-        s_a5  = a5;
-        s_a6  = a6;
-        s_a7  = a7;
-        s_a8  = a8;
-        s_a9  = a9;
-        s_a10 = a10;
-        s_a11 = a11;
-        s_a12 = a12;
-        return 12;
-    }
-
-    int testCFunc13(TestArg1 a1, TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                    TestArg5 a5, TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                    TestArg9 a9, TestArg10 a10, TestArg11 a11, TestArg12 a12,
-                    TestArg13 a13) const
-    {
-        s_a1  = a1;
-        s_a2  = a2;
-        s_a3  = a3;
-        s_a4  = a4;
-        s_a5  = a5;
-        s_a6  = a6;
-        s_a7  = a7;
-        s_a8  = a8;
-        s_a9  = a9;
-        s_a10 = a10;
-        s_a11 = a11;
-        s_a12 = a12;
-        s_a13 = a13;
-        return 13;
-    }
-
-    int testCFunc14(TestArg1  a1,  TestArg2  a2,  TestArg3  a3,  TestArg4  a4,
-                    TestArg5  a5,  TestArg6  a6,  TestArg7  a7,  TestArg8  a8,
-                    TestArg9  a9,  TestArg10 a10, TestArg11 a11, TestArg12 a12,
-                    TestArg13 a13, TestArg14 a14) const
-    {
-        s_a1  = a1;
-        s_a2  = a2;
-        s_a3  = a3;
-        s_a4  = a4;
-        s_a5  = a5;
-        s_a6  = a6;
-        s_a7  = a7;
-        s_a8  = a8;
-        s_a9  = a9;
-        s_a10 = a10;
-        s_a11 = a11;
-        s_a12 = a12;
-        s_a13 = a13;
-        s_a14 = a14;
-        return 14;
-    }
+L14(M)
 
     void print(bsl::ostream& stream) const {
-        stream << "[ "
-               << d_a1.d_value << ", "
-               << d_a2.d_value << ", "
-               << d_a3.d_value << ", "
-               << d_a4.d_value << ", "
-               << d_a5.d_value << ", "
-               << d_a6.d_value << ", "
-               << d_a7.d_value << ", "
-               << d_a8.d_value << ", "
-               << d_a9.d_value << ", "
-               << d_a10.d_value << ", "
-               << d_a11.d_value << ", "
-               << d_a12.d_value << ", "
-               << d_a13.d_value << ", "
-               << d_a14.d_value << " ]";
+#undef M
+#define M(n) d_a##n.d_value << ", "
+        stream << "[ " << S14(M,<<) << " ]";
     }
 };
 
 // CLASS DATA
-TestArg1  InplaceTestObj::s_a1  = -1;
-TestArg2  InplaceTestObj::s_a2  = -1;
-TestArg3  InplaceTestObj::s_a3  = -1;
-TestArg4  InplaceTestObj::s_a4  = -1;
-TestArg5  InplaceTestObj::s_a5  = -1;
-TestArg6  InplaceTestObj::s_a6  = -1;
-TestArg7  InplaceTestObj::s_a7  = -1;
-TestArg8  InplaceTestObj::s_a8  = -1;
-TestArg9  InplaceTestObj::s_a9  = -1;
-TestArg10 InplaceTestObj::s_a10 = -1;
-TestArg11 InplaceTestObj::s_a11 = -1;
-TestArg12 InplaceTestObj::s_a12 = -1;
-TestArg13 InplaceTestObj::s_a13 = -1;
-TestArg14 InplaceTestObj::s_a14 = -1;
+#undef M
+#define M(n) TestArg##n InplaceTestObj::s_a##n = -1;
+L14(M)
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const InplaceTestObj& rhs)
@@ -782,8 +390,8 @@ int globalVerbose = 0;
        if (globalVerbose) func(objectPtr, 100, "Hello");
    }
 //..
-// In the 'bdlf::MemFnInstance' case, the wrapper needs to contain the object as
-// well, so it must be built dynamically:
+// In the 'bdlf::MemFnInstance' case, the wrapper needs to contain the object
+// as well, so it must be built dynamically:
 //..
     void doSomethingWithMemFnInstance(MyObject *objectPtr)
     {
@@ -876,9 +484,9 @@ int globalVerbose = 0;
     MyConnection *MyConnectionManager::nextAvailable() const
     {
         MyConnectionList::const_iterator it =
-               bsl::find_if(d_list.begin(),
-                            d_list.end(),
-                            bdlf::MemFnUtil::memFn(&MyConnection::isAvailable));
+            bsl::find_if(d_list.begin(),
+                         d_list.end(),
+                         bdlf::MemFnUtil::memFn(&MyConnection::isAvailable));
         return it == d_list.end() ? 0 : *it;
     }
 //..
@@ -1095,9 +703,9 @@ DEFINE_TEST_CASE(8) {
         if (verbose)
             cout << "\t'const' member functions and instances..." << endl;
         {
-            typedef bdlf::MemFnInstance<int (InplaceTestObj::*)(TestArg1) const,
-                                       TestPtrWrapper<const InplaceTestObj>
-                                      >  MemFnType;
+            typedef bdlf::MemFnInstance<
+                              int (InplaceTestObj::*)(TestArg1) const,
+                              TestPtrWrapper<const InplaceTestObj> > MemFnType;
 
             InplaceTestObj::reset();
             InplaceTestObj mX; const InplaceTestObj& X = mX;
@@ -1126,9 +734,9 @@ DEFINE_TEST_CASE(8) {
             cout << "\t'const' member functions and non-'const' instances..."
                  << endl;
         {
-            typedef bdlf::MemFnInstance<int (InplaceTestObj::*)(TestArg1) const,
-                                       TestPtrWrapper<InplaceTestObj>
-                                      >  MemFnType;
+            typedef bdlf::MemFnInstance<
+                                    int (InplaceTestObj::*)(TestArg1) const,
+                                    TestPtrWrapper<InplaceTestObj> > MemFnType;
 
             InplaceTestObj::reset();
             InplaceTestObj mX; const InplaceTestObj& X = mX;
@@ -1156,7 +764,7 @@ DEFINE_TEST_CASE(8) {
 
 DEFINE_TEST_CASE(7) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFnInstance' INVOCATION WITH NON-MODIF. INSTANCE
+        // TESTING 'bdlf::MemFnInstance' WITH NON-MODIFIABLE INSTANCE
         //
         // Concern:
         //   That one may create a member function wrapper with a
@@ -1192,9 +800,10 @@ DEFINE_TEST_CASE(7) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFnInstance' WITH NON-MODIFIABLE TYPE."
-                 << "\n======================================================"
-                 << endl;
+            cout << "\nTESTING 'bdlf::MemFnInstance' WITH NON-MODIFIABLE "
+                    "INSTANCE"
+                    "\n=================================================="
+                    "========\n";
 
         static const TestArg1 V1(1);
         static const TestArg2 V2(20);
@@ -1216,223 +825,37 @@ DEFINE_TEST_CASE(7) {
             InplaceTestObj::reset();
             static const InplaceTestObj EXP;
 
-            ASSERT(0 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc0,
-                                               EXP)()));
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc0, EXP)());
 
             if (veryVerbose) { P(InplaceTestObj::statics()); };
             LOOP_ASSERT(InplaceTestObj::statics(),
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1,
-                                               EXP)
-                (V1)));
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n, EXP) \
+                                                                  (C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
         }
-
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc2,
-                                               EXP)
-                (V1, V2))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc3,
-                                               EXP)
-                (V1, V2, V3))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc4,
-                                               EXP)
-                (V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc5,
-                                               EXP)
-                (V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc6,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc7,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc8,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc9,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc10,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc11,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc12,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc13,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc14,
-                                               EXP)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFnInstance' INVOCATION WITH PTR TO MODIF. OBJECT
+        // TESTING 'bdlf::MemFnInstance' WITH PTR TO MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper with the address of
@@ -1468,9 +891,10 @@ DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFnInstance' WITH PTR TO MODIF. TYPE."
-                 << "\n====================================================="
-                 << endl;
+            cout << "\nTESTING 'bdlf::MemFnInstance' WITH PTR TO MODIFIABLE "
+                    "OBJECT"
+                    "\n====================================================="
+                    "======\n";
 
         static const TestArg1 V1(1);
         static const TestArg2 V2(20);
@@ -1490,196 +914,37 @@ DEFINE_TEST_CASE(6) {
         if (verbose) cout << "\tno argument..." << endl;
         {
             InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1);
+            static const InplaceTestObj EXP;
 
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1, &x)
-                 (V1)));
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1, &x)
-                 (V1)));
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc0, &x)());
 
             if (veryVerbose) { P(X); };
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc2, &x)
-                (V1, V2))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n, &x)   \
+                                                                  (C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
         }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc3, &x)
-                (V1, V2, V3))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc4, &x)
-                (V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc5, &x)
-                (V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc6, &x)
-                (V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc7, &x)
-                (V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc8, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc9, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc10, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc11, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc12, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc13, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc14, &x)
-                (V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(5) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' INVOCATION WITH *REF.* TO NON-MODIF. OBJECT
+        // TESTING 'bdlf::MemFn' WITH REFERENCE TO NON-MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, and that such
@@ -1715,8 +980,10 @@ DEFINE_TEST_CASE(5) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn::operator()(X, ...)'."
-                 << "\n=========================================" << endl;
+            cout << "\nTESTING 'bdlf::MemFn' WITH REFERENCE TO "
+                    "NON-MODIFIABLE OBJECT"
+                    "\n========================================"
+                    "=====================\n";
 
         static const TestArg1 V1(1);
         static const TestArg2 V2(20);
@@ -1738,210 +1005,37 @@ DEFINE_TEST_CASE(5) {
             InplaceTestObj::reset();
             static const InplaceTestObj EXP;
 
-            ASSERT(0 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc0)
-                           (EXP)));
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc0)(EXP));
 
             if (veryVerbose) { P(InplaceTestObj::statics()); };
             LOOP_ASSERT(InplaceTestObj::statics(),
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1)
-                           (EXP,V1)));
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n)      \
+                                                             (EXP, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
         }
-
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc2)
-                (EXP, V1, V2))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc3)
-                (EXP, V1, V2, V3))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc4)
-                (EXP, V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc5)
-                (EXP, V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc6)
-                (EXP, V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc7)
-                (EXP, V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc8)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc9)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc10)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc11)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc12)
-                      (EXP,V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11,
-                 V12))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc13)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc14)
-                (EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(4) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' INVOCATION WITH *REF.* TO MODIFIABLE OBJECT
+        // TESTING 'bdlf::MemFn' WITH REFERENCE TO MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, that such wrapper
@@ -1977,8 +1071,10 @@ DEFINE_TEST_CASE(4) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn::operator()(x, ...)'."
-                 << "\n=========================================" << endl;
+            cout << "\nTESTING 'bdlf::MemFn' WITH REFERENCE TO MODIFIABLE "
+                    "OBJECT"
+                    "\n==================================================="
+                    "======\n";
 
         static const TestArg1 V1(1);
         static const TestArg2 V2(20);
@@ -1998,199 +1094,35 @@ DEFINE_TEST_CASE(4) {
         if (verbose) cout << "\tno argument..." << endl;
         {
             InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1);
+            static const InplaceTestObj EXP;
 
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1)
-                           (x,V1)));
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1)
-                           (x,V1)));
+            ASSERT(0 == bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc0)(x));
 
             if (veryVerbose) { P(X); };
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc2)
-                (x, V1, V2))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n == bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n)  \
+                                                               (x, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
         }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc3)
-                (x, V1, V2, V3))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc4)
-                (x, V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc5)
-                (x, V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc6)
-                (x, V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc7)
-                (x, V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc8)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc9)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc10)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc11)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc12)
-                      (x,V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11,
-                 V12))) ;
-
-            if (veryVerbose) { P(X); };
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc13)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc14)
-                (x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' INVOCATION WITH POINTER TO NON-MODIF. OBJECT
+        // TESTING 'bdlf::MemFn' WITH POINTER TO NON-MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, that such
@@ -2227,8 +1159,10 @@ DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn::operator()(&X, ...)'."
-                 << "\n=========================================" << endl;
+            cout << "\nTESTING 'bdlf::MemFn' WITH POINTER TO NON-MODIFIABLE "
+                    "OBJECT"
+                    "\n====================================================="
+                    "======\n";
 
         static const TestArg1 V1(1);
         static const TestArg2 V2(20);
@@ -2258,197 +1192,24 @@ DEFINE_TEST_CASE(3) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1)
-                           (&EXP,V1)));
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj::reset();                                          \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc##n)      \
+                                                            (&EXP, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(InplaceTestObj::statics()) }                 \
+            LOOP_ASSERT(InplaceTestObj::statics(),                            \
+                        EXP == InplaceTestObj::statics());                    \
         }
-
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc2)
-                (&EXP, V1, V2))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc3)
-                (&EXP, V1, V2, V3))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc4)
-                (&EXP, V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc5)
-                (&EXP, V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc6)
-                (&EXP, V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc7)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc8)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc9)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc10)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc11)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc12)
-                      (&EXP,V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11,
-                 V12))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc13)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj::reset();
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc14)
-                (&EXP, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(InplaceTestObj::statics()); };
-            LOOP_ASSERT(InplaceTestObj::statics(),
-                        EXP == InplaceTestObj::statics());
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(2) {
@@ -2513,190 +1274,30 @@ DEFINE_TEST_CASE(2) {
             InplaceTestObj x; InplaceTestObj const &X=x;
             static const InplaceTestObj EXP;
 
-            ASSERT(0 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc0)
-                           (&x)));
+            ASSERT(0 ==
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc0)(&x));
 
             if (veryVerbose) { P(X); };
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\tone argument..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1);
-
-            ASSERT(1 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1)
-                           (&x,V1)));
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
+#undef N
+#define N(n) V##n
+#undef M
+#define M(n)                                                                  \
+        if (verbose) cout << "\t" << n << " argument(s)...\n";                \
+        {                                                                     \
+            InplaceTestObj x; InplaceTestObj const &X=x;                      \
+            static const InplaceTestObj EXP(C##n(N));                         \
+                                                                              \
+            ASSERT(n ==                                                       \
+                   bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc##n)       \
+                                                              (&x, C##n(N))); \
+                                                                              \
+            if (veryVerbose) { P(X) }                                         \
+            LOOP_ASSERT(X, EXP == X);                                         \
         }
-
-        if (verbose) cout << "\ttwo arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2);
-
-            ASSERT(2 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc2)
-                (&x, V1, V2))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tthree arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3);
-
-            ASSERT(3 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc3)
-                (&x, V1, V2, V3))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfour arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4);
-
-            ASSERT(4 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc4)
-                (&x, V1, V2, V3, V4))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfive arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5);
-
-            ASSERT(5 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc5)
-                (&x, V1, V2, V3, V4, V5))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tsix arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6);
-
-            ASSERT(6 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc6)
-                (&x, V1, V2, V3, V4, V5, V6))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tseven arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            ASSERT(7 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc7)
-                (&x, V1, V2, V3, V4, V5, V6, V7))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\teight arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8);
-
-            ASSERT(8 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc8)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tnine arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9);
-
-            ASSERT(9 == (bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc9)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8, V9))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tten arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10);
-
-            ASSERT(10 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc10)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\televen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11);
-
-            ASSERT(11 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc11)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\ttwelve arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12);
-
-            ASSERT(12 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc12)
-                      (&x,V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11,
-                 V12))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tthirteen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13);
-
-            ASSERT(13 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc13)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
-
-        if (verbose) cout << "\tfourteen arguments..." << endl;
-        {
-            InplaceTestObj x; InplaceTestObj const &X=x;
-            static const InplaceTestObj EXP(V1, V2, V3, V4, V5, V6, V7,
-                            V8, V9, V10, V11, V12, V13, V14);
-
-            ASSERT(14 ==(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc14)
-                (&x, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12,
-                 V13, V14))) ;
-
-            if (veryVerbose) { P(X); };
-            LOOP_ASSERT(X, EXP == X);
-        }
+        L14(M)
       }
 
 DEFINE_TEST_CASE(1) {
@@ -2724,7 +1325,8 @@ DEFINE_TEST_CASE(1) {
         TestObject *t = (Traits::ClassType*)0;
         ASSERT(0 == t); // remove a warning on gcc
 
-        bdlf::MemFn<int (TestObject::*)(int) const> f2(&TestObject::test1Const);
+        bdlf::MemFn<int (TestObject::*)(int) const> f2(
+                                                      &TestObject::test1Const);
 
         f2(&X,10);
 
@@ -2759,18 +1361,20 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER)                                                     \
-  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
-        CASE(10);
-        CASE(9);
-        CASE(8);
-        CASE(7);
-        CASE(6);
-        CASE(5);
-        CASE(4);
-        CASE(3);
-        CASE(2);
-        CASE(1);
+#define CASE(NUMBER)                                                          \
+      case NUMBER: {                                                          \
+        testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
+      } break
+      CASE(10);
+      CASE(9);
+      CASE(8);
+      CASE(7);
+      CASE(6);
+      CASE(5);
+      CASE(4);
+      CASE(3);
+      CASE(2);
+      CASE(1);
 #undef CASE
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

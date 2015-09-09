@@ -1,6 +1,8 @@
 // bdlf_bind_test.t.cpp                                               -*-C++-*-
-
 #include <bdlf_bind_test.h>
+
+#include <bsls_bsltestutil.h>
+
 #include <bdlf_placeholder.h>
 
 #include <bslalg_hastrait.h>
@@ -63,46 +65,48 @@ using namespace bsl;
 // [ 3] TESTING USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-        if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                            aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\n", #I, I, #J, J, #K, K); \
-                            aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                      #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-#define L_ __LINE__                     // current Line number
-#define T_ printf("\t");                // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -157,10 +161,10 @@ namespace BloombergLP {
     {
         // This struct implements a binder which is created from a pointer to a
         // function object and a list of bound arguments which must necessarily
-        // be a 'bdlf::Bind_Tuple1' instance containing a single bound argument.
-        // If the binder is invoked with no arguments, the bound argument is
-        // used.  If the binder is invoked with one argument, it is passed to
-        // the function object; the bound argument is assumed to be a
+        // be a 'bdlf::Bind_Tuple1' instance containing a single bound
+        // argument.  If the binder is invoked with no arguments, the bound
+        // argument is used.  If the binder is invoked with one argument, it is
+        // passed to the function object; the bound argument is assumed to be a
         // place-holder and discarded.
         //
         // *NOTE THAT* this binder is *incomplete* and barely functional enough
@@ -188,9 +192,9 @@ namespace BloombergLP {
         }
 
         Bind_Impl(const Bind_Impl& other, bslma::Allocator * = 0)
-            // Create a 'Bind_Impl' object that is bound to the same
-            // invocable object with the same bound parameters as 'other',
-            // optionally using the 'allocator' to supply memory.
+            // Create a 'Bind_Impl' object that is bound to the same invocable
+            // object with the same bound parameters as the specified 'other',
+            // using the optionally specified 'allocator' to supply memory.
         : d_func(other.d_func), d_arg(other.d_arg)
         {
         }
@@ -209,7 +213,7 @@ namespace BloombergLP {
             // Invoke the modifiable bound object using the invocation template
             // provided at construction of this 'Bind_Impl' object,
             // substituting place-holders for argument 1 with the value of the
-            // modifiable argument 'p1'.  Return the result.
+            // specified un-modifiable argument 'p1'.  Return the result.
         {
             return (*d_func)(p1.value());
         }
@@ -218,7 +222,7 @@ namespace BloombergLP {
             // Invoke the modifiable bound object using the invocation template
             // provided at construction of this 'Bind_Impl' object,
             // substituting place-holders for argument 1 with the value of the
-            // modifiable argument 'p1'.  Return the result.
+            // specified modifiable argument 'p1'.  Return the result.
         {
             return (*d_func)(p1);
         }
@@ -236,7 +240,7 @@ namespace bdlf {
       public:
         // CREATORS
         inline Bind_Tuple1(T const& a1)
-            // Create an instance storing the value 'a1'.
+            // Create an instance storing the specified value 'a1'.
         : d_a1(a1.value())
         {}
 
@@ -517,10 +521,10 @@ int main(int argc, char *argv[])
     (void) veryVerbose;      // kill warning about unused variable
     (void) veryVeryVerbose;  // kill warning about unused variable
 
-    // The following machinery is for use in conjunction with the
-    // 'resetSlots' and 'VerifyNoAllocSlots' functions.  The slots are
-    // set when the corresponding function objector free function is called
-    // with 'NumArgs' arguments.
+    // The following machinery is for use in conjunction with the 'resetSlots'
+    // and 'VerifyNoAllocSlots' functions.  The slots are set when the
+    // corresponding function objector free function is called with 'NumArgs'
+    // arguments.
 
     const int NO_ALLOC_SLOTS[][NUM_SLOTS]= {
         // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14    NumArgs
@@ -560,10 +564,10 @@ int main(int argc, char *argv[])
     const bdlf::Bind_TestArgNoAlloc<13> I13 = 13;
     const bdlf::Bind_TestArgNoAlloc<14> I14 = 14;
 
-    // The following machinery is for use in conjunction with the
-    // 'resetSlots' and 'VerifyAllocSlots' functions.
-    // The slots are set when the corresponding function object or free
-    // function is called with 'NumArgs' arguments.
+    // The following machinery is for use in conjunction with the 'resetSlots'
+    // and 'VerifyAllocSlots' functions.  The slots are set when the
+    // corresponding function object or free function is called with 'NumArgs'
+    // arguments.
 
     bslma::TestAllocator allocator0(veryVeryVerbose);
     bslma::TestAllocator allocator1(veryVeryVerbose);
@@ -649,6 +653,7 @@ int main(int argc, char *argv[])
       case 2: {
         // ------------------------------------------------------------------
         // TESTING TRAITS
+        //
         // Concern: that 'bdlf::Bind_TestTypeNoAlloc' does not have the
         //   allocator traits, but 'bdlf::Bind_TestArgAlloc' and
         //   'bdlf::Bind_TestTypeNoAlloc' have.
@@ -684,6 +689,7 @@ int main(int argc, char *argv[])
       case 1: {
         // ------------------------------------------------------------------
         // TESTING TEST APPARATUS
+        //
         // Concerns:
         //   This component has a rather large apparatus of test helper
         //   functions, classes, and macros.  We need to make sure they all
@@ -1646,7 +1652,8 @@ int main(int argc, char *argv[])
 
             const AllocTestType EXPECTED4(Z1,V1,V2,V3,V4);
             SlotsAlloc::resetSlots(Z0);
-            ASSERT(4  == bdlf::Bind_TestFunctionsAlloc::func4(&mX,V1,V2,V3,V4));
+            ASSERT(4  == bdlf::Bind_TestFunctionsAlloc::func4(&mX,
+                                                                 V1,V2,V3,V4));
             ASSERT(EXPECTED4 == X);
             ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[4], veryVerbose));
 

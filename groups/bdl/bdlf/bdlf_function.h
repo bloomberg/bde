@@ -17,11 +17,12 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlf_memfn, bdlf_bind, bdlcf_bindutil
 //
 //@DESCRIPTION: This component provides a polymorphic function object (functor)
-// that returns an arbitrary result type and accepts up to fourteen arguments
-// of arbitrary types.  A "functor" is similar to a C/C++ function pointer,
-// but unlike function pointers, functors can be used to invoke any object that
-// can be syntactically invoked as a function.  Functors are generally used as
-// callback functions or to avoid templatizing a function.
+// 'bdlf::Function' that returns an arbitrary result type and accepts up to
+// fourteen arguments of arbitrary types.  A "functor" is similar to a C/C++
+// function pointer, but unlike function pointers, functors can be used to
+// invoke any object that can be syntactically invoked as a function.  Functors
+// are generally used as callback functions or to avoid templatizing a
+// function.
 //
 ///Basic Usage
 ///-----------
@@ -31,10 +32,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Declaring a Functor
 ///- - - - - - - - - -
-// The 'bdlf::Function' functor takes a single C-style function pointer template
-// argument that describes the prototype of the functor.  For example, the
-// declaration of a functor that returns 'void' and accepts no arguments, would
-// look as follows:
+// The 'bdlf::Function' functor takes a single C-style function pointer
+// template argument that describes the prototype of the functor.  For example,
+// the declaration of a functor that returns 'void' and accepts no arguments,
+// would look as follows:
 //..
 //  bdlf::Function< void (*)() > voidFunctor;
 //..
@@ -126,9 +127,9 @@ BSLS_IDENT("$Id: $")
 //: 1 a free function pointer or pointer to a static member function,
 //:
 //: 2 a member function pointer together with a pointer to an object,
-//:   (i.e., 'bdlf::MemFn' objects created by 'bdlf::MemFnUtil::memFn' function,
-//:   as illustrated at the end of the subsection 'Initializing a functor' in
-//:   the usage section below),
+//:   (i.e., 'bdlf::MemFn' objects created by 'bdlf::MemFnUtil::memFn'
+//:   function, as illustrated at the end of the subsection 'Initializing a
+//:   functor' in the usage section below),
 //:
 //: 3 another object (e.g., user-defined object, or functor created by one of
 //:   the 'bdefu::Vfunc*::make*' factory methods) whose size is at most
@@ -136,9 +137,9 @@ BSLS_IDENT("$Id: $")
 //
 // Note that "size" in item number 3 refers to the return value of the 'sizeof'
 // operator on the object.  Also note that the constant
-// 'bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE' is platform- and implementation
-// dependent, but it is guaranteed to be at least as large one member function
-// pointer and one additional pointer.
+// 'bdlf::FunctionUtil::MAX_INPLACE_OBJECT_SIZE' is platform- and
+// implementation-dependent, but it is guaranteed to be at least as large one
+// member function pointer and one additional pointer.
 //
 // Functors are guaranteed to *trigger* a memory allocation when constructed
 // with or assigned from an invokable object which is a user-defined class of
@@ -178,11 +179,11 @@ BSLS_IDENT("$Id: $")
 //
 // To illustrate reason number two, suppose that long-term (i.e.,
 // non-temporary) memory should never be allocated for reasons touching the
-// environment in which the program will be run.  A run-time check can be
-// put wherever a 'bdlf::Function' object is created without an allocator
-// (perhaps because it would be too costly to create an allocator just for that
-// function object, or perhaps because the function object has static storage
-// and could not be created with an allocator), as in the following example:
+// environment in which the program will be run.  A run-time check can be put
+// wherever a 'bdlf::Function' object is created without an allocator (perhaps
+// because it would be too costly to create an allocator just for that function
+// object, or perhaps because the function object has static storage and could
+// not be created with an allocator), as in the following example:
 //..
 //  typedef bdlf::Function<int (*)(void *)>  MyCallback;
 //
@@ -214,8 +215,8 @@ BSLS_IDENT("$Id: $")
 // 'MessageHandler' that reads data from a stream, and invokes a user-supplied
 // handler for each message extracted from the stream.  Without functors, a
 // inheritance hierarchy of message handler needs to be created.  However, with
-// 'bdlf::Function', any function or functor that matches the required signature
-// can be passed in.
+// 'bdlf::Function', any function or functor that matches the required
+// signature can be passed in.
 //
 // In the following implementation, we pass either a message handler function
 // object or a free function to the constructor of 'MessageProcessor':
@@ -414,7 +415,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace bdlf {class Function_Rep;
+namespace bdlf {
+
+class Function_Rep;
 template <class PROTOTYPE> struct Function_TypeList;
 template <int, class RET, class ARGS> struct Function_Invoker;
 
@@ -430,8 +433,8 @@ class Function_Rep {
     // representation for a 'Function' instance.  For detailed design
     // explanations, see the IMPLEMENTATION NOTES within the implementation
     // file.  For technical reasons, this class must be defined before
-    // 'Function' (although a mere forward declaration would be all right
-    // with most compilers, the Gnu compiler emits an error when trying to do
+    // 'Function' (although a mere forward declaration would be all right with
+    // most compilers, the Gnu compiler emits an error when trying to do
     // syntactic checking on template code even though it does not instantiate
     // template).
 
@@ -455,9 +458,9 @@ class Function_Rep {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    typedef bool (*Manager)(Function_Rep *rep,
-                            const void        *source,
-                            ManagerOpCode      opCode);
+    typedef bool (*Manager)(Function_Rep  *rep,
+                            const void    *source,
+                            ManagerOpCode  opCode);
         // 'Manager' is an alias for a pointer to a function that takes three
         // arguments: the address of a 'Function_Rep' instance 'rep', the
         // address of a 'source' (for cloning, swapping, and transferring,
@@ -474,9 +477,9 @@ class Function_Rep {
         // bigger than 'sizeof(ArenaType)' will be stored out-of-place and its
         // address will be stored in 'd_object_p'.  Discriminating between the
         // two representations can be done by the manager with the opcode
-        // 'e_IN_PLACE_DETECTION'.  As a shortcut, when the manager is 0,
-        // the representation is in-place and the invocable is a function
-        // pointer stored in 'd_object_p'.
+        // 'e_IN_PLACE_DETECTION'.  As a shortcut, when the manager is 0, the
+        // representation is in-place and the invocable is a function pointer
+        // stored in 'd_object_p'.
         //
         // Note that union members other than 'd_object_p' are just fillers to
         // make sure that a function or member function pointer can fit without
@@ -547,43 +550,42 @@ class Function_Rep {
 
     // CREATORS
     explicit Function_Rep(bslma::Allocator *allocator = 0);
-        // Create an unset functor using the specified 'allocator' to supply
-        // memory.  If 'allocator' is 0, the currently installed default
-        // allocator is used.
+        // Create an unset functor using the optionally specified 'allocator'
+        // to supply memory.  If 'allocator' is 0, the currently installed
+        // default allocator is used.
 
-    Function_Rep(bslma::Allocator                          *allocator,
-                      bslmf::Tag<IS_ALLOCATOR>                  *,
-                      bslma::Allocator                          * = 0);
+    Function_Rep(bslma::Allocator         *allocator,
+                 bslmf::Tag<IS_ALLOCATOR> *,
+                 bslma::Allocator         * = 0);
         // Create an unset functor representation using the specified
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
         // currently installed default allocator.  The second and third are for
         // overload resolution and are unused.
 
     template <class FUNC>
-    Function_Rep(const FUNC&                               func,
-                      bslmf::Tag<IS_FUNCTION_POINTER>          *,
-                      bslma::Allocator                         *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_FUNCTION_POINTER>              *,
+                 bslma::Allocator                             *allocator = 0);
     template <class FUNC>
-    Function_Rep(const FUNC&                               func,
-                      bslmf::Tag<IS_IN_PLACE_BITWISE_COPYABLE> *,
-                      bslma::Allocator                         *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_IN_PLACE_BITWISE_COPYABLE>     *,
+                 bslma::Allocator                             *allocator = 0);
     template <class FUNC>
-    Function_Rep(
-                  const FUNC&                                   func,
-                  bslmf::Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
-                  bslma::Allocator                             *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_OUT_OF_PLACE_BITWISE_COPYABLE> *,
+                 bslma::Allocator                             *allocator = 0);
     template <class FUNC>
-    Function_Rep(const FUNC&                               func,
-                      bslmf::Tag<IS_IN_PLACE_BITWISE_MOVEABLE> *,
-                      bslma::Allocator                         *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_IN_PLACE_BITWISE_MOVEABLE>     *,
+                 bslma::Allocator                             *allocator = 0);
     template <class FUNC>
-    Function_Rep(const FUNC&                               func,
-                      bslmf::Tag<IS_IN_PLACE>                  *,
-                      bslma::Allocator                         *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_IN_PLACE>                      *,
+                 bslma::Allocator                             *allocator = 0);
     template <class FUNC>
-    Function_Rep(const FUNC&                               func,
-                      bslmf::Tag<IS_OUT_OF_PLACE>              *,
-                      bslma::Allocator                         *allocator = 0);
+    Function_Rep(const FUNC&                                   func,
+                 bslmf::Tag<IS_OUT_OF_PLACE>                  *,
+                 bslma::Allocator                             *allocator = 0);
         // Create a functor representation storing the specified 'func' object
         // of the parameterized 'FUNC' type.  Optionally specify 'allocator' to
         // supply memory.  If 'allocator' is 0, the currently installed default
@@ -591,7 +593,7 @@ class Function_Rep {
         // and is not used.
 
     Function_Rep(const Function_Rep&  original,
-                      bslma::Allocator         *allocator = 0);
+                 bslma::Allocator    *allocator = 0);
         // Create a functor representation storing the same invocable as the
         // specified 'original' function representation.  Optionally specify a
         // 'allocator' to supply memory.  If 'allocator' is 0, the currently
@@ -697,12 +699,12 @@ struct FunctionUtil {
     struct IsInplace {
         // Meta function to return whether a 'Function<PROTOTYPE>' object
         // created from an instance 'func' of 'FUNC' uses an inplace
-        // representation or not.  Note that whether the 'Function' object
-        // is created in-place or not is a property of the type 'FUNC', and
-        // does *not* depend on the template argument 'PROTOTYPE' to the
-        // 'Function'.  All that is needed is that the type 'FUNC' offer a
-        // signature compatible with 'PROTOTYPE'.  The actual type can
-        // potentially be different, as illustrated by the following example:
+        // representation or not.  Note that whether the 'Function' object is
+        // created in-place or not is a property of the type 'FUNC', and does
+        // *not* depend on the template argument 'PROTOTYPE' to the 'Function'.
+        // All that is needed is that the type 'FUNC' offer a signature
+        // compatible with 'PROTOTYPE'.  The actual type can potentially be
+        // different, as illustrated by the following example:
         //..
         //  typedef double (*Prototype)(int);
         //
@@ -750,15 +752,14 @@ struct Function_UnspecifiedBoolHelper {
         // not used.
 };
 
-typedef int Function_UnspecifiedBoolHelper::*
-                                                 Function_UnspecifiedBool;
-    // 'Function_UnspecifiedBool' is an alias for a pointer-to-member of
-    // the 'Function_UnspecifiedBoolHelper' class.  This (opaque) type can
-    // be used as an "unspecified boolean type" for converting a function
-    // object to 'bool' in contexts such as 'if (fn) { ... }' without actually
-    // having a conversion to 'bool' or being less-than comparable (either of
-    // which would also enable undesirable implicit comparisons of function
-    // objects to 'int' and less-than comparisons).
+typedef int Function_UnspecifiedBoolHelper::*Function_UnspecifiedBool;
+    // 'Function_UnspecifiedBool' is an alias for a pointer-to-member of the
+    // 'Function_UnspecifiedBoolHelper' class.  This (opaque) type can be used
+    // as an "unspecified boolean type" for converting a function object to
+    // 'bool' in contexts such as 'if (fn) { ... }' without actually having a
+    // conversion to 'bool' or being less-than comparable (either of which
+    // would also enable undesirable implicit comparisons of function objects
+    // to 'int' and less-than comparisons).
 
                                // ==============
                                // class Function
@@ -891,8 +892,8 @@ class Function {
         // instance of the parameterized 'FUNC' type.  Note that a dynamic test
         // of whether the tag value is 'IS_ALLOCATOR' (and returning 0) or not
         // (and returning the value below) would return the correct result, but
-        // would result in instantiating the 'Function_Invoker' in both
-        // cases, leading to a compilation error for 'IS_ALLOCATOR'.
+        // would result in instantiating the 'Function_Invoker' in both cases,
+        // leading to a compilation error for 'IS_ALLOCATOR'.
     {
         return &Invoker::template invoke<FUNC>;
     }
@@ -902,11 +903,11 @@ class Function {
     // NOT IMPLEMENTED
     void operator==(const Function&) const; // = delete;
     void operator!=(const Function&) const; // = delete;
-        // 'Function' objects cannot be compared for equality, as the
-        // function objects they wrap might not support the equality comparison
-        // operator to delegate to.  However, if these methods are not declared
-        // as private, then both 'Function' objects will be implicitly
-        // converted to their boolean value, and those values compared instead.
+        // 'Function' objects cannot be compared for equality, as the function
+        // objects they wrap might not support the equality comparison operator
+        // to delegate to.  However, if these methods are not declared as
+        // private, then both 'Function' objects will be implicitly converted
+        // to their boolean value, and those values compared instead.
 
   public:
     // TRAITS
@@ -925,9 +926,9 @@ class Function {
         // having 'funcOrAlloc' as an allocator if 'FUNC_OR_ALLOC' is
         // convertible to 'bslma::Allocator*'.  For example, if 'myAllocator'
         // belongs to a class that is derived from 'bslma::Allocator', the
-        // 'Function(&myAllocator)' will construct an uninitialized
-        // function object using the specified 'myAllocator'.  The behavior is
-        // undefined if 'funcOrAlloc' is a null function pointer.
+        // 'Function(&myAllocator)' will construct an uninitialized function
+        // object using the specified 'myAllocator'.  The behavior is undefined
+        // if 'funcOrAlloc' is a null function pointer.
         //
         // Note that this creator takes the place of the two constructors
         // below:
@@ -942,11 +943,11 @@ class Function {
 
     template <class FUNC>
     Function(const FUNC& func, bslma::Allocator *allocator);
-        // Create a function object having the value of the specified
-        // 'func' object using the specified 'allocator' to supply memory.
+        // Create a function object having the value of the specified 'func'
+        // object using the specified 'allocator' to supply memory.
 
     Function(const Function<PROTOTYPE>&  original,
-                  bslma::Allocator                *allocator = 0);
+             bslma::Allocator           *allocator = 0);
         // Create a function object storing a copy of the same invocable as the
         // specified 'original' object, using the optionally specified
         // 'allocator' to supply memory.  If 'allocator' is 0, the currently
@@ -960,17 +961,16 @@ class Function {
 
     template <class FUNC>
     Function<PROTOTYPE>& operator=(const FUNC& func);
-        // Assign to this function object the 'func' invocable object of the
-        // parameterized 'FUNC' type, and return a reference to this modifiable
-        // function object.
+        // Assign to this function object the specified 'func' invocable object
+        // of the parameterized 'FUNC' type, and return a reference to this
+        // modifiable function object.
 
     void clear();
         // Reset this function object to an empty state.
 
     template <class FUNC>
-    Function<PROTOTYPE>& load(const FUNC&       func,
-                                   bslma::Allocator *allocator);
-        // Assign to this function object the 'func' object of the
+    Function<PROTOTYPE> &load(const FUNC &func, bslma::Allocator *allocator);
+        // Assign to this function object the specified 'func' object of the
         // parameterized 'FUNC' type, using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, continue to use the same allocator as
         // before this call.  Return a reference to this modifiable function
@@ -982,8 +982,8 @@ class Function {
         // instead.
 
     void swap(Function<PROTOTYPE>& other);
-        // Exchange the invocable stored by this function object with
-        // that stored by the specified 'other' function object.
+        // Exchange the invocable stored by this function object with that
+        // stored by the specified 'other' function object.
 
     void transferTo(Function<PROTOTYPE> *target);
         // Transfer the invocable stored by this function object to the
@@ -1000,127 +1000,127 @@ class Function {
         // undefined if this function object is empty.
 
     ResultType operator()(A1 a1) const;
-        // Invoke this function object with the single argument 'a1' as
-        // defined by 'PROTOTYPE' and return the result or 'void' if this
+        // Invoke this function object with the single specified argument 'a1'
+        // as defined by 'PROTOTYPE' and return the result or 'void' if this
         // function object does not return a result.  If 'PROTOTYPE' does not
         // accept a single argument, then compiler diagnostic will be emitted.
         // Note that the behavior is undefined if this function object is
         // empty.
 
     ResultType operator()(A1 a1, A2 a2) const;
-        // Invoke this function object with the two arguments 'a1' and 'a2' as
-        // defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept two arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the two specified arguments 'a1'
+        // and 'a2' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept two arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3) const;
-        // Invoke this function object with the three arguments 'a1' up to 'a3'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept three arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the three specified arguments 'a1'
+        // up to 'a3' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept three arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4) const;
-        // Invoke this function object with the four arguments 'a1' up to 'a4'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept four arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the four specified arguments 'a1'
+        // up to 'a4' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept four arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const;
-        // Invoke this function object with the five arguments 'a1' up to 'a5'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept five arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the five specified arguments 'a1'
+        // up to 'a5' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept five arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const;
-        // Invoke this function object with the six arguments 'a1' up to 'a6'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept six arguments, then compiler diagnostic will be emitted.
+        // Invoke this function object with the six specified arguments 'a1' up
+        // to 'a6' as defined by 'PROTOTYPE' and return the result or 'void' if
+        // this function object does not return a result.  If 'PROTOTYPE' does
+        // not accept six arguments, then compiler diagnostic will be emitted.
         // Note that the behavior is undefined if this function object is
         // empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
                           A7 a7) const;
-        // Invoke this function object with the seven arguments 'a1' up to 'a7'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept seven arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the seven specified arguments 'a1'
+        // up to 'a7' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept seven arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
                           A7 a7, A8 a8) const;
-        // Invoke this function object with the eight arguments 'a1' up to 'a8'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept eight arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the eight specified arguments 'a1'
+        // up to 'a8' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept eight arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
                           A7 a7, A8 a8, A9 a9) const;
-        // Invoke this function object with the nine arguments 'a1' up to 'a9'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept nine arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the nine specified arguments 'a1'
+        // up to 'a9' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept nine arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4, A5 a5, A6 a6,
                           A7 a7, A8 a8, A9 a9, A10 a10) const;
-        // Invoke this function object with the ten arguments 'a1' up to 'a10'
-        // as defined by 'PROTOTYPE' and return the result or 'void' if this
-        // function object does not return a result.  If 'PROTOTYPE' does not
-        // accept ten arguments, then compiler diagnostic will be emitted.
-        // Note that the behavior is undefined if this function object is
-        // empty.
+        // Invoke this function object with the ten specified arguments 'a1' up
+        // to 'a10' as defined by 'PROTOTYPE' and return the result or 'void'
+        // if this function object does not return a result.  If 'PROTOTYPE'
+        // does not accept ten arguments, then compiler diagnostic will be
+        // emitted.  Note that the behavior is undefined if this function
+        // object is empty.
 
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
                           A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const;
-        // Invoke this function object with the eleven arguments 'a1' up to
-        // 'a11' as defined by 'PROTOTYPE' and return the result or 'void' if
-        // this function object does not return a result.  If 'PROTOTYPE' does
-        // not accept eleven arguments, then compiler diagnostic will be
-        // emitted.  Note that the behavior is undefined if this function
-        // object is empty.
+        // Invoke this function object with the eleven specified arguments 'a1'
+        // up to 'a11' as defined by 'PROTOTYPE' and return the result or
+        // 'void' if this function object does not return a result.  If
+        // 'PROTOTYPE' does not accept eleven arguments, then compiler
+        // diagnostic will be emitted.  Note that the behavior is undefined if
+        // this function object is empty.
 
     ResultType operator()(A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
                           A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
                           A12 a12) const;
-        // Invoke this function object with the twelve arguments 'a1' up to
-        // 'a12' as defined by 'PROTOTYPE' and return the result or 'void' if
-        // this function object does not return a result.  If 'PROTOTYPE' does
-        // not accept twelve arguments, then compiler diagnostic will be
-        // emitted.  Note that the behavior is undefined if this function
-        // object is empty.
+        // Invoke this function object with the twelve specified arguments 'a1'
+        // up to 'a12' as defined by 'PROTOTYPE' and return the result or
+        // 'void' if this function object does not return a result.  If
+        // 'PROTOTYPE' does not accept twelve arguments, then compiler
+        // diagnostic will be emitted.  Note that the behavior is undefined if
+        // this function object is empty.
 
     ResultType operator()(A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
                           A7  a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12,
                           A13 a13) const;
-        // Invoke this function object with the thirteen arguments 'a1' up to
-        // 'a13' as defined by 'PROTOTYPE' and return the result or 'void' if
-        // this function object does not return a result.  If 'PROTOTYPE' does
-        // not accept thirteen arguments, then compiler diagnostic will be
-        // emitted.  Note that the behavior is undefined if this function
-        // object is empty.
+        // Invoke this function object with the thirteen specified arguments
+        // 'a1' up to 'a13' as defined by 'PROTOTYPE' and return the result or
+        // 'void' if this function object does not return a result.  If
+        // 'PROTOTYPE' does not accept thirteen arguments, then compiler
+        // diagnostic will be emitted.  Note that the behavior is undefined if
+        // this function object is empty.
 
     ResultType operator()(A1  a1,  A2  a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
                           A7  a7,  A8  a8, A9 a9, A10 a10, A11 a11, A12 a12,
                           A13 a13, A14 a14) const;
-        // Invoke this function object with the fourteen arguments 'a1' up to
-        // 'a14' as defined by 'PROTOTYPE' and return the result or 'void' if
-        // this function object does not return a result.  If 'PROTOTYPE' does
-        // not accept fourteen arguments, then compiler diagnostic will be
-        // emitted.  Note that the behavior is undefined if this function
-        // object is empty.
+        // Invoke this function object with the fourteen specified arguments
+        // 'a1' up to 'a14' as defined by 'PROTOTYPE' and return the result or
+        // 'void' if this function object does not return a result.  If
+        // 'PROTOTYPE' does not accept fourteen arguments, then compiler
+        // diagnostic will be emitted.  Note that the behavior is undefined if
+        // this function object is empty.
 
     operator Function_UnspecifiedBool() const;
         // Return a value of the "unspecified bool" that evaluates to 'false'
@@ -1140,12 +1140,13 @@ class Function {
         // component-level documentation.  Note that this function returns
         // 'true' for an empty function object.
 };
-}  // close package namespace
 
 // FREE FUNCTIONS
 template <class PROTOTYPE>
-void swap(bdlf::Function<PROTOTYPE>& a, bdlf::Function<PROTOTYPE>& b);
+void swap(Function<PROTOTYPE>& a, Function<PROTOTYPE>& b);
     // Swap the values of the specified 'a' and 'b' objects.
+
+}  // close package namespace
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
@@ -1244,46 +1245,46 @@ struct Function_RepUtil {
     // CLASS METHODS
     template <int FUNC_SIZE>
     static bool inplaceBitwiseCopyableManager(
-                                     Function_Rep                *rep,
-                                     const void                       *source,
-                                     Function_Rep::ManagerOpCode  opCode);
+                                          Function_Rep                *rep,
+                                          const void                  *source,
+                                          Function_Rep::ManagerOpCode  opCode);
         // Manage the in-place representation of the parameterized 'FUNC_SIZE'
         // at the specified 'rep' address (the actual type does not matter),
         // using the data at the specified 'source' address, performing the
         // operation with the specified 'opCode' and optimizing
-        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.
-        // Note that 'source' is interpreted either as 'const char[FUNC_SIZE]'
-        // or 'Function_Rep *' according to the 'opCode'.
+        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.  Note
+        // that 'source' is interpreted either as 'const char[FUNC_SIZE]' or
+        // 'Function_Rep *' according to the 'opCode'.
 
     template <int FUNC_SIZE>
     static bool outofplaceBitwiseCopyableManager(
-                                     Function_Rep                *rep,
-                                     const void                       *source,
-                                     Function_Rep::ManagerOpCode  opCode);
+                                          Function_Rep                *rep,
+                                          const void                  *source,
+                                          Function_Rep::ManagerOpCode  opCode);
         // Manage the out-of-place representation of the parameterized
         // 'FUNC_SIZE' at the specified 'rep' address (the actual type does not
         // matter), using the data at the specified 'source' address,
         // performing the operation with the specified 'opCode' and optimizing
-        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.
-        // Note that 'source' is interpreted either as 'const char[FUNC_SIZE]'
-        // or 'Function_Rep *' according to the 'opCode'.
+        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.  Note
+        // that 'source' is interpreted either as 'const char[FUNC_SIZE]' or
+        // 'Function_Rep *' according to the 'opCode'.
 
     template <class FUNC>
     static bool inplaceBitwiseMoveableManager(
-                                     Function_Rep                *rep,
-                                     const void                       *source,
-                                     Function_Rep::ManagerOpCode  opCode);
+                                          Function_Rep                *rep,
+                                          const void                  *source,
+                                          Function_Rep::ManagerOpCode  opCode);
         // Manage the in-place representation of the parameterized 'FUNC'
         // instance at the specified 'rep' address, using the data at the
         // specified 'source' address, performing the operation with the
         // specified 'opCode' and optimizing 'e_MOVE_CONSTRUCT' (but not
         // 'e_COPY_CONSTRUCT') using bitwise copy.  Note that 'source' is
-        // interpreted either as 'const FUNC *' or 'Function_Rep *'
-        // according to the 'opCode'.
+        // interpreted either as 'const FUNC *' or 'Function_Rep *' according
+        // to the 'opCode'.
 
     template <class FUNC>
     static bool inplaceManager(Function_Rep                *rep,
-                               const void                       *source,
+                               const void                  *source,
                                Function_Rep::ManagerOpCode  opCode);
         // Manage the in-place representation of the parameterized 'FUNC'
         // instance at the specified 'rep' address, using the data at the
@@ -1293,7 +1294,7 @@ struct Function_RepUtil {
 
     template <class FUNC>
     static bool outofplaceManager(Function_Rep                *rep,
-                                  const void                       *source,
+                                  const void                  *source,
                                   Function_Rep::ManagerOpCode  opCode);
         // Manage the out-of-place representation of the parameterized 'FUNC'
         // instance at the specified 'rep' address, using the data at the
@@ -1365,17 +1366,17 @@ struct Function_TypeList {
 
 #define BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)                               \
     enum {                                                                    \
-        IS_IN_PLACE           = bdlf::FunctionUtil::IsInplace<FUNC>::VALUE     \
+        IS_IN_PLACE           = bdlf::FunctionUtil::IsInplace<FUNC>::VALUE    \
       , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,                        \
                                  bslalg::TypeTraitHasPointerSemantics>::VALUE \
       , INVOKER_TAG           = bslmf::IsFunctionPointer<FUNC>::VALUE         \
-                              ? (int)bdlf::Function_Rep::IS_FUNCTION_POINTER   \
+                              ? (int)bdlf::Function_Rep::IS_FUNCTION_POINTER  \
                               : IS_IN_PLACE ? (HAS_POINTER_SEMANTICS          \
-         ? (int)bdlf::Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS         \
-         : (int)bdlf::Function_Rep::IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS)     \
+         ? (int)bdlf::Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS        \
+         : (int)bdlf::Function_Rep::IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS)    \
                                             : (HAS_POINTER_SEMANTICS          \
-         ? (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS     \
-         : (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS) \
+         ? (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS    \
+         : (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS)\
     };
     // This private local macro is used to define an 'INVOKER_TAG' enumerated
     // value which is equal to one of the following values depending on the
@@ -1401,7 +1402,7 @@ struct Function_TypeList {
 #else
 
 #define BDLF_FUNCTION_INVOKER(FUNC, rep) \
-       (((const bdlf::Function_Invocable<FUNC, INVOKER_TAG> *)rep)->invocable())
+      (((const bdlf::Function_Invocable<FUNC, INVOKER_TAG> *)rep)->invocable())
     // This private local macro expands to a call to 'repImpl->invocable',
     // where 'repImpl' is 'rep' reinterpreted as the 'bdlf::Function_Invocable'
     // object corresponding to the 'FUNC' invocable type with its appropriate
@@ -1453,13 +1454,11 @@ struct Function_Invoker<1, RET, ARGS> {
     // functions that return 'RET' and accept a single argument of type 'A1'.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1);
+    typedef RET (*InvokerFunc)(Function_Rep const *, typename ARGS::A1);
 
     // CLASS METHODS
     template <class FUNC>
-    static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1)
+    static RET invoke(Function_Rep const *rep, typename ARGS::A1 p1)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1);
@@ -1472,13 +1471,11 @@ struct Function_Invoker<1, void, ARGS> {
     // functions that return 'void' and accept a single argument of type 'A1'.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1);
+    typedef void (*InvokerFunc)(Function_Rep const *, typename ARGS::A1);
 
     // CLASS METHODS
     template <class FUNC>
-    static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1)
+    static void invoke(Function_Rep const *rep, typename ARGS::A1 p1)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1);
@@ -1492,13 +1489,15 @@ struct Function_Invoker<2, RET, ARGS> {
     // respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2);
@@ -1512,13 +1511,15 @@ struct Function_Invoker<2, void, ARGS> {
     // 'A2' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1, typename ARGS::A2);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2);
@@ -1532,15 +1533,17 @@ struct Function_Invoker<3, RET, ARGS> {
     // 'A2', 'A3' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
                                typename ARGS::A3);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3);
@@ -1554,15 +1557,17 @@ struct Function_Invoker<3, void, ARGS> {
     // 'A2', 'A3' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1, typename ARGS::A2,
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
                                 typename ARGS::A3);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3);
@@ -1576,15 +1581,19 @@ struct Function_Invoker<4, RET, ARGS> {
     // 'A2', 'A3', 'A4' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4);
@@ -1598,15 +1607,19 @@ struct Function_Invoker<4, void, ARGS> {
     // 'A2', 'A3', 'A4' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1, typename ARGS::A2,
-                                typename ARGS::A3, typename ARGS::A4);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4);
@@ -1620,17 +1633,21 @@ struct Function_Invoker<5, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
                                typename ARGS::A5);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4,
-                      typename ARGS::A5 p5)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4, p5);
@@ -1644,17 +1661,21 @@ struct Function_Invoker<5, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1, typename ARGS::A2,
-                                typename ARGS::A3, typename ARGS::A4,
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
                                 typename ARGS::A5);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4,
-                       typename ARGS::A5 p5)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4, p5);
@@ -1668,18 +1689,23 @@ struct Function_Invoker<6, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6);
 
     // CLASS METHODS
     template <class FUNC>
-    static RET invoke(
-                      Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4,
-                      typename ARGS::A5 p5, typename ARGS::A6 p6)
+    static RET invoke(Function_Rep const *rep,
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4, p5, p6);
@@ -1693,17 +1719,23 @@ struct Function_Invoker<6, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4,
-                       typename ARGS::A5 p5, typename ARGS::A6 p6)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4, p5, p6);
@@ -1717,19 +1749,25 @@ struct Function_Invoker<7, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', typename 'A7' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
                                typename ARGS::A7);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4,
-                      typename ARGS::A5 p5, typename ARGS::A6 p6,
-                      typename ARGS::A7 p7)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1744,19 +1782,25 @@ struct Function_Invoker<7, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', typename 'A7' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                                typename ARGS::A1, typename ARGS::A2,
-                                typename ARGS::A3, typename ARGS::A4,
-                                typename ARGS::A5, typename ARGS::A6,
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
                                 typename ARGS::A7);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4,
-                       typename ARGS::A5 p5, typename ARGS::A6 p6,
-                       typename ARGS::A7 p7)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(p1, p2, p3, p4, p5, p6, p7);
@@ -1770,19 +1814,27 @@ struct Function_Invoker<8, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4,
-                      typename ARGS::A5 p5, typename ARGS::A6 p6,
-                      typename ARGS::A7 p7, typename ARGS::A8 p8)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1797,19 +1849,27 @@ struct Function_Invoker<8, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4,
-                       typename ARGS::A5 p5, typename ARGS::A6 p6,
-                       typename ARGS::A7 p7, typename ARGS::A8 p8)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1824,21 +1884,29 @@ struct Function_Invoker<9, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
                                typename ARGS::A9);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2 p2,
-                      typename ARGS::A3 p3, typename ARGS::A4 p4,
-                      typename ARGS::A5 p5, typename ARGS::A6 p6,
-                      typename ARGS::A7 p7, typename ARGS::A8 p8,
-                      typename ARGS::A9 p9)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1853,21 +1921,29 @@ struct Function_Invoker<9, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
-                               typename ARGS::A9);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2 p2,
-                       typename ARGS::A3 p3, typename ARGS::A4 p4,
-                       typename ARGS::A5 p5, typename ARGS::A6 p6,
-                       typename ARGS::A7 p7, typename ARGS::A8 p8,
-                       typename ARGS::A9 p9)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1882,21 +1958,31 @@ struct Function_Invoker<10, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
-                               typename ARGS::A9, typename ARGS::A10);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
+                               typename ARGS::A9,
+                               typename ARGS::A10);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1 p1, typename ARGS::A2  p2,
-                      typename ARGS::A3 p3, typename ARGS::A4  p4,
-                      typename ARGS::A5 p5, typename ARGS::A6  p6,
-                      typename ARGS::A7 p7, typename ARGS::A8  p8,
-                      typename ARGS::A9 p9, typename ARGS::A10 p10)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9,
+                      typename ARGS::A10  p10)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1911,21 +1997,31 @@ struct Function_Invoker<10, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
-                               typename ARGS::A9, typename ARGS::A10);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9,
+                                typename ARGS::A10);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1 p1, typename ARGS::A2  p2,
-                       typename ARGS::A3 p3, typename ARGS::A4  p4,
-                       typename ARGS::A5 p5, typename ARGS::A6  p6,
-                       typename ARGS::A7 p7, typename ARGS::A8  p8,
-                       typename ARGS::A9 p9, typename ARGS::A10 p10)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9,
+                       typename ARGS::A10  p10)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1941,23 +2037,33 @@ struct Function_Invoker<11, RET, ARGS> {
     // respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
-                               typename ARGS::A9, typename ARGS::A10,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
+                               typename ARGS::A9,
+                               typename ARGS::A10,
                                typename ARGS::A11);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                      typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                      typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                      typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                      typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                      typename ARGS::A11 p11)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9,
+                      typename ARGS::A10  p10,
+                      typename ARGS::A11  p11)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -1973,23 +2079,33 @@ struct Function_Invoker<11, void, ARGS> {
     // respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1, typename ARGS::A2,
-                               typename ARGS::A3, typename ARGS::A4,
-                               typename ARGS::A5, typename ARGS::A6,
-                               typename ARGS::A7, typename ARGS::A8,
-                               typename ARGS::A9, typename ARGS::A10,
-                               typename ARGS::A11);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9,
+                                typename ARGS::A10,
+                                typename ARGS::A11);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                       typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                       typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                       typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                       typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                       typename ARGS::A11 p11)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9,
+                       typename ARGS::A10  p10,
+                       typename ARGS::A11  p11)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2005,23 +2121,35 @@ struct Function_Invoker<12, RET, ARGS> {
     // respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
+                               typename ARGS::A9,
+                               typename ARGS::A10,
+                               typename ARGS::A11,
+                               typename ARGS::A12);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1  p1,  typename ARGS::A2 p2,
-                      typename ARGS::A3  p3,  typename ARGS::A4 p4,
-                      typename ARGS::A5  p5,  typename ARGS::A6 p6,
-                      typename ARGS::A7  p7,  typename ARGS::A8 p8,
-                      typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                      typename ARGS::A11 p11, typename ARGS::A12 p12)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9,
+                      typename ARGS::A10  p10,
+                      typename ARGS::A11  p11,
+                      typename ARGS::A12  p12)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2037,23 +2165,35 @@ struct Function_Invoker<12, void, ARGS> {
     // respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9,
+                                typename ARGS::A10,
+                                typename ARGS::A11,
+                                typename ARGS::A12);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                       typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                       typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                       typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                       typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                       typename ARGS::A11 p11, typename ARGS::A12 p12)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9,
+                       typename ARGS::A10  p10,
+                       typename ARGS::A11  p11,
+                       typename ARGS::A12  p12)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2069,25 +2209,37 @@ struct Function_Invoker<13, RET, ARGS> {
     // 'A13' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12,
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
+                               typename ARGS::A9,
+                               typename ARGS::A10,
+                               typename ARGS::A11,
+                               typename ARGS::A12,
                                typename ARGS::A13);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                      typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                      typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                      typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                      typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                      typename ARGS::A11 p11, typename ARGS::A12 p12,
-                      typename ARGS::A13 p13)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9,
+                      typename ARGS::A10  p10,
+                      typename ARGS::A11  p11,
+                      typename ARGS::A12  p12,
+                      typename ARGS::A13  p13)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2103,25 +2255,37 @@ struct Function_Invoker<13, void, ARGS> {
     // 'A12', 'A13' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12,
-                               typename ARGS::A13);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9,
+                                typename ARGS::A10,
+                                typename ARGS::A11,
+                                typename ARGS::A12,
+                                typename ARGS::A13);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                       typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                       typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                       typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                       typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                       typename ARGS::A11 p11, typename ARGS::A12 p12,
-                       typename ARGS::A13 p13)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9,
+                       typename ARGS::A10  p10,
+                       typename ARGS::A11  p11,
+                       typename ARGS::A12  p12,
+                       typename ARGS::A13  p13)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2137,25 +2301,39 @@ struct Function_Invoker<14, RET, ARGS> {
     // 'A13', 'A14' respectively.
 
     // TYPES
-    typedef RET (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12,
-                               typename ARGS::A13, typename ARGS::A14);
+    typedef RET (*InvokerFunc)(Function_Rep const *,
+                               typename ARGS::A1,
+                               typename ARGS::A2,
+                               typename ARGS::A3,
+                               typename ARGS::A4,
+                               typename ARGS::A5,
+                               typename ARGS::A6,
+                               typename ARGS::A7,
+                               typename ARGS::A8,
+                               typename ARGS::A9,
+                               typename ARGS::A10,
+                               typename ARGS::A11,
+                               typename ARGS::A12,
+                               typename ARGS::A13,
+                               typename ARGS::A14);
 
     // CLASS METHODS
     template <class FUNC>
     static RET invoke(Function_Rep const *rep,
-                      typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                      typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                      typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                      typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                      typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                      typename ARGS::A11 p11, typename ARGS::A12 p12,
-                      typename ARGS::A13 p13, typename ARGS::A14 p14)
+                      typename ARGS::A1   p1,
+                      typename ARGS::A2   p2,
+                      typename ARGS::A3   p3,
+                      typename ARGS::A4   p4,
+                      typename ARGS::A5   p5,
+                      typename ARGS::A6   p6,
+                      typename ARGS::A7   p7,
+                      typename ARGS::A8   p8,
+                      typename ARGS::A9   p9,
+                      typename ARGS::A10  p10,
+                      typename ARGS::A11  p11,
+                      typename ARGS::A12  p12,
+                      typename ARGS::A13  p13,
+                      typename ARGS::A14  p14)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         return (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2171,25 +2349,39 @@ struct Function_Invoker<14, void, ARGS> {
     // 'A13', 'A14' respectively.
 
     // TYPES
-    typedef void (*InvokerFunc)(Function_Rep const*,
-                               typename ARGS::A1,  typename ARGS::A2,
-                               typename ARGS::A3,  typename ARGS::A4,
-                               typename ARGS::A5,  typename ARGS::A6,
-                               typename ARGS::A7,  typename ARGS::A8,
-                               typename ARGS::A9,  typename ARGS::A10,
-                               typename ARGS::A11, typename ARGS::A12,
-                               typename ARGS::A13, typename ARGS::A14);
+    typedef void (*InvokerFunc)(Function_Rep const *,
+                                typename ARGS::A1,
+                                typename ARGS::A2,
+                                typename ARGS::A3,
+                                typename ARGS::A4,
+                                typename ARGS::A5,
+                                typename ARGS::A6,
+                                typename ARGS::A7,
+                                typename ARGS::A8,
+                                typename ARGS::A9,
+                                typename ARGS::A10,
+                                typename ARGS::A11,
+                                typename ARGS::A12,
+                                typename ARGS::A13,
+                                typename ARGS::A14);
 
     // CLASS METHODS
     template <class FUNC>
     static void invoke(Function_Rep const *rep,
-                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
-                       typename ARGS::A3  p3,  typename ARGS::A4  p4,
-                       typename ARGS::A5  p5,  typename ARGS::A6  p6,
-                       typename ARGS::A7  p7,  typename ARGS::A8  p8,
-                       typename ARGS::A9  p9,  typename ARGS::A10 p10,
-                       typename ARGS::A11 p11, typename ARGS::A12 p12,
-                       typename ARGS::A13 p13, typename ARGS::A14 p14)
+                       typename ARGS::A1   p1,
+                       typename ARGS::A2   p2,
+                       typename ARGS::A3   p3,
+                       typename ARGS::A4   p4,
+                       typename ARGS::A5   p5,
+                       typename ARGS::A6   p6,
+                       typename ARGS::A7   p7,
+                       typename ARGS::A8   p8,
+                       typename ARGS::A9   p9,
+                       typename ARGS::A10  p10,
+                       typename ARGS::A11  p11,
+                       typename ARGS::A12  p12,
+                       typename ARGS::A13  p13,
+                       typename ARGS::A14  p14)
     {
         BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)
         (*BDLF_FUNCTION_INVOKER(FUNC, rep))(
@@ -2261,8 +2453,7 @@ Function<PROTOTYPE>::Function(const FUNC_OR_ALLOC& funcOrAlloc)
 template <class PROTOTYPE>
 template <class FUNC>
 inline
-Function<PROTOTYPE>::Function(const FUNC&       func,
-                                        bslma::Allocator *allocator)
+Function<PROTOTYPE>::Function(const FUNC& func, bslma::Allocator *allocator)
 : d_rep(func,
         (bslmf::Tag<bslmf::IsFunctionPointer<FUNC>::VALUE
                                              ? IS_FUNCTION_POINTER
@@ -2289,9 +2480,8 @@ Function<PROTOTYPE>::Function(const FUNC&       func,
 
 template <class PROTOTYPE>
 inline
-Function<PROTOTYPE>::Function(
-                                    const Function<PROTOTYPE>&  original,
-                                    bslma::Allocator                *allocator)
+Function<PROTOTYPE>::Function(const Function<PROTOTYPE>&  original,
+                              bslma::Allocator           *allocator)
 : d_rep(original.d_rep, allocator)
 , d_invoker_p(original.d_invoker_p)
 {
@@ -2311,8 +2501,7 @@ Function<PROTOTYPE>::operator=(const Function<PROTOTYPE>& rhs)
 template <class PROTOTYPE>
 template <class FUNC>
 inline
-Function<PROTOTYPE>&
-Function<PROTOTYPE>::operator=(const FUNC& func)
+Function<PROTOTYPE>& Function<PROTOTYPE>::operator=(const FUNC& func)
 {
     d_rep       = func;
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -2326,9 +2515,8 @@ Function<PROTOTYPE>::operator=(const FUNC& func)
 template <class PROTOTYPE>
 template <class FUNC>
 inline
-Function<PROTOTYPE>&
-Function<PROTOTYPE>::load(const FUNC&       func,
-                               bslma::Allocator *allocator)
+Function<PROTOTYPE>& Function<PROTOTYPE>::load(const FUNC&       func,
+                                               bslma::Allocator *allocator)
 {
     d_rep.load(func, allocator);
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -2418,38 +2606,34 @@ Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
 template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
-Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4,A5 a5,
-                                     A6 a6) const
+Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4,A5 a5, A6 a6) const
 {
-    return (*this->d_invoker_p)(&this->d_rep,
-                                a1, a2, a3, a4, a5, a6);
+    return (*this->d_invoker_p)(&this->d_rep, a1, a2, a3, a4, a5, a6);
 }
 
 template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                     A7 a7) const
+                                A7 a7) const
 {
-    return (*this->d_invoker_p)(&this->d_rep,
-                                a1, a2, a3, a4, a5, a6, a7);
+    return (*this->d_invoker_p)(&this->d_rep, a1, a2, a3, a4, a5, a6, a7);
 }
 
 template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                     A7 a7, A8 a8) const
+                                A7 a7, A8 a8) const
 {
-    return (*this->d_invoker_p)(&this->d_rep,
-                                a1, a2, a3, a4, a5, a6, a7, a8);
+    return (*this->d_invoker_p)(&this->d_rep, a1, a2, a3, a4, a5, a6, a7, a8);
 }
 
 template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                     A7 a7, A8 a8, A9 a9) const
+                                A7 a7, A8 a8, A9 a9) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9);
@@ -2459,7 +2643,7 @@ template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4  a4, A5 a5, A6 a6,
-                                     A7 a7, A8 a8, A9 a9, A10 a10) const
+                                A7 a7, A8 a8, A9 a9, A10 a10) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
@@ -2469,9 +2653,9 @@ Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4  a4, A5 a5, A6 a6,
 template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
-Function<PROTOTYPE>::operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5  a5,
-                                     A6 a6, A7 a7, A8 a8, A9 a9, A10 a10,
-                                     A11 a11) const
+Function<PROTOTYPE>::operator()(A1  a1, A2 a2, A3 a3, A4 a4, A5  a5,
+                                A6  a6, A7 a7, A8 a8, A9 a9, A10 a10,
+                                A11 a11) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
@@ -2482,8 +2666,8 @@ template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1  a1,  A2  a2, A3 a3, A4 a4, A5  a5,
-                                     A6  a6,  A7  a7, A8 a8, A9 a9, A10 a10,
-                                     A11 a11, A12 a12) const
+                                A6  a6,  A7  a7, A8 a8, A9 a9, A10 a10,
+                                A11 a11, A12 a12) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                             a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
@@ -2494,8 +2678,8 @@ template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1  a1,  A2  a2,  A3  a3, A4 a4, A5  a5,
-                                     A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
-                                     A11 a11, A12 a12, A13 a13) const
+                                A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
+                                A11 a11, A12 a12, A13 a13) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                        a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
@@ -2505,9 +2689,9 @@ template <class PROTOTYPE>
 inline
 typename Function<PROTOTYPE>::ResultType
 Function<PROTOTYPE>::operator()(A1  a1,  A2  a2,  A3  a3,  A4  a4,
-                                     A5  a5,  A6  a6,  A7  a7,  A8  a8,
-                                     A9  a9,  A10 a10, A11 a11, A12 a12,
-                                     A13 a13, A14 a14) const
+                                A5  a5,  A6  a6,  A7  a7,  A8  a8,
+                                A9  a9,  A10 a10, A11 a11, A12 a12,
+                                A13 a13, A14 a14) const
 {
     return (*this->d_invoker_p)(&this->d_rep,
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
@@ -2535,17 +2719,15 @@ bool Function<PROTOTYPE>::isInplace() const
 {
     return d_rep.isInplace();
 }
-}  // close package namespace
 
 // FREE FUNCTIONS
 template <class PROTOTYPE>
 inline
-void swap(bdlf::Function<PROTOTYPE>& a, bdlf::Function<PROTOTYPE>& b)
+void swap(Function<PROTOTYPE>& a, Function<PROTOTYPE>& b)
 {
     a.swap(b);
 }
 
-namespace bdlf {
                             // -------------------
                             // struct Function_Rep
                             // -------------------
@@ -2561,8 +2743,8 @@ Function_Rep::Function_Rep(bslma::Allocator *allocator)
 
 inline
 Function_Rep::Function_Rep(bslma::Allocator         *allocator,
-                                     bslmf::Tag<IS_ALLOCATOR> *,
-                                     bslma::Allocator         *)
+                           bslmf::Tag<IS_ALLOCATOR> *,
+                           bslma::Allocator         *)
 : d_manager_p(0)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
@@ -2571,10 +2753,9 @@ Function_Rep::Function_Rep(bslma::Allocator         *allocator,
 
 template <class FUNC>
 inline
-Function_Rep::Function_Rep(
-                                    const FUNC&                      func,
-                                    bslmf::Tag<IS_FUNCTION_POINTER> *,
-                                    bslma::Allocator                *allocator)
+Function_Rep::Function_Rep(const FUNC&                      func,
+                           bslmf::Tag<IS_FUNCTION_POINTER> *,
+                           bslma::Allocator                *allocator)
 : d_manager_p(0)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
@@ -2583,8 +2764,7 @@ Function_Rep::Function_Rep(
 
 template <class FUNC>
 inline
-Function_Rep::Function_Rep(
-                           const FUNC&                               func,
+Function_Rep::Function_Rep(const FUNC&                               func,
                            bslmf::Tag<IS_IN_PLACE_BITWISE_COPYABLE> *,
                            bslma::Allocator                         *allocator)
 : d_manager_p(
@@ -2622,13 +2802,12 @@ Function_Rep::Function_Rep(
                            bslma::Allocator                         *allocator)
 : d_allocator_p(bslma::Default::allocator(allocator))
 {
-    Function_RepUtil::inplaceBitwiseMoveableManager<FUNC>(
-                                                           this,
-                                                           (const void *)&func,
-                                                           e_CONSTRUCT);
+    Function_RepUtil::inplaceBitwiseMoveableManager<FUNC>(this,
+                                                          (const void *)&func,
+                                                          e_CONSTRUCT);
 
-    // Initialized *after* the manager call, in case the ctor throws.
-    // See "Notes" in the component implementation file (.cpp).
+    // Initialized *after* the manager call, in case the ctor throws.  See
+    // "Notes" in the component implementation file (.cpp).
 
     d_manager_p = &Function_RepUtil::inplaceBitwiseMoveableManager<FUNC>;
 }
@@ -2636,16 +2815,16 @@ Function_Rep::Function_Rep(
 template <class FUNC>
 inline
 Function_Rep::Function_Rep(const FUNC&              func,
-                                     bslmf::Tag<IS_IN_PLACE> *,
-                                     bslma::Allocator        *allocator)
+                           bslmf::Tag<IS_IN_PLACE> *,
+                           bslma::Allocator        *allocator)
 : d_allocator_p(bslma::Default::allocator(allocator))
 {
     Function_RepUtil::inplaceManager<FUNC>(this,
-                                                (const void *)&func,
-                                                e_CONSTRUCT);
+                                           (const void *)&func,
+                                           e_CONSTRUCT);
 
-    // Initialized *after* the manager call, in case the ctor throws.
-    // See "Notes" in the component implementation file (.cpp).
+    // Initialized *after* the manager call, in case the ctor throws.  See
+    // "Notes" in the component implementation file (.cpp).
 
     d_manager_p = &Function_RepUtil::inplaceManager<FUNC>;
 }
@@ -2653,24 +2832,23 @@ Function_Rep::Function_Rep(const FUNC&              func,
 template <class FUNC>
 inline
 Function_Rep::Function_Rep(const FUNC&                  func,
-                                     bslmf::Tag<IS_OUT_OF_PLACE> *,
-                                     bslma::Allocator            *allocator)
+                           bslmf::Tag<IS_OUT_OF_PLACE> *,
+                           bslma::Allocator            *allocator)
 : d_allocator_p(bslma::Default::allocator(allocator))
 {
     Function_RepUtil::outofplaceManager<FUNC>(this,
-                                                   (const void *)&func,
-                                                   e_CONSTRUCT);
+                                              (const void *)&func,
+                                              e_CONSTRUCT);
 
-    // Initialized *after* the manager call, in case the ctor throws.
-    // See "Notes" in the component implementation file (.cpp).
+    // Initialized *after* the manager call, in case the ctor throws.  See
+    // "Notes" in the component implementation file (.cpp).
 
     d_manager_p = &Function_RepUtil::outofplaceManager<FUNC>;
 }
 
 // MANIPULATORS
 template <class FUNC>
-Function_Rep&
-Function_Rep::operator=(const FUNC& func)
+Function_Rep& Function_Rep::operator=(const FUNC& func)
 {
     enum {
         CREATION_TAG = bslmf::IsFunctionPointer<FUNC>::VALUE
@@ -2686,15 +2864,13 @@ Function_Rep::operator=(const FUNC& func)
                                              : IS_OUT_OF_PLACE
     };
 
-    Function_Rep(func,
-                      (bslmf::Tag<CREATION_TAG> *)0,
-                      d_allocator_p).swap(*this);
+    Function_Rep(func, (bslmf::Tag<CREATION_TAG> *)0, d_allocator_p)
+        .swap(*this);
     return *this;
 }
 
 template <class FUNC>
-Function_Rep&
-Function_Rep::load(const FUNC& func, bslma::Allocator *allocator)
+Function_Rep& Function_Rep::load(const FUNC& func, bslma::Allocator *allocator)
 {
     // DEPRECATED
     //
@@ -2722,8 +2898,7 @@ Function_Rep::load(const FUNC& func, bslma::Allocator *allocator)
                                              : IS_OUT_OF_PLACE
     };
 
-    new(this) Function_Rep(func, (bslmf::Tag<CREATION_TAG> *)0,
-                                allocator);
+    new(this) Function_Rep(func, (bslmf::Tag<CREATION_TAG> *)0, allocator);
 
     return *this;
 }
@@ -2796,9 +2971,9 @@ bool Function_Rep::isInplace() const
 // CLASS METHODS
 template <int FUNC_SIZE>
 bool Function_RepUtil::inplaceBitwiseCopyableManager(
-                                      Function_Rep                *rep,
-                                      const void                       *source,
-                                      Function_Rep::ManagerOpCode  opCode)
+                                           Function_Rep                *rep,
+                                           const void                  *source,
+                                           Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
     // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
@@ -2835,9 +3010,9 @@ bool Function_RepUtil::inplaceBitwiseCopyableManager(
 
 template <int FUNC_SIZE>
 bool Function_RepUtil::outofplaceBitwiseCopyableManager(
-                                  Function_Rep                    *rep,
-                                  const void                           *source,
-                                  Function_Rep::ManagerOpCode      opCode)
+                                           Function_Rep                *rep,
+                                           const void                  *source,
+                                           Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
     // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
@@ -2888,9 +3063,9 @@ bool Function_RepUtil::outofplaceBitwiseCopyableManager(
 
 template <class FUNC>
 bool Function_RepUtil::inplaceBitwiseMoveableManager(
-                                      Function_Rep                *rep,
-                                      const void                       *source,
-                                      Function_Rep::ManagerOpCode  opCode)
+                                           Function_Rep                *rep,
+                                           const void                  *source,
+                                           Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
     // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
@@ -2944,9 +3119,8 @@ bool Function_RepUtil::inplaceBitwiseMoveableManager(
 }
 
 template <class FUNC>
-bool Function_RepUtil::inplaceManager(
-                                      Function_Rep                *rep,
-                                      const void                       *source,
+bool Function_RepUtil::inplaceManager(Function_Rep                *rep,
+                                      const void                  *source,
                                       Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
@@ -3002,10 +3176,9 @@ bool Function_RepUtil::inplaceManager(
 }
 
 template <class FUNC>
-bool Function_RepUtil::outofplaceManager(
-                                  Function_Rep                    *rep,
-                                  const void                           *source,
-                                  Function_Rep::ManagerOpCode      opCode)
+bool Function_RepUtil::outofplaceManager(Function_Rep                *rep,
+                                         const void                  *source,
+                                         Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
     // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
@@ -3062,8 +3235,8 @@ bool Function_RepUtil::outofplaceManager(
     }
     return true;  // quell warnings
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

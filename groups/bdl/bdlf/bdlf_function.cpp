@@ -75,19 +75,19 @@ BSLS_IDENT_RCSID(bdlf_function_cpp,"$Id$ $CSID$")
 // to a function whose type does not depend on 'FUNC', but the actual function
 // that it points to is a static member function template of a class
 // parameterized by 'FUNC'.  Thus, the invocable stored in the
-// 'bdlf::Function_Rep' representation (of the 'FUNC' type) can be retrieved and
-// invoked safely.  This mechanism relies on the fact that the function object
-// representation 'd_rep' of the 'bdlf::Function_Rep' type was initialized with
-// a constructor parameterized by the same 'FUNC' type as was used to retrieve
-// the invoker function pointer.
+// 'bdlf::Function_Rep' representation (of the 'FUNC' type) can be retrieved
+// and invoked safely.  This mechanism relies on the fact that the function
+// object representation 'd_rep' of the 'bdlf::Function_Rep' type was
+// initialized with a constructor parameterized by the same 'FUNC' type as was
+// used to retrieve the invoker function pointer.
 //
 ///Static dispatching:
 ///-------------------
 // A lot of the dispatching (calling a different function based on whether the
 // 'FUNC' type can be stored in-place or requires out-of-place representation,
 // on whether it has pointer semantics or not, is an allocator or not) is
-// performed at compile-time, which is necessary 1. to avoid runtime checks,
-// and 2. to avoid instantiating code that would trigger compilation errors.
+// performed at compile-time, which is necessary one, to avoid runtime checks,
+// and two, to avoid instantiating code that would trigger compilation errors.
 // (For instance, a runtime test:
 //..
 //      if (isAllocator<FUNC>::VALUE) {
@@ -121,9 +121,9 @@ BSLS_IDENT_RCSID(bdlf_function_cpp,"$Id$ $CSID$")
 // to 'const&' whenever appropriate to strictly match the type system) increase
 // the amount of code instantiated.  As a result, we follow the existing
 // (incorrect) practice and add either a 'mutable' to the 'd_arena' member of
-// 'bdlf::Function_Rep' or a 'const_cast' in the 'invocable' member function for
-// the 'IN_PLACE_WITH/WITHOUT_POINTER_SEMANTICS' tags.  In conversation to the
-// author of 'bsl::function', Doug Gregor says:
+// 'bdlf::Function_Rep' or a 'const_cast' in the 'invocable' member function
+// for the 'IN_PLACE_WITH/WITHOUT_POINTER_SEMANTICS' tags.  In conversation to
+// the author of 'bsl::function', Doug Gregor says:
 //..
 // As with a pointer, the constness of the wrapper does not necessarily
 // have to affect the constness of the wrapped object.  Invocation of the
@@ -199,7 +199,7 @@ namespace bdlf {                          // ------------------------
 
 // CREATORS
 Function_Rep::Function_Rep(const Function_Rep&  original,
-                                     bslma::Allocator         *allocator)
+                           bslma::Allocator    *allocator)
 : d_manager_p(original.d_manager_p)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
@@ -257,7 +257,8 @@ void Function_Rep::swap(Function_Rep& other)
             // In the simplest case (two function pointers), two tests and a
             // pointer swap.
 
-            bsl::swap(other.d_arena.d_func_p, d_arena.d_func_p);
+            using bsl::swap;
+            swap(other.d_arena.d_func_p, d_arena.d_func_p);
             return;                                                   // RETURN
         }
 
@@ -327,8 +328,9 @@ void Function_Rep::swap(Function_Rep& other)
         if (!repInplace && !srcInplace) {
             // Quickswap: exchange object pointers and managers.
 
-            bsl::swap(d_arena.d_object_p, other.d_arena.d_object_p);
-            bsl::swap(d_manager_p, other.d_manager_p);
+            using bsl::swap;
+            swap(d_arena.d_object_p, other.d_arena.d_object_p);
+            swap(d_manager_p, other.d_manager_p);
             return;                                                   // RETURN
         }
     }
@@ -361,7 +363,8 @@ void Function_Rep::swap(Function_Rep& other)
 
     temp.d_manager_p = 0;  // clear the temp object
 
-    bsl::swap(d_manager_p, other.d_manager_p);
+    using bsl::swap;
+    swap(d_manager_p, other.d_manager_p);
 }
 
 void Function_Rep::transferTo(Function_Rep *target)
