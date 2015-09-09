@@ -28,8 +28,8 @@ const char *k_TYPE_STRING[] = { "category", "metric", };
 void Metrics_Helper::logEmptyName(const char *name,
                                   NameType    type,
                                   const char *file,
-                                  int         line) {
-
+                                  int         line)
+{
     // Check to see if 'name' is empty or contains only spaces.
 
     const char *namePtr = name;
