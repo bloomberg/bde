@@ -1131,8 +1131,6 @@ struct Log {
         // the threshold levels of 'category'.  The behavior is undefined
         // unless 'severity' is in the range '[1 .. 255]' and the logger
         // manager singleton has been initialized.
-        //
-        // This method is DEPRECATED!!
 
     static void logMessage(const Category *category,
                            int             severity,

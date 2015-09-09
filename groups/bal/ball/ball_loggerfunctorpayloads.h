@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // realistic example, there would be no explicit distinction between "parent"
 // and "child" categories, but rather as categories are dynamically
 // administered by the user, newly created categories would pick up the changes
-// made to existing parents.  As a practical matter, the first five lines of
+// made to existing parents.  As a practical matter, beginning of the function
 // 'main' constitute the "usage" that the user must master to *install* the
 // callback; the rest of this example merely illustrates the *consequences* of
 // installing the callback.
@@ -126,33 +126,33 @@ BSLS_IDENT("$Id: $")
 //   // myapp.cpp
 //   int main()
 //   {
-//       BloombergLP::ball::TestObserver testObserver(bsl::cout);
+//       ball::TestObserver testObserver(bsl::cout);
+
 //..
-// Now, we create the callback functor 'myCallback' that will be passed to the
-// logger manager on initialization.
+// Now, we load the logger manager 'configuration' with the desired "payload"
+// function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
+// and use the trailing 'char' argument 'delimiter', set to the value '.',
+// which will be bound into the functor and supplied back to the payload on
+// each invocation.
 //..
-//       ball::LoggerManager::DefaultThresholdsCallback myCallback;
-//..
-// Next, we populate 'myCallback' with the desired "payload" function,
-// 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues', and use
-// the trailing 'char' argument 'delimiter', set to the value '.', which will
-// be bound into the functor and supplied back to the payload on each
-// invocation.
-//..
+//       using namespace bdlf::PlaceHolders;
+
+//       ball::LoggerManagerConfiguration configuration;
 //       char delimiter = '.';
-//       myCallback = bdlf::BindUtil::bind(&ball::LoggerFunctorPayloads
-//                                         ::loadParentCategoryThresholdValues,
-//                                        _1,
-//                                        _2,
-//                                        _3,
-//                                        _4,
-//                                        _5,
-//                                        delimiter);
+//       configuration.setDefaultThresholdLevelsCallback(
+//           bdlf::BindUtil::bind(
+//             &ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues,
+//             _1,
+//             _2,
+//             _3,
+//             _4,
+//             _5,
+//             delimiter));
 //..
 // We are now ready to initialize the logger manager, using the observer and
 // the callback defined above.
 //..
-//       ball::LoggerManager::initSingleton(&testObserver, myCallback);
+//       ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
 //..
 // The above code is all that the user needs to do to customize the logger to
 // "inherit" thresholds from parents.  The rest of this example illustrates the
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //           assert( 64 == c6->triggerLevel());
 //           assert( 32 == c6->triggerAllLevel());
 //
-//       return;
+//       return 0;
 //   }
 //..
 

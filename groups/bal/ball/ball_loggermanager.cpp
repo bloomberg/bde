@@ -329,8 +329,8 @@ void Logger::logMessage(const Category&            category,
 
         d_observer_p->publish(handle,
                               Context(Transmission::e_PASSTHROUGH,
-                                           0,                 // recordIndex
-                                           1));               // sequenceLength
+                                      0,                 // recordIndex
+                                      1));               // sequenceLength
 
     }
 
@@ -471,10 +471,12 @@ char *Logger::obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize)
     return d_scratchBuffer_p;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 char *Logger::messageBuffer()
 {
     return d_scratchBuffer_p;
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ACCESSORS
 int Logger::messageBufferSize() const
@@ -511,7 +513,17 @@ void LoggerManager::initSingletonImpl(
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
-        new(*allocator) LoggerManager(observer, configuration, allocator);
+
+
+        LoggerManager *singleton =  new (*allocator) LoggerManager(
+                                                                configuration, 
+                                                                observer, 
+                                                                allocator);
+        AttributeContext::initialize(&singleton->d_categoryManager,
+                                     bslma::Default::globalAllocator(0));
+
+        s_singleton_p = singleton;
+        
 
         // Configure 'bsls_log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
@@ -549,6 +561,13 @@ LoggerManager::createLoggerManager(
                   allocator);
 }
 
+LoggerManager& LoggerManager::initSingleton(Observer         *observer,
+                                            bslma::Allocator *globalAllocator)
+{
+    LoggerManagerConfiguration configuration;
+    return initSingleton(observer, configuration, globalAllocator);
+}
+
 LoggerManager& LoggerManager::initSingleton(
                             Observer                          *observer,
                             const LoggerManagerConfiguration&  configuration,
@@ -557,6 +576,8 @@ LoggerManager& LoggerManager::initSingleton(
     initSingletonImpl(observer, configuration, basicAllocator);
     return *s_singleton_p;
 }
+
+
 
 void LoggerManager::shutDownSingleton()
 {
@@ -572,123 +593,17 @@ void LoggerManager::shutDownSingleton()
             // bsls::Log::setLogMessageHandler(
             //                      &bsls::Log::platformDefaultMessageHandler);
         }
-        s_singleton_p->allocator()->deleteObjectRaw(s_singleton_p);
+
+        // Clear the singleton pointer as early as possible to minimize the
+        // that one thread is destroying the singleton while another is still
+        // accessing the data members.
+
+        LoggerManager *singleton = s_singleton_p;
+
+        s_singleton_p = 0;
+        
+        singleton->allocator()->deleteObjectRaw(singleton);
     }
-}
-
-void LoggerManager::initSingleton(Observer         *observer,
-                                  bslma::Allocator *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                            Observer                        *observer,
-                            const FactoryDefaultThresholds&  factoryThresholds,
-                            bslma::Allocator                *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    LoggerManagerDefaults      defaults;
-    defaults.setDefaultThresholdLevelsIfValid(
-                                          factoryThresholds.d_recordLevel,
-                                          factoryThresholds.d_passLevel,
-                                          factoryThresholds.d_triggerLevel,
-                                          factoryThresholds.d_triggerAllLevel);
-    configuration.setDefaultValues(defaults);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                      Observer                              *observer,
-                      const DefaultThresholdLevelsCallback&  defaultThresholds,
-                      bslma::Allocator                      *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                      Observer                              *observer,
-                      const DefaultThresholdLevelsCallback&  defaultThresholds,
-                      const FactoryDefaultThresholds&        factoryThresholds,
-                      bslma::Allocator                      *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    LoggerManagerDefaults      defaults;
-    defaults.setDefaultThresholdLevelsIfValid(
-                                          factoryThresholds.d_recordLevel,
-                                          factoryThresholds.d_passLevel,
-                                          factoryThresholds.d_triggerLevel,
-                                          factoryThresholds.d_triggerAllLevel);
-    configuration.setDefaultValues(defaults);
-    configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                  Observer                                   *observer,
-                  const ball::UserFieldsSchema&               userFieldsSchema,
-                  const Logger::UserFieldsPopulatorCallback&  populator,
-                  bslma::Allocator                           *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    configuration.setUserFieldsSchema(userFieldsSchema, populator);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                 Observer                                   *observer,
-                 const FactoryDefaultThresholds&             factoryThresholds,
-                 const ball::UserFieldsSchema&               userFieldsSchema,
-                 const Logger::UserFieldsPopulatorCallback&  populator,
-                 bslma::Allocator                           *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    LoggerManagerDefaults      defaults;
-    defaults.setDefaultThresholdLevelsIfValid(
-                                          factoryThresholds.d_recordLevel,
-                                          factoryThresholds.d_passLevel,
-                                          factoryThresholds.d_triggerLevel,
-                                          factoryThresholds.d_triggerAllLevel);
-    configuration.setDefaultValues(defaults);
-    configuration.setUserFieldsSchema(userFieldsSchema, populator);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                 Observer                                   *observer,
-                 const DefaultThresholdLevelsCallback&       defaultThresholds,
-                 const ball::UserFieldsSchema&               userFieldsSchema,
-                 const Logger::UserFieldsPopulatorCallback&  populator,
-                 bslma::Allocator                           *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    configuration.setUserFieldsSchema(userFieldsSchema, populator);
-    initSingletonImpl(observer, configuration, globalAllocator);
-}
-
-void LoggerManager::initSingleton(
-                 Observer                                   *observer,
-                 const DefaultThresholdLevelsCallback&       defaultThresholds,
-                 const FactoryDefaultThresholds&             factoryThresholds,
-                 const ball::UserFieldsSchema&               userFieldsSchema,
-                 const Logger::UserFieldsPopulatorCallback&  populator,
-                 bslma::Allocator                           *globalAllocator)
-{
-    LoggerManagerConfiguration configuration;
-    LoggerManagerDefaults      defaults;
-    defaults.setDefaultThresholdLevelsIfValid(
-                                          factoryThresholds.d_recordLevel,
-                                          factoryThresholds.d_passLevel,
-                                          factoryThresholds.d_triggerLevel,
-                                          factoryThresholds.d_triggerAllLevel);
-    configuration.setDefaultValues(defaults);
-    configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    configuration.setUserFieldsSchema(userFieldsSchema, populator);
-    initSingletonImpl(observer, configuration, globalAllocator);
 }
 
 LoggerManager& LoggerManager::singleton()
@@ -765,42 +680,6 @@ char *LoggerManager::obtainMessageBuffer(bdlqq::Mutex **mutex,
     return buffer;
 }
 
-// PRIVATE CREATORS
-LoggerManager::LoggerManager(
-                            const LoggerManagerConfiguration&  configuration,
-                            Observer                          *observer,
-                            bslma::Allocator                  *globalAllocator)
-: d_observer_p(observer)
-, d_nameFilter(configuration.categoryNameFilterCallback())
-, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
-, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_userFieldsSchema(configuration.userFieldsSchema(),
-               bslma::Default::globalAllocator(globalAllocator))
-, d_populator(configuration.userFieldsPopulatorCallback())
-, d_logger_p(0)
-, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
-, d_maxNumCategoriesMinusOne((unsigned int)-1)
-, d_loggers(bslma::Default::globalAllocator(globalAllocator))
-, d_recordBuffer_p(0)
-, d_defaultCategory_p(0)
-, d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
-, d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
-, d_logOrder(configuration.logOrder())
-, d_triggerMarkers(configuration.triggerMarkers())
-, d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
-{
-    BSLS_ASSERT(observer);
-
-    constructObject(configuration);
-}
-
 // PRIVATE MANIPULATORS
 void LoggerManager::publishAllImp(Transmission::Cause cause)
 {
@@ -817,16 +696,6 @@ void LoggerManager::constructObject(
     BSLS_ASSERT(0 == d_logger_p);
     BSLS_ASSERT(0 == d_defaultCategory_p);
     BSLS_ASSERT(0 == d_recordBuffer_p);
-
-    // TBD: This would make more sense in initSingletonImp and should be moved
-    // there when the constructor becomes 'private' again.
-
-    // The attribute context must be initialized with the global allocator,
-    // since the lifetime of objects in thread local memory cannot be
-    // externally controlled.
-
-    AttributeContext::initialize(&d_categoryManager,
-                                      bslma::Default::globalAllocator(0));
 
     d_publishAllCallback
         = bdlf::Function<void (*)(Transmission::Cause)>(
@@ -858,8 +727,8 @@ void LoggerManager::constructObject(
 
 // CREATORS
 LoggerManager::LoggerManager(
-                            Observer                          *observer,
                             const LoggerManagerConfiguration&  configuration,
+                            Observer                          *observer,
                             bslma::Allocator                  *globalAllocator)
 : d_observer_p(observer)
 , d_nameFilter(configuration.categoryNameFilterCallback())
@@ -890,17 +759,8 @@ LoggerManager::LoggerManager(
     BSLS_ASSERT(observer);
 
     constructObject(configuration);
-
-    // TBD: the following check was added back per Andrei's suggestion when
-    // the constructor was made temporarily 'public' for BDE release 1.4.0.
-    // It should be removed when the constructor becomes 'private' again.
-    // (However, it is unclear if we'll ever be able to make the constructor
-    // 'private'.)
-
-    if (0 == s_singleton_p) {
-        s_singleton_p = this;
-    }
 }
+
 
 LoggerManager::~LoggerManager()
 {
@@ -911,11 +771,9 @@ LoggerManager::~LoggerManager()
     BSLS_ASSERT( 0 < d_loggers.size());
     BSLS_ASSERT(-1 <= (int)d_maxNumCategoriesMinusOne);
 
-    // Clear the singleton pointer as early as possible to minimize the chance
-    // that one thread is destroying the singleton while another is still
-    // accessing the data members.  Then immediately reset all category holders
-    // to their default value.  (Note that this might not *be* the singleton,
-    // so check for that)
+    // To minimize the chance that one thread is destroying the singleton
+    // while another is still accessing the data members, immediately reset
+    // all category holders to their default value.
 
     // TBD: Remove this test once the observer changes in BDE 2.12 have
     // stabilized.
@@ -926,10 +784,6 @@ LoggerManager::~LoggerManager()
     }
     else {
         d_observer_p->releaseRecords();
-    }
-
-    if (this == s_singleton_p) {
-        s_singleton_p = 0;
     }
 
     d_categoryManager.resetCategoryHolders();  // do this first!

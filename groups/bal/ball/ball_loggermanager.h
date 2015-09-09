@@ -1074,8 +1074,6 @@ class Logger {
         // 'severity' is less severe than all of the threshold levels of
         // 'category'.  The behavior is undefined unless 'severity' is in the
         // range '[1 .. 255]'.
-        //
-        // DEPRECATED: Use the three-argument 'logMessage' method instead.
 
     void logMessage(const Category&  category,
                     int              severity,
@@ -1123,6 +1121,7 @@ class Logger {
         // immediately before calling 'logMessage'; other use may adversely
         // affect performance for the entire program.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     char *messageBuffer();
         // Return the address of the modifiable message buffer managed by this
         // logger.  Note that the returned buffer is intended to be used *only*
@@ -1130,6 +1129,7 @@ class Logger {
         //
         // DEPRECATED: Use 'obtainMessageBuffer' instead.  Do *not* use this
         // method in multi-threaded code.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // ACCESSORS
     int messageBufferSize() const;
@@ -1170,44 +1170,6 @@ class LoggerManager {
         // invoked to publish all record buffers of all active loggers (i.e.,
         // loggers allocated by the logger manager that have not yet been
         // deallocated).
-
-    struct FactoryDefaultThresholds {
-        // This 'struct' enables uniform use of an optional 'initSingleton'
-        // argument to override the implementation-supplied default threshold
-        // levels.  For example:
-        //..
-        //    LoggerManager::FactoryDefaultThresholds x(128, 96, 64, 32);
-        //..
-        // defines an instance 'x' with record, pass, trigger, and
-        // trigger-all threshold levels of 128, 96, 64, and 32, respectively.
-        // The "factory-supplied" initial default threshold levels are
-        // overridden by passing 'x' as an argument to one of the variants
-        // of 'initSingleton'.
-        //
-        // DEPRECATED: Use 'LoggerManagerDefaults' and
-        // 'LoggerManagerConfiguration' instead.
-
-        int d_recordLevel;
-        int d_passLevel;
-        int d_triggerLevel;
-        int d_triggerAllLevel;
-
-        // CREATORS
-        FactoryDefaultThresholds(int record,
-                                 int pass,
-                                 int trigger,
-                                 int triggerAll)
-        : d_recordLevel(record)
-        , d_passLevel(pass)
-        , d_triggerLevel(trigger)
-        , d_triggerAllLevel(triggerAll)
-        {
-        }
-
-        ~FactoryDefaultThresholds()
-        {
-        }
-    };
 
   private:
     // NOT IMPLEMENTED
@@ -1304,19 +1266,6 @@ class LoggerManager {
         // destroyed.  Note that this method has no effect if the logger
         // manager singleton has already been initialized.
 
-    // PRIVATE CREATORS
-    LoggerManager(const LoggerManagerConfiguration&  configuration,
-                  Observer                          *observer,
-                  bslma::Allocator                  *globalAllocator = 0);
-        // Create a logger manager having the specified 'observer' that
-        // receives published log records and the specified 'configuration' of
-        // defaults and attributes.  Optionally specify a 'globalAllocator'
-        // used to supply memory.  If 'globalAllocator' is 0, the currently
-        // installed global allocator is used.  The behavior is undefined if
-        // 'observer' is 0, goes out of scope, or is otherwise destroyed.  Note
-        // that the new logger manager is *not* the singleton logger manager
-        // used by macros of the BALL logging framework.
-
     // PRIVATE MANIPULATORS
     void publishAllImp(Transmission::Cause cause);
         // Transmit to the observer registered with this logger manager all log
@@ -1330,43 +1279,39 @@ class LoggerManager {
         // 'configuration'.  The behavior is undefined if this method is
         // invoked again on this logger manager.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // The constructor and destructor of the singleton should be private,
-    // but are currently public for backwards-compatibility.
-
   public:
-#endif
     // CREATORS
-    LoggerManager(Observer                          *observer,
-                  const LoggerManagerConfiguration&  configuration,
+    LoggerManager(const LoggerManagerConfiguration&  configuration,
+                  Observer                          *observer,
                   bslma::Allocator                  *globalAllocator = 0);
-        // Create (once!) the logger manager singleton having the specified
-        // 'observer' that receives published log records and the specified
-        // 'configuration' of defaults and attributes.  Optionally specify a
-        // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
-        // the currently installed global allocator is used.  The behavior is
-        // undefined if this (singleton) constructor is called more than once,
-        // or if 'observer' is 0, goes out of scope, or is otherwise destroyed.
+        // Create a logger manager having the specified 'observer' that
+        // receives published log records and the specified 'configuration' of
+        // defaults and attributes.  Optionally specify a 'globalAllocator'
+        // used to supply memory.  If 'globalAllocator' is 0, the currently
+        // installed global allocator is used.  The behavior is undefined if
+        // 'observer' is 0, goes out of scope, or is otherwise destroyed.  Note
+        // that the new logger manager is *not* the singleton logger manager
+        // used by macros of the BALL logging framework.
 
-  public:
-    // CREATORS
     ~LoggerManager();
-        // Destroy this logger manager.  Note that since the logger manager is
-        // a singleton, this destructor should be called only with great care.
-        // Unless you *know* that it is valid to do so, don't!
+        // Destroy this logger manager.
 
     // CLASS METHODS
     static LoggerManager& initSingleton(
                        Observer                          *observer,
+                       bslma::Allocator                  *globalAllocator = 0);
+    static LoggerManager& initSingleton(
+                       Observer                          *observer,
                        const LoggerManagerConfiguration&  configuration,
                        bslma::Allocator                  *basicAllocator = 0);
-        // Initialize (once!) the logger manager singleton having the specified
-        // 'observer' that receives published log records and the specified
-        // 'configuration' of defaults and attributes.  Return a reference to
-        // the modifiable logger manager singleton.  Optionally specify a
+        // Initialize (once!) the logger manager singleton.  Optionally specify
+        // a 'configuration' describing how the singleton should be configured.
+        // If 'configuration' is not specified, a default constucted
+        // 'LoggerManagerConfiguration' object is used.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined if 'observer' is 0, goes out of scope, or is otherwise
+        // the currently installed default allocator is used.  Return a
+        // reference to the modifiable logger manager singleton.  The behavior
+        // is undefined if 'observer' is 0, goes out of scope, or is otherwise
         // destroyed.  Note that this method has no effect if the logger
         // manager singleton has already been initialized.
 
@@ -1377,65 +1322,6 @@ class LoggerManager {
         // behavior is undefined if this method is called from one thread while
         // another thread is accessing the logger manager singleton (i.e., this
         // method is *not* thread-safe).
-
-    static void initSingleton(
-              Observer                                   *observer,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const DefaultThresholdLevelsCallback&       defaultThresholds,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const FactoryDefaultThresholds&             factoryThresholds,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const ball::UserFieldsSchema&               userFieldsSchema,
-              const Logger::UserFieldsPopulatorCallback&  populator,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const DefaultThresholdLevelsCallback&       defaultThresholds,
-              const FactoryDefaultThresholds&             factoryThresholds,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const DefaultThresholdLevelsCallback&       defaultThresholds,
-              const ball::UserFieldsSchema&               userFieldsSchema,
-              const Logger::UserFieldsPopulatorCallback&  populator,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const FactoryDefaultThresholds&             factoryThresholds,
-              const ball::UserFieldsSchema&               userFieldsSchema,
-              const Logger::UserFieldsPopulatorCallback&  populator,
-              bslma::Allocator                           *globalAllocator = 0);
-    static void initSingleton(
-              Observer                                   *observer,
-              const DefaultThresholdLevelsCallback&       defaultThresholds,
-              const FactoryDefaultThresholds&             factoryThresholds,
-              const ball::UserFieldsSchema&               userFieldsSchema,
-              const Logger::UserFieldsPopulatorCallback&  populator,
-              bslma::Allocator                           *globalAllocator = 0);
-        // Initialize (once!) the logger manager singleton having the specified
-        // 'observer' that receives published log records.  Optionally specify
-        // a category 'nameFilter' functor that translates external category
-        // names to internal category names.  Optionally specify a
-        // 'defaultThresholds' functor that determines default threshold levels
-        // for categories added to the registry by 'setCategory(const char *)'.
-        // Optionally specify 'factoryThresholds' to override the
-        // "factory-supplied" initial default threshold levels.  Optionally
-        // specify a 'userFieldsSchema' that describes the structure of the
-        // user-defined fields of log records and a corresponding 'populator'
-        // functor that populates those user-defined fields.  Optionally
-        // specify a 'globalAllocator' used to supply memory.  If
-        // 'globalAllocator' is 0, the currently installed global allocator is
-        // used.  The behavior is undefined if 'observer' is 0, or goes out of
-        // scope, or is otherwise destroyed.  Note that after this method has
-        // been called once, subsequent calls have no effect.
-        //
-        // DEPRECATED: Use 'LoggerManagerScopedGuard' instead.
 
     static void createLoggerManager(
                   bslma::ManagedPtr<LoggerManager>  *manager,
@@ -1844,8 +1730,8 @@ LoggerManagerScopedGuard::LoggerManagerScopedGuard(
                        bslma::Allocator                  *globalAllocator)
 {
     LoggerManager::initSingleton(observer,
-                                      configuration,
-                                      globalAllocator);
+                                 configuration,
+                                 globalAllocator);
 }
 
 inline
