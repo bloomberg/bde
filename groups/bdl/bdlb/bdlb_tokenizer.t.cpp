@@ -261,24 +261,75 @@ bool isValid(const StringRef input,
              const StringRef hard,
              const StringRef token)
 {
-    int currentSoftIndex  = 0;
-    int currentHardIndex  = 0;
-    int currentTokenIndex = 0;
-    int inputLength       = static_cast<int>(input.length());
-    int softLength        = static_cast<int>(soft.length());
-    int hardLength        = static_cast<int>(hard.length());
-    int tokenLength       = static_cast<int>(token.length());
+    size_t inputLength       = input.length();
+    size_t softLength        = soft.length();
+    size_t hardLength        = hard.length();
+    size_t tokenLength       = token.length();
 
-    for (int i = 0; i < inputLength; ++i) {
-        if (softLength > currentSoftIndex &&
-            input[i] == soft[currentSoftIndex]) {
-            ++currentSoftIndex;
-        } else if (hardLength > currentHardIndex &&
-                   input[i] == hard[currentHardIndex]) {
-            ++currentHardIndex;
-        } else if (tokenLength > currentTokenIndex &&
-                   input[i] == token[currentTokenIndex]) {
-            ++currentTokenIndex;
+    // Sets under test are small, using brute force implementation
+
+    // Check for duplicates in input
+    for (size_t i = 0; i < inputLength; ++i) {
+        for (size_t j = i+1; j < inputLength; ++j) {
+            if (input[i] == input[j]) {
+                return false;                                          //RETURN
+            }
+        }
+    }
+
+    // Check for duplicates in soft,hard, token character sets.
+    for (size_t i = 0; i < softLength; ++i) {
+        for (size_t j = i+1; j < softLength; ++j) {
+            if (soft[i] == soft[j]) {
+                return false;                                          //RETURN
+            }
+        }
+        for (size_t j = 0; j < hardLength; ++j) {
+            if (soft[i] == hard[j]) {
+                return false;                                          //RETURN
+            }
+        }
+        for (size_t j = 0; j < tokenLength; ++j) {
+            if (soft[i] == token[j]) {
+                return false;                                          //RETURN
+            }
+        }
+    }
+
+    for (size_t i = 0; i < hardLength; ++i) {
+        for (size_t j = i+1; j < hardLength; ++j) {
+            if (hard[i] == hard[j]) {
+                return false;                                          //RETURN
+            }
+        }
+        for (size_t j = 0; j < tokenLength; ++j) {
+            if (hard[i] == token[j]) {
+                return false;                                          //RETURN
+            }
+        }
+    }
+
+    for (size_t i = 0; i < tokenLength; ++i) {
+        for (size_t j = i+1; j < tokenLength; ++j) {
+            if (token[i] == token[j]) {
+                return false;                                          //RETURN
+            }
+        }
+    }
+
+    size_t softIndex  = 0;
+    size_t hardIndex  = 0;
+    size_t tokenIndex = 0;
+    for (size_t i = 0; i < inputLength; ++i) {
+        if (softIndex < softLength &&
+            input[i] == soft[softIndex]) {
+            ++softIndex;
+        } else if (hardIndex < hardLength &&
+                   input[i] == hard[hardIndex]) {
+            ++hardIndex;
+        } else if (tokenIndex < tokenLength &&
+                   input[i] == token[tokenIndex]) {
+            ++tokenIndex;
         } else {
             return false;                                             // RETURN
         }
@@ -1321,6 +1372,9 @@ int main(int argc, char **argv)
         //:
         //: 2 Only characters from the respective character sets appear in the
         //:   input string.
+        //:
+        //: 3 There are no duplicates in the individual soft, hard, token and
+        //:   input character sets
         //
         // Plan:
         //: 1 Using the table-driven technique, test function on various input
@@ -1339,83 +1393,213 @@ int main(int argc, char **argv)
 
             static const struct {
                     int         d_line;         // line number
-                    const char *d_input;        // input string
                     const char *d_soft;         // list of soft delimiters
                     const char *d_hard;         // list of hard delimiters
                     const char *d_token;        // list of tokens
+                    const char *d_input;        // input string
                     bool        d_isValid;      // expected tokenizer validity
             } DATA[] = {
-                //LINE  INPUT     SOFT   HARD    TOKEN  VALID
-                //----  -------   -----  -----   -----  -----
-                // valid inputs
-                { L_,   "",       "st",  "HI",   "01",  true  },
-                { L_,   "s",      "st",  "HI",   "01",  true  },
-                { L_,   "H",      "st",  "HI",   "01",  true  },
-                { L_,   "0",      "st",  "HI",   "01",  true  },
-                { L_,   "st",     "st",  "HI",   "01",  true  },
-                { L_,   "HI",     "st",  "HI",   "01",  true  },
-                { L_,   "01",     "st",  "HI",   "01",  true  },
-                { L_,   "sH",     "st",  "HI",   "01",  true  },
-                { L_,   "s0",     "st",  "HI",   "01",  true  },
-                { L_,   "Hs",     "st",  "HI",   "01",  true  },
-                { L_,   "H0",     "st",  "HI",   "01",  true  },
-                { L_,   "0s",     "st",  "HI",   "01",  true  },
-                { L_,   "0H",     "st",  "HI",   "01",  true  },
-                { L_,   "stH",    "st",  "HI",   "01",  true  },
-                { L_,   "st0",    "st",  "HI",   "01",  true  },
-                { L_,   "sHt",    "st",  "HI",   "01",  true  },
-                { L_,   "sHI",    "st",  "HI",   "01",  true  },
-                { L_,   "sH0",    "st",  "HI",   "01",  true  },
-                { L_,   "s0t",    "st",  "HI",   "01",  true  },
-                { L_,   "s0H",    "st",  "HI",   "01",  true  },
-                { L_,   "s01",    "st",  "HI",   "01",  true  },
-                { L_,   "Hst",    "st",  "HI",   "01",  true  },
-                { L_,   "HsI",    "st",  "HI",   "01",  true  },
-                { L_,   "Hs0",    "st",  "HI",   "01",  true  },
-                { L_,   "HIs",    "st",  "HI",   "01",  true  },
-                { L_,   "HI0",    "st",  "HI",   "01",  true  },
-                { L_,   "H0s",    "st",  "HI",   "01",  true  },
-                { L_,   "H0I",    "st",  "HI",   "01",  true  },
-                { L_,   "H01",    "st",  "HI",   "01",  true  },
-                { L_,   "0st",    "st",  "HI",   "01",  true  },
-                { L_,   "0sH",    "st",  "HI",   "01",  true  },
-                { L_,   "0s1",    "st",  "HI",   "01",  true  },
-                { L_,   "0Hs",    "st",  "HI",   "01",  true  },
-                { L_,   "0H1",    "st",  "HI",   "01",  true  },
-                { L_,   "01s",    "st",  "HI",   "01",  true  },
-                { L_,   "01H",    "st",  "HI",   "01",  true  },
-                { L_,   "stHI01", "st",  "HI",   "01",  true  },
-                { L_,   "st01HI", "st",  "HI",   "01",  true  },
-                { L_,   "HIst01", "st",  "HI",   "01",  true  },
-                { L_,   "HI01st", "st",  "HI",   "01",  true  },
-                { L_,   "01stHI", "st",  "HI",   "01",  true  },
-                { L_,   "01HIst", "st",  "HI",   "01",  true  },
-                { L_,   "sH0tI1", "st",  "HI",   "01",  true  },
-                //LINE  INPUT     SOFT   HARD    TOKEN  VALID
-                //----  -------   -----  -----   -----  -----
-                // invalid inputs
-                // invalid character
-                { L_,   "x",      "st",  "HI",   "01",  false },
-                { L_,   "sx",     "st",  "HI",   "01",  false },
-                { L_,   "Hx",     "st",  "HI",   "01",  false },
-                { L_,   "0x",     "st",  "HI",   "01",  false },
-                // wrong order
-                { L_,   "t",      "st",  "HI",   "01",  false },
-                { L_,   "I",      "st",  "HI",   "01",  false },
-                { L_,   "1",      "st",  "HI",   "01",  false },
-                { L_,   "sI",     "st",  "HI",   "01",  false },
-                { L_,   "H1",     "st",  "HI",   "01",  false },
-                { L_,   "0t",     "st",  "HI",   "01",  false },
-                { L_,   "sH1",    "st",  "HI",   "01",  false },
-                { L_,   "H0t",    "st",  "HI",   "01",  false },
-                { L_,   "0sI",    "st",  "HI",   "01",  false },
-                // duplicate characters
-                { L_,   "ss",     "st",  "HI",   "01",  false },
-                { L_,   "HH",     "st",  "HI",   "01",  false },
-                { L_,   "00",     "st",  "HI",   "01",  false },
-                { L_,   "sHs",    "st",  "HI",   "01",  false },
-                { L_,   "H0H",    "st",  "HI",   "01",  false },
-                { L_,   "0sO",    "st",  "HI",   "01",  false },
+                //LINE  SOFT    HARD    TOKEN   INPUT   VALID
+                //----  ------  ------  ------  ------  -----
+
+                // Alternative testing patterns. The test table uses previous
+                // patterns to elide already tested combinations.
+                // Uses white-box testing strategy ( known implementation ).
+                //L_,   "stuv", "HIJK", "0123", "sH0a", false }, // template
+                // Validity of the soft delimiter character set up to depth 4
+                { L_,   "s",    "",     "",     "",     true  },
+                { L_,   "ss",   "",     "",     "",     false },
+                { L_,   "st",   "",     "",     "",     true  },
+                { L_,   "sts",  "",     "",     "",     false },
+                { L_,   "stu",  "",     "",     "",     true  },
+                { L_,   "stus", "",     "",     "",     false },
+                { L_,   "stuv", "",     "",     "",     true  },
+                // Validity of the hard delimiter character set up to depth 4
+                { L_,   "",     "H",    "",     "",     true  },
+                { L_,   "",     "HH",   "",     "",     false },
+                { L_,   "",     "HI",   "",     "",     true  },
+                { L_,   "",     "HIH",  "",     "",     false },
+                { L_,   "",     "HIJ",  "",     "",     true  },
+                { L_,   "",     "HIJH", "",     "",     false },
+                { L_,   "",     "HIJK", "",     "",     true  },
+                // Validity of the token character set up to depth 4
+                { L_,   "",     "",     "0",    "",     true  },
+                { L_,   "",     "",     "00",   "",     false },
+                { L_,   "",     "",     "01",   "",     true  },
+                { L_,   "",     "",     "010",  "",     false },
+                { L_,   "",     "",     "012",  "",     true  },
+                { L_,   "",     "",     "0120", "",     false },
+                { L_,   "",     "",     "0123", "",     true  },
+                // Validity of the input (duplicates only) up to depth 4
+                { L_,   "",     "",     "",     "aa",   false },
+                { L_,   "",     "",     "",     "aba",  false },
+                { L_,   "",     "",     "",     "abca", false },
+
+                // Soft/hard and token character sets cannot have duplicates
+                { L_,   "s",    "s",    "",     "",     false },
+                { L_,   "s",    "",     "s",    "",     false },
+                { L_,   "",     "s",    "s",    "",     false },
+                { L_,   "s",    "s",    "s",    "",     false },
+                { L_,   "s",    "H",    "s",    "",     false },
+                { L_,   "s",    "H",    "H",    "",     false },
+                { L_,   "H",    "s",    "H",    "",     false },
+                { L_,   "st",   "HI",   "s",    "",     false },
+                { L_,   "st",   "HI",   "t",    "",     false },
+                { L_,   "st",   "HI",   "H",    "",     false },
+                { L_,   "st",   "HI",   "I",    "",     false },
+                { L_,   "st",   "s",    "01",   "",     false },
+                { L_,   "st",   "t",    "01",   "",     false },
+                { L_,   "st",   "0",    "01",   "",     false },
+                { L_,   "st",   "1",    "01",   "",     false },
+                { L_,   "0",    "HI",   "01",   "",     false },
+                { L_,   "1",    "HI",   "01",   "",     false },
+                { L_,   "H",    "HI",   "01",   "",     false },
+                { L_,   "I",    "HI",   "01",   "",     false },
+
+                // Our primary test sets for the test driver
+                { L_,   "stuv", "HIJK", "0123", "",     true  },
+
+                // Validity of the input up to depth 4
+                // Self-testing pattern roll up. The short pattern that returns
+                // 'false' is eliminated from patterns of longer depth.
+                // For example, 't' is first shortest 'false' pattern that
+                // tests that symbol 't' from the soft delimiter set cannot
+                // appear before any other soft delimiter. All longer patterns
+                // that have first soft delimiter 't' are eliminated.
+                // Someinvalid patterns are left in the table for illustration
+                // purposes and marked with "* (pattern)"
+                //L_,   "stuv", "HIJK", "0123", "sH0a", false }, // template
+                { L_,   "",     "",     "",     "",     true  }, // Depth 0
+                { L_,   "stuv", "HIJK", "0123", "",     true  },
+                { L_,   "stuv", "HIJK", "0123", "s",    true  }, // Depth 1
+                { L_,   "stuv", "HIJK", "0123", "t",    false },
+                { L_,   "stuv", "HIJK", "0123", "u",    false },
+                { L_,   "stuv", "HIJK", "0123", "v",    false },
+                { L_,   "stuv", "HIJK", "0123", "H",    true  },
+                { L_,   "stuv", "HIJK", "0123", "I",    false },
+                { L_,   "stuv", "HIJK", "0123", "J",    false },
+                { L_,   "stuv", "HIJK", "0123", "K",    false },
+                { L_,   "stuv", "HIJK", "0123", "0",    true  },
+                { L_,   "stuv", "HIJK", "0123", "1",    false },
+                { L_,   "stuv", "HIJK", "0123", "2",    false },
+                { L_,   "stuv", "HIJK", "0123", "3",    false },
+                { L_,   "stuv", "HIJK", "0123", "a",    false },
+                { L_,   "stuv", "HIJK", "0123", "st",   true  }, // Depth 2
+                { L_,   "stuv", "HIJK", "0123", "su",   false },
+                { L_,   "stuv", "HIJK", "0123", "sv",   false },
+                { L_,   "stuv", "HIJK", "0123", "sH",   true  },
+                { L_,   "stuv", "HIJK", "0123", "sI",   false }, // * ("I")
+                { L_,   "stuv", "HIJK", "0123", "s0",   true  },
+                { L_,   "stuv", "HIJK", "0123", "s2",   false }, // * ("2")
+                { L_,   "stuv", "HIJK", "0123", "Hs",   true  },
+                { L_,   "stuv", "HIJK", "0123", "HI",   true  },
+                { L_,   "stuv", "HIJK", "0123", "HJ",   false },
+                { L_,   "stuv", "HIJK", "0123", "HK",   false },
+                { L_,   "stuv", "HIJK", "0123", "H0",   true  },
+                { L_,   "stuv", "HIJK", "0123", "0s",   true  },
+                { L_,   "stuv", "HIJK", "0123", "0H",   true  },
+                { L_,   "stuv", "HIJK", "0123", "01",   true  },
+                { L_,   "stuv", "HIJK", "0123", "02",   false },
+                { L_,   "stuv", "HIJK", "0123", "03",   false },
+                { L_,   "stuv", "HIJK", "0123", "stu",  true  }, // Depth 3
+                { L_,   "stuv", "HIJK", "0123", "stv",  false },
+                { L_,   "stuv", "HIJK", "0123", "stH",  true  },
+                { L_,   "stuv", "HIJK", "0123", "st0",  true  },
+                { L_,   "stuv", "HIJK", "0123", "sHt",  true  },
+                { L_,   "stuv", "HIJK", "0123", "sHu",  false }, // * ("su")
+                { L_,   "stuv", "HIJK", "0123", "sHv",  false }, // * ("sv")
+                { L_,   "stuv", "HIJK", "0123", "sHI",  true  },
+                { L_,   "stuv", "HIJK", "0123", "sH0",  true  },
+                { L_,   "stuv", "HIJK", "0123", "Hst",  true  },
+                { L_,   "stuv", "HIJK", "0123", "Hs0",  true  },
+                { L_,   "stuv", "HIJK", "0123", "H0s",  true  },
+                { L_,   "stuv", "HIJK", "0123", "H0I",  true  },
+                { L_,   "stuv", "HIJK", "0123", "H0J",  false }, // * ("HJ")
+                { L_,   "stuv", "HIJK", "0123", "H0K",  false }, // * ("HK")
+                { L_,   "stuv", "HIJK", "0123", "H01",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0st",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0sH",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0Hs",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0HI",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0HK",  false }, // * ("HK")
+                { L_,   "stuv", "HIJK", "0123", "0H1",  true  },
+                { L_,   "stuv", "HIJK", "0123", "0H2",  false }, // * ("02")
+                { L_,   "stuv", "HIJK", "0123", "0H3",  false }, // * ("03")
+                { L_,   "stuv", "HIJK", "0123", "01s",  true  },
+                { L_,   "stuv", "HIJK", "0123", "01H",  true  },
+                { L_,   "stuv", "HIJK", "0123", "012",  true  },
+
+                //L_,   "stuv", "HIJK", "0123", "sH0a", false }, // template
+                { L_,   "stuv", "HIJK", "0123", "stuv", true  }, // Depth 4
+                { L_,   "stuv", "HIJK", "0123", "stuH", true  },
+                { L_,   "stuv", "HIJK", "0123", "stu0", true  },
+                { L_,   "stuv", "HIJK", "0123", "stHu", true  },
+                { L_,   "stuv", "HIJK", "0123", "stHv", false }, // * ("stv")
+                { L_,   "stuv", "HIJK", "0123", "stH0", true  },
+                { L_,   "stuv", "HIJK", "0123", "sHtu", true  },
+                { L_,   "stuv", "HIJK", "0123", "sHtv", false }, // * ("stv")
+                { L_,   "stuv", "HIJK", "0123", "sHt2", false }, // * ("2")
+                { L_,   "stuv", "HIJK", "0123", "sHt0", true  },
+                { L_,   "stuv", "HIJK", "0123", "sHt1", false }, // * ("1")
+                { L_,   "stuv", "HIJK", "0123", "sHIt", true  },
+                { L_,   "stuv", "HIJK", "0123", "sHIJ", true  },
+                { L_,   "stuv", "HIJK", "0123", "sHI0", true  },
+                { L_,   "stuv", "HIJK", "0123", "sH0t", true  },
+                { L_,   "stuv", "HIJK", "0123", "sH0I", true  },
+                { L_,   "stuv", "HIJK", "0123", "sH01", true  },
+                { L_,   "stuv", "HIJK", "0123", "s0tu", true  },
+                { L_,   "stuv", "HIJK", "0123", "s0tH", true  },
+                { L_,   "stuv", "HIJK", "0123", "s0Ht", true  },
+                { L_,   "stuv", "HIJK", "0123", "s0HI", true  },
+                { L_,   "stuv", "HIJK", "0123", "s0H1", true  },
+                { L_,   "stuv", "HIJK", "0123", "s01t", true  },
+                { L_,   "stuv", "HIJK", "0123", "s01H", true  },
+                { L_,   "stuv", "HIJK", "0123", "s012", true  },
+                { L_,   "stuv", "HIJK", "0123", "saI0", false }, // * ("a")
+                { L_,   "stuv", "HIJK", "0123", "Hstu", true  },
+                { L_,   "stuv", "HIJK", "0123", "Hst0", true  },
+                { L_,   "stuv", "HIJK", "0123", "HsIt", true  },
+                { L_,   "stuv", "HIJK", "0123", "HsI0", true  },
+                { L_,   "stuv", "HIJK", "0123", "HsI1", false }, // * ("1")
+                { L_,   "stuv", "HIJK", "0123", "HsIa", false }, // * ("a")
+                { L_,   "stuv", "HIJK", "0123", "HIst", true  },
+                { L_,   "stuv", "HIJK", "0123", "HIs0", true  },
+                { L_,   "stuv", "HIJK", "0123", "HI0s", true  },
+                { L_,   "stuv", "HIJK", "0123", "HI0J", true  },
+                { L_,   "stuv", "HIJK", "0123", "HIJs", true  },
+                { L_,   "stuv", "HIJK", "0123", "HIJK", true  },
+                { L_,   "stuv", "HIJK", "0123", "HIJ0", true  },
+                { L_,   "stuv", "HIJK", "0123", "HI0s", true  },
+                { L_,   "stuv", "HIJK", "0123", "HI0J", true  },
+                { L_,   "stuv", "HIJK", "0123", "HI01", true  },
+                { L_,   "stuv", "HIJK", "0123", "H0st", true  },
+                { L_,   "stuv", "HIJK", "0123", "H0s0", false }, // * ("aa")
+                { L_,   "stuv", "HIJK", "0123", "H0s1", true  },
+                { L_,   "stuv", "HIJK", "0123", "H01s", true  },
+                { L_,   "stuv", "HIJK", "0123", "H012", true  },
+                { L_,   "stuv", "HIJK", "0123", "0stu", true  },
+                { L_,   "stuv", "HIJK", "0123", "0stH", true  },
+                { L_,   "stuv", "HIJK", "0123", "0st1", true  },
+                { L_,   "stuv", "HIJK", "0123", "0st2", false }, // * ("02")
+                { L_,   "stuv", "HIJK", "0123", "0sHt", true  },
+                { L_,   "stuv", "HIJK", "0123", "0sHI", true  },
+                { L_,   "stuv", "HIJK", "0123", "0sH1", true  },
+                { L_,   "stuv", "HIJK", "0123", "0s1t", true  },
+                { L_,   "stuv", "HIJK", "0123", "0s1H", true  },
+                { L_,   "stuv", "HIJK", "0123", "0s12", true  },
+                { L_,   "stuv", "HIJK", "0123", "0Hst", true  },
+                { L_,   "stuv", "HIJK", "0123", "0HsI", true  },
+                { L_,   "stuv", "HIJK", "0123", "0Hs1", true  },
+                { L_,   "stuv", "HIJK", "0123", "0HIs", true  },
+                { L_,   "stuv", "HIJK", "0123", "0HIJ", true  },
+                { L_,   "stuv", "HIJK", "0123", "0HI1", true  },
+                { L_,   "stuv", "HIJK", "0123", "0H1s", true  },
+                { L_,   "stuv", "HIJK", "0123", "0H12", true  },
+                { L_,   "stuv", "HIJK", "0123", "0Ha1", false }, // * ("a")
+                { L_,   "stuv", "HIJK", "0123", "012s", true  },
+                { L_,   "stuv", "HIJK", "0123", "012t", false }, // * ("t")
+                { L_,   "stuv", "HIJK", "0123", "012H", true  },
+                { L_,   "stuv", "HIJK", "0123", "0123", true  },
             };
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
             for (size_t i = 0; i < DATA_LEN; ++i ) {
@@ -1427,7 +1611,7 @@ int main(int argc, char **argv)
                 const bool      EXP_VALID = DATA[i].d_isValid;
 
                 bool VALID = isValid(INPUT, SOFT, HARD, TOKEN);
-                ASSERTV(LINE, INPUT, EXP_VALID == VALID);
+                ASSERTV(LINE, SOFT, HARD, TOKEN, INPUT, EXP_VALID == VALID);
             }
         }
       } break;
