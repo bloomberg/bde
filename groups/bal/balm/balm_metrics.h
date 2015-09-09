@@ -1036,44 +1036,49 @@ do {                                                                          \
 #define BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)                     \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::k_SECONDS);
+                          BloombergLP::balm::StopwatchScopedGuard::k_SECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)                \
-  BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
-                          (METRIC),                                           \
-                          balm::StopwatchScopedGuard::k_MILLISECONDS);
+  BALM_METRICS_TIME_BLOCK(                                                    \
+                      (CATEGORY),                                             \
+                      (METRIC),                                               \
+                      BloombergLP::balm::StopwatchScopedGuard::k_MILLISECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)                \
-  BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
-                          (METRIC),                                           \
-                          balm::StopwatchScopedGuard::k_MICROSECONDS);
+  BALM_METRICS_TIME_BLOCK(                                                    \
+                      (CATEGORY),                                             \
+                      (METRIC),                                               \
+                      BloombergLP::balm::StopwatchScopedGuard::k_MICROSECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)                 \
-  BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
-                          (METRIC),                                           \
-                          balm::StopwatchScopedGuard::k_NANOSECONDS);
+  BALM_METRICS_TIME_BLOCK(                                                    \
+                       (CATEGORY),                                            \
+                       (METRIC),                                              \
+                       BloombergLP::balm::StopwatchScopedGuard::k_NANOSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(CATEGORY, METRIC)             \
-  BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
-                                  (METRIC),                                   \
-                                  balm::StopwatchScopedGuard::k_SECONDS);
+  BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
+                           (CATEGORY),                                        \
+                           (METRIC),                                          \
+                           BloombergLP::balm::StopwatchScopedGuard::k_SECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
-                                 (CATEGORY),                                  \
-                                 (METRIC),                                    \
-                              balm::StopwatchScopedGuard::k_MILLISECONDS);
+                      (CATEGORY),                                             \
+                      (METRIC),                                               \
+                      BloombergLP::balm::StopwatchScopedGuard::k_MILLISECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
-                                 (CATEGORY),                                  \
-                                 (METRIC),                                    \
-                              balm::StopwatchScopedGuard::k_MICROSECONDS);
+                      (CATEGORY),                                             \
+                      (METRIC),                                               \
+                      BloombergLP::balm::StopwatchScopedGuard::k_MICROSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)         \
-  BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
-                                  (METRIC),                                   \
-                               balm::StopwatchScopedGuard::k_NANOSECONDS);
+  BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
+                       (CATEGORY),                                            \
+                       (METRIC),                                              \
+                       BloombergLP::balm::StopwatchScopedGuard::k_NANOSECONDS);
 
                         // =====================
                         // Macro Implementations
@@ -1257,30 +1262,30 @@ inline
 Collector *Metrics_Helper::getCollector(const char *category,
                                         const char *metric)
 {
-   MetricsManager *manager = DefaultMetricsManager::instance();
-   return manager->collectorRepository().getDefaultCollector(category,
-                                                             metric);
+    MetricsManager *manager = DefaultMetricsManager::instance();
+    return manager->collectorRepository().getDefaultCollector(category,
+                                                              metric);
 }
 
 inline
 IntegerCollector *Metrics_Helper::getIntegerCollector(const char *category,
                                                       const char *metric)
 {
-   MetricsManager *manager = DefaultMetricsManager::instance();
-   return manager->collectorRepository().getDefaultIntegerCollector(category,
-                                                                    metric);
+    MetricsManager *manager = DefaultMetricsManager::instance();
+    return manager->collectorRepository().getDefaultIntegerCollector(category,
+                                                                     metric);
 }
 
 inline
 void Metrics_Helper::setPublicationType(const MetricId&        id,
                                         PublicationType::Value type)
 {
-   MetricsManager *manager = DefaultMetricsManager::instance();
-   return manager->metricRegistry().setPreferredPublicationType(id, type);
+    MetricsManager *manager = DefaultMetricsManager::instance();
+    return manager->metricRegistry().setPreferredPublicationType(id, type);
 
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
