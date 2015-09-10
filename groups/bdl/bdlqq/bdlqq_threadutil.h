@@ -440,7 +440,7 @@ public:
         // behavior is undefined unless 'handle != 0', unless 'allocator' is
         // thread-safe, and unless 'attributes.stackSize' is either greater
         // than 0 or unset.  'INVOKABLE' shall be a copy-constructible type
-        // having the equivalent of 'void operator()'. Note that unless
+        // having the equivalent of 'void operator()()'. Note that unless
         // explicitly "detached" (by invoking 'detach(*handle)') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made to reclaim any system resources associated with the
@@ -466,7 +466,7 @@ public:
         // Return 0 on success, and a non-zero value otherwise.  The behavior
         // is undefined unless 'handle != 0' and unless 'allocator' is
         // thread-safe.  'INVOKABLE' shall be a copy-constructible type
-        // having the equivalent of 'void operator()'.  Note that unless
+        // having the equivalent of 'void operator()()'.  Note that unless
         // explicitly "detached" (by invoking 'detach(*handle)'), a call to
         // 'join' must be made to reclaim any
         // system resources associated with the newly-created thread.  Also
