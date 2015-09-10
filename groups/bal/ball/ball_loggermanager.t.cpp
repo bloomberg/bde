@@ -1992,92 +1992,7 @@ int main(int argc, char *argv[])
         //   ~ball::LoggerManager();
         // --------------------------------------------------------------------
 
-        // The public constructor and test case are deprecated and maintained
-        // in the internal code base only.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-        if (verbose)
-            cout << endl << "Testing 'ball::LoggerManager' constructor" << endl
-                         << "========================================" << endl;
-
-        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
-
-        bslma::TestAllocator *DA = &defaultTestAllocator;
-        bslma::TestAllocator *GA = &globalTestAllocator;
-        bslma::TestAllocator *OA = &objectTestAllocator;
-
-        bslma::DefaultAllocatorGuard taGuard(DA);
-        bslma::Default::setGlobalAllocator(GA);
-
-        ball::LoggerManagerConfiguration mLMC;
-
-        const bsls::Types::Int64 NUM_BLOCKS_DFLT_ALLOC = DA->numBlocksInUse();
-        const bsls::Types::Int64 NUM_BLOCKS_GLOB_ALLOC = GA->numBlocksInUse();
-
-        ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
-        {
-            ball::TestObserver testObserver(bsl::cout, OA);
-
-            ASSERT(!Obj::isInitialized());
-            Obj manager(&testObserver, mLMC);
-            ASSERT( Obj::isInitialized());
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-            ASSERT(NUM_BLOCKS_GLOB_ALLOC <  GA->numBlocksInUse());
-
-            Obj& mLM = Obj::singleton();
-
-            ASSERT(&testObserver == mLM.observer());
-            ASSERT(1             == mLM.numCategories());
-
-            // add a category
-
-            const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
-            ASSERT(cat);
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
-            ASSERT(64  == cat->recordLevel());
-            ASSERT(48  == cat->passLevel());
-            ASSERT(32  == cat->triggerLevel());
-            ASSERT(16  == cat->triggerAllLevel());
-
-            // log a test message
-
-            if (veryVerbose) testObserver.setVerbose(1);
-
-            ball::Logger& lgr = mLM.getLogger();
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(0 == testObserver.numPublishedRecords());
-            const char *MESSAGE = "scoped guard test";
-            const int   LINE    = L_ + 1;
-            lgr.logMessage(*cat, cat->passLevel(), __FILE__, LINE, MESSAGE);
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(1 == testObserver.numPublishedRecords());
-            const Rec& R = testObserver.lastPublishedRecord();
-            if (veryVerbose) cout << R << endl;
-
-            const Attr& A = R.fixedFields();
-            ASSERT(0                == bsl::strcmp("Bloomberg.Bal",
-                                                   A.category()));
-            ASSERT(A.severity() == cat->passLevel());
-            ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
-            ASSERT(LINE         == A.lineNumber());
-            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
-
-            const FieldValues& V = R.userFields();
-            ASSERT(0 == V.length());
-        }
-        ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -2125,9 +2040,6 @@ int main(int argc, char *argv[])
             cout << endl << "TESTING LOW-LEVEL LOGGING" << endl
                          << "=========================" << endl;
 
-#if BDE_VERSION_MINOR >= 25
-        // TBD: This test is disabled for BDE 2.23.  Ensuring it will be
-        // re-enabled in the future.
 
         // Saving low-level handler
         const bsls::Log::LogMessageHandler oldBslsHandler =
@@ -2195,7 +2107,6 @@ int main(int argc, char *argv[])
             if(verbose) cout << "\tConfirm old handler restored." << endl;
             ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
         }
-#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
