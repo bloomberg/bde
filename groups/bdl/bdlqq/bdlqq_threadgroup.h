@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlqq::ThreadGroup: A container that manages a group of threads.
 //
-//@SEE_ALSO: bdlqq_mutex, bdlqq_threadutil, bdlqq_threadattributes
+//@SEE_ALSO: bdlqq_threadutil, bdlqq_threadattributes
 //
 //@DESCRIPTION: This component provides a simple mechanism for managing a group
 // of threads.  The group is represented by an instance of the
@@ -39,19 +39,27 @@ BSLS_IDENT("$Id: $")
 // parameters: the number of executions (defined by subsequent calls to 'lock'
 // and 'unlock', and the amount of contention, defined by the number of threads
 // accessing the mutex.  The test can be expressed as two functions.  The first
-// is executed in each thread:
+// is executed in each thread via a functor object:
 //..
-//  void testMutex(
-//          int         *value;
-//          bdlqq::Mutex *mutex,
-//          int          numIterations)
-//  {
-//      while (numIterations--) {
-//          mutex->lock();
-//          ++*value;
-//          mutex->unlock();
-//      }
-//  }
+//  class MutexTestJob {
+//     int           d_numIterations;
+//     int          *d_value_p;
+//     bdlqq::Mutex *d_mutex_p;
+//
+//   public:
+//     MutexTestJob(int numIterations, int *value, bdlqq::Mutex *mutex)
+//     : d_numIterations(numIterations)
+//     , d_value_p(value)
+//     , d_mutex_p(mutex)
+//     {}
+//
+//     void operator()() {
+//        for (int i = 0; i < d_numIterations; ++i) {
+//           bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
+//           ++*d_value_p;
+//        }
+//     }
+//  };
 //..
 // The second executes the main body of the test:
 //..
@@ -61,14 +69,13 @@ BSLS_IDENT("$Id: $")
 //      const int NUM_THREADS    = 8;
 //
 //      bdlqq::Mutex   mutex;                     // object under test
-//      int           value = 0;
+//      int            value = 0;
 //
-//      bdlf::Function<void(*)()> testFunc =
-//        bdlf::BindUtil::bind(&testMutex, &value, &mutex, NUM_ITERATIONS);
+//      MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 //
 //      bdlqq::ThreadGroup tg(&ta);
 //      for (int i = 0; i < NUM_THREADS; ++i) {
-//          ASSERT(0 == tg.addThread(testFunc));
+//          ASSERT(0 == tg.addThread(testJob));
 //      }
 //      tg.joinAll();
 //      ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
@@ -129,6 +136,11 @@ class ThreadGroup {
     ThreadContainer d_threads;
     Mutex           d_threadsMutex;
 
+    // PRIVATE MANIPULATORS
+    void addThread(const ThreadUtil::Handle& handle);
+       // Add the specified 'handle' to the 'd_threads' container.  If an
+       // exception is thrown, 'handle' will be released.
+    
   private:
     // not implemented
     ThreadGroup(const ThreadGroup&);
@@ -152,24 +164,31 @@ class ThreadGroup {
         // run independently, and will no longer be joinable.
 
     // MANIPULATORS
-    int addThread(const bdlf::Function<void(*)()>& functor);
-    int addThread(const bdlf::Function<void(*)()>& functor,
-                  const ThreadAttributes&          attributes);
+    template <typename INVOKABLE>
+    int addThread(const INVOKABLE& functor);
+    template <typename INVOKABLE>
+    int addThread(const INVOKABLE&        functor,
+                  const ThreadAttributes& attributes);
         // Begin executing the specified invokable 'functor' in a new thread,
         // using the optionally specified thread 'attributes'.  Return 0 on
-        // success, and a non-zero value otherwise.  Note that threads are
-        // always created joinable, regardless of the mode specified in
-        // 'attributes'.
+        // success, and a non-zero value otherwise.  'INVOKABLE' shall be a
+        // copy-constructible type having the equivalent of
+        // 'void operator()()'. Note that threads are always created joinable,
+        // regardless of the mode specified in 'attributes'.
 
-    int addThreads(const bdlf::Function<void(*)()>& functor,
-                   int                              numThreads);
-    int addThreads(const bdlf::Function<void(*)()>& functor,
-                   int                              numThreads,
-                   const ThreadAttributes&          attributes);
+    template <typename INVOKABLE>
+    int addThreads(const INVOKABLE& functor,
+                   int              numThreads);
+    template <typename INVOKABLE>
+    int addThreads(const INVOKABLE&         functor,
+                   int                      numThreads,
+                   const ThreadAttributes&  attributes);
         // Begin executing the specified invokable 'functor' in the specified
-        // new 'numThreads', using the specified thread 'attributes'.  Return
-        // the number of threads added.  The behavior is undefined unless
-        // '0 <= numThreads'.  Note that threads are always created joinable,
+        // new 'numThreads', using the optionally specified thread
+        // 'attributes'.  Return 'numThreads' on success, or the number of
+        // threads successfully started otherwise. 'INVOKABLE' shall be a
+        // copy-constructible type having the equivalent of
+        // 'void operator()()'. Note that threads are always created joinable,
         // regardless of the mode specified in 'attributes'.
 
     void joinAll();
@@ -193,19 +212,59 @@ class ThreadGroup {
                              // -----------------
 
 // MANIPULATORS
+template<typename INVOKABLE>
 inline
-int bdlqq::ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor)
+int bdlqq::ThreadGroup::addThread(const INVOKABLE& functor)
 {
     return addThread(functor, ThreadAttributes());
 }
 
+template<typename INVOKABLE>
 inline
-int bdlqq::ThreadGroup::addThreads(const bdlf::Function<void(*)()>& functor,
-                                  int                               numThreads)
+int bdlqq::ThreadGroup::addThreads(const INVOKABLE& functor,
+                                   int              numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
 
+template<typename INVOKABLE>
+int bdlqq::ThreadGroup::addThread(const INVOKABLE&        functor,
+                                  const ThreadAttributes& attributes)
+{
+    ThreadUtil::Handle handle;
+    int rc = 1;
+    if (ThreadAttributes::e_CREATE_JOINABLE != attributes.detachedState()) {
+        ThreadAttributes newAttributes(attributes);
+        newAttributes.setDetachedState(
+                                ThreadAttributes::e_CREATE_JOINABLE);
+        rc = ThreadUtil::create(&handle, newAttributes, functor);
+    }
+    else {
+        rc = ThreadUtil::create(&handle, attributes, functor);
+    }
+
+    if (0 == rc) {
+        addThread(handle);
+    }
+    return rc;
+}
+
+template<typename INVOKABLE>
+int bdlqq::ThreadGroup::addThreads(const INVOKABLE&         functor,
+                                   int                      numThreads,
+                                   const ThreadAttributes&  attributes)
+{
+    BSLS_ASSERT(0 <= numThreads);
+
+    int numAdded;
+    for (numAdded = 0; numAdded < numThreads; ++numAdded) {
+        if (0 != addThread(functor, attributes)) {
+            break;
+        }
+    }
+    return numAdded;
+}
+    
 // ACCESSORS
 inline
 int bdlqq::ThreadGroup::numThreads() const

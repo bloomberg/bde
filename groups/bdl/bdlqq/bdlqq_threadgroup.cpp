@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlqq_threadgroup_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_lockguard.h>
 #include <bdlqq_semaphore.h>  // for testing only
-#include <bdlf_bind.h>
 #include <bslma_default.h>
 
 #include <bsl_algorithm.h>
@@ -29,22 +28,22 @@ class ThreadDetachGuard {
     // CREATORS
     explicit
     ThreadDetachGuard(bdlqq::ThreadUtil::Handle handle)
-      : d_handle(handle)
-      {
-      }
-
+    : d_handle(handle)
+    {
+    }
+    
     ~ThreadDetachGuard()
-      {
-          if (bdlqq::ThreadUtil::invalidHandle() != d_handle) {
-              bdlqq::ThreadUtil::detach(d_handle);
-          }
-      }
+    {
+        if (bdlqq::ThreadUtil::invalidHandle() != d_handle) {
+            bdlqq::ThreadUtil::detach(d_handle);
+        }
+    }
 
     // MANIPULATORS
     void release()
-      {
-          d_handle = bdlqq::ThreadUtil::invalidHandle();
-      }
+    { 
+        d_handle = bdlqq::ThreadUtil::invalidHandle();
+    }
 };
 
 inline
@@ -78,50 +77,15 @@ bdlqq::ThreadGroup::~ThreadGroup()
 }
 
 // MANIPULATORS
-
-int bdlqq::ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor,
-                                  const ThreadAttributes&          attributes)
-{
-    ThreadUtil::Handle handle;
-    int rc = 1;
-    if (ThreadAttributes::e_CREATE_JOINABLE !=
-                                                  attributes.detachedState()) {
-        ThreadAttributes newAttributes(attributes);
-        newAttributes.setDetachedState(
-                                ThreadAttributes::e_CREATE_JOINABLE);
-        rc = ThreadUtil::create(&handle, newAttributes, functor);
-    }
-    else {
-        rc = ThreadUtil::create(&handle, attributes, functor);
-    }
-
-    if (0 == rc) {
-        ThreadDetachGuard            detachGuard(handle);
-        LockGuard<Mutex> lockGuard(&d_threadsMutex);
-
-        d_threads.push_back(handle);
-        d_numThreads.addRelaxed(1);
-        detachGuard.release();
-    }
-    return rc;
+void bdlqq::ThreadGroup::addThread(const ThreadUtil::Handle& handle) {
+    ThreadDetachGuard detachGuard(handle);
+    LockGuard<Mutex> lockGuard(&d_threadsMutex);
+    
+    d_threads.push_back(handle);
+    d_numThreads.addRelaxed(1);
+    detachGuard.release();
 }
-
-int bdlqq::ThreadGroup::addThreads(const bdlf::Function<void(*)()>& functor,
-                                   int                              numThreads,
-                                   const ThreadAttributes&          attributes)
-{
-    BSLS_ASSERT(0 <= numThreads);
-
-    int numAdded = 0;
-    for (int i = 0; i < numThreads; ++i) {
-        if (0 != addThread(functor, attributes)) {
-            break;
-        }
-        ++numAdded;
-    }
-    return numAdded;
-}
-
+    
 void bdlqq::ThreadGroup::joinAll()
 {
     LockGuard<Mutex> guard(&d_threadsMutex);
