@@ -2901,11 +2901,12 @@ int main(int argc, char *argv[])
             {
                 const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
                 ASSERT(bsls::TimeInterval() == X.time());
-                ASSERT(TestString()        == X.data());
+                const TestString dfltTestString;    // Appease bug in gcc-4.1.2
+                ASSERT(dfltTestString       == X.data());
                 // ASSERT(0 == X.handle());
-                ASSERT(Obj::Key(0)         == X.key());
-                ASSERT(NUM_ALLOC           == ta.numAllocations());
-                ASSERT(NUM_ALLOC2          == ta2.numAllocations());
+                ASSERT(Obj::Key(0)          == X.key());
+                ASSERT(NUM_ALLOC            == ta.numAllocations());
+                ASSERT(NUM_ALLOC2           == ta2.numAllocations());
             }
 
             if (verbose) cout << "\t\tConstructor without key.\n";
