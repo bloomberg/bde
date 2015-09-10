@@ -1,6 +1,8 @@
 // bdlf_bind.t.cpp                                                    -*-C++-*-
-
 #include <bdlf_bind.h>
+
+#include <bsls_bsltestutil.h>
+
 #include <bdlf_bind_test.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
@@ -82,10 +84,10 @@ using namespace bsl;  // automatically added by script
 // Our test plan proceeds by checking that the traits are set up so that
 // allocators know about 'bdlf::Bind' using the 'bslma::Allocator' protocol
 // (case 2).  Then we test the mix of placeholders and bound arguments (case
-// 3).  We also test the additional concerns about passing 'bdlf_bind'
-// objects as parameters to the various 'bdlf::BindUtil::bind", 'bindA' and
-// 'bindR' (case 4) and about respecting the signature of the invocable (case
-// 5).  Finally, we make sure the usage example compiles and runs as advertised
+// 3).  We also test the additional concerns about passing 'bdlf_bind' objects
+// as parameters to the various 'bdlf::BindUtil::bind", 'bindA' and 'bindR'
+// (case 4) and about respecting the signature of the invocable (case 5).
+// Finally, we make sure the usage example compiles and runs as advertised
 // (case 6).
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -96,52 +98,53 @@ using namespace bsl;  // automatically added by script
 // [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-
 #ifdef BSLS_PLATFORM_CMP_MSVC
 // disable warning about decorated name length being exceeded
 #pragma warning( disable : 4503 )
 #endif
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-        if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                            aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\n", #I, I, #J, J, #K, K); \
-                            aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-        if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                      #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-#define L_ __LINE__                     // current Line number
-#define T_ printf("\t");                // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -266,191 +269,184 @@ class ConvertibleFromToInt {
 // ----------------------------------------------------------------------------
 extern "C" { // cannot be part of a namespace (namespace would be ignored)
 
-    int myFunctionWithExternCLinkage(int x)
-    {
-        return x;
-    }
+int myFunctionWithExternCLinkage(int x)
+{
+    return x;
+}
 
 }  // extern "C"
 
 namespace BDEF_BIND_TEST_CASE_5 {
 
-    int myFunctionWithConstnessMix(const int   a1,
-                                   const int&  a2,
-                                         int&  a3,
-                                   const int*& a4)
-    {
-        // Note that this function can generate an explicit binder since the
-        // signature is explicitly known at compile time.  This allows the
-        // bound arguments to be stored with the actual type of the above
-        // parameters.
+int myFunctionWithConstnessMix(const int   a1,
+                               const int&  a2,
+                               int&        a3,
+                               const int*& a4)
+{
+    // Note that this function can generate an explicit binder since the
+    // signature is explicitly known at compile time.  This allows the bound
+    // arguments to be stored with the actual type of the above parameters.
 
-        a3 = a1;
-        a4 = &a2;
+    a3 = a1;
+    a4 = &a2;
+    return 1;
+}
+
+int myFunctionWithNoConstnessMix(int& a1, int& a2, int& a3, const int*& a4)
+{
+    // This function is a non-const-safe version of the above function, which
+    // allows to take true references, since there is no mix between lvalues
+    // and rvalues in the arguments.  This is to forgo our limitation to the
+    // const forwarding problem.
+
+    a3 = a1;
+    a4 = &a2;
+    return 1;
+}
+
+int myFunctionWithVolatile(volatile int const& a1, volatile int* a2)
+{
+    *a2 = a1;
+    return 1;
+}
+
+struct MyFunctionObjectWithMultipleSignatures {
+    // This stateless 'struct' provides several function operators with
+    // different signatures, including one of them being a template, all
+    // returning a different value.
+
+    // TYPES
+    typedef int ResultType;
+
+    // ACCESSORS
+    int operator()(int) const
+    {
         return 1;
     }
 
-    int myFunctionWithNoConstnessMix(int&  a1,
-                                     int&  a2,
-                                     int&  a3,
-                                     const int*& a4)
+    int operator()(const NoAllocTestArg1&) const
     {
-        // This function is a non-const-safe version of the above function,
-        // which allows to take true references, since there is no mix between
-        // lvalues and rvalues in the arguments.  This is to forgo our
-        // limitation to the const forwarding problem.
-        //
+        return 2;
+    }
 
-        a3 = a1;
-        a4 = &a2;
+    template <class T>
+    int operator()(const T&) const
+    {
+        return 3;
+    }
+};
+
+template <class Binder>
+void testMultipleSignatureBinder(Binder binder)
+{
+    int                   i1(1);
+    const NoAllocTestArg1 I1(1);
+
+    ASSERT(1 == binder(i1));
+    ASSERT(2 == binder(I1));
+
+    // The type 'int' is not an exact match for double and so the operator
+    // template is preferred.
+
+    ASSERT(3 == binder(1.0));
+}
+
+struct MyFunctionObjectWithConstAndNonConstOperator {
+    // This stateless 'struct' provides several function operators with const
+    // and non-const signature.
+
+    // TYPES
+    typedef int ResultType;
+
+    // MANIPULATORS
+    int operator()(ConvertibleFromToInt const&)
+    {
+        return 0;
+    }
+
+    // ACCESSORS
+    int operator()(int) const
+    {
         return 1;
     }
+};
 
-    int myFunctionWithVolatile(volatile int const&  a1,
-                               volatile int        *a2)
-    {
-        *a2 = a1;
-        return 1;
-    }
+void testMyFunctionObjectWithConstAndNonConstOperator()
+{
+    using namespace bdlf::PlaceHolders;
 
-    struct MyFunctionObjectWithMultipleSignatures {
-        // This stateless 'struct' provides several function operators with
-        // different signatures, including one of them being a template, all
-        // returning a different value.
+    MyFunctionObjectWithConstAndNonConstOperator        mBinder;
+    const MyFunctionObjectWithConstAndNonConstOperator& binder = mBinder;
 
-        // TYPES
-        typedef int ResultType;
+    const ConvertibleFromToInt X(1); // value is irrelevant
+    const int I(2);                  // value is irrelevant
 
-        // ACCESSORS
-        int operator()(int) const
-        {
-            return 1;
-        }
+    // When functor is taken by address, the non-const operator will be an
+    // exact match for argument 'x', and the const operator will be an exact
+    // match for argument 'i'.
+    ASSERT(0 == bdlf::BindUtil::bind(&mBinder, _1)(X));
+    // We need to pass 'binder' and not 'mBinder' otherwise there is an
+    // ambiguity between converting I to a 'ConvertibleFromToInt const&', or
+    // '*(&binder)' to a 'MyFunctionObjectWithConstAndNonConstOperator const&'.
+    ASSERT(1 == bdlf::BindUtil::bind(&binder, _1)(I));
 
-        int operator()(const NoAllocTestArg1&) const
-        {
-            return 2;
-        }
+    // When functor is taken by value, the non-const operator will no longer be
+    // an exact match for argument 'x' but the const operator will pick up via
+    // a conversion to int, and the const operator will still be an exact match
+    // for argument 'i'.
+    ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(X));
+    ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(I));
+}
 
-        template <class T>
-        int operator()(const T&) const
-        {
-            return 3;
-        }
-    };
+struct BaseClass {
+    // This struct is so small that we inline its members to keep it more
+    // readable.  Its 'test' method is virtual, and returns 1 for the base
+    // class.
 
-    template <class Binder>
-    void testMultipleSignatureBinder(Binder binder)
-    {
-        int                   i1(1);
-        const NoAllocTestArg1 I1(1);
+    // CREATORS
+    BaseClass() { }
+    virtual ~BaseClass() { }
 
-        ASSERT(1 == binder(i1));
-        ASSERT(2 == binder(I1));
+    // ACCESSORS
+    virtual int test() const { return 1; }
+};
 
-        // The type 'int' is not an exact match for double and so the operator
-        // template is preferred.
+struct DerivedClass : public BaseClass {
+    // This struct is so small that we inline its members to keep it more
+    // readable.  Its 'test' method returns 2 for this derived class.
 
-        ASSERT(3 == binder(1.0));
-    }
+    // CREATORS
+    DerivedClass() { }
+    virtual ~DerivedClass() { }
 
-    struct MyFunctionObjectWithConstAndNonConstOperator {
-        // This stateless 'struct' provides several function operators with
-        // const and non-const signature.
+    // ACCESSORS
+    virtual int test() const { return 2; }
+};
 
-        // TYPES
-        typedef int ResultType;
+struct AbstractBaseClass {
+    // This struct is so small that we inline its members to keep it more
+    // readable.  Its 'test' method is virtual, and returns 1 for the base
+    // class.
 
-        // MANIPULATORS
-        int operator()(ConvertibleFromToInt const&)
-        {
-            return 0;
-        }
+    // CREATORS
+    AbstractBaseClass() { }
+    virtual ~AbstractBaseClass() { }
 
-        // ACCESSORS
-        int operator()(int) const
-        {
-            return 1;
-        }
-    };
+    // ACCESSORS
+    virtual int test() const = 0;
+};
 
-    void testMyFunctionObjectWithConstAndNonConstOperator()
-    {
-        using namespace bdlf::PlaceHolders;
+struct ConcreteDerivedClass : public AbstractBaseClass {
+    // This struct is so small that we inline its members to keep it more
+    // readable.  Its 'test' method returns 2 for this derived class.
 
-        MyFunctionObjectWithConstAndNonConstOperator        mBinder;
-        const MyFunctionObjectWithConstAndNonConstOperator& binder = mBinder;
+    // CREATORS
+    ConcreteDerivedClass() { }
+    virtual ~ConcreteDerivedClass() { }
 
-        const ConvertibleFromToInt X(1); // value is irrelevant
-        const int I(2);                  // value is irrelevant
-
-        // When functor is taken by address, the non-const operator will be an
-        // exact match for argument 'x', and the const operator will be an
-        // exact match for argument 'i'.
-        ASSERT(0 == bdlf::BindUtil::bind(&mBinder, _1)(X));
-        // We need to pass 'binder' and not 'mBinder' otherwise there is an
-        // ambiguity between converting I to a 'ConvertibleFromToInt const&',
-        // or '*(&binder)' to a 'MyFunctionObjectWithConstAndNonConstOperator
-        // const&'.
-        ASSERT(1 == bdlf::BindUtil::bind(&binder, _1)(I));
-
-        // When functor is taken by value, the non-const operator will no
-        // longer be an exact match for argument 'x' but the const operator
-        // will pick up via a conversion to int, and the const operator will
-        // still be an exact match for argument 'i'.
-        ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(X));
-        ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(I));
-    }
-
-    struct BaseClass {
-        // This struct is so small that we inline its members to keep it more
-        // readable.  Its 'test' method is virtual, and returns 1 for the base
-        // class.
-
-        // CREATORS
-        BaseClass() { }
-        virtual ~BaseClass() { }
-
-        // ACCESSORS
-        virtual int test() const { return 1; }
-    };
-
-    struct DerivedClass : public BaseClass {
-        // This struct is so small that we inline its members to keep it more
-        // readable.  Its 'test' method returns 2 for this derived class.
-
-        // CREATORS
-        DerivedClass() { }
-        virtual ~DerivedClass() { }
-
-        // ACCESSORS
-        virtual int test() const { return 2; }
-    };
-
-    struct AbstractBaseClass {
-        // This struct is so small that we inline its members to keep it more
-        // readable.  Its 'test' method is virtual, and returns 1 for the base
-        // class.
-
-        // CREATORS
-        AbstractBaseClass() { }
-        virtual ~AbstractBaseClass() { }
-
-        // ACCESSORS
-        virtual int test() const = 0;
-    };
-
-    struct ConcreteDerivedClass : public AbstractBaseClass {
-        // This struct is so small that we inline its members to keep it more
-        // readable.  Its 'test' method returns 2 for this derived class.
-
-        // CREATORS
-        ConcreteDerivedClass() { }
-        virtual ~ConcreteDerivedClass() { }
-
-        // ACCESSORS
-        virtual int test() const { return 2; }
-    };
+    // ACCESSORS
+    virtual int test() const { return 2; }
+};
 
 }  // close namespace BDEF_BIND_TEST_CASE_5
 
@@ -834,12 +830,10 @@ using namespace bdlf::PlaceHolders;
 // The creation of the binder is as follows:
 //..
     void bindTest1(bslma::Allocator *allocator = 0) {
-        callBinder(bdlf::BindUtil::bind(&invocable,
-                                       _1, _2, someString));
+        callBinder(bdlf::BindUtil::bind(&invocable, _1, _2, someString));
 
-        callBinder(bdlf::BindUtil::bindS(allocator,
-                                         &invocable,
-                                         _1, _2, someString));
+        callBinder(
+             bdlf::BindUtil::bindS(allocator, &invocable, _1, _2, someString));
     }
 //..
 // In these code snippets, the 'callBinder' template function is invoked with a
@@ -863,9 +857,8 @@ using namespace bdlf::PlaceHolders;
     void bindTest2(bslma::Allocator *allocator = 0) {
         callBinder(bdlf::BindUtil::bind(&invocable, _2, _1, someString));
 
-        callBinder(bdlf::BindUtil::bindS(allocator,
-                                         &invocable,
-                                         _2, _1, someString));
+        callBinder(
+            bdlf::BindUtil::bindS(allocator, &invocable, _2, _1, someString));
     }
 //..
 // When called within the 'callBinder' function, 'invocable' will be invoked as
@@ -950,8 +943,8 @@ using namespace bdlf::PlaceHolders;
 
     void bindTest4(bslma::Allocator *allocator = 0) {
         marker = 0;
-        callBinderWithSideEffects1(bdlf::BindUtil::bind(
-                                                &singleArgumentFunction, _2));
+        callBinderWithSideEffects1(
+                            bdlf::BindUtil::bind(&singleArgumentFunction, _2));
 
 //..
 // In the above snippets of code, 'singleArgumentFunction' will be called with
@@ -967,10 +960,8 @@ using namespace bdlf::PlaceHolders;
 // We repeat the same call using 'bindS' below:
 //..
         marker = 0;
-        callBinderWithSideEffects1(bdlf::BindUtil::bindS(
-                                                       allocator,
-                                                       &singleArgumentFunction,
-                                                       _2));
+        callBinderWithSideEffects1(
+                bdlf::BindUtil::bindS(allocator, &singleArgumentFunction, _2));
         LOOP_ASSERT(marker, 10 == marker);
 //..
     }
@@ -995,8 +986,8 @@ using namespace bdlf::PlaceHolders;
 
     void bindTest5(bslma::Allocator *allocator = 0) {
         marker = 0;
-        callBinderWithSideEffects2(bdlf::BindUtil::bind(
-                                            &doubleArgumentFunction, _1, _1));
+        callBinderWithSideEffects2(
+                        bdlf::BindUtil::bind(&doubleArgumentFunction, _1, _1));
 //..
 // In the above snippet of code, 'doubleArgumentFunction' will be called with
 // the first argument ('identityFunctionWithSideEffects(10)') specified to
@@ -1009,10 +1000,8 @@ using namespace bdlf::PlaceHolders;
 // We repeat the same call using 'bindS' below:
 //..
         marker = 0;
-        callBinderWithSideEffects2(bdlf::BindUtil::bindS(
-                                                       allocator,
-                                                       &doubleArgumentFunction,
-                                                       _1, _1));
+        callBinderWithSideEffects2(
+            bdlf::BindUtil::bindS(allocator, &doubleArgumentFunction, _1, _1));
         LOOP_ASSERT(marker, 10 == marker);
     }
 //..
@@ -1194,25 +1183,24 @@ using namespace bdlf::PlaceHolders;
 // ignored.  But 'allocator' *will* be used to make the copy of 'myString' held
 // by the binder:
 //..
-        callBinder(bdlf::BindUtil::bindA(&allocator, &invocable,
-                                        _1, _2, myString));
+        callBinder(
+              bdlf::BindUtil::bindA(&allocator, &invocable, _1, _2, myString));
 //..
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
         ASSERT(NUM_ALLOCS != allocator.numAllocations());
 #ifndef BSLS_PLATFORM_CMP_MSVC
-        // MSVC 2005 does NOT use the RVO, so bindA does a copy
-        // construction with the default allocator.
+        // MSVC 2005 does NOT use the RVO, so bindA does a copy construction
+        // with the default allocator.
         ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
 #endif
 
 //..
 // We repeat the same calls using 'bindS' below:
 //..
-        callBinder(bdlf::BindUtil::bindS(&allocator,
-                                         &invocable,
-                                         _1, _2, myString));
+        callBinder(
+              bdlf::BindUtil::bindS(&allocator, &invocable, _1, _2, myString));
 //..
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
@@ -1252,7 +1240,7 @@ using namespace bdlf::PlaceHolders;
         //its own stream of events.
 
         // PRIVATE INSTANCE DATA
-        bdlf::Function<void (*)(int, MyEvent)>  d_callback;
+        bdlf::Function<void (*)(int, MyEvent)> d_callback;
 //..
 // For illustration purposes, we give this scheduler a dummy stream of events:
 //..
@@ -1312,8 +1300,8 @@ using namespace bdlf::PlaceHolders;
         MyEventScheduler schedA(bdlf::BindUtil::bind(&myCallback, _1, _2));
         schedA.run(10);
 
-        MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                                                   &myCallback, _1, _2));
+        MyEventScheduler schedB(
+                        bdlf::BindUtil::bindS(allocator, &myCallback, _1, _2));
         schedB.run(10);
     }
 //..
@@ -1321,33 +1309,30 @@ using namespace bdlf::PlaceHolders;
 // while letting the invocation arguments straight through to the callback as
 // the first two arguments:
 //..
-    void myCallbackWithUserArgs(int,
-                                MyEvent const&,
-                                int,
-                                double)
+    void myCallbackWithUserArgs(int, MyEvent const&, int, double)
     {
         // Do something ...
     }
 
     void myMainLoop2(bslma::Allocator *allocator = 0)
     {
-        MyEventScheduler schedA(bdlf::BindUtil::bind(&myCallbackWithUserArgs,
-                                                          _1, _2, 360, 3.14));
+        MyEventScheduler schedA(
+             bdlf::BindUtil::bind(&myCallbackWithUserArgs, _1, _2, 360, 3.14));
         schedA.run(10);
 
         MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                                                   &myCallbackWithUserArgs,
-                                                   _1, _2, 360, 3.14));
+                                                      &myCallbackWithUserArgs,
+                                                      _1,
+                                                      _2,
+                                                      360,
+                                                      3.14));
         schedB.run(10);
     }
 //..
 // In the next snippet of code, we show how to reorder the invocation arguments
 // before they are passed to the callback:
 //..
-    void myCallbackWithUserArgsReordered(int,
-                                         int,
-                                         double,
-                                         MyEvent const&)
+    void myCallbackWithUserArgsReordered(int, int, double, MyEvent const&)
     {
         // Do something ...
     }
@@ -1356,11 +1341,20 @@ using namespace bdlf::PlaceHolders;
     void myMainLoop3(bslma::Allocator *allocator = 0)
     {
         MyEventScheduler schedA(bdlf::BindUtil::bind(
-                        &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
+                                              &myCallbackWithUserArgsReordered,
+                                              _1,
+                                              360,
+                                              3.14,
+                                              _2));
         schedA.run(10);
 
-        MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                        &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
+        MyEventScheduler schedB(bdlf::BindUtil::bindS(
+                                              allocator,
+                                              &myCallbackWithUserArgsReordered,
+                                              _1,
+                                              360,
+                                              3.14,
+                                              _2));
         schedB.run(10);
     }
 //..
@@ -1375,12 +1369,14 @@ using namespace bdlf::PlaceHolders;
 
     void myMainLoop4(bslma::Allocator *allocator = 0)
     {
-        MyEventScheduler schedA(bdlf::BindUtil::bind(
-                                          &myCallbackThatDiscardsResult, _2));
+        MyEventScheduler schedA(
+                      bdlf::BindUtil::bind(&myCallbackThatDiscardsResult, _2));
         schedA.run(10);
 
-        MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                                          &myCallbackThatDiscardsResult, _2));
+        MyEventScheduler schedB(bdlf::BindUtil::bindS(
+                                                 allocator,
+                                                 &myCallbackThatDiscardsResult,
+                                                 _2));
         schedB.run(10);
     }
 //..
@@ -1425,8 +1421,8 @@ using namespace bdlf::PlaceHolders;
         schedA.run(10);
 
         MyCallbackObject objB;
-        MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                                                      &objB, _1, _2));
+        MyEventScheduler schedB(
+                              bdlf::BindUtil::bindS(allocator, &objB, _1, _2));
         schedB.run(10);
     }
 //..
@@ -1449,13 +1445,17 @@ using namespace bdlf::PlaceHolders;
     void myMainLoop7(bslma::Allocator *allocator = 0)
     {
         MyStatefulObject objA;
-        MyEventScheduler schedA(bdlf::BindUtil::bind(
-                                  &MyStatefulObject::callback, &objA, _1, _2));
+        MyEventScheduler schedA(
+             bdlf::BindUtil::bind(&MyStatefulObject::callback, &objA, _1, _2));
         schedA.run(10);
 
         MyStatefulObject objB;
-        MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
-                                  &MyStatefulObject::callback, &objB, _1, _2));
+        MyEventScheduler schedB(bdlf::BindUtil::bindS(
+                                                   allocator,
+                                                   &MyStatefulObject::callback,
+                                                   &objB,
+                                                   _1,
+                                                   _2));
         schedB.run(10);
     }
 //..
@@ -1473,14 +1473,17 @@ using namespace bdlf::PlaceHolders;
     void myMainLoop8(bslma::Allocator *allocator = 0)
     {
         MyCallbackObject objA;
-        MyEventScheduler schedA(
-                bdlf::BindUtil::bind(&objA, _1,
+        MyEventScheduler schedA(bdlf::BindUtil::bind(
+                                &objA,
+                                _1,
                                 bdlf::BindUtil::bind(&annotateEvent, _1, _2)));
         schedA.run(10);
 
         MyCallbackObject objB;
-        MyEventScheduler schedB(
-                bdlf::BindUtil::bindS(allocator, &objB, _1,
+        MyEventScheduler schedB(bdlf::BindUtil::bindS(
+                    allocator,
+                    &objB,
+                    _1,
                     bdlf::BindUtil::bindS(allocator, &annotateEvent, _1, _2)));
         schedB.run(10);
     }
@@ -1506,13 +1509,13 @@ using namespace bdlf::PlaceHolders;
     void myMainLoop9(bslma::Allocator *allocator = 0)
     {
         MyCallbackObjectWithoutResultType objA;
-        MyEventScheduler schedA(bdlf::BindUtil::
-                                        bindR<GlobalResultType>(objA, _1, _2));
+        MyEventScheduler schedA(
+                        bdlf::BindUtil::bindR<GlobalResultType>(objA, _1, _2));
         schedA.run(10);
 
         MyCallbackObjectWithoutResultType objB;
-        MyEventScheduler schedB(bdlf::BindUtil::
-                            bindSR<GlobalResultType>(allocator, objB, _1, _2));
+        MyEventScheduler schedB(
+            bdlf::BindUtil::bindSR<GlobalResultType>(allocator, objB, _1, _2));
         schedB.run(10);
     }
 //..
@@ -1575,10 +1578,12 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 //                MACROS EXPORTING INITIALIZATION OUT OF MAIN
 // ----------------------------------------------------------------------------
 #define DECLARE_MAIN_VARIABLES                                                \
-    /* The following machinery is for use in conjunction with the             \
-    // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.  \
-    // The slots are set when the corresponding function object or free       \
-    // function is called with the appropriate number of arguments. */        \
+    /*
+    // The following machinery is for use in conjunction with the
+    // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.
+    // The slots are set when the corresponding function object or free
+    // function is called with the appropriate number of arguments.
+    */                                                                        \
                                                                               \
     const int NO_ALLOC_SLOTS[][NUM_SLOTS]= {                                  \
      /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
@@ -1602,12 +1607,14 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
     };                                                                        \
                                                                               \
-    /* Values that do not take an allocator are declared 'static const' above.\
-                                                                              \
-    // The following machinery is for use in conjunction with the             \
-    // 'SlotsAlloc::resetSlots' and 'SlotsAlloc::verifySlots' functions.      \
-    // The slots are set when the corresponding function object or free       \
-    // function is called the appropriate number of arguments. */             \
+    /*
+    // Values that do not take an allocator are declared 'static const' above.
+
+    // The following machinery is for use in conjunction with the
+    // 'SlotsAlloc::resetSlots' and 'SlotsAlloc::verifySlots' functions.  The
+    // slots are set when the corresponding function object or free function is
+    // called the appropriate number of arguments.
+    */                                                                        \
                                                                               \
                                                                               \
     bslma::TestAllocator allocator0(veryVeryVerbose);                         \
@@ -1645,9 +1652,11 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,         \
     };                                                                        \
                                                                               \
-    /* Values that do take an allocator (default allocator is used, which     \
-    // means we must perform the initialization *after* the allocator guard,  \
-    // hence in main). */                                                     \
+    /*
+    // Values that do take an allocator (default allocator is used, which means
+    // means we must perform the initialization *after* the allocator guard,
+    // hence in main).
+    */                                                                        \
                                                                               \
     const AllocTestArg1  V1(1),     NV1(-1);                                  \
     const AllocTestArg2  V2(20),    NV2(-20);                                 \
@@ -1703,8 +1712,8 @@ DEFINE_TEST_CASE(7) {
                                           bdlf::PlaceHolder<2>,
                                           int*> LIST;
             typedef int (*FUNC)(const int &, int &, int *);
-            bdlf::Bind<bslmf::Nil,FUNC,LIST> b(&onMasterCommand,
-                                             LIST(_1, _2, &extra));;
+            bdlf::Bind<bslmf::Nil, FUNC, LIST> b(&onMasterCommand,
+                                                 LIST(_1, _2, &extra));
 
             // Make sure the binder works properly.
             int stream = 0;
@@ -1722,11 +1731,17 @@ DEFINE_TEST_CASE(7) {
 
             extra = 0, stream = 0, prefix = 0;
             ASSERT(0 == bdlf::BindUtil::bindS(Z0,
-                            &onMasterCommand, _1, _2, &extra)(prefix, stream));
+                                              &onMasterCommand,
+                                              _1,
+                                              _2,
+                                              &extra)(prefix, stream));
             ASSERT(1 == extra);
             ASSERT(1 == stream);
             ASSERT(0 == bdlf::BindUtil::bindS(Z0,
-                            &onMasterCommand, _1, _2, &extra)(prefix, stream));
+                                              &onMasterCommand,
+                                              _1,
+                                              _2,
+                                              &extra)(prefix, stream));
             ASSERT(2 == extra);
             ASSERT(2 == stream);
         }
@@ -1821,6 +1836,7 @@ DEFINE_TEST_CASE(5) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // RESPECTING THE SIGNATURE OF THE INVOCABLE
+        //
         // Concerns:
         //   1. That we can bind functions with extern "C" linkage.
         //   2. That we forward reference types correctly.
@@ -1877,31 +1893,43 @@ DEFINE_TEST_CASE(5) {
 
                 // by reference, with no placeholder
             ASSERT(UNIQUE_INT == bdlf::BindUtil::bind(
-                                  myFunctionWithExternCLinkage, UNIQUE_INT)());
+                                                  myFunctionWithExternCLinkage,
+                                                  UNIQUE_INT)());
 
-            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(Z0,
-                                  myFunctionWithExternCLinkage, UNIQUE_INT)());
+            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(
+                                                  Z0,
+                                                  myFunctionWithExternCLinkage,
+                                                  UNIQUE_INT)());
 
                 // by reference, with placeholder
             ASSERT(UNIQUE_INT == bdlf::BindUtil::bind(
-                                myFunctionWithExternCLinkage, _1)(UNIQUE_INT));
+                                                  myFunctionWithExternCLinkage,
+                                                  _1)(UNIQUE_INT));
 
-            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(Z0,
-                                myFunctionWithExternCLinkage, _1)(UNIQUE_INT));
+            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(
+                                                  Z0,
+                                                  myFunctionWithExternCLinkage,
+                                                  _1)(UNIQUE_INT));
 
                 // by address, with no placeholder
             ASSERT(UNIQUE_INT == bdlf::BindUtil::bind(
-                                 &myFunctionWithExternCLinkage, UNIQUE_INT)());
+                                                 &myFunctionWithExternCLinkage,
+                                                 UNIQUE_INT)());
 
-            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(Z0,
-                                 &myFunctionWithExternCLinkage, UNIQUE_INT)());
+            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(
+                                                 Z0,
+                                                 &myFunctionWithExternCLinkage,
+                                                 UNIQUE_INT)());
 
                 // by address, with placeholder
             ASSERT(UNIQUE_INT == bdlf::BindUtil::bind(
-                               &myFunctionWithExternCLinkage, _1)(UNIQUE_INT));
+                                                 &myFunctionWithExternCLinkage,
+                                                 _1)(UNIQUE_INT));
 
-            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(Z0,
-                               &myFunctionWithExternCLinkage, _1)(UNIQUE_INT));
+            ASSERT(UNIQUE_INT == bdlf::BindUtil::bindS(
+                                                 Z0,
+                                                 &myFunctionWithExternCLinkage,
+                                                 _1)(UNIQUE_INT));
         }
 #endif
 
@@ -1999,7 +2027,7 @@ DEFINE_TEST_CASE(5) {
 
             ASSERT(X1  == mX3);
             ASSERT(&X2 == mX4); // In a change from BDE libraries prior to 2.24
-                                // fundamental types also pass by refrerence.
+                                // fundamental types also pass by reference.
 
             mX3 = 3;
             mX4 = &X1;
@@ -2094,7 +2122,7 @@ DEFINE_TEST_CASE(5) {
             // (Namely, 'p1', etc. are taken 'P1 const&' in
             // 'bdlf::BindUtil::bind' but are stored as 'P1' in the bound
             // tuple).  This is a bug, but there is a little to do about it
-            // without much effort... and the rare frequency of volatile in
+            // without much effort and the rare frequency of volatile in
             // binders does not warrant the effort to fix it.  In addition,
             // there is a simple fix, which is to wrap the rvalue reference:
 
@@ -2146,12 +2174,15 @@ DEFINE_TEST_CASE(5) {
             BaseClass x;
             DerivedClass y;
 
-            ASSERT(1 == bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
-                                                   &BaseClass::test), _1)(&x));
-            ASSERT(2 == bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
-                                                &DerivedClass::test), _1)(&y));
-            ASSERT(2 == bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
-                                       &BaseClass::test), _1)((BaseClass*)&y));
+            ASSERT(1 == bdlf::BindUtil::bind(
+                                      bdlf::MemFnUtil::memFn(&BaseClass::test),
+                                      _1)(&x));
+            ASSERT(2 == bdlf::BindUtil::bind(
+                                   bdlf::MemFnUtil::memFn(&DerivedClass::test),
+                                   _1)(&y));
+            ASSERT(2 == bdlf::BindUtil::bind(
+                                      bdlf::MemFnUtil::memFn(&BaseClass::test),
+                                      _1)((BaseClass*)&y));
         }
 
         if (verbose)
@@ -2159,10 +2190,12 @@ DEFINE_TEST_CASE(5) {
         {
             ConcreteDerivedClass y;
 
-            ASSERT(2 == bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
-                                           &AbstractBaseClass::test), _1)(&y));
-            ASSERT(2 == bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
-                                        &ConcreteDerivedClass::test), _1)(&y));
+            ASSERT(2 == bdlf::BindUtil::bind(
+                              bdlf::MemFnUtil::memFn(&AbstractBaseClass::test),
+                              _1)(&y));
+            ASSERT(2 == bdlf::BindUtil::bind(
+                           bdlf::MemFnUtil::memFn(&ConcreteDerivedClass::test),
+                           _1)(&y));
         }
       }
 
@@ -2170,6 +2203,7 @@ DEFINE_TEST_CASE(4) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // PASSING 'Bind' and 'BindWrapper' OBJECTS AS PARAMETERS
+        //
         // Concerns:
         //  That 'Bind' and 'BindWrapper' objects can be passed as bound
         //  arguments, and that the invocation arguments are properly passed to
@@ -2619,11 +2653,11 @@ DEFINE_TEST_CASE(4) {
             // binder's allocator 'Z2', and thus when invoked with the binder
             // copies of V1 up to V14 (which use 'Z2') the allocator slots are
             // set to 'Z2', except for the first slot which should be set to
-            // 'Z0'.  There should be 14 allocations for the nested
-            // binder's bound argument plus another for the shared pointer
-            // and the nested binder instance, plus 14 for
-            // the temporary copy of 'mX' and another 14 for the temporary
-            // copies of the nested binder's bound arguments.
+            // 'Z0'.  There should be 14 allocations for the nested binder's
+            // bound argument plus another for the shared pointer and the
+            // nested binder instance, plus 14 for the temporary copy of 'mX'
+            // and another 14 for the temporary copies of the nested binder's
+            // bound arguments.
 
             const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
             const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
@@ -2702,6 +2736,7 @@ DEFINE_TEST_CASE(3) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // MIXING BOUND ARGUMENTS AND PLACEHOLDERS
+        //
         // Concern:
         //  Since the 'bdlf_bind_test[0-14]' components only test all bound
         //  arguments or all placeholders, we want to make sure other
@@ -3501,6 +3536,7 @@ DEFINE_TEST_CASE(2) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // TESTING TRAITS
+        //
         // Concern:
         //   1. That the 'bslalg::TypeTraitUsesBslmaAllocator' traits is
         //      correctly detected for 'bdlf::Bind' objects, in their two
@@ -3549,6 +3585,7 @@ DEFINE_TEST_CASE(1) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // BREATHING TEST
+        //
         // Concerns:
         //
         // Plan:
@@ -3595,8 +3632,10 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER)                                                     \
-  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+#define CASE(NUMBER)                                                          \
+      case NUMBER: {                                                          \
+        testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
+      } break
         CASE(7);
         CASE(6);
         CASE(5);
