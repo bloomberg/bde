@@ -946,13 +946,13 @@ static int gg(btlsos::TcpCbChannel        *channel,
           case 'R': {
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::e_SHUTDOWN_RECEIVE);
+                     btlso::Flag::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
           } break;
           case 'S':
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::e_SHUTDOWN_SEND);
+                     btlso::Flag::e_SHUTDOWN_SEND);
               ASSERT(0 == ret);
 
               break;
@@ -8317,11 +8317,11 @@ int main(int argc, char *argv[])
                             }
                             else if ('R' == *command) {
                                 memset(readBuf, '\0', sizeof readBuf);
-                                bteso_Flag::BlockingMode bm;
+                                btlso::Flag::BlockingMode bm;
                                 LOOP_ASSERT(LINE, 0 == sSocket->
                                         blockingMode(&bm));
                                 cSocket->setBlockingMode(
-                                        bteso_Flag::e_NONBLOCKING_MODE);
+                                        btlso::Flag::e_NONBLOCKING_MODE);
                                 int toRead = length;
                                 while (toRead > 0) {
                                     ret = cSocket->read(readBuf, toRead);
@@ -8749,10 +8749,10 @@ int main(int argc, char *argv[])
                         }
                         else if ('R' == *command) {
                             memset(readBuf, '\0', sizeof readBuf);
-                            bteso_Flag::BlockingMode bm;
+                            btlso::Flag::BlockingMode bm;
                             LOOP_ASSERT(LINE, 0 == sSocket->blockingMode(&bm));
                             cSocket->setBlockingMode(
-                                    bteso_Flag::e_NONBLOCKING_MODE);
+                                    btlso::Flag::e_NONBLOCKING_MODE);
                             int toRead = length;
                             while (toRead > 0) {
                                 ret = cSocket->read(readBuf, toRead);

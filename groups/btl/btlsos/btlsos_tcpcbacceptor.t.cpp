@@ -897,7 +897,7 @@ int main(int argc, char *argv[])
               my_TickReporter reporter(bsl::cout, &acceptor);
 
               while (0 != sem.numEvents()) {
-                  sem.dispatch(bteso_Flag::k_ASYNC_INTERRUPT);
+                  sem.dispatch(btlso::Flag::k_ASYNC_INTERRUPT);
               }
           }
 
