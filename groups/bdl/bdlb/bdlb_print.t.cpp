@@ -10,12 +10,10 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 #include <bsl_cctype.h>      // 'bsl::isspace'
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
-#include <bsl_sstream.h>     // 'bsl::ostringstream'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -681,16 +679,15 @@ int main(int argc, char *argv[])
                 buffers[i]          = bsl::make_pair(&staticBuffers[i][0], 1);
             }
 
-            char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
+            bsl::stringstream out;
             Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
-            ASSERT(0 == strncmp(buf,
+            ASSERT(0 == strncmp(out.str().c_str(),
                                 expectedOutCase7[0].c_str(),
                                 expectedOutCase7[0].size()));
 
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
                 bsl::cout << "Hexdumped String :\n"
-                          << output
+                          << out.str()
                           << "Expected String  :\n"
                           << expectedOutCase7[0] << bsl::endl;
             }
@@ -711,16 +708,15 @@ int main(int argc, char *argv[])
                 buffers[i] = bsl::make_pair(&staticBuffers[i][0], i + 1);
             }
 
-            char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
+            bsl::stringstream out;
             Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
-            ASSERT(0 == strncmp(buf,
+            ASSERT(0 == strncmp(out.str().c_str(),
                                 expectedOutCase7[1].c_str(),
                                 expectedOutCase7[1].size()));
 
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
                 bsl::cout << "Hexdumped String :\n"
-                          << output
+                          << out.str()
                           << "Expected String  :\n"
                           << expectedOutCase7[1] << bsl::endl;
             }
@@ -746,15 +742,15 @@ int main(int argc, char *argv[])
                                           + k_CHAR_PER_LINE/2);
             }
 
-            char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
+            bsl::stringstream out;
             Util::hexDump(out, buffers, k_NUM_STATIC_BUFFERS);
-            ASSERT(0 == strncmp(buf, expectedOutCase7[2].c_str(),
-                                     expectedOutCase7[2].size()));
+            ASSERT(0 == strncmp(out.str().c_str(),
+                                expectedOutCase7[2].c_str(),
+                                expectedOutCase7[2].size()));
 
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
                 bsl::cout << "Hexdumped String :\n"
-                          << output
+                          << out.str()
                           << "Expected String  :\n"
                           << expectedOutCase7[2] << bsl::endl;
             }
@@ -819,15 +815,15 @@ int main(int argc, char *argv[])
                 const bsl::string& EXPECTED = DATA[ti].d_expected;
                 const bsl::string& INPUT    = DATA[ti].d_input;
 
-                char buf[SIZE];  bsl::strstream out(buf, SIZE);
+                bsl::stringstream out;
                 out << bdlb::PrintStringHexDumper(INPUT.c_str(),
                                                   INPUT.length());
 
-                bsl::string OUTPUT(buf, out.pcount());
+                if (veryVerbose) {
+                    P_(LINE)  P_(INPUT)  P_(EXPECTED)  P(out.str());
+                }
 
-                if (veryVerbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
-
-                LOOP_ASSERT(LINE, OUTPUT == EXPECTED);
+                LOOP_ASSERT(LINE, out.str() == EXPECTED);
             }
         }
 
@@ -891,14 +887,14 @@ int main(int argc, char *argv[])
                 const bsl::string& EXPECTED = DATA[ti].d_expected;
                 const bsl::string& INPUT    = DATA[ti].d_input;
 
-                char buf[k_SIZE];  bsl::strstream out(buf, k_SIZE);
+                bsl::stringstream out;
                 Util::hexDump(out, INPUT.c_str(), INPUT.length());
 
-                bsl::string OUTPUT(buf, out.pcount());
+                if (veryVerbose) {
+                    P_(LINE)  P_(INPUT)  P_(EXPECTED)  P(out.str());
+                }
 
-                if (veryVerbose) { P(LINE)  P(INPUT)  P(EXPECTED)  P(OUTPUT) }
-
-                LOOP_ASSERT(LINE, OUTPUT == EXPECTED);
+                LOOP_ASSERT(LINE, out.str() == EXPECTED);
             }
         }
 
@@ -966,37 +962,39 @@ int main(int argc, char *argv[])
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                bsl::memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values
-                bsl::memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values
-
                 if (veryVerbose) { P_(IND); P(SPL); }
 
                 if (veryVeryVerbose) {
                     cout << "EXPECTED FORMAT: '" << FMT << '\'' << endl;
                 }
 
-                ostrstream out1(buf1, SIZE);
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
                 Util::newlineAndIndent(out1, IND, SPL);  out1 << ends;
 
-                ostrstream out2(buf2, SIZE);
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 Util::newlineAndIndent(out2, IND, SPL);  out2 << ends;
 
                 if (veryVeryVerbose) {
-                    cout << "ACTUAL FORMAT:   '" << buf1 << '\'' << endl;
+                    cout << "ACTUAL FORMAT:   '" << out1.str() << '\'' << endl;
                 }
 
                 const int SZ   = bsl::strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf1, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE,
-                            0 == bsl::memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(LINE,
-                            0 == bsl::memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE,
+                            0 == bsl::memcmp(out1.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE,
+                            0 == bsl::memcmp(out2.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE,0 == bsl::memcmp(out1.str().c_str() + SZ,
+                                                  CTRL_BUF1 + SZ,
+                                                  REST));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(out2.str().c_str() + SZ,
+                                                   CTRL_BUF2 + SZ,
+                                                   REST));
             }
         }
       } break;
@@ -1068,33 +1066,35 @@ int main(int argc, char *argv[])
                 const int         SPL    = DATA[ti].d_spaces;
                 const char *const FMT    = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                bsl::memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values
-                bsl::memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values
-
                 if (veryVerbose) { P_(IND); P(SPL); }
                 if (veryVeryVerbose) {
                     cout << "EXPECTED FORMAT: '" << FMT << '\'' << endl;
                 }
-                ostrstream out1(buf1, SIZE);
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
                 Util::indent(out1, IND, SPL);  out1 << ends;
-                ostrstream out2(buf2, SIZE);
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 Util::indent(out2, IND, SPL);  out2 << ends;
                 if (veryVeryVerbose) {
-                    cout << "ACTUAL FORMAT:   '" << buf1 << '\'' << endl;
+                    cout << "ACTUAL FORMAT:   '" << out1.str() << '\'' << endl;
                 }
 
                 const int SZ   = bsl::strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf1, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == bsl::memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE,
-                            0 == bsl::memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(LINE,
-                            0 == bsl::memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE,
+                            0 == bsl::memcmp(out1.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE,
+                            0 == bsl::memcmp(out2.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(out1.str().c_str() + SZ,
+                                                   CTRL_BUF1 + SZ,
+                                                   REST));
+                LOOP_ASSERT(LINE, 0 == bsl::memcmp(out2.str().c_str() + SZ,
+                                                   CTRL_BUF2 + SZ,
+                                                   REST));
             }
         }
       } break;
@@ -1177,8 +1177,10 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int t = 0; t < NUM_DATA; ++t) {
-            char       buf[100];  bsl::memset(buf, 0xff, sizeof buf);
-            ostrstream out(buf, sizeof buf);
+            char CTRL_BUF[100];
+            bsl::memset(CTRL_BUF, 0xff, sizeof CTRL_BUF);
+
+            ostringstream out(bsl::string(CTRL_BUF, sizeof CTRL_BUF));
 
             // test if 64-bit pointers or if value has only 32 bits
             #if defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -1192,11 +1194,11 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     cout << "EXPECTED: " << DATA[t].d_str;
-                    cout << "  ACTUAL: " << buf;
+                    cout << "  ACTUAL: " << out.str();
                     cout << endl;
                 }
 
-                ASSERT(0 == bsl::strcmp(buf, DATA[t].d_str));
+                ASSERT(0 == bsl::strcmp(out.str().c_str(), DATA[t].d_str));
             }
             #else  // BSLS_PLATFORM_CPU_32_BIT
             if (0 == DATA[t].d_addr1) {
@@ -1205,11 +1207,11 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     cout << "EXPECTED: " << DATA[t].d_str;
-                    cout << "  ACTUAL: " << buf;
+                    cout << "  ACTUAL: " << out.str();
                     cout << endl;
                 }
 
-                ASSERT(0 == bsl::strcmp(buf, DATA[t].d_str));
+                ASSERT(0 == bsl::strcmp(out.str().c_str(), DATA[t].d_str));
             }
             #endif
         }

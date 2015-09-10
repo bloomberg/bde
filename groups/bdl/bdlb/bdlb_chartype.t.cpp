@@ -7,7 +7,7 @@
 #include <bsl_cstdlib.h>   // 'bsl::atoi'
 #include <bsl_cstring.h>   // 'bsl::memset'
 #include <bsl_cctype.h>    // 'bsl::isprint', 'bsl::toupper', etc.
-#include <bsl_strstream.h> // 'bsl::ostream'
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -996,33 +996,36 @@ int main(int argc, char *argv[])
                 const Util::Category INPUT = DATA[ti].d_input;
                 const char *const FMT      = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
-
                 if (veryVerbose) cout   // print format BEFORE output operation
                     << "EXPECTED FORMAT: ``" << FMT << "''" << endl;
 
-                ostrstream out1(buf1, SIZE), out2(buf2, SIZE);
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 out1 << INPUT << ends;  // Ensure modifiable
                 out2 << INPUT << ends;  // stream is returned.
 
                 const int SZ = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
-                const bool failure = 0 != memcmp(buf1, FMT, SZ);
+                const bool failure = 0 != memcmp(out1.str().c_str(), FMT, SZ);
 
                 if (!veryVerbose && failure) cout << // print AFTER if needed
                     "EXPECTED FORMAT: ``" << FMT << "''" << endl;
                 if (veryVerbose || failure) cout <<  // print result if needed
-                    "  ACTUAL FORMAT: ``" << buf1 << "''" << endl;
+                    "  ACTUAL FORMAT: ``" << out1.str() << "''" << endl;
 
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ,REST));
-                LOOP_ASSERT(LINE, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ,REST));
+                LOOP_ASSERT(LINE,
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE,
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE, 0 == memcmp(out1.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out2.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out1.str().c_str() + SZ,
+                                              CTRL_BUF1 + SZ,
+                                              REST));
+                LOOP_ASSERT(LINE, 0 == memcmp(out2.str().c_str() + SZ,
+                                              CTRL_BUF2 + SZ,
+                                              REST));
             }
         }
 
