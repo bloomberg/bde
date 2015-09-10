@@ -122,18 +122,17 @@ extern "C" void* MyThread(void* arg_p)
     return arg_p;
 }
 
-                                // -------
-                                // case -1
-                                // -------
+                                 // -------
+                                 // case -1
+                                 // -------
 
 namespace BCEMT_MUTEX_CASE_MINUS_1 {
-
 
     enum { NUM_NOT_URGENT_THREADS = 128,
            NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
 
 int translatePriority(bdlqq::ThreadAttributes::SchedulingPolicy policy,
-                      bool                                     low)
+                      bool                                      low)
 {
     if (low) {
         return bdlqq::ThreadUtil::getMinSchedulingPriority(policy);   // RETURN

@@ -25,9 +25,9 @@ BSLS_IDENT("$Id: $")
 // functions with a time-out (e.g., 'bdlqq::Condition::timedWait') where a
 // user-supplied time-out must be converted to a different time type before
 // calling a system-library function.  In such situations it is often simpler,
-// safer, and within contract to perform a saturating conversion, rather
-// than either return an error status or define complex undefined behavior for
-// the function.
+// safer, and within contract to perform a saturating conversion, rather than
+// either return an error status or define complex undefined behavior for the
+// function.
 //
 ///Usage
 ///-----
@@ -138,13 +138,12 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-
 namespace BloombergLP {
 namespace bdlqq {
 
-                    // ====================================
-                    // class SaturatedTimeConversionImpUtil
-                    // ====================================
+                   // ====================================
+                   // class SaturatedTimeConversionImpUtil
+                   // ====================================
 
 struct SaturatedTimeConversionImpUtil {
     // This 'struct' provides a namespace for utility functions that convert
@@ -199,8 +198,8 @@ struct SaturatedTimeConversionImpUtil {
                            const bsls::TimeInterval&  src);
         // Assign to the specified 'dst' the value of the specified 'src'
         // converted to milliseconds, and if that value is a negative time
-        // interval, set 'dst' to 0, and if that value is greater than
-        // the maximum representable value of 'dst' set 'dst' to its maximum
+        // interval, set 'dst' to 0, and if that value is greater than the
+        // maximum representable value of 'dst' set 'dst' to its maximum
         // representable value.
 };
 

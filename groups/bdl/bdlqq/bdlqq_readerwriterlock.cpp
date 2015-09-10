@@ -260,8 +260,8 @@ int bdlqq::ReaderWriterLock::upgradeToWriteLock()
         d_mutex.lock();
         if (wait > 1) {
             // If we were the last reader and we could not transition
-            // atomically, then there must be another trying
-            // to upgrade atomically so signal it.
+            // atomically, then there must be another trying to upgrade
+            // atomically so signal it.
             d_signalState = e_UPGRADE_SIGNALED;
             d_upgradeCond.signal();
         }
@@ -368,8 +368,8 @@ void bdlqq::ReaderWriterLock::unlock()
         rwcount = newrwcount;
 
         if (newrwcount & READER_MASK) {
-            // Reader mask is set, either we have a read lock, or a
-            // read lock with reservation that was never cashed in.
+            // Reader mask is set, either we have a read lock, or a read lock
+            // with reservation that was never cashed in.
             newrwcount -= READER_INC;
 
             if (mine && (newrwcount & RESERVATION_PENDING))

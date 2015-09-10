@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
         // Testing Primary Manipulators / Accessors
         //
-        // For each of the 6 attributes of Attribute, set the attribute
-        // on a newly constructed object, copy the object, and use the accessor
-        // for that attribute to verify the value.
+        // For each of the 6 attributes of Attribute, set the attribute on a
+        // newly constructed object, copy the object, and use the accessor for
+        // that attribute to verify the value.
         // ------------------------------------------------------------------
         if (verbose) {
             cout << "PRIMARY METHOD TEST" << endl;

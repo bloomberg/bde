@@ -60,14 +60,14 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class RecursiveMutexImpl;
 
-              // ================================================
-              // class RecursiveMutexImpl<Platform::PosixThreads>
-              // ================================================
+             // ================================================
+             // class RecursiveMutexImpl<Platform::PosixThreads>
+             // ================================================
 
 template <>
 class RecursiveMutexImpl<Platform::PosixThreads> {
-    // This class provides a full specialization of 'RecursiveMutexImpl'
-    // for pthreads.  If the pthreads implementation supports the "recursive"
+    // This class provides a full specialization of 'RecursiveMutexImpl' for
+    // pthreads.  If the pthreads implementation supports the "recursive"
     // attribute, then the native implementation is used, otherwise, a
     // portable, efficient implementation is provided.
 
@@ -100,11 +100,11 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
     void lock();
         // Acquire a lock on this mutex object.  If this object is currently
         // locked by a different thread, then suspend execution of the current
-        // thread until a lock can be acquired.  Otherwise, if it unlocked,
-        // or locked by the calling thread, then grant ownership of the lock
+        // thread until a lock can be acquired.  Otherwise, if it unlocked, or
+        // locked by the calling thread, then grant ownership of the lock
         // immediately and return.  Note that when this object is recursively
-        // locked by a thread, 'unlock' must be called an equal number of
-        // times before the lock is actually released.
+        // locked by a thread, 'unlock' must be called an equal number of times
+        // before the lock is actually released.
 
     int tryLock();
         // Attempt to acquire a lock on this mutex object.  If this object is
@@ -117,22 +117,22 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
 
     void unlock();
         // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is
-        // undefined, unless the calling thread currently owns the lock on this
-        // mutex.  Note that when this object is recursively locked by a
-        // thread, 'unlock' must be called an equal number of times before the
-        // lock is actually released.
+        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
+        // Note that when this object is recursively locked by a thread,
+        // 'unlock' must be called an equal number of times before the lock is
+        // actually released.
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-              // ------------------------------------------------
-              // class RecursiveMutexImpl<Platform::PosixThreads>
-              // ------------------------------------------------
+             // ------------------------------------------------
+             // class RecursiveMutexImpl<Platform::PosixThreads>
+             // ------------------------------------------------
 
 // CREATORS
 inline

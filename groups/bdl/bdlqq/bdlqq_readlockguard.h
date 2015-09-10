@@ -231,9 +231,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // ===================
-                            // class ReadLockGuard
-                            // ===================
+
+                           // ===================
+                           // class ReadLockGuard
+                           // ===================
 
 template <class T>
 class ReadLockGuard {
@@ -282,9 +283,9 @@ class ReadLockGuard {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                            // ===================
-                            // class LockReadGuard
-                            // ===================
+                           // ===================
+                           // class LockReadGuard
+                           // ===================
 
 template <class T>
 class LockReadGuard : public ReadLockGuard<T> {
@@ -304,9 +305,9 @@ class LockReadGuard : public ReadLockGuard<T> {
         // DEPRECATED: Use 'ReadLockGuard' instead.
 };
 
-                         // =========================
-                         // class ReadLockGuardUnlock
-                         // =========================
+                        // =========================
+                        // class ReadLockGuardUnlock
+                        // =========================
 
 template <class T>
 class ReadLockGuardUnlock {
@@ -355,9 +356,9 @@ class ReadLockGuardUnlock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                         // ==========================
-                         // class ReadLockGuardTryLock
-                         // ==========================
+                        // ==========================
+                        // class ReadLockGuardTryLock
+                        // ==========================
 
 template <class T>
 class ReadLockGuardTryLock {
@@ -405,12 +406,12 @@ class ReadLockGuardTryLock {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // -------------------
-                            // class ReadLockGuard
-                            // -------------------
+                           // -------------------
+                           // class ReadLockGuard
+                           // -------------------
 
 // CREATORS
 template <class T>
@@ -460,9 +461,9 @@ T *bdlqq::ReadLockGuard<T>::ptr() const
     return d_lock_p;
 }
 
-                            // -------------------
-                            // class LockReadGuard
-                            // -------------------
+                           // -------------------
+                           // class LockReadGuard
+                           // -------------------
 
 // CREATORS
 template <class T>
@@ -479,9 +480,9 @@ bdlqq::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
 {
 }
 
-                         // -------------------------
-                         // class ReadLockGuardUnlock
-                         // -------------------------
+                        // -------------------------
+                        // class ReadLockGuardUnlock
+                        // -------------------------
 
 // CREATORS
 template <class T>
@@ -531,9 +532,9 @@ T *bdlqq::ReadLockGuardUnlock<T>::ptr() const
     return d_lock_p;
 }
 
-                         // --------------------------
-                         // class ReadLockGuardTryLock
-                         // --------------------------
+                        // --------------------------
+                        // class ReadLockGuardTryLock
+                        // --------------------------
 
 // CREATORS
 template <class T>

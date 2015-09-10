@@ -22,9 +22,9 @@ BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-               // ----------------------------------------------
-               // class SemaphoreImpl<Platform::DarwinSemaphore>
-               // ----------------------------------------------
+              // ----------------------------------------------
+              // class SemaphoreImpl<Platform::DarwinSemaphore>
+              // ----------------------------------------------
 
 const char *
 bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::s_semaphorePrefix
@@ -96,7 +96,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
     BSLS_ASSERT(result == 0);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BSLS_PLATFORM_OS_DARWIN
 

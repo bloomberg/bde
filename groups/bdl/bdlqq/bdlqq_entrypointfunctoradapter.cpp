@@ -5,9 +5,9 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-    
+
 void *bdlqq_EntryPointFunctorAdapter_invoker(void* argument) {
-    bdlqq::EntryPointFunctorAdapter_Base* threadArg = 
+    bdlqq::EntryPointFunctorAdapter_Base* threadArg =
         (bdlqq::EntryPointFunctorAdapter_Base*)argument;
     threadArg->function()(argument);
     return 0;
@@ -30,5 +30,3 @@ void *bdlqq_EntryPointFunctorAdapter_invoker(void* argument) {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-
-

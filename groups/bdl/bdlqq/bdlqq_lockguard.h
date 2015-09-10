@@ -20,10 +20,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides generic proctors to automatically
-// lock and unlock an external synchronization object.  The synchronization
-// object can be any type (e.g., 'bdlqq::Mutex' or 'bdlqq::RecursiveMutex')
-// that provides the following methods:
+//@DESCRIPTION: This component provides generic proctors to automatically lock
+// and unlock an external synchronization object.  The synchronization object
+// can be any type (e.g., 'bdlqq::Mutex' or 'bdlqq::RecursiveMutex') that
+// provides the following methods:
 //..
 //  void lock();
 //  void unlock();
@@ -148,8 +148,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Instantiations of 'bdlqq::LockGuardUnlock' can be interleaved with
-// instantiations of 'bdlqq::LockGuard' to create both critical sections
-// and regions where the lock is released.
+// instantiations of 'bdlqq::LockGuard' to create both critical sections and
+// regions where the lock is released.
 //..
 //  void f(my_Mutex *mutex)
 //  {
@@ -178,9 +178,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                              // ===============
-                              // class LockGuard
-                              // ===============
+
+                             // ===============
+                             // class LockGuard
+                             // ===============
 
 template <class T>
 class LockGuard {
@@ -229,9 +230,9 @@ class LockGuard {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                           // =====================
-                           // class LockGuardUnlock
-                           // =====================
+                          // =====================
+                          // class LockGuardUnlock
+                          // =====================
 
 template <class T>
 class LockGuardUnlock {
@@ -280,9 +281,9 @@ class LockGuardUnlock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                             // =================
-                             // class UnLockGuard
-                             // =================
+                            // =================
+                            // class UnLockGuard
+                            // =================
 
 template <class T>
 class UnLockGuard : public LockGuardUnlock<T> {
@@ -302,9 +303,9 @@ class UnLockGuard : public LockGuardUnlock<T> {
         // DEPRECATED: Use 'LockGuardUnlock' instead.
 };
 
-                           // ======================
-                           // class LockGuardTryLock
-                           // ======================
+                          // ======================
+                          // class LockGuardTryLock
+                          // ======================
 
 template <class T>
 class LockGuardTryLock {
@@ -349,9 +350,9 @@ class LockGuardTryLock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                             // ==================
-                             // class TryLockGuard
-                             // ==================
+                            // ==================
+                            // class TryLockGuard
+                            // ==================
 
 template <class T>
 class TryLockGuard : public LockGuardTryLock<T> {
@@ -371,12 +372,12 @@ class TryLockGuard : public LockGuardTryLock<T> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ---------------
-                              // class LockGuard
-                              // ---------------
+                             // ---------------
+                             // class LockGuard
+                             // ---------------
 
 // CREATORS
 template <class T>
@@ -426,9 +427,9 @@ T *bdlqq::LockGuard<T>::ptr() const
     return d_lock_p;
 }
 
-                             // -----------------
-                             // class UnLockGuard
-                             // -----------------
+                            // -----------------
+                            // class UnLockGuard
+                            // -----------------
 
 // CREATORS
 template <class T>
@@ -445,9 +446,9 @@ bdlqq::UnLockGuard<T>::UnLockGuard(T *lock, int preUnlockedFlag)
 {
 }
 
-                             // ------------------
-                             // class TryLockGuard
-                             // ------------------
+                            // ------------------
+                            // class TryLockGuard
+                            // ------------------
 
 template <class T>
 inline
@@ -456,9 +457,9 @@ bdlqq::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
 {
 }
 
-                           // ---------------------
-                           // class LockGuardUnlock
-                           // ---------------------
+                          // ---------------------
+                          // class LockGuardUnlock
+                          // ---------------------
 
 // CREATORS
 template <class T>
@@ -508,9 +509,9 @@ T *bdlqq::LockGuardUnlock<T>::ptr() const
     return d_lock_p;
 }
 
-                           // ----------------------
-                           // class LockGuardTryLock
-                           // ----------------------
+                          // ----------------------
+                          // class LockGuardTryLock
+                          // ----------------------
 
 // CREATORS
 template <class T>

@@ -117,8 +117,8 @@ class my_Condition {
         // 'broadcast'.
     int  timedWait(bdlqq::Mutex *mutex, const bsls::TimeInterval &timeout);
         // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast', or until the specified timeout(in abs time).  Return
-        // 0 if the condition was signaled, and a value of -1 if a timeout
+        // 'broadcast', or until the specified timeout(in abs time).  Return 0
+        // if the condition was signaled, and a value of -1 if a timeout
         // occurred.
 
     void signal();
@@ -151,8 +151,8 @@ void my_Condition::wait(bdlqq::Mutex *mutex)
     mutex->lock();
 }
 
-int  my_Condition::timedWait(bdlqq::Mutex *mutex,
-                             const bsls::TimeInterval &timeout)
+int  my_Condition::timedWait(bdlqq::Mutex             *mutex,
+                             const bsls::TimeInterval  &timeout)
 {
     d_mutex.lock();
     int bcastCount = d_bcastCount;
@@ -287,13 +287,12 @@ void TestArguments::signalStop()
 }
 
 void* TestReaderThread1(void *ptr)
-    // This function is used to test the 'lockRead' and 'unlock' methods.
-    // It begins by invoking 'wait' on the barrier for all the threads.
-    // Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockRead' on the provided reader/writer lock.  Once it
-    // has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
-    // using the 'unlock' method.
+    // This function is used to test the 'lockRead' and 'unlock' methods.  It
+    // begins by invoking 'wait' on the barrier for all the threads.  Then it
+    // signals the provided condition variable 'd_cond1'.  Next it calls
+    // 'lockRead' on the provided reader/writer lock.  Once it has acquired the
+    // lock, it again signals 'd_cond1' and waits for 'd_cond2' to be signaled.
+    // Finally it releases the reader/writer lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -308,13 +307,12 @@ void* TestReaderThread1(void *ptr)
 
 extern "C" {
 void* TestReaderThread2(void *ptr)
-    // This function is used to test the 'lockRead' and 'unlock' methods.
-    // It begins by invoking 'wait' on the barrier for all the threads.
-    // Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockRead' on the provided reader/writer lock.  Once it
-    // has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
-    // using the 'unlock' method.
+    // This function is used to test the 'lockRead' and 'unlock' methods.  It
+    // begins by invoking 'wait' on the barrier for all the threads.  Then it
+    // signals the provided condition variable 'd_cond1'.  Next it calls
+    // 'lockRead' on the provided reader/writer lock.  Once it has acquired the
+    // lock, it again signals 'd_cond1' and waits for 'd_cond2' to be signaled.
+    // Finally it releases the reader/writer lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -329,13 +327,13 @@ void* TestReaderThread2(void *ptr)
 }
 
 void* TestWriterThread1(void *ptr)
-    // This function is used to test the 'lockWrite' and 'unlock' methods.
-    // It begins by invoking 'wait' on the barrier for all the threads.
-    // Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockWrite' on the provided reader/writer lock.  Once it
-    // has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
-    // using the 'unlockWrite' method.
+    // This function is used to test the 'lockWrite' and 'unlock' methods.  It
+    // begins by invoking 'wait' on the barrier for all the threads.  Then it
+    // signals the provided condition variable 'd_cond1'.  Next it calls
+    // 'lockWrite' on the provided reader/writer lock.  Once it has acquired
+    // the lock, it again signals 'd_cond1' and waits for 'd_cond2' to be
+    // signaled.  Finally it releases the reader/writer lock using the
+    // 'unlockWrite' method.
 {
     static bdlqq::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
@@ -352,14 +350,13 @@ void* TestWriterThread1(void *ptr)
 }
 
 void* TestWriterThread2(void *ptr)
-    // This function is used to test the 'lockReadReserveWrite' and
-    // 'unlock' methods.  It begins by invoking 'wait' on the
-    // barrier for all the threads.  Then it signals the provided condition
-    // variable 'd_cond1'.  Next it calls 'lockReadReserveWrite' on the
-    // provided reader/writer lock.  Once it has acquired the lock, it again
-    // signals 'd_cond1' and waits for 'd_cond2' to be signaled.  Finally it
-    // releases the reader/writer lock using the 'unlock'
-    // method.
+    // This function is used to test the 'lockReadReserveWrite' and 'unlock'
+    // methods.  It begins by invoking 'wait' on the barrier for all the
+    // threads.  Then it signals the provided condition variable 'd_cond1'.
+    // Next it calls 'lockReadReserveWrite' on the provided reader/writer lock.
+    // Once it has acquired the lock, it again signals 'd_cond1' and waits for
+    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
+    // using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -378,13 +375,13 @@ void* TestWriterThread2(void *ptr)
 
 void* TestWriterThread3(void *ptr)
     // This function is used to test the 'lockReadReserveWrite' and
-    // 'upgradeToWriteLock' methods.  It begins by invoking 'wait' on
-    // the barrier for all the threads.  Then it signals the provided condition
+    // 'upgradeToWriteLock' methods.  It begins by invoking 'wait' on the
+    // barrier for all the threads.  Then it signals the provided condition
     // variable 'd_cond1'.  Next it calls 'lockReadReserveWrite' on the
     // provided reader/writer lock.  Once it has acquired the lock, it again
     // signals 'd_cond1' and waits for 'd_cond2' to be signaled.  Finally it
-    // upgrades the lock to a write lock using the 'upgradeToWriteLock'
-    // method and releases the lock using the 'unlock' method.
+    // upgrades the lock to a write lock using the 'upgradeToWriteLock' method
+    // and releases the lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -403,13 +400,13 @@ void* TestWriterThread3(void *ptr)
 }
 
 void* TestWriterThread4(void *ptr)
-    // This function is used to test the 'lockWrite' and 'unlock' methods.
-    // It begins by invoking 'wait' on the barrier for all the threads.
-    // Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockWrite' on the provided reader/writer lock.  Once it
-    // has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
-    // using the 'unlockWrite' method.
+    // This function is used to test the 'lockWrite' and 'unlock' methods.  It
+    // begins by invoking 'wait' on the barrier for all the threads.  Then it
+    // signals the provided condition variable 'd_cond1'.  Next it calls
+    // 'lockWrite' on the provided reader/writer lock.  Once it has acquired
+    // the lock, it again signals 'd_cond1' and waits for 'd_cond2' to be
+    // signaled.  Finally it releases the reader/writer lock using the
+    // 'unlockWrite' method.
 {
     static bdlqq::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
@@ -427,14 +424,14 @@ void* TestWriterThread4(void *ptr)
 }
 
 void* TestUpgradeThread1(void *ptr)
-    // This function is used to test the '' upgradeToWriteLock'
-    // methods.  It begins by invoking 'wait' on the barrier for all the
-    // threads.  Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockReadReserveWrite' on the provided reader/writer lock.
-    // Once it has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it upgrades the lock to a write lock
-    // using the 'upgradeToWriteLock' method and releases the lock
-    // using the 'unlock' method.
+    // This function is used to test the '' upgradeToWriteLock' methods.  It
+    // begins by invoking 'wait' on the barrier for all the threads.  Then it
+    // signals the provided condition variable 'd_cond1'.  Next it calls
+    // 'lockReadReserveWrite' on the provided reader/writer lock.  Once it has
+    // acquired the lock, it again signals 'd_cond1' and waits for 'd_cond2' to
+    // be signaled.  Finally it upgrades the lock to a write lock using the
+    // 'upgradeToWriteLock' method and releases the lock using the 'unlock'
+    // method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -474,7 +471,7 @@ class UserInfoCache {
     ~UserInfoCache();
 
     int getUserInfo(int userId, UserInfo *userInfo);
-    int updateUserInfo(int userId,UserInfo *userInfo);
+    int updateUserInfo(int userId, UserInfo *userInfo);
     int addUserInfo(int userId, UserInfo *userInfo);
     void removeUser(int userId);
 };
@@ -583,8 +580,8 @@ extern "C" void *case11ThreadRW(void *arg)
         if (0 != k) {
             NL(); P(k);
         }
-        // Only this thread should be able to change the value since
-        // it reserved the write lock.
+        // Only this thread should be able to change the value since it
+        // reserved the write lock.
         ++k;
         LOOP_ASSERT(i, 1 == k);
 

@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
         // Breathing test
         //
         // Create and destroy a RecursiveMutex.  Lock; verify that tryLock
-        // succeeds; from another thread, verify that tryLock fails;
-        // unlock and verify that tryLock fails; unlock again and verify that
-        // tryLock succeeds.
+        // succeeds; from another thread, verify that tryLock fails; unlock and
+        // verify that tryLock fails; unlock again and verify that tryLock
+        // succeeds.
         // ------------------------------------------------------------------
         if (verbose) {
             cout << "BREATHING TEST" << endl;

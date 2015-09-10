@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(bdlqq_sluice_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                     // ----------------------------------
-                     // class Sluice::GenerationDescriptor
-                     // ----------------------------------
+                    // ----------------------------------
+                    // class Sluice::GenerationDescriptor
+                    // ----------------------------------
 
 // CREATORS
 bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
@@ -30,9 +30,9 @@ bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
 {
 }
 
-                                // ------------
-                                // class Sluice
-                                // ------------
+                               // ------------
+                               // class Sluice
+                               // ------------
 
 // CREATORS
 bdlqq::Sluice::Sluice(bslma::Allocator *basicAllocator)
@@ -129,7 +129,7 @@ void bdlqq::Sluice::wait(const void *token)
     }
 }
 
-int bdlqq::Sluice::timedWait(const void               *token,
+int bdlqq::Sluice::timedWait(const void                *token,
                              const bsls::TimeInterval&  timeout)
 {
     GenerationDescriptor *g =

@@ -166,9 +166,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // ====================
-                            // class WriteLockGuard
-                            // ====================
+
+                           // ====================
+                           // class WriteLockGuard
+                           // ====================
 
 template <class T>
 class WriteLockGuard {
@@ -217,9 +218,9 @@ class WriteLockGuard {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                            // ====================
-                            // class LockWriteGuard
-                            // ====================
+                           // ====================
+                           // class LockWriteGuard
+                           // ====================
 
 template <class T>
 class LockWriteGuard : public WriteLockGuard<T> {
@@ -240,9 +241,9 @@ class LockWriteGuard : public WriteLockGuard<T> {
 
 };
 
-                         // ==========================
-                         // class WriteLockGuardUnlock
-                         // ==========================
+                        // ==========================
+                        // class WriteLockGuardUnlock
+                        // ==========================
 
 template <class T>
 class WriteLockGuardUnlock {
@@ -291,9 +292,9 @@ class WriteLockGuardUnlock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                        // ===========================
-                        // class WriteLockGuardTryLock
-                        // ===========================
+                       // ===========================
+                       // class WriteLockGuardTryLock
+                       // ===========================
 
 template <class T>
 class WriteLockGuardTryLock {
@@ -341,12 +342,12 @@ class WriteLockGuardTryLock {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // --------------------
-                            // class WriteLockGuard
-                            // --------------------
+                           // --------------------
+                           // class WriteLockGuard
+                           // --------------------
 
 // CREATORS
 template <class T>
@@ -397,9 +398,9 @@ T *bdlqq::WriteLockGuard<T>::ptr() const
     return d_lock_p;
 }
 
-                         // --------------------------
-                         // class WriteLockGuardUnlock
-                         // --------------------------
+                        // --------------------------
+                        // class WriteLockGuardUnlock
+                        // --------------------------
 
 // CREATORS
 template <class T>
@@ -449,9 +450,9 @@ T *bdlqq::WriteLockGuardUnlock<T>::ptr() const
     return d_lock_p;
 }
 
-                        // ---------------------------
-                        // class WriteLockGuardTryLock
-                        // ---------------------------
+                       // ---------------------------
+                       // class WriteLockGuardTryLock
+                       // ---------------------------
 
 // CREATORS
 template <class T>
@@ -495,9 +496,9 @@ T *bdlqq::WriteLockGuardTryLock<T>::ptr() const
     return d_lock_p;
 }
 
-                            // --------------------
-                            // class LockWriteGuard
-                            // --------------------
+                           // --------------------
+                           // class LockWriteGuard
+                           // --------------------
 
 // CREATORS
 template <class T>

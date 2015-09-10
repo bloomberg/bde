@@ -86,15 +86,15 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class ConditionImpl;
 
-                // ===========================================
-                // class ConditionImpl<Platform::PosixThreads>
-                // ===========================================
+               // ===========================================
+               // class ConditionImpl<Platform::PosixThreads>
+               // ===========================================
 
 template <>
 class ConditionImpl<Platform::PosixThreads> {
-    // This class provides a full specialization of 'Condition' for
-    // pthreads.  The implementation provided here defines an efficient proxy
-    // for the 'pthread_cond_t' pthread type, and related operations.
+    // This class provides a full specialization of 'Condition' for pthreads.
+    // The implementation provided here defines an efficient proxy for the
+    // 'pthread_cond_t' pthread type, and related operations.
 
     // DATA
     pthread_cond_t              d_cond;       // provides post/wait for
@@ -166,12 +166,12 @@ class ConditionImpl<Platform::PosixThreads> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                // -------------------------------------------
-                // class ConditionImpl<Platform::PosixThreads>
-                // -------------------------------------------
+               // -------------------------------------------
+               // class ConditionImpl<Platform::PosixThreads>
+               // -------------------------------------------
 
 // CREATORS
 inline

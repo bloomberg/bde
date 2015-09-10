@@ -24,8 +24,8 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component consists of a number of independent class methods which may
-// be tested independently -- none depend on each other.
+// The component consists of a number of independent class methods which may be
+// tested independently -- none depend on each other.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 6] USAGE
@@ -861,7 +861,6 @@ int main(int argc, char *argv[])
             const Int64  MIN_INT64  = bsl::numeric_limits<Int64>::min();
             const Uint64 MAX_UINT64 = bsl::numeric_limits<Uint64>::max();
 
-
             enum {
                 MILLISECS_PER_SEC     = 1000,        // one thousand
                 MICROSECS_PER_SEC     = 1000000,     // one million
@@ -902,10 +901,8 @@ int main(int argc, char *argv[])
        { L_, SEC_LIMIT + 1,                        0,    MAX_UINT64 },
        { L_, SEC_LIMIT + 2,                        0,    MAX_UINT64 },
 
-
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
-
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int    LINE     = VALUES[i].d_line;
@@ -1255,8 +1252,8 @@ int main(int argc, char *argv[])
         ts.tv_sec = -1;
 
         // We sometimes have to introduce a 'matcher' variable to avoid
-        // compiler warnings when code intended for one type of 'timespec'
-        // gets compiled on a platform where 'timespec' has a different type.
+        // compiler warnings when code intended for one type of 'timespec' gets
+        // compiled on a platform where 'timespec' has a different type.
 
         if (4 == sizeof(ts.tv_sec)) {
             if (ts.tv_sec > 0) {

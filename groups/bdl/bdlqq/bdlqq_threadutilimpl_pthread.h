@@ -88,7 +88,7 @@ extern "C" {
         // 'bcemt_ThreadFunction' is an alias for a function type taking a
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry point
-        // functions to 'bdlqq::ThreadUtil::create'.  
+        // functions to 'bdlqq::ThreadUtil::create'.
 
     typedef void (*bcemt_KeyDestructorFunction)(void *);
         // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
@@ -102,9 +102,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 struct ThreadUtilImpl;
 
-                // ============================================
-                // class ThreadUtilImpl<Platform::PosixThreads>
-                // ============================================
+               // ============================================
+               // class ThreadUtilImpl<Platform::PosixThreads>
+               // ============================================
 
 template <>
 struct ThreadUtilImpl<Platform::PosixThreads> {
@@ -145,8 +145,8 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
                       void                 *userData);
         // Create a new thread of program control having platform specific
         // default attributes (i.e., "stack size", "scheduling priority"), that
-        // invokes the specified 'function' with a single argument specified
-        // by 'userData', and load into the specified 'threadHandle', an
+        // invokes the specified 'function' with a single argument specified by
+        // 'userData', and load into the specified 'threadHandle', an
         // identifier that may be used to refer to the thread in future calls
         // to this utility.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined if 'thread' is 0.  Note that
@@ -155,37 +155,35 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // associated with the newly created identifier.
 
     static int detach(Handle& threadHandle);
-        // "Detach" the thread identified by 'threadHandle', such that when
-        // it terminates, the resources associated the thread will
-        // automatically be reclaimed.  Note that once a thread is "detached",
-        // it is no longer possible to 'join' the thread to retrieve the its
-        // exit status.
+        // "Detach" the thread identified by 'threadHandle', such that when it
+        // terminates, the resources associated the thread will automatically
+        // be reclaimed.  Note that once a thread is "detached", it is no
+        // longer possible to 'join' the thread to retrieve the its exit
+        // status.
 
     static void exit(void *status);
-        // Exit the current thread and return the specified 'status'.  If
-        // the current thread is not "detached", then a call to 'join' must be
-        // made to reclaim any resources used by the thread, and to retrieve
-        // the exit status.  Note that generally, the preferred method of
-        // exiting a thread is to return form the entry point function.
+        // Exit the current thread and return the specified 'status'.  If the
+        // current thread is not "detached", then a call to 'join' must be made
+        // to reclaim any resources used by the thread, and to retrieve the
+        // exit status.  Note that generally, the preferred method of exiting a
+        // thread is to return form the entry point function.
 
     static int getMaxSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // maximum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMinSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // minimum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int join(Handle& threadHandle, void **status = (void**)0);
@@ -211,14 +209,13 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
     static int sleep(const bsls::TimeInterval&  sleepTime,
                      bsls::TimeInterval        *unsleptTime = 0);
-        // Suspend execution of the current thread for a period of at least
-        // the specified 'sleepTime' (relative time), and optionally load into
-        // the specified 'unsleptTime' the amount of time that was not slept
-        // by this function if the operation was interrupted by a signal.
-        // Return 0 on success, and a non-zero value if the operation was
-        // interrupted by a signal.  Note that the actual time suspended
-        // depends on many factors including system scheduling, and system
-        // timer resolution.
+        // Suspend execution of the current thread for a period of at least the
+        // specified 'sleepTime' (relative time), and optionally load into the
+        // specified 'unsleptTime' the amount of time that was not slept by
+        // this function if the operation was interrupted by a signal.  Return
+        // 0 on success, and a non-zero value if the operation was interrupted
+        // by a signal.  Note that the actual time suspended depends on many
+        // factors including system scheduling, and system timer resolution.
 
     static int sleepUntil(const bsls::TimeInterval&   absoluteTime,
                           bsls::SystemClockType::Enum clockType
@@ -244,18 +241,18 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // indicating whether to put this thread to sleep again if the
         // operating system interupts the sleep because of a signal.
         // Optionally specify 'clockType' which determines the epoch from which
-        // the interval 'absoluteTime' is measured (see
-        // {'Supported Clock-Types'} in the component documentation).  Return 0
-        // on success, and a non-zero value otherwise.  If
-        // 'retryOnSignalInterrupt' is 'true', an interupt from a signal will
-        // be ignored and the current the thread will be put back to sleep
-        // until 'absoluteTime', otherwise this call will return 0 to the
-        // calling thread immediately.  The behavior is undefined unless
-        // 'absoluteTime' represents a time after January 1, 1970 and before
-        // the end of December 31, 9999 (i.e., a time interval greater than or
-        // equal to 0, and less than 253,402,300,800 seconds).  Note that the
-        // actual time suspended depends on many factors including system
-        // scheduling and system timer resolution.
+        // the interval 'absoluteTime' is measured (see {'Supported
+        // Clock-Types'} in the component documentation).  Return 0 on success,
+        // and a non-zero value otherwise.  If 'retryOnSignalInterrupt' is
+        // 'true', an interupt from a signal will be ignored and the current
+        // the thread will be put back to sleep until 'absoluteTime', otherwise
+        // this call will return 0 to the calling thread immediately.  The
+        // behavior is undefined unless 'absoluteTime' represents a time after
+        // January 1, 1970 and before the end of December 31, 9999 (i.e., a
+        // time interval greater than or equal to 0, and less than
+        // 253,402,300,800 seconds).  Note that the actual time suspended
+        // depends on many factors including system scheduling and system timer
+        // resolution.
 
     static void yield();
         // Put the current thread to the end of the scheduler's queue and
@@ -293,7 +290,6 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // specified by 'threadHandle'.  Note that the returned native handle
         // may not be a globally unique identifier for the thread (see
         // 'selfIdAsUint').
-
 
     static Handle self();
         // Return an identifier that can be used to refer to the current thread
@@ -346,19 +342,19 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
     static int setSpecific(const Key& key, const void *value);
         // Associate the specified 'value' with the specified thread-specific
-        // 'key'.  Return 0 on success, and a non-zero value otherwise.
-        // TBD elaborate on what 'value' represents
+        // 'key'.  Return 0 on success, and a non-zero value otherwise.  TBD
+        // elaborate on what 'value' represents
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                // --------------------------------------------
-                // class ThreadUtilImpl<Platform::PosixThreads>
-                // --------------------------------------------
+               // --------------------------------------------
+               // class ThreadUtilImpl<Platform::PosixThreads>
+               // --------------------------------------------
 
 // CLASS METHODS
                           // *** Thread Management ***
@@ -444,7 +440,6 @@ bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsUint64(
     return static_cast<bsls::Types::Uint64>(threadId);
 #endif
 }
-
 
 inline
 int

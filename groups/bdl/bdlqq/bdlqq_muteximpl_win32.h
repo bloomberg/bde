@@ -80,16 +80,16 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class MutexImpl;
 
-                  // =======================================
-                  // class MutexImpl<Platform::Win32Threads>
-                  // =======================================
+                 // =======================================
+                 // class MutexImpl<Platform::Win32Threads>
+                 // =======================================
 
 template <>
 class MutexImpl<Platform::Win32Threads> {
-    // This class provides a full specialization of 'MutexImpl' for
-    // Windows.  It provides an efficient proxy for Windows critical sections,
-    // and related operations.  Note that the mutex implemented in this class
-    // is *not* error checking, and is non-recursive.
+    // This class provides a full specialization of 'MutexImpl' for Windows.
+    // It provides an efficient proxy for Windows critical sections, and
+    // related operations.  Note that the mutex implemented in this class is
+    // *not* error checking, and is non-recursive.
     // TYPES
 
   public:
@@ -139,10 +139,10 @@ class MutexImpl<Platform::Win32Threads> {
     // MANIPULATORS
     void lock();
         // Acquire a lock on this mutex object.  If this object is currently
-        // locked, then suspend execution of the current thread until a
-        // lock can be acquired.  Note that the behavior is undefined if the
-        // calling thread already owns the lock on this mutex, and will likely
-        // result in a deadlock.
+        // locked, then suspend execution of the current thread until a lock
+        // can be acquired.  Note that the behavior is undefined if the calling
+        // thread already owns the lock on this mutex, and will likely result
+        // in a deadlock.
 
     NativeType& nativeMutex();
         // Return a reference to the modifiable OS-level mutex underlying this
@@ -156,20 +156,19 @@ class MutexImpl<Platform::Win32Threads> {
 
     void unlock();
         // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is
-        // undefined, unless the calling thread currently owns the lock on this
-        // mutex.
+        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                  // ---------------------------------------
-                  // class MutexImpl<Platform::Win32Threads>
-                  // ---------------------------------------
+                 // ---------------------------------------
+                 // class MutexImpl<Platform::Win32Threads>
+                 // ---------------------------------------
 
 // CREATORS
 inline
@@ -215,7 +214,7 @@ void bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::unlock()
         reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // BDLQQ_PLATFORM_WIN32_THREADS
 

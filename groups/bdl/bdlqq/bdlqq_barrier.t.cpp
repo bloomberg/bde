@@ -145,8 +145,9 @@ struct ThreadArgs {
 };
 
 // ----------------------------------------------------------------------------
-//                     HELPER FUNCTIONS FOR TEST CASE 9
+//                      HELPER FUNCTIONS FOR TEST CASE 9
 // ----------------------------------------------------------------------------
+
 namespace case9 {
 
 struct Control
@@ -221,14 +222,14 @@ void test(int numIterations, int numThreads)
 }  // close namespace case9
 
 // ----------------------------------------------------------------------------
-//                     HELPER FUNCTIONS FOR TEST CASE 5
+//                      HELPER FUNCTIONS FOR TEST CASE 5
 // ----------------------------------------------------------------------------
 
 extern "C" void * testThread5a(void *arg)
     // This function is used to test the 'wait' and 'timedWait' methods
-    // together: it uses the 'd_waitCount' atomic integer provided
-    // 'ThreadArgs' structure to make sure that the call to the 'wait' method
-    // of the provided barrier occurs before the call to 'timedWait'.
+    // together: it uses the 'd_waitCount' atomic integer provided 'ThreadArgs'
+    // structure to make sure that the call to the 'wait' method of the
+    // provided barrier occurs before the call to 'timedWait'.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -267,7 +268,7 @@ extern "C" void * testThread5b(void *arg)
 }
 
 // ----------------------------------------------------------------------------
-//                     HELPER FUNCTIONS FOR TEST CASE 4
+//                      HELPER FUNCTIONS FOR TEST CASE 4
 // ----------------------------------------------------------------------------
 
 struct ThreadArgs4 {
@@ -353,7 +354,7 @@ extern "C" void * testThread4(void *arg)
 }
 
 // ----------------------------------------------------------------------------
-//                     HELPER FUNCTIONS FOR TEST CASE 3
+//                      HELPER FUNCTIONS FOR TEST CASE 3
 // ----------------------------------------------------------------------------
 
 extern "C" void * testThread3(void *arg)
@@ -508,9 +509,7 @@ class Case8_Driver
 
 public:
 
-   Case8_Driver(bsls::AtomicInt *state,
-                bdlqq::Barrier  *barrier,
-                int numCycles)
+   Case8_Driver(bsls::AtomicInt *state, bdlqq::Barrier *barrier, int numCycles)
    : d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
 
    void operator()() {
@@ -674,14 +673,14 @@ int main(int argc, char *argv[])
         // Reusable barrier test
         //
         // Concern: that bdlqq::Barrier is reusable by the same thread group,
-        // i.e., that N threads, after passing wait(), may pass a second
-        // wait() correctly.
+        // i.e., that N threads, after passing wait(), may pass a second wait()
+        // correctly.
         //
         // Plan: set up N threads to wait on a shared barrier, with *one* of
-        // the threads switching a state variable before calling wait().
-        // There will be M wait() calls, and M after-wait states.  Verify
-        // that the N-1 other threads only enter each after-wait state after
-        // the N'th thread has switched the variable.
+        // the threads switching a state variable before calling wait().  There
+        // will be M wait() calls, and M after-wait states.  Verify that the
+        // N-1 other threads only enter each after-wait state after the N'th
+        // thread has switched the variable.
         // ----------------------------------------------------------------
        if (verbose) {
           cout << "\nReusable barrier test" << endl;
@@ -1011,10 +1010,9 @@ int main(int argc, char *argv[])
                 else {
                     // This can fail if 'timedWait' above gets executed after a
                     // worker thread already timed out, but the extremely long
-                    // TIMEOUT makes this really unlikely!  Just to be
-                    // complete, we avoid locking this test driver
-                    // indefinitely.  We still need to unlock the waiting
-                    // threads.
+                    // TIMEOUT makes this really unlikely! Just to be complete,
+                    // we avoid locking this test driver indefinitely.  We
+                    // still need to unlock the waiting threads.
 
                     ++args.d_stopCount;
                     for (int i = 0; i < NTHREADS; ++i) {
@@ -1079,10 +1077,9 @@ int main(int argc, char *argv[])
                 else {
                     // This can fail if 'timedWait' above gets executed after a
                     // worker thread already timed out, but the extremely long
-                    // TIMEOUT makes this really unlikely!  Just to be
-                    // complete, we avoid locking this test driver
-                    // indefinitely.  We still need to unlock the waiting
-                    // threads.
+                    // TIMEOUT makes this really unlikely! Just to be complete,
+                    // we avoid locking this test driver indefinitely.  We
+                    // still need to unlock the waiting threads.
 
                     ++args.d_stopCount;
                     for (int i = 0; i < NTHREADS; ++i) {

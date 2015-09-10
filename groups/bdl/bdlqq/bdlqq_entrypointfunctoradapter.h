@@ -17,7 +17,7 @@ BSLS_IDENT("$: $")
 //
 //@DESCRIPTION: This component defines a type, 'EntryPointFunctorAdapter', that
 // contains a single instance of a parameterized invokable type along with an
-// allocator to manage it. The parameterized type must provide a copy
+// allocator to manage it.  The parameterized type must provide a copy
 // constructor and 'void operator()()'.
 //
 // This component also provides a C-linkage function
@@ -25,11 +25,11 @@ BSLS_IDENT("$: $")
 // 'EntryPointFunctorAdapter', invoking the invokable object contained within
 // it and then deallocating the adapter object along with the contained
 // invokable object.  Together, 'EntryPointFunctorAdapter' and
-// 'bldqq_EntryPointFunctorAdapter_invoker' simplify the process of invoking
-// a generic functor as a C-style callback, such as a thread entry point.
+// 'bldqq_EntryPointFunctorAdapter_invoker' simplify the process of invoking a
+// generic functor as a C-style callback, such as a thread entry point.
 //
-// Finally, this component provides 'EntryPointFunctorAdapterUtil', a
-// namespace for a utility function that dynamically allocates instances of
+// Finally, this component provides 'EntryPointFunctorAdapterUtil', a namespace
+// for a utility function that dynamically allocates instances of
 // 'EntryPointFunctorAdapter'.
 //
 ///Usage
@@ -46,7 +46,7 @@ BSLS_IDENT("$: $")
 // extern "C" {
 //    typedef void *(*CallbackFunction)(void*);
 // }
-// 
+//
 // void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
 //    return funcPtr(argument);
 // }
@@ -55,9 +55,9 @@ BSLS_IDENT("$: $")
 // functor.  Our approach will be to use
 // 'bldqq_EntryPointFunctorAdapter_invoker' as the C-linkage callback function,
 // and a dynamically allocated value of 'EntryPointFunctorAdapter' as the
-// 'void*' argument.  
+// 'void*' argument.
 //
-// First, we define a C++ functor type. This type implements the job of
+// First, we define a C++ functor type.  This type implements the job of
 // counting the number of words in a string held by value.
 //..
 // class WordCountJob {
@@ -87,7 +87,7 @@ BSLS_IDENT("$: $")
 //       // specified 'other' functor.  Use the specified 'basicAllocator'
 //       // to supply memory.  If 'basicAllocator' is 0, the currently installed
 //       // default allocator is used.
-//   
+//
 //     // MANIPULATORS
 //     void operator()();
 //       // Count the number of words in the message and store the count in
@@ -96,7 +96,7 @@ BSLS_IDENT("$: $")
 //
 // inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
 //                                   int                      *result,
-//                                   bslma::Allocator         *basicAllocator) 
+//                                   bslma::Allocator         *basicAllocator)
 // : d_message(message, basicAllocator)
 // , d_result_p(result)
 // {}
@@ -120,7 +120,7 @@ BSLS_IDENT("$: $")
 //   }
 // }
 //..
-// Next, we dynamically allocate an 'EntryPointFunctorAdapter' wrapping an 
+// Next, we dynamically allocate an 'EntryPointFunctorAdapter' wrapping an
 // instance of this functor:
 //..
 // int result = 0;
@@ -133,10 +133,10 @@ BSLS_IDENT("$: $")
 // Finally, we use 'bdlqq_EntryPointFunctorAdapter_invoker' to invoke the job
 // in the context of a C-linkage function.  Note that
 // 'bdlqq_EntryPointFunctorAdapter_invoker' will deallocate the adapter object
-// and the contained invokable job after executing it, so we must release
-// the adapter from memory management via 'ManagedPtr'.  (In general, system
-// APIs that register callbacks may fail; newly allocated adapters are loaded
-// into 'ManagedPtr' to aid in proper error and exception handling, outside the
+// and the contained invokable job after executing it, so we must release the
+// adapter from memory management via 'ManagedPtr'.  (In general, system APIs
+// that register callbacks may fail; newly allocated adapters are loaded into
+// 'ManagedPtr' to aid in proper error and exception handling, outside the
 // scope of this example.)
 //..
 // executeWithArgument(bdlqq_EntryPointFunctorAdapter_invoker,
@@ -144,7 +144,7 @@ BSLS_IDENT("$: $")
 // threadData.release();
 // assert(9 == result);
 //..
-// 
+//
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -171,16 +171,15 @@ namespace BloombergLP {
 extern "C" {
 
 void *bdlqq_EntryPointFunctorAdapter_invoker(void* argument);
-    // Interpreting 'argument' as an 'EntryPointFunctorAdapter_Base*',
-    // invoke 'argument->function(argument)'.  Do not use outside this
-    // component. 
+    // Interpreting 'argument' as an 'EntryPointFunctorAdapter_Base*', invoke
+    // 'argument->function(argument)'.  Do not use outside this component.
 
 }
 
 namespace bdlqq {
 
 struct EntryPointFunctorAdapterUtil;
-    
+
 class EntryPointFunctorAdapter_Base {
     // This component-private type provides a non-templated view of
     // 'EntryPointFunctorAdapter' for accessing the invoker function.  Do not
@@ -189,9 +188,9 @@ class EntryPointFunctorAdapter_Base {
   public:
     // PUBLIC TYPES
     typedef void (*InvokerFunction)(void*);
-        // 'InvokerFunction' is an alias for the type of function
-        // pointer held in an EntryPointFunctorAdapter_Base.  Instances of the
-        // function are intended to interpret their argument as an
+        // 'InvokerFunction' is an alias for the type of function pointer held
+        // in an EntryPointFunctorAdapter_Base.  Instances of the function are
+        // intended to interpret their argument as an
         // 'EntryPointFunctorAdapter<TYPE>*'.
 
   private:
@@ -208,7 +207,6 @@ class EntryPointFunctorAdapter_Base {
         // Return the function supplied at construction.
 };
 
-
 template <typename TYPE>
 class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
     // Hold a copy of an instance of parameterized type, along with the
@@ -221,24 +219,23 @@ class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
     bslma::Allocator               *d_allocator_p;
 
     friend struct EntryPointFunctorAdapterUtil;
-    
+
     // NOT IMPLEMENTED
     EntryPointFunctorAdapter(const EntryPointFunctorAdapter&);
     EntryPointFunctorAdapter& operator=(const EntryPointFunctorAdapter&);
 
     // CREATORS
-    EntryPointFunctorAdapter(const TYPE&       functor,
-                             bslma::Allocator *allocator);
+    EntryPointFunctorAdapter(const TYPE& functor, bslma::Allocator *allocator);
         // Create a new managed object holding a new copy of the specified
         // 'functor' value and using the specified 'allocator' to manage
-        // memory.  
+        // memory.
 
     // CLASS METHODS
     static void invokerFunction(void *adapter);
         // Interpreting the specified 'adapter' as a
         // 'EntryPointFunctorAdapter<TYPE>*', invoke 'd_object' and then
         // deallocate 'adapter' using 'd_allocator_p'.
-    
+
   public:
     // ~EntryPointFunctorAdapter() = default;
         // Destroy this object and the underlying managed object.  Note that
@@ -266,9 +263,9 @@ struct EntryPointFunctorAdapterUtil {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 };
-    
+
 // ============================================================================
-//                               INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                     // -----------------------------------
@@ -287,9 +284,9 @@ EntryPointFunctorAdapter_Base::function() const {
     return d_function;
 }
 
-                        // ------------------------------
-                        // class EntryPointFunctorAdapter
-                        // ------------------------------
+                      // ------------------------------
+                      // class EntryPointFunctorAdapter
+                      // ------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
@@ -297,20 +294,20 @@ inline
 void EntryPointFunctorAdapter<TYPE>::invokerFunction(void *adapterRaw) {
     EntryPointFunctorAdapter<TYPE> *adapter =
         static_cast<EntryPointFunctorAdapter<TYPE>*>(adapterRaw);
-    
+
     bslma::RawDeleterGuard<
         EntryPointFunctorAdapter<TYPE>,
         bslma::Allocator> adapterGuard(adapter, adapter->allocator());
-    
+
     adapter->functor()();
 }
-    
+
 // CREATORS
 template <typename TYPE>
 inline
 EntryPointFunctorAdapter<TYPE>::EntryPointFunctorAdapter(
-                                     const TYPE&       functor,
-                                     bslma::Allocator *allocator)
+                                                   const TYPE&       functor,
+                                                   bslma::Allocator *allocator)
 : EntryPointFunctorAdapter_Base(&invokerFunction)
 , d_functor(functor, allocator)
 , d_allocator_p(allocator)
@@ -330,23 +327,23 @@ TYPE& EntryPointFunctorAdapter<TYPE>::functor() {
     return d_functor.object();
 }
 
-                     // ----------------------------------
-                     // class EntryPointFunctorAdapterUtil
-                     // ----------------------------------
+                    // ----------------------------------
+                    // class EntryPointFunctorAdapterUtil
+                    // ----------------------------------
 
 template <typename TYPE>
 inline
 void EntryPointFunctorAdapterUtil::allocateAdapter(
-    bslma::ManagedPtr<EntryPointFunctorAdapter<TYPE> > *adapter,
-    const TYPE&                                         invokable,
-    bslma::Allocator                                   *basicAllocator) {
+          bslma::ManagedPtr<EntryPointFunctorAdapter<TYPE> > *adapter,
+          const TYPE&                                         invokable,
+          bslma::Allocator                                   *basicAllocator) {
 
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
     adapter->load(new (*allocator) EntryPointFunctorAdapter<TYPE>(invokable,
                                                                   allocator),
                   allocator);
 }
-    
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -367,5 +364,3 @@ void EntryPointFunctorAdapterUtil::allocateAdapter(
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-
-

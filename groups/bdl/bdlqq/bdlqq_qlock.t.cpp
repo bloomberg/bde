@@ -17,9 +17,9 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstdlib.h>      // atoi()
-#include <bsl_cstring.h>      // strcmp()
-#include <bsl_c_stdlib.h>     // rand_r()
+#include <bsl_cstdlib.h>      // 'atoi'
+#include <bsl_cstring.h>      // 'strcmp'
+#include <bsl_c_stdlib.h>     // 'rand_r'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -29,22 +29,20 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The basic idea of testing bdlqq::QLock and bdlqq::QLock is to create
-// thread poll and manipulate various test data in parallel, then to
-// check the the integrity of data is preserved.
+// The basic idea of testing bdlqq::QLock and bdlqq::QLock is to create thread
+// poll and manipulate various test data in parallel, then to check the the
+// integrity of data is preserved.
 //
-// The helper class  MyTask provides thread pool and its management.
-// This class creates thread pool, executes in each thread specified
-// function and join all threads to make sure that there are no
-// unfinished threads left and there is no leak of resources.
-// The class also is a convenient place holder to common data
-// used by thread function.
+// The helper class MyTask provides thread pool and its management.  This class
+// creates thread pool, executes in each thread specified function and join all
+// threads to make sure that there are no unfinished threads left and there is
+// no leak of resources.  The class also is a convenient place holder to common
+// data used by thread function.
 //
-// The helper class Rand provides generation of pseudo-random numbers
-// for each thread.
+// The helper class Rand provides generation of pseudo-random numbers for each
+// thread.
 //-----------------------------------------------------------------------------
-// CLASS bdlqq::QLock
-// CLASS bdlqq::QLockGuard
+// CLASS bdlqq::QLock CLASS bdlqq::QLockGuard
 // [ 5] Contention test: many threads - many bcemt::QLocks
 // [ 4] Test of internal QLock core primitives:
 //      setFlag and waitOnFlag
@@ -119,9 +117,8 @@ class MyTask {
      // number of threads finished since task creation
 
     bdlqq::Barrier            *d_barrier;
-     // Barrier to provide hard contention.
-     // It is created on each start()call and
-     // it is destroyed on each stop() call
+     // Barrier to provide hard contention.  It is created on each start()call
+     // and it is destroyed on each stop() call
 
   public:
     MyTask(TestFunc f, void *arg);
@@ -349,14 +346,14 @@ typedef bdlqq::Semaphore Semaphore;
 //   which it requested it.
 //
 // Plan:
-// The two qlocks are completely independent.  A thread locking one QLock
-// does not wait for a thread that holds the lock to the other.  Two context
-// structures, each with a QLock, a few threads on each context.
-// In the critical region, each thread sets a flag in its context,
-// reads the other context's flag, sleeps briefly, clears its flag,
-// exits the critical region, and loops.  When every thread's
-// flag has been represented in the other context structure, all threads
-// exit.  An error is reported if the maximum loop count is reached.
+// The two qlocks are completely independent.  A thread locking one QLock does
+// not wait for a thread that holds the lock to the other.  Two context
+// structures, each with a QLock, a few threads on each context.  In the
+// critical region, each thread sets a flag in its context, reads the other
+// context's flag, sleeps briefly, clears its flag, exits the critical region,
+// and loops.  When every thread's flag has been represented in the other
+// context structure, all threads exit.  An error is reported if the maximum
+// loop count is reached.
 //
 // ----------------------------------------------------------------------------
 
@@ -403,9 +400,8 @@ void *testCase7(int threadNum, const MyTask& task)
         // lets threads of other context to see me
         bdlqq::ThreadUtil::yield();
 
-        // exit flag is OK
-        // if this thread has been seen in other context
-        // and we have seen all threads in other context
+        // exit flag is OK if this thread has been seen in other context and we
+        // have seen all threads in other context
         flgExit = (data->d_otherContext->d_slots[threadNum-1] != -1);
 
         for (bsl::size_t i=0;  i < data->d_myContext->d_slots.size(); ++i) {
@@ -484,10 +480,8 @@ void *testCase6(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-// Case 5
-// Multiple threads - multiple QLocks Test.  At the same time
-// this test can be used for performance evaluation for such
-// scenario.
+// Case 5 Multiple threads - multiple QLocks Test.  At the same time this test
+// can be used for performance evaluation for such scenario.
 //
 // Concerns:
 //   To test behavior and performance in case of many threads
@@ -576,8 +570,7 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-// Case 4.
-// Set/Wait Flags Test
+// Case 4.  Set/Wait Flags Test
 //
 // Concerns:
 //   To test internal primitives setFlags/waitOnFlag on which QLock
@@ -628,8 +621,7 @@ void setFlag(bsls::AtomicPointer<Semaphore> *flag)
 
         ASSERT (event != dummySemaphorePtr);
 
-        // Another thread has already stored
-        // an event handle in the flag.
+        // Another thread has already stored an event handle in the flag.
         event->post();
     }
 }
@@ -652,8 +644,7 @@ void waitOnFlag(bsls::AtomicPointer<Semaphore> *flag, int spinCount)
 
         event = flag->testAndSwap(0,&localSemaphore);
         if (0 == event ) {
-            // The event handle has been stored in the flag;
-            // wait on it now.
+            // The event handle has been stored in the flag; wait on it now.
             localSemaphore.wait();
             return;                                                   // RETURN
         }
@@ -802,8 +793,7 @@ void *testCase3(int threadNum, const MyTask& task)
 
      for (int i=0; i < data->d_numIter; ++i) {
 
-         // Critical region
-         // set mutex-qlock and lock
+         // Critical region set mutex-qlock and lock
          guard.lock(data->d_qlock);
 
          int  original = data->d_count;
@@ -847,8 +837,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 
      for (int i=0; i < data->d_numIter; ++i) {
 
-         // Critical region
-         // set mutex-qlock and lock
+         // Critical region set mutex-qlock and lock
          bdlqq::LockGuard<bdlqq::Mutex> guard(data->d_mutex);
 
          int  original = data->d_count;
@@ -898,9 +887,9 @@ void *testCase3a(int threadNum, const MyTask& task)
 // This function defines two static variables, a pointer to the singleton, and
 // a QLock to control access to the singleton.  Note that both of these
 // variables are statically initialized, so there is no need for a run-time
-// constructor and hence no danger of a race condition among threads.  The
-// need for static initialization is the main reason we choose to use
-// 'bdlqq::QLock' over 'bdlqq::Mutex':
+// constructor and hence no danger of a race condition among threads.  The need
+// for static initialization is the main reason we choose to use 'bdlqq::QLock'
+// over 'bdlqq::Mutex':
 //..
         static const bsl::string *singletonPtr = 0;
         static bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;
@@ -1146,9 +1135,8 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // Multiple threads - multiple QLocks Test.  At the same time
-        // this test can be used for performance evaluation for such
-        // scenario.
+        // Multiple threads - multiple QLocks Test.  At the same time this test
+        // can be used for performance evaluation for such scenario.
         //
         // Concerns:
         //   To test behavior and performance in case of many threads
@@ -1376,8 +1364,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE: Singleton
-        // Concerns:
+        // USAGE EXAMPLE: Singleton Concerns:
         //   Demonstrate common technique of singleton creation based on
         //   combination of three-state atomic variable and statically
         //   initializable mutex (QLock).

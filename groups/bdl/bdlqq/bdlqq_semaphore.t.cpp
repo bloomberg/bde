@@ -67,8 +67,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bdlqq::Semaphore Obj;
 
-void waitAndSet(bdlqq::Semaphore *obj,
-                bsls::AtomicInt *val)
+void waitAndSet(bdlqq::Semaphore *obj, bsls::AtomicInt *val)
 {
     obj->wait();
     (*val) = 1;

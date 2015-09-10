@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following usage example illustrates how 'bdlqq::ThreadGroup' might be
-// used in a typical test driver to simplify the execution of a common
-// function in multiple threads.  Suppose that we are interested in creating a
+// used in a typical test driver to simplify the execution of a common function
+// in multiple threads.  Suppose that we are interested in creating a
 // stress-test for the 'bdlqq::Mutex' class.  The test is controlled by two
 // parameters: the number of executions (defined by subsequent calls to 'lock'
 // and 'unlock', and the amount of contention, defined by the number of threads
@@ -118,9 +118,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                             // =================
-                             // class ThreadGroup
-                             // =================
+
+                            // =================
+                            // class ThreadGroup
+                            // =================
 
 class ThreadGroup {
     // This class provides a simple mechanism for managing a group of joinable
@@ -140,7 +141,7 @@ class ThreadGroup {
     void addThread(const ThreadUtil::Handle& handle);
        // Add the specified 'handle' to the 'd_threads' container.  If an
        // exception is thrown, 'handle' will be released.
-    
+
   private:
     // not implemented
     ThreadGroup(const ThreadGroup&);
@@ -154,14 +155,13 @@ class ThreadGroup {
     // CREATORS
     explicit
     ThreadGroup(bslma::Allocator *basicAllocator = 0);
-        // Create an empty thread group.  Optionally specify
-        // 'basicAllocator' will be used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // will be used.
+        // Create an empty thread group.  Optionally specify 'basicAllocator'
+        // will be used to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator will be used.
 
     ~ThreadGroup();
-        // Destroy this object.  Any threads not joined will be allowed to
-        // run independently, and will no longer be joinable.
+        // Destroy this object.  Any threads not joined will be allowed to run
+        // independently, and will no longer be joinable.
 
     // MANIPULATORS
     template <typename INVOKABLE>
@@ -173,22 +173,21 @@ class ThreadGroup {
         // using the optionally specified thread 'attributes'.  Return 0 on
         // success, and a non-zero value otherwise.  'INVOKABLE' shall be a
         // copy-constructible type having the equivalent of
-        // 'void operator()()'. Note that threads are always created joinable,
+        // 'void operator()()'.  Note that threads are always created joinable,
         // regardless of the mode specified in 'attributes'.
 
     template <typename INVOKABLE>
-    int addThreads(const INVOKABLE& functor,
-                   int              numThreads);
+    int addThreads(const INVOKABLE& functor, int numThreads);
     template <typename INVOKABLE>
-    int addThreads(const INVOKABLE&         functor,
-                   int                      numThreads,
-                   const ThreadAttributes&  attributes);
+    int addThreads(const INVOKABLE&        functor,
+                   int                     numThreads,
+                   const ThreadAttributes& attributes);
         // Begin executing the specified invokable 'functor' in the specified
         // new 'numThreads', using the optionally specified thread
         // 'attributes'.  Return 'numThreads' on success, or the number of
-        // threads successfully started otherwise. 'INVOKABLE' shall be a
+        // threads successfully started otherwise.  'INVOKABLE' shall be a
         // copy-constructible type having the equivalent of
-        // 'void operator()()'. Note that threads are always created joinable,
+        // 'void operator()()'.  Note that threads are always created joinable,
         // regardless of the mode specified in 'attributes'.
 
     void joinAll();
@@ -204,12 +203,12 @@ class ThreadGroup {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                             // -----------------
-                             // class ThreadGroup
-                             // -----------------
+                            // -----------------
+                            // class ThreadGroup
+                            // -----------------
 
 // MANIPULATORS
 template<typename INVOKABLE>
@@ -221,8 +220,7 @@ int bdlqq::ThreadGroup::addThread(const INVOKABLE& functor)
 
 template<typename INVOKABLE>
 inline
-int bdlqq::ThreadGroup::addThreads(const INVOKABLE& functor,
-                                   int              numThreads)
+int bdlqq::ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
@@ -250,9 +248,9 @@ int bdlqq::ThreadGroup::addThread(const INVOKABLE&        functor,
 }
 
 template<typename INVOKABLE>
-int bdlqq::ThreadGroup::addThreads(const INVOKABLE&         functor,
-                                   int                      numThreads,
-                                   const ThreadAttributes&  attributes)
+int bdlqq::ThreadGroup::addThreads(const INVOKABLE&        functor,
+                                   int                     numThreads,
+                                   const ThreadAttributes& attributes)
 {
     BSLS_ASSERT(0 <= numThreads);
 
@@ -264,7 +262,7 @@ int bdlqq::ThreadGroup::addThreads(const INVOKABLE&         functor,
     }
     return numAdded;
 }
-    
+
 // ACCESSORS
 inline
 int bdlqq::ThreadGroup::numThreads() const

@@ -4,9 +4,9 @@
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 
-#include <bsls_asserttest.h>   
-#include <bsls_bsltestutil.h>  
-#include <bslma_testallocator.h> 
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
+#include <bslma_testallocator.h>
 #include <bslma_default.h>
 
 #include <bsl_string.h>
@@ -94,29 +94,28 @@ class WordCountJob {
     WordCountJob(const bslstl::StringRef&  message,
                  int                      *result,
                  bslma::Allocator         *basicAllocator = 0);
-      // Create a new functor that, upon execution, counts the number of
-      // words (contiguous sequences of non-space characters) in the
-      // specified 'message' and stores the count in the specified
-      // 'result' address.  Use the specified 'basicAllocator' to supply
-      // memory.  If 'basicAllocator' is 0, the currently installed default
-      // allocator is used.
+      // Create a new functor that, upon execution, counts the number of words
+      // (contiguous sequences of non-space characters) in the specified
+      // 'message' and stores the count in the specified 'result' address.  Use
+      // the specified 'basicAllocator' to supply memory.  If 'basicAllocator'
+      // is 0, the currently installed default allocator is used.
 
     WordCountJob(const WordCountJob&  other,
                  bslma::Allocator    *basicAllocator = 0);
       // Create a new functor that performs the same calculation as the
-      // specified 'other' functor.  Use the specified 'basicAllocator'
-      // to supply memory.  If 'basicAllocator' is 0, the currently installed
+      // specified 'other' functor.  Use the specified 'basicAllocator' to
+      // supply memory.  If 'basicAllocator' is 0, the currently installed
       // default allocator is used.
-  
+
     // MANIPULATORS
     void operator()();
-      // Count the number of words in the message and store the count in
-      // the address specified on construction.
+      // Count the number of words in the message and store the count in the
+      // address specified on construction.
 };
 
 inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
                                   int                      *result,
-                                  bslma::Allocator         *basicAllocator) 
+                                  bslma::Allocator         *basicAllocator)
 : d_message(message, basicAllocator)
 , d_result_p(result)
 {}
@@ -174,18 +173,18 @@ int main(int argc, char *argv[])
             int result = 0;
             WordCountJob job("The quick brown fox jumped over the lazy dog.",
                              &result);
-            
+
             bslma::ManagedPtr<
                 bdlqq::EntryPointFunctorAdapter<WordCountJob> > threadData;
             bdlqq::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
                                                                  job);
-            
+
             executeWithArgument(bdlqq_EntryPointFunctorAdapter_invoker,
                                 threadData.ptr());
             threadData.release();
             ASSERT(9 == result);
         }
-        
+
         ASSERT(0 == defaultAllocator.numBytesInUse());
         ASSERT(0 != defaultAllocator.numBlocksTotal());
 

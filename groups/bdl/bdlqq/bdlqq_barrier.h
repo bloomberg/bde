@@ -7,7 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a thread barrier component.
 //
 //@CLASSES:
@@ -162,7 +161,7 @@ BSLS_IDENT("$Id: $")
 //     retval = validateTrade(trade);
 //..
 // If this trade failed validation, then indicate that an error has occurred.
-// Note that, even when an error occurs,  we must still block on the barrier
+// Note that, even when an error occurs, we must still block on the barrier
 // object; otherwise, other threads which did not fail would remain blocked
 // indefinitely.
 //..
@@ -295,9 +294,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                               // =============
-                               // class Barrier
-                               // =============
+
+                              // =============
+                              // class Barrier
+                              // =============
 
 class Barrier {
     // This class defines a thread barrier.
@@ -321,9 +321,9 @@ class Barrier {
 
   public:
     // CREATORS
-    explicit Barrier(int                         numThreads,
-                     bsls::SystemClockType::Enum clockType =
-                                            bsls::SystemClockType::e_REALTIME);
+    explicit Barrier(
+    int                         numThreads,
+    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a barrier that requires the specified 'numThreads' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bsls::TimeInterval' timeouts
@@ -372,7 +372,7 @@ class Barrier {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

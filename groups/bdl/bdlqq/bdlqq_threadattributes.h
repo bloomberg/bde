@@ -254,9 +254,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                           // ======================
-                           // class ThreadAttributes
-                           // ======================
+
+                          // ======================
+                          // class ThreadAttributes
+                          // ======================
 
 class ThreadAttributes {
     // This simply constrained (value-semantic) attribute class characterizes a
@@ -356,30 +357,28 @@ class ThreadAttributes {
     // CLASS METHODS
     static int getMaxSchedPriority(SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Note that for some platform / policy combinations,
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Note that
+        // for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'ThreadAttributes::SchedulingPolicy'.
         //
-        // DEPRECATED: use 'ThreadUtil::getMaxSchedulingPriority'
-        // instead.
+        // DEPRECATED: use 'ThreadUtil::getMaxSchedulingPriority' instead.
 
     static int getMinSchedPriority(SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Note that for some platform / policy combinations,
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Note that
+        // for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'ThreadAttributes::SchedulingPolicy'.
         //
-        // DEPRECATED: use 'ThreadUtil::getMinSchedulingPriority'
-        // instead.
+        // DEPRECATED: use 'ThreadUtil::getMinSchedulingPriority' instead.
 
     // CREATORS
     ThreadAttributes();
-        // Create a 'ThreadAttributes' object having the (default)
-        // attribute values:
+        // Create a 'ThreadAttributes' object having the (default) attribute
+        // values:
         //: o 'detachedState()      == BCEMT_CREATE_JOINABLE'
         //: o 'guardSize()          == BCEMT_UNSET_GUARD_SIZE'
         //: o 'inheritSchedule()    == true'
@@ -388,8 +387,8 @@ class ThreadAttributes {
         //: o 'stackSize()          == BCEMT_UNSET_STACK_SIZE'
 
     ThreadAttributes(const ThreadAttributes& original);
-        // Create a 'ThreadAttributes' object having the same value
-        // as the specified 'original' object.
+        // Create a 'ThreadAttributes' object having the same value as the
+        // specified 'original' object.
 
     // MANIPULATORS
     ThreadAttributes& operator=(const ThreadAttributes& rhs);
@@ -496,8 +495,8 @@ class ThreadAttributes {
 // FREE OPERATORS
 bool operator==(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ThreadAttributes' objects have
-    // the same value if the corresponding values of their 'detachedState',
+    // value, and 'false' otherwise.  Two 'ThreadAttributes' objects have the
+    // same value if the corresponding values of their 'detachedState',
     // 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are the same.
 
@@ -511,12 +510,12 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class ThreadAttributes
-                           // ----------------------
+                          // ----------------------
+                          // class ThreadAttributes
+                          // ----------------------
 
 // CREATORS
 inline

@@ -100,9 +100,9 @@ class MyCondition {
 private:
     HANDLE           d_semBlockLock;       // gate Semaphore
 
-    HANDLE           d_semBlockQueue;      // main Semaphore
-                                           // (handle to a semaphore used for
-                                           // the actual signaling)
+    HANDLE           d_semBlockQueue;      // main Semaphore (handle to a
+                                           // semaphore used for the actual
+                                           // signaling)
 
     CRITICAL_SECTION d_mtxUnblockLock;     //
 
@@ -306,7 +306,7 @@ class MyBarrier {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -535,8 +535,8 @@ IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 , d_mutexSem(0)
 , d_resourceSem(0)
 {
-    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to
-                       // to the queue.
+    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to to
+                       // the queue.
 }
 
 IntQueue::~IntQueue()
@@ -760,8 +760,8 @@ int main(int argc, char *argv[]) {
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        // Create a set of threads calling 'wait' and use a thread to post
-        // a number smaller than the set of threads.
+        // Create a set of threads calling 'wait' and use a thread to post a
+        // number smaller than the set of threads.
         //
         // Testing:
         //   void post(int number);
@@ -911,8 +911,8 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // A SIMPLE BENCHMARK
         //
-        // imitates a producer-consumer system with a fixed size
-        // queue using two semaphores
+        // imitates a producer-consumer system with a fixed size queue using
+        // two semaphores
         //
 
         int numProducers = atoi(argv[2]);

@@ -78,9 +78,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // ====================
-                            // struct Configuration
-                            // ====================
+
+                           // ====================
+                           // struct Configuration
+                           // ====================
 
 struct Configuration {
     // This 'struct' provides a namespace for a suite of functions that are
@@ -93,9 +94,9 @@ struct Configuration {
     static int defaultThreadStackSize();
         // Return the value set by the last call to
         // 'setDefaultThreadStackSize'; if 'setDefaultThreadStackSize' has
-        // never been called, return
-        // 'ThreadAttributes::BCEMT_UNSET_STACK_SIZE' which will signal
-        // thread creation to use the thread stack size native to the platform.
+        // never been called, return 'ThreadAttributes::BCEMT_UNSET_STACK_SIZE'
+        // which will signal thread creation to use the thread stack size
+        // native to the platform.
 
     static int nativeDefaultThreadStackSize();
         // Return the "native" default thread stack size (in bytes) as

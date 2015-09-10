@@ -86,9 +86,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class RecursivemutexImpl;
 
-                            // ====================
-                            // class RecursiveMutex
-                            // ====================
+                           // ====================
+                           // class RecursiveMutex
+                           // ====================
 
 class RecursiveMutex {
     // This 'class' implements a recursive mutex (i.e., a mutex that can be
@@ -138,12 +138,12 @@ class RecursiveMutex {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // --------------------
-                            // class RecursiveMutex
-                            // --------------------
+                           // --------------------
+                           // class RecursiveMutex
+                           // --------------------
 
 // CREATORS
 inline

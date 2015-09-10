@@ -106,8 +106,8 @@ void initializeCondition(pthread_cond_t              *cond,
 
 static
 int decrementIfPositive(bsls::AtomicInt *a)
-    // Try to decrement the specified atomic integer 'a' if positive.  Return
-    // 0 on success and a non-zero value otherwise.
+    // Try to decrement the specified atomic integer 'a' if positive.  Return 0
+    // on success and a non-zero value otherwise.
 {
     int i = *a;
 
@@ -122,9 +122,9 @@ int decrementIfPositive(bsls::AtomicInt *a)
 
 }  // close unnamed namespace
 
-              // -----------------------------------------------
-              // class TimedSemaphoreImpl<PthreadTimedSemaphore>
-              // -----------------------------------------------
+             // -----------------------------------------------
+             // class TimedSemaphoreImpl<PthreadTimedSemaphore>
+             // -----------------------------------------------
 
 // CREATORS
 bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::

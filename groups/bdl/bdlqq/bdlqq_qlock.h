@@ -19,11 +19,11 @@ BSLS_IDENT("$Id: $")
 //         Alex Libman (alibman1@bloomberg.net) (integration with BCE)
 //
 //@DESCRIPTION: This component defines a portable and efficient lock for
-// ensuring that only one thread at a time enters a specific "critical
-// region" -- a section of code that accesses a shared resource.  The
-// functionality of the 'bdlqq::QLock' class overlaps those of the
-// 'bdlqq::Mutex' and 'bsls::SpinLock' classes, but with different usage and
-// performance characteristics, as shown in the following grid:
+// ensuring that only one thread at a time enters a specific "critical region"
+// -- a section of code that accesses a shared resource.  The functionality of
+// the 'bdlqq::QLock' class overlaps those of the 'bdlqq::Mutex' and
+// 'bsls::SpinLock' classes, but with different usage and performance
+// characteristics, as shown in the following grid:
 //..
 //                                    | QLock | Mutex | SpinLock
 // -----------------------------------+-------+-------+---------
@@ -49,17 +49,17 @@ BSLS_IDENT("$Id: $")
 // SpinLock.  However, a QLock is much more suitable than a SpinLock for
 // situations where the critical region is more than a few instructions long.
 // Also, although QLocks are best for low-contention situations, they do not
-// degrade nearly as badly as SpinLocks if there is a lot of contention for
-// the lock.  They also use significantly fewer CPU cycles in high-contention
+// degrade nearly as badly as SpinLocks if there is a lot of contention for the
+// lock.  They also use significantly fewer CPU cycles in high-contention
 // situations than do SpinLocks.
 //
 // A unique characteristic of QLocks is that they are fair.  If there is
-// contention for a lock, each thread is given the lock in the order in
-// which it requested it.  Consequently, every thread competing for the lock
-// will get a chance before any other thread can have a second turn; no
-// thread is ever "starved" out of the critical region.  This fairness comes
-// at a cost, however, in that the scheduler is given less leeway to schedule
-// threads in the most efficient manner.
+// contention for a lock, each thread is given the lock in the order in which
+// it requested it.  Consequently, every thread competing for the lock will get
+// a chance before any other thread can have a second turn; no thread is ever
+// "starved" out of the critical region.  This fairness comes at a cost,
+// however, in that the scheduler is given less leeway to schedule threads in
+// the most efficient manner.
 //
 ///The 'bdlqq::QLockGuard' Class
 ///----------------------------
@@ -71,13 +71,12 @@ BSLS_IDENT("$Id: $")
 // 'bdlqq::QLockGuard' provides this extra storage efficiently on the stack.
 //
 // In typical usage, a 'bdlqq::QLockGuard' is created as a local (stack)
-// variable, acquires the lock in its constructor and releases the lock in
-// its destructor.  If the lock is in use at construction time, then the
-// current thread blocks until the lock becomes available.  Although the
-// QLock itself is intended to be shared among multiple threads, the guard
-// object must never be used by more than one thread at a time.  When multiple
-// threads want to acquire the same QLock, each must use its own
-// 'bdlqq::QLockGuard' object.
+// variable, acquires the lock in its constructor and releases the lock in its
+// destructor.  If the lock is in use at construction time, then the current
+// thread blocks until the lock becomes available.  Although the QLock itself
+// is intended to be shared among multiple threads, the guard object must never
+// be used by more than one thread at a time.  When multiple threads want to
+// acquire the same QLock, each must use its own 'bdlqq::QLockGuard' object.
 //
 // 'bdlqq::QLockGuard' also provides the following manipulators typical of
 // locking classes:
@@ -100,8 +99,8 @@ BSLS_IDENT("$Id: $")
 // 'bdlqq::LockGuard' and 'bdlqq::LockGuardUnlock' class templates using
 // 'bdlqq::QLockGuard'.  This layering of guard classes is useful for creating
 // regions where the QLock is locked or unlocked.  For example, if a thread
-// acquires a QLock and then needs to temporarily relinquish it, it could use
-// a 'bdlqq::LockGuardUnlock' as follows:
+// acquires a QLock and then needs to temporarily relinquish it, it could use a
+// 'bdlqq::LockGuardUnlock' as follows:
 //..
 //  void Node::update()
 //  {
@@ -147,9 +146,9 @@ BSLS_IDENT("$Id: $")
 // This function defines two static variables, a pointer to the singleton, and
 // a QLock to control access to the singleton.  Note that both of these
 // variables are statically initialized, so there is no need for a run-time
-// constructor and hence no danger of a race condition among threads.  The
-// need for static initialization is the main reason we choose to use
-// 'bdlqq::QLock' over 'bdlqq::Mutex':
+// constructor and hence no danger of a race condition among threads.  The need
+// for static initialization is the main reason we choose to use 'bdlqq::QLock'
+// over 'bdlqq::Mutex':
 //..
 //      static const bsl::string *singletonPtr = 0;
 //      static bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;
@@ -222,15 +221,15 @@ namespace bdlqq {
 class Semaphore;
 
 #define BDLQQ_QLOCK_INITIALIZER  { {0} }
-    // Use this macro as the value for initializing an object of type
-    // 'QLock'  For example:
+    // Use this macro as the value for initializing an object of type 'QLock'
+    // For example:
     //..
     //  QLock mylock = BDLQQ_QLOCK_INITIALIZER;
     //..
 
-                                // ============
-                                // struct QLock
-                                // ============
+                               // ============
+                               // struct QLock
+                               // ============
 
 struct QLock {
     // An efficient statically-initializable synchronization primitive that
@@ -246,8 +245,8 @@ struct QLock {
     QLock& operator=(const QLock&);
 
     // We would like to prohibit copy construction, but then this class would
-    // not be a POD and we would lose the ability to initialize objects of
-    // this class statically:
+    // not be a POD and we would lose the ability to initialize objects of this
+    // class statically:
     // QLock(const QLock&);
 
   public:
@@ -256,14 +255,14 @@ struct QLock {
         // lock, or 0 if the lock is unlocked.
         //
         // Note that the first guard in the queue owns the lock so that
-        // 'd_guardQueueTail' points to the owner of the lock when the lock
-        // is locked and there are no additional guards waiting.
+        // 'd_guardQueueTail' points to the owner of the lock when the lock is
+        // locked and there are no additional guards waiting.
         //
         // It would have been preferable for this member to be private, but
         // then this class would not be statically initializable.  Also, it
         // would have been preferable to make this member an instance of
-        // 'bsls::AtomicPointer<>', but again, we would lose the ability
-        // to initialize statically.
+        // 'bsls::AtomicPointer<>', but again, we would lose the ability to
+        // initialize statically.
 
   public:
     // MANIPULATORS
@@ -275,9 +274,9 @@ struct QLock {
         // Return true if this lock is locked and false otherwise.
 };
 
-                           // =====================
-                           // class QLock_EventFlag
-                           // =====================
+                          // =====================
+                          // class QLock_EventFlag
+                          // =====================
 
 class QLock_EventFlag {
     // [!PRIVATE!] This class provides a thread-safe mechanism for one thread
@@ -332,14 +331,14 @@ class QLock_EventFlag {
         // for this flag to be set.
 };
 
-                              // ================
-                              // class QLockGuard
-                              // ================
+                             // ================
+                             // class QLockGuard
+                             // ================
 
 class QLockGuard  {
     // This class provides the means to acquire and release the lock on a
-    // 'QLock' object.  Typically, the lock is acquired at construction
-    // and released automatically on destruction.  This class also provides
+    // 'QLock' object.  Typically, the lock is acquired at construction and
+    // released automatically on destruction.  This class also provides
     // explicit 'lock', 'tryLock', and 'unlock' primitives.
 
   private:
@@ -348,11 +347,11 @@ class QLockGuard  {
 
     QLockGuard      *d_next;       // next object in queue.
 
-    QLock_EventFlag  d_readyFlag;  // flag indicating when the lock is
-                                   // released by its predecessor in the queue
+    QLock_EventFlag  d_readyFlag;  // flag indicating when the lock is released
+                                   // by its predecessor in the queue
 
-    QLock_EventFlag  d_nextFlag;   // flag indicating 'd_next' is set by
-                                   // its successor.
+    QLock_EventFlag  d_nextFlag;   // flag indicating 'd_next' is set by its
+                                   // successor.
 
     bool             d_locked;     // 'true' if this guard holds the lock
 
@@ -386,10 +385,9 @@ class QLockGuard  {
         // undefined if this object is already in a locked state.
 
     void lock();
-        // Acquire a lock on the associated 'QLock' object.  If the
-        // 'lock' is not free, block until it can be acquired.  The behavior
-        // is undefined if the calling thread already owns the lock on the
-        // QLock.
+        // Acquire a lock on the associated 'QLock' object.  If the 'lock' is
+        // not free, block until it can be acquired.  The behavior is undefined
+        // if the calling thread already owns the lock on the QLock.
 
     void lock(QLock *qlock);
         // Associate this guard with the specified 'qlock' and acquire the
@@ -398,25 +396,25 @@ class QLockGuard  {
         // lock on 'qlock' or if this object is in the locked state.
 
     int tryLock();
-        // Attempt to acquire a lock on the associated 'QLock' object.
-        // Return 0 on success, a positive value of the associated QLock object
-        // is already locked, or a negative value if an error occurs.
+        // Attempt to acquire a lock on the associated 'QLock' object.  Return
+        // 0 on success, a positive value of the associated QLock object is
+        // already locked, or a negative value if an error occurs.
 
     void unlock();
-        // Release the lock on the associated 'QLock'.  The behavior
-        // is undefined unless this guard previously acquired the lock and has
-        // not already released it.
+        // Release the lock on the associated 'QLock'.  The behavior is
+        // undefined unless this guard previously acquired the lock and has not
+        // already released it.
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                                // -----------
-                                // class QLock
-                                // -----------
+                               // -----------
+                               // class QLock
+                               // -----------
 
 // MANIPULATORS
 inline
@@ -432,9 +430,9 @@ bool bdlqq::QLock::isLocked() const
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
 
-                           // ---------------------
-                           // class QLock_EventFlag
-                           // ---------------------
+                          // ---------------------
+                          // class QLock_EventFlag
+                          // ---------------------
 
 // CREATORS
 inline
@@ -455,9 +453,9 @@ void bdlqq::QLock_EventFlag::reset()
     d_status = 0;
 }
 
-                              // ----------------
-                              // class QLockGuard
-                              // ----------------
+                             // ----------------
+                             // class QLockGuard
+                             // ----------------
 
 // CREATORS
 inline

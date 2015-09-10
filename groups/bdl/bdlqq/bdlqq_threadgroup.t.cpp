@@ -201,7 +201,7 @@ public:
                            int               numIterations,
                            bdlqq::Semaphore *startSemaphore,
                            bdlqq::Semaphore *doneSync)
-    : MutexTestSyncJob(value, mutex, numIterations, startSemaphore) 
+    : MutexTestSyncJob(value, mutex, numIterations, startSemaphore)
     , d_doneSync_p(doneSync)
     {}
 
@@ -220,8 +220,8 @@ class SynchronizedAddJob {
 public:
     SynchronizedAddJob(bdlqq::ThreadGroup* tg,
                        const MutexTestJob& job,
-                       bdlqq::Mutex* start,
-                       int numThreadsToAdd)
+                       bdlqq::Mutex*       start,
+                       int                 numThreadsToAdd)
     : d_tg_p(tg)
     , d_job(job)
     , d_start_p(start)
@@ -288,9 +288,9 @@ int main(int argc, char *argv[])
 
             bdlqq::Mutex   mutex;                     // object under test
             int            value = 0;
-            
+
             MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
-            
+
             bdlqq::ThreadGroup tg(&ta);
             for (int i = 0; i < NUM_THREADS; ++i) {
                 ASSERT(0 == tg.addThread(testJob));
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 
             MutexTestDoubleSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
                                             &startSemaphore, &doneSemaphore);
-            
+
             {
                 bdlqq::ThreadGroup tg(&ta);
 

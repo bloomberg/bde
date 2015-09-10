@@ -32,9 +32,9 @@ BSLS_IDENT("$Id: $")
 // 'leave' methods just before and after the code that is intended to be
 // executed only once.  That code must be executed conditionally on 'enter'
 // returning 'true', indicating that the caller is the first thread to pass
-// through this region of code.  The 'leave' method must be executed at the
-// end of the code region, indicating that the one-time execution has completed
-// and unblocking any threads waiting on 'enter'.
+// through this region of code.  The 'leave' method must be executed at the end
+// of the code region, indicating that the one-time execution has completed and
+// unblocking any threads waiting on 'enter'.
 //
 // A safer way to use the 'enter' and 'leave' methods of 'bdlqq::Once' is to
 // manage the 'bdlqq::Once' object using a 'bdlqq::OnceGuard' object
@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 // An even easier way to use the facilities of this component is to use the
 // 'BDLQQ_ONCE_DO' macro.  This macro behaves like an 'if' statement --
 // executing the following [compound] statement the first time the control
-// passes through it in the course of a program's execution, and blocking
-// other calling threads until the [compound] statement is executed the first
-// time.  Thus, bracketing arbitrary code in a 'BDLQQ_ONCE_DO' construct is the
+// passes through it in the course of a program's execution, and blocking other
+// calling threads until the [compound] statement is executed the first time.
+// Thus, bracketing arbitrary code in a 'BDLQQ_ONCE_DO' construct is the
 // easiest way to ensure that code will be executed only once for a program.
 // The 'BDLQQ_ONCE_DO' behaves correctly even if there are 'return' statements
 // within the one-time code block.
@@ -117,19 +117,19 @@ BSLS_IDENT("$Id: $")
 //  {
 //      static bsl::string *theSingletonPtr = 0;
 //      BDLQQ_ONCE_DO {
-//          static bsl::string theSingleton(s, 
+//          static bsl::string theSingleton(s,
 //                                          bslma::Default::globalAllocator());
 //          theSingletonPtr = &theSingleton;
 //      }
 //      return *theSingletonPtr;
 //  }
 //..
-// The 'BDLQQ_ONCE_DO' mechanism suffices for most situations; however,
-// if more flexibility is required, review the remaining examples in this
-// series for more design choices.  The next example will use the lowest-level
-// facilities of 'bdlqq::Once'.  The two following examples use progressively
-// higher-level facilities to produce simpler singleton implementations (though
-// none as simple as the 'BDLQQ_ONCE_DO' example above).
+// The 'BDLQQ_ONCE_DO' mechanism suffices for most situations; however, if more
+// flexibility is required, review the remaining examples in this series for
+// more design choices.  The next example will use the lowest-level facilities
+// of 'bdlqq::Once'.  The two following examples use progressively higher-level
+// facilities to produce simpler singleton implementations (though none as
+// simple as the 'BDLQQ_ONCE_DO' example above).
 //
 ///Second Implementation
 ///- - - - - - - - - - -
@@ -180,17 +180,17 @@ BSLS_IDENT("$Id: $")
 // completes and then return.
 //
 // *Implementation* *Note*: As an optimization, developers sometimes pre-check
-// the value to be set, 'theSingletonPtr' in this case, to avoid (heavy)
-// memory barrier operations; however, that practice is not recommended here.
-// First, the value of the string may be cached by a different CPU, even
-// though the pointer has already been updated on the common memory bus.
-// Second,  The implementation of the 'callOnce' method is fast enough that a
-// pre-check would not provide any performance benefit.
+// the value to be set, 'theSingletonPtr' in this case, to avoid (heavy) memory
+// barrier operations; however, that practice is not recommended here.  First,
+// the value of the string may be cached by a different CPU, even though the
+// pointer has already been updated on the common memory bus.  Second, The
+// implementation of the 'callOnce' method is fast enough that a pre-check
+// would not provide any performance benefit.
 //
 // The one advantage of this implementation over the previous one is that an
 // exception thrown from within 'singletonImp' will cause the 'bdlqq::Once'
-// object to be restored to its original state, so that the next entry into
-// the singleton will retry the operation.
+// object to be restored to its original state, so that the next entry into the
+// singleton will retry the operation.
 //
 ///Third Implementation
 /// - - - - - - - - - -
@@ -206,8 +206,8 @@ BSLS_IDENT("$Id: $")
 //      static bdlqq::Once   once            = BDLQQ_ONCE_INITIALIZER;
 //      static bsl::string *theSingletonPtr = 0;
 //..
-// Next, we define a local 'bdlqq::Once::OnceLock' object and pass it to
-// the 'enter' method:
+// Next, we define a local 'bdlqq::Once::OnceLock' object and pass it to the
+// 'enter' method:
 //..
 //      bdlqq::Once::OnceLock onceLock;
 //      if (once.enter(&onceLock)) {
@@ -224,8 +224,8 @@ BSLS_IDENT("$Id: $")
 //          once.leave(&onceLock);
 //      }
 //..
-// When any thread reaches this point, initialization has been complete
-// and initialized string is returned:
+// When any thread reaches this point, initialization has been complete and
+// initialized string is returned:
 //..
 //      return *theSingletonPtr;
 //  }
@@ -364,16 +364,16 @@ namespace BloombergLP {
     //..
     //  BDLQQ_ONCE_DO { /* one-time code goes here */ }
     //..
-    // Leaving a 'BDLQQ_ONCE_DO' construct via 'break', 'continue', or
-    // 'return' will put the construct in a "done" state (unless
-    // 'BDLQQ_ONCE_CANCEL' has been called) and will unblock all threads
-    // waiting to enter the one-time region.  Note that a 'break' or 'continue'
-    // within the one-time code will terminate only the 'BDLQQ_ONCE_DO'
-    // construct, not any surrounding loop or switch statement.  Due to a bug
-    // in the Microsoft Visual C++ 2003 compiler, the behavior is undefined if
-    // an exception is thrown from within this construct and is not caught
-    // within the same construct.  Only one call to 'BDLQQ_ONCE_DO' may appear
-    // on a single source-code line in any code block.
+    // Leaving a 'BDLQQ_ONCE_DO' construct via 'break', 'continue', or 'return'
+    // will put the construct in a "done" state (unless 'BDLQQ_ONCE_CANCEL' has
+    // been called) and will unblock all threads waiting to enter the one-time
+    // region.  Note that a 'break' or 'continue' within the one-time code will
+    // terminate only the 'BDLQQ_ONCE_DO' construct, not any surrounding loop
+    // or switch statement.  Due to a bug in the Microsoft Visual C++ 2003
+    // compiler, the behavior is undefined if an exception is thrown from
+    // within this construct and is not caught within the same construct.  Only
+    // one call to 'BDLQQ_ONCE_DO' may appear on a single source-code line in
+    // any code block.
 
 #define BDLQQ_ONCE_CANCEL() bcemt_doOnceGuard.cancel()
     // This macro provides a way to cancel once processing within a
@@ -381,26 +381,27 @@ namespace BloombergLP {
     // 'BDLQQ_ONCE_DO' construct.  Executing this function-like macro will set
     // the state of the 'BDLQQ_ONCE_DO' construct to "not entered", possibly
     // unblocking a thread waiting to enter the one-time code region.  Note
-    // that this macro does not exit the 'BDLQQ_ONCE_DO' construct (i.e.,
-    // it does not have 'break' or 'return' semantics).
+    // that this macro does not exit the 'BDLQQ_ONCE_DO' construct (i.e., it
+    // does not have 'break' or 'return' semantics).
 
 #define BDLQQ_ONCE_INITIALIZER { BDLQQ_QLOCK_INITIALIZER, { 0 } }
 
 namespace bdlqq {
+
     // Use this macro to initialize an object of type 'Once'.  E.g.:
     //..
     //  Once once = BDLQQ_ONCE_INITIALIZER;
     //..
 
-                                 // ==========
-                                 // class Once
-                                 // ==========
+                                // ==========
+                                // class Once
+                                // ==========
 
 class Once {
     // Gate-keeper class for code that should only execute once per process.
     // This class is a POD-type and can be statically initialized to the value
-    // of the 'BCEMT_ONCE_INITIALIZE' macro.  For this reason, it does not
-    // have any explicitly-declared constructors or destructor.
+    // of the 'BCEMT_ONCE_INITIALIZE' macro.  For this reason, it does not have
+    // any explicitly-declared constructors or destructor.
 
     // PRIVATE TYPES
     enum { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
@@ -432,12 +433,12 @@ class Once {
         // Lock the internal mutex using the specified 'onceLock' (possibly
         // blocking if another thread has already locked the mutex).  If no
         // other thread has yet called 'enter' or 'callOnce' on this object,
-        // return 'true'.  Otherwise, unlock the mutex and return 'false'.
-        // The mutex lock may be skipped if it can be determined that it will
-        // not be needed.  The behavior is undefined if 'onceLock' is already
-        // in a locked state on entry to this method.  Note that if 'enter'
-        // returns 'true', the caller *must* eventually call 'leave', or else
-        // other threads may block indefinitely.
+        // return 'true'.  Otherwise, unlock the mutex and return 'false'.  The
+        // mutex lock may be skipped if it can be determined that it will not
+        // be needed.  The behavior is undefined if 'onceLock' is already in a
+        // locked state on entry to this method.  Note that if 'enter' returns
+        // 'true', the caller *must* eventually call 'leave', or else other
+        // threads may block indefinitely.
 
     void leave(OnceLock *onceLock);
         // Set this object into a state such that pending and future calls to
@@ -472,14 +473,14 @@ class Once {
         // 'function' terminates with an exception.
 };
 
-                              // ===============
-                              // class OnceGuard
-                              // ===============
+                             // ===============
+                             // class OnceGuard
+                             // ===============
 
 class OnceGuard {
-    // Guard class for using 'Once' safely.  Construct an object of this
-    // class before conditionally entering one-time processing code.  Destroy
-    // the object when the one-time code is complete.  When used this way, this
+    // Guard class for using 'Once' safely.  Construct an object of this class
+    // before conditionally entering one-time processing code.  Destroy the
+    // object when the one-time code is complete.  When used this way, this
     // object will be in an "in-progress" state during the time that the
     // one-time code is being executed.
 
@@ -506,12 +507,12 @@ class OnceGuard {
         // Destroy this object.  If this object is not in an "in-progress"
         // state, do nothing.  If this object is in an "in-progress" state and
         // is being destroyed in the course of normal processing, then call
-        // 'leave' on the associated 'Once' object.  Due to a bug in the
-        // MS VC++ 2003 compiler, the behavior is undefined if this destructor
-        // is called in the course of stack-unwinding during exception
-        // processing (i.e., if an exception escapes from the one-time code
-        // region.  [Eventually, we hope to call 'cancel' if this destructor
-        // is called during exception-processing.]
+        // 'leave' on the associated 'Once' object.  Due to a bug in the MS
+        // VC++ 2003 compiler, the behavior is undefined if this destructor is
+        // called in the course of stack-unwinding during exception processing
+        // (i.e., if an exception escapes from the one-time code region.
+        // [Eventually, we hope to call 'cancel' if this destructor is called
+        // during exception-processing.]
 
     // MANIPULATORS
     void setOnce(Once *once);
@@ -519,11 +520,11 @@ class OnceGuard {
         // is undefined if this object is currently in the "in-progress" state.
 
     bool enter();
-        // Call 'enter' on the associated 'Once' object and return the
-        // result.  If 'Once::enter' returns 'true', set this object into
-        // the "in-progress" state.  The behavior is undefined unless this
-        // object has been associated with a 'Once' object, either in the
-        // constructor or using 'setOnce', or if this object is already in the
+        // Call 'enter' on the associated 'Once' object and return the result.
+        // If 'Once::enter' returns 'true', set this object into the
+        // "in-progress" state.  The behavior is undefined unless this object
+        // has been associated with a 'Once' object, either in the constructor
+        // or using 'setOnce', or if this object is already in the
         // "in-progress" state.
 
     void leave();
@@ -548,7 +549,7 @@ class OnceGuard {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                     // ----------------------------------
@@ -560,9 +561,9 @@ class OnceGuard {
 #define BDLQQ_ONCE_CAT(X, Y) BDLQQ_ONCE_CAT_IMP(X, Y)
 #define BDLQQ_ONCE_CAT_IMP(X, Y) X##Y
 
-                // -------------------------------------
-                // Implementation of BDLQQ_ONCE_DO Macro
-                // -------------------------------------
+                  // -------------------------------------
+                  // Implementation of BDLQQ_ONCE_DO Macro
+                  // -------------------------------------
 
 // Use a for-loop to initialize the guard, test if we can enter the
 // once-region, then leave the once-region at the end.  Each invocation of this
@@ -572,9 +573,9 @@ class OnceGuard {
     for (BloombergLP::bdlqq::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
          bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
 
-                              // ---------------
-                              // class OnceGuard
-                              // ---------------
+                             // ---------------
+                             // class OnceGuard
+                             // ---------------
 
 // CREATORS
 inline
@@ -601,9 +602,9 @@ bool bdlqq::OnceGuard::isInProgress() const
     return e_IN_PROGRESS == d_state;
 }
 
-                                 // ----------
-                                 // class Once
-                                 // ----------
+                                // ----------
+                                // class Once
+                                // ----------
 
 template <class FUNC>
 inline

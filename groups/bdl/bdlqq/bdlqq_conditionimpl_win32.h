@@ -75,15 +75,15 @@ class ConditionImpl;
 
 class Mutex;
 
-                // ===========================================
-                // class ConditionImpl<Platform::Win32Threads>
-                // ===========================================
+               // ===========================================
+               // class ConditionImpl<Platform::Win32Threads>
+               // ===========================================
 
 template <>
 class ConditionImpl<Platform::Win32Threads> {
-    // This class provides a full specialization of 'ConditionImpl'
-    // for win32.  The implementation provided here defines an efficient
-    // POSIX like condition variable.
+    // This class provides a full specialization of 'ConditionImpl' for win32.
+    // The implementation provided here defines an efficient POSIX like
+    // condition variable.
 
     // DATA
     Sluice d_waitSluice;  // provides post/wait for condition
@@ -151,12 +151,12 @@ class ConditionImpl<Platform::Win32Threads> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                // -------------------------------------------
-                // class ConditionImpl<Platform::Win32Threads>
-                // -------------------------------------------
+               // -------------------------------------------
+               // class ConditionImpl<Platform::Win32Threads>
+               // -------------------------------------------
 
 // CREATORS
 inline
@@ -186,7 +186,7 @@ void bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::signal()
     d_waitSluice.signalOne();
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

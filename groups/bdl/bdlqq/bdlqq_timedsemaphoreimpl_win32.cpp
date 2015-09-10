@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-               // ---------------------------------------------
-               // class TimedSemaphoreImpl<Win32TimedSemaphore>
-               // ---------------------------------------------
+              // ---------------------------------------------
+              // class TimedSemaphoreImpl<Win32TimedSemaphore>
+              // ---------------------------------------------
 
 // MANIPULATORS
 int
@@ -35,7 +35,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::timedWait(
     return WaitForSingleObject(d_handle, milliTimeout);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

@@ -111,7 +111,6 @@ int main(int argc, char *argv[])
               lock.unlock();
           }
 
-
           if (verbose) cout << "Test condition with monotonic clock" << endl
                             << "===================================" << endl;
 

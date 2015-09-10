@@ -60,8 +60,7 @@ void My_Sleep(int ms)
     bdlqq::ThreadUtil::microSleep(1000 * ms);
 }
 
-void My_CreateDetachedThread(ThreadFunction function,
-                             void* userData) {
+void My_CreateDetachedThread(ThreadFunction function, void* userData) {
     bdlqq::ThreadAttributes attr;
     attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
     bdlqq::ThreadUtil::Handle dum;
@@ -103,9 +102,9 @@ int main(int argc, char *argv[])
         // Breathing test
         //
         // Create and destroy a RecursiveMutex.  Lock; verify that tryLock
-        // succeeds; from another thread, verify that tryLock fails;
-        // unlock and verify that tryLock fails; unlock again and verify that
-        // tryLock succeeds.
+        // succeeds; from another thread, verify that tryLock fails; unlock and
+        // verify that tryLock fails; unlock again and verify that tryLock
+        // succeeds.
         // ------------------------------------------------------------------
         if (verbose) {
             cout << "BREATHING TEST" << endl;

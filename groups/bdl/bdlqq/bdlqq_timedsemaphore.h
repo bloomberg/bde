@@ -154,9 +154,9 @@ namespace bdlqq {
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
 
-                            // ====================
-                            // class TimedSemaphore
-                            // ====================
+                           // ====================
+                           // class TimedSemaphore
+                           // ====================
 
 class TimedSemaphore {
     // This class implements a portable timed semaphore type for thread
@@ -173,8 +173,8 @@ class TimedSemaphore {
   public:
     // CREATORS
     explicit
-    TimedSemaphore(bsls::SystemClockType::Enum clockType
-                                          = bsls::SystemClockType::e_REALTIME);
+    TimedSemaphore(
+    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
         // against which the 'bsls::TimeInterval' timeouts passed to the
@@ -182,9 +182,9 @@ class TimedSemaphore {
         // specified then the realtime system clock is used.
 
     explicit
-    TimedSemaphore(int                         count,
-                   bsls::SystemClockType::Enum clockType
-                                          = bsls::SystemClockType::e_REALTIME);
+    TimedSemaphore(
+    int                         count,
+    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
         // clock against which the 'bsls::TimeInterval' timeouts passed to the
@@ -206,11 +206,11 @@ class TimedSemaphore {
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'timeout' expires.  The 'timeout' is an absolute
         // time represented as an interval from some epoch, which is detemined
-        // by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  If the
-        // 'timeout' did not expire before the count attained a positive value,
-        // atomically decrement the count and return 0; otherwise, return a
-        // non-zero value with no effect on the count.
+        // by the clock indicated at construction (see {'Supported
+        // Clock-Types'} in the component documentation).  If the 'timeout' did
+        // not expire before the count attained a positive value, atomically
+        // decrement the count and return 0; otherwise, return a non-zero value
+        // with no effect on the count.
 
     int tryWait();
         // If the count of this timed semaphore is positive, atomically
@@ -225,12 +225,12 @@ class TimedSemaphore {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // --------------------
-                            // class TimedSemaphore
-                            // --------------------
+                           // --------------------
+                           // class TimedSemaphore
+                           // --------------------
 
 // CREATORS
 inline

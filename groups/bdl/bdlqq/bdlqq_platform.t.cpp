@@ -4,12 +4,10 @@
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
-
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -65,7 +63,6 @@ int main(int argc, char *argv[]) {
 
             // Compile-time tests for this case are located in the validation
             // section of this component's header file.
-
 
         if (verbose) cout << endl << "Verify typedefs are set" << endl;
 

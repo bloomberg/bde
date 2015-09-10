@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Creating a Simple Thread with Default Attributes
 ///------------------------------------------------
-// Clients call 'bdlqq::ThreadUtil::create()' to create threads. Threads
-// may be started using a "C" linkage function pointer (of a type defined by
+// Clients call 'bdlqq::ThreadUtil::create()' to create threads.  Threads may
+// be started using a "C" linkage function pointer (of a type defined by
 // 'bdlqq::ThreadUtil::ThreadFunction') and a 'void' pointer to 'userData' to
 // be passed to the function; or an "invokable" object of parameterized type
 // (any copy-constructible type on which 'operator()' may be invoked).  The
@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 //  bdlqq::ThreadUtil::NativeHandle myNativeHandle;
 //  myNativeHandle = bdlqq::ThreadUtil::nativeHandle();
 //..
-// Note that the returned native handle may not be a globally unique
-// identifier for the thread, and, e.g., should not be converted to an
-// integer identifier, or used as a key in a map.
+// Note that the returned native handle may not be a globally unique identifier
+// for the thread, and, e.g., should not be converted to an integer identifier,
+// or used as a key in a map.
 //
 ///Setting Thread Priorities
 ///-------------------------
@@ -337,9 +337,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 struct ThreadUtilImpl;
 
-                             // =================
-                             // struct ThreadUtil
-                             // =================
+                            // =================
+                            // struct ThreadUtil
+                            // =================
 
 struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
@@ -357,8 +357,8 @@ struct ThreadUtil {
         // Platform-specific thread handle type.
 
     typedef Imp::Id                                Id;
-        // Thread identifier type - distinguished from a 'Handle' in that
-        // it does not have any resources associated with it, whereas 'Handle'
+        // Thread identifier type - distinguished from a 'Handle' in that it
+        // does not have any resources associated with it, whereas 'Handle'
         // may, depending on platform.
 
     typedef bcemt_ThreadFunction                   ThreadFunction;
@@ -380,10 +380,10 @@ public:
         // Return an integer scheduling priority appropriate for the specified
         // 'normalizedSchedulingPriority' and the specified 'policy'.  If
         // either the minimum or maximum priority for this platform cannot be
-        // determined, return 'ThreadAttributes::BCEMT_UNSET_PRIORITY'.
-        // Higher values of 'normalizedSchedulingPriority' are considered to
-        // represent more urgent priorities.  The behavior is undefined unless
-        // 'policy' is a valid 'ThreadAttributes::SchedulingPolicy' and
+        // determined, return 'ThreadAttributes::BCEMT_UNSET_PRIORITY'.  Higher
+        // values of 'normalizedSchedulingPriority' are considered to represent
+        // more urgent priorities.  The behavior is undefined unless 'policy'
+        // is a valid 'ThreadAttributes::SchedulingPolicy' and
         // 'normalizedSchedulingPriority' is in the range '[ 0.0, 1.0 ]'.
 
     static int create(Handle                  *handle,
@@ -394,8 +394,8 @@ public:
         // 'attributes' that invokes the specified 'function' with a single
         // argument specified by 'userData', and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
-        // calls to other 'ThreadUtil' methods.  Return 0 on success, and
-        // a non-zero value otherwise.  The behavior is undefined unless
+        // calls to other 'ThreadUtil' methods.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined unless
         // 'handle != 0' and unless 'attributes.stackSize' is either greater
         // than 0 or unset.  Note that unless explicitly "detached" (by
         // invoking the 'detach' class method with 'handle') or the
@@ -410,20 +410,19 @@ public:
                       ThreadFunction  function,
                       void           *userData);
         // Create a new thread of program control having default attributes
-        // (e.g.,  "stack size", "scheduling priority", etc) provided by either
-        // 'Configuration' or platform-specific default attributes that
-        // invokes the specified 'function' with a single argument specified by
+        // (e.g., "stack size", "scheduling priority", etc) provided by either
+        // 'Configuration' or platform-specific default attributes that invokes
+        // the specified 'function' with a single argument specified by
         // 'userData', and load into the specified 'handle' an identifier that
-        // may be used to refer to this thread in calls to other
-        // 'ThreadUtil' methods.  Return 0 on success, and a non-zero
-        // value otherwise.  The behavior is undefined unless 'handle != 0'.
-        // Note that unless explicitly "detached" (by invoking
-        // 'detach(*handle)'), a call to 'join' must be made to reclaim any
-        // system resources associated with the newly-created thread.  Also
-        // note that the platform-specific values of default thread stack size
-        // vary wildly between platforms; failure to specify a stack size,
-        // either through a 'ThreadAttributes' object or through
-        // 'Configuration', can lead to non-portable code.
+        // may be used to refer to this thread in calls to other 'ThreadUtil'
+        // methods.  Return 0 on success, and a non-zero value otherwise.  The
+        // behavior is undefined unless 'handle != 0'.  Note that unless
+        // explicitly "detached" (by invoking 'detach(*handle)'), a call to
+        // 'join' must be made to reclaim any system resources associated with
+        // the newly-created thread.  Also note that the platform-specific
+        // values of default thread stack size vary wildly between platforms;
+        // failure to specify a stack size, either through a 'ThreadAttributes'
+        // object or through 'Configuration', can lead to non-portable code.
 
     template <typename INVOKABLE>
     static int create(Handle                  *handle,
@@ -433,14 +432,14 @@ public:
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' object, and load
         // into the specified 'handle' an identifier that may be used to refer
-        // to this thread in calls to other 'ThreadUtil' methods.  Use
-        // the specified 'allocator' to create a copy of 'function' to be used
-        // by the thread.  If no 'allocator' is specified, the global allocator
-        // is used'.  Return 0 on success and a non-zero value otherwise.  The
+        // to this thread in calls to other 'ThreadUtil' methods.  Use the
+        // specified 'allocator' to create a copy of 'function' to be used by
+        // the thread.  If no 'allocator' is specified, the global allocator is
+        // used'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'handle != 0', unless 'allocator' is
         // thread-safe, and unless 'attributes.stackSize' is either greater
         // than 0 or unset.  'INVOKABLE' shall be a copy-constructible type
-        // having the equivalent of 'void operator()()'. Note that unless
+        // having the equivalent of 'void operator()()'.  Note that unless
         // explicitly "detached" (by invoking 'detach(*handle)') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made to reclaim any system resources associated with the
@@ -457,24 +456,24 @@ public:
                       bslma::Allocator *allocator = 0);
         // Create a new thread of program control having default attributes
         // (e.g., "stack size", "scheduling priority", etc) provided by either
-        // 'Configuration' or platform-specific default attributes that
-        // invokes the specified 'function' object, and load into the specified
+        // 'Configuration' or platform-specific default attributes that invokes
+        // the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
-        // calls to other 'ThreadUtil' methods.  Use the specified
-        // 'allocator' to create a copy of 'function' to be used by the thread.
-        // If no 'allocator' is specified, the global allocator is used'.
-        // Return 0 on success, and a non-zero value otherwise.  The behavior
-        // is undefined unless 'handle != 0' and unless 'allocator' is
-        // thread-safe.  'INVOKABLE' shall be a copy-constructible type
-        // having the equivalent of 'void operator()()'.  Note that unless
-        // explicitly "detached" (by invoking 'detach(*handle)'), a call to
-        // 'join' must be made to reclaim any
-        // system resources associated with the newly-created thread.  Also
-        // note that the lifetime of 'allocator', if specified, must exceed the
-        // lifeetime of the thread.  Also note that the platform-specific
-        // values of default thread stack size vary wildly between platforms;
-        // failure to specify a stack size, either through a 'ThreadAttributes'
-        // object or through 'Configuration', can lead to non-portable code.
+        // calls to other 'ThreadUtil' methods.  Use the specified 'allocator'
+        // to create a copy of 'function' to be used by the thread.  If no
+        // 'allocator' is specified, the global allocator is used'.  Return 0
+        // on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless 'handle != 0' and unless 'allocator' is
+        // thread-safe.  'INVOKABLE' shall be a copy-constructible type having
+        // the equivalent of 'void operator()()'.  Note that unless explicitly
+        // "detached" (by invoking 'detach(*handle)'), a call to 'join' must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that the lifetime of 'allocator',
+        // if specified, must exceed the lifeetime of the thread.  Also note
+        // that the platform-specific values of default thread stack size vary
+        // wildly between platforms; failure to specify a stack size, either
+        // through a 'ThreadAttributes' object or through 'Configuration', can
+        // lead to non-portable code.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
@@ -485,30 +484,28 @@ public:
         // thread to retrieve its exit status.
 
     static void exit(void *status);
-        // Exit the current thread and return the specified 'status'.  If
-        // the current thread is not "detached", then a call to 'join' must be
-        // made to reclaim any resources used by the thread, and to retrieve
-        // the exit status.  Note that the preferred method of exiting a thread
-        // is to return from the entry point function.
+        // Exit the current thread and return the specified 'status'.  If the
+        // current thread is not "detached", then a call to 'join' must be made
+        // to reclaim any resources used by the thread, and to retrieve the
+        // exit status.  Note that the preferred method of exiting a thread is
+        // to return from the entry point function.
 
     static int getMinSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // minimum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // maximum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int join(Handle& handle, void **status = 0);
@@ -525,8 +522,7 @@ public:
         // specified 'microseconds' and the optionally specified 'seconds'
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
-        // resolution, and may be significantly longer than the time
-        // requested.
+        // resolution, and may be significantly longer than the time requested.
 
     static void sleep(const bsls::TimeInterval& time);
         // Suspend execution of the current thread for a period of at least the
@@ -545,8 +541,8 @@ public:
         // January 1, 1970 and before the end of December 31, 9999 (i.e., a
         // time interval greater than or equal to 0, and less than
         // 253,402,300,800 seconds).  Note that the actual time suspended
-        // depends on many factors including system scheduling
-        // and system timer resolution.
+        // depends on many factors including system scheduling and system timer
+        // resolution.
 
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
@@ -689,13 +685,13 @@ public:
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                             // -----------------
-                             // struct ThreadUtil
-                             // -----------------
-    
+                            // -----------------
+                            // struct ThreadUtil
+                            // -----------------
+
                     // *** Thread Management ***
 
 // CLASS METHODS
@@ -754,7 +750,7 @@ int bdlqq::ThreadUtil::create(Handle           *handle,
     }
     return rc;
 }
-    
+
 inline
 int bdlqq::ThreadUtil::detach(Handle& handle)
 {
@@ -808,7 +804,6 @@ void bdlqq::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
     BSLS_ASSERT(0 == status);
 }
 
-
 inline
 void bdlqq::ThreadUtil::yield()
 {
@@ -841,13 +836,11 @@ bdlqq::ThreadUtil::Id bdlqq::ThreadUtil::handleToId(const Handle& handle)
     return Imp::handleToId(handle);
 }
 
-
 inline
 bsls::Types::Uint64 bdlqq::ThreadUtil::idAsUint64(const Id& id)
 {
     return Imp::idAsUint64(id);
 }
-
 
 inline
 int bdlqq::ThreadUtil::idAsInt(const Id& id)

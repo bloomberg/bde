@@ -67,16 +67,17 @@ struct RWMutexImpl;
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                      // ================================
-                      // struct RWMutexImpl<PosixThreads>
-                      // ================================
+
+                     // ================================
+                     // struct RWMutexImpl<PosixThreads>
+                     // ================================
 
 template <>
 struct RWMutexImpl<Platform::PosixThreads> {
     // This is a platform-specific implementation detail that is not intended
-    // for use outside of this component.  Use the 'RWMutex' class
-    // instead.  This structure is a wrapper around a POSIX RW lock on Sun (on
-    // AIX the POSIX RW lock has poor performance and no writer guarantees).
+    // for use outside of this component.  Use the 'RWMutex' class instead.
+    // This structure is a wrapper around a POSIX RW lock on Sun (on AIX the
+    // POSIX RW lock has poor performance and no writer guarantees).
 
   private:
     // DATA
@@ -100,9 +101,10 @@ struct RWMutexImpl<Platform::PosixThreads> {
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                               // =============
-                               // class RWMutex
-                               // =============
+
+                              // =============
+                              // class RWMutex
+                              // =============
 
 class RWMutex {
     // This class is a platform-independent interface to a reader-writer lock
@@ -171,14 +173,14 @@ class RWMutex {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
-                             // ------------------
-                             // struct RWMutexImpl
-                             // ------------------
+                            // ------------------
+                            // struct RWMutexImpl
+                            // ------------------
 
 // CREATORS
 inline
@@ -251,9 +253,9 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
-                               // -------------
-                               // class RWMutex
-                               // -------------
+                              // -------------
+                              // class RWMutex
+                              // -------------
 
 // CREATORS
 inline

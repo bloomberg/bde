@@ -57,15 +57,15 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-               // =============================================
-               // class SemaphoreImpl<Platform::PosixSemaphore>
-               // =============================================
+              // =============================================
+              // class SemaphoreImpl<Platform::PosixSemaphore>
+              // =============================================
 
 template <>
 class SemaphoreImpl<Platform::PosixSemaphore> {
-    // This class provides a full specialization of 'SemaphoreImpl'
-    // for pthreads.  The implementation provided here defines an efficient
-    // proxy for the 'sem_t' pthread type, and related operations.
+    // This class provides a full specialization of 'SemaphoreImpl' for
+    // pthreads.  The implementation provided here defines an efficient proxy
+    // for the 'sem_t' pthread type, and related operations.
 
     // DATA
     sem_t d_sem;                // native semaphore handle
@@ -108,12 +108,12 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-               // ---------------------------------------------
-               // class SemaphoreImpl<Platform::PosixSemaphore>
-               // ---------------------------------------------
+              // ---------------------------------------------
+              // class SemaphoreImpl<Platform::PosixSemaphore>
+              // ---------------------------------------------
 
 // CREATORS
 inline

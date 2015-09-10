@@ -85,22 +85,21 @@ extern "C" {
 
 };
 
-
 namespace BloombergLP {
 namespace bdlqq {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-               // =============================================
-               // class SemaphoreImpl<Platform::Win32Semaphore>
-               // =============================================
+              // =============================================
+              // class SemaphoreImpl<Platform::Win32Semaphore>
+              // =============================================
 
 template <>
 class SemaphoreImpl<Platform::Win32Semaphore> {
-    // This class provides a full specialization of 'SemaphoreImpl'
-    // for win32.  The implementation provided here defines an efficient
-    // POSIX like semaphore.
+    // This class provides a full specialization of 'SemaphoreImpl' for win32.
+    // The implementation provided here defines an efficient POSIX like
+    // semaphore.
 
     // DATA
     void            *d_handle;     // TBD doc
@@ -147,12 +146,12 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-               // ---------------------------------------------
-               // class SemaphoreImpl<Platform::Win32Semaphore>
-               // ---------------------------------------------
+              // ---------------------------------------------
+              // class SemaphoreImpl<Platform::Win32Semaphore>
+              // ---------------------------------------------
 
 // CREATORS
 inline
@@ -197,7 +196,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
     return v > 0 ? v : 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

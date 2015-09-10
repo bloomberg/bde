@@ -20,8 +20,8 @@ using namespace BloombergLP;
 typedef bdlqq::Semaphore *SemaphorePtr;
 
 #ifdef BCES_THREAD_LOCAL_VARIABLE
-// The thread-local variable that caches a thread-specific semaphore
-// used by the 'setFlag' and 'waitOnFlag' methods.
+// The thread-local variable that caches a thread-specific semaphore used by
+// the 'setFlag' and 'waitOnFlag' methods.
 BCES_THREAD_LOCAL_VARIABLE(SemaphorePtr, s_semaphore, 0)
 #endif
 
@@ -81,9 +81,9 @@ struct SemaphoreKeyGuard {
     ~SemaphoreKeyGuard()
         // Release the owned TLS key object.
     {
-        // Note that it's possible, though unlikely, for the returned
-        // semaphore to be 0 (e.g., in the main thread calls 'pthread_exit'),
-        // in which case 'releaseSemaphoreObject' is a no-op.
+        // Note that it's possible, though unlikely, for the returned semaphore
+        // to be 0 (e.g., in the main thread calls 'pthread_exit'), in which
+        // case 'releaseSemaphoreObject' is a no-op.
 
         releaseSemaphoreObject(bdlqq::ThreadUtil::getSpecific(*d_key_p));
         releaseTlsKey(d_key_p);
@@ -188,9 +188,9 @@ SemaphorePtr getSemaphoreForCurrentThread()
 
 namespace BloombergLP {
 
-                           // ---------------------
-                           // class QLock_EventFlag
-                           // ---------------------
+                          // ---------------------
+                          // class QLock_EventFlag
+                          // ---------------------
 
 #define FLAG_SET_WITHOUT_SEMAPHORE (reinterpret_cast<SemaphorePtr>(-1L))
 
@@ -247,9 +247,9 @@ void bdlqq::QLock_EventFlag::waitUntilSet(int spinRetryCount)
     BSLS_ASSERT(flagValue == FLAG_SET_WITHOUT_SEMAPHORE);
 }
 
-                              // ----------------
-                              // class QLockGuard
-                              // ----------------
+                             // ----------------
+                             // class QLockGuard
+                             // ----------------
 
 // MANIPULATORS
 void bdlqq::QLockGuard::unlockRaw()

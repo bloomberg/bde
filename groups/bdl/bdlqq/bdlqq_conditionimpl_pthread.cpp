@@ -12,12 +12,10 @@ BSLS_IDENT_RCSID(bdlqq_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
-
 namespace {
 
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
-
 
 class CondAttr {
     // This class is a thin wrapper over 'pthread_condattr_t' structure which
@@ -99,9 +97,9 @@ void initializeCondition(pthread_cond_t              *cond,
 
 }  // close unnamed namespace
 
-                // -------------------------------------------
-                // class ConditionImpl<Platform::PosixThreads>
-                // -------------------------------------------
+               // -------------------------------------------
+               // class ConditionImpl<Platform::PosixThreads>
+               // -------------------------------------------
 
 // CREATORS
 bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
@@ -119,9 +117,8 @@ int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
                                             const bsls::TimeInterval&  timeout)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
-    // This implementation is very sensitive to the 'd_clockType'.  For
-    // safety, we will assert the value is one of the two currently expected
-    // values.
+    // This implementation is very sensitive to the 'd_clockType'.  For safety,
+    // we will assert the value is one of the two currently expected values.
     BSLS_ASSERT(bsls::SystemClockType::e_REALTIME == d_clockType ||
                 bsls::SystemClockType::e_MONOTONIC == d_clockType);
 

@@ -176,7 +176,7 @@ class MyBarrier {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -442,8 +442,8 @@ class IntQueue {
 IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 {
-    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to
-                       // to the queue.
+    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to to
+                       // the queue.
 }
 
 IntQueue::~IntQueue()
@@ -481,8 +481,7 @@ int main(int argc, char *argv[]) {
 
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    // int veryVerbose = argc > 3; int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -550,8 +549,8 @@ int main(int argc, char *argv[]) {
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        // Create a set of threads calling 'wait' and use a thread to post
-        // a number smaller than the set of threads.
+        // Create a set of threads calling 'wait' and use a thread to post a
+        // number smaller than the set of threads.
         //
         // Testing:
         //   void post(int number);

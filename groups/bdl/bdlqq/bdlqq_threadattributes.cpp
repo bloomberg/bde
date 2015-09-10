@@ -15,10 +15,10 @@ BSLS_IDENT_RCSID(bdlqq_threadattributes_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// Implementation note:  'get[Min|Max]SchedPriority' have been deprecated for
-// at least 1 release, and the 4 users have been notified twice.  There appear
-// to be no remaining users, but I'm leaving these methods to ensure BDE 2.23
-// does not break compilation, they should be removed in BDE 2.24.
+// Implementation note: 'get[Min|Max]SchedPriority' have been deprecated for at
+// least 1 release, and the 4 users have been notified twice.  There appear to
+// be no remaining users, but I'm leaving these methods to ensure BDE 2.23 does
+// not break compilation, they should be removed in BDE 2.24.
 
 // CLASS METHODS
 int bdlqq::ThreadAttributes::getMaxSchedPriority(

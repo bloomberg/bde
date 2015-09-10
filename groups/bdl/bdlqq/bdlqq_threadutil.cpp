@@ -36,7 +36,7 @@ int bdlqq::ThreadUtil::convertToSchedulingPriority(
 
     if (minPri == ThreadAttributes::e_UNSET_PRIORITY ||
         maxPri == ThreadAttributes::e_UNSET_PRIORITY) {
-        return ThreadAttributes::e_UNSET_PRIORITY;                // RETURN
+        return ThreadAttributes::e_UNSET_PRIORITY;                    // RETURN
     }
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)

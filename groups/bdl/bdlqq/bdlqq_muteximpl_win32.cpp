@@ -8,8 +8,8 @@ BSLS_IDENT_RCSID(bdlqq_muteximpl_win32_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 // Include 'windows.h' here to check that our declarations of windows API
-// functions and types do not conflict with 'windows.h'.  Also, verify that
-// the size of the buffer allocated for the critical section is sufficient.
+// functions and types do not conflict with 'windows.h'.  Also, verify that the
+// size of the buffer allocated for the critical section is sufficient.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -18,11 +18,12 @@ BSLS_IDENT_RCSID(bdlqq_muteximpl_win32_cpp,"$Id$ $CSID$")
 #ifdef BDLQQ_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {
+
 BSLMF_ASSERT(sizeof(CRITICAL_SECTION) ==
              sizeof(void *) * bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::
                                                  CRITICAL_SECTION_BUFFER_SIZE);
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

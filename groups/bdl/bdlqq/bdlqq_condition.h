@@ -170,9 +170,9 @@ class ConditionImpl;
 
 class Mutex;
 
-                              // ===============
-                              // class Condition
-                              // ===============
+                             // ===============
+                             // class Condition
+                             // ===============
 
 class Condition {
     // This 'class' implements a portable inter-thread signaling primitive.
@@ -188,8 +188,8 @@ class Condition {
   public:
     // CREATORS
     explicit
-    Condition(bsls::SystemClockType::Enum clockType
-                                          = bsls::SystemClockType::e_REALTIME);
+    Condition(
+    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
         // the 'bsls::TimeInterval' timeouts passed to the 'timedWait' method
@@ -245,12 +245,12 @@ class Condition {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ---------------
-                              // class Condition
-                              // ---------------
+                             // ---------------
+                             // class Condition
+                             // ---------------
 
 // CREATORS
 inline

@@ -54,9 +54,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-               // ==============================================
-               // class SemaphoreImpl<Platform::DarwinSemaphore>
-               // ==============================================
+              // ==============================================
+              // class SemaphoreImpl<Platform::DarwinSemaphore>
+              // ==============================================
 
 template <>
 class SemaphoreImpl<Platform::DarwinSemaphore> {
@@ -104,12 +104,12 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-               // ----------------------------------------------
-               // class SemaphoreImpl<Platform::DarwinSemaphore>
-               // ----------------------------------------------
+              // ----------------------------------------------
+              // class SemaphoreImpl<Platform::DarwinSemaphore>
+              // ----------------------------------------------
 
 // CREATORS
 inline
@@ -148,7 +148,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::getValue() const
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BSLS_PLATFORM_OS_DARWIN
 

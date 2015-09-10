@@ -139,11 +139,12 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 //=============================================================================
 
 namespace {
+
     // unnamed namespace for local resources
 
-                              // ================
-                              // class BigFunctor
-                              // ================
+                             // ================
+                             // class BigFunctor
+                             // ================
 
 class BigFunctor {
     // This 'class' is used in the allocator test.
@@ -162,9 +163,9 @@ class BigFunctor {
     }
 };
 
-                            // ===================
-                            // class ThreadChecker
-                            // ===================
+                           // ===================
+                           // class ThreadChecker
+                           // ===================
 
 class ThreadChecker {
 
@@ -184,7 +185,7 @@ class ThreadChecker {
             d_checker_p->eval();
         }
     };
-        
+
     // CREATORS
     ThreadChecker() : d_count(0) {}
 
@@ -193,12 +194,12 @@ class ThreadChecker {
     {
        ++d_count;
     }
-    
+
     ThreadCheckerFunctor getFunctor()
     {
         return ThreadCheckerFunctor(this);
     }
-    
+
     // ACCESSORS
     int count() const
     {
@@ -207,8 +208,8 @@ class ThreadChecker {
 };
 
 extern "C" void *myThreadFunction(void *)
-    // Print to standard output "Another second has passed"
-    // every second for five seconds.
+    // Print to standard output "Another second has passed" every second for
+    // five seconds.
 {
     for (int i = 0; i < 3; ++i) {
         bdlqq::ThreadUtil::microSleep(0, 1);
@@ -232,8 +233,7 @@ extern "C" void *mySmallStackThreadFunction(void *threadArg)
 
 static
 void createSmallStackSizeThread()
-    // Create a detached thread with the small stack size
-    // and perform some work
+    // Create a detached thread with the small stack size and perform some work
 {
     enum { STACK_SIZE = 16384 };
     bdlqq::ThreadAttributes attributes;
@@ -294,8 +294,8 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 // Thread priorities are only usable on some platforms (see component doc), and
 // even on those, priorities only seem to make any difference when multiple
 // threads are waiting on a mutex and the os is deciding which of them is
-// chosen to run first.  So priorities are not really testable until you have
-// a mutex type.  Since it was felt undesirable to do the test in the mutex
+// chosen to run first.  So priorities are not really testable until you have a
+// mutex type.  Since it was felt undesirable to do the test in the mutex
 // component, we implement our own mutex class here.
 //-----------------------------------------------------------------------------
 
@@ -331,9 +331,9 @@ extern "C" {
 }  // extern "C"
 
 class MyMutex {
-    // It provides an efficient proxy for Windows critical sections,
-    // and related operations.  Note that the MyMutex implemented in this class
-    // is *not* error checking, and is non-recursive.
+    // It provides an efficient proxy for Windows critical sections, and
+    // related operations.  Note that the MyMutex implemented in this class is
+    // *not* error checking, and is non-recursive.
 
   public:
     enum {
@@ -386,19 +386,18 @@ class MyMutex {
     // MANIPULATORS
     void lock()
         // Acquire a lock on this mutex object.  If this object is currently
-        // locked, then suspend execution of the current thread until a
-        // lock can be acquired.  Note that the behavior is undefined if the
-        // calling thread already owns the lock on this mutex, and will likely
-        // result in a deadlock.
+        // locked, then suspend execution of the current thread until a lock
+        // can be acquired.  Note that the behavior is undefined if the calling
+        // thread already owns the lock on this mutex, and will likely result
+        // in a deadlock.
     {
         EnterCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
     }
 
     void unlock()
         // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is
-        // undefined, unless the calling thread currently owns the lock on this
-        // mutex.
+        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
     {
         LeaveCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
     }
@@ -408,10 +407,10 @@ class MyMutex {
 // Unix -- pthreads
 
 class MyMutex {
-    // This class provides a full specialization of 'MyMutex' for
-    // pthreads.  It provides a efficient proxy for the 'pthread_mutex_t'
-    // pthreads type, and related operations.  Note that the mutex implemented
-    // in this class is *not* error checking, and is non-recursive.
+    // This class provides a full specialization of 'MyMutex' for pthreads.  It
+    // provides a efficient proxy for the 'pthread_mutex_t' pthreads type, and
+    // related operations.  Note that the mutex implemented in this class is
+    // *not* error checking, and is non-recursive.
 
     // DATA
     pthread_mutex_t d_lock;
@@ -520,7 +519,7 @@ void Functor::operator()()
 }  // close namespace MULTIPRIORITY_EFFECTIVENESS_TEST_CASE
 
 // ----------------------------------------------------------------------------
-//                     Thread Policy Creation Test Case
+//                      Thread Policy Creation Test Case
 // ----------------------------------------------------------------------------
 
 namespace BCEMT_THREAD_POLICY_CREATION_TEST {
@@ -547,9 +546,9 @@ struct Touch {
 
 namespace MULTIPRIORITY_USAGE_TEST_CASE {
 
-// Note that in practice, thread priorities only seem to make a difference
-// when multiple stopped threads are simultaneously ready to run, so we won't
-// see any effect of the different priorities in this case.
+// Note that in practice, thread priorities only seem to make a difference when
+// multiple stopped threads are simultaneously ready to run, so we won't see
+// any effect of the different priorities in this case.
 
 void *MostUrgentThreadFunctor(void* arg) {
     if (verbose) {
@@ -626,7 +625,6 @@ void Func::operator()()
 
 }  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
 
-
 extern "C"
 void *configurationTestFunction(void *stackToUse)
 {
@@ -688,8 +686,8 @@ void testStackSize()
 
     enum { FUDGE_FACTOR = 8192 };
 #else
-    // In test case -4, the crash on 32 bit was further than 12K away from
-    // the end of the stack stack, on 64 bit it was further than 16k away.
+    // In test case -4, the crash on 32 bit was further than 12K away from the
+    // end of the stack stack, on 64 bit it was further than 16k away.
 
     enum { FUDGE_FACTOR = 8192 + 2048 * sizeof(void *) };
 #endif
@@ -946,7 +944,7 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 }
 
 // ----------------------------------------------------------------------------
-//                               TEST CASE -2
+//                                TEST CASE -2
 // ----------------------------------------------------------------------------
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -978,7 +976,7 @@ extern "C" void *clearanceTest(void *)
 #endif
 
 // ----------------------------------------------------------------------------
-//                               TEST CASE -3
+//                                TEST CASE -3
 // ----------------------------------------------------------------------------
 
 bool stackGrowthIsNegative(char *pc)
@@ -989,7 +987,7 @@ bool stackGrowthIsNegative(char *pc)
 }
 
 // ----------------------------------------------------------------------------
-//                               TEST CASE -4
+//                                TEST CASE -4
 // ----------------------------------------------------------------------------
 
 extern "C" void *secondClearanceTest(void *vStackSize)
@@ -1164,8 +1162,8 @@ int main(int argc, char *argv[])
         namespace TC = MULTIPRIORITY_EFFECTIVENESS_TEST_CASE;
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
-        break;    // Spawning threads fails on HPUX if 'inheritSchedule' is
-                  // not 1
+        break;    // Spawning threads fails on HPUX if 'inheritSchedule' is not
+                  // 1
 #endif
 
         typedef Attr::SchedulingPolicy Policy;
@@ -1317,7 +1315,7 @@ int main(int argc, char *argv[])
 
             // If priorities are slaughtering us, the urgent thread will always
             // be coming near last and '*it', the best performing of the
-            // several trials, will have come within 5 of last. (P-3)
+            // several trials, will have come within 5 of last.  (P-3)
 
             LOOP2_ASSERT(*it, TC::NUM_THREADS,
                                        !(failed = *it >= TC::NUM_THREADS - 5));
@@ -1482,10 +1480,10 @@ int main(int argc, char *argv[])
         // Note that this is a system-call wrapper, and this test is intended
         // to ensure the system call is correctly called by the
         // 'bcem_threadutil'.  This test specifically does *not* test the
-        // accuracy of the underlying system call.  Also note that
-        // due to the nature of the system call, testing values at the upper
-        // bound of the valid range is not reasonable.  Test case -5, has been
-        // created and run by hand to verify (slightly) longer time periods.
+        // accuracy of the underlying system call.  Also note that due to the
+        // nature of the system call, testing values at the upper bound of the
+        // valid range is not reasonable.  Test case -5, has been created and
+        // run by hand to verify (slightly) longer time periods.
         //
         // Concerns:
         //: 1 'sleepUntil' suspends the current thread until the indicated
@@ -1932,11 +1930,10 @@ int main(int argc, char *argv[])
         //   That 'deleteKey' deletes a TLS key for ALL threads, that data
         //   associated with a key by 'setSpecific' is thread-specific.
         //
-        // Plan: Create 2 keys in the parent thread.  Verify both
-        // exist in the child thread -- delete 1 in the child thread,
-        // verify the data set in one thread is not visible from
-        // another thread and does not affect the data set in another
-        // thread.
+        // Plan: Create 2 keys in the parent thread.  Verify both exist in the
+        // child thread -- delete 1 in the child thread, verify the data set in
+        // one thread is not visible from another thread and does not affect
+        // the data set in another thread.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -2066,9 +2063,9 @@ int main(int argc, char *argv[])
         const double SLEEP_SECONDS = SLEEP_MICROSECONDS * 1e-6;
         const double OVERSHOOT_MIN = -1e-5;
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
-            const double TOLERANCE = 2;   // microSleep is obscenely
-                                          // imprecise on Sun and to a
-                                          // lesser extent Linux
+            const double TOLERANCE = 2;   // microSleep is obscenely imprecise
+                                          // on Sun and to a lesser extent
+                                          // Linux
 #else
             const double TOLERANCE = 0.05;
 #endif

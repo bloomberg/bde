@@ -20,9 +20,9 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-              // ================================================
-              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-              // ================================================
+             // ================================================
+             // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+             // ================================================
 
 // MANIPULATORS
 void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post(

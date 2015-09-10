@@ -2,8 +2,8 @@
 #include <bdlqq_writelockguard.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstring.h>  // strcmp()
-#include <bsl_cstdlib.h>  // atoi()
+#include <bsl_cstring.h>  // 'strcmp'
+#include <bsl_cstdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -99,11 +99,11 @@ int someOtherUpgradeCondition = 0;
 struct my_RWLock {
     // This class provides a simulated mutual exclusion mechanism which
     // conforms to the interface required by the 'bdlqq::WriteLockGuard' class.
-    // It operates using a counter to track the symbolic "locked" state.
-    // Each call to the lock and unlock functions increment or decrement
-    // the lock count respectively.  The current state of the lock count
-    // is accessible through the lockCount method.  The 'tryLock' is designed
-    // to fail the first time, then succeed every other time.
+    // It operates using a counter to track the symbolic "locked" state.  Each
+    // call to the lock and unlock functions increment or decrement the lock
+    // count respectively.  The current state of the lock count is accessible
+    // through the lockCount method.  The 'tryLock' is designed to fail the
+    // first time, then succeed every other time.
 
     int d_count;
     int d_attempt;
@@ -166,8 +166,8 @@ static void safeFunc(my_Object *obj, my_RWLock *rwlock)
 }
 
 static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
-    // Perform task and return positive value if locking succeeds.
-    // Return 0 if locking fails.
+    // Perform task and return positive value if locking succeeds.  Return 0 if
+    // locking fails.
 {
     const int RETRIES = 1; // use higher values for higher success rate
     bdlqq::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
@@ -193,8 +193,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    // int veryVerbose = argc > 3; int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

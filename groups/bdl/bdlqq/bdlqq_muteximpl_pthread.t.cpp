@@ -72,8 +72,7 @@ void My_Sleep(int ms)
     nanosleep(&naptime, 0);
 }
 
-void My_CreateDetachedThread(ThreadFunction function,
-                             void* userData) {
+void My_CreateDetachedThread(ThreadFunction function, void* userData) {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr,

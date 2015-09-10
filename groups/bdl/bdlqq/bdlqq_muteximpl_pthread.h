@@ -61,16 +61,16 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class MutexImpl;
 
-                  // =======================================
-                  // class MutexImpl<Platform::PosixThreads>
-                  // =======================================
+                 // =======================================
+                 // class MutexImpl<Platform::PosixThreads>
+                 // =======================================
 
 template <>
 class MutexImpl<Platform::PosixThreads> {
-    // This class provides a full specialization of 'MutexImpl' for
-    // pthreads.  It provides a efficient proxy for the 'pthread_mutex_t'
-    // pthreads type, and related operations.  Note that the mutex implemented
-    // in this class is *not* error checking, and is non-recursive.
+    // This class provides a full specialization of 'MutexImpl' for pthreads.
+    // It provides a efficient proxy for the 'pthread_mutex_t' pthreads type,
+    // and related operations.  Note that the mutex implemented in this class
+    // is *not* error checking, and is non-recursive.
 
     // DATA
     pthread_mutex_t d_lock;  // TBD doc
@@ -96,10 +96,10 @@ class MutexImpl<Platform::PosixThreads> {
     // MANIPULATORS
     void lock();
         // Acquire a lock on this mutex object.  If this object is currently
-        // locked, then suspend execution of the current thread until a
-        // lock can be acquired.  Note that the behavior is undefined if the
-        // calling thread already owns the lock on this mutex, and will likely
-        // result in a deadlock.
+        // locked, then suspend execution of the current thread until a lock
+        // can be acquired.  Note that the behavior is undefined if the calling
+        // thread already owns the lock on this mutex, and will likely result
+        // in a deadlock.
 
     NativeType& nativeMutex();
         // Return a reference to the modifiable OS-level mutex underlying this
@@ -113,20 +113,19 @@ class MutexImpl<Platform::PosixThreads> {
 
     void unlock();
         // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is
-        // undefined, unless the calling thread currently owns the lock on this
-        // mutex.
+        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                  // ---------------------------------------
-                  // class MutexImpl<Platform::PosixThreads>
-                  // ---------------------------------------
+                 // ---------------------------------------
+                 // class MutexImpl<Platform::PosixThreads>
+                 // ---------------------------------------
 
 // CREATORS
 inline

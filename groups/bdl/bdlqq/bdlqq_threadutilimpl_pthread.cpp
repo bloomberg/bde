@@ -50,9 +50,9 @@ int localPthreadsPolicy(int policy)
     typedef bdlqq::ThreadAttributes Attr;
 
     switch (policy) {
-      case Attr::e_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
-      case Attr::e_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
-      case Attr::e_SCHED_RR:      return SCHED_RR;                // RETURN
+      case Attr::e_SCHED_OTHER:   return SCHED_OTHER;                 // RETURN
+      case Attr::e_SCHED_FIFO:    return SCHED_FIFO;                  // RETURN
+      case Attr::e_SCHED_RR:      return SCHED_RR;                    // RETURN
 #if defined(BSLS_PLATFORM_OS_HPUX)
       case Attr::e_SCHED_DEFAULT:
       default:                        return SCHED_HPUX;              // RETURN
@@ -65,7 +65,7 @@ int localPthreadsPolicy(int policy)
     BSLS_ASSERT_OPT(0);
 }
 
-static int initPthreadAttribute(pthread_attr_t                *dest,
+static int initPthreadAttribute(pthread_attr_t                 *dest,
                                 const bdlqq::ThreadAttributes&  src)
     // Initialize the specified pthreads attribute type 'dest', configuring it
     // with information from the specified thread attributes object 'src'.
@@ -161,6 +161,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 }
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
+
 namespace {
 
 class MachClockGuard {
@@ -189,9 +190,9 @@ class MachClockGuard {
 
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
-                // --------------------------------------------
-                // class ThreadUtilImpl<Platform::PosixThreads>
-                // --------------------------------------------
+               // --------------------------------------------
+               // class ThreadUtilImpl<Platform::PosixThreads>
+               // --------------------------------------------
 
 // CLASS DATA
 const pthread_t
@@ -258,9 +259,9 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
     int priority = sched_get_priority_max(pPolicy);
 
 #  if defined(BSLS_PLATFORM_OS_AIX)
-    // Note max priority returned above is 127 regardless of policy on AIX,
-    // yet for non-superusers, thread creation fails if 'priority > 60'.  See
-    // AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
+    // Note max priority returned above is 127 regardless of policy on AIX, yet
+    // for non-superusers, thread creation fails if 'priority > 60'.  See AIX
+    // doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
     // topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
     // pthread_setschedparam.htm"
 
@@ -408,8 +409,8 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
                              bool                        retryOnSignalInterupt,
                              bsls::SystemClockType::Enum clockType)
 {
-    // ASSERT that the interval is between January 1, 1970 00:00.000 and
-    // the end of December 31, 9999 (i.e., less than January 1, 10000).
+    // ASSERT that the interval is between January 1, 1970 00:00.000 and the
+    // end of December 31, 9999 (i.e., less than January 1, 10000).
 
     BSLS_ASSERT(absoluteTime >= bsls::TimeInterval(0, 0));
     BSLS_ASSERT(absoluteTime <  bsls::TimeInterval(253402300800LL, 0));
@@ -439,17 +440,16 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
     //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
 
-    // This implementation is very sensitive to the 'clockType'.  For
-    // safety, we will assert the value is one of the two currently expected
-    // values.
+    // This implementation is very sensitive to the 'clockType'.  For safety,
+    // we will assert the value is one of the two currently expected values.
 
     BSLS_ASSERT(bsls::SystemClockType::e_REALTIME ==  clockType ||
                 bsls::SystemClockType::e_MONOTONIC == clockType);
 
     bsls::TimeInterval sleepUntilTime(absoluteTime);
     if (clockType != bsls::SystemClockType::e_MONOTONIC) {
-        // since we will be operating with the monotonic clock, adjust
-        // the timeout value to make it consistent with the monotonic clock
+        // since we will be operating with the monotonic clock, adjust the
+        // timeout value to make it consistent with the monotonic clock
 
         sleepUntilTime += bsls::SystemTime::nowMonotonicClock() -
                           bsls::SystemTime::now(clockType);

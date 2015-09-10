@@ -16,9 +16,9 @@ namespace BloombergLP {
 BSLMF_ASSERT(
    0 == sizeof(bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>) % sizeof(int));
 
-                  // ---------------------------------------
-                  // class MutexImpl<Platform::PosixThreads>
-                  // ---------------------------------------
+                 // ---------------------------------------
+                 // class MutexImpl<Platform::PosixThreads>
+                 // ---------------------------------------
 
 // CREATORS
 bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::~MutexImpl()

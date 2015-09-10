@@ -12,9 +12,9 @@ BSLS_IDENT_RCSID(bdlqq_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                // -------------------------------------------
-                // class ConditionImpl<Platform::Win32Threads>
-                // -------------------------------------------
+               // -------------------------------------------
+               // class ConditionImpl<Platform::Win32Threads>
+               // -------------------------------------------
 
 // MANIPULATORS
 int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::timedWait(
@@ -39,7 +39,7 @@ int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::wait(Mutex *mutex)
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

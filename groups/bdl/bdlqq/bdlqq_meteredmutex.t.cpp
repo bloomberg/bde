@@ -342,8 +342,8 @@ int main(int argc, char *argv[])
 
         // TBD:
         // Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this test
-        // case will not work on hp.
-        // executeInParallel(NUM_THREADS4, resetTest);
+        // case will not work on hp. executeInParallel(NUM_THREADS4,
+        // resetTest);
 
       } break;
       case 3: {

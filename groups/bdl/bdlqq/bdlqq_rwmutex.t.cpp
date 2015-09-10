@@ -56,12 +56,12 @@ typedef bdlqq::RWMutex Obj;
 //=============================================================================
 //                 TEST PLAN: Positive test cases
 //
-// This is a breathing test only.  bdlqq::RWMutex is a trivial wrapper which
-// passes all calls directly to an underlying implementation.  This test
-// driver will just verify that the calls are reaching some kind of RW mutex
-// by having two reader threads, blocked from finishing by a barrier,
-// access a shared read lock.  While they have it, the main thread will try
-// to get a write lock, and should fail.
+// This is a breathing test only. bdlqq::RWMutex is a trivial wrapper which
+// passes all calls directly to an underlying implementation.  This test driver
+// will just verify that the calls are reaching some kind of RW mutex by having
+// two reader threads, blocked from finishing by a barrier, access a shared
+// read lock.  While they have it, the main thread will try to get a write
+// lock, and should fail.
 //=============================================================================
 
 //=============================================================================
@@ -71,16 +71,16 @@ typedef bdlqq::RWMutex Obj;
 // vs. the bdlqq_readerwriterlock component.  Case -1 is a speed benchmark of
 // the POSIX RW mutex.  If POSIX is not available on the platform this driver
 // was built for, the test will fail.  Case -2 is a speed benchmark of the
-// bdlqq_readerwriterlock component.  Case -3 checks the 'bias' of the POSIX
-// RW mutex (a concern on IBM) and case -4 checks it for the
+// bdlqq_readerwriterlock component.  Case -3 checks the 'bias' of the POSIX RW
+// mutex (a concern on IBM) and case -4 checks it for the
 // bdlqq_readerwriterlock component.
 //
 // For case -1 and -2, the speed benchmarks, there are two tests done: a
-// contention-free test, intended to measure the time overhead involved
-// simply in making calls to the lock; and a contention test, intended to
-// measure the performance of the lock in switching between multiple
-// contending threads.  For the second test, you can optionally set the level
-// of contention on the command line.  The syntax is:
+// contention-free test, intended to measure the time overhead involved simply
+// in making calls to the lock; and a contention test, intended to measure the
+// performance of the lock in switching between multiple contending threads.
+// For the second test, you can optionally set the level of contention on the
+// command line.  The syntax is:
 //    driver.tsk -1 [NUM_READERS] [NUM_WRITERS]
 //
 // The default values are 5 and 1.
@@ -363,17 +363,19 @@ struct ContentionReader
 };
 
 template <class LOCK>
-int benchmarkSpeed (LOCK* lock, const char* lockName,
-                    int numWriters, int numReaders)
+int benchmarkSpeed (LOCK*       lock,
+                    const char* lockName,
+                    int         numWriters,
+                    int         numReaders)
 {
    int rc;
 
-   // This 4-lock "ping-pong" benchmark approach is from
-   // de Supinski and May, "Benchmarking PTHREADS Performance", 1999
+   // This 4-lock "ping-pong" benchmark approach is from de Supinski and May,
+   // "Benchmarking PTHREADS Performance", 1999
    LOCK locks[4];
 
-   // First, we lock and unlock a vector of mutexes in the main thread
-   // for 3 seconds.  This is the "individual overhead" score.
+   // First, we lock and unlock a vector of mutexes in the main thread for 3
+   // seconds.  This is the "individual overhead" score.
    double score, overallScore = 0;
    {
       enum {NUM_MUTEXES=750, MICROSECS_PER_SEC = 1000000};
@@ -405,8 +407,8 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
       overallScore += score / 6.0;
    }
 
-   // Now we run the writer by itself for 3 seconds.  This score
-   // is the "no-contention overhead."
+   // Now we run the writer by itself for 3 seconds.  This score is the
+   // "no-contention overhead."
    bsls::AtomicInt stop(0);
    bdlqq::Semaphore startSema;
    PingPongWriter<LOCK> writerThread(locks, &stop, &score, &startSema);
@@ -447,8 +449,8 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
         << score << endl;
    overallScore += score / 6.0;
 
-   // For the "hi-contention" test, we want more readers contending with
-   // a writer over a smaller number of mutexes
+   // For the "hi-contention" test, we want more readers contending with a
+   // writer over a smaller number of mutexes
    LOCK conLocks[2];
 
    bdlqq::Barrier startBarrier2(numReaders+2);
@@ -551,8 +553,8 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    writeStart.wait();
    bdlqq::ThreadUtil::yield();
 
-   // There is one thread blocked waiting for the write lock.  Create
-   // a thread that will block waiting for the read qlock.
+   // There is one thread blocked waiting for the write lock.  Create a thread
+   // that will block waiting for the read qlock.
    int rwThreadHasLock = 0;
    ReadWaitThread<LOCK> readWaitThread(lock, &readStart,
                                        &rwThreadHasLock);
@@ -562,8 +564,8 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    readStart.wait();
    bdlqq::ThreadUtil::yield();
 
-   // Release the first read lock and allow the first write lock to
-   // get the lock
+   // Release the first read lock and allow the first write lock to get the
+   // lock
    readRelease1.wait();
    readDone.wait();
    bdlqq::ThreadUtil::yield();
@@ -592,19 +594,19 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
 template <class LOCK>
 int benchmarkBias (LOCK* lock, const char* lockName)
 {
-   // The "bias" of the RW mutex is the behavior it exhibits when the
-   // read lock is held, a thread is blocked waiting for the write lock,
-   // and a second thread attempts to get a shared read lock.  Implementations
-   // that bias against writer starvation will prevent the second thread
-   // from acquiring the lock.
+   // The "bias" of the RW mutex is the behavior it exhibits when the read lock
+   // is held, a thread is blocked waiting for the write lock, and a second
+   // thread attempts to get a shared read lock.  Implementations that bias
+   // against writer starvation will prevent the second thread from acquiring
+   // the lock.
    //
    // If the lock biases towards writers, there is a second possible fairness
    // behavior to test.  In the scenario above, if there are *two* threads
-   // blocked waiting for the write lock, the lock has a decision to make
-   // after the first thread acquires and releases the lock - whether or
-   // not to release the read thread that was blocked, or release the second
-   // write thread.  If it releases the read thread, it is biased to writers
-   // with fairness for readers.
+   // blocked waiting for the write lock, the lock has a decision to make after
+   // the first thread acquires and releases the lock - whether or not to
+   // release the read thread that was blocked, or release the second write
+   // thread.  If it releases the read thread, it is biased to writers with
+   // fairness for readers.
 
    bool writerBias = false;
 
@@ -637,8 +639,8 @@ int benchmarkBias (LOCK* lock, const char* lockName)
 template <class LOCK>
 int benchmarkRecursion (LOCK* lock, const char* lockName)
 {
-   // We are specifically testing read-lock recursion here.  First try
-   // naive support - can we call lockRead twice?
+   // We are specifically testing read-lock recursion here.  First try naive
+   // support - can we call lockRead twice?
 
    lock->lockRead();
    if (0 == lock->tryLockRead()) {
@@ -659,9 +661,9 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
            << "\" does not clean up after naive read-lock recursion." << endl;
    }
 
-   // The main thread will get the read lock and allow a writer to wait.
-   // Then it will attempt to get the read lock again.  If it succeeds,
-   // read-lock recursion is supported.
+   // The main thread will get the read lock and allow a writer to wait.  Then
+   // it will attempt to get the read lock again.  If it succeeds, read-lock
+   // recursion is supported.
 
    bdlqq::ThreadUtil::Handle handle;
    bdlqq::Semaphore writeStart;

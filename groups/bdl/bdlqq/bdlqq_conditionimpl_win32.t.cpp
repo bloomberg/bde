@@ -115,8 +115,7 @@ void* pingPong(void* argp) {
 
 } // extern "C"
 
-void My_CreateDetachedThread(ThreadFunction function,
-                             void* userData) {
+void My_CreateDetachedThread(ThreadFunction function, void* userData) {
     StartArgs *args = (StartArgs*)malloc(sizeof(StartArgs));
     args->d_function = function;
     args->d_arg = userData;
@@ -154,15 +153,15 @@ enum {
 };
 
 extern "C" void *producer(void *arg_p)
-    // Receive commands from an external source, place them on
-    // the shared 'my_WorkQueue' (passed as the specified void
-    // pointer 'arg'), and return 'arg'.
+    // Receive commands from an external source, place them on the shared
+    // 'my_WorkQueue' (passed as the specified void pointer 'arg'), and return
+    // 'arg'.
 {
     Case1* arg = (Case1*)arg_p;
     my_WorkQueue *queue = arg->d_queue;
 
-    // For simplicity, the external source is modeled by a
-    // for loop that generates NUM_ITEMS random numbers.
+    // For simplicity, the external source is modeled by a for loop that
+    // generates NUM_ITEMS random numbers.
 
     for (int i = 0; i < NUM_ITEMS; ++i) {
         my_WorkItem request;
@@ -183,10 +182,10 @@ void My_Sleep(int ms)
 }
 
 extern "C" void *consumer(void *arg_p)
-    // Consume the commands from the shared 'my_WorkQueue' (passed as
-    // the specified void pointer 'arg') and return 0.  Note that this
-    // function will continue processing commands until there are no
-    // commands for at least one tenth of a second.
+    // Consume the commands from the shared 'my_WorkQueue' (passed as the
+    // specified void pointer 'arg') and return 0.  Note that this function
+    // will continue processing commands until there are no commands for at
+    // least one tenth of a second.
 {
     Case1* arg = (Case1*)arg_p;
     my_WorkQueue *queue = arg->d_queue;
@@ -209,8 +208,8 @@ extern "C" void *consumer(void *arg_p)
         }
 
         if (0 != queue->d_queue.size()) {
-            // The condition variable was either signaled or timed out
-            // and there are work requests in the queue.
+            // The condition variable was either signaled or timed out and
+            // there are work requests in the queue.
 
             my_WorkItem item = queue->d_queue.front();
             queue->d_queue.pop_front();
@@ -220,8 +219,8 @@ extern "C" void *consumer(void *arg_p)
             ++received;
         }
         else {
-            // The wait timed out and the queue was empty.  Unlock the
-            // mutex and return.
+            // The wait timed out and the queue was empty.  Unlock the mutex
+            // and return.
 
             queue->d_mx.unlock();
             finished = 1;

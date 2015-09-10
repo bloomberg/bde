@@ -8,9 +8,9 @@ BSLS_IDENT_RCSID(bdlqq_recursivemuteximpl_pthread_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-              // ------------------------------------------------
-              // class RecursiveMutexImpl<Platform::PosixThreads>
-              // ------------------------------------------------
+             // ------------------------------------------------
+             // class RecursiveMutexImpl<Platform::PosixThreads>
+             // ------------------------------------------------
 
 // CREATORS
 bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::RecursiveMutexImpl()

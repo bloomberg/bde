@@ -292,14 +292,14 @@ namespace bdlqq {
 
 class Mutex;
 
-                           // =====================
-                           // class MutexAssert_Imp
-                           // =====================
+                          // =====================
+                          // class MutexAssert_Imp
+                          // =====================
 
 struct MutexAssert_Imp {
     // This 'struct' provides a (component private) namespace for
-    // implementation functions of the assert macros defined in this
-    // component.  This class should *not* be used directly in client code.
+    // implementation functions of the assert macros defined in this component.
+    // This class should *not* be used directly in client code.
 
     // CLASS METHODS
     static void assertIsLockedImpl(Mutex      *mutex,

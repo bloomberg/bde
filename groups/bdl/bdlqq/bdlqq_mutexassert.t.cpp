@@ -79,9 +79,9 @@ static void aSsErT(int c, const char *s, int i)
 int verbose;
 int veryVerbose;
 
-                            // -------------
-                            // Usage Example
-                            // -------------
+                              // -------------
+                              // Usage Example
+                              // -------------
 
 ///Usage
 ///-----
@@ -283,9 +283,9 @@ int veryVerbose;
 // different results, but in all cases should prevent the program from
 // proceeding normally.
 
-                                // ------
-                                // case 3
-                                // ------
+                                  // ------
+                                  // case 3
+                                  // ------
 
 struct TestCase3SubThread {
     bdlqq::Mutex     *d_mutexToAssertOn;
@@ -300,9 +300,9 @@ struct TestCase3SubThread {
     }
 };
 
-                                // ------
-                                // case 2
-                                // ------
+                                  // ------
+                                  // case 2
+                                  // ------
 
 namespace TEST_CASE_2 {
 

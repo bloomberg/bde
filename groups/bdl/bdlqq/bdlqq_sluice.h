@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch)
 //
-//@DESCRIPTION: This component provides a "sluice" class, 'bdlqq::Sluice'.
-// A sluice is useful for controlling the release of threads from a common
+//@DESCRIPTION: This component provides a "sluice" class, 'bdlqq::Sluice'.  A
+// sluice is useful for controlling the release of threads from a common
 // synchronization point.  One or more threads may "enter" a 'bdlqq::Sluice'
 // object (via the 'enter' method), and then wait to be released (via either
 // the 'wait' or 'timedWait' method).  Either one waiting thread (via the
@@ -95,17 +95,17 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                                // ============
-                                // class Sluice
-                                // ============
+
+                               // ============
+                               // class Sluice
+                               // ============
 
 class Sluice {
     // This class controls the release of threads from a common synchronization
-    // point.  One or more threads may "enter" a 'Sluice' object, and
-    // then wait to be released.  Either one waiting thread (via the
-    // 'signalOne' method), or all waiting threads (via the 'signalAll'
-    // method), may be signaled for release.  In any case, 'Sluice'
-    // provides a guarantee against starvation.
+    // point.  One or more threads may "enter" a 'Sluice' object, and then wait
+    // to be released.  Either one waiting thread (via the 'signalOne' method),
+    // or all waiting threads (via the 'signalAll' method), may be signaled for
+    // release.  In any case, 'Sluice' provides a guarantee against starvation.
 
   private:
     // PRIVATE TYPES
@@ -163,7 +163,7 @@ class Sluice {
   public:
     // CREATORS
     explicit
-    Sluice(bslma::Allocator            *basicAllocator = 0);
+    Sluice(bslma::Allocator *basicAllocator = 0);
     explicit
     Sluice(bsls::SystemClockType::Enum  clockType,
            bslma::Allocator            *basicAllocator = 0);

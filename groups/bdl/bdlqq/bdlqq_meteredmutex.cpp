@@ -10,16 +10,16 @@ BSLS_IDENT_RCSID(bdlqq_meteredmutex_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                             // ------------------
-                             // class MeteredMutex
-                             // ------------------
+                            // ------------------
+                            // class MeteredMutex
+                            // ------------------
 
 // MANIPULATORS
 void bdlqq::MeteredMutex::resetMetrics()
 {
-    // Loop is used here to ensure that 'd_lastResetTime' is not
-    // modified (by some other thread) between the computation
-    // of 't1' and the modification of d_lastResetTime by 'testAndSwap'.
+    // Loop is used here to ensure that 'd_lastResetTime' is not modified (by
+    // some other thread) between the computation of 't1' and the modification
+    // of d_lastResetTime by 'testAndSwap'.
 
     bsls::Types::Int64 t1, old;
 

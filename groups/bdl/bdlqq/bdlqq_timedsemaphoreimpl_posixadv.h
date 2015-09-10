@@ -79,9 +79,9 @@ namespace bdlqq {
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
 
-              // ================================================
-              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-              // ================================================
+             // ================================================
+             // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+             // ================================================
 
 template <>
 class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
@@ -136,11 +136,11 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'timeout' expires.  The 'timeout' is an absolute
         // time represented as an interval from some epoch, which is detemined
-        // by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  If the
-        // 'timeout' did not expire before the count attained a positive value,
-        // atomically decrement the count and return 0; otherwise, return a
-        // non-zero value with no effect on the count.
+        // by the clock indicated at construction (see {'Supported
+        // Clock-Types'} in the component documentation).  If the 'timeout' did
+        // not expire before the count attained a positive value, atomically
+        // decrement the count and return 0; otherwise, return a non-zero value
+        // with no effect on the count.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return
@@ -154,12 +154,12 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-              // ------------------------------------------------
-              // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-              // ------------------------------------------------
+             // ------------------------------------------------
+             // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+             // ------------------------------------------------
 
 // CREATORS
 inline

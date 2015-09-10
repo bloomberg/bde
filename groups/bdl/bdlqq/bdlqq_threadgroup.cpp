@@ -13,11 +13,11 @@ BSLS_IDENT_RCSID(bdlqq_threadgroup_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-
 namespace {
-                          // =======================
-                          // class ThreadDetachGuard
-                          // =======================
+
+                         // =======================
+                         // class ThreadDetachGuard
+                         // =======================
 
 class ThreadDetachGuard {
 
@@ -31,7 +31,7 @@ class ThreadDetachGuard {
     : d_handle(handle)
     {
     }
-    
+
     ~ThreadDetachGuard()
     {
         if (bdlqq::ThreadUtil::invalidHandle() != d_handle) {
@@ -41,7 +41,7 @@ class ThreadDetachGuard {
 
     // MANIPULATORS
     void release()
-    { 
+    {
         d_handle = bdlqq::ThreadUtil::invalidHandle();
     }
 };
@@ -58,9 +58,9 @@ void bindJoin(bdlqq::ThreadUtil::Handle handle)
 
 }  // close unnamed namespace
 
-                             // -----------------
-                             // class ThreadGroup
-                             // -----------------
+                            // -----------------
+                            // class ThreadGroup
+                            // -----------------
 
 // CREATORS
 
@@ -80,12 +80,12 @@ bdlqq::ThreadGroup::~ThreadGroup()
 void bdlqq::ThreadGroup::addThread(const ThreadUtil::Handle& handle) {
     ThreadDetachGuard detachGuard(handle);
     LockGuard<Mutex> lockGuard(&d_threadsMutex);
-    
+
     d_threads.push_back(handle);
     d_numThreads.addRelaxed(1);
     detachGuard.release();
 }
-    
+
 void bdlqq::ThreadGroup::joinAll()
 {
     LockGuard<Mutex> guard(&d_threadsMutex);

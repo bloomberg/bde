@@ -101,7 +101,6 @@ static int nativeDefaultThreadStackSizeImp()
 }
 #endif
 
-
 namespace BloombergLP {
 
 static bsls::AtomicOperations::AtomicTypes::Int
@@ -111,7 +110,7 @@ int bdlqq::Configuration::defaultThreadStackSize()
 {
     if (bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue) <
                                                                            0) {
-        return ThreadAttributes::e_UNSET_STACK_SIZE;              // RETURN
+        return ThreadAttributes::e_UNSET_STACK_SIZE;                  // RETURN
     }
 
     return bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue);

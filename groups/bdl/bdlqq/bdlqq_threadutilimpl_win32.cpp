@@ -24,8 +24,8 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
     // thread procedures only return a 32-bit DWORD value.  We use an
-    // intermediate map to store the actual 'void *' return or exit values,
-    // so they can be retrieved by join.
+    // intermediate map to store the actual 'void *' return or exit values, so
+    // they can be retrieved by join.
 
     #define BCEMT_USE_RETURN_VALUE_MAP
     #include <bsl_unordered_map.h>
@@ -57,8 +57,8 @@ class HandleGuard {
   public:
 
     explicit HandleGuard(HANDLE handle);
-        // Create a guard for the specified 'handle', that upon going out
-        // of scope and being destroyed, will call 'CloseHandle' on 'handle'.
+        // Create a guard for the specified 'handle', that upon going out of
+        // scope and being destroyed, will call 'CloseHandle' on 'handle'.
 
     ~HandleGuard();
         // Call 'CloseHandle' on the windows handle supplied at construction.
@@ -87,8 +87,8 @@ struct ThreadStartupInfo {
 };
 
 struct ThreadSpecificDestructor {
-    // This structure implements a linked list of destructors associated
-    // with thread-specific key.
+    // This structure implements a linked list of destructors associated with
+    // thread-specific key.
 
     bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Key  d_key;
     bcemt_KeyDestructorFunction                                d_destructor;
@@ -97,10 +97,9 @@ struct ThreadSpecificDestructor {
 
 struct Win32Initializer {
     // This structure is used to initialize and de-initialize the BCE threading
-    // environment.  At creation, 'bcemt_threadutil_win32_Initialize' is
-    // called to initialize the environment.  When the object is destroyed,
-    // it calls 'bcemt_threadutil_win32_Deinitialize' to cleanup the
-    // environment.
+    // environment.  At creation, 'bcemt_threadutil_win32_Initialize' is called
+    // to initialize the environment.  When the object is destroyed, it calls
+    // 'bcemt_threadutil_win32_Deinitialize' to cleanup the environment.
 
     Win32Initializer();
         // Initialize the BCE threading environment.
@@ -140,11 +139,11 @@ static Win32Initializer   s_initializer;
 
 static inline
 int bcemt_threadutil_win32_Initialize()
-    // This function is used to initialize the BCE threading environment If
-    // the environment has already been initialized, it returns immediately
-    // with a 0 result.  Otherwise if the environment is currently being
-    // initialized from some other thread, then it waits until the environment
-    // is initialized and returns.
+    // This function is used to initialize the BCE threading environment If the
+    // environment has already been initialized, it returns immediately with a
+    // 0 result.  Otherwise if the environment is currently being initialized
+    // from some other thread, then it waits until the environment is
+    // initialized and returns.
 {
     if (INITIALIZED == s_initializationState) {
         return 0;                                                     // RETURN
@@ -321,9 +320,9 @@ static unsigned _stdcall ThreadEntry(void *arg)
 
 }  // close unnamed namespace
 
-                // --------------------------------------------
-                // class ThreadUtilImpl<Platform::Win32Threads>
-                // --------------------------------------------
+               // --------------------------------------------
+               // class ThreadUtilImpl<Platform::Win32Threads>
+               // --------------------------------------------
 
 // CLASS METHODS
 int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
@@ -356,11 +355,11 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     }
 
     BSLS_ASSERT_OPT(stackSize >= 0);    // 0 is a valid stack size to pass to
-                                        // _beginthreadex -- it means 'the same
-                                        // size as the main thread'.  This is
-                                        // is not documented bde behavior, but
-                                        // allow it just in case anyone was
-                                        // depending on it.
+                                        // _beginthreadex -- it means
+                                        // 'the same size as the main thread'.
+                                        // This is is not documented bde
+                                        // behavior, but allow it just in case
+                                        // anyone was depending on it.
 
     startInfo->d_threadArg = userData;
     startInfo->d_function  = function;
@@ -406,8 +405,8 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
     DWORD result = GetExitCodeThread(handle.d_handle,&exitStatus);
 
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
-    // In this case, we ignore 'exitStatus', but we're still fetching
-    // it in to get the 'result' value
+    // In this case, we ignore 'exitStatus', but we're still fetching it in to
+    // get the 'result' value
 
     if (status) {
         EnterCriticalSection(&s_returnValueMapLock);
@@ -531,15 +530,14 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
                                       const bsls::TimeInterval&   absoluteTime,
                                       bsls::SystemClockType::Enum clockType)
 {
-    // ASSERT that the interval is between January 1, 1970 00:00.000 and
-    // the end of December 31, 9999 (i.e., less than January 1, 10000).
+    // ASSERT that the interval is between January 1, 1970 00:00.000 and the
+    // end of December 31, 9999 (i.e., less than January 1, 10000).
 
     BSLS_ASSERT(absoluteTime >= bsls::TimeInterval(0, 0));
     BSLS_ASSERT(absoluteTime <  bsls::TimeInterval(253402300800LL, 0));
 
-    // This implementation is very sensitive to the 'clockType'.  For
-    // safety, we will assert the value is one of the two currently expected
-    // values.
+    // This implementation is very sensitive to the 'clockType'.  For safety,
+    // we will assert the value is one of the two currently expected values.
     BSLS_ASSERT(bsls::SystemClockType::e_REALTIME ==  clockType ||
                 bsls::SystemClockType::e_MONOTONIC == clockType);
 
@@ -554,14 +552,14 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
         LARGE_INTEGER clockTime;
 
         // As indicated in the documentation for 'SetWaitableTimer':
-        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
-        // A positive value represents an absolute time in increments of 100
-        // nanoseconds.  Critically though, Microsoft's epoch is different
-        // for epoch used by the C run-time (and BDE).  BDE uses January 1,
-        // 1970, Microsoft uses January 1, 1601, see:
-        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
-        // The following page on converting a 'time_t' to a 'FILETIME' shows
-        // the constant, 116444736000000000 in 100ns (or 11643609600 seconds)
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289 A
+        // positive value represents an absolute time in increments of 100
+        // nanoseconds.  Critically though, Microsoft's epoch is different for
+        // epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
+        // Microsoft uses January 1, 1601, see:
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186 The
+        // following page on converting a 'time_t' to a 'FILETIME' shows the
+        // constant, 116444736000000000 in 100ns (or 11643609600 seconds)
         // needed to convert between the two epochs:
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
 
@@ -580,7 +578,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
     }
     else { // montonic clock
         // The windows system function 'WaitForSingleObject' (which is used
-        // here to implement 'sleepUntil') is based on a real-time clock. If a
+        // here to implement 'sleepUntil') is based on a real-time clock.  If a
         // client supplies a monotonic clock time, rather than convert that
         // monotonic time to a time relative to the real-time clock (which
         // would introduce errors), we instead determine a sleep interval
@@ -598,7 +596,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

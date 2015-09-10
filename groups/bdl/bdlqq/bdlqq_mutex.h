@@ -228,9 +228,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class MutexImpl;
 
-                                // ===========
-                                // class Mutex
-                                // ===========
+                               // ===========
+                               // class Mutex
+                               // ===========
 
 class Mutex {
     // This 'class' implements a lightweight, portable wrapper of an OS-level
@@ -277,8 +277,8 @@ class Mutex {
 
     int tryLock();
         // Attempt to acquire a lock on this mutex object.  Return 0 on
-        // success, and a non-zero value if this object is already locked by
-        // a different thread.  The behavior is undefined if the calling thread
+        // success, and a non-zero value if this object is already locked by a
+        // different thread.  The behavior is undefined if the calling thread
         // already owns the lock on this mutex, and may result in deadlock.
 
     void unlock();
@@ -291,12 +291,12 @@ class Mutex {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                                // -----------
-                                // class Mutex
-                                // -----------
+                               // -----------
+                               // class Mutex
+                               // -----------
 
 // CREATORS
 inline

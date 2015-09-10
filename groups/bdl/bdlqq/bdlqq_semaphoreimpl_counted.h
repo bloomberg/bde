@@ -67,15 +67,15 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-              // ===============================================
-              // class SemaphoreImpl<Platform::CountedSemaphore>
-              // ===============================================
+             // ===============================================
+             // class SemaphoreImpl<Platform::CountedSemaphore>
+             // ===============================================
 
 template <>
 class SemaphoreImpl<Platform::CountedSemaphore> {
-    // This class provides a full specialization of 'SemaphoreImpl' with
-    // a separate count variable.  This implementation maintains the value of
-    // the semaphore in a separate atomic integer count, so as to allow for
+    // This class provides a full specialization of 'SemaphoreImpl' with a
+    // separate count variable.  This implementation maintains the value of the
+    // semaphore in a separate atomic integer count, so as to allow for
     // semaphore count on platforms where a semaphore implementation doesn't
     // provide the count or the provided count has very limited range of
     // values.
@@ -123,12 +123,12 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-              // -----------------------------------------------
-              // class SemaphoreImpl<Platform::CountedSemaphore>
-              // -----------------------------------------------
+             // -----------------------------------------------
+             // class SemaphoreImpl<Platform::CountedSemaphore>
+             // -----------------------------------------------
 
 // CREATORS
 inline
@@ -191,7 +191,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::getValue() const
     return v > 0 ? v : 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

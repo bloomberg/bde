@@ -90,8 +90,7 @@ static unsigned _stdcall ThreadEntry (void* arg)
     return 1;
 }
 
-void My_CreateDetachedThread(ThreadFunction function,
-                             void* userData) {
+void My_CreateDetachedThread(ThreadFunction function, void* userData) {
     StartArgs *args = (StartArgs*)malloc(sizeof(StartArgs));
     args->d_function = function;
     args->d_arg = userData;

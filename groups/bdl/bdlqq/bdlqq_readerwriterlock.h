@@ -70,9 +70,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // The following snippet of code demonstrates a typical use of a reader/writer
 // lock.  The sample implements a simple cache mechanism for user information.
-// We expect that the information is read very frequently, but only
-// modified when a user "badges" in or out, which should be relatively
-// infrequent.
+// We expect that the information is read very frequently, but only modified
+// when a user "badges" in or out, which should be relatively infrequent.
 //..
 // struct UserInfo{
 //     long           d_UserId;
@@ -144,10 +143,10 @@ BSLS_IDENT("$Id: $")
 //     InfoMap::iterator it = d_infoMap.find(userId);
 //     if (d_infoMap.end() != it) {
 //..
-// Since 'it != end()', we found the item.  Now we need to upgrade to a
-// *write* *lock*.  If we can't do this atomically, then we need to locate the
-// item again.  This is because another thread may have changed 'd_infoMap'
-// during the time between our *read* and *write* locks.
+// Since 'it != end()', we found the item.  Now we need to upgrade to a *write*
+// *lock*.  If we can't do this atomically, then we need to locate the item
+// again.  This is because another thread may have changed 'd_infoMap' during
+// the time between our *read* and *write* locks.
 //..
 //         if (d_lock.upgradeToWriteLock()) {
 //             it = d_infoMap.find(userId);
@@ -248,9 +247,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                           // ======================
-                           // class ReaderWriterLock
-                           // ======================
+
+                          // ======================
+                          // class ReaderWriterLock
+                          // ======================
 
 class ReaderWriterLock {
     // This class provides a multi-reader/single-writer lock mechanism.
@@ -308,11 +308,10 @@ class ReaderWriterLock {
 
     Condition        d_upgradeCond;  // used to signal upgraders
 
-    ThreadUtil::Id   d_owner;        // id of thread that currently owns
-                                     // this lock if it is in the write lock
-                                     // state, or the id of the thread that
-                                     // holds the write reservation if one
-                                     // exists
+    ThreadUtil::Id   d_owner;        // id of thread that currently owns this
+                                     // lock if it is in the write lock state,
+                                     // or the id of the thread that holds the
+                                     // write reservation if one exists
 
     volatile SignalState   d_signalState;
 
@@ -365,17 +364,17 @@ class ReaderWriterLock {
         // write.  If successful, 'unlock' must be called to release the lock.
 
     int upgradeToReservedWriteLock();
-        // *DEPRECATED*  Use 'upgradeToWriteLock' instead.  Note that calls to
+        // *DEPRECATED* Use 'upgradeToWriteLock' instead.  Note that calls to
         // this function are simply forwarded to 'upgradeToWriteLock'.
 
     int upgradeToWriteLock();
         // Convert a read lock (acquired by a successful call to 'lockRead',
-        // 'lockReadReserveWrite', or 'tryLockRead') to a write lock.
-        // Return 0 if the upgrade operation was atomic, and a non-zero value
-        // otherwise.  If there are other active read locks, the call will
-        // block until all current read locks are released.  Note that locks
-        // that were acquired through 'lockReadReserveWrite' are guaranteed to
-        // upgrade atomically.  Use 'unlock' to release this lock.
+        // 'lockReadReserveWrite', or 'tryLockRead') to a write lock.  Return 0
+        // if the upgrade operation was atomic, and a non-zero value otherwise.
+        // If there are other active read locks, the call will block until all
+        // current read locks are released.  Note that locks that were acquired
+        // through 'lockReadReserveWrite' are guaranteed to upgrade atomically.
+        // Use 'unlock' to release this lock.
 
     int tryUpgradeToWriteLock();
         // Attempt to atomically convert a read lock (acquired by a successful
@@ -388,35 +387,35 @@ class ReaderWriterLock {
         // guaranteed to succeed.
 
     void unlockRead();
-        // *DEPRECATED*  Use 'unlock' instead.  Note that calls to this
-        // function are simply forwarded to 'unlock'.
+        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
+        // are simply forwarded to 'unlock'.
 
     void unlockReadUnreserveWrite();
-        // *DEPRECATED*  Use 'unlock' instead.  Note that calls to this
-        // function are simply forwarded to 'unlock'.
+        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
+        // are simply forwarded to 'unlock'.
 
     void unlockWrite();
-        // *DEPRECATED*  Use 'unlock' instead.  Note that calls to this
-        // function are simply forwarded to 'unlock'.
+        // *DEPRECATED* Use 'unlock' instead.  Note that calls to this function
+        // are simply forwarded to 'unlock'.
 
     void unlock();
         // Release a read lock that was previously acquired from a successful
         // call to 'lockRead', 'lockReadReserveWrite', or 'tryLockRead', or a
         // call to write lock which was previously acquired by a successful
         // call to 'lockWrite', 'tryLockWrite', or 'upgradeToWriteLock'.  Note
-        // that the behavior is undefined unless the calling thread
-        // currently owns this read/write lock.
+        // that the behavior is undefined unless the calling thread currently
+        // owns this read/write lock.
 };
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class ReaderWriterLock
-                           // ----------------------
+                          // ----------------------
+                          // class ReaderWriterLock
+                          // ----------------------
 
 // CREATORS
 inline
@@ -431,7 +430,6 @@ inline
 bdlqq::ReaderWriterLock::~ReaderWriterLock()
 {
 }
-
 
 // MANIPULATORS
 inline

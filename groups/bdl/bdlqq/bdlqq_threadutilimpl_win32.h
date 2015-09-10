@@ -89,7 +89,6 @@ extern "C" {
                 DWORD dwMilliseconds
     );
 
-
     __declspec(dllimport) DWORD __stdcall SleepEx(
                 DWORD dwMilliseconds,
                 BOOL bAlertable
@@ -121,7 +120,7 @@ extern "C" {
         // 'bcemt_ThreadFunction' is an alias for a function type taking a
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry point
-        // functions to 'bdlqq::ThreadUtil::create'.  
+        // functions to 'bdlqq::ThreadUtil::create'.
 
     typedef void (*bcemt_KeyDestructorFunction)(void *);
         // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
@@ -135,9 +134,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 struct ThreadUtilImpl;
 
-                // ============================================
-                // class ThreadUtilImpl<Platform::Win32Threads>
-                // ============================================
+               // ============================================
+               // class ThreadUtilImpl<Platform::Win32Threads>
+               // ============================================
 
 template <>
 struct ThreadUtilImpl<Platform::Win32Threads> {
@@ -147,8 +146,8 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     // TYPES
     struct Handle {
         // Representation of a thread handle.  If a thread is created as
-        // joinable, then a duplicate of to original handle is created
-        // to be used in calls to 'join' and 'detach'.
+        // joinable, then a duplicate of to original handle is created to be
+        // used in calls to 'join' and 'detach'.
 
         HANDLE d_handle;  // win32 thread handle
 
@@ -173,23 +172,23 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
                       bcemt_ThreadFunction     function,
                       void                    *userData);
         // Create a new thread of program control having the attributes
-        // specified by 'attribute', that invokes the specified 'function'
-        // with a single argument specified by 'userData' and load into the
-        // specified 'threadHandle', an identifier that may be used to refer
-        // to the thread in future calls to this utility.  Return 0 on success,
+        // specified by 'attribute', that invokes the specified 'function' with
+        // a single argument specified by 'userData' and load into the
+        // specified 'threadHandle', an identifier that may be used to refer to
+        // the thread in future calls to this utility.  Return 0 on success,
         // and a non-zero value otherwise.  The behavior is undefined if
-        // 'thread' is 0.  Note that unless explicitly "detached"('detach'),
-        // or unless the 'BCEMT_CREATE_DETACHED' attribute is specified, a
-        // call to 'join' must be made once the thread terminates to reclaim
-        // any system resources associated with the newly created identifier.
+        // 'thread' is 0.  Note that unless explicitly "detached"('detach'), or
+        // unless the 'BCEMT_CREATE_DETACHED' attribute is specified, a call to
+        // 'join' must be made once the thread terminates to reclaim any system
+        // resources associated with the newly created identifier.
 
     static int create(Handle               *thread,
                       bcemt_ThreadFunction  function,
                       void                 *userData);
         // Create a new thread of program control having platform specific
         // default attributes(i.e., "stack size", "scheduling priority"), that
-        // invokes the specified 'function' with a single argument specified
-        // by 'userData', and load into the specified 'threadHandle', an
+        // invokes the specified 'function' with a single argument specified by
+        // 'userData', and load into the specified 'threadHandle', an
         // identifier that may be used to refer to the thread in future calls
         // to this utility.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined if 'thread' is 0.  Note that
@@ -200,21 +199,19 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     static int getMinSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // minimum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
-        // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
-        // maximum scheduling priority cannot be determined.
-        // Note that, for some platform / policy combinations,
-        // 'getMinSchedulingPriority(policy)' and
+        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
+        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // priority cannot be determined.  Note that, for some platform /
+        // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int join(Handle& thread, void **status = 0);
@@ -230,18 +227,18 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // the same priority to share CPU resources equally.
 
     static void sleep(const bsls::TimeInterval& sleepTime);
-        // Suspend execution of the current thread for a period of at least
-        // the specified 'sleepTime' (relative time).  Note that the actual
-        // time suspended depends on many factors including system scheduling,
-        // and system timer resolution.  On the win32 platform the sleep timer
-        // has a resolution of 1 millisecond.
+        // Suspend execution of the current thread for a period of at least the
+        // specified 'sleepTime' (relative time).  Note that the actual time
+        // suspended depends on many factors including system scheduling, and
+        // system timer resolution.  On the win32 platform the sleep timer has
+        // a resolution of 1 millisecond.
 
     static void microSleep(int microseconds, int seconds = 0);
-        // Suspend execution of the current thread for a period of at least
-        // the specified 'seconds' and 'microseconds' (relative time).
-        // Note that the actual time suspended depends on many factors
-        // including system scheduling, and system timer resolution.  On the
-        // win32 platform the sleep timer has a resolution of 1 millisecond.
+        // Suspend execution of the current thread for a period of at least the
+        // specified 'seconds' and 'microseconds' (relative time).  Note that
+        // the actual time suspended depends on many factors including system
+        // scheduling, and system timer resolution.  On the win32 platform the
+        // sleep timer has a resolution of 1 millisecond.
 
     static int sleepUntil(const bsls::TimeInterval&   absoluteTime,
                           bsls::SystemClockType::Enum clockType
@@ -258,11 +255,11 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // including system scheduling and system timer resolution.
 
     static void exit(void *status);
-        // Exit the current thread and return the specified 'status'.  If
-        // the current thread is not "detached", then a call to 'join' must be
-        // made to reclaim any resources used by the thread, and to retrieve
-        // the exit status.  Note that generally, the preferred method of
-        // exiting a thread is to return form the entry point function.
+        // Exit the current thread and return the specified 'status'.  If the
+        // current thread is not "detached", then a call to 'join' must be made
+        // to reclaim any resources used by the thread, and to retrieve the
+        // exit status.  Note that generally, the preferred method of exiting a
+        // thread is to return form the entry point function.
 
     static Handle self();
         // Return a thread 'Handle' that can be used to refer to the current
@@ -271,11 +268,11 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // returned handle is only valid in the context of the calling thread.
 
     static int detach(Handle& threadHandle);
-        // "Detach" the thread identified by 'threadHandle', such that when
-        // it terminates, the resources associated the thread will
-        // automatically be reclaimed.  Note that once a thread is "detached",
-        // it is no longer possible to 'join' the thread to retrieve the its
-        // exit status.
+        // "Detach" the thread identified by 'threadHandle', such that when it
+        // terminates, the resources associated the thread will automatically
+        // be reclaimed.  Note that once a thread is "detached", it is no
+        // longer possible to 'join' the thread to retrieve the its exit
+        // status.
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
@@ -284,8 +281,8 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // 'selfIdAsUint').
 
     static bool areEqual(const Handle& a, const Handle& b);
-        // Return 'true' if the specified 'a' and 'b' thread handles
-        // identify the same thread and a 'false' value otherwise.
+        // Return 'true' if the specified 'a' and 'b' thread handles identify
+        // the same thread and a 'false' value otherwise.
 
     static Id selfId();
         // Return an identifier that can be used to uniquely identify the
@@ -341,9 +338,9 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // success, and a non-zero value otherwise.
 
     static int deleteKey(Key& key);
-        // Delete the specified thread-specific 'key'.  Note that deleting
-        // a key does not delete any data that is currently associated with
-        // the key in the calling thread or any other thread.
+        // Delete the specified thread-specific 'key'.  Note that deleting a
+        // key does not delete any data that is currently associated with the
+        // key in the calling thread or any other thread.
 
     static void *getSpecific(const Key& key);
         // Return the value associated with the specified thread-specific
@@ -357,27 +354,25 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
 };
 
 // FREE OPERATORS
-bool operator==(
-         const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
-         const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
+bool operator==(const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
+                const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' thread handles have the
     // same value, and 'false' otherwise.
 
-bool operator!=(
-         const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
-         const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
+bool operator!=(const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
+                const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' thread handles do not
     // have the same value, and 'false' otherwise.
 
 }  // close package namespace
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
-                        // ThreadUtilImpl::Handle
-                        // ----------------------------
+                          // ----------------------
+                          // ThreadUtilImpl::Handle
+                          // ----------------------
 
 // FREE OPERATORS
 inline
@@ -396,9 +391,9 @@ bool bdlqq::operator!=(
     return !(lhs == rhs);
 }
 
-                // --------------------------------------------
-                // class ThreadUtilImpl<Platform::Win32Threads>
-                // --------------------------------------------
+               // --------------------------------------------
+               // class ThreadUtilImpl<Platform::Win32Threads>
+               // --------------------------------------------
 
 // CLASS METHODS
 inline
@@ -532,7 +527,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::setSpecific(
     return 0 == TlsSetValue(key, (void*)value) ? 1 : 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 

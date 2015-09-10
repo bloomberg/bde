@@ -14,7 +14,6 @@ enum {
     MILLISEC_PER_SEC     = 1000
 };
 
-
 // PRIVATE CLASS METHODS
 template <class TYPE>
 static inline
@@ -84,7 +83,6 @@ void toTimeTImp(long *dst, bsls::Types::Int64 src)
     typedef bsl::conditional<sizeof(int) == sizeof(long),
                             int,
                             bsls::Types::Int64>::type LongAlias;
-
 
     LongAlias result;
 

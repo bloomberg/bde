@@ -21,16 +21,16 @@ using namespace BloombergLP;
 // Testing the linear mechanics of 'bdlqq::Once' and 'bdlqq::OnceGuard' is
 // straight-forward.  However, because this component is intended to produce
 // thread-safe behavior in the presence of thread contention, testing must
-// focus on deliberately creating contention and verifying the integrity
-// of the mechanics.  The key concept is that when multiple threads try to
-// enter a one-time code region simultaneously, only one thread succeeds and
-// the others block until the first thread exits the region.  Other threads
-// are then unblocked and skip the one-time region.  We detect that only one
-// thread has entered the region by making sure that each thread does
-// modifies a different data structure and verifying that only one of the data
-// structures was modified.  We verify that all threads wait until the first
-// one exits the region by showing that the side-effect of executing the
-// one-time code is seen by all threads.
+// focus on deliberately creating contention and verifying the integrity of the
+// mechanics.  The key concept is that when multiple threads try to enter a
+// one-time code region simultaneously, only one thread succeeds and the others
+// block until the first thread exits the region.  Other threads are then
+// unblocked and skip the one-time region.  We detect that only one thread has
+// entered the region by making sure that each thread does modifies a different
+// data structure and verifying that only one of the data structures was
+// modified.  We verify that all threads wait until the first one exits the
+// region by showing that the side-effect of executing the one-time code is
+// seen by all threads.
 //
 // In each test we create contention by starting multiple threads and having
 // them wait at a barrier so that they all arrive at the once-code as close to
@@ -482,8 +482,8 @@ void *macroCancelTest(void *ptr)
 // initialization to a simple 'BDLQQ_ONCE_DO' construct.  This implementation
 // illustrates the the recommended way to use this component.  The function is
 // a variation of the singleton pattern described by Scott Meyers, except that
-// it uses the 'BDLQQ_ONCE_DO' macro to handle multiple entries to the
-// function in a thread-safe manner:
+// it uses the 'BDLQQ_ONCE_DO' macro to handle multiple entries to the function
+// in a thread-safe manner:
 //..
     #include <bdlqq_once.h>
 
@@ -491,7 +491,7 @@ void *macroCancelTest(void *ptr)
     {
         static bsl::string *theSingletonPtr = 0;
         BDLQQ_ONCE_DO {
-            static bsl::string theSingleton(s, 
+            static bsl::string theSingleton(s,
                                             bslma::Default::globalAllocator());
             theSingletonPtr = &theSingleton;
         }
@@ -525,15 +525,14 @@ void *macroCancelTest(void *ptr)
         theSingletonPtr = &theSingleton;
     }
 //..
-// Note that the above function, by itself, is not thread-safe.  Not only is
-// it possible that multiple threads would attempt to construct 'theSingleton'
-// at the same time, but there are no memory barriers to ensure that, once
+// Note that the above function, by itself, is not thread-safe.  Not only is it
+// possible that multiple threads would attempt to construct 'theSingleton' at
+// the same time, but there are no memory barriers to ensure that, once
 // 'theSingletonPtr' is set, that other threads will see the change before
-// trying to initialize the singleton again.  The
-// 'singleton1' function, below, uses 'bdlqq::Once' to ensure that
-// 'singletonImp' is called in only one thread and that the result is visible
-// to all threads.  We start by creating and initializing a static object of
-// type 'bdlqq::Once':
+// trying to initialize the singleton again.  The 'singleton1' function, below,
+// uses 'bdlqq::Once' to ensure that 'singletonImp' is called in only one
+// thread and that the result is visible to all threads.  We start by creating
+// and initializing a static object of type 'bdlqq::Once':
 //..
     #include <bdlf_bind.h>
 
@@ -541,48 +540,48 @@ void *macroCancelTest(void *ptr)
     {
         static bdlqq::Once once = BDLQQ_ONCE_INITIALIZER;
 //..
-// In order to call 'callOnce', we must bind our argument 's' two our
-// function, 'singletonImp' using a binder.  We pass the bound function to
-// 'callOnce' and it is executed only if this is the first thread entering
-// this section of code:
+// In order to call 'callOnce', we must bind our argument 's' two our function,
+// 'singletonImp' using a binder.  We pass the bound function to 'callOnce' and
+// it is executed only if this is the first thread entering this section of
+// code:
 //..
         once.callOnce(bdlf::BindUtil::bind(singletonImp, s));
         return *theSingletonPtr;
     }
 //..
-// Note that when we return from 'callOnce', the appropriate memory barrier
-// has been executed so that the change to 'theSingletonPtr' is visible to all
+// Note that when we return from 'callOnce', the appropriate memory barrier has
+// been executed so that the change to 'theSingletonPtr' is visible to all
 // threads.  It is not a good idea for the code to test the value of
 // 'theSingletonPtr' before calling 'callOnce' because the contents of the
-// string may be cached by a different CPU, even though the pointer has
-// already been update in on the common memory bus.  The implementation of
-// 'callOnce' is fast enough that a pre-check would not provide any
-// performance benefit.  A thread calling 'callOnce' after the initialization
-// is complete would immediately return from the call.  A thread calling
-// 'callOnce' while initialization is still in progress would block until
-// initialization completes.
+// string may be cached by a different CPU, even though the pointer has already
+// been update in on the common memory bus.  The implementation of 'callOnce'
+// is fast enough that a pre-check would not provide any performance benefit.
+// A thread calling 'callOnce' after the initialization is complete would
+// immediately return from the call.  A thread calling 'callOnce' while
+// initialization is still in progress would block until initialization
+// completes.
 //
 // The one advantage of this implementation over the previous one is that an
 // exception thrown from within 'singletonImp' will cause the 'bdlqq::Once'
-// object to be restored to its original state, so that the next entry into
-// the singleton will retry the operation.  [This same advantage will be
-// available to 'BDLQQ_ONCE_DO' when we get a fix for the MS VC++ 2003
-// compiler bug or upgrade to MS VC++ 2005.]
+// object to be restored to its original state, so that the next entry into the
+// singleton will retry the operation.  [This same advantage will be available
+// to 'BDLQQ_ONCE_DO' when we get a fix for the MS VC++ 2003 compiler bug or
+// upgrade to MS VC++ 2005.]
 //
 // Our next implementation eliminates the need for the 'singletonImp' function
 // and does away with the use of 'bdlf::BindUtil', but it does require the use
-// of the special type, 'bdlqq::Once::OnceLock', which is a cookie created
-// on each thread's stack and passed to the methods of 'bdlqq::Once'.  First,
-// we declare a static 'bdlqq::Once' object as before, and also declare a
-// static pointer 'bsl::string':
+// of the special type, 'bdlqq::Once::OnceLock', which is a cookie created on
+// each thread's stack and passed to the methods of 'bdlqq::Once'.  First, we
+// declare a static 'bdlqq::Once' object as before, and also declare a static
+// pointer 'bsl::string':
 //..
     const bsl::string& singleton2(const char *s)
     {
         static bdlqq::Once once = BDLQQ_ONCE_INITIALIZER;
         static bsl::string *theSingletonPtr = 0;
 //..
-// Next, we define a local 'bdlqq::Once::OnceLock' object and pass it to
-// the 'enter' method:
+// Next, we define a local 'bdlqq::Once::OnceLock' object and pass it to the
+// 'enter' method:
 //..
         bdlqq::Once::OnceLock onceLock;
         if (once.enter(&onceLock)) {
@@ -630,11 +629,10 @@ void *macroCancelTest(void *ptr)
 // called automatically when the function returns.  This machinery makes the
 // code more robust in the presence of, e.g., return statements in the
 // initialization code.  However, if there is significant code after the end of
-// the one-time initialization, the guard and the initialization code should
-// be enclosed in an extra block so that the guard is destroyed sooner and
-// other threads waiting on the initialization can continue.  Alternatively,
-// one can call 'onceGuard.leave()' explicitly at the end of the
-// initialization.
+// the one-time initialization, the guard and the initialization code should be
+// enclosed in an extra block so that the guard is destroyed sooner and other
+// threads waiting on the initialization can continue.  Alternatively, one can
+// call 'onceGuard.leave()' explicitly at the end of the initialization.
 //
 // Assume the following pair of thread functions
 //..
@@ -672,9 +670,9 @@ void *macroCancelTest(void *ptr)
 //..
 // Both threads will attempt to initialize the four singletons.  In our
 // example, each thread passes a different argument to the singleton, allowing
-// us to detect which thread actually ran called singleton first.  In
-// practice, the arguments passed to a specific singleton are almost always
-// fixed and most singletons don't take arguments at all.
+// us to detect which thread actually ran called singleton first.  In practice,
+// the arguments passed to a specific singleton are almost always fixed and
+// most singletons don't take arguments at all.
 //
 // Assuming that the first thread function wins all of the races to initialize
 // the singletons, we would would expect that the first singleton would have
@@ -837,8 +835,8 @@ int main(int argc, char *argv[])
         ASSERT(testRecords[winners[1]].d_isWinner);
         ASSERT(winners[1] == testRecords[winners[1]].d_foundWinner);
 
-        // Verify expected results of all threads.
-        // At this point 'winnerElapsed' refers to the 2nd winner
+        // Verify expected results of all threads.  At this point
+        // 'winnerElapsed' refers to the 2nd winner
         for (int i = 0; i < numThreads; ++i) {
 
             LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -1253,8 +1251,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(repetition,
                         winners[1] == testRecords[winners[1]].d_foundWinner);
 
-            // Verify expected results of all threads.
-            // At this point 'winnerElapsed' refers to the 2nd winner
+            // Verify expected results of all threads.  At this point
+            // 'winnerElapsed' refers to the 2nd winner
             for (int i = 0; i < numThreads; ++i) {
 
                 LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -1656,8 +1654,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(repetition,
                         winners[1] == testRecords[winners[1]].d_foundWinner);
 
-            // Get winner's elapsed times in milliseconds and verify that
-            // it is within the expected range.
+            // Get winner's elapsed times in milliseconds and verify that it is
+            // within the expected range.
             int winnerElapsed = (testRecords[winners[0]].d_endTime -
                                  startTime) / 1000000;
             if (verbose) {
@@ -1674,8 +1672,8 @@ int main(int argc, char *argv[])
                              2*MAX_ELAPSED >= winnerElapsed);
             }
 
-            // Verify expected results of all threads.
-            // At this point 'winnerElapsed' refers to the 2nd winner
+            // Verify expected results of all threads.  At this point
+            // 'winnerElapsed' refers to the 2nd winner
             for (int i = 0; i < numThreads; ++i) {
 
                 LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -1692,9 +1690,9 @@ int main(int argc, char *argv[])
                 int elapsedTime = (testRecords[i].d_endTime -
                                    startTime) / 1000000;
                 if (verbose) {
-                    // Verify that measured elapsed time is no less than
-                    // winner elapsed time and no more than specified delay
-                    // above winner elapsed time.
+                    // Verify that measured elapsed time is no less than winner
+                    // elapsed time and no more than specified delay above
+                    // winner elapsed time.
                     LOOP4_ASSERT(i, numThreads, elapsedTime, winnerElapsed,
                                  elapsedTime >= winnerElapsed);
                     LOOP4_ASSERT(i, numThreads, elapsedTime, winnerElapsed,
@@ -1832,8 +1830,8 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(repetition, numThreads, winner,
                              testRecords[winner].d_isWinner);
 
-                // Get winner's elapsed time in milliseconds and verify that
-                // it is within the expected range.
+                // Get winner's elapsed time in milliseconds and verify that it
+                // is within the expected range.
                 int winnerElapsed = (testRecords[winner].d_endTime -
                                      startTime) / 1000000;
                 if (verbose) {
@@ -1976,8 +1974,8 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(repetition, numThreads, winner1,
                              testRecords[winner1].d_isWinner);
 
-                // Get winner's elapsed time in milliseconds and verify that
-                // it is within the expected range.
+                // Get winner's elapsed time in milliseconds and verify that it
+                // is within the expected range.
                 int winnerElapsed = (testRecords[winner1].d_endTime -
                                      startTime) / 1000000;
                 if (verbose) {
@@ -2019,8 +2017,8 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(repetition, numThreads, winner2,
                              testRecords[winner2].d_isWinner);
 
-                // Get winner's elapsed time in milliseconds and verify that
-                // it is within the expected range.
+                // Get winner's elapsed time in milliseconds and verify that it
+                // is within the expected range.
                 winnerElapsed = (testRecords[winner2].d_endTime -
                                  startTime) / 1000000;
                 if (verbose) {

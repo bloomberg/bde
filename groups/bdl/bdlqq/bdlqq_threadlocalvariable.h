@@ -100,8 +100,8 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Next, we create a trivial 'RequestProcessor' that provides a 'static' class
-// method that returns the 'RequestContext' for the current thread, or 0 if
-// the current thread is not processing a request.
+// method that returns the 'RequestContext' for the current thread, or 0 if the
+// current thread is not processing a request.
 //..
 //  class RequestProcessor {
 //      // This class implements an "example" request processor.
@@ -209,9 +209,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
-                          // =================
-                          // Macro Definitions
-                          // =================
+                            // =================
+                            // Macro Definitions
+                            // =================
 
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
@@ -223,20 +223,20 @@ static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     //
     // On IBM, the introduction of thread-local storage causes static
     // initializers for shared objects to stop running.  This problem is
-    // described in DRQS 16438026.  Therefore, even though thread-local
-    // storage is supported by xlC10, it is explicitly not used here.
+    // described in DRQS 16438026.  Therefore, even though thread-local storage
+    // is supported by xlC10, it is explicitly not used here.
     //
     // On Windows/MSVC, compiler-based thread-local storage may cause a crash
     // at runtime when used from a DLL on Windows versions below Vista.
     // Therefore, it is explicitly not used here.
     //
-    // Define, at function or namespace scope, a thread-local 'static'
-    // variable having the specified 'VARIABLE_NAME' of the specified
-    // 'BASIC_TYPE', initialized with the specified 'INITIAL_VALUE'.  If
-    // 'VARIABLE_NAME' is not a valid variable name, or 'INITIAL_VALUE' is not
-    // convertible to the type 'BASIC_TYPE', the instantiation of this macro
-    // will result in a compile time error.  The behavior is undefined unless
-    // 'INITIAL_VALUE' is a *compile* *time* constant value.
+    // Define, at function or namespace scope, a thread-local 'static' variable
+    // having the specified 'VARIABLE_NAME' of the specified 'BASIC_TYPE',
+    // initialized with the specified 'INITIAL_VALUE'.  If 'VARIABLE_NAME' is
+    // not a valid variable name, or 'INITIAL_VALUE' is not convertible to the
+    // type 'BASIC_TYPE', the instantiation of this macro will result in a
+    // compile time error.  The behavior is undefined unless 'INITIAL_VALUE' is
+    // a *compile* *time* constant value.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \

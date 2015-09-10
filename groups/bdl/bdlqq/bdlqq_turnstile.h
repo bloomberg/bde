@@ -114,13 +114,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-
-
 namespace BloombergLP {
 namespace bdlqq {
-                              // ===============
-                              // class Turnstile
-                              // ===============
+
+                             // ===============
+                             // class Turnstile
+                             // ===============
 
 class Turnstile {
     // This class provides a mechanism to meter time.  Using either the

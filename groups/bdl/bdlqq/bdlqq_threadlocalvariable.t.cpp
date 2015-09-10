@@ -25,12 +25,12 @@ using bsl::flush;
 //                                 Overview
 //                                 --------
 // The 'bdlqq_threadlocalvariable' component defines a macro
-// 'BCES_THREAD_LOCAL_VARIABLE' that declares a thread local variable.
-// The tests verify that the variable is static (i.e., it has the same address
-// on every invocation on the same thread), that it is thread-local (i.e., it
-// has a different address for very thread), that it is initialized correctly
-// with the supplied 'INITIAL_VALUE', and that it can be created for any
-// pointer type.
+// 'BCES_THREAD_LOCAL_VARIABLE' that declares a thread local variable.  The
+// tests verify that the variable is static (i.e., it has the same address on
+// every invocation on the same thread), that it is thread-local (i.e., it has
+// a different address for very thread), that it is initialized correctly with
+// the supplied 'INITIAL_VALUE', and that it can be created for any pointer
+// type.
 //-----------------------------------------------------------------------------
 // [ 5] BCES_DECLARE_THREAD_LOCAL_VARIABLE: data types test
 // [ 4] BCES_DECLARE_THREAD_LOCAL_VARIABLE: initial value test
@@ -50,7 +50,6 @@ using bsl::flush;
 namespace {
 
 int testStatus = 0;
-
 
 void aSsErT(int c, const char *s, int i)
 {
@@ -81,7 +80,6 @@ void aSsErT(int c, const char *s, int i)
                          << #J << ": " << J << "\t" \
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
-
 
 // ============================================================================
 //                     SEMI-STANDARD TEST OUTPUT MACROS
@@ -165,8 +163,8 @@ class my_Conditional {
         // Reset the state of this indicator to non-signaled.
 
     void signal();
-        // Signal the state of the indicator and unblock any thread waiting
-        // for the state to be signaled.
+        // Signal the state of the indicator and unblock any thread waiting for
+        // the state to be signaled.
 
     void wait();
         // Wait until the state of this indicator becomes signaled.  If the
@@ -219,7 +217,6 @@ void my_Mutex::unlock()
 #endif
 }
 
-
 my_Conditional::my_Conditional()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -264,7 +261,6 @@ void my_Conditional::signal()
 #endif
 }
 
-
 void my_Conditional::wait()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -299,9 +295,9 @@ int my_Conditional::timedWait(int timeout)
 #endif
 }
 
-
-static int myCreateThread( my_thread_t *aHandle, THREAD_ENTRY aEntry,
-                           void *arg )
+static int myCreateThread(my_thread_t  *aHandle,
+                          THREAD_ENTRY  aEntry,
+                          void         *arg )
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
@@ -325,8 +321,8 @@ static void  myJoinThread(my_thread_t aHandle)
 
 template <class T>
 class LockGuard {
-    // A scoped guard for calling 'lock' and 'unlock' on an object
-    // of parameterized type 'T' (presumably a mutex).
+    // A scoped guard for calling 'lock' and 'unlock' on an object of
+    // parameterized type 'T' (presumably a mutex).
 
     // DATA
     T *d_lock;
@@ -350,8 +346,8 @@ class my_Barrier {
     // are released and return from 'wait()'.
     //
     // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
-    // so it cannot be atomically combined with another operation
-    // (e.g., incrementing the 'd_waiting' counter), it also does not provide
+    // so it cannot be atomically combined with another operation (e.g.,
+    // incrementing the 'd_waiting' counter), it also does not provide
     // 'broadcast' method, so each thread must be signaled individually.
 
     // DATA
@@ -366,9 +362,9 @@ class my_Barrier {
   public:
     // CREATORS
     my_Barrier(int numThreads);
-        // Create a barrier that will synchronize the specified
-        // 'numThreads' number of threads.  The behavior is undefined
-        // unless '0 < expectedThreads'.
+        // Create a barrier that will synchronize the specified 'numThreads'
+        // number of threads.  The behavior is undefined unless
+        // '0 < expectedThreads'.
 
     ~my_Barrier();
         // Destroy this barrier.
@@ -399,8 +395,8 @@ my_Barrier::~my_Barrier()
 void my_Barrier::wait()
 {
     // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
-    // so it cannot be atomically combined with another operation
-    // (e.g., incrementing the 'd_waiting' counter), it also does not provide
+    // so it cannot be atomically combined with another operation (e.g.,
+    // incrementing the 'd_waiting' counter), it also does not provide
     // 'broadcast' method, so each thread must be signaled individually.
 
     // For the first 'd_expected - 1' threads, increment the 'd_waiting'
@@ -435,7 +431,6 @@ void my_Barrier::wait()
     }
 }
 
-
 // ============================================================================
 //                                TEST GUARD
 // ----------------------------------------------------------------------------
@@ -462,7 +457,6 @@ void my_Barrier::wait()
 // ============================================================================
 //                               TEST CLASSES
 // ----------------------------------------------------------------------------
-
 
 #ifndef DISABLE_TEST
 
@@ -516,7 +510,6 @@ extern "C" void *barrierTest(void *voidArgs)
     return voidArgs;
 }
 
-
 // --------------------  FUNCTION SCOPED ADDRESS TEST  ------------------------
 
 struct ReturnAddressThreadArgs {
@@ -563,7 +556,6 @@ extern "C" void *functionScopeAddressTest(void *voidArgs)
 
 // --------------------  GLOBAL SCOPED ADDRESS TEST  --------------------------
 
-
 BCES_THREAD_LOCAL_VARIABLE(void *, g_testVariable, 0);
 
 extern "C" void *globalScopeAddressTest(void *voidArgs)
@@ -588,9 +580,7 @@ extern "C" void *globalScopeAddressTest(void *voidArgs)
     return voidArgs;
 }
 
-
 // -----------------------  INITIAL VALUE TEST  -------------------------------
-
 
 struct InitialValueThreadArgs {
     int         d_threadId;
@@ -614,14 +604,12 @@ extern "C" void *initialValueTest(void *voidArgs)
     return 0;
 }
 
-
 // ---------------------------  TYPE TEST  ------------------------------------
 
 struct TypesThreadArgs {
     int         d_threadId;
     my_Barrier *d_barrier;
 };
-
 
 #define VERIFY_BASIC_TYPE(TYPE, ID) {                                         \
     BCES_THREAD_LOCAL_VARIABLE(TYPE, testValue, (TYPE)0xaa);                  \
@@ -696,15 +684,15 @@ extern "C" void *typesTest(void *voidArgs)
     };
 //..
 // Next, we create a trivial 'RequestProcessor' that provides a 'static' class
-// method that returns the 'RequestContext' for the current thread, or 0 if
-// the current thread is not processing a request.
+// method that returns the 'RequestContext' for the current thread, or 0 if the
+// current thread is not processing a request.
 //..
     class RequestProcessor {
         // This class implements an "example" request processor.
 //
         // NOT IMPLEMENTED
-        RequestProcessor(const RequestProcessor& );
-        RequestProcessor& operator=(const RequestProcessor& );
+        RequestProcessor(const RequestProcessor&);
+        RequestProcessor& operator=(const RequestProcessor&);
 //
         // PRIVATE CLASS METHODS
         static const RequestContext *&contextReference();
@@ -730,9 +718,7 @@ extern "C" void *typesTest(void *voidArgs)
             // Destroy this request processor.
 //
         // MANIPULATORS
-        void processRequest(int         userId,
-                            int         workstation,
-                            const char *request);
+        void processRequest(int userId, int workstation, const char *request);
             // Process (in the caller's thread) the specified 'request' for
             // the specified 'userId' and 'workstation'.
     };
@@ -793,7 +779,6 @@ struct UsageTestArgs {
     my_Barrier       *d_barrier;
     RequestProcessor *d_processor;
 };
-
 
 extern "C" void *usageTest(void *voidArgs)
 {
@@ -1039,7 +1024,6 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Helper: 'my_Barrier'"
                                << "\n============================"
                                << bsl::endl;
-
 
         for (int numThreads = 1; numThreads < 9; ++numThreads) {
 
