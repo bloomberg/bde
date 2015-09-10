@@ -1,5 +1,8 @@
-// bdlsu_pathutil.cpp                                                 -*-C++-*-
-#include <bdlsu_pathutil.h>
+// bdls_pathutil.cpp                                                  -*-C++-*-
+#include <bdls_pathutil.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdls_pathutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -68,7 +71,8 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
         *resultOffset = rootNameEnd = 2;
     }
-    else if (4 <= length && SEPARATOR == path[0]
+    else if (4 <= length
+          && SEPARATOR == path[0]
           && SEPARATOR == path[1] && '?' != path[2]) {
         //UNC (we require 4 because the hostname must be nonempty and there
         //must then be another separator; then at least a nonempty
@@ -86,8 +90,8 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
         rootNameEnd = (size_t)(rootNameEndPtr - path);
 
         const char *resultOffsetPtr = bsl::find(path + rootNameEnd,
-                                           path + length,
-                                           SEPARATOR);
+                                                path + length,
+                                                SEPARATOR);
         if (resultOffsetPtr != path + length) {
             ++resultOffsetPtr;
         }
@@ -154,9 +158,12 @@ void findFirstNonSeparatorChar(int *result, const char *path, int length = -1)
 
 static
 const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
-    // Return the position of the beginning of the basename of 'path'.  Note
-    // that this file may be a directory.  Also note that trailing separators
-    // are ignored.
+    // Return the position of the beginning of the basename of the specified
+    // 'path'.  The basename will not be found within the specified 'rootEnd'
+    // characters from teh beginning of 'path'.  If the optionally specified
+    // 'length' is not given, assume 'path' is null-terminated.  Note that this
+    // file may be a directory.  Also note that trailing separators are
+    // ignored.
 {
     BSLS_ASSERT(path);
 
@@ -182,14 +189,14 @@ const char *leafDelimiter(const bsl::string &path, int rootEnd)
     return leafDelimiter(path.c_str(), rootEnd, path.length());
 }
 
-namespace bdlsu {
+namespace bdls {
                               // ===============
                               // struct PathUtil
                               // ===============
 
 // CLASS METHODS
-int PathUtil::appendIfValid(bsl::string            *path,
-                                  const bslstl::StringRef&  filename)
+int PathUtil::appendIfValid(bsl::string              *path,
+                            const bslstl::StringRef&  filename)
 {
     BSLS_ASSERT(path);
 
@@ -241,9 +248,9 @@ int PathUtil::appendIfValid(bsl::string            *path,
 }
 
 void PathUtil::appendRaw(bsl::string *path,
-                               const char  *filename,
-                               int          length,
-                               int          rootEnd)
+                         const char  *filename,
+                         int          length,
+                         int          rootEnd)
 {
     BSLS_ASSERT(path);
     BSLS_ASSERT(filename);
@@ -280,11 +287,11 @@ int PathUtil::popLeaf(bsl::string *path, int rootEnd)
     return 0;
 }
 
-int PathUtil::getLeaf(bsl::string            *filename,
-                            const bslstl::StringRef&  path,
-                            int                     rootEnd)
+int PathUtil::getLeaf(bsl::string              *leaf,
+                      const bslstl::StringRef&  path,
+                      int                       rootEnd)
 {
-    BSLS_ASSERT(filename);
+    BSLS_ASSERT(leaf);
 
     int length = path.length();
 
@@ -295,7 +302,7 @@ int PathUtil::getLeaf(bsl::string            *filename,
     if (!hasLeaf(path, rootEnd)) {
         return -1;                                                    // RETURN
     }
-    filename->clear();
+    leaf->clear();
     const char *lastSeparator = leafDelimiter(path.data(), rootEnd, length);
     BSLS_ASSERT(lastSeparator != path.data() + length);
 
@@ -303,17 +310,17 @@ int PathUtil::getLeaf(bsl::string            *filename,
         --length;
     }
 
-    filename->append(*lastSeparator == SEPARATOR ? lastSeparator + 1
-                                                 : lastSeparator,
-                     path.data() + length);
+    leaf->append(
+               *lastSeparator == SEPARATOR ? lastSeparator + 1 : lastSeparator,
+               path.data() + length);
     return 0;
 }
 
-int PathUtil::getDirname(bsl::string            *filename,
-                               const bslstl::StringRef&  path,
-                               int                     rootEnd)
+int PathUtil::getDirname(bsl::string              *dirname,
+                         const bslstl::StringRef&  path,
+                         int                       rootEnd)
 {
-    BSLS_ASSERT(filename);
+    BSLS_ASSERT(dirname);
 
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
@@ -323,21 +330,22 @@ int PathUtil::getDirname(bsl::string            *filename,
         return -1;                                                    // RETURN
     }
 
-    filename->clear();
-    const char *lastSeparator = leafDelimiter(path.data(), rootEnd,
+    dirname->clear();
+    const char *lastSeparator = leafDelimiter(path.data(),
+                                              rootEnd,
                                               path.length());
     if (lastSeparator == path.data()) {
         //nothing to do
 
         return 0;                                                     // RETURN
     }
-    filename->append(path.data(), lastSeparator);
+    dirname->append(path.data(), lastSeparator);
     return 0;
 }
 
-int PathUtil::getRoot(bsl::string            *root,
-                            const bslstl::StringRef&  path,
-                            int                     rootEnd)
+int PathUtil::getRoot(bsl::string              *root,
+                      const bslstl::StringRef&  path,
+                      int                       rootEnd)
 {
     BSLS_ASSERT(root);
 

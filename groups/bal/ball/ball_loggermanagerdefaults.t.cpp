@@ -19,14 +19,14 @@ using namespace bsl;  // automatically added by script
 // This test plan follows the standard approach for components implementing a
 // constrained-attribute type.
 //
-// In the test plan documentation below, 'bael::LMD' is occasionally used for
+// In the test plan documentation below, 'ball::LMD' is occasionally used for
 // 'ball::LoggerManagerDefaults' for brevity.
 //
 //-----------------------------------------------------------------------------
 // [ 1] ball::LoggerManagerDefaults();
 // [ 1] ball::LoggerManagerDefaults(const ball::LoggerManagerDefaults&);
 // [ 1] ~ball::LoggerManagerDefaults();
-// [ 1] bael::LMD& operator=(const ball::LoggerManagerDefaults& rhs);
+// [ 1] ball::LMD& operator=(const ball::LoggerManagerDefaults& rhs);
 // [ 2] int setDefaultRecordBufferSizeIfValid(int numBytes);
 // [ 2] int setDefaultLoggerBufferSizeIfValid(int numBytes);
 // [ 2] int setDefaultThresholdLevelsIfValid(int, int, int, int);
@@ -38,9 +38,9 @@ using namespace bsl;  // automatically added by script
 // [ 1] int defaultTriggerLevel() const;
 // [ 1] int defaultTriggerAllLevel() const;
 //
-// [ 1] bool operator==(const bael::LMD& lhs, const bael::LMD& rhs);
-// [ 1] bool operator!=(const bael::LMD& lhs, const bael::LMD& rhs);
-// [ 1] bsl::ostream& operator<<(bsl::ostream&, const bael::LMD& rhs);
+// [ 1] bool operator==(const ball::LMD& lhs, const ball::LMD& rhs);
+// [ 1] bool operator!=(const ball::LMD& lhs, const ball::LMD& rhs);
+// [ 1] bsl::ostream& operator<<(bsl::ostream&, const ball::LMD& rhs);
 //-----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 //-----------------------------------------------------------------------------

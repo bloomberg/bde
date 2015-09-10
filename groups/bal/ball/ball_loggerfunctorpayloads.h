@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of useful logger manager functor payloads.
 //
 //@CLASSES
-//    ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
+//  ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
 //
 //@SEE_ALSO: ball_loggermanager, ball_categorymanager
 //
@@ -23,23 +23,23 @@ BSLS_IDENT("$Id: $")
 // Each function provides a specific customization or convenience enhancement
 // to the basic logger functionality.
 //
-// TBD: FIX Documentation around Populator callbacks
 // Functions in this component have at most nine parameters and match one of
 // the four signatures:
 //..
-//    (bdlmxxx::List *, bdlmxxx::Schema)
+//    (ball::UserFields *, const ball::UserFieldsSchema &)
 //    (ball::Transmission::Cause)
 //    (int *, int *, int *, int *, const char *)
 //..
 // These signatures match the five 'typedef' definitions used in the
 // 'ball_loggermanager' component, as shown below.  Note that
 // 'ball::LoggerManager::PublishAllCallback' is just an alias for
-// 'ball::Logger::PublishAllCallback', which is itself an alias for a particular
-// 'bdlf::Function' specialization.
+// 'ball::Logger::PublishAllCallback', which is itself an alias for a
+// particular 'bdlf::Function' specialization.
 //..
 //  ball::Logger Functors
 //  --------------------
-//  typedef bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)> Populator;
+//  typedef bdlf::Function<
+//            void (*)(ball::UserFields *, const ball::UserSchema&)> Populator;
 //      // 'Populator' is the type of a user-supplied callback functor used to
 //      // populate the user-defined fields in each log record.  In particular,
 //      // the first 'd_userSchema_p->length()' user-defined fields of each
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Support for Hierarchical Category Names
 ///---------------------------------------
-// The 'bael' logging toolkit does not explicitly support any structure in the
+// The 'ball' logging toolkit does not explicitly support any structure in the
 // registry of category names; each unique sequence of characters defines a
 // unique category that is, from the logger's perspective, a "peer" to all
 // other categories.  The toolkit does, however, provides several callback
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // realistic example, there would be no explicit distinction between "parent"
 // and "child" categories, but rather as categories are dynamically
 // administered by the user, newly created categories would pick up the changes
-// made to existing parents.  As a practical matter, the first five lines of
+// made to existing parents.  As a practical matter, beginning of the function
 // 'main' constitute the "usage" that the user must master to *install* the
 // callback; the rest of this example merely illustrates the *consequences* of
 // installing the callback.
@@ -126,33 +126,33 @@ BSLS_IDENT("$Id: $")
 //   // myapp.cpp
 //   int main()
 //   {
-//       BloombergLP::ball::TestObserver testObserver(bsl::cout);
+//       ball::TestObserver testObserver(bsl::cout);
+
 //..
-// Now, we create the callback functor 'myCallback' that will be passed to the
-// logger manager on initialization.
+// Now, we load the logger manager 'configuration' with the desired "payload"
+// function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
+// and use the trailing 'char' argument 'delimiter', set to the value '.',
+// which will be bound into the functor and supplied back to the payload on
+// each invocation.
 //..
-//       ball::LoggerManager::DefaultThresholdsCallback myCallback;
-//..
-// Next, we populate 'myCallback' with the desired "payload" function,
-// 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues', and use
-// the trailing 'char' argument 'delimiter', set to the value '.', which will
-// be bound into the functor and supplied back to the payload on each
-// invocation.
-//..
+//       using namespace bdlf::PlaceHolders;
+
+//       ball::LoggerManagerConfiguration configuration;
 //       char delimiter = '.';
-//       myCallback = bdlf::BindUtil::bind(&ball::LoggerFunctorPayloads
-//                                         ::loadParentCategoryThresholdValues,
-//                                        _1,
-//                                        _2,
-//                                        _3,
-//                                        _4,
-//                                        _5,
-//                                        delimiter);
+//       configuration.setDefaultThresholdLevelsCallback(
+//           bdlf::BindUtil::bind(
+//             &ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues,
+//             _1,
+//             _2,
+//             _3,
+//             _4,
+//             _5,
+//             delimiter));
 //..
 // We are now ready to initialize the logger manager, using the observer and
 // the callback defined above.
 //..
-//       ball::LoggerManager::initSingleton(&testObserver, myCallback);
+//       ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
 //..
 // The above code is all that the user needs to do to customize the logger to
 // "inherit" thresholds from parents.  The rest of this example illustrates the
@@ -210,9 +210,9 @@ BSLS_IDENT("$Id: $")
 //       manager.setCategory("EQUITY");                                  // (6)
 //..
 // Note that all six calls to 'setCategory' will succeed in adding new
-// categories to the registry.  Calls (1)-(5) will "find" their parent's
-// names and "inherit" the parent's levels.  Call (6), however, will not find
-// a parent category, and so will receive the default threshold levels, just as
+// categories to the registry.  Calls (1)-(5) will "find" their parent's names
+// and "inherit" the parent's levels.  Call (6), however, will not find a
+// parent category, and so will receive the default threshold levels, just as
 // if there were no callback installed.
 //
 // Note also that, although in this "static" (i.e., unadministered) example
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //           assert( 64 == c6->triggerLevel());
 //           assert( 32 == c6->triggerAllLevel());
 //
-//       return;
+//       return 0;
 //   }
 //..
 
@@ -260,9 +260,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                    // =================================
+                    // ============================
                     // struct LoggerFunctorPayloads
-                    // =================================
+                    // ============================
 
 struct LoggerFunctorPayloads {
     // This 'struct' provides a namespace for a suite of utility functions,
@@ -279,7 +279,7 @@ struct LoggerFunctorPayloads {
                                            char                delimiter);
         // Load into the specified 'recordLevel', 'passLevel', 'triggerLevel',
         // and 'triggerAllLevel' the respective threshold levels of the
-        // category in the (singleton) registry of the 'bael' logger that is
+        // category in the (singleton) registry of the 'ball' logger that is
         // the most proximate parent category among existing hierarchically
         // named categories in the registry, if such a parent category exists,
         // or the default thresholds otherwise; use the specified 'delimiter'

@@ -16,8 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component defines a concrete class that implements the
-// 'balm::Publisher' protocol for publishing metric records:
+//@DESCRIPTION: This component defines a concrete class
+// 'balm::StreamPublisher' that implements the 'balm::Publisher' protocol for
+// publishing metric records:
 //..
 //               ( balm::StreamPublisher )
 //                           |              ctor
@@ -35,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // In the following example we illustrate how to create and publish records
 // with a 'balm::StreamPublisher'.  First we define a couple of metric ids.
 // Note that we create the 'balm::MetricId' objects by hand, but in practice an
-// id should be obtained from a 'balm::MetricRegistry' object (such as the
-// one owned by a 'balm::MetricsManager').
+// id should be obtained from a 'balm::MetricRegistry' object (such as the one
+// owned by a 'balm::MetricsManager').
 //..
 //  balm::Category myCategory("MyCategory");
 //  balm::MetricDescription descA(&myCategory, "MetricA");
@@ -63,10 +64,9 @@ BSLS_IDENT("$Id: $")
 //
 //  balm::MetricSample sample(allocator);
 //
-//  sample.setElapsedTime(bsls::TimeInterval(5));
-//  sample.setTimeStamp(
-//                 bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
-//  sample.appendRecords(records.data(), records.size());
+//  sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
+//  sample.appendGroup(records.data(), records.size(),
+//                     bsls::TimeInterval(5, 0));
 //
 //  myPublisher.publish(sample);
 //..
@@ -95,9 +95,9 @@ namespace BloombergLP {
 
 namespace balm {class MetricSample;
 
-                      // ==========================
-                      // class StreamPublisher
-                      // ==========================
+                           // =====================
+                           // class StreamPublisher
+                           // =====================
 
 class StreamPublisher : public Publisher {
     // This class provides an implementation of the 'Publisher' protocol.
@@ -127,12 +127,12 @@ class StreamPublisher : public Publisher {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                          // --------------------------
-                          // class StreamPublisher
-                          // --------------------------
+                           // ---------------------
+                           // class StreamPublisher
+                           // ---------------------
 
 // CREATORS
 inline

@@ -1612,11 +1612,11 @@ class ChannelPool {
         // the specified 'channelId'.  The channel context will be reported on
         // any invocation of a callback related to this channel.
 
-    int shutdown(int                      channelId,
-                 ShutdownMode             mode = e_IMMEDIATE);
-    int shutdown(int                      channelId,
-                 bteso_Flag::ShutdownType type,
-                 ShutdownMode             mode = e_IMMEDIATE);
+    int shutdown(int                       channelId,
+                 ShutdownMode              mode = e_IMMEDIATE);
+    int shutdown(int                       channelId,
+                 btlso::Flag::ShutdownType type,
+                 ShutdownMode              mode = e_IMMEDIATE);
         // Shut down the communication channel having the specified 'channelId'
         // in the optionally specified 'mode' and return 0 on success, and a
         // non-zero value otherwise.  Optionally specify a shutdown 'type' to

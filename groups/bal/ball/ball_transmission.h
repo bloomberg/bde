@@ -16,11 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'ball::Transmission::Cause'.  'Cause' enumerates the list of conditions
-// (or states) that can cause a log record to be transmitted.  In addition,
-// this component supports functions that convert the 'Cause' enumerators to a
-// well-defined ASCII representation.
+//@DESCRIPTION: This component provides a namespace, 'ball::Transmission', for
+// the 'enum' type 'ball::Transmission::Cause'.  'Cause' enumerates the list of
+// conditions (or states) that can cause a log record to be transmitted.  In
+// addition, this component supports functions that convert the 'Cause'
+// enumerators to a well-defined ASCII representation.
 //
 ///USAGE EXAMPLE 1 - SYNTAX
 ///------------------------
@@ -28,9 +28,9 @@ BSLS_IDENT("$Id: $")
 // 'ball::Transmission' usage.
 //
 // First create a variable 'cause' of type 'ball::Transmission::Cause' and
-// initialize it to the value 'ball::Transmission::BAEL_TRIGGER_ALL':
+// initialize it to the value 'ball::Transmission::e_TRIGGER_ALL':
 //..
-//  ball::Transmission::Cause cause = ball::Transmission::BAEL_TRIGGER_ALL;
+//  ball::Transmission::Cause cause = ball::Transmission::e_TRIGGER_ALL;
 //..
 // Next, store a pointer to its ASCII representation in a variable 'asciiCause'
 // of type 'const char *':
@@ -52,14 +52,14 @@ BSLS_IDENT("$Id: $")
 // to describe the condition causing the publication of a log message.  One
 // possible interpretation of three of these conditions is as follows:
 //..
-//  (1) BAEL_PASSTHROUGH - indicate that a message is being output as a
-//                         stand-alone message.
+//  (1) e_PASSTHROUGH - indicate that a message is being output as a
+//                      stand-alone message.
 //
-//  (2) BAEL_TRIGGER - indicate that a message is being output as part of a
-//                     dump of all messages archived for the current thread.
+//  (2) e_TRIGGER     - indicate that a message is being output as part of a
+//                      dump of all messages archived for the current thread.
 //
-//  (3) BAEL_TRIGGER_ALL - indicate that a message is being output as part of
-//                         a dump of all messages archived for *all* threads.
+//  (3) e_TRIGGER_ALL - indicate that a message is being output as part of
+//                      a dump of all messages archived for *all* threads.
 //..
 // This example illustrates the use of 'ball::Transmission::Cause' by a
 // hypothetical logging system.
@@ -99,17 +99,17 @@ BSLS_IDENT("$Id: $")
 //  {
 //      using namespace std;
 //      switch (cause) {
-//        case ball::Transmission::BAEL_PASSTHROUGH: {
+//        case ball::Transmission::e_PASSTHROUGH: {
 //          cout << ball::Transmission::toAscii(cause) << ":\t" << message
 //               << endl;
 //        } break;
-//        case ball::Transmission::BAEL_TRIGGER: {
+//        case ball::Transmission::e_TRIGGER: {
 //          cout << ball::Transmission::toAscii(cause) << ":\t" << message
 //               << endl;
 //          cout << "\t[ dump all messages archived for current thread ]"
 //               << endl;
 //        } break;
-//        case ball::Transmission::BAEL_TRIGGER_ALL: {
+//        case ball::Transmission::e_TRIGGER_ALL: {
 //          cout << ball::Transmission::toAscii(cause) << ":\t" << message
 //               << endl;
 //          cout << "\t[ dump all messages archived for *all* threads ]"
@@ -134,9 +134,9 @@ BSLS_IDENT("$Id: $")
 //  const char *MSG_TRIGGER     = "report serious thread-specific problem";
 //  const char *MSG_TRIGGER_ALL = "report process-impacting problem";
 //
-//  logger.publish(MSG_PASSTHROUGH, ball::Transmission::BAEL_PASSTHROUGH);
-//  logger.publish(MSG_TRIGGER,     ball::Transmission::BAEL_TRIGGER);
-//  logger.publish(MSG_TRIGGER_ALL, ball::Transmission::BAEL_TRIGGER_ALL);
+//  logger.publish(MSG_PASSTHROUGH, ball::Transmission::e_PASSTHROUGH);
+//  logger.publish(MSG_TRIGGER,     ball::Transmission::e_TRIGGER);
+//  logger.publish(MSG_TRIGGER_ALL, ball::Transmission::e_TRIGGER_ALL);
 //..
 // The following output is produced on 'stdout':
 //..
@@ -188,17 +188,17 @@ struct Transmission {
         e_END                = 5   // end flag for asynchronous publication
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_PASSTHROUGH = e_PASSTHROUGH
-      , BAEL_TRIGGER = e_TRIGGER
-      , BAEL_TRIGGER_ALL = e_TRIGGER_ALL
-      , BAEL_MANUAL_PUBLISH = e_MANUAL_PUBLISH
+      , BAEL_PASSTHROUGH        = e_PASSTHROUGH
+      , BAEL_TRIGGER            = e_TRIGGER
+      , BAEL_TRIGGER_ALL        = e_TRIGGER_ALL
+      , BAEL_MANUAL_PUBLISH     = e_MANUAL_PUBLISH
       , BAEL_MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
-      , BAEL_END = e_END
-      , PASSTHROUGH        = e_PASSTHROUGH
-      , TRIGGER            = e_TRIGGER
-      , TRIGGER_ALL        = e_TRIGGER_ALL
-      , MANUAL_PUBLISH     = e_MANUAL_PUBLISH
-      , MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
+      , BAEL_END                = e_END
+      , PASSTHROUGH             = e_PASSTHROUGH
+      , TRIGGER                 = e_TRIGGER
+      , TRIGGER_ALL             = e_TRIGGER_ALL
+      , MANUAL_PUBLISH          = e_MANUAL_PUBLISH
+      , MANUAL_PUBLISH_ALL      = e_MANUAL_PUBLISH_ALL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -209,20 +209,20 @@ struct Transmission {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'LENGTH' to be the number of consecutively-valued enumerators
-        // in the range '[ BAEL_PASSTHROUGH .. BAEL_MANUAL_PUBLISH_ALL ]'.
+        // in the range '[ e_PASSTHROUGH .. e_MANUAL_PUBLISH_ALL ]'.
 
   private:
     // PRIVATE CLASS METHODS
     static void print(bsl::ostream& stream, Transmission::Cause value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.
 
   public:
     // CLASS METHODS
-    static bsl::ostream& streamOut(bsl::ostream&            stream,
+    static bsl::ostream& streamOut(bsl::ostream&       stream,
                                    Transmission::Cause value);
-        // Format the specified 'value' to the specified output 'stream'
-        // and return a reference to the modifiable 'stream'.
+        // Format the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
 
     static const char *toAscii(Transmission::Cause value);
         // Return the string representation exactly matching the enumerator
@@ -231,13 +231,12 @@ struct Transmission {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------
@@ -246,8 +245,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
 
 // CLASS METHODS
 inline
-bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
-                                           Transmission::Cause value)
+bsl::ostream& Transmission::streamOut(bsl::ostream&       stream,
+                                      Transmission::Cause value)
 {
     print(stream, value);
     return stream;
@@ -257,8 +256,8 @@ bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&            stream,
-                         Transmission::Cause rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&       stream,
+                               Transmission::Cause rhs)
 {
     return Transmission::streamOut(stream, rhs);
 }

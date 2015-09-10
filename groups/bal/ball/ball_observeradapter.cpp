@@ -4,24 +4,25 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_observeradapter_cpp,"$Id$ $CSID$")
 
-#ifdef BDE_FOR_TESTING_ONLY
-#include <ball_context.h>              // for testing only
-#include <ball_countingallocator.h>    // for testing only
-#include <ball_record.h>               // for testing only
-#include <ball_transmission.h>         // for testing only
-#endif
+#include <ball_context.h>                       // for testing only
+#include <ball_record.h>                        // for testing only
+#include <ball_recordattributes.h>              // for testing only
+#include <ball_transmission.h>                  // for testing only
+#include <ball_userfields.h>                    // for testing only
+#include <ball_userfieldvalue.h>                // for testing only
 
 namespace BloombergLP {
 
 namespace ball {
-                        // --------------------------
+                        // ---------------------
                         // class ObserverAdapter
-                        // --------------------------
+                        // ---------------------
 
 // CREATORS
 ObserverAdapter::~ObserverAdapter()
 {
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

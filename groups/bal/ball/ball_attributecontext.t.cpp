@@ -286,7 +286,7 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
+namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
 {
 
 ///Managing Attributes
@@ -351,12 +351,12 @@ namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
         return 0;
     }
 
-}  // close namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
+}  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
 
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6
+namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6
 {
 
 bdlqq::Barrier barrier(2);
@@ -522,12 +522,12 @@ extern "C" void *workerThread3(void *args)
     return NULL;
 }
 
-}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6
+}  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6
 
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4
+namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_4
 {
 
 enum {
@@ -871,12 +871,12 @@ extern "C" void *case4ContextThread(void *args)
     return NULL;
 }
 
-}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4
+}  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_4
 
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3
+namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_3
 {
 
 const int NUM_THREADS =  6;           // number of threads
@@ -946,12 +946,12 @@ extern "C" void *case3ContextThread(void *arg)
     return NULL;
 }
 
-}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3
+}  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_3
 
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2
+namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2
 {
 
 const int NUM_THREADS =  6;           // number of threads
@@ -986,7 +986,7 @@ extern "C" void *case2ContextThread(void *arg)
     return (void*)context;
 }
 
-}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2
+}  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1028,14 +1028,14 @@ int main(int argc, char *argv[])
 
 
         bslma::DefaultAllocatorGuard guard(globalAllocator);
-        using namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE;
+        using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE;
 
 //..
 ///Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to call the 'hasRelevantActiveRules'
 // and 'determineThresholdLevels' methods.  These methods are used
-// (primarily by other components in the 'bael' package) to determine the
+// (primarily by other components in the 'ball' package) to determine the
 // affect of the current logging rules on the logging thresholds of a
 // category.  Note that a rule is "relevant" if the rule's pattern matches
 // the category's name, and a rule is "active" if 'ball::Rule::evaluate()'
@@ -1044,7 +1044,7 @@ int main(int argc, char *argv[])
 //
 // We start by creating a 'ball::CategoryManager' and use it to initialize the
 // static data members of 'ball::AttributeContext'.  Note that, in practice,
-// this initialization *should* *not* be performed by clients of the 'bael'
+// this initialization *should* *not* be performed by clients of the 'ball'
 // package':  The 'ball::LoggerManager' singleton will initialize the
 // 'ball::AttributeContext' with the when the singleton is created.
 //..
@@ -1191,7 +1191,7 @@ int main(int argc, char *argv[])
     ASSERT(40  == thresholdLevels.triggerAllLevel());
 //..
 // We must be careful to remove 'attributes' from the attribute context
-// before it goes out of scope and is destroyed.  Note that the 'bael'
+// before it goes out of scope and is destroyed.  Note that the 'ball'
 // package supplies a component, 'ball_scopedattributes' for adding, and
 // automatically removing, attributes from the current thread's attribute
 // context.
@@ -1219,12 +1219,12 @@ int main(int argc, char *argv[])
                                   << "===========================" << endl;
 
         bslma::DefaultAllocatorGuard guard(globalAllocator);
-        using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6;
+        using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6;
 
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
 
-        BAEL_ATTRIBUTECONTEXT_TEST_CASE_6::WorkerThreadArgs args =
+        BALL_ATTRIBUTECONTEXT_TEST_CASE_6::WorkerThreadArgs args =
                                                                  { &manager };
 
         bdlqq::ThreadUtil::Handle threads[3];
@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
             << endl;
 
         bslma::DefaultAllocatorGuard guard(globalAllocator);
-        using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4;
+        using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_4;
 
         unsigned int ruleThreadSeeds[NUM_RULETHREADS];
         ContextThreadData contextThreadData[NUM_CONTEXTTHREADS];
@@ -1481,9 +1481,9 @@ int main(int argc, char *argv[])
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
 
-        BAEL_ATTRIBUTECONTEXT_TEST_CASE_4::WorkerThreadArgs
+        BALL_ATTRIBUTECONTEXT_TEST_CASE_4::WorkerThreadArgs
                                                ruleThreadArgs[NUM_RULETHREADS];
-        BAEL_ATTRIBUTECONTEXT_TEST_CASE_4::WorkerThreadArgs
+        BALL_ATTRIBUTECONTEXT_TEST_CASE_4::WorkerThreadArgs
                                          contextThreadArgs[NUM_CONTEXTTHREADS];
 
         unsigned int seed = 0;
@@ -1535,7 +1535,7 @@ int main(int argc, char *argv[])
                           << "===========================\n";
 
         bslma::DefaultAllocatorGuard guard(globalAllocator);
-        using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3;
+        using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_3;
 
         bdlqq::ThreadUtil::Handle Threads[NUM_THREADS];
 
@@ -1582,7 +1582,7 @@ int main(int argc, char *argv[])
                           << "===============================\n";
 
         bslma::DefaultAllocatorGuard guard(globalAllocator);
-        using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2;
+        using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2;
 
         bdlqq::ThreadUtil::Handle Threads[NUM_THREADS];
         Obj* contexts[NUM_THREADS];

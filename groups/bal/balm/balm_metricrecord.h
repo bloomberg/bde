@@ -16,11 +16,11 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component implements an unconstrainted pure-attribute
-// class used to represent the aggregated value of a metric.  A
-// 'balm::MetricRecord' contains a 'balm::MetricId' object, and a set of
-// aggregate values summarizing the recorded values for that metric.  The
-// attributes held by 'balm::MetricRecord' are given in the following table:
+//@DESCRIPTION: This component implements an unconstrained pure-attribute class
+// used to represent the aggregated value of a metric.  A 'balm::MetricRecord'
+// contains a 'balm::MetricId' object, and a set of aggregate values
+// summarizing the recorded values for that metric.  The attributes held by
+// 'balm::MetricRecord' are given in the following table:
 //..
 //  Attribute      Type                    Description             Default
 //  ----------   ---------        ---------------------------      -------
@@ -34,17 +34,18 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 ///Thread Safety
 ///-------------
 // 'balm::MetricRecord' is *const* *thread-safe*, meaning that accessors may be
-// invoked concurrently from different threads, but it is not safe to
-// access or modify a 'balm::MetricRecord' in one thread while another thread
-// modifies the same object.
+// invoked concurrently from different threads, but it is not safe to access or
+// modify a 'balm::MetricRecord' in one thread while another thread modifies
+// the same object.
 //
 ///Usage
 ///-----
 // The following example demonstrates how a 'balm::MetricRecord' can be used
 // to describe a set of metric values.  In the example we create a
 // 'RequestProcessor' class that collects information about the sizes of the
-// requests it has processed, and provides a 'loadRequestSizeInformation'
-// method that populates a 'balm::MetricRecord' containing that information.
+// requests it has processed.  The 'RequestProcessor' also provides a
+// 'loadRequestSizeInformation' method that populates a 'balm::MetricRecord'
+// object describing the sizes of the requests it has processed.
 //..
 //  class RequestProcessor {
 //      // This class defines a request processor that provides metric
@@ -75,11 +76,12 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //      {
 //          ++d_numRequests;
 //          d_totalRequestSize += request.size();
-//          d_minRequestSize   =  bsl::min(d_minRequestSize, request.size());
-//          d_maxRequestSize   =  bsl::max(d_maxRequestSize, request.size());
+//          d_minRequestSize   =  bsl::min(d_minRequestSize,
+//                                         (unsigned int)request.size());
+//          d_maxRequestSize   =  bsl::max(d_maxRequestSize,
+//                                         (unsigned int)request.size());
 //
 //          // Process the request.
-//
 //      }
 //..
 // Now we declare a function that populates a 'balm::MetricRecord' describing
@@ -112,9 +114,9 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //  requestProcessor.processRequest("12345");
 //..
 // Now we create a 'balm::MetricRecord' to hold the aggregated metrics values.
-// Note that we create a 'balm::MetricId' object by hand, but in practice
-// an id should be obtained from a 'balm::MetricRegistry' object (such as the
-// one owned by a 'balm::MetricsManager').
+// Note that we create a 'balm::MetricId' object by hand, but in practice an id
+// should be obtained from a 'balm::MetricRegistry' object (such as the one
+// owned by a 'balm::MetricsManager').
 //..
 //  balm::Category           myCategory("MyCategory");
 //  balm::MetricDescription  description(&myCategory, "RequestSize");
@@ -123,10 +125,10 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //  // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
 //  balm::MetricRecord requestSize(requestSizeId);
 //..
-// Finally we retrieve the information about the request sizes of the
-// requests processed by 'requestProcessor'.  Note that the count of requests
-// should be 2, the total size of the requests should be 8 (3 + 5), the
-// minimum size should be 3, and the maximum size should be 5.
+// Finally we retrieve the information about the request sizes of the requests
+// processed by 'requestProcessor'.  Note that the count of requests should be
+// 2, the total size of the requests should be 8 (3 + 5), the minimum size
+// should be 3, and the maximum size should be 5.
 //..
 //  requestProcessor.loadRequestSizeInformation(&requestSize);
 //      assert(2 == requestSize.count());
@@ -150,20 +152,20 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 namespace balm {
-                      // =======================
-                      // class MetricRecord
-                      // =======================
+                             // ==================
+                             // class MetricRecord
+                             // ==================
 
 class MetricRecord {
-    // Each instance of this class represents the aggregated value of a
-    // metric.  A metric record contains a 'MetricId' object
-    // (identifying the metric), the number of times the measured event
-    // has occurred as well as the minimum, maximum, and total of the measured
-    // value.  The default 'metricId' is the invalid id value, the default
-    // 'count' is 0, the default 'total' is 0.0, the default 'min' is the
+    // Each instance of this class represents the aggregated value of a metric.
+    //  A metric record contains a 'MetricId' object (identifying the metric),
+    // the number of times the measured event has occurred as well as the
+    // minimum, maximum, and total of the measured value.  The default
+    // 'metricId' is the invalid id value, the default 'count' is 0, the
     // defined 'k_DEFAULT_MIN' constant (the representation for positive
-    // infinity), and the default 'max' is the defined 'k_DEFAULT_MAX' constant
-    // (the representation for negative infinity).
+    // default 'total' is 0.0, the default 'min' is the infinity), and the
+    // default 'max' is the defined 'k_DEFAULT_MAX' constant (the
+    // representation for negative infinity).
 
     // DATA
     MetricId d_metricId;  // id for the metric
@@ -192,19 +194,18 @@ class MetricRecord {
         // representation for negative infinity).
 
     MetricRecord(const MetricId& metricId);
-        // Create a metric record having the specified 'metricId',
-        // and default values for the 'total', 'count', 'min', and 'max'
-        // attributes.  The default 'count' is 0, the default 'total' is 0.0,
-        // the default 'min' is the defined 'k_DEFAULT_MIN' constant (the
-        // representation for positive infinity), and the default 'max' is the
-        // defined 'k_DEFAULT_MAX' constant (the representation for negative
-        // infinity).
+        // Create a metric record having the specified 'metricId', and default
+        // values for the 'total', 'count', 'min', and 'max' attributes.  The
+        // default 'count' is 0, the default 'total' is 0.0, the default 'min'
+        // is the defined 'k_DEFAULT_MIN' constant (the representation for
+        // positive infinity), and the default 'max' is the defined
+        // 'k_DEFAULT_MAX' constant (the representation for negative infinity).
 
     MetricRecord(const MetricId& metricId,
-                      int                  count,
-                      double               total,
-                      double               min,
-                      double               max);
+                 int             count,
+                 double          total,
+                 double          min,
+                 double          max);
         // Create a metric record having the specified 'metricId', 'count',
         // 'total', 'min', and 'max' attribute values.
 
@@ -267,6 +268,10 @@ class MetricRecord {
         // return a reference to the modifiable 'stream'.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // FREE OPERATORS
 inline
 bool operator==(const MetricRecord& lhs, const MetricRecord& rhs);
@@ -283,19 +288,19 @@ bool operator!=(const MetricRecord& lhs, const MetricRecord& rhs);
     // 'count', 'total', 'min', or 'max' attributes.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&            stream,
+bsl::ostream& operator<<(bsl::ostream&       stream,
                          const MetricRecord& record);
     // Write a formatted description of the specified 'record' to the specified
     // 'stream' and return a reference to the modifiable 'stream'.
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // class MetricRecord
-                          // -----------------------
+                             // ------------------
+                             // class MetricRecord
+                             // ------------------
 
 // CREATORS
 inline
@@ -320,10 +325,10 @@ MetricRecord::MetricRecord(const MetricId& metricId)
 
 inline
 MetricRecord::MetricRecord(const MetricId& metricId,
-                                     int                  count,
-                                     double               total,
-                                     double               min,
-                                     double               max)
+                           int             count,
+                           double          total,
+                           double          min,
+                           double          max)
 : d_metricId(metricId)
 , d_count(count)
 , d_total(total)
@@ -434,10 +439,10 @@ bool balm::operator!=(const MetricRecord& lhs, const MetricRecord& rhs)
 }
 
 inline
-bsl::ostream& balm::operator<<(bsl::ostream&            stream,
-                         const MetricRecord& rhs)
+bsl::ostream& balm::operator<<(bsl::ostream&       stream,
+                               const MetricRecord& record)
 {
-    return rhs.print(stream);
+    return record.print(stream);
 }
 
 }  // close enterprise namespace

@@ -3,6 +3,7 @@
 #include <ball_severity.h>
 
 #include <bdlb_string.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>                      // atoi()
 #include <bsl_cstring.h>                      // strcmp(), memcmp(), memcpy()
@@ -29,41 +30,66 @@ using namespace bsl;  // automatically added by script
 //
 // 'ball::Severity' public interface:
 // [ 1] enum Level { ... };
-// [ 1] enum { BAEL_LENGTH = ... };
+// [ 1] enum { e_LENGTH = ... };
 // [ 1] int fromAscii(ball::Severity::Level *value, const char *string, int);
 // [ 1] const char *toAscii(ball::Severity::Level value);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -72,7 +98,12 @@ static void aSsErT(int c, const char *s, int i) {
 typedef ball::Severity      Class;
 typedef Class::Level       Enum;
 
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+const int NUM_ENUMS = Class::BAEL_LENGTH;
+#else
 const int NUM_ENUMS = Class::e_LENGTH;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -91,6 +122,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -121,6 +153,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST
+        //
         // Concerns:
         //   The following must hold for the enumeration under test:
         //     - The enumerator values must be [ 1 << 5, 2 << 5, 3 << 5,
@@ -143,7 +176,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   print(bsl::ostream& stream, ball::Severity::Level value);
         //   enum Level { ... };
-        //   enum { BAEL_LENGTH = ... };
+        //   enum { e_LENGTH = ... };
         //   int fromAscii(ball::Severity::Level *value,
         //                 const char *s,
         //                 int len);
@@ -169,7 +202,9 @@ int main(int argc, char *argv[])
             {  Class::e_INFO,   "INFO",                  4 << 5          },
             {  Class::e_DEBUG,  "DEBUG",                 5 << 5          },
             {  Class::e_TRACE,  "TRACE",                 6 << 5          },
-            {  Class::e_NONE,   "NONE",                  7 << 5          },
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            {  Class::BAEL_NONE,"NONE",                  7 << 5          },
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;

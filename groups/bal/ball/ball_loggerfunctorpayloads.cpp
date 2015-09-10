@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(ball_loggerfunctorpayloads_cpp,"$Id$ $CSID$")
 
 #include <ball_categorymanager.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>    // for testing only
 #include <ball_testobserver.h>                  // for testing only
 
 #include <bsls_assert.h>
@@ -15,9 +16,9 @@ BSLS_IDENT_RCSID(ball_loggerfunctorpayloads_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                    // ---------------------------------
+                    // ----------------------------
                     // struct LoggerFunctorPayloads
-                    // ---------------------------------
+                    // ----------------------------
 
 // CLASS METHODS
 
@@ -35,15 +36,15 @@ void LoggerFunctorPayloads::loadParentCategoryThresholdValues(
     BSLS_ASSERT(triggerAllLevel);
     BSLS_ASSERT(categoryName);
 
-    bsl::string               parentName(categoryName);
+    bsl::string parentName(categoryName);
     const LoggerManager& manager = LoggerManager::singleton();
 
     int delimIdx;
     while ((int)bsl::string::npos != (delimIdx = parentName.rfind(delimiter)))
                                                                               {
         parentName.erase(delimIdx);  // candidate for "proximate parent" name
-        const Category *parent =
-                                    manager.lookupCategory(parentName.c_str());
+
+        const Category *parent = manager.lookupCategory(parentName.c_str());
         if (parent) {
             // found "parent" category, so use parent's thresholds
             *recordLevel     = parent->recordLevel();
@@ -60,6 +61,7 @@ void LoggerFunctorPayloads::loadParentCategoryThresholdValues(
     *triggerLevel    = manager.defaultTriggerThresholdLevel();
     *triggerAllLevel = manager.defaultTriggerAllThresholdLevel();
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

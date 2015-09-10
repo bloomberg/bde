@@ -1,7 +1,9 @@
-// bdlsu_fdstreambuf.t.cpp                                            -*-C++-*-
-#include <bdlsu_fdstreambuf.h>
+// bdls_fdstreambuf.t.cpp                                             -*-C++-*-
+#include <bdls_fdstreambuf.h>
 
-#include <bdlsu_filesystemutil.h>
+#include <bslim_testutil.h>
+
+#include <bdls_filesystemutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
@@ -19,9 +21,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-// The following is added so that this component does not need a dependency
-// on bdlsu_processutil, since 'getProcessId' is only used to create unique
-// file names.
+// The following is added so that this component does not need a dependency on
+// bdls_processutil, since 'getProcessId' is only used to create unique file
+// names.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #else
@@ -29,58 +31,51 @@
 #endif
 
 using namespace BloombergLP;
-using bsl::cin;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::flush;
+using namespace bsl;
 
 // ============================================================================
-//                                 TEST PLAN
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
+namespace {
 
-static int testStatus = 0;
+int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
@@ -90,9 +85,9 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::FdStreamBuf_FileHandler  ObjFileHandler;
-typedef bdlsu::FdStreamBuf              Obj;
-typedef bdlsu::FilesystemUtil           FileUtil;
+typedef bdls::FdStreamBuf_FileHandler  ObjFileHandler;
+typedef bdls::FdStreamBuf              Obj;
+typedef bdls::FilesystemUtil           FileUtil;
 typedef FileUtil::FileDescriptor       FdType;
 
 // ============================================================================
@@ -131,8 +126,8 @@ int randInt()
 }
 
 int diskLength(const char *string)
-    // Given a string without \r's, calculate the length it would be if the
-    // \n's were translated to \r\n's.
+    // Given the specified 'string' without CRs, calculate the length it would
+    // be if the NLs were translated to CRNLs.
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     return bsl::strlen(string);
@@ -236,9 +231,10 @@ static bool  nullSeekCheckSeek;
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    //  int veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpDirName[] = "C:\\TEMP";
@@ -253,9 +249,9 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&ta);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    const char *fileNameTemplate = "/tmp/bdesu_FdStreamBuf.%s.%d.txt";
+    const char *fileNameTemplate = "/tmp/bdls_FdStreamBuf.%s.%d.txt";
 #else
-    const char *fileNameTemplate = "C:\\TEMP\\bdesu_FdStreamBuf.%s.%d.txt";
+    const char *fileNameTemplate = "C:\\TEMP\\bdls_FdStreamBuf.%s.%d.txt";
 #endif
 
     switch (test) { case 0:
@@ -264,7 +260,7 @@ int main(int argc, char *argv[])
         // TESTING STREAMBUF USAGE EXAMPLE
         //
         // Concerns:
-        //   Demonstrate reading, writing, and seeking with a bdlsu::FdStreamBuf
+        //   Demonstrate reading, writing, and seeking with a bdls::FdStreamBuf
         //   on Unix using the 'streambuf' interface.
         //
         // Plan:
@@ -273,7 +269,7 @@ int main(int argc, char *argv[])
         //
         // Preamble:
         //   In this example we open a file descriptor on a file, then create
-        //   a 'bdlsu::FdStreamBuf' associated with that file descriptor, and
+        //   a 'bdls::FdStreamBuf' associated with that file descriptor, and
         //   perform some standard streambuf I/O (e.g., writes, reads, and
         //   seeks) on the file.  Note that the 'sputn', 'sgetn', 'pubseekoff'
         //   and 'pubseekpos' methods are all part of the standard 'streambuf'
@@ -298,9 +294,9 @@ int main(int argc, char *argv[])
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer,
 #ifdef BSLS_PLATFORM_OS_UNIX
-                     "/tmp/bdesu_FdStreamBuf.usage.2.%d.txt",
+                     "/tmp/bdls_FdStreamBuf.usage.2.%d.txt",
 #else // windows
-                     "C:\\TEMP\\bdesu_FdStreamBuf.usage.2.%d.txt",
+                     "C:\\TEMP\\bdls_FdStreamBuf.usage.2.%d.txt",
 #endif
                      getProcessId());
 
@@ -308,28 +304,28 @@ int main(int argc, char *argv[])
 
         // Then, make sure the file does not already exist:
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
-        ASSERT(false == bdlsu::FilesystemUtil::exists(fileNameBuffer));
+        bdls::FilesystemUtil::remove(fileNameBuffer);
+        ASSERT(false == bdls::FilesystemUtil::exists(fileNameBuffer));
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created):
 
-        FdType fd = bdlsu::FilesystemUtil::open(
+        FdType fd = bdls::FilesystemUtil::open(
                                            fileNameBuffer,
-                                           bdlsu::FilesystemUtil::e_CREATE,
-                                           bdlsu::FilesystemUtil::e_READ_WRITE);
+                                           bdls::FilesystemUtil::e_CREATE,
+                                           bdls::FilesystemUtil::e_READ_WRITE);
 
-        ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
+        ASSERT(bdls::FilesystemUtil::k_INVALID_FD != fd);
 
-        // Now, we create a 'bdlsu::FdStreamBuf' object named 'streamBuffer'
+        // Now, we create a 'bdls::FdStreamBuf' object named 'streamBuffer'
         // associated with the file descriptor 'fd'.  Note that 'streamBuffer'
         // defaults to assuming ownership of 'fd', meaning that when
         // 'streamBuffer' is cleared, reset, or destroyed, 'fd' will be closed.
         // Note that 'FdStreamBuf' implements 'streambuf', which provides the
         // public methods used in this example:
 
-        bdlsu::FdStreamBuf streamBuffer(fd, true);
+        bdls::FdStreamBuf streamBuffer(fd, true);
 
         ASSERT(streamBuffer.fileDescriptor() == fd);
         ASSERT(streamBuffer.isOpened());
@@ -344,8 +340,8 @@ int main(int argc, char *argv[])
         bsl::streamoff status = streamBuffer.pubseekpos(0);
         ASSERT(0 == status);
 
-        // Next, we read the first 'lengthLine1' characters of the file
-        // into 'buf', with the method 'sgetn'.
+        // Next, we read the first 'lengthLine1' characters of the file into
+        // 'buf', with the method 'sgetn'.
 
         char buf[1000];
         bsl::memset(buf, 0, sizeof(buf));
@@ -354,8 +350,8 @@ int main(int argc, char *argv[])
         ASSERT(!bsl::strcmp(line1, buf));
 
         // Next we try to read '2 * lengthLine2' characters when only
-        // 'lengthLine2' characters are available in the file to read, so
-        // the 'sgetn' method will stop after reading 'lengthLine2' characters.
+        // 'lengthLine2' characters are available in the file to read, so the
+        // 'sgetn' method will stop after reading 'lengthLine2' characters.
         // The 'sgetn' method will return the number of chars successfully
         // read:
 
@@ -414,12 +410,12 @@ int main(int argc, char *argv[])
         // associated with a file descriptor:
 
         ASSERT(!streamBuffer.isOpened());
-        ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD ==
+        ASSERT(bdls::FilesystemUtil::k_INVALID_FD ==
                streamBuffer.fileDescriptor());
 
         // Finally, we clean up the file:
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -445,7 +441,7 @@ int main(int argc, char *argv[])
                              "============================\n";
 
         // The most common usage of this component is to initialize a stream.
-        // In this case, the 'bdlsu::FdStreamBuf' will be used for either input
+        // In this case, the 'bdls::FdStreamBuf' will be used for either input
         // or output, but not both.
 
         // First we create a suitable file name, and make sure that no file of
@@ -454,36 +450,36 @@ int main(int argc, char *argv[])
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer,
 #ifdef BSLS_PLATFORM_OS_UNIX
-                     "/tmp/bdesu_FdStreamBuf.usage.1.%d.txt",
+                     "/tmp/bdls_FdStreamBuf.usage.1.%d.txt",
 #else // windows
-                     "C:\\TEMP\\bdesu_FdStreamBuf.usage.1.%d.txt",
+                     "C:\\TEMP\\bdls_FdStreamBuf.usage.1.%d.txt",
 #endif
                      getProcessId());
 
         // Then, make sure file does not already exist:
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
-        ASSERT(0 == bdlsu::FilesystemUtil::exists(fileNameBuffer));
+        bdls::FilesystemUtil::remove(fileNameBuffer);
+        ASSERT(0 == bdls::FilesystemUtil::exists(fileNameBuffer));
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is to be writable, and not previously
         // existing (and therefore must be created):
 
-        FdType fd = bdlsu::FilesystemUtil::open(
+        FdType fd = bdls::FilesystemUtil::open(
                                            fileNameBuffer,
-                                           bdlsu::FilesystemUtil::e_CREATE,
-                                           bdlsu::FilesystemUtil::e_READ_WRITE);
+                                           bdls::FilesystemUtil::e_CREATE,
+                                           bdls::FilesystemUtil::e_READ_WRITE);
 
-        ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
+        ASSERT(bdls::FilesystemUtil::k_INVALID_FD != fd);
 
-        // Now, we create an 'bdlsu::FdStreamBuf' type of stream buffer
+        // Now, we create an 'bdls::FdStreamBuf' type of stream buffer
         // associated with file descriptor 'fd'.  Note that the 'false'
         // argument indicates that 'streamBuffer' will not assume ownership of
         // 'fd', meaning that when 'streamBuffer' is destroyed 'fd' will remain
         // open:
 
         {
-            bdlsu::FdStreamBuf streamBuffer(fd,
+            bdls::FdStreamBuf streamBuffer(fd,
                                            true,    // writable
                                            false);  // 'fd' won't be closed
                                                     // when 'streamBuffer' is
@@ -504,7 +500,7 @@ int main(int argc, char *argv[])
         {
             // read it in binary mode
 
-            bdlsu::FdStreamBuf streamBuffer(fd,
+            bdls::FdStreamBuf streamBuffer(fd,
                                            false,  // not writable
                                            false,  // 'streamBuffer' does not
                                                    // own 'fd'
@@ -536,7 +532,7 @@ int main(int argc, char *argv[])
         {
             // read it back in text mode
 
-            bdlsu::FdStreamBuf streamBuffer(fd,
+            bdls::FdStreamBuf streamBuffer(fd,
                                            false);  // not writable
                                                  // 'fd' will be closed when
                                                  // streamBuffer is destroyed.
@@ -559,7 +555,7 @@ int main(int argc, char *argv[])
 
         // And finally, we clean up:
 
-        bdlsu::FilesystemUtil::remove(fileNameBuffer);
+        bdls::FilesystemUtil::remove(fileNameBuffer);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -572,6 +568,7 @@ int main(int argc, char *argv[])
         //    the component.
         //
         // Plan:
+        //
         // Take the 'alternate reads and writes test' case 13, and pepper it
         // with lots of null seeks, and see if concerns 1 and 2 are met in the
         // following situations:
@@ -2178,8 +2175,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Verity fd was closed by opening again and verifying we get the
-        // same fd.
+        // Verity fd was closed by opening again and verifying we get the same
+        // fd.
 
         ASSERT(fd == FileUtil::open(fnBuf,
                                     FileUtil::e_OPEN,
@@ -2223,7 +2220,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf INTERMIXED READ AND WRITE, JUGGLING OPENS
+        // bdls::FdStreamBuf INTERMIXED READ AND WRITE, JUGGLING OPENS
         //
         // Concerns:
         //   That the constructor works properly.
@@ -2232,7 +2229,7 @@ int main(int argc, char *argv[])
         //   'reset' method to connect to the fd.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf C'TOR TEST\n"
+        if (verbose) cout << "bdls::FdStreamBuf C'TOR TEST\n"
                              "============================\n";
 
         char fnBuf[100];
@@ -2332,8 +2329,8 @@ int main(int argc, char *argv[])
 
             ASSERT(!sb.clear());
 
-            // verify file was closed by getting same file descriptor when
-            // we open again
+            // verify file was closed by getting same file descriptor when we
+            // open again
 
             FdType fd2 = FileUtil::open(fnBuf2,
                                         FileUtil::e_CREATE,
@@ -2382,7 +2379,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf pubsetbuf
+        // bdls::FdStreamBuf pubsetbuf
         //
         // Concerns:
         //   That the FdStreamBuf can work properly with a modest 10 byte
@@ -2392,7 +2389,7 @@ int main(int argc, char *argv[])
         //   Repeat test 3, after doing a pubsetbuf.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf PUBSETBUF TEST\n"
+        if (verbose) cout << "bdls::FdStreamBuf PUBSETBUF TEST\n"
                              "================================\n";
 
         char fnBuf[100];
@@ -2511,7 +2508,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf INTERMIXED READ AND WRITE
+        // bdls::FdStreamBuf INTERMIXED READ AND WRITE
         //
         // Concerns:
         //   That reads and writes work properly.
@@ -2522,7 +2519,7 @@ int main(int argc, char *argv[])
         //   'line3' in the file.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf READ-WRITE TEST\n"
+        if (verbose) cout << "bdls::FdStreamBuf READ-WRITE TEST\n"
                              "=================================\n";
 
         char fnBuf[100];
@@ -2630,7 +2627,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf BREATHING TEST
+        // bdls::FdStreamBuf BREATHING TEST
         //
         // Concerns:
         //   Basic functionality.
@@ -2639,7 +2636,7 @@ int main(int argc, char *argv[])
         //   Connect to a file and do some writes, reads, and seeks on it.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf BREATHING TEST\n"
+        if (verbose) cout << "bdls::FdStreamBuf BREATHING TEST\n"
                              "================================\n";
 
         char fnBuf[100];
@@ -2828,7 +2825,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf_FileHandler BREATHING TEST
+        // bdls::FdStreamBuf_FileHandler BREATHING TEST
         //
         // Concerns:
         //   Exercise FileHandler basic functionality.
@@ -2838,7 +2835,7 @@ int main(int argc, char *argv[])
         //   and reads on it.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf_FileHandler BREATHING TEST\n"
+        if (verbose) cout << "bdls::FdStreamBuf_FileHandler BREATHING TEST\n"
                              "============================================\n";
 
         char fnBuf[100];
@@ -3022,7 +3019,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // bdlsu::FdStreamBuf HANDLING 5 GIGABYTE FILE
+        // bdls::FdStreamBuf HANDLING 5 GIGABYTE FILE
         //
         // Concerns:
         //
@@ -3034,7 +3031,7 @@ int main(int argc, char *argv[])
         //   Succeeds on all Unix 32 bit, fails on Windows 32 bit.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bdlsu::FdStreamBuf 5 Gigabyte file\n"
+        if (verbose) cout << "bdls::FdStreamBuf 5 Gigabyte file\n"
                              "=================================\n";
 
         if (verbose) {
@@ -3063,7 +3060,7 @@ int main(int argc, char *argv[])
 
         ASSERT(FileUtil::isDirectory(fn));
 
-        fn += "bdesu_FdStreamBuf.-1.";
+        fn += "bdls_FdStreamBuf.-1.";
         {
             bsl::stringstream s;
             s << getProcessId();
@@ -3224,7 +3221,7 @@ int main(int argc, char *argv[])
 
         ASSERT(FileUtil::isDirectory(fn));
 
-        fn += "bdesu_FdStreamBuf.-3.";
+        fn += "bdls_FdStreamBuf.-3.";
         {
             bsl::stringstream s;
             s << getProcessId();
@@ -3341,7 +3338,7 @@ int main(int argc, char *argv[])
 
         ASSERT(FileUtil::isDirectory(fn));
 
-        fn += "bdesu_FdStreamBuf.-4.";
+        fn += "bdls_FdStreamBuf.-4.";
         {
             bsl::stringstream s;
             s << getProcessId();

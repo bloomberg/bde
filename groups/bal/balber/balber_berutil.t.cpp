@@ -14,15 +14,16 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bdlt_serialdateimputil.h>
+#include <bslim_testutil.h>
 
-#include <bdlsb_memoutstreambuf.h>            // for testing only
-#include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdlsb_fixedmeminstreambuf.h>        // for testing only
+#include <bdlsb_memoutstreambuf.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
+#include <bdlt_serialdateimputil.h>
 
 #include <bdlt_datetz.h>
 #include <bdlt_datetimetz.h>
@@ -49,6 +50,7 @@ using namespace bsl;  // automatically added by script
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -59,46 +61,27 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
-
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -250,9 +233,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\n" "USAGE EXAMPLE" "\n"
+                                       "=============" "\n";
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -317,7 +299,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for date/time components using a variant
+        // TESTING 'getValue' FOR DATE/TIME COMPONENTS USING A VARIANT
         //
         // Concerns:
         //
@@ -326,10 +308,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                         << "\nTESTING 'getValue' for date/time using variant"
-                         << "\n=============================================="
-                         << bsl::endl;
+        if (verbose) bsl::cout << "\n"
+                         "TESTING 'getValue' FOR DATE/TIME USING VARIANT" "\n"
+                         "==============================================" "\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
@@ -922,7 +903,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' for date/time components
+        // TESTING 'putValue' FOR DATE/TIME COMPONENTS
         //
         // Concerns:
         //
@@ -931,9 +912,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' for date/time"
-                               << "\n================================"
-                               << bsl::endl;
+        if (verbose) bsl::cout << "\n" "TESTING 'putValue' FOR DATE/TIME" "\n"
+                                       "================================" "\n";
 
         if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
         {
@@ -2494,7 +2474,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING BRUTE FORCE 'putValue'/'getValue' for date/time components
+        // TESTING BRUTE FORCE 'putValue'/'getValue' FOR DATE/TIME
         //
         // Concerns:
         //
@@ -2503,10 +2483,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                            << "\nTESTING 'putValue', 'getValue' for date/time"
-                            << "\n============================================"
-                            << bsl::endl;
+        if (verbose) bsl::cout << "\n"
+                           "TESTING 'putValue', 'getValue' FOR DATE/TIME" "\n"
+                           "============================================" "\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
@@ -3192,7 +3171,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for date/time components
+        // TESTING 'putValue', 'getValue' FOR DATE/TIME
         //
         // Concerns:
         //
@@ -3201,10 +3180,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                            << "\nTESTING 'putValue', 'getValue' for date/time"
-                            << "\n============================================"
-                            << bsl::endl;
+        if (verbose) bsl::cout << "\n"
+                           "TESTING 'putValue', 'getValue' FOR DATE/TIME" "\n"
+                           "============================================" "\n";
 
         balber::BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
@@ -3851,7 +3829,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'putIdentifierOctets' & 'getIdentifierOctets'
+        // TESTING 'put/getIdentifierOctets'
         //
         // Concerns:
         //
@@ -3860,9 +3838,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'put/getIdentifierOctets'"
-                               << "\n================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "\n"
+                                      "TESTING 'put/getIdentifierOctets'" "\n"
+                                      "=================================" "\n";
 
         {
             enum { SUCCESS = 0, FAILURE = -1 };
@@ -5910,8 +5888,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i) P(VAL) }
 
-                LOOP3_ASSERT(LINE, VAL, RES,
-                               RES == balber::BerUtil_Imp::numBytesToStream(VAL));
+                LOOP3_ASSERT(
+                            LINE, VAL, RES,
+                            RES == balber::BerUtil_Imp::numBytesToStream(VAL));
             }
         }
       } break;
@@ -5984,20 +5963,24 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i) P(LL) }
 
-                LOOP4_ASSERT(LINE, LL, RES, balber::BerUtil_Imp::numBytesToStream(LL),
-                                RES == balber::BerUtil_Imp::numBytesToStream(LL));
+                LOOP4_ASSERT(
+                      LINE, LL, RES, balber::BerUtil_Imp::numBytesToStream(LL),
+                      RES == balber::BerUtil_Imp::numBytesToStream(LL));
 
                 if (LL <= SHRT_MAX && LL >= SHRT_MIN) {
                     const short S = (short) LL;
                     const int   I = (int)   LL;
                     const long  L = (long)  LL;
 
-                    LOOP4_ASSERT(LINE, S, RES, balber::BerUtil_Imp::numBytesToStream(S),
-                                 RES == balber::BerUtil_Imp::numBytesToStream(S));
-                    LOOP4_ASSERT(LINE, I, RES, balber::BerUtil_Imp::numBytesToStream(I),
-                                 RES == balber::BerUtil_Imp::numBytesToStream(I));
-                    LOOP4_ASSERT(LINE, L, RES, balber::BerUtil_Imp::numBytesToStream(L),
-                                 RES == balber::BerUtil_Imp::numBytesToStream(L));
+                    LOOP4_ASSERT(
+                        LINE, S, RES, balber::BerUtil_Imp::numBytesToStream(S),
+                        RES == balber::BerUtil_Imp::numBytesToStream(S));
+                    LOOP4_ASSERT(
+                        LINE, I, RES, balber::BerUtil_Imp::numBytesToStream(I),
+                        RES == balber::BerUtil_Imp::numBytesToStream(I));
+                    LOOP4_ASSERT(
+                        LINE, L, RES, balber::BerUtil_Imp::numBytesToStream(L),
+                        RES == balber::BerUtil_Imp::numBytesToStream(L));
                     continue;
                 }
 
@@ -6005,10 +5988,12 @@ int main(int argc, char *argv[])
                     const int  I = (int)  LL;
                     const long L = (long) LL;
 
-                    LOOP3_ASSERT(LINE, I, RES,
-                                 RES == balber::BerUtil_Imp::numBytesToStream(I));
-                    LOOP3_ASSERT(LINE, L, RES,
-                                 RES == balber::BerUtil_Imp::numBytesToStream(L));
+                    LOOP3_ASSERT(
+                              LINE, I, RES,
+                              RES == balber::BerUtil_Imp::numBytesToStream(I));
+                    LOOP3_ASSERT(
+                              LINE, L, RES,
+                              RES == balber::BerUtil_Imp::numBytesToStream(L));
                 }
             }
         }

@@ -28,7 +28,13 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-using namespace BloombergLP;
+#include <bslim_testutil.h>
+
+// It is very important not to say 'using BloombergLP;' in this test driver, in
+// order to test that the macros will work when 'BloombergLP' is not in scope.
+
+namespace Corp = BloombergLP;
+namespace BALM = BloombergLP::balm;
 
 using bsl::cout;
 using bsl::endl;
@@ -45,7 +51,7 @@ using bsl::flush;
 // performed on with a macro have the same effect as the same operation
 // performed directly on the "oracle" 'balm::Collector'.  Note that, the
 // "STANDARD" macro variants (i.e., 'BALM_METRICS_UPDATE') and the
-// "THREAD_LOCAL" macro variants (i.e., 'BAEM_METRICS_THREAD_LOCAL_UPDATE')
+// "THREAD_LOCAL" macro variants (i.e., 'BALM_METRICS_THREAD_LOCAL_UPDATE')
 // have more complex behavior with respect to their statically cached (or
 // thread-local statically cached) 'balm::Collector' object.
 //-----------------------------------------------------------------------------
@@ -56,16 +62,16 @@ using bsl::flush;
 // [ 2] BALM_METRICS_TYPED_INCREMENT(CATEGORY, NAME, PREFERRED_TYPE)
 // [ 3] BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
 // [ 3] BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
-// [ 4] BAEM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
-// [ 4] BAEM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
+// [ 4] BALM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
+// [ 4] BALM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
 // [ 5] BALM_METRICS_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 5] BAEM_METRICS_INT_INCREMENT(CATEGORY, NAME)
+// [ 5] BALM_METRICS_INT_INCREMENT(CATEGORY, NAME)
 // [ 5] BALM_METRICS_TYPED_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 5] BAEM_METRICS_TYPED_INT_INCREMENT(CATEGORY, NAME)
+// [ 5] BALM_METRICS_TYPED_INT_INCREMENT(CATEGORY, NAME)
 // [ 6] BALM_METRICS_DYNAMIC_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 6] BAEM_METRICS_DYNAMIC_INT_INCREMENT(CATEGORY, NAME)
-// [ 7] BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
-// [ 7] BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
+// [ 6] BALM_METRICS_DYNAMIC_INT_INCREMENT(CATEGORY, NAME)
+// [ 7] BALM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
+// [ 7] BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
 // [ 8] BEAM_METRICS_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 // [ 8] BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 // [ 9] BEAM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
@@ -90,9 +96,10 @@ using bsl::flush;
 //                                             int         line);
 // [18] WARNING LOG TEST: ALL MACROS
 // [19] USAGE EXAMPLE
-//=============================================================================
+
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -104,76 +111,64 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+typedef BALM::DefaultMetricsManager DefaultManager;
+typedef BALM::MetricRegistry        Registry;
+typedef BALM::CollectorRepository   Repository;
+typedef BALM::Collector             Collector;
+typedef BALM::IntegerCollector      IntCollector;
+typedef BALM::MetricId              Id;
+typedef BALM::Category              Category;
+typedef BALM::PublicationType       Type;
+typedef BALM::MetricsManager        MetricsManager;
+typedef BALM::StopwatchScopedGuard  SWGuard;
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
+typedef bsl::shared_ptr<BALM::Collector>         ColSPtr;
+typedef bsl::shared_ptr<BALM::IntegerCollector>  IColSPtr;
+typedef bsl::vector<ColSPtr>                     ColSPtrVector;
+typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-typedef balm::DefaultMetricsManager DefaultManager;
-typedef balm::MetricRegistry        Registry;
-typedef balm::CollectorRepository   Repository;
-typedef balm::Collector             Collector;
-typedef balm::IntegerCollector      IntCollector;
-typedef balm::MetricId              Id;
-typedef balm::Category              Category;
-typedef balm::PublicationType       Type;
-typedef balm::MetricsManager        MetricsManager;
-typedef balm::StopwatchScopedGuard  SWGuard;
-
-typedef bsl::shared_ptr<balm::Collector>         ColSPtr;
-typedef bsl::shared_ptr<balm::IntegerCollector>  IColSPtr;
-typedef bsl::vector<ColSPtr>                    ColSPtrVector;
-typedef bsl::vector<IColSPtr>                   IColSPtrVector;
-
-//=============================================================================
-//                    CLASSES FOR AND FUNCTIONS TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     CLASSES FOR AND FUNCTIONS TESTING
+// ----------------------------------------------------------------------------
 
 inline
-balm::MetricRecord recordVal(const balm::Collector *collector)
+BALM::MetricRecord recordVal(const BALM::Collector *collector)
     // Return the current record value of the specified 'collector'.
 {
-    balm::MetricRecord record;
+    BALM::MetricRecord record;
     collector->load(&record);
     return record;
 }
 
 inline
-balm::MetricRecord recordVal(const balm::IntegerCollector *collector)
+BALM::MetricRecord recordVal(const BALM::IntegerCollector *collector)
     // Return the current record value of the specified 'collector'.
 {
-    balm::MetricRecord record;
+    BALM::MetricRecord record;
     collector->load(&record);
     return record;
 }
@@ -205,8 +200,8 @@ bool withinInt(int value, int min, int max)
 
 void staticTimeEmptyFunction(const char     *category,
                              const char     *metric,
-                             SWGuard::Units  units = SWGuard::e_BALM_SECONDS)
-    // Record, using the static 'BAEM_TIME_BLOCK' macro, an empty function to
+                             SWGuard::Units  units = SWGuard::k_SECONDS)
+    // Record, using the static 'BALM_TIME_BLOCK' macro, an empty function to
     // a metric identified by the specified 'category' and 'name'.  Optionally
     // specify the 'units' to report elapsed time values.  If no 'units' value
     // is supplied, time is reported in seconds.  Note that the identity of
@@ -216,7 +211,7 @@ void staticTimeEmptyFunction(const char     *category,
 }
 
 void dynamicTimeEmptyFunction(const char *category, const char *metric)
-    // Record, using the 'e_BALM_DYNAMIC_TIME_BLOCK_SECONDS' macro, an empty
+    // Record, using the 'e_DYNAMIC_TIME_BLOCK_SECONDS' macro, an empty
     // function to a metric identified by the specified 'category' and 'name'.
 {
     BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(category, metric);
@@ -230,7 +225,7 @@ bool breathingTestIfEnabledA()
     return false;
 }
 
-bool baemMetricsIfCategoryEnabledTestA()
+bool balmMetricsIfCategoryEnabledTestA()
 {
     BALM_METRICS_IF_CATEGORY_ENABLED("A") {
         return true;                                                  // RETURN
@@ -238,7 +233,7 @@ bool baemMetricsIfCategoryEnabledTestA()
     return false;
 }
 
-bool baemMetricsIfCategoryEnabledTest(const char *category)
+bool balmMetricsIfCategoryEnabledTest(const char *category)
 {
     BALM_METRICS_IF_CATEGORY_ENABLED(category) {
         return true;                                                  // RETURN
@@ -246,15 +241,16 @@ bool baemMetricsIfCategoryEnabledTest(const char *category)
     return false;
 }
 
-class MessageObserver : public ball::Observer {
-        // Custom observer to verify logged message.
+class MessageObserver : public Corp::ball::Observer {
+    // Custom observer to verify logged message.
 
-public:
+  public:
     MessageObserver() : d_message() {}
 
     virtual ~MessageObserver() {}
 
-    virtual void publish(const ball::Record& record, const ball::Context&);
+    virtual void publish(const Corp::ball::Record& record,
+                         const Corp::ball::Context&);
         // This function is called when a message is logged.  It will store the
         // message so that it can be retrieved and verified.  Any new messages
         // are concatenated to the message stored in the class.
@@ -265,12 +261,14 @@ public:
     void clearMessage() {d_message = "";}
         // Clear the message stored in the class.
 
-private:
+  private:
     bsl::string d_message;
 };
 
-void MessageObserver::publish(const ball::Record& record, const ball::Context&) {
-    const ball::RecordAttributes& fixedFields = record.fixedFields();
+void MessageObserver::publish(const Corp::ball::Record& record,
+                              const Corp::ball::Context&)
+{
+    const Corp::ball::RecordAttributes& fixedFields = record.fixedFields();
     d_message += fixedFields.message();
 }
 
@@ -280,9 +278,9 @@ class StandardMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    Corp::bdlmt::FixedThreadPool  d_pool;
+    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -291,8 +289,8 @@ class StandardMacroConcurrencyTest {
   public:
 
     // CREATORS
-    StandardMacroConcurrencyTest(int               numThreads,
-                                 bslma::Allocator *basicAllocator)
+    StandardMacroConcurrencyTest(int                     numThreads,
+                                 Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -302,7 +300,7 @@ class StandardMacroConcurrencyTest {
 
     ~StandardMacroConcurrencyTest() {}
 
-    //  MANIPULATORS
+    // MANIPULATORS
     void runTest();
         // Run the test.
 };
@@ -316,8 +314,8 @@ void StandardMacroConcurrencyTest::execute()
 
     const int   COUNT            = 30;
 
-    balm::MetricsManager &mgr = *DefaultManager::instance();
-    Repository&   repository = mgr.collectorRepository();
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
+    Repository&                  repository = mgr.collectorRepository();
 
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
@@ -335,7 +333,7 @@ void StandardMacroConcurrencyTest::execute()
         BALM_METRICS_UPDATE6("A",
                              "A", 6.0, "B", 6.0, "C", 6.0, "D", 6.0,
                              "E", 6.0, "F", 6.0);
-        BALM_METRICS_TYPED_UPDATE("A", "A", 7.0, Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_UPDATE("A", "A", 7.0, Type::e_TOTAL);
 
         bool enabled = 0 == i % 2;
 
@@ -355,7 +353,7 @@ void StandardMacroConcurrencyTest::execute()
         BALM_METRICS_UPDATE6("B",
                              "A", 6.0, "B", 6.0, "C", 6.0, "D", 6.0,
                              "E", 6.0, "F", 6.0);
-        BALM_METRICS_TYPED_UPDATE("B", "A", 7.0, Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_UPDATE("B", "A", 7.0, Type::e_TOTAL);
     }
     d_barrier.wait();
 
@@ -363,35 +361,35 @@ void StandardMacroConcurrencyTest::execute()
     {
         // Verify basic macro behavior for category A
 
-        balm::Collector *A = repository.getDefaultCollector("A", "A");
-        balm::Collector *B = repository.getDefaultCollector("A", "B");
-        balm::Collector *C = repository.getDefaultCollector("A", "C");
-        balm::Collector *D = repository.getDefaultCollector("A", "D");
-        balm::Collector *E = repository.getDefaultCollector("A", "E");
-        balm::Collector *F = repository.getDefaultCollector("A", "F");
+        BALM::Collector *A = repository.getDefaultCollector("A", "A");
+        BALM::Collector *B = repository.getDefaultCollector("A", "B");
+        BALM::Collector *C = repository.getDefaultCollector("A", "C");
+        BALM::Collector *D = repository.getDefaultCollector("A", "D");
+        BALM::Collector *E = repository.getDefaultCollector("A", "E");
+        BALM::Collector *F = repository.getDefaultCollector("A", "F");
 
-        ASSERT(balm::MetricRecord(A->metricId(), 7 * REPS, 28 * REPS, 1, 7) ==
-               recordVal(A));
-        ASSERT(balm::MetricRecord(B->metricId(), 5 * REPS, 20 * REPS, 2, 6) ==
-               recordVal(B));
-        ASSERT(balm::MetricRecord(C->metricId(), 4 * REPS, 18 * REPS, 3, 6) ==
-               recordVal(C));
-        ASSERT(balm::MetricRecord(D->metricId(), 3 * REPS, 15 * REPS, 4, 6) ==
-               recordVal(D));
-        ASSERT(balm::MetricRecord(E->metricId(), 2 * REPS, 11 * REPS, 5, 6) ==
-               recordVal(E));
-        ASSERT(balm::MetricRecord(F->metricId(), 1 * REPS,  6 * REPS, 6, 6) ==
-               recordVal(F));
+        ASSERT(BALM::MetricRecord(
+                    A->metricId(), 7 * REPS, 28 * REPS, 1, 7) == recordVal(A));
+        ASSERT(BALM::MetricRecord(
+                    B->metricId(), 5 * REPS, 20 * REPS, 2, 6) == recordVal(B));
+        ASSERT(BALM::MetricRecord(
+                    C->metricId(), 4 * REPS, 18 * REPS, 3, 6) == recordVal(C));
+        ASSERT(BALM::MetricRecord(
+                    D->metricId(), 3 * REPS, 15 * REPS, 4, 6) == recordVal(D));
+        ASSERT(BALM::MetricRecord(
+                    E->metricId(), 2 * REPS, 11 * REPS, 5, 6) == recordVal(E));
+        ASSERT(BALM::MetricRecord(
+                    F->metricId(), 1 * REPS,  6 * REPS, 6, 6) == recordVal(F));
     }
     {
         // Verify macros respect enabled status by examining
         // 'ENABLED_CATEGORY' metric values.
-        balm::Collector *A = repository.getDefaultCollector("B", "A");
-        balm::Collector *B = repository.getDefaultCollector("B", "B");
-        balm::Collector *C = repository.getDefaultCollector("B", "C");
-        balm::Collector *D = repository.getDefaultCollector("B", "D");
-        balm::Collector *E = repository.getDefaultCollector("B", "E");
-        balm::Collector *F = repository.getDefaultCollector("B", "F");
+        BALM::Collector *A = repository.getDefaultCollector("B", "A");
+        BALM::Collector *B = repository.getDefaultCollector("B", "B");
+        BALM::Collector *C = repository.getDefaultCollector("B", "C");
+        BALM::Collector *D = repository.getDefaultCollector("B", "D");
+        BALM::Collector *E = repository.getDefaultCollector("B", "E");
+        BALM::Collector *F = repository.getDefaultCollector("B", "F");
 
         ASSERT(withinDouble(recordVal(A).total(), 0, 28 * REPS));
         ASSERT(withinDouble(recordVal(B).total(), 0, 20 * REPS));
@@ -411,7 +409,7 @@ void StandardMacroConcurrencyTest::execute()
 
 void StandardMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                  d_allocator_p,
                                  &StandardMacroConcurrencyTest::execute,
                                  this);
@@ -428,9 +426,9 @@ class DynamicMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    Corp::bdlmt::FixedThreadPool  d_pool;
+    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -438,8 +436,8 @@ class DynamicMacroConcurrencyTest {
 
   public:
     // CREATORS
-    DynamicMacroConcurrencyTest(int               numThreads,
-                                bslma::Allocator *basicAllocator)
+    DynamicMacroConcurrencyTest(int                     numThreads,
+                                Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -449,7 +447,7 @@ class DynamicMacroConcurrencyTest {
 
     ~DynamicMacroConcurrencyTest() {}
 
-    //  MANIPULATORS
+    // MANIPULATORS
     void runTest();
         // Run the test.
 };
@@ -466,8 +464,8 @@ void DynamicMacroConcurrencyTest::execute()
     const char *ENABLED_CATEGORY = "EnabledCategory";
     const char *UPDATE           = "Update";
 
-    balm::MetricsManager &mgr = *DefaultManager::instance();
-    Repository&   repository = mgr.collectorRepository();
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
+    Repository&           repository = mgr.collectorRepository();
     const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
 
     d_barrier.wait();
@@ -486,8 +484,8 @@ void DynamicMacroConcurrencyTest::execute()
     {
         // Verify basic macro behavior for 'TEST_CATEGORY'.
 
-        balm::Collector *upCol  = repository.getDefaultCollector(TEST_CATEGORY,
-                                                         UPDATE);
+        BALM::Collector *upCol  =
+                         repository.getDefaultCollector(TEST_CATEGORY, UPDATE);
 
         ASSERT(COUNT * NUM_THREADS == recordVal(upCol).count());
         ASSERT(TOTAL * NUM_THREADS == recordVal(upCol).total());
@@ -500,7 +498,7 @@ void DynamicMacroConcurrencyTest::execute()
         // Verify macros respect enabled status by examining
         // 'ENABLED_CATEGORY' metric values.
 
-        balm::Collector *upCol  =
+        BALM::Collector *upCol  =
                       repository.getDefaultCollector(ENABLED_CATEGORY, UPDATE);
 
         ASSERT(0 < recordVal(upCol).count() &&
@@ -516,7 +514,7 @@ void DynamicMacroConcurrencyTest::execute()
 
 void DynamicMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                         d_allocator_p,
                                         &DynamicMacroConcurrencyTest::execute,
                                         this);
@@ -536,10 +534,10 @@ class TlsMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
-    bdlqq::Mutex            d_mutex;
+    Corp::bdlmt::FixedThreadPool  d_pool;
+    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslma::Allocator       *d_allocator_p;
+    Corp::bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
         // Execute a single test.
@@ -572,9 +570,9 @@ void TlsMacroConcurrencyTest::execute()
     // 'ENABLED_CATEGORY'.  Verify collectors being used by the macros holds a
     // value that matches the expected value (or expected range of values) for
     // the metric.  Note that this test uses
-    // 'balm::CollectorRepository::collectAndReset', which modifies the metric
-    // values as it collects them, so verification can only be performed on a
-    // single thread.
+    // 'BALM::CollectorRepository::collectAndReset', which modifies the
+    // metric values as it collects them, so verification can only be performed
+    // on a single thread.
 
     const int   COUNT            = 30;
     const char *TEST_CATEGORY    = "TestCategory";
@@ -582,29 +580,31 @@ void TlsMacroConcurrencyTest::execute()
     const char *INCREMENT        = "Increment";
     const char *UPDATE           = "Update";
 
-    balm::MetricsManager &mgr = *DefaultManager::instance();
-    Repository& repository = mgr.collectorRepository();
-    Registry&   registry   = mgr.metricRegistry();
-    bslma::Allocator *Z = d_allocator_p;
-    const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
+    Repository&           repository = mgr.collectorRepository();
+    Registry&             registry   = mgr.metricRegistry();
+    bslma::Allocator     *Z = d_allocator_p;
+    const Category       *C2 = mgr.metricRegistry().getCategory(
+                                                             ENABLED_CATEGORY);
 
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
-        BAEM_METRICS_THREAD_LOCAL_UPDATE(TEST_CATEGORY, UPDATE, i);
-        BAEM_METRICS_THREAD_LOCAL_INCREMENT(TEST_CATEGORY, INCREMENT);
+        BALM_METRICS_THREAD_LOCAL_UPDATE(TEST_CATEGORY, UPDATE, i);
+        BALM_METRICS_THREAD_LOCAL_INCREMENT(TEST_CATEGORY, INCREMENT);
 
         bool enabled = 0 == i % 2;
 
         mgr.setCategoryEnabled(C2, enabled);
 
-        BAEM_METRICS_THREAD_LOCAL_UPDATE(ENABLED_CATEGORY, UPDATE, i);
-        BAEM_METRICS_THREAD_LOCAL_INCREMENT(ENABLED_CATEGORY, INCREMENT);
+        BALM_METRICS_THREAD_LOCAL_UPDATE(ENABLED_CATEGORY, UPDATE, i);
+        BALM_METRICS_THREAD_LOCAL_INCREMENT(ENABLED_CATEGORY, INCREMENT);
     }
     d_barrier.wait();
 
     // Verification must be performed on a single thread because
-    // 'balm::CollectorRepository::collectAndReset' modifies the object state
-    // when it collects the metric values.
+    // 'BALM::CollectorRepository::collectAndReset' modifies the object
+    // state when it collects the metric values.
+
     static bool executedTest; executedTest = false;
     d_barrier.wait();
     if (0 != d_mutex.tryLock()) {
@@ -617,13 +617,13 @@ void TlsMacroConcurrencyTest::execute()
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
         // Verify basic macro behavior for 'TEST_CATEGORY'.
-        balm::MetricId upId  = registry.getId(TEST_CATEGORY,
+        BALM::MetricId upId  = registry.getId(TEST_CATEGORY,
                                              UPDATE);
-        balm::MetricId incId = registry.getId(TEST_CATEGORY,
+        BALM::MetricId incId = registry.getId(TEST_CATEGORY,
                                              INCREMENT);
 
-        bsl::vector<balm::Collector *> cols(Z);
-        bsl::vector<balm::IntegerCollector *> intCols(Z);
+        bsl::vector<BALM::Collector *> cols(Z);
+        bsl::vector<BALM::IntegerCollector *> intCols(Z);
         ASSERT(NUM_THREADS == repository.getAddedCollectors(&cols,
                                                             &intCols,
                                                             upId));
@@ -637,10 +637,10 @@ void TlsMacroConcurrencyTest::execute()
         ASSERT(NUM_THREADS == cols.size());
         ASSERT(0           == intCols.size());
 
-        bsl::vector<balm::MetricRecord> records(Z);
+        bsl::vector<BALM::MetricRecord> records(Z);
         repository.collectAndReset(&records, upId.category());
         ASSERT(2 == records.size());
-        balm::MetricRecord upRecord, incRecord;
+        BALM::MetricRecord upRecord, incRecord;
         if (records[0].metricId() == upId) {
             upRecord = records[0]; incRecord = records[1];
         }
@@ -665,11 +665,12 @@ void TlsMacroConcurrencyTest::execute()
         // Verify macros respect enabled status by examining
         // 'ENABLED_CATEGORY' metric values.
 
-        balm::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
-        balm::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
+        BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
+        BALM::MetricId incId = registry.getId(
+                                                  ENABLED_CATEGORY, INCREMENT);
 
-        bsl::vector<balm::Collector *> cols(Z);
-        bsl::vector<balm::IntegerCollector *> intCols(Z);
+        bsl::vector<BALM::Collector *> cols(Z);
+        bsl::vector<BALM::IntegerCollector *> intCols(Z);
         ASSERT(NUM_THREADS == repository.getAddedCollectors(&cols,
                                                             &intCols,
                                                             upId));
@@ -683,10 +684,10 @@ void TlsMacroConcurrencyTest::execute()
         ASSERT(NUM_THREADS == cols.size());
         ASSERT(0           == intCols.size());
 
-        bsl::vector<balm::MetricRecord> records(Z);
+        bsl::vector<BALM::MetricRecord> records(Z);
         repository.collectAndReset(&records, upId.category());
         ASSERT(2 == records.size());
-        balm::MetricRecord upRecord, incRecord;
+        BALM::MetricRecord upRecord, incRecord;
         if (records[0].metricId() == upId) {
             upRecord = records[0]; incRecord = records[1];
         }
@@ -719,7 +720,7 @@ void TlsMacroConcurrencyTest::execute()
 
 void TlsMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                  d_allocator_p,
                                  &TlsMacroConcurrencyTest::execute,
                                  this);
@@ -736,9 +737,9 @@ class StandardIntMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    Corp::bdlmt::FixedThreadPool   d_pool;
+    Corp::bdlqq::Barrier           d_barrier;
+    Corp::bslma::Allocator        *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -747,8 +748,8 @@ class StandardIntMacroConcurrencyTest {
   public:
 
     // CREATORS
-    StandardIntMacroConcurrencyTest(int               numThreads,
-                                    bslma::Allocator *basicAllocator)
+    StandardIntMacroConcurrencyTest(int                     numThreads,
+                                    Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -758,7 +759,7 @@ class StandardIntMacroConcurrencyTest {
 
     ~StandardIntMacroConcurrencyTest() {}
 
-    //  MANIPULATORS
+    // MANIPULATORS
     void runTest();
         // Run the test.
 };
@@ -771,7 +772,7 @@ void StandardIntMacroConcurrencyTest::execute()
     // values) for the metric.
 
     const int   COUNT            = 30;
-    balm::MetricsManager &mgr = *DefaultManager::instance();
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
     Repository&   repository = mgr.collectorRepository();
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
@@ -790,8 +791,8 @@ void StandardIntMacroConcurrencyTest::execute()
         BALM_METRICS_INT_UPDATE6("A",
                                  "A", 6, "B", 6, "C", 6, "D", 6,
                                  "E", 6, "F", 6);
-        BALM_METRICS_TYPED_INT_UPDATE("A", "A", 7, Type::e_BALM_TOTAL);
-        BALM_METRICS_TYPED_INCREMENT("A", "A", Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_INT_UPDATE("A", "A", 7, Type::e_TOTAL);
+        BALM_METRICS_TYPED_INCREMENT("A", "A", Type::e_TOTAL);
 
         bool enabled = 0 == i % 2;
 
@@ -812,8 +813,8 @@ void StandardIntMacroConcurrencyTest::execute()
         BALM_METRICS_INT_UPDATE6("B",
                                  "A", 6, "B", 6, "C", 6, "D", 6,
                                  "E", 6, "F", 6);
-        BALM_METRICS_TYPED_INT_UPDATE("B", "A", 7, Type::e_BALM_TOTAL);
-        BALM_METRICS_TYPED_INCREMENT("B", "A", Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_INT_UPDATE("B", "A", 7, Type::e_TOTAL);
+        BALM_METRICS_TYPED_INCREMENT("B", "A", Type::e_TOTAL);
     }
     d_barrier.wait();
 
@@ -828,18 +829,18 @@ void StandardIntMacroConcurrencyTest::execute()
         IntCollector *E = repository.getDefaultIntegerCollector("A", "E");
         IntCollector *F = repository.getDefaultIntegerCollector("A", "F");
 
-        ASSERT(balm::MetricRecord(A->metricId(), 9 * REPS, 30 * REPS, 1, 7) ==
-               recordVal(A));
-        ASSERT(balm::MetricRecord(B->metricId(), 5 * REPS, 20 * REPS, 2, 6) ==
-               recordVal(B));
-        ASSERT(balm::MetricRecord(C->metricId(), 4 * REPS, 18 * REPS, 3, 6) ==
-               recordVal(C));
-        ASSERT(balm::MetricRecord(D->metricId(), 3 * REPS, 15 * REPS, 4, 6) ==
-               recordVal(D));
-        ASSERT(balm::MetricRecord(E->metricId(), 2 * REPS, 11 * REPS, 5, 6) ==
-               recordVal(E));
-        ASSERT(balm::MetricRecord(F->metricId(), 1 * REPS,  6 * REPS, 6, 6) ==
-               recordVal(F));
+        ASSERT(BALM::MetricRecord(
+                    A->metricId(), 9 * REPS, 30 * REPS, 1, 7) == recordVal(A));
+        ASSERT(BALM::MetricRecord(
+                    B->metricId(), 5 * REPS, 20 * REPS, 2, 6) == recordVal(B));
+        ASSERT(BALM::MetricRecord(
+                    C->metricId(), 4 * REPS, 18 * REPS, 3, 6) == recordVal(C));
+        ASSERT(BALM::MetricRecord(
+                    D->metricId(), 3 * REPS, 15 * REPS, 4, 6) == recordVal(D));
+        ASSERT(BALM::MetricRecord(
+                    E->metricId(), 2 * REPS, 11 * REPS, 5, 6) == recordVal(E));
+        ASSERT(BALM::MetricRecord(
+                    F->metricId(), 1 * REPS,  6 * REPS, 6, 6) == recordVal(F));
     }
     {
         // Verify macros respect enabled status by examining
@@ -869,7 +870,7 @@ void StandardIntMacroConcurrencyTest::execute()
 
 void StandardIntMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                     d_allocator_p,
                                     &StandardIntMacroConcurrencyTest::execute,
                                     this);
@@ -885,9 +886,9 @@ class DynamicIntMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    Corp::bdlmt::FixedThreadPool  d_pool;
+    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -895,8 +896,8 @@ class DynamicIntMacroConcurrencyTest {
 
   public:
     // CREATORS
-    DynamicIntMacroConcurrencyTest(int               numThreads,
-                                   bslma::Allocator *basicAllocator)
+    DynamicIntMacroConcurrencyTest(int                     numThreads,
+                                   Corp::bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -906,7 +907,7 @@ class DynamicIntMacroConcurrencyTest {
 
     ~DynamicIntMacroConcurrencyTest() {}
 
-    //  MANIPULATORS
+    // MANIPULATORS
     void runTest();
         // Run the test.
 };
@@ -927,7 +928,7 @@ void DynamicIntMacroConcurrencyTest::execute()
     const char *INCREMENT        = "Increment";
     const char *UPDATE           = "Update";
 
-    balm::MetricsManager &mgr = *DefaultManager::instance();
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
     Repository&   repository = mgr.collectorRepository();
     const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
 
@@ -995,7 +996,7 @@ void DynamicIntMacroConcurrencyTest::execute()
 
 void DynamicIntMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                       d_allocator_p,
                                       &DynamicIntMacroConcurrencyTest::execute,
                                       this);
@@ -1014,9 +1015,9 @@ class TlsIntMacroConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bdlqq::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
     bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
@@ -1050,9 +1051,9 @@ void TlsIntMacroConcurrencyTest::execute()
     // 'ENABLED_CATEGORY'.  Verify collectors being used by the macros holds a
     // value that matches the expected value (or expected range of values) for
     // the metric.  Note that this test uses
-    // 'balm::CollectorRepository::collectAndReset', which modifies the metric
-    // values as it collects them, so verification can only be performed on a
-    // single thread.
+    // 'BALM::CollectorRepository::collectAndReset', which modifies the
+    // metric values as it collects them, so verification can only be performed
+    // on a single thread.
 
     const int   COUNT            = 30;
     const char *TEST_CATEGORY    = "TestCategory";
@@ -1060,29 +1061,30 @@ void TlsIntMacroConcurrencyTest::execute()
     const char *INCREMENT        = "Increment";
     const char *UPDATE           = "Update";
 
-    balm::MetricsManager &mgr = *DefaultManager::instance();
+    BALM::MetricsManager &mgr = *DefaultManager::instance();
     Repository& repository = mgr.collectorRepository();
     Registry&   registry   = mgr.metricRegistry();
-    bslma::Allocator *Z = d_allocator_p;
+    Corp::bslma::Allocator *Z = d_allocator_p;
     const Category *C2 = mgr.metricRegistry().getCategory(ENABLED_CATEGORY);
 
     d_barrier.wait();
     for (int i = 0; i < COUNT; ++i) {
-        BAEM_UPDATE_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, UPDATE, i);
-        BAEM_INCREMENT_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, INCREMENT);
+        BALM_UPDATE_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, UPDATE, i);
+        BALM_INCREMENT_THREAD_LOCAL_INT_METRIC(TEST_CATEGORY, INCREMENT);
 
         bool enabled = 0 == i % 2;
 
         mgr.setCategoryEnabled(C2, enabled);
 
-        BAEM_UPDATE_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, UPDATE, i);
-        BAEM_INCREMENT_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, INCREMENT);
+        BALM_UPDATE_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, UPDATE, i);
+        BALM_INCREMENT_THREAD_LOCAL_INT_METRIC(ENABLED_CATEGORY, INCREMENT);
     }
     d_barrier.wait();
 
     // Verification must be performed on a single thread because
-    // 'balm::CollectorRepository::collectAndReset' modifies the object state
-    // when it collects the metric values.
+    // 'BALM::CollectorRepository::collectAndReset' modifies the object
+    // state when it collects the metric values.
+
     static bool executedTest; executedTest = false;
     d_barrier.wait();
     if (0 != d_mutex.tryLock()) {
@@ -1095,9 +1097,9 @@ void TlsIntMacroConcurrencyTest::execute()
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
         // Verify basic macro behavior for 'TEST_CATEGORY'.
-        balm::MetricId upId  = registry.getId(TEST_CATEGORY,
+        BALM::MetricId upId  = registry.getId(TEST_CATEGORY,
                                              UPDATE);
-        balm::MetricId incId = registry.getId(TEST_CATEGORY,
+        BALM::MetricId incId = registry.getId(TEST_CATEGORY,
                                              INCREMENT);
 
         ColSPtrVector cols(Z);
@@ -1115,10 +1117,10 @@ void TlsIntMacroConcurrencyTest::execute()
         ASSERT(0           == cols.size());
         ASSERT(NUM_THREADS == intCols.size());
 
-        bsl::vector<balm::MetricRecord> records(Z);
+        bsl::vector<BALM::MetricRecord> records(Z);
         repository.collectAndReset(&records, upId.category());
         ASSERT(2 == records.size());
-        balm::MetricRecord upRecord, incRecord;
+        BALM::MetricRecord upRecord, incRecord;
         if (records[0].metricId() == upId) {
             upRecord = records[0]; incRecord = records[1];
         }
@@ -1143,8 +1145,9 @@ void TlsIntMacroConcurrencyTest::execute()
         // Verify macros respect enabled status by examining
         // 'ENABLED_CATEGORY' metric values.
 
-        balm::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
-        balm::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
+        BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
+        BALM::MetricId incId = registry.getId(
+                                                  ENABLED_CATEGORY, INCREMENT);
 
         ColSPtrVector cols(Z);
         IColSPtrVector intCols(Z);
@@ -1161,10 +1164,10 @@ void TlsIntMacroConcurrencyTest::execute()
         ASSERT(0           == cols.size());
         ASSERT(NUM_THREADS == intCols.size());
 
-        bsl::vector<balm::MetricRecord> records(Z);
+        bsl::vector<BALM::MetricRecord> records(Z);
         repository.collectAndReset(&records, upId.category());
         ASSERT(2 == records.size());
-        balm::MetricRecord upRecord, incRecord;
+        BALM::MetricRecord upRecord, incRecord;
         if (records[0].metricId() == upId) {
             upRecord = records[0]; incRecord = records[1];
         }
@@ -1197,7 +1200,7 @@ void TlsIntMacroConcurrencyTest::execute()
 
 void TlsIntMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
                                         d_allocator_p,
                                         &TlsIntMacroConcurrencyTest::execute,
                                         this);
@@ -1209,9 +1212,9 @@ void TlsIntMacroConcurrencyTest::runTest()
 
 #endif
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 ///Example 2 - Updating a Metric
 ///- - - - - - - - - - - - - - -
@@ -1259,7 +1262,7 @@ void TlsIntMacroConcurrencyTest::runTest()
 // so we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to ensure we only perform
 // those operations if metrics collection is enabled.  Finally, we use
 // 'BALM_METRICS_UPDATE3' to update the three metrics, this is (slightly) more
-// efficient than updating each metric individually using 'BAEM_METRIC_UPDATE'.
+// efficient than updating each metric individually using 'BALM_METRIC_UPDATE'.
 //..
     int processEvent2(int eventId, const bsl::string& eventMessage)
         // Process the event described by the specified 'eventId' and
@@ -1268,29 +1271,29 @@ void TlsIntMacroConcurrencyTest::runTest()
     {
         int returnCode = 0;
 
-        bsls::Stopwatch stopwatch;
+        Corp::bsls::Stopwatch stopwatch;
         BALM_METRICS_IF_CATEGORY_ENABLED("processEvent2") {
-           stopwatch.start(true);
+            stopwatch.start(true);
         }
 
         // Process 'data'.
 
         BALM_METRICS_IF_CATEGORY_ENABLED("processEvent2") {
-           double systemTime, userTime, wallTime;
-           stopwatch.accumulatedTimes(&systemTime, &userTime, &wallTime);
-           BALM_METRICS_UPDATE3("processEvent2",
-                                "systemTime", systemTime,
-                                "userTime",   userTime,
-                                "wallTime",   wallTime);
+            double systemTime, userTime, wallTime;
+            stopwatch.accumulatedTimes(&systemTime, &userTime, &wallTime);
+            BALM_METRICS_UPDATE3("processEvent2",
+                                 "systemTime", systemTime,
+                                 "userTime",   userTime,
+                                 "wallTime",   wallTime);
         }
 
         return returnCode;
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1301,9 +1304,10 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
-    bslma::TestAllocator defaultAllocator;
-    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+    Corp::bslma::TestAllocator testAlloc;
+    Corp::bslma::TestAllocator *Z = &testAlloc;
+    Corp::bslma::TestAllocator defaultAllocator;
+    Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
@@ -1325,6 +1329,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
+        using namespace BloombergLP;
+
 ///Usage
 ///-----
 // The following examples demonstrate how to configure, collect, and publish
@@ -1332,11 +1338,11 @@ int main(int argc, char *argv[])
 //
 ///Example 1 - Create and access the default 'balm::MetricsManager' instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
-// Create a 'balm::DefaultMetricsManagerScopedGuard' that manages the lifetime
-// of the default metrics manager instance, and provide it a stream ('stdout')
+// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
+// the default metrics manager instance, and provide it a stream ('stdout')
 // that we want to publish metrics to.  Note that the default metrics
 // manager is intended to be created and released by the *owner* of  'main'.
 // The instance should be created during the initialization of an
@@ -1345,7 +1351,6 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
     {
-
     // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -1353,8 +1358,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when the
 // 'managerGuard' exits this scoped and is destroyed.  Clients that choose to
@@ -1377,13 +1382,13 @@ int main(int argc, char *argv[])
         //    Invoke 'BALM_METRICS_UPDATE' with an empty string as parameter
         //    and verify that the expected warning message is logged.  Also
         //    verify that a warning message is not issued if all the parameters
-        //    are non-empty.  Invoke 'BAEM_METRICS_UPDATEn' with an empty
+        //    are non-empty.  Invoke 'BALM_METRICS_UPDATEn' with an empty
         //    string for parameter 'METRICn' and verify that a warning message
         //    is logged.  Invoke 'BALM_METRICS_INT_UPDATE' with non-empty
         //    parameters and verify that no warning is issued.  Invoke
         //    'BALM_METRICS_INT_UPDATE' again with empty parameters, and verify
         //    that a warning message is logged.  Perform the same test on
-        //    'BAEM_METRICS_INT_UPDATEn' as with 'BALM_METRICS_UPDATE'.
+        //    'BALM_METRICS_INT_UPDATEn' as with 'BALM_METRICS_UPDATE'.
         //
         // Testing:
         //    BALM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
@@ -1402,24 +1407,24 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         MessageObserver observer;
-        ball::LoggerManagerConfiguration configuration;
-        ball::LoggerManager& manager =
-                ball::LoggerManager::initSingleton(&observer, configuration);
+        Corp::ball::LoggerManagerConfiguration configuration;
+        Corp::ball::LoggerManager& manager =
+            Corp::ball::LoggerManager::initSingleton(&observer, configuration);
 
-        manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
-                                          ball::Severity::e_WARN,
-                                          ball::Severity::e_OFF,
-                                          ball::Severity::e_OFF);
+        manager.setDefaultThresholdLevels(Corp::ball::Severity::e_OFF,
+                                          Corp::ball::Severity::e_WARN,
+                                          Corp::ball::Severity::e_OFF,
+                                          Corp::ball::Severity::e_OFF);
 
         if (verbose) cout << endl <<
             "Test BALM_METRICS_UPDATE warning messages" << endl;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager& mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager& mgr = *DefaultManager::instance();
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
 
@@ -1514,8 +1519,7 @@ int main(int argc, char *argv[])
         BALM_METRICS_INT_UPDATE6("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
                 "F", 0.0, "", 0.0);
         ASSERT(observer.getLastMessage() != "");
-
-    } break;
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // Testing:
@@ -1540,14 +1544,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         MessageObserver observer;
-        ball::LoggerManagerConfiguration configuration;
-        ball::LoggerManager& manager =
-                ball::LoggerManager::initSingleton(&observer, configuration);
+        Corp::ball::LoggerManagerConfiguration configuration;
+        Corp::ball::LoggerManager& manager =
+            Corp::ball::LoggerManager::initSingleton(&observer, configuration);
 
-        manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
-                                          ball::Severity::e_WARN,
-                                          ball::Severity::e_OFF,
-                                          ball::Severity::e_OFF);
+        manager.setDefaultThresholdLevels(Corp::ball::Severity::e_OFF,
+                                          Corp::ball::Severity::e_WARN,
+                                          Corp::ball::Severity::e_OFF,
+                                          Corp::ball::Severity::e_OFF);
 
         if (verbose) cout << endl
             << "Test logEmptyName" << endl
@@ -1555,14 +1559,14 @@ int main(int argc, char *argv[])
 
 
         struct {
-            const char                          *d_name;
-            const balm::Metrics_Helper::NameType  d_type;
-            const bool                           d_expect_warning;
+            const char                           *d_name;
+            const BALM::Metrics_Helper::NameType  d_type;
+            const bool                            d_expect_warning;
         } NAME_TEST[] = {
-            {"",   balm::Metrics_Helper::e_TYPE_CATEGORY, true},
-            {" ",  balm::Metrics_Helper::e_TYPE_METRIC,   true},
-            {"  ", balm::Metrics_Helper::e_TYPE_METRIC,   true},
-            {"A",  balm::Metrics_Helper::e_TYPE_METRIC,   false}
+            {"",   BALM::Metrics_Helper::e_TYPE_CATEGORY, true},
+            {" ",  BALM::Metrics_Helper::e_TYPE_METRIC,   true},
+            {"  ", BALM::Metrics_Helper::e_TYPE_METRIC,   true},
+            {"A",  BALM::Metrics_Helper::e_TYPE_METRIC,   false}
         };
 
         const int NUM_NAME = sizeof(NAME_TEST)/sizeof(*NAME_TEST);
@@ -1573,7 +1577,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_NAME; ++i) {
 
-            typedef balm::Metrics_Helper Helper;
+            typedef BALM::Metrics_Helper Helper;
             const int line_number = L_;
             observer.clearMessage();
             Helper::logEmptyName(NAME_TEST[i].d_name, NAME_TEST[i].d_type,
@@ -1615,12 +1619,12 @@ int main(int argc, char *argv[])
 
         typedef TlsIntMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
         Registry&   registry   = mgr.metricRegistry();
         const int NUM_THREADS = 10;
@@ -1646,12 +1650,12 @@ int main(int argc, char *argv[])
 
         typedef DynamicIntMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
         const int NUM_THREADS = 10;
@@ -1677,12 +1681,12 @@ int main(int argc, char *argv[])
 
         typedef StandardIntMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
         const int NUM_THREADS = 10;
@@ -1714,12 +1718,12 @@ int main(int argc, char *argv[])
 
         typedef TlsMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
         Registry&   registry   = mgr.metricRegistry();
         const int NUM_THREADS = 10;
@@ -1745,12 +1749,12 @@ int main(int argc, char *argv[])
 
         typedef DynamicMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
         const int NUM_THREADS = 10;
@@ -1776,12 +1780,12 @@ int main(int argc, char *argv[])
 
         typedef StandardMacroConcurrencyTest TestClass;
 
-        bslma::TestAllocator defaultAllocator;
-        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bslma::TestAllocator testAllocator;
+        Corp::bslma::TestAllocator defaultAllocator;
+        Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+        Corp::bslma::TestAllocator testAllocator;
 
-        balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
-        balm::MetricsManager &mgr = *DefaultManager::instance();
+        BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
         const int NUM_THREADS = 10;
@@ -1794,7 +1798,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_IF_CATEGORY_ENABLED'
+        // TESTING: 'BALM_IF_CATEGORY_ENABLED'
         //
         // Testing:
         //   BALM_METRICS_IF_CATEGORY_ENABLED(CATEGORY)
@@ -1802,19 +1806,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: BAEM_IF_CATEGORY_ENABLEDS" << endl
+                          << "TESTING: BALM_IF_CATEGORY_ENABLEDS" << endl
                           << "==================================" << endl;
 
         if (veryVerbose) cout << "\tVerify basic behavior" << endl;
         {
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
 
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager *manager  =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
 
             registry.setCategoryEnabled(registry.getCategory("A"), false);
             ASSERT(!breathingTestIfEnabledA());
@@ -1826,44 +1830,44 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tVerify category cache is static" << endl;
         {
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
 
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager *manager  =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("B"), false);
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("A"), false);
 
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
-            ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("B"), true);
 
-            ASSERT(!baemMetricsIfCategoryEnabledTestA());
-            ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(!balmMetricsIfCategoryEnabledTestA());
+            ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
 
             registry.setCategoryEnabled(registry.getCategory("A"), true);
 
-            ASSERT(baemMetricsIfCategoryEnabledTestA());
-            ASSERT(baemMetricsIfCategoryEnabledTest("A"));
-            ASSERT(baemMetricsIfCategoryEnabledTest("B"));
+            ASSERT(balmMetricsIfCategoryEnabledTestA());
+            ASSERT(balmMetricsIfCategoryEnabledTest("A"));
+            ASSERT(balmMetricsIfCategoryEnabledTest("B"));
         }
-        ASSERT(!baemMetricsIfCategoryEnabledTestA());
-        ASSERT(!baemMetricsIfCategoryEnabledTest("A"));
-        ASSERT(!baemMetricsIfCategoryEnabledTest("B"));
+        ASSERT(!balmMetricsIfCategoryEnabledTestA());
+        ASSERT(!balmMetricsIfCategoryEnabledTest("A"));
+        ASSERT(!balmMetricsIfCategoryEnabledTest("B"));
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1885,34 +1889,35 @@ int main(int argc, char *argv[])
         //     BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
         // --------------------------------------------------------------------
 
-        typedef balm::StopwatchScopedGuard TU; // Time unit enumeration
         if (verbose) cout << endl
                           << "MACROS REPORTED TIME UNITS\n"
                           << "==========================\n";
 
+        typedef BALM::StopwatchScopedGuard TU; // Time unit enumeration
+
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            MetricsManager& manager = *balm::DefaultMetricsManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            MetricsManager& manager = *BALM::DefaultMetricsManager::instance();
             Repository&    repository = manager.collectorRepository();
 
             // Create one version for every time unit, and one for the default.
-            balm::Collector *a_S  = repository.getDefaultCollector("A", "S");
-            balm::Collector *a_Ms = repository.getDefaultCollector("A", "Ms");
-            balm::Collector *a_Us = repository.getDefaultCollector("A", "Us");
-            balm::Collector *a_Ns = repository.getDefaultCollector("A", "Ns");
+            BALM::Collector *a_S  = repository.getDefaultCollector("A", "S");
+            BALM::Collector *a_Ms = repository.getDefaultCollector("A", "Ms");
+            BALM::Collector *a_Us = repository.getDefaultCollector("A", "Us");
+            BALM::Collector *a_Ns = repository.getDefaultCollector("A", "Ns");
 
-            balm::Collector *b_S  = repository.getDefaultCollector("B", "S");
-            balm::Collector *b_Ms = repository.getDefaultCollector("B", "Ms");
-            balm::Collector *b_Us = repository.getDefaultCollector("B", "Us");
-            balm::Collector *b_Ns = repository.getDefaultCollector("B", "Ns");
+            BALM::Collector *b_S  = repository.getDefaultCollector("B", "S");
+            BALM::Collector *b_Ms = repository.getDefaultCollector("B", "Ms");
+            BALM::Collector *b_Us = repository.getDefaultCollector("B", "Us");
+            BALM::Collector *b_Ns = repository.getDefaultCollector("B", "Ns");
 
-            balm::Collector *c_D  = repository.getDefaultCollector("C", "D");
-            balm::Collector *c_S  = repository.getDefaultCollector("C", "S");
-            balm::Collector *c_Ms = repository.getDefaultCollector("C", "Ms");
-            balm::Collector *c_Us = repository.getDefaultCollector("C", "Us");
-            balm::Collector *c_Ns = repository.getDefaultCollector("C", "Ns");
+            BALM::Collector *c_D  = repository.getDefaultCollector("C", "D");
+            BALM::Collector *c_S  = repository.getDefaultCollector("C", "S");
+            BALM::Collector *c_Ms = repository.getDefaultCollector("C", "Ms");
+            BALM::Collector *c_Us = repository.getDefaultCollector("C", "Us");
+            BALM::Collector *c_Ns = repository.getDefaultCollector("C", "Ns");
 
-            bsls::Stopwatch sw;
+            Corp::bsls::Stopwatch sw;
             sw.start();
             {
                 BALM_METRICS_TIME_BLOCK_SECONDS("A", "S");
@@ -1925,53 +1930,48 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK_MICROSECONDS("B", "Us");
                 BALM_METRICS_TIME_BLOCK_NANOSECONDS("B", "Ns");
 
-                BALM_METRICS_TIME_BLOCK("C", "S", TU::e_BALM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Ms", TU::e_BALM_MILLISECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Us", TU::e_BALM_MICROSECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Ns", TU::e_BALM_NANOSECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "S",  TU::k_SECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Ms", TU::k_MILLISECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Us", TU::k_MICROSECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Ns", TU::k_NANOSECONDS);
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
+                Corp::bdlqq::ThreadUtil::sleep(
+                                          Corp::bsls::TimeInterval(50 * .001));
 
                 sw.stop();
             }
             double expected = sw.elapsedTime();
-            balm::MetricRecord rA_S  = recordVal(a_S);
-            balm::MetricRecord rA_Ms = recordVal(a_Ms);
-            balm::MetricRecord rA_Us = recordVal(a_Us);
-            balm::MetricRecord rA_Ns = recordVal(a_Ns);
+            BALM::MetricRecord rA_S  = recordVal(a_S);
+            BALM::MetricRecord rA_Ms = recordVal(a_Ms);
+            BALM::MetricRecord rA_Us = recordVal(a_Us);
+            BALM::MetricRecord rA_Ns = recordVal(a_Ns);
 
-            balm::MetricRecord rB_S  = recordVal(b_S);
-            balm::MetricRecord rB_Ms = recordVal(b_Ms);
-            balm::MetricRecord rB_Us = recordVal(b_Us);
-            balm::MetricRecord rB_Ns = recordVal(b_Ns);
+            BALM::MetricRecord rB_S  = recordVal(b_S);
+            BALM::MetricRecord rB_Ms = recordVal(b_Ms);
+            BALM::MetricRecord rB_Us = recordVal(b_Us);
+            BALM::MetricRecord rB_Ns = recordVal(b_Ns);
 
-            balm::MetricRecord rC_S  = recordVal(c_S);
-            balm::MetricRecord rC_Ms = recordVal(c_Ms);
-            balm::MetricRecord rC_Us = recordVal(c_Us);
-            balm::MetricRecord rC_Ns = recordVal(c_Ns);
+            BALM::MetricRecord rC_S  = recordVal(c_S);
+            BALM::MetricRecord rC_Ms = recordVal(c_Ms);
+            BALM::MetricRecord rC_Us = recordVal(c_Us);
+            BALM::MetricRecord rC_Ns = recordVal(c_Ns);
 
-            ASSERT(within(rA_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
-            ASSERT(within(rA_Ms.total(), TU::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Us.total(), TU::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rA_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rA_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rA_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rB_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
-            ASSERT(within(rB_Ms.total(), TU::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Us.total(), TU::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rB_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rB_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rB_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rC_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
-            ASSERT(within(rC_Ms.total(), TU::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Us.total(), TU::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rC_S.total(),  TU::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_Ms.total(), TU::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rC_Us.total(), TU::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rC_Ns.total(), TU::k_NANOSECONDS,  expected, 1.0));
         }
-      };
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'BALM_METRICS_TIME_BLOCK' and
@@ -1988,7 +1988,8 @@ int main(int argc, char *argv[])
         //     BALM_METRICS_TIME_BLOCK(CATEGORY, METRIC)
         //     BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC)
         // --------------------------------------------------------------------
-        typedef balm::StopwatchScopedGuard TU; // Time unit enumeration
+
+        typedef BALM::StopwatchScopedGuard TU; // Time unit enumeration
         if (verbose) cout
             << endl
             << "TESTING 'BALM_METRICS_TIME_BLOCK' & "
@@ -1997,77 +1998,77 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tTest without default metrics manager"
                                   << endl;
-            BALM_METRICS_TIME_BLOCK("A", "A", TU::e_BALM_SECONDS);
-            BALM_METRICS_DYNAMIC_TIME_BLOCK("A", "A", TU::e_BALM_SECONDS);
+            BALM_METRICS_TIME_BLOCK("A", "A", TU::k_SECONDS);
+            BALM_METRICS_DYNAMIC_TIME_BLOCK("A", "A", TU::k_SECONDS);
         }
 
         {
             if (veryVerbose) cout << "\tTest with default metrics manager"
                                   << endl;
 
-            balm::DefaultMetricsManagerScopedGuard guard;
-            MetricsManager& manager = *balm::DefaultMetricsManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard;
+            MetricsManager& manager = *BALM::DefaultMetricsManager::instance();
             Repository&    repository = manager.collectorRepository();
-            balm::Collector *cA = repository.getDefaultCollector("A", "1");
-            balm::Collector *cB = repository.getDefaultCollector("B", "2");
+            BALM::Collector *cA = repository.getDefaultCollector("A", "1");
+            BALM::Collector *cB = repository.getDefaultCollector("B", "2");
 
-            balm::MetricId  idA = manager.metricRegistry().getId("A","1");
-            balm::MetricId  idB = manager.metricRegistry().getId("B","2");
+            BALM::MetricId  idA = manager.metricRegistry().getId("A","1");
+            BALM::MetricId  idB = manager.metricRegistry().getId("B","2");
 
-            bsls::Stopwatch timer;
+            Corp::bsls::Stopwatch timer;
             {
                 timer.start();
 
-                BALM_METRICS_TIME_BLOCK("A", "1", TU::e_BALM_SECONDS);
-                ASSERT(balm::MetricRecord(idA) == recordVal(cA));
+                BALM_METRICS_TIME_BLOCK("A", "1", TU::k_SECONDS);
+                ASSERT(BALM::MetricRecord(idA) == recordVal(cA));
 
-                bdlqq::ThreadUtil::microSleep(50000, 0);
+                Corp::bdlqq::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 
             double expected = timer.elapsedTime();
-            balm::MetricRecord record = recordVal(cA);
+            BALM::MetricRecord record = recordVal(cA);
             ASSERT(1 == record.count());
-            ASSERT(within(record.total(), TU::e_BALM_SECONDS, expected, 1.0))
-            ASSERT(within(record.min(), TU::e_BALM_SECONDS, expected, 1.0));
-            ASSERT(within(record.max(), TU::e_BALM_SECONDS, expected, 1.0));
+            ASSERT(within(record.total(), TU::k_SECONDS, expected, 1.0))
+            ASSERT(within(record.min(), TU::k_SECONDS, expected, 1.0));
+            ASSERT(within(record.max(), TU::k_SECONDS, expected, 1.0));
 
             {
                 timer.start();
 
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::e_BALM_SECONDS);
-                ASSERT(balm::MetricRecord(idB) == recordVal(cB));
-                bdlqq::ThreadUtil::microSleep(500, 0);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::k_SECONDS);
+                ASSERT(BALM::MetricRecord(idB) == recordVal(cB));
+                Corp::bdlqq::ThreadUtil::microSleep(500, 0);
 
-                bdlqq::ThreadUtil::microSleep(50000, 0);
+                Corp::bdlqq::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 
             expected = timer.elapsedTime();
             record = recordVal(cB);
             ASSERT(1 == record.count());
-            ASSERT(within(record.total(), TU::e_BALM_SECONDS, expected, 1.0))
-            ASSERT(within(record.min(), TU::e_BALM_SECONDS, expected, 1.0));
-            ASSERT(within(record.max(), TU::e_BALM_SECONDS, expected, 1.0));
+            ASSERT(within(record.total(), TU::k_SECONDS, expected, 1.0))
+            ASSERT(within(record.min(), TU::k_SECONDS, expected, 1.0));
+            ASSERT(within(record.max(), TU::k_SECONDS, expected, 1.0));
         }
         {
             if (veryVerbose) cout << "\tTest with multiple macros in a block"
                                   << endl;
 
-            balm::DefaultMetricsManagerScopedGuard guard;
-            MetricsManager& manager = *balm::DefaultMetricsManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard;
+            MetricsManager& manager = *BALM::DefaultMetricsManager::instance();
             Repository&     rep     = manager.collectorRepository();
 
             {
-                BALM_METRICS_TIME_BLOCK("A", "1", TU::e_BALM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("B", "2", TU::e_BALM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "3", TU::e_BALM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("D", "4", TU::e_BALM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("A", "1", TU::k_SECONDS);
+                BALM_METRICS_TIME_BLOCK("B", "2", TU::k_SECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "3", TU::k_SECONDS);
+                BALM_METRICS_TIME_BLOCK("D", "4", TU::k_SECONDS);
 
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("E", "5", TU::e_BALM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("F", "6", TU::e_BALM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("G", "7", TU::e_BALM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("H", "8", TU::e_BALM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("E", "5", TU::k_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("F", "6", TU::k_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("G", "7", TU::k_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("H", "8", TU::k_SECONDS);
 
                 ASSERT(0 ==
                        recordVal(rep.getDefaultCollector("A", "1")).count());
@@ -2110,15 +2111,15 @@ int main(int argc, char *argv[])
             const char *CATEGORIES[] = {"A", "B", "C", "Test", "Dummy" };
             const int NUM_CATEGORIES = sizeof(CATEGORIES)/sizeof(*CATEGORIES);
 
-            balm::DefaultMetricsManagerScopedGuard guard;
-            MetricsManager& manager = *balm::DefaultMetricsManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard;
+            MetricsManager& manager = *BALM::DefaultMetricsManager::instance();
             Repository&     rep     = manager.collectorRepository();
 
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 BALM_METRICS_TIME_BLOCK(CATEGORIES[i], "static",
-                                        TU::e_BALM_SECONDS);
+                                        TU::k_SECONDS);
                 BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORIES[i], "dynamic",
-                                                TU::e_BALM_SECONDS);
+                                                TU::k_SECONDS);
             }
 
             // Verify static values
@@ -2145,8 +2146,8 @@ int main(int argc, char *argv[])
 
             // Verify macros do not crash after the default metrics manager
             // has been removed.
-            balm::DefaultMetricsManager::create();
-            MetricsManager& manager = *balm::DefaultMetricsManager::instance();
+            BALM::DefaultMetricsManager::create();
+            MetricsManager& manager = *BALM::DefaultMetricsManager::instance();
             Repository&     rep     = manager.collectorRepository();
             {
                 staticTimeEmptyFunction("A", "1");
@@ -2155,7 +2156,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == recordVal(rep.getDefaultCollector("A","1")).count());
             ASSERT(1 == recordVal(rep.getDefaultCollector("B","2")).count());
 
-            balm::DefaultMetricsManager::destroy();
+            BALM::DefaultMetricsManager::destroy();
             {
                 staticTimeEmptyFunction("A", "1");
                 dynamicTimeEmptyFunction("B", "2");
@@ -2168,13 +2169,13 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_METRICS_THREAD_LOCAL_INT_UPDATE',
-        //          'BAEM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE',
+        //          'BALM_INCREMENT_THREADLOCALMETRIC'
         //
         // Concerns:
         //    That the two standard macros
-        //    ('BAEM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //    'BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT') correctly update the
+        //    ('BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
+        //    'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT') correctly update the
         //    appropriate metric, statically cache the identified metrics
         //    identifier, and respect the supplied categories 'enabled'
         //    property.
@@ -2185,8 +2186,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BAEM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //   'BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT' on the identified metric
+        //   then invoke 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
+        //   'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT' on the identified metric
         //   and perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2196,8 +2197,8 @@ int main(int argc, char *argv[])
         //   category on each iteration.
         //
         // Testing:
-        //    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
-        //    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
+        //    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(CATEGORY, NAME, VALUE)
+        //    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2214,8 +2215,8 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are a no-op without a metrics manager.\n";
         {
             for (int i = 0; i < NUM_IDS; ++i) {
-                BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i], "increment");
-                BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i], "increment");
+                BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                      UPDATES[i]);
             }
         }
@@ -2224,28 +2225,28 @@ int main(int argc, char *argv[])
             cout << "\tverify thread-local macros are applied correctly.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incrementId(registry.getId(IDS[0], "increment"));
-            balm::IntegerCollector  expUpdate(updateId);
-            balm::IntegerCollector  expIncrement(incrementId);
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incrementId(registry.getId(IDS[0], "increment"));
+            BALM::IntegerCollector  expUpdate(updateId);
+            BALM::IntegerCollector  expIncrement(incrementId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
-                    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
+                    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
                                                            "increment");
-                    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                         UPDATES[i]);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[i]);
                 }
             }
-            balm::IntegerCollector *upCol  =
+            BALM::IntegerCollector *upCol  =
                                repository.getDefaultIntegerCollector(updateId);
-            balm::IntegerCollector *incCol =
+            BALM::IntegerCollector *incCol =
                             repository.getDefaultIntegerCollector(incrementId);
             ASSERT(recordVal(&expUpdate) == recordVal(upCol));
             ASSERT(recordVal(&expIncrement) == recordVal(incCol));
@@ -2254,11 +2255,12 @@ int main(int argc, char *argv[])
 
             // Verify only the first identified metric (i.e., a 'CATEGORY',
             // 'NAME' pair) for which the macro was invoked was modified.
-            bsl::vector<balm::Collector *> cols(Z);
-            bsl::vector<balm::IntegerCollector *> intCols(Z);
+            bsl::vector<BALM::Collector *> cols(Z);
+            bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incrementId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incrementId(registry.getId(IDS[i],
+                                           "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2272,23 +2274,23 @@ int main(int argc, char *argv[])
             cout << "\tverify thread-local macros respects 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incrementId(registry.getId(IDS[0], "increment"));
-            balm::IntegerCollector  expUpdate(updateId);
-            balm::IntegerCollector  expIncrement(incrementId);
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incrementId(registry.getId(IDS[0], "increment"));
+            BALM::IntegerCollector  expUpdate(updateId);
+            BALM::IntegerCollector  expIncrement(incrementId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
 
                     bool enabled = 0 == j % 2;
                     registry.setCategoryEnabled(updateId.category(), enabled);
-                    BAEM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
+                    BALM_METRICS_THREAD_LOCAL_INT_INCREMENT(IDS[i],
                                                            "increment");
-                    BAEM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INT_UPDATE(IDS[i], "update",
                                                          UPDATES[i]);
                     if (enabled) {
                         expIncrement.update(1);
@@ -2296,9 +2298,9 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            balm::IntegerCollector *upCol  =
+            BALM::IntegerCollector *upCol  =
                                repository.getDefaultIntegerCollector(updateId);
-            balm::IntegerCollector *incCol =
+            BALM::IntegerCollector *incCol =
                             repository.getDefaultIntegerCollector(incrementId);
             ASSERT(recordVal(&expUpdate) == recordVal(upCol));
             ASSERT(recordVal(&expIncrement) == recordVal(incCol));
@@ -2307,11 +2309,12 @@ int main(int argc, char *argv[])
 
             // Verify only the first identified metric (i.e., a 'CATEGORY',
             // 'NAME' pair) for which the macro was invoked was modified.
-            bsl::vector<balm::Collector *> cols(Z);
-            bsl::vector<balm::IntegerCollector *> intCols(Z);
+            bsl::vector<BALM::Collector *> cols(Z);
+            bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incrementId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incrementId(registry.getId(IDS[i],
+                                           "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2326,11 +2329,11 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING: 'BALM_METRICS_DYNAMIC_INT_UPDATE',
-        //          'BAEM_METRICS_DYNAMIC_INT_INCREMENT'
+        //          'BALM_METRICS_DYNAMIC_INT_INCREMENT'
         //
         // Concerns:
         //    That the two dynamic macros ('BALM_METRICS_DYNAMIC_INT_UPDATE'
-        //    and 'BAEM_METRICS_DYNAMIC_INT_INCREMENT') correctly update the
+        //    and 'BALM_METRICS_DYNAMIC_INT_INCREMENT') correctly update the
         //    appropriate metric and respect the supplied categories 'enabled'
         //    property.
         //
@@ -2341,7 +2344,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
         //   then invoke 'BALM_METRICS_DYNAMIC_INT_UPDATE' and
-        //   'BAEM_METRICS_DYNAMIC_INT_INCREMENT' on the identified metric and
+        //   'BALM_METRICS_DYNAMIC_INT_INCREMENT' on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.
@@ -2376,20 +2379,20 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             cout << "\tverify dynamic macros are applied correctly.\n";
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
             for (int i = 0; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incrementId(registry.getId(IDS[i],
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incrementId(registry.getId(IDS[i],
                                                           "increment"));
-                balm::IntegerCollector expUpdate(updateId);
-                balm::IntegerCollector expIncrement(incrementId);
-                balm::IntegerCollector *upCol  =
+                BALM::IntegerCollector expUpdate(updateId);
+                BALM::IntegerCollector expIncrement(incrementId);
+                BALM::IntegerCollector *upCol  =
                             repository.getDefaultIntegerCollector(updateId);
-                balm::IntegerCollector *incCol =
+                BALM::IntegerCollector *incCol =
                             repository.getDefaultIntegerCollector(incrementId);
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     BALM_METRICS_DYNAMIC_INCREMENT(IDS[i], "increment");
@@ -2406,20 +2409,20 @@ int main(int argc, char *argv[])
             cout << "\tverify dynamic macros respect 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
             for (int i = 0; i < NUM_IDS; ++i) {
-                balm::MetricId  updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId  incrementId(registry.getId(IDS[i],
+                BALM::MetricId  updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId  incrementId(registry.getId(IDS[i],
                                                           "increment"));
-                balm::IntegerCollector expUpdate(updateId);
-                balm::IntegerCollector expIncrement(incrementId);
-                balm::IntegerCollector *upCol  =
+                BALM::IntegerCollector expUpdate(updateId);
+                BALM::IntegerCollector expIncrement(incrementId);
+                BALM::IntegerCollector *upCol  =
                             repository.getDefaultIntegerCollector(updateId);
-                balm::IntegerCollector *incCol =
+                BALM::IntegerCollector *incCol =
                             repository.getDefaultIntegerCollector(incrementId);
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     bool enabled = 0 == j % 2;
@@ -2441,11 +2444,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_INT_UPDATE', 'BAEM_METRICS_INT_INCREMENT'
-        //          'BAEM_UPDATE_INT_TYPED_METRIC'
+        // TESTING: 'BALM_METRICS_INT_UPDATE', 'BALM_METRICS_INT_INCREMENT'
+        //          'BALM_UPDATE_INT_TYPED_METRIC'
         // Concerns:
         //    That the two standard macros ('BALM_METRICS_INT_UPDATE' and
-        //    'BAEM_METRICS_INT_INCREMENT') correctly update the appropriate
+        //    'BALM_METRICS_INT_INCREMENT') correctly update the appropriate
         //    metric, statically cache the identified metrics identifier, and
         //    respect the supplied categories 'enabled' property.
         //
@@ -2456,7 +2459,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
         //   then invoke 'BALM_METRICS_INT_UPDATE' and
-        //   'BAEM_METRICS_INT_INCREMENT' on the identified metric and perform
+        //   'BALM_METRICS_INT_INCREMENT' on the identified metric and perform
         //   the corresponding operation on the "oracle" collector.  Verify
         //   the collector underlying the metric has the same value as the
         //   "oracle" collector.  Also verify that only the collector for the
@@ -2468,7 +2471,7 @@ int main(int argc, char *argv[])
         // Testing:
         //    BALM_METRICS_INT_UPDATE(CATEGORY, NAME, VALUE
         //    BALM_METRICS_TYPED_INT_UPDATE(CATEGORY, NAME, TYPE, VALUE)
-        //    BAEM_METRICS_INT_INCREMENT(CATEGORY, NAME
+        //    BALM_METRICS_INT_INCREMENT(CATEGORY, NAME
         //    BALM_METRICS_INT_UPDATE2(CATEGORY, METRIC1, VALUE1, ...)
         //    BALM_METRICS_INT_UPDATE3(CATEGORY, METRIC1, VALUE1, ...)
         //    BALM_METRICS_INT_UPDATE4(CATEGORY, METRIC1, VALUE1, ...)
@@ -2494,8 +2497,8 @@ int main(int argc, char *argv[])
                 BALM_METRICS_INCREMENT(IDS[i], "increment");
                 BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[i]);
                 BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "t-up", UPDATES[i],
-                                              Type::e_BALM_TOTAL);
-                BALM_METRICS_TYPED_INCREMENT(IDS[i], "t-inc", Type::e_BALM_MIN);
+                                              Type::e_TOTAL);
+                BALM_METRICS_TYPED_INCREMENT(IDS[i], "t-inc", Type::e_MIN);
             }
         }
 
@@ -2503,47 +2506,47 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are applied correctly.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incId(registry.getId(IDS[0], "increment"));
-            balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
-            balm::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incId(registry.getId(IDS[0], "increment"));
+            BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+            BALM::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
 
-            balm::IntegerCollector expUpdate(updateId);
-            balm::IntegerCollector expIncrement(incId);
-            balm::IntegerCollector expTUpdate(tupdateId);
-            balm::IntegerCollector expTIncrement(tincId);
+            BALM::IntegerCollector expUpdate(updateId);
+            BALM::IntegerCollector expIncrement(incId);
+            BALM::IntegerCollector expTUpdate(tupdateId);
+            BALM::IntegerCollector expTIncrement(tincId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     BALM_METRICS_INCREMENT(IDS[i], "increment");
                     BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                   UPDATES[j],
-                                                  Type::e_BALM_TOTAL);
+                                                  Type::e_TOTAL);
                     BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                 Type::e_BALM_MIN);
+                                                 Type::e_MIN);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[j]);
                     expTUpdate.update(UPDATES[j]);
                     expTIncrement.update(1);
                 }
             }
-            ASSERT(Type::e_BALM_TOTAL ==
+            ASSERT(Type::e_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
-            ASSERT(Type::e_BALM_MIN   ==
+            ASSERT(Type::e_MIN   ==
                    tincId.description()->preferredPublicationType());
 
-            balm::IntegerCollector *upCol  =
+            BALM::IntegerCollector *upCol  =
                 repository.getDefaultIntegerCollector(updateId);
-            balm::IntegerCollector *incCol =
+            BALM::IntegerCollector *incCol =
                 repository.getDefaultIntegerCollector(incId);
-            balm::IntegerCollector *tupCol =
+            BALM::IntegerCollector *tupCol =
                 repository.getDefaultIntegerCollector(tupdateId);
-            balm::IntegerCollector *tincCol =
+            BALM::IntegerCollector *tincCol =
                 repository.getDefaultIntegerCollector(tincId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
@@ -2556,10 +2559,10 @@ int main(int argc, char *argv[])
             ColSPtrVector cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incId(registry.getId(IDS[i], "increment"));
-                balm::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
-                balm::MetricId tincId(registry.getId(IDS[i], "Tincrement"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
+                BALM::MetricId tincId(registry.getId(IDS[i], "Tincrement"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2579,20 +2582,20 @@ int main(int argc, char *argv[])
             cout << "\tverify macros respects 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incId(registry.getId(IDS[0], "increment"));
-            balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
-            balm::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incId(registry.getId(IDS[0], "increment"));
+            BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+            BALM::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
 
-            balm::IntegerCollector expUpdate(updateId);
-            balm::IntegerCollector expIncrement(incId);
-            balm::IntegerCollector expTUpdate(tupdateId);
-            balm::IntegerCollector expTIncrement(tincId);
+            BALM::IntegerCollector expUpdate(updateId);
+            BALM::IntegerCollector expIncrement(incId);
+            BALM::IntegerCollector expTUpdate(tupdateId);
+            BALM::IntegerCollector expTIncrement(tincId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     bool enabled = 0 == j % 2;
@@ -2601,9 +2604,9 @@ int main(int argc, char *argv[])
                     BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                   UPDATES[j],
-                                                  Type::e_BALM_TOTAL);
+                                                  Type::e_TOTAL);
                     BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                 Type::e_BALM_MIN);
+                                                 Type::e_MIN);
                     if (enabled) {
                         expIncrement.update(1);
                         expUpdate.update(UPDATES[j]);
@@ -2613,18 +2616,18 @@ int main(int argc, char *argv[])
                 }
             }
 
-            ASSERT(Type::e_BALM_TOTAL ==
+            ASSERT(Type::e_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
-            ASSERT(Type::e_BALM_MIN   ==
+            ASSERT(Type::e_MIN   ==
                    tincId.description()->preferredPublicationType());
 
-            balm::IntegerCollector *upCol  =
+            BALM::IntegerCollector *upCol  =
                 repository.getDefaultIntegerCollector(updateId);
-            balm::IntegerCollector *incCol =
+            BALM::IntegerCollector *incCol =
                 repository.getDefaultIntegerCollector(incId);
-            balm::IntegerCollector *tupCol =
+            BALM::IntegerCollector *tupCol =
                 repository.getDefaultIntegerCollector(tupdateId);
-            balm::IntegerCollector *tincCol =
+            BALM::IntegerCollector *tincCol =
                 repository.getDefaultIntegerCollector(tincId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
@@ -2639,10 +2642,10 @@ int main(int argc, char *argv[])
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incId(registry.getId(IDS[i], "increment"));
-                balm::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
-                balm::MetricId tincId(registry.getId(IDS[i], "Tincrement"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
+                BALM::MetricId tincId(registry.getId(IDS[i], "Tincrement"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2666,34 +2669,34 @@ int main(int argc, char *argv[])
                 // Create a new default metrics manager for this test.
 
                 bool initializeDefault = (0 == testIter % 2);
-                balm::MetricsManager *mgr = 0;
+                BALM::MetricsManager *mgr = 0;
                 if (initializeDefault) {
-                    mgr = balm::DefaultMetricsManager::create(Z);
+                    mgr = BALM::DefaultMetricsManager::create(Z);
                 }
                 else {
-                    mgr = new (*Z) balm::MetricsManager(Z);
+                    mgr = new (*Z) BALM::MetricsManager(Z);
                 }
                 Registry&   registry   = mgr->metricRegistry();
                 Repository& repository = mgr->collectorRepository();
 
-                balm::MetricId updateId(registry.getId(IDS[0], "update"));
-                balm::MetricId incId(registry.getId(IDS[0], "increment"));
-                balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
-                balm::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
+                BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+                BALM::MetricId incId(registry.getId(IDS[0], "increment"));
+                BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+                BALM::MetricId tincId(registry.getId(IDS[0], "Tincrement"));
 
-                balm::IntegerCollector expUpdate(updateId);
-                balm::IntegerCollector expIncrement(incId);
-                balm::IntegerCollector expTUpdate(tupdateId);
-                balm::IntegerCollector expTIncrement(tincId);
+                BALM::IntegerCollector expUpdate(updateId);
+                BALM::IntegerCollector expIncrement(incId);
+                BALM::IntegerCollector expTUpdate(tupdateId);
+                BALM::IntegerCollector expTIncrement(tincId);
                 for (int i = 0; i < NUM_IDS; ++i) {
                     for (int j = 0; j < NUM_UPDATES; ++j) {
                         BALM_METRICS_INCREMENT(IDS[i], "increment");
                         BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                         BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                      UPDATES[j],
-                                                     Type::e_BALM_TOTAL);
+                                                     Type::e_TOTAL);
                         BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                     Type::e_BALM_MIN);
+                                                     Type::e_MIN);
                         expIncrement.update(1);
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
@@ -2701,20 +2704,20 @@ int main(int argc, char *argv[])
                     }
                 }
                 if (initializeDefault) {
-                    balm::IntegerCollector *upCol   =
+                    BALM::IntegerCollector *upCol   =
                         repository.getDefaultIntegerCollector(updateId);
-                    balm::IntegerCollector *incCol  =
+                    BALM::IntegerCollector *incCol  =
                         repository.getDefaultIntegerCollector(incId);
-                    balm::IntegerCollector *tupCol  =
+                    BALM::IntegerCollector *tupCol  =
                         repository.getDefaultIntegerCollector(tupdateId);
-                    balm::IntegerCollector *tincCol =
+                    BALM::IntegerCollector *tincCol =
                         repository.getDefaultIntegerCollector(tincId);
 
                     ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
                     ASSERT(recordVal(&expIncrement)  == recordVal(incCol));
                     ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
                     ASSERT(recordVal(&expTIncrement) == recordVal(tincCol));
-                    balm::DefaultMetricsManager::destroy();
+                    BALM::DefaultMetricsManager::destroy();
                 }
                 else {
                     Z->deleteObjectRaw(mgr);
@@ -2725,11 +2728,11 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose)  cout << "\tVerify multiple metric variants.\n";
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
-            balm::CollectorRepository& repository =
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager  *manager =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
+            BALM::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -2757,19 +2760,19 @@ int main(int argc, char *argv[])
                                          "E", 5, "F", 5);
             }
 
-            balm::IntegerCollector *A_COL =
+            BALM::IntegerCollector *A_COL =
                 repository.getDefaultIntegerCollector("A", "A");
-            balm::IntegerCollector *B_COL =
+            BALM::IntegerCollector *B_COL =
                 repository.getDefaultIntegerCollector("A", "B");
-            balm::IntegerCollector *C_COL =
+            BALM::IntegerCollector *C_COL =
                 repository.getDefaultIntegerCollector("A", "C");
-            balm::IntegerCollector *D_COL =
+            BALM::IntegerCollector *D_COL =
                 repository.getDefaultIntegerCollector("A", "D");
-            balm::IntegerCollector *E_COL =
+            BALM::IntegerCollector *E_COL =
                 repository.getDefaultIntegerCollector("A", "E");
-            balm::IntegerCollector *F_COL =
+            BALM::IntegerCollector *F_COL =
                 repository.getDefaultIntegerCollector("A", "F");
-            balm::IntegerCollector *G_COL =
+            BALM::IntegerCollector *G_COL =
                 repository.getDefaultIntegerCollector("A", "G");
 
             if (veryVeryVerbose) {
@@ -2778,13 +2781,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  BALM::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  BALM::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  BALM::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  BALM::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  BALM::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  BALM::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  BALM::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -2804,12 +2814,12 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BAEM_METRICS_THREAD_LOCAL_UPDATE',
-        //          'BAEM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: 'BALM_METRICS_THREAD_LOCAL_UPDATE',
+        //          'BALM_INCREMENT_THREADLOCALMETRIC'
         //
         // Concerns:
-        //    That the two standard macros ('BAEM_METRICS_THREAD_LOCAL_UPDATE'
-        //    and 'BAEM_METRICS_THREAD_LOCAL_INCREMENT') correctly update the
+        //    That the two standard macros ('BALM_METRICS_THREAD_LOCAL_UPDATE'
+        //    and 'BALM_METRICS_THREAD_LOCAL_INCREMENT') correctly update the
         //    appropriate metric, statically cache the identified metrics
         //    identifier, and respect the supplied categories 'enabled'
         //    property.
@@ -2820,8 +2830,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BAEM_METRICS_THREAD_LOCAL_UPDATE' and
-        //   'BAEM_METRICS_THREAD_LOCAL_INCREMENT' on the identified metric and
+        //   then invoke 'BALM_METRICS_THREAD_LOCAL_UPDATE' and
+        //   'BALM_METRICS_THREAD_LOCAL_INCREMENT' on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2831,8 +2841,8 @@ int main(int argc, char *argv[])
         //   category on each iteration.
         //
         // Testing:
-        //    BAEM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
-        //    BAEM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
+        //    BALM_METRICS_THREAD_LOCAL_UPDATE(CATEGORY, NAME, VALUE)
+        //    BALM_METRICS_THREAD_LOCAL_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2849,8 +2859,8 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are a no-op without a metrics manager.\n";
         {
             for (int i = 0; i < NUM_IDS; ++i) {
-                BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update", UPDATES[i]);
+                BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update", UPDATES[i]);
             }
         }
 
@@ -2858,26 +2868,26 @@ int main(int argc, char *argv[])
             cout << "\tverify thread-local macros are applied correctly.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incId(registry.getId(IDS[0], "increment"));
-            balm::Collector  expUpdate(updateId);
-            balm::Collector  expIncrement(incId);
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incId(registry.getId(IDS[0], "increment"));
+            BALM::Collector  expUpdate(updateId);
+            BALM::Collector  expIncrement(incId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
-                    BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                    BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                    BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
                                                    UPDATES[i]);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[i]);
                 }
             }
-            balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *incCol = repository.getDefaultCollector(incId);
+            BALM::Collector *upCol  = repository.getDefaultCollector(updateId);
+            BALM::Collector *incCol = repository.getDefaultCollector(incId);
             ASSERT(recordVal(&expUpdate) == recordVal(upCol));
             ASSERT(recordVal(&expIncrement) == recordVal(incCol));
 
@@ -2885,11 +2895,11 @@ int main(int argc, char *argv[])
 
             // Verify only the first identified metric (i.e., a 'CATEGORY',
             // 'NAME' pair) for which the macro was invoked was modified.
-            bsl::vector<balm::Collector *> cols(Z);
-            bsl::vector<balm::IntegerCollector *> intCols(Z);
+            bsl::vector<BALM::Collector *> cols(Z);
+            bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incId(registry.getId(IDS[i], "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2903,22 +2913,22 @@ int main(int argc, char *argv[])
             cout << "\tverify thread-local macros respects 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId incId(registry.getId(IDS[0], "increment"));
-            balm::Collector  expUpdate(updateId);
-            balm::Collector  expIncrement(incId);
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId incId(registry.getId(IDS[0], "increment"));
+            BALM::Collector  expUpdate(updateId);
+            BALM::Collector  expIncrement(incId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
 
                     bool enabled = 0 == j % 2;
                     registry.setCategoryEnabled(updateId.category(), enabled);
-                    BAEM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
-                    BAEM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
+                    BALM_METRICS_THREAD_LOCAL_INCREMENT(IDS[i], "increment");
+                    BALM_METRICS_THREAD_LOCAL_UPDATE(IDS[i], "update",
                                                    UPDATES[i]);
                     if (enabled) {
                         expIncrement.update(1);
@@ -2926,8 +2936,8 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *incCol = repository.getDefaultCollector(incId);
+            BALM::Collector *upCol  = repository.getDefaultCollector(updateId);
+            BALM::Collector *incCol = repository.getDefaultCollector(incId);
             ASSERT(recordVal(&expUpdate) == recordVal(upCol));
             ASSERT(recordVal(&expIncrement) == recordVal(incCol));
 
@@ -2935,11 +2945,11 @@ int main(int argc, char *argv[])
 
             // Verify only the first identified metric (i.e., a 'CATEGORY',
             // 'NAME' pair) for which the macro was invoked was modified.
-            bsl::vector<balm::Collector *> cols(Z);
-            bsl::vector<balm::IntegerCollector *> intCols(Z);
+            bsl::vector<BALM::Collector *> cols(Z);
+            bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId incId(registry.getId(IDS[i], "increment"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId incId(registry.getId(IDS[i], "increment"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -2954,32 +2964,29 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING: 'BALM_METRICS_DYNAMIC_UPDATE',
-        //          'BALM_METRICS_DYNAMIC_INCREMENT'
+        // 'BALM_METRICS_DYNAMIC_INCREMENT'
         //
-        // Concerns:
-        //    That the two dynamic macros ('BALM_METRICS_DYNAMIC_UPDATE' and
-        //    'BALM_METRICS_DYNAMIC_INCREMENT') correctly update the
-        //    appropriate metric and respect the supplied categories 'enabled'
-        //    property.
+        // Concerns: That the two dynamic macros ('BALM_METRICS_DYNAMIC_UPDATE'
+        // and 'BALM_METRICS_DYNAMIC_INCREMENT') correctly update the
+        // appropriate metric and respect the supplied categories 'enabled'
+        // property.
         //
-        // Plan:
-        //   Verify that invoking the macros without a default metrics manager
-        //   has no effect.
+        // Plan: Verify that invoking the macros without a default metrics
+        // manager has no effect.
         //
-        //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_DYNAMIC_UPDATE' and
-        //   'BALM_METRICS_DYNAMIC_INCREMENT' on the identified metric and
-        //   perform the corresponding operation on the "oracle" collector.
-        //   Verify the collector underlying the metric has the same value as
-        //   the "oracle" collector.
+        // Specify a set S of unique object values having various minor or
+        // subtle differences.  For each value create an "oracle" collector,
+        // then invoke 'BALM_METRICS_DYNAMIC_UPDATE' and
+        // 'BALM_METRICS_DYNAMIC_INCREMENT' on the identified metric and
+        // perform the corresponding operation on the "oracle" collector.
+        // Verify the collector underlying the metric has the same value as the
+        // "oracle" collector.
         //
-        //   Perform the same test again, but enabled or disable the metric's
-        //   category on each iteration.
+        // Perform the same test again, but enabled or disable the metric's
+        // category on each iteration.
         //
-        // Testing:
-        //    BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
-        //    BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
+        // Testing: BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
+        // BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3003,15 +3010,15 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             cout << "\tverify dynamic macros are applied correctly.\n";
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
             for (int i = 0; i < NUM_IDS; ++i) {
-                balm::MetricId  updateId(registry.getId(IDS[i], "update"));
-                balm::Collector expUpdate(updateId);
-                balm::Collector *upCol  =
+                BALM::MetricId  updateId(registry.getId(IDS[i], "update"));
+                BALM::Collector expUpdate(updateId);
+                BALM::Collector *upCol  =
                                       repository.getDefaultCollector(updateId);
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     BALM_METRICS_DYNAMIC_UPDATE(IDS[i], "update", UPDATES[j]);
@@ -3024,15 +3031,15 @@ int main(int argc, char *argv[])
             cout << "\tverify dynamic macros respect 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
             for (int i = 0; i < NUM_IDS; ++i) {
-                balm::MetricId  updateId(registry.getId(IDS[i], "update"));
-                balm::Collector expUpdate(updateId);
-                balm::Collector *upCol  =
+                BALM::MetricId  updateId(registry.getId(IDS[i], "update"));
+                BALM::Collector expUpdate(updateId);
+                BALM::Collector *upCol  =
                                   repository.getDefaultCollector(updateId);
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     bool enabled = 0 == j % 2;
@@ -3101,7 +3108,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_IDS; ++i) {
                 BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[i]);
                 BALM_METRICS_TYPED_UPDATE(IDS[i], "t-up", UPDATES[i],
-                                         Type::e_BALM_TOTAL);
+                                         Type::e_TOTAL);
             }
         }
 
@@ -3109,30 +3116,31 @@ int main(int argc, char *argv[])
             cout << "\tverify macros are applied correctly.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
 
-            balm::Collector expUpdate(updateId);
-            balm::Collector expTUpdate(tupdateId);
+            BALM::Collector expUpdate(updateId);
+            BALM::Collector expTUpdate(tupdateId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_UPDATE(IDS[i], "Tupdate", UPDATES[j],
-                                             Type::e_BALM_TOTAL);
+                                             Type::e_TOTAL);
                     expUpdate.update(UPDATES[j]);
                     expTUpdate.update(UPDATES[j]);
                 }
             }
-            ASSERT(Type::e_BALM_TOTAL ==
+            ASSERT(Type::e_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
 
-            balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *tupCol = repository.getDefaultCollector(tupdateId);
+            BALM::Collector *upCol  = repository.getDefaultCollector(updateId);
+            BALM::Collector *tupCol =
+                                     repository.getDefaultCollector(tupdateId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
@@ -3142,8 +3150,8 @@ int main(int argc, char *argv[])
             ColSPtrVector cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -3157,23 +3165,23 @@ int main(int argc, char *argv[])
             cout << "\tverify macros respects 'isActive' flag.\n";
 
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager& mgr = *DefaultManager::instance();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager& mgr = *DefaultManager::instance();
             Registry&   registry     = mgr.metricRegistry();
             Repository& repository   = mgr.collectorRepository();
 
-            balm::MetricId updateId(registry.getId(IDS[0], "update"));
-            balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+            BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+            BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
 
-            balm::Collector expUpdate(updateId);
-            balm::Collector expTUpdate(tupdateId);
+            BALM::Collector expUpdate(updateId);
+            BALM::Collector expTUpdate(tupdateId);
             for (int i = 0; i < NUM_IDS; ++i) {
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     bool enabled = 0 == j % 2;
                     registry.setCategoryEnabled(updateId.category(), enabled);
                     BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_UPDATE(IDS[i], "Tupdate", UPDATES[j],
-                                             Type::e_BALM_MIN);
+                                             Type::e_MIN);
                     if (enabled) {
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
@@ -3181,11 +3189,12 @@ int main(int argc, char *argv[])
                 }
             }
 
-            ASSERT(Type::e_BALM_MIN ==
+            ASSERT(Type::e_MIN ==
                    tupdateId.description()->preferredPublicationType());
 
-            balm::Collector *upCol  = repository.getDefaultCollector(updateId);
-            balm::Collector *tupCol = repository.getDefaultCollector(tupdateId);
+            BALM::Collector *upCol  = repository.getDefaultCollector(updateId);
+            BALM::Collector *tupCol =
+                                     repository.getDefaultCollector(tupdateId);
 
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
@@ -3197,8 +3206,8 @@ int main(int argc, char *argv[])
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
-                balm::MetricId updateId(registry.getId(IDS[i], "update"));
-                balm::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
+                BALM::MetricId updateId(registry.getId(IDS[i], "update"));
+                BALM::MetricId tupdateId(registry.getId(IDS[i], "Tupdate"));
 
                 ASSERT(0 == repository.getAddedCollectors(&cols,
                                                           &intCols,
@@ -3216,41 +3225,41 @@ int main(int argc, char *argv[])
                 // Create a new default metrics manager for this test.
 
                 bool initializeDefault = (0 == testIter % 2);
-                balm::MetricsManager *mgr = 0;
+                BALM::MetricsManager *mgr = 0;
                 if (initializeDefault) {
-                    mgr = balm::DefaultMetricsManager::create(Z);
+                    mgr = BALM::DefaultMetricsManager::create(Z);
                 }
                 else {
-                    mgr = new (*Z) balm::MetricsManager(Z);
+                    mgr = new (*Z) BALM::MetricsManager(Z);
                 }
                 Registry&   registry   = mgr->metricRegistry();
                 Repository& repository = mgr->collectorRepository();
 
-                balm::MetricId updateId(registry.getId(IDS[0], "update"));
-                balm::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
+                BALM::MetricId updateId(registry.getId(IDS[0], "update"));
+                BALM::MetricId tupdateId(registry.getId(IDS[0], "Tupdate"));
 
-                balm::Collector expUpdate(updateId);
-                balm::Collector expTUpdate(tupdateId);
+                BALM::Collector expUpdate(updateId);
+                BALM::Collector expTUpdate(tupdateId);
                 for (int i = 0; i < NUM_IDS; ++i) {
                     for (int j = 0; j < NUM_UPDATES; ++j) {
                         BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[j]);
                         BALM_METRICS_TYPED_UPDATE(IDS[i],
                                                   "Tupdate",
                                                   UPDATES[j],
-                                                  Type::e_BALM_TOTAL);
+                                                  Type::e_TOTAL);
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
                     }
                 }
                 if (initializeDefault) {
-                    balm::Collector *upCol   =
+                    BALM::Collector *upCol   =
                                       repository.getDefaultCollector(updateId);
-                    balm::Collector *tupCol  =
+                    BALM::Collector *tupCol  =
                                      repository.getDefaultCollector(tupdateId);
 
                     ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
                     ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
-                    balm::DefaultMetricsManager::destroy();
+                    BALM::DefaultMetricsManager::destroy();
                 }
                 else {
                     Z->deleteObjectRaw(mgr);
@@ -3261,11 +3270,11 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) cout << "\tVerify multiple metric variants.\n";
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
-            balm::CollectorRepository& repository =
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager  *manager =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
+            BALM::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -3293,13 +3302,13 @@ int main(int argc, char *argv[])
                                      "E", 5.0, "F", 5.0);
             }
 
-            balm::Collector *A_COL = repository.getDefaultCollector("A", "A");
-            balm::Collector *B_COL = repository.getDefaultCollector("A", "B");
-            balm::Collector *C_COL = repository.getDefaultCollector("A", "C");
-            balm::Collector *D_COL = repository.getDefaultCollector("A", "D");
-            balm::Collector *E_COL = repository.getDefaultCollector("A", "E");
-            balm::Collector *F_COL = repository.getDefaultCollector("A", "F");
-            balm::Collector *G_COL = repository.getDefaultCollector("A", "G");
+            BALM::Collector *A_COL = repository.getDefaultCollector("A", "A");
+            BALM::Collector *B_COL = repository.getDefaultCollector("A", "B");
+            BALM::Collector *C_COL = repository.getDefaultCollector("A", "C");
+            BALM::Collector *D_COL = repository.getDefaultCollector("A", "D");
+            BALM::Collector *E_COL = repository.getDefaultCollector("A", "E");
+            BALM::Collector *F_COL = repository.getDefaultCollector("A", "F");
+            BALM::Collector *G_COL = repository.getDefaultCollector("A", "G");
 
             if (veryVeryVerbose) {
                 P_(recordVal(A_COL)); P_(recordVal(B_COL));
@@ -3307,13 +3316,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(
+                  BALM::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
+            ASSERT(
+                  BALM::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
+            ASSERT(
+                  BALM::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
+            ASSERT(
+                  BALM::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
+            ASSERT(
+                  BALM::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
+            ASSERT(
+                  BALM::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
+            ASSERT(
+                  BALM::MetricRecord(G_ID)                == recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -3348,13 +3364,13 @@ int main(int argc, char *argv[])
             cout << "\tTesting BALM_METRICS_UPDATE, BALM_METRICS_INCREMENT"
                  << endl;
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
-            balm::CollectorRepository& repository =
+            BALM::MetricsManager  *manager =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
+            BALM::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -3376,13 +3392,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,A_ID));
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,B_ID));
 
-            balm::Collector *A_COL = repository.getDefaultCollector("A", "A");
-            balm::Collector *B_COL = repository.getDefaultCollector("B", "B");
-            balm::Collector *C_COL = repository.getDefaultCollector("C", "C");
+            BALM::Collector *A_COL = repository.getDefaultCollector("A", "A");
+            BALM::Collector *B_COL = repository.getDefaultCollector("B", "B");
+            BALM::Collector *C_COL = repository.getDefaultCollector("C", "C");
 
-            ASSERT(balm::MetricRecord(A_ID, 10, 50, 5, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 10, 50, 5, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID) == recordVal(C_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 10, 50, 5, 5) == recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID, 10, 50, 5, 5) == recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(C_ID) == recordVal(C_COL));
 
             A_COL->reset(); B_COL->reset(); C_COL->reset();
 
@@ -3395,9 +3411,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,B_ID));
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,C_ID));
 
-            ASSERT(balm::MetricRecord(A_ID, 3, 6, 1, 3) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID) == recordVal(C_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 3, 6, 1, 3) == recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID) == recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(C_ID) == recordVal(C_COL));
 
             A_COL->reset(); B_COL->reset(); C_COL->reset();
             for (int i = 0; i < NUM_IDS; ++i) {
@@ -3407,30 +3423,30 @@ int main(int argc, char *argv[])
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,B_ID));
             ASSERT(0 == repository.getAddedCollectors(&cols,&intCols,C_ID));
 
-            ASSERT(balm::MetricRecord(A_ID, 1, 1, 1, 1) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 1, 2, 2, 2) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 1, 3, 3, 3) == recordVal(C_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 1, 1, 1, 1) == recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID, 1, 2, 2, 2) == recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(C_ID, 1, 3, 3, 3) == recordVal(C_COL));
 
             A_COL->reset(); B_COL->reset();
 
-            ASSERT(Type::e_BALM_UNSPECIFIED ==
+            ASSERT(Type::e_UNSPECIFIED ==
                    A_ID.description()->preferredPublicationType());
-            ASSERT(Type::e_BALM_UNSPECIFIED ==
+            ASSERT(Type::e_UNSPECIFIED ==
                    B_ID.description()->preferredPublicationType());
 
             if (veryVerbose)
                 cout << "\tTesting TYPED MACROS" << endl;
 
             for (int i = 0; i < 10; ++i) {
-                BALM_METRICS_TYPED_UPDATE("A", "A", 5.0, Type::e_BALM_RATE);
-                BALM_METRICS_TYPED_UPDATE("B", "B", 1.0, Type::e_BALM_MIN);
+                BALM_METRICS_TYPED_UPDATE("A", "A", 5.0, Type::e_RATE);
+                BALM_METRICS_TYPED_UPDATE("B", "B", 1.0, Type::e_MIN);
             }
-            ASSERT(balm::MetricRecord(A_ID, 10, 50, 5, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 10, 10, 1, 1) == recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 10, 50, 5, 5) == recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID, 10, 10, 1, 1) == recordVal(B_COL));
 
-            ASSERT(Type::e_BALM_RATE ==
+            ASSERT(Type::e_RATE ==
                    A_ID.description()->preferredPublicationType());
-            ASSERT(Type::e_BALM_MIN  ==
+            ASSERT(Type::e_MIN  ==
                    B_ID.description()->preferredPublicationType());
         }
 
@@ -3440,10 +3456,10 @@ int main(int argc, char *argv[])
         {
             ASSERT(!breathingTestIfEnabledA());
 
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager *manager  =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager *manager  =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(breathingTestIfEnabledA());
             registry.setCategoryEnabled(registry.getCategory("A"), false);
@@ -3458,11 +3474,11 @@ int main(int argc, char *argv[])
             cout << "\tTesting BALM_METRICS_UPDATE[0-5]" << bsl::endl;
         }
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
-            balm::CollectorRepository& repository =
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager  *manager =
+                                       BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
+            BALM::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -3490,13 +3506,13 @@ int main(int argc, char *argv[])
                                      "E", 5.0, "F", 5.0);
             }
 
-            balm::Collector *A_COL = repository.getDefaultCollector("A", "A");
-            balm::Collector *B_COL = repository.getDefaultCollector("A", "B");
-            balm::Collector *C_COL = repository.getDefaultCollector("A", "C");
-            balm::Collector *D_COL = repository.getDefaultCollector("A", "D");
-            balm::Collector *E_COL = repository.getDefaultCollector("A", "E");
-            balm::Collector *F_COL = repository.getDefaultCollector("A", "F");
-            balm::Collector *G_COL = repository.getDefaultCollector("A", "G");
+            BALM::Collector *A_COL = repository.getDefaultCollector("A", "A");
+            BALM::Collector *B_COL = repository.getDefaultCollector("A", "B");
+            BALM::Collector *C_COL = repository.getDefaultCollector("A", "C");
+            BALM::Collector *D_COL = repository.getDefaultCollector("A", "D");
+            BALM::Collector *E_COL = repository.getDefaultCollector("A", "E");
+            BALM::Collector *F_COL = repository.getDefaultCollector("A", "F");
+            BALM::Collector *G_COL = repository.getDefaultCollector("A", "G");
 
             if (veryVeryVerbose) {
                 P_(recordVal(A_COL)); P_(recordVal(B_COL));
@@ -3504,13 +3520,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 50, 150, 1, 5) ==
+                                                             recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID, 50, 150, 1, 5) ==
+                                                             recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(C_ID, 40, 140, 2, 5) ==
+                                                             recordVal(C_COL));
+            ASSERT(BALM::MetricRecord(D_ID, 30, 120, 3, 5) ==
+                                                             recordVal(D_COL));
+            ASSERT(BALM::MetricRecord(E_ID, 20,  90, 4, 5) ==
+                                                             recordVal(E_COL));
+            ASSERT(BALM::MetricRecord(F_ID, 10,  50, 5, 5) ==
+                                                             recordVal(F_COL));
+            ASSERT(BALM::MetricRecord(G_ID)                ==
+                                                             recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
@@ -3527,11 +3550,11 @@ int main(int argc, char *argv[])
             cout << "\tTesting BALM_METRICS_INT_UPDATE[0-5]" << bsl::endl;
         }
         {
-            balm::DefaultMetricsManagerScopedGuard guard(Z);
-            balm::MetricsManager  *manager =
-                                        balm::DefaultMetricsManager::instance();
-            balm::MetricRegistry& registry = manager->metricRegistry();
-            balm::CollectorRepository& repository =
+            BALM::DefaultMetricsManagerScopedGuard guard(Z);
+            BALM::MetricsManager  *manager =
+                                 BALM::DefaultMetricsManager::instance();
+            BALM::MetricRegistry& registry = manager->metricRegistry();
+            BALM::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -3559,19 +3582,19 @@ int main(int argc, char *argv[])
                                          "E", 5, "F", 5);
             }
 
-            balm::IntegerCollector *A_COL =
+            BALM::IntegerCollector *A_COL =
                 repository.getDefaultIntegerCollector("A", "A");
-            balm::IntegerCollector *B_COL =
+            BALM::IntegerCollector *B_COL =
                 repository.getDefaultIntegerCollector("A", "B");
-            balm::IntegerCollector *C_COL =
+            BALM::IntegerCollector *C_COL =
                 repository.getDefaultIntegerCollector("A", "C");
-            balm::IntegerCollector *D_COL =
+            BALM::IntegerCollector *D_COL =
                 repository.getDefaultIntegerCollector("A", "D");
-            balm::IntegerCollector *E_COL =
+            BALM::IntegerCollector *E_COL =
                 repository.getDefaultIntegerCollector("A", "E");
-            balm::IntegerCollector *F_COL =
+            BALM::IntegerCollector *F_COL =
                 repository.getDefaultIntegerCollector("A", "F");
-            balm::IntegerCollector *G_COL =
+            BALM::IntegerCollector *G_COL =
                 repository.getDefaultIntegerCollector("A", "G");
 
             if (veryVeryVerbose) {
@@ -3580,13 +3603,20 @@ int main(int argc, char *argv[])
                 P_(recordVal(E_COL)); P_(recordVal(F_COL));
                 P(recordVal(G_COL));
             }
-            ASSERT(balm::MetricRecord(A_ID, 50, 150, 1, 5) == recordVal(A_COL));
-            ASSERT(balm::MetricRecord(B_ID, 50, 150, 1, 5) == recordVal(B_COL));
-            ASSERT(balm::MetricRecord(C_ID, 40, 140, 2, 5) == recordVal(C_COL));
-            ASSERT(balm::MetricRecord(D_ID, 30, 120, 3, 5) == recordVal(D_COL));
-            ASSERT(balm::MetricRecord(E_ID, 20,  90, 4, 5) == recordVal(E_COL));
-            ASSERT(balm::MetricRecord(F_ID, 10,  50, 5, 5) == recordVal(F_COL));
-            ASSERT(balm::MetricRecord(G_ID)                == recordVal(G_COL));
+            ASSERT(BALM::MetricRecord(A_ID, 50, 150, 1, 5) ==
+                                                             recordVal(A_COL));
+            ASSERT(BALM::MetricRecord(B_ID, 50, 150, 1, 5) ==
+                                                             recordVal(B_COL));
+            ASSERT(BALM::MetricRecord(C_ID, 40, 140, 2, 5) ==
+                                                             recordVal(C_COL));
+            ASSERT(BALM::MetricRecord(D_ID, 30, 120, 3, 5) ==
+                                                             recordVal(D_COL));
+            ASSERT(BALM::MetricRecord(E_ID, 20,  90, 4, 5) ==
+                                                             recordVal(E_COL));
+            ASSERT(BALM::MetricRecord(F_ID, 10,  50, 5, 5) ==
+                                                             recordVal(F_COL));
+            ASSERT(BALM::MetricRecord(G_ID)                ==
+                                                             recordVal(G_COL));
 
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);

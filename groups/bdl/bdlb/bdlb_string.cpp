@@ -10,15 +10,14 @@ BSLS_IDENT_RCSID(bdlb_string_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
-
 namespace bdlb {
-                        // ------------------
-                        // struct String
-                        // ------------------
+                               // -------------
+                               // struct String
+                               // -------------
 
 // CLASS METHODS
 bool String::areEqualCaseless(const char *lhsString,
-                                   const char *rhsString)
+                              const char *rhsString)
 {
     BSLS_ASSERT(lhsString);
     BSLS_ASSERT(rhsString);
@@ -34,16 +33,16 @@ bool String::areEqualCaseless(const char *lhsString,
         }
         ++i;
     }
-    return 0 == rhsString[i] ? true : false;
+    return 0 == rhsString[i];
 }
 
 bool String::areEqualCaseless(const char *lhsString,
-                                   const char *rhsString,
-                                   int         rhsLength)
+                              const char *rhsString,
+                              int         rhsLength)
 {
     BSLS_ASSERT(lhsString);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
         unsigned char lhs = static_cast<unsigned char>(
@@ -58,14 +57,14 @@ bool String::areEqualCaseless(const char *lhsString,
 }
 
 bool String::areEqualCaseless(const char *lhsString,
-                                   int         lhsLength,
-                                   const char *rhsString,
-                                   int         rhsLength)
+                              int         lhsLength,
+                              const char *rhsString,
+                              int         rhsLength)
 {
     BSLS_ASSERT(lhsString || 0 == lhsLength);
-    BSLS_ASSERT(0 <= lhsLength);
+    BSLS_ASSERT(             0 <= lhsLength);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     if (lhsLength != rhsLength) {
         return false;                                                 // RETURN
@@ -85,11 +84,11 @@ bool String::areEqualCaseless(const char *lhsString,
 }
 
 char *String::copy(const char       *string,
-                        int               length,
-                        bslma::Allocator *basicAllocator)
+                   int               length,
+                   bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(string || 0 == length);
-    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(          0 <= length);
     BSLS_ASSERT(basicAllocator);
 
     char *newString =
@@ -122,12 +121,12 @@ int String::lowerCaseCmp(const char *lhsString, const char *rhsString)
 }
 
 int String::lowerCaseCmp(const char *lhsString,
-                              const char *rhsString,
-                              int         rhsLength)
+                         const char *rhsString,
+                         int         rhsLength)
 {
     BSLS_ASSERT(lhsString);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
         unsigned char lhs = static_cast<unsigned char>(
@@ -142,14 +141,14 @@ int String::lowerCaseCmp(const char *lhsString,
 }
 
 int String::lowerCaseCmp(const char *lhsString,
-                              int         lhsLength,
-                              const char *rhsString,
-                              int         rhsLength)
+                         int         lhsLength,
+                         const char *rhsString,
+                         int         rhsLength)
 {
     BSLS_ASSERT(lhsString || 0 == lhsLength);
-    BSLS_ASSERT(0 <= lhsLength);
+    BSLS_ASSERT(             0 <= lhsLength);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
@@ -226,14 +225,14 @@ void String::rtrim(const char *string, int *length)
 }
 
 const char *String::strstr(const char *string,
-                                int         stringLen,
-                                const char *subString,
-                                int         subStringLen)
+                           int         stringLen,
+                           const char *subString,
+                           int         subStringLen)
 {
-    BSLS_ASSERT(string || 0 == stringLen);
-    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(string    || 0 == stringLen);
+    BSLS_ASSERT(             0 <= stringLen);
     BSLS_ASSERT(subString || 0 == subStringLen);
-    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(             0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
@@ -257,14 +256,14 @@ const char *String::strstr(const char *string,
 }
 
 const char *String::strstrCaseless(const char *string,
-                                        int         stringLen,
-                                        const char *subString,
-                                        int         subStringLen)
+                                   int         stringLen,
+                                   const char *subString,
+                                   int         subStringLen)
 {
-    BSLS_ASSERT(string || 0 == stringLen);
-    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(string    || 0 == stringLen);
+    BSLS_ASSERT(             0 <= stringLen);
     BSLS_ASSERT(subString || 0 == subStringLen);
-    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(             0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
@@ -288,14 +287,14 @@ const char *String::strstrCaseless(const char *string,
 }
 
 const char *String::strrstr(const char *string,
-                                 int         stringLen,
-                                 const char *subString,
-                                 int         subStringLen)
+                            int         stringLen,
+                            const char *subString,
+                            int         subStringLen)
 {
-    BSLS_ASSERT(string || 0 == stringLen);
-    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(string    || 0 == stringLen);
+    BSLS_ASSERT(             0 <= stringLen);
     BSLS_ASSERT(subString || 0 == subStringLen);
-    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(             0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string + stringLen;                                    // RETURN
@@ -319,14 +318,14 @@ const char *String::strrstr(const char *string,
 }
 
 const char *String::strrstrCaseless(const char *string,
-                                         int         stringLen,
-                                         const char *subString,
-                                         int         subStringLen)
+                                    int         stringLen,
+                                    const char *subString,
+                                    int         subStringLen)
 {
-    BSLS_ASSERT(string || 0 == stringLen);
-    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(string    || 0 == stringLen);
+    BSLS_ASSERT(             0 <= stringLen);
     BSLS_ASSERT(subString || 0 == subStringLen);
-    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(             0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string + stringLen;                                    // RETURN
@@ -350,15 +349,15 @@ const char *String::strrstrCaseless(const char *string,
 }
 
 void String::toFixedLength(char       *dstString,
-                                int         dstLength,
-                                const char *srcString,
-                                int         srcLength,
-                                char        padChar)
+                           int         dstLength,
+                           const char *srcString,
+                           int         srcLength,
+                           char        padChar)
 {
     BSLS_ASSERT(dstString);
-    BSLS_ASSERT(0 <= dstLength);
+    BSLS_ASSERT(             0 <= dstLength);
     BSLS_ASSERT(srcString || 0 == srcLength);
-    BSLS_ASSERT(0 <= srcLength);
+    BSLS_ASSERT(             0 <= srcLength);
 
     if (dstLength < srcLength) {
         // We know 'srcLength > 0', therefore '0 != srcString'.
@@ -380,7 +379,7 @@ void String::toFixedLength(char       *dstString,
 int String::strnlen(const char *string, int maximumLength)
 {
     BSLS_ASSERT(string || 0 == maximumLength);
-    BSLS_ASSERT(0 <= maximumLength);
+    BSLS_ASSERT(          0 <= maximumLength);
 
     int i = 0;
     while (i < maximumLength && string[i]) {
@@ -402,7 +401,7 @@ void String::toLower(char *string)
 void String::toLower(char *string, int length)
 {
     BSLS_ASSERT(string || 0 == length);
-    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(          0 <= length);
 
     for (int i = 0; i < length; ++i) {
         string[i] = static_cast<char>(
@@ -423,7 +422,7 @@ void String::toUpper(char *string)
 void String::toUpper(char *string, int length)
 {
     BSLS_ASSERT(string || 0 == length);
-    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(          0 <= length);
 
     for (int i = 0; i < length; ++i) {
         string[i] = static_cast<char>(
@@ -439,7 +438,7 @@ void String::trim(char *string)
     // set 'start', 'end', and 'trailing':
 
     char *start = string;    // will point to after initial spaces
-    while (bsl::isspace(*start)) {
+    while (bsl::isspace(static_cast<unsigned char>(*start))) {
         ++start;
     }
 
@@ -447,7 +446,7 @@ void String::trim(char *string)
     char *trailing = 0;      // will point to start of trailing spaces, or 0
                              // if there are none
     for (; *end; ++end) {
-        if (bsl::isspace(*end)) {
+        if (bsl::isspace(static_cast<unsigned char>(*end))) {
             if (!trailing) {
                 trailing = end;
             }
@@ -518,12 +517,12 @@ int String::upperCaseCmp(const char *lhsString, const char *rhsString)
 }
 
 int String::upperCaseCmp(const char *lhsString,
-                              const char *rhsString,
-                              int         rhsLength)
+                         const char *rhsString,
+                         int         rhsLength)
 {
     BSLS_ASSERT(lhsString);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
         unsigned char lhs = static_cast<unsigned char>(
@@ -538,14 +537,14 @@ int String::upperCaseCmp(const char *lhsString,
 }
 
 int String::upperCaseCmp(const char *lhsString,
-                              int         lhsLength,
-                              const char *rhsString,
-                              int         rhsLength)
+                         int         lhsLength,
+                         const char *rhsString,
+                         int         rhsLength)
 {
     BSLS_ASSERT(lhsString || 0 == lhsLength);
-    BSLS_ASSERT(0 <= lhsLength);
+    BSLS_ASSERT(             0 <= lhsLength);
     BSLS_ASSERT(rhsString || 0 == rhsLength);
-    BSLS_ASSERT(0 <= rhsLength);
+    BSLS_ASSERT(             0 <= rhsLength);
 
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
@@ -561,8 +560,8 @@ int String::upperCaseCmp(const char *lhsString,
     }
     return lhsLength < rhsLength ? -1 : lhsLength == rhsLength ? 0 : 1;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

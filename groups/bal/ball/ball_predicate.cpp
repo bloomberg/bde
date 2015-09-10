@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(ball_predicate_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
+
 // ACCESSORS
 bsl::ostream& Predicate::print(bsl::ostream& stream,
                                int           level ,

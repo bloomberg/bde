@@ -7,7 +7,7 @@
 #include <bsl_cctype.h>    // isprint(), toupper(), etc.
 #include <bsl_iostream.h>
 #include <bsl_limits.h>    // INT_MAX
-#include <bsl_strstream.h> // ostrstream
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -5673,8 +5673,7 @@ encoded.");
 
         if (verbose) cout << "\nTry 'printCharN' test helper function." <<endl;
         {
-            static char buf[100];
-            ostrstream out(buf, sizeof buf);
+            ostringstream out;
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -5684,10 +5683,10 @@ encoded.");
             const char EXP[] = "a<00>b<07>c<08>d<0F>e<10>f<80>g<FF><00>";
 
             if (veryVerbose) {
-                cout << "\tRESULT = " << buf << endl;
+                cout << "\tRESULT = " << out.str() << endl;
                 cout << "\tEXPECT = " << EXP << endl;
             }
-            ASSERT(0 == strncmp(EXP, buf, sizeof EXP));
+            ASSERT(0 == strncmp(EXP, out.str().c_str(), sizeof EXP));
         }
 
         if (verbose) cout << "\nTry instantiating an encoder." << endl;

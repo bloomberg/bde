@@ -1,24 +1,25 @@
 // balxml_errorinfo.t.cpp                                             -*-C++-*-
+#include <balxml_errorinfo.h>
+
+#include <bslim_testutil.h>
 
 #include <balxml_errorinfo.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-
-#include <bsl_iostream.h>
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-// Undefine some awkwardly named Windows macros that interfere with this cpp
-// file, but only after the last #include.
-# undef ERROR
-#endif
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balxml::ErrorInfo is an in-core value-semantic attribute type.  As such, the
 // test driver follows a pre-set formula consisting of a breathing test, then
 // tests of the default constructor, basic manipulators and basic accessors,
@@ -26,7 +27,7 @@ using namespace BloombergLP;
 // printing, and finally a real-world usage example.  To test a good value
 // set, a generator function is used to generate a set of input and output
 // values for each of the tests.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [2] balxml::ErrorInfo(bslma::Allocator *basicAllocator = 0);
 // [4] balxml::ErrorInfo(const balxml::ErrorInfo&  other,
 //                      bslma::Allocator        *basicAllocator = 0);
@@ -55,69 +56,59 @@ using namespace BloombergLP;
 //                     const balxml::ErrorInfo& rhs);
 // [5] bsl::ostream& operator<<(bsl::ostream&           stream,
 //                              const balxml::ErrorInfo& errInfo);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [6] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-                          << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\n";           \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J    \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": " \
-                         << L << "\t" << #M << ": " << M << "\n";         \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J     \
-                         << "\t" << #K << ": " << K << "\t" << #L << ": "  \
-                         << L << "\t" << #M << ": " << M << "\t" << #N     \
-                         << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // Allow compilation of individual test-cases (for test drivers that take a
 // very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
-#define L_ __LINE__                                // current Line number
-#define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -138,15 +129,15 @@ static int veryVeryVerbose = 0;
 // Abbreviation for balxml::ErrorInfo
 typedef balxml::ErrorInfo Obj;
 
-#ifdef NO_ERROR // 'NO_ERROR' is #define'd in a windows header
-#undef NO_ERROR
+#ifdef NO_FAULT // 'NO_FAULT' is #define'd in a windows header
+#undef NO_FAULT
 #endif
 
 // Abbreviations for severities.
-const Obj::Severity NO_ERROR    = Obj::e_NO_ERROR;
-const Obj::Severity WARNING     = Obj::e_WARNING;
-const Obj::Severity ERROR       = Obj::e_ERROR;
-const Obj::Severity FATAL_ERROR = Obj::e_FATAL_ERROR;
+const Obj::Severity NO_FAULT    = Obj::e_NO_ERROR;
+const Obj::Severity CAUTION     = Obj::e_WARNING;
+const Obj::Severity FAULT       = Obj::e_ERROR;
+const Obj::Severity FATAL_FAULT = Obj::e_FATAL_ERROR;
 
 struct TestVector
 {
@@ -170,7 +161,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     // and false if there are no more test vectors.  If the (optionally)
     // specified 'skipUnsettable' is true (the default), then test vectors
     // that can never be translated into a 'balxml::ErrorInfo' object are
-    // skipped.  Specifically, if severity is NO_ERROR, then any values other
+    // skipped.  Specifically, if severity is NO_FAULT, then any values other
     // than the defaults for line number, column number, source, and message
     // can not be set in an object.
 {
@@ -187,7 +178,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     };
     static const int NUM_MESSAGES = NUM_ELEMENTS(MESSAGES);
 
-    static const int NUM_SEVERITIES = FATAL_ERROR + 1;
+    static const int NUM_SEVERITIES = FATAL_FAULT + 1;
 
     static const int TESTVECTORS_PER_SEVERITY = (NUM_LINE_NUMBERS   *
                                                  NUM_COLUMN_NUMBERS *
@@ -197,9 +188,9 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     // The total number of test vectors depends on whether we are skipping
     // those vectors that cannot be used to set a 'balxml::ErrorInfo' object.
     // If we are skipping unsettable test vectors, then we have a full set of
-    // test vectors for each severity except BAEXML_NO_ERROR but only one
-    // test vector for BAEXML_NO_ERROR.  If we are not skipping any vectors,
-    // then we simply have a full set of vectors for each severity.
+    // test vectors for each severity except BAEXML_NO_ERROR but only one test
+    // vector for BAEXML_NO_ERROR.  If we are not skipping any vectors, then we
+    // simply have a full set of vectors for each severity.
     int numTestVectors = (skipUnsettable ?
                           TESTVECTORS_PER_SEVERITY * (NUM_SEVERITIES - 1) + 1 :
                           TESTVECTORS_PER_SEVERITY * NUM_SEVERITIES);
@@ -221,18 +212,18 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     index /= NUM_MESSAGES;
 
     // Severity is the high-order field.  This formula is designed so that
-    // BAEXML_NO_ERROR is the last (instead of the first) severity
-    // generated.  That way, if 'skipUnsettable' is true, then the test
-    // vectors that are eliminated will all be for BAEXML_NO_ERROR.
+    // BAEXML_NO_ERROR is the last (instead of the first) severity generated.
+    // That way, if 'skipUnsettable' is true, then the test vectors that are
+    // eliminated will all be for BAEXML_NO_ERROR.
     v->d_severity = (Obj::Severity) ((index + 1) % NUM_SEVERITIES);
     index /= NUM_SEVERITIES;
 
-    v->d_isNoError    = (v->d_severity == NO_ERROR);
-    v->d_isWarning    = (v->d_severity == WARNING);
-    v->d_isError      = (v->d_severity == ERROR);
-    v->d_isFatalError = (v->d_severity == FATAL_ERROR);
-    v->d_isAnyError   = (v->d_severity == ERROR ||
-                         v->d_severity == FATAL_ERROR);
+    v->d_isNoError    = (v->d_severity == NO_FAULT);
+    v->d_isWarning    = (v->d_severity == CAUTION);
+    v->d_isError      = (v->d_severity == FAULT);
+    v->d_isFatalError = (v->d_severity == FATAL_FAULT);
+    v->d_isAnyError   = (v->d_severity == FAULT ||
+                         v->d_severity == FATAL_FAULT);
 
     return true;
 }
@@ -241,18 +232,13 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 //                    CLASSES FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
-// In this example, we create a parser for a simple file of percentages.
-// The file is formatted as a sequence of lines, with each line containing a
-// decimal number in the range "0" to "100", inclusive.  Leading whitespace
-// and blank lines are ignored.  When an error occurs during parsing, the
-// error data is stored in a 'balxml::ErrorInfo' object.  Our parser's
-// interface is as follows:
+// In this example, we create a parser for a simple file of percentages.  The
+// file is formatted as a sequence of lines, with each line containing a
+// decimal number in the range "0" to "100", inclusive.  Leading whitespace and
+// blank lines are ignored.  When an error occurs during parsing, the error
+// data is stored in a 'balxml::ErrorInfo' object.  Our parser's interface is
+// as follows:
 //..
-    #include <balxml_errorinfo.h>
-    #include <bsl_sstream.h>
-    #include <bsl_cstdlib.h>
-    #include <bsl_cstring.h>
-    #include <bsl_climits.h>
 
     class PercentParser {
         // Parse a document stream consisting of a sequence of integral
@@ -266,7 +252,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         PercentParser(bsl::istream       *input,
                       const bsl::string&  docName = "INPUT");
             // Construct a parser to parse the data in the specified 'input'
-            // stream having the (optional) specified 'docName'.  A valid
+            // stream having the optionally specified 'docName'.  A valid
             // 'input' stream contains a sequence of integers in the range 0
             // to 100, one per line, in decimal text format.  Each line may
             // contain leading but not trailing tabs and spaces.  Characters
@@ -322,8 +308,8 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 // Then we clear the stream condition and discard the rest of the line.
 //..
             if (MAX_LINE == len && d_input->fail()) {
-                // 20 characters read without encountering newline.
-                // Warn about long line and discard rest of line.
+                // 20 characters read without encountering newline.  Warn about
+                // long line and discard rest of line.
                 errorInfo->setError(balxml::ErrorInfo::e_WARNING,
                                     d_line, len, d_docName,
                                     "Text after 20th column was discarded");
@@ -549,7 +535,7 @@ int main(int argc, char *argv[])
         // PRINTING
         //
         // Concerns:
-        //   - Printing an object for NO_ERROR produces no output.
+        //   - Printing an object for NO_FAULT produces no output.
         //   - Printing an object for a warning or error produces an
         //     output of the expected form.
         //
@@ -578,10 +564,10 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Severity    Output
             // ========    ======
-            { NO_ERROR,    "" },
-            { WARNING,     "data.xsd:12.15: Warning: error message"     },
-            { ERROR,       "data.xsd:12.15: Error: error message"       },
-            { FATAL_ERROR, "data.xsd:12.15: Fatal Error: error message" }
+            { NO_FAULT,    "" },
+            { CAUTION,     "data.xsd:12.15: Warning: error message"     },
+            { FAULT,       "data.xsd:12.15: Error: error message"       },
+            { FATAL_FAULT, "data.xsd:12.15: Fatal Error: error message" }
         };
 
         static const int DATA_LEN = NUM_ELEMENTS(DATA);
@@ -628,7 +614,8 @@ int main(int argc, char *argv[])
         //  - Copy-construct another 'balxml::ErrorInfo' object from the first,
         //    using a test constructor.  Verify that the copy compares
         //    equal to the original and that the correct allocator was used.
-        //  - Construct an empty 'balxml::ErrorInfo' object and give it a value.
+        //  - Construct an empty 'balxml::ErrorInfo' object and give it a
+        //    value.
         //  - Assign the new object the value of the first object.  Verify
         //    that copy matches the original and that the copy uses the
         //    allocator that with which it was first constructed.
@@ -694,7 +681,7 @@ int main(int argc, char *argv[])
 
             {
                 Obj e2(&tb); const Obj& E2 = e2;
-                e2.setError(WARNING, 99, 100, "junk.xsd", "junk message");
+                e2.setError(CAUTION, 99, 100, "junk.xsd", "junk message");
                 e2 = E1;
                 LOOP_ASSERT(E2, V1.d_isNoError    == E2.isNoError());
                 LOOP_ASSERT(E2, V1.d_isWarning    == E2.isWarning());
@@ -788,8 +775,8 @@ int main(int argc, char *argv[])
         // BASIC MANIPULATORS
         //
         // Concerns:
-        //  - The default constructor produces a NO_ERROR object.
-        //  - 'setError' on a NO_ERROR object overwrites the current settings
+        //  - The default constructor produces a NO_FAULT object.
+        //  - 'setError' on a NO_FAULT object overwrites the current settings
         //  - 'setError' on an object with lower severity overwrites the
         //    current settings.
         //  - 'setError' on an object with same or higher priority does
@@ -804,8 +791,8 @@ int main(int argc, char *argv[])
         //    use of the allocator.
         //  - Repeat the previous 2 steps using a test allocator.
         //  - Loop through two sets of data values
-        //  - Within the loop, construct three 'balxml::ErrorInfo' objects using
-        //    a test allocator.  Call them 'e1', 'e2', and 'e3'.
+        //  - Within the loop, construct three 'balxml::ErrorInfo' objects
+        //    using a test allocator.  Call them 'e1', 'e2', and 'e3'.
         //  - Use the multiple-argument 'setError' to set 'e1' to one data
         //    value.  Verify the attributes of 'e1'
         //  - Use the multiple-argument 'setError' to set 'e2' and 'e3' to the
@@ -859,20 +846,20 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(E0, ! E0.isFatalError());
             LOOP_ASSERT(E0, ! E0.isAnyError());
             LOOP_ASSERT(E0, ! E0.isWarning());
-            LOOP_ASSERT(E0, NO_ERROR    == E0.severity());
+            LOOP_ASSERT(E0, NO_FAULT    == E0.severity());
             LOOP_ASSERT(E0, 0           == E0.lineNumber());
             LOOP_ASSERT(E0, 0           == E0.columnNumber());
             LOOP_ASSERT(E0, ""          == E0.source());
             LOOP_ASSERT(E0, ""          == E0.message());
 
-            e0.setError(ERROR, 1, 2, "MySource.xml", "The error");
+            e0.setError(FAULT, 1, 2, "MySource.xml", "The error");
             LOOP_ASSERT(E0, ! E0.isNoError());
             LOOP_ASSERT(E0, ! E0.isWarning());
             LOOP_ASSERT(E0,   E0.isError());
             LOOP_ASSERT(E0, ! E0.isFatalError());
             LOOP_ASSERT(E0,   E0.isAnyError());
             LOOP_ASSERT(E0, ! E0.isWarning());
-            LOOP_ASSERT(E0, ERROR          == E0.severity());
+            LOOP_ASSERT(E0, FAULT          == E0.severity());
             LOOP_ASSERT(E0, 1              == E0.lineNumber());
             LOOP_ASSERT(E0, 2              == E0.columnNumber());
             LOOP_ASSERT(E0, "MySource.xml" == E0.source());
@@ -890,21 +877,21 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(E0, ! E0.isFatalError());
             LOOP_ASSERT(E0, ! E0.isAnyError());
             LOOP_ASSERT(E0, ! E0.isWarning());
-            LOOP_ASSERT(E0, NO_ERROR    == E0.severity());
+            LOOP_ASSERT(E0, NO_FAULT    == E0.severity());
             LOOP_ASSERT(E0, 0           == E0.lineNumber());
             LOOP_ASSERT(E0, 0           == E0.columnNumber());
             LOOP_ASSERT(E0, ""          == E0.source());
             LOOP_ASSERT(E0, ""          == E0.message());
             LOOP_ASSERT(E0, 0 == da.numBlocksInUse());
 
-            e0.setError(ERROR, 1, 2, "MySource.xml", "The error");
+            e0.setError(FAULT, 1, 2, "MySource.xml", "The error");
             LOOP_ASSERT(E0, ! E0.isNoError());
             LOOP_ASSERT(E0, ! E0.isWarning());
             LOOP_ASSERT(E0,   E0.isError());
             LOOP_ASSERT(E0, ! E0.isFatalError());
             LOOP_ASSERT(E0,   E0.isAnyError());
             LOOP_ASSERT(E0, ! E0.isWarning());
-            LOOP_ASSERT(E0, ERROR          == E0.severity());
+            LOOP_ASSERT(E0, FAULT          == E0.severity());
             LOOP_ASSERT(E0, 1              == E0.lineNumber());
             LOOP_ASSERT(E0, 2              == E0.columnNumber());
             LOOP_ASSERT(E0, "MySource.xml" == E0.source());
@@ -927,7 +914,7 @@ int main(int argc, char *argv[])
                         V1.d_columnNumber,
                         V1.d_source,
                         V1.d_message);
-            const int EMPTY1 = V1.d_severity <= NO_ERROR ||
+            const int EMPTY1 = V1.d_severity <= NO_FAULT ||
                                (0 == V1.d_source.length() &&
                                 0 == V1.d_message.length());
             LOOP_ASSERT(E1, V1.d_isNoError    == E1.isNoError());
@@ -936,7 +923,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(E1, V1.d_isFatalError == E1.isFatalError());
             LOOP_ASSERT(E1, V1.d_isAnyError   == E1.isAnyError());
             LOOP_ASSERT(E1, V1.d_severity     == E1.severity());
-            if (V1.d_severity > NO_ERROR) {
+            if (V1.d_severity > NO_FAULT) {
                 LOOP_ASSERT(E1, V1.d_lineNumber   == E1.lineNumber());
                 LOOP_ASSERT(E1, V1.d_columnNumber == E1.columnNumber());
                 LOOP_ASSERT(E1, V1.d_source       == E1.source());
@@ -1049,7 +1036,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(E3, ! E3.isFatalError());
                 LOOP_ASSERT(E3, ! E3.isAnyError());
                 LOOP_ASSERT(E3, ! E3.isWarning());
-                LOOP_ASSERT(E3, NO_ERROR    == E3.severity());
+                LOOP_ASSERT(E3, NO_FAULT    == E3.severity());
                 LOOP_ASSERT(E3, 0           == E3.lineNumber());
                 LOOP_ASSERT(E3, 0           == E3.columnNumber());
                 LOOP_ASSERT(E3, ""          == E3.source());

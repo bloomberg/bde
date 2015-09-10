@@ -10,7 +10,6 @@ BSLS_IDENT_RCSID(balm_publicationtype_cpp,"$Id$ $CSID$ $CCId$")
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 
-
 #include <bsls_assert.h>
 
 #include <bsl_ostream.h>
@@ -19,36 +18,37 @@ BSLS_IDENT_RCSID(balm_publicationtype_cpp,"$Id$ $CSID$ $CCId$")
 namespace BloombergLP {
 
 namespace balm {
-                           // --------------------------
+                           // ---------------------
                            // class PublicationType
-                           // --------------------------
+                           // ---------------------
 
 // CONSTANTS
 
 // CLASS METHODS
 
 int PublicationType::fromInt(PublicationType::Value *result,
-                                  int                          number)
+                             int                     number)
 {
     switch (number) {
-      case PublicationType::e_BALM_UNSPECIFIED:
-      case PublicationType::e_BALM_TOTAL:
-      case PublicationType::e_BALM_COUNT:
-      case PublicationType::e_BALM_MIN:
-      case PublicationType::e_BALM_MAX:
-      case PublicationType::e_BALM_AVG:
-      case PublicationType::e_BALM_RATE:
-      case PublicationType::e_BALM_RATE_COUNT:
+      case PublicationType::e_UNSPECIFIED:
+      case PublicationType::e_TOTAL:
+      case PublicationType::e_COUNT:
+      case PublicationType::e_MIN:
+      case PublicationType::e_MAX:
+      case PublicationType::e_AVG:
+      case PublicationType::e_RATE:
+      case PublicationType::e_RATE_COUNT:
         *result = (PublicationType::Value)number;
         return 0;                                                     // RETURN
       default:
         return -1;                                                    // RETURN
     }
+    return -1;
 }
 
 int PublicationType::fromString(PublicationType::Value *result,
-                                     const char                  *string,
-                                     int                          stringLength)
+                                     const char        *string,
+                                     int                stringLength)
 {
 
     switch(stringLength) {
@@ -64,7 +64,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                         if (string[6]=='V'
                          && string[7]=='G')
                         {
-                            *result = PublicationType::e_BALM_AVG;
+                            *result = PublicationType::e_AVG;
                             return 0;                                 // RETURN
                         }
                     } break;
@@ -73,14 +73,14 @@ int PublicationType::fromString(PublicationType::Value *result,
                             case 'A': {
                                 if (string[7]=='X')
                                 {
-                                    *result = PublicationType::e_BALM_MAX;
+                                    *result = PublicationType::e_MAX;
                                     return 0;                         // RETURN
                                 }
                             } break;
                             case 'I': {
                                 if (string[7]=='N')
                                 {
-                                    *result = PublicationType::e_BALM_MIN;
+                                    *result = PublicationType::e_MIN;
                                     return 0;                         // RETURN
                                 }
                             } break;
@@ -100,7 +100,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[7]=='T'
              && string[8]=='E')
             {
-                *result = PublicationType::e_BALM_RATE;
+                *result = PublicationType::e_RATE;
                 return 0;                                             // RETURN
             }
         } break;
@@ -118,7 +118,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[8]=='N'
                          && string[9]=='T')
                         {
-                            *result = PublicationType::e_BALM_COUNT;
+                            *result = PublicationType::e_COUNT;
                             return 0;                                 // RETURN
                         }
                     } break;
@@ -128,7 +128,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[8]=='A'
                          && string[9]=='L')
                         {
-                            *result = PublicationType::e_BALM_TOTAL;
+                            *result = PublicationType::e_TOTAL;
                             return 0;                                 // RETURN
                         }
                     } break;
@@ -152,7 +152,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[13]=='N'
              && string[14]=='T')
             {
-                *result = PublicationType::e_BALM_RATE_COUNT;
+                *result = PublicationType::e_RATE_COUNT;
                 return 0;                                             // RETURN
             }
         } break;
@@ -174,7 +174,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[14]=='E'
              && string[15]=='D')
             {
-                *result = PublicationType::e_BALM_UNSPECIFIED;
+                *result = PublicationType::e_UNSPECIFIED;
                 return 0;                                             // RETURN
             }
         } break;
@@ -186,29 +186,29 @@ int PublicationType::fromString(PublicationType::Value *result,
 const char *PublicationType::toString(PublicationType::Value value)
 {
     switch (value) {
-      case e_BALM_UNSPECIFIED: {
-        return "BALM_UNSPECIFIED";                                    // RETURN
+      case e_UNSPECIFIED: {
+        return "UNSPECIFIED";                                         // RETURN
       } break;
-      case e_BALM_TOTAL: {
-        return "BALM_TOTAL";                                          // RETURN
+      case e_TOTAL: {
+        return "TOTAL";                                               // RETURN
       } break;
-      case e_BALM_COUNT: {
-        return "BALM_COUNT";                                          // RETURN
+      case e_COUNT: {
+        return "COUNT";                                               // RETURN
       } break;
-      case e_BALM_MIN: {
-        return "BALM_MIN";                                            // RETURN
+      case e_MIN: {
+        return "MIN";                                                 // RETURN
       } break;
-      case e_BALM_MAX: {
-        return "BALM_MAX";                                            // RETURN
+      case e_MAX: {
+        return "MAX";                                                 // RETURN
       } break;
-      case e_BALM_AVG: {
-        return "BALM_AVG";                                            // RETURN
+      case e_AVG: {
+        return "AVG";                                                 // RETURN
       } break;
-      case e_BALM_RATE: {
-        return "BALM_RATE";                                           // RETURN
+      case e_RATE: {
+        return "RATE";                                                // RETURN
       } break;
-      case e_BALM_RATE_COUNT: {
-        return "BALM_RATE_COUNT";                                     // RETURN
+      case e_RATE_COUNT: {
+        return "RATE_COUNT";                                          // RETURN
       } break;
     }
 

@@ -17,8 +17,8 @@
 
 #include <bdlqq_threadutil.h>
 
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_processutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_processutil.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -183,8 +183,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef ball::FileObserver2   Obj;
-typedef bdlsu::FilesystemUtil FileUtil;
+typedef ball::FileObserver2  Obj;
+typedef bdls::FilesystemUtil FileUtil;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -275,13 +275,13 @@ bsl::string tempFileName(bool verboseFlag)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "bael", 0, tmpNameBuf);
+    GetTempFileName(tmpPathBuf, "ball", 0, tmpNameBuf);
     result = tmpNameBuf;
 #elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
-    result = tempnam(tmpPathBuf, "bael");
+    result = tempnam(tmpPathBuf, "ball");
 #else
-    char *fn = tempnam(0, "bael");
+    char *fn = tempnam(0, "ball");
     result = fn;
     bsl::free(fn);
 #endif
@@ -903,7 +903,7 @@ int main(int argc, char *argv[])
         ASSERT(X.isFileLoggingEnabled(&logfilename));
         if (veryVeryVerbose) { T_; T_; P(logfilename); }
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         int                 logRecordCount  = 0;
         int                 testLocalTimeOffsetInSeconds;
@@ -1075,7 +1075,7 @@ int main(int argc, char *argv[])
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         mX.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 
@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         if (veryVerbose) cout <<
                          "Test lower bound of absolute time reference" << endl;
@@ -1284,7 +1284,7 @@ int main(int argc, char *argv[])
         RotCb cb(Z);
         mX.setOnFileRotationCallback(cb);
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 3));
 
@@ -1417,7 +1417,7 @@ int main(int argc, char *argv[])
         {
             const bsl::string BASENAME = tempFileName(veryVerbose);
 
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
@@ -1499,7 +1499,7 @@ int main(int argc, char *argv[])
         {
             const bsl::string BASENAME = tempFileName(veryVerbose);
 
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
             ASSERT(X.isFileLoggingEnabled());
@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Test infrastructure setup." << endl;
 
-        const int processId = bdlsu::ProcessUtil::getProcessId();
+        const int processId = bdls::ProcessUtil::getProcessId();
 
         if (veryVeryVerbose) { P(processId) }
 
@@ -1837,7 +1837,7 @@ int main(int argc, char *argv[])
         mX.setOnFileRotationCallback(cb);
         mX.enablePublishInLocalTime();
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
 
         if (verbose) cout << "Test table of file names" << endl;
@@ -2108,7 +2108,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Set the OS to limit the total size of any file we write to to
-        //   a fairly small amount, then use BAEL to write more than that.
+        //   a fairly small amount, then use BALL to write more than that.
         //   while doing this, capture the stderr output and verify a message
         //   has been written.
         // --------------------------------------------------------------------
@@ -2160,7 +2160,7 @@ int main(int argc, char *argv[])
 
             bsl::stringstream os;
 
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             // we want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
@@ -2243,7 +2243,7 @@ int main(int argc, char *argv[])
         ball::LoggerManagerScopedGuard guard(&multiplexObserver,
                                             configuration,
                                             &ta);
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         if (verbose) cout << "Testing log file deletion." << endl;
         {
@@ -2356,7 +2356,7 @@ int main(int argc, char *argv[])
             bsl::string filename = tempFileName(veryVerbose);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
             ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
                                              false));
             ASSERT(X.isFileLoggingEnabled());
@@ -2441,7 +2441,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta);  const Obj& X = mX;
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
@@ -2614,7 +2614,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta);  const Obj& X = mX;
             multiplexObserver.registerObserver(&mX);
 
-            BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
@@ -2800,7 +2800,7 @@ int main(int argc, char *argv[])
                 ASSERT(X.isFileLoggingEnabled());
                 ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
 
@@ -2844,7 +2844,7 @@ int main(int argc, char *argv[])
                 localMultiObserver.registerObserver(&defaultObserver);
                 multiplexObserver.registerObserver(&localMultiObserver);
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 bsl::string filename = tempFileName(veryVerbose);
                 ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
@@ -2857,7 +2857,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == readFileIntoString(__LINE__, filename, os));
 
                 testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                          " bael::FileObserverTest log FATAL " << "\n";
+                          " ball::FileObserverTest log FATAL " << "\n";
                 // Replace the spaces after pid, __FILE__
                 {
                     bsl::string temp = dos.str();
@@ -2942,7 +2942,7 @@ int main(int argc, char *argv[])
                 ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
                 multiplexObserver.registerObserver(&mX);
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 ASSERT(0 == mX.enableFileLogging(filename.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
@@ -2999,7 +2999,7 @@ int main(int argc, char *argv[])
                 Obj mX(&ta);  const Obj& X = mX;
                 multiplexObserver.registerObserver(&mX);
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
                 ASSERT(X.isFileLoggingEnabled());
@@ -3089,7 +3089,7 @@ int main(int argc, char *argv[])
                 localMultiObserver.registerObserver(&mX3);
                 multiplexObserver.registerObserver(&localMultiObserver);
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 // obtain a temporary filename
                 bsl::string baseName = tempFileName(veryVerbose);
@@ -3152,7 +3152,7 @@ int main(int argc, char *argv[])
                 localMultiObserver.registerObserver(&mX3);
                 multiplexObserver.registerObserver(&localMultiObserver);
 
-                BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
                 // obtain a temporary filename
                 bsl::string baseName = tempFileName(veryVerbose);
@@ -3286,7 +3286,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
         ASSERT(X.isFileLoggingEnabled());
 
-        BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
+        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
         P(BASENAME);
 

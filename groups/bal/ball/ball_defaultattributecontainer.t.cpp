@@ -35,15 +35,15 @@ using namespace bsl;  // automatically added by script
 // [ 2] int addAttribute(const ball::Attribute& attribute);
 // [ 2] int removeAttribute(const ball::Attribute& attribute);
 // [12] void removeAllAttributes();
-// [ 9] const ball::DefaultAttributeContainer& operator=(const bael::AS& other)
+// [ 9] const ball::DefaultAttributeContainer& operator=(const ball::AS& other)
 // [ 4] int numAttributes() const;
 // [ 4] bool hasValue(const ball::Attribute&) const;
 // [11] const_iterator begin() const;
 // [11] const_iterator end() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const bael::AS& lhs, const bael::AS& rhs)
-// [ 6] bool operator!=(const bael::AS& lhs, const bael::AS& rhs)
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::AS&) const;
+// [ 6] bool operator==(const ball::AS& lhs, const ball::AS& rhs)
+// [ 6] bool operator!=(const ball::AS& lhs, const ball::AS& rhs)
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::AS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] Obj& gg(Obj *obj, const char *spec);
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING 'bdex' STREAMING FUNCTIONALITY:
-        //   Void for 'bael::AttributeSET'.
+        //   Void for 'ball::AttributeSET'.
         // --------------------------------------------------------------------
 
       } break;
@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   const ball::DefaultAttributeContainer& operator=(
-        //                                               const bael::AS& other)
+        //                                               const ball::AS& other)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n==========================" << endl;
@@ -718,8 +718,8 @@ int main(int argc, char *argv[])
         //   correct value.
 
         // Testing:
-        //   bool operator==(const bael::AS& lhs, const bael::AS& rhs)
-        //   bool operator!=(const bael::AS& lhs, const bael::AS& rhs)
+        //   bool operator==(const ball::AS& lhs, const ball::AS& rhs)
+        //   bool operator!=(const ball::AS& lhs, const ball::AS& rhs)
         // --------------------------------------------------------------------
 
         static const struct {
@@ -917,7 +917,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::AS&) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::AS&) const;
         //   bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
         // --------------------------------------------------------------------
 

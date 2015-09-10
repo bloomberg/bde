@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
-#include <bdlsu_processutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bslma_default.h>
@@ -26,7 +26,7 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
 // IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
 // the implementation.  To guarantee that a thread sees the
-// 'd_shuttingDownFlag' a ('ball::Transmission::BAEL_END') record is appended
+// 'd_shuttingDownFlag' a ('ball::Transmission::e_END') record is appended
 // to the queue, otherwise the publication thread may be blocked indefinitely
 // on 'popFront'.  Unfortunately that potentially leaves a bogus record in the
 // queue after the publication thread is shutdown -- to avoid dealing with that
@@ -37,9 +37,9 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 
-                       // ----------------------------
+                       // -----------------------------
                        // class ball::AsyncFileObserver
-                       // ----------------------------
+                       // -----------------------------
 
 namespace {
 
@@ -48,7 +48,7 @@ enum {
     FORCE_WARN_THRESHOLD     = 5000
 };
 
-static const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
+static const char LOG_CATEGORY[] = "BALL.ASYNCFILEOBSERVER";
 
 static void populateWarnRecord(ball::Record *record,
                                int           lineNumber,
@@ -135,7 +135,7 @@ int AsyncFileObserver::startThread()
 int AsyncFileObserver::stopThread()
 {
     if (bdlqq::ThreadUtil::invalidHandle() != d_threadHandle) {
-        // Push an empty record with BAEL_END set in context.
+        // Push an empty record with 'e_END' set in context.
 
         AsyncRecord asyncRecord;
         bsl::shared_ptr<const Record> record(
@@ -188,7 +188,7 @@ void AsyncFileObserver::construct()
     d_droppedRecordWarning.fixedFields().setSeverity(
                                           Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
-                                          bdlsu::ProcessUtil::getProcessId());
+                                            bdls::ProcessUtil::getProcessId());
 }
 
 // CREATORS

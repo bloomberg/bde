@@ -36,6 +36,8 @@
 #define snprintf _snprintf_s
 #endif
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -99,7 +101,7 @@ using bsl::flush;
 //                          int                             ,
 //                          bool                            );
 // [10]  void publish(const balm::Category  *, const bsls::TimeInterval& );
-// [ 8]  void publish(const balm::Category *[], int, const bsls::TimeInterval& );
+// [ 8]  void publish(const balm::Category *[], int, const TimeInterval& );
 // [ 9]  void publish(const bsl::set<const balm::Category *>& ,
 //                    const bsls::TimeInterval&               );
 // [11]  void publishAll(const bsls::TimeInterval& );
@@ -112,8 +114,8 @@ using bsl::flush;
 // [ 7]  int findGeneralPublishers(bsl::vector<balm::Publisher *> *) const;
 // [17]  int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
 //                                  const char *        ) const;
-// [ 7]  int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
-//                                  const balm::Category           *) const;
+// [ 7] int findSpecificPublishers(bsl::vector<Publisher *> *,
+//                                 const Category           *) const;
 // [ 5]  const balm::CollectorRepository& collectorRepository() const;
 // [ 5]  const balm::MetricRegistry& metricRegistry() const;
 //-----------------------------------------------------------------------------
@@ -130,9 +132,9 @@ using bsl::flush;
 // [25] CONCURRENCY TEST
 // [26] USAGE EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -144,42 +146,30 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::Collector                Collector;
 typedef balm::Category                 Category;
@@ -187,7 +177,7 @@ typedef balm::MetricId                 Id;
 typedef balm::Publisher                Pub;
 typedef bsl::shared_ptr<Pub>           PubPtr;
 typedef balm::MetricsManager           Obj;
-typedef balm::MetricRegistry            Registry;
+typedef balm::MetricRegistry           Registry;
 typedef balm::CollectorRepository      Repository;
 typedef Obj::CallbackHandle            CbHandle;
 
@@ -199,9 +189,9 @@ enum {
     NANOSECS_PER_SEC      = 1000000000   // one billion
 };
 
-//=============================================================================
-//                      CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 inline
 bool recordLess(const balm::MetricRecord& lhs, const balm::MetricRecord& rhs)
@@ -263,26 +253,30 @@ bool withinWindow(const bsls::TimeInterval& value,
     return withinWindow;
 }
 
-                      // ==================
-                      // class TestCallback
-                      // ==================
+                             // ==================
+                             // class TestCallback
+                             // ==================
 
 class TestCallback {
     // This class is used to provide a callback matching
     // 'balm::MetricsManager::MetricsCollectionCallback'.  A 'TestCallback' is
-    // supplied a 'balm::MetricId' at construction that determines the id of the
-    // metric returned by the 'recordMetrics' operation.  A 'TestCallback'
-    // object keeps track of the number of times 'recordMetrics' is invoked.
-    // A callback object also provides a 'function' method that returns
-    // a 'bdlf::Function' object matching the
+    // supplied a 'balm::MetricId' at construction that determines the id of
+    // the metric returned by the 'recordMetrics' operation.  A 'TestCallback'
+    // object keeps track of the number of times 'recordMetrics' is invoked.  A
+    // callback object also provides a 'function' method that returns a
+    // 'bdlf::Function' object matching the
     // 'balm::MetricsManager::MetricsCollectionCallback' signature that, on
     // invocation, calls 'recordMetrics' on the object.
 
     // DATA
     bsls::AtomicInt     d_numInvocations; // number of invocations
-    balm::MetricRecord  d_record;         // record to append on 'recordMetrics'
-    bool               d_reset;          // last invocation's resetFlag
-    bslma::Allocator  *d_allocator_p;    // allocator (held, not owned)
+
+    balm::MetricRecord  d_record;         // record to append on
+                                          // 'recordMetrics'
+
+    bool                d_reset;          // last invocation's resetFlag
+
+    bslma::Allocator   *d_allocator_p;    // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     TestCallback(const TestCallback& );
@@ -295,7 +289,8 @@ class TestCallback {
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    TestCallback(const balm::MetricRecord& record, bslma::Allocator *allocator);
+    TestCallback(const balm::MetricRecord& record,
+                 bslma::Allocator *allocator);
         // Create a 'TestCallback' that will populate a metric with the
         // specified 'record'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
@@ -303,7 +298,7 @@ class TestCallback {
 
     // MANIPULATORS
     void recordMetrics(bsl::vector<balm::MetricRecord> *records,
-                       bool                            resetFlag);
+                       bool                             resetFlag);
         // Increment 'invocations()' and append to the specified 'records' a
         // 'balm::MetricRecord' containing the 'balm::MetricId' or matching the
         // 'balm::MetricRecord' supplied at construction.
@@ -326,8 +321,9 @@ class TestCallback {
         // that will be appended on a call to 'recordMetrics'.
 
     balm::MetricId metricId() const;
-        // Return a 'balm::MetricId' object identifying the 'balm::MetricRecord'
-        // that will be appended on a call to 'recordMetrics'.
+        // Return a 'balm::MetricId' object identifying the
+        // 'balm::MetricRecord' that will be appended on a call to
+        // 'recordMetrics'.
 
     int invocations() const;
         // Return the number of invocations of 'recordMetrics' since this
@@ -338,9 +334,9 @@ class TestCallback {
         // and 'false' otherwise.
 };
 
-                      // ------------------
-                      // class TestCallback
-                      // ------------------
+                             // ------------------
+                             // class TestCallback
+                             // ------------------
 
 // CREATORS
 inline
@@ -354,7 +350,7 @@ TestCallback::TestCallback(Id metricId, bslma::Allocator *allocator)
 
 inline
 TestCallback::TestCallback(const balm::MetricRecord&  record,
-                           bslma::Allocator         *allocator)
+                           bslma::Allocator          *allocator)
 : d_numInvocations(0)
 , d_record(record)
 , d_reset(false)
@@ -364,7 +360,7 @@ TestCallback::TestCallback(const balm::MetricRecord&  record,
 
 // MANIPULATORS
 void TestCallback::recordMetrics(bsl::vector<balm::MetricRecord> *records,
-                                 bool                            resetFlag)
+                                 bool                             resetFlag)
 {
     d_reset = resetFlag;
     ++d_numInvocations;
@@ -420,9 +416,9 @@ bool TestCallback::resetFlag() const
     return d_reset;
 }
 
-                  // =========================
-                  // class LockAndModifyWorker
-                  // =========================
+                         // =========================
+                         // class LockAndModifyWorker
+                         // =========================
 
 class LockAndModifyWorker {
     // This class owns a thread in which manipulators of a
@@ -475,9 +471,9 @@ LockAndModifyWorker::worker() {
     }
 }
 
-                    // ======================
-                    // class LockingPublisher
-                    // ======================
+                           // ======================
+                           // class LockingPublisher
+                           // ======================
 
 class LockingPublisher : public balm::Publisher {
     // This class defines a test implementation of 'balm::Publisher' that
@@ -502,9 +498,9 @@ LockingPublisher::publish(const balm::MetricSample&) {
     bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
 }
 
-                      // ===================
-                      // class TestPublisher
-                      // ===================
+                            // ===================
+                            // class TestPublisher
+                            // ===================
 
 class TestPublisher : public balm::Publisher {
     // This class defines a test implementation of the 'balm::Publisher' that
@@ -613,9 +609,9 @@ class TestPublisher : public balm::Publisher {
 
 };
 
-                      // -------------------
-                      // class TestPublisher
-                      // -------------------
+                            // -------------------
+                            // class TestPublisher
+                            // -------------------
 
 // CREATORS
 inline
@@ -728,9 +724,9 @@ bool TestPublisher::contains(const balm::MetricId& id) const
     return indexOf(id) != -1;
 }
 
-                      // =========================
-                      // class CombinationIterator
-                      // =========================
+                         // =========================
+                         // class CombinationIterator
+                         // =========================
 
 template <class T>
 class CombinationIterator {
@@ -782,9 +778,9 @@ class CombinationIterator {
 
 };
 
-                      // -------------------------
-                      // class CombinationIterator
-                      // -------------------------
+                         // -------------------------
+                         // class CombinationIterator
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 template <class T>
@@ -841,9 +837,9 @@ bool CombinationIterator<T>::includesElement(int index) const
     return d_bits & (1 << index);
 }
 
-                      // =====================
-                      // class ConcurrencyTest
-                      // =====================
+                           // =====================
+                           // class ConcurrencyTest
+                           // =====================
 
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
@@ -1008,10 +1004,10 @@ void ConcurrencyTest::execute()
         CbHandle kB  = mX->registerCollectionCallback(B_VAL, bCb.function());
         CbHandle kS1 = mX->registerCollectionCallback(S1, s1Cb.function());
         CbHandle kS2 = mX->registerCollectionCallback(S2, s2Cb.function());
-        ASSERT(Obj::e_BALM_INVALID_HANDLE != kA);
-        ASSERT(Obj::e_BALM_INVALID_HANDLE != kB);
-        ASSERT(Obj::e_BALM_INVALID_HANDLE != kS1);
-        ASSERT(Obj::e_BALM_INVALID_HANDLE != kS2);
+        ASSERT(Obj::e_INVALID_HANDLE != kA);
+        ASSERT(Obj::e_INVALID_HANDLE != kB);
+        ASSERT(Obj::e_INVALID_HANDLE != kS1);
+        ASSERT(Obj::e_INVALID_HANDLE != kS2);
 
         // Test 'collectSample'
         bsl::vector<balm::MetricRecord> records;
@@ -1145,9 +1141,9 @@ void ConcurrencyTest::runTest()
     d_pool.drain();
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // SimpleStreamPublisher was defined in 'balm_publisher.h'.
 
@@ -1230,13 +1226,15 @@ void ConcurrencyTest::runTest()
 //..
     class EventHandler {
         // Provide an example event handling mechanism that records metrics
-        // for the size of the processed event messages and the number of
-        // failures using 'balm::Collector' objects provided by a
+        // for (1) the size of the processed event messages and (2) the number
+        // of failures using 'balm::Collector' objects provided by a
         // 'balm::MetricsManager'.
 
         // PRIVATE DATA
-        balm::Collector *d_eventMessageSize_p; // collect the message size
-        balm::Collector *d_eventFailure_p;     // collect the number of failures
+        balm::Collector *d_eventMessageSizes_p;  // collect the message sizes
+
+        balm::Collector *d_eventFailures_p;      // collect the number of
+                                                 // failures
 
     // ...
 
@@ -1246,16 +1244,16 @@ void ConcurrencyTest::runTest()
 // We obtain the addresses of the respective 'balm::Collector' objects that we
 // will use to collect metrics values, from the metrics managers' collector
 // repository.  Note that in practice, clients can use the
-// 'baem::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
+// 'balm::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
 // 'balm_metric') rather than explicitly pass the address of 'manager'.
 //..
         EventHandler(balm::MetricsManager *manager)
-        : d_eventMessageSize_p(
+        : d_eventMessageSizes_p(
                manager->collectorRepository().getDefaultCollector(
-                                            "MyCategory", "messageSize"))
-        , d_eventFailure_p(
+                                                "MyCategory", "messageSizes"))
+        , d_eventFailures_p(
                manager->collectorRepository().getDefaultCollector(
-                                            "MyCategory", "eventFailure"))
+                                                "MyCategory", "eventFailures"))
         {}
 
         // MANIPULATORS
@@ -1269,12 +1267,12 @@ void ConcurrencyTest::runTest()
             // if there was an error handling the event.
         {
            int returnCode = 0;
-           d_eventMessageSize_p->update(eventMessage.size());
+           d_eventMessageSizes_p->update(eventMessage.size());
 
     // ...    (Process the event)
 
            if (0 != returnCode) {
-               d_eventFailure_p->update(1);
+               d_eventFailures_p->update(1);
            }
            return returnCode;
         }
@@ -1303,32 +1301,36 @@ void ConcurrencyTest::runTest()
         bsls::AtomicInt       d_numEvents;         // number of requests
 
         bsls::TimeInterval    d_periodStart;       // start of the current
-                                                  // period
+                                                   // period
 
         balm::MetricId        d_eventsPerSecId;    // identifies the events-
-                                                  // per-second metric
+                                                   // per-second metric
         balm::MetricsManager::CallbackHandle
-                             d_callbackHandle;    // identifies the callback
+                             d_callbackHandle;     // identifies the callback
 
         balm::MetricsManager *d_metricsManager_p;  // metrics manager (held,
-                                                  // but not owned)
+                                                   // but not owned)
      // ...
 
         // PRIVATE MANIPULATORS
         void collectMetricsCb(bsl::vector<balm::MetricRecord> *records,
-                              bool                            resetFlag);
+                              bool                             resetFlag);
             // Append to the specified 'records' the aggregated values of the
-            // metrics recorded by this request processor.  Note that this
-            // method is intended to be used as a callback, and is consistent
-            // with the 'balm::MetricsManager::RecordsCollectionCallback'
-            // function prototype.
+            // metrics recorded by this event handler and, if 'resetFlag' is
+            // 'true', reset those metric values to their default state.  Note
+            // that this method is intended to be used as a callback, and is
+            // consistent with the
+            // 'balm::MetricsManager::RecordsCollectionCallback' function
+            // prototype.
 
       public:
         // CREATORS
         EventHandlerWithCallback(balm::MetricsManager *manager,
                                  bslma::Allocator    *basicAllocator = 0);
             // Initialize this object to use the specified 'manager' to record
-            // and publish metrics.
+            // and publish metrics.  Optionally specify a 'basicAllocator'
+            // used to supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
 
         ~EventHandlerWithCallback();
             // Destroy this request processor.
@@ -1361,8 +1363,8 @@ void ConcurrencyTest::runTest()
 //..
     // PRIVATE MANIPULATORS
     void EventHandlerWithCallback::collectMetricsCb(
-                                     bsl::vector<balm::MetricRecord> *records,
-                                     bool                            resetFlag)
+                                    bsl::vector<balm::MetricRecord> *records,
+                                    bool                             resetFlag)
     {
         int numEvents = resetFlag ?
                         (int)d_numEvents.swap(0) :
@@ -1385,12 +1387,12 @@ void ConcurrencyTest::runTest()
 //..
     // CREATORS
     EventHandlerWithCallback::EventHandlerWithCallback(
-                                           balm::MetricsManager *manager,
-                                           bslma::Allocator    *basicAllocator)
+                                          balm::MetricsManager *manager,
+                                          bslma::Allocator     *basicAllocator)
     : d_numEvents(0)
     , d_periodStart(bdlt::CurrentTime::now())
     , d_eventsPerSecId()
-    , d_callbackHandle(balm::MetricsManager::e_BALM_INVALID_HANDLE)
+    , d_callbackHandle(balm::MetricsManager::e_INVALID_HANDLE)
     , d_metricsManager_p(manager)
     {
         d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
@@ -1423,8 +1425,8 @@ void ConcurrencyTest::runTest()
 //..
     EventHandlerWithCallback::~EventHandlerWithCallback()
     {
-        int rc = d_metricsManager_p->removeCollectionCallback(
-                                                             d_callbackHandle);
+        int rc =
+               d_metricsManager_p->removeCollectionCallback(d_callbackHandle);
         ASSERT(0 == rc);
     }
 
@@ -1452,9 +1454,9 @@ void ConcurrencyTest::runTest()
     // ...
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1517,8 +1519,8 @@ int main(int argc, char *argv[])
 ///Example 1 - Initialize a 'balm::MetricsManager'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create and configure a
-// 'balm::MetricsManager' that we will use to record and publish metric
-// values.  We first create a 'balm::MetricsManager' object and a
+// 'balm::MetricsManager' that we will use to record and publish metric values.
+// We first create a 'balm::MetricsManager' object and a
 // 'SimpleStreamPublisher' object.  Note that,  'SimpleStreamPublisher' is an
 // example implementation of the 'balm::Publisher' protocol defined in the
 // 'balm_publisher' component, in practice clients can use a standard
@@ -1548,7 +1550,7 @@ int main(int argc, char *argv[])
 // record metrics for "MyCategory" using instances of the 'EventHandler'
 // and 'EventHandlerWithCallback' classes (defined above).  This example
 // assumes that an instance, 'manager', of the 'balm::MetricsManager' class has
-// been initialized as in example 1.  Note that, in practice the publish
+// been initialized as in example 1.  Note that in practice the publish
 // operation is normally tied to a scheduling mechanism (e.g., see the
 // 'balm::PublicationScheduler').
 //..
@@ -1956,7 +1958,8 @@ int main(int argc, char *argv[])
                                                              METRICS[j]);
                     col->load(&record);
                     if (combIt.includesElement(i)) {
-                        ASSERT(balm::MetricRecord(record.metricId()) == record);
+                        ASSERT(
+                              balm::MetricRecord(record.metricId()) == record);
                     }
                     else {
                         ASSERT(1 == record.count());
@@ -2017,7 +2020,7 @@ int main(int argc, char *argv[])
                     CbHandle handle =
                        mX.registerCollectionCallback(CATEGORY, cb->function());
                     callbacks[id] = bsl::make_pair(handle, cb);
-                    ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
+                    ASSERT(handle != Obj::e_INVALID_HANDLE);
                     mX.collectorRepository().getDefaultCollector(CATEGORY,
                                                                  METRICS[j]);
                 }
@@ -2075,7 +2078,7 @@ int main(int argc, char *argv[])
                         CbPtr cb; cb.createInplace(Z, id, Z);
                         CbHandle handle =
                             mX.registerCollectionCallback(CAT, cb->function());
-                        ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
+                        ASSERT(handle != Obj::e_INVALID_HANDLE);
                         ASSERT(0 == mX.removeCollectionCallback(handle));
                     }
                 }
@@ -2230,7 +2233,7 @@ int main(int argc, char *argv[])
         if (verbose) cout
             << endl
             << "TEST: findSpecificPublishers(...,const bslstl::StringRef&)\n"
-            << "========================================================\n";
+            << "==========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -2308,7 +2311,7 @@ int main(int argc, char *argv[])
                 CbHandle handle =
                   mX.registerCollectionCallback(CATEGORIES[i], cb->function());
                 callbacks[id] = bsl::make_pair(handle, cb);
-                ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
+                ASSERT(handle != Obj::e_INVALID_HANDLE);
             }
         }
 
@@ -2347,14 +2350,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == mX.removeCollectionCallback(cbInfo.first));
                 ASSERT(0 != mX.removeCollectionCallback(cbInfo.first));
 
-                cbInfo.first = Obj::e_BALM_INVALID_HANDLE;
+                cbInfo.first = Obj::e_INVALID_HANDLE;
 
                 mX.publishAll();
 
                 CallbackMap::iterator it = callbacks.begin();
                 for (; it != callbacks.end(); ++it) {
                     CallbackInfo& info = it->second;
-                    const int EXP = (info.first == Obj::e_BALM_INVALID_HANDLE)
+                    const int EXP = (info.first == Obj::e_INVALID_HANDLE)
                                     ? 0 : 1;
                     ASSERT(EXP == info.second->invocations());
                     info.second->reset();
@@ -2618,7 +2621,8 @@ int main(int argc, char *argv[])
 
                 int  groupIndex = -1;
                 for (int j = 0; j < sample.numGroups(); ++j) {
-                    const balm::MetricSampleGroup& group =sample.sampleGroup(j);
+                    const balm::MetricSampleGroup& group =
+                                                         sample.sampleGroup(j);
 
                     // If 'j' is the sample group for 'CATEGORY' test the
                     // elapsed time.
@@ -2675,8 +2679,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "TEST: void publishAll(bsl::set<const balm::Category *>&,...);\n"
-            << "===========================================================\n";
+            << "TEST: void publishAll(set<const balm::Category *>&,...);\n"
+            << "========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -2929,7 +2933,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == gPub.invocations());
             ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
             ASSERT(gPub.lastElapsedTimes().size() == 1);
-            ASSERT(bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
+            ASSERT(
+                  bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
 
             // Verify the correct "specific" publishers have been invoked.
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -3021,8 +3026,8 @@ int main(int argc, char *argv[])
             }
             const bsl::vector<const Category *>& categories = combIt.current();
             bsl::set<const balm::Category *> categorySet(
-                                        categories.begin(), categories.end(),
-                                        bsl::less<const balm::Category *>(), Z);
+                                       categories.begin(), categories.end(),
+                                       bsl::less<const balm::Category *>(), Z);
 
             // Publish the records.
             bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
@@ -3080,7 +3085,7 @@ int main(int argc, char *argv[])
         //   metric names to be collected by
         //   'balm::MetricsManager::RecordCollectionCallback' functors.
         //
-        //   Add to the 'baem::MetricManager' object under test: a number
+        //   Add to the 'balm::MetricManager' object under test: a number
         //   ('NUM_PUBLISHER') of general publishers, a number
         //   ('NUM_PUBLISHER') of specific publishers for each category, and a
         //   'TestCallback' functor for each metric to be collected by
@@ -3103,7 +3108,7 @@ int main(int argc, char *argv[])
         //        time stamp, and records published were correct.
         //
         // Testing:
-        //   void publish(const balm::Category **,int,const bsls::TimeInterval&);
+        //   void publish(const balm::Category *[], int, const TimeInterval& );
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -3314,8 +3319,8 @@ int main(int argc, char *argv[])
         //   void publish(const balm::Category *, const bsls::TimeInterval&  );
         //   void publishAll(const bsls::TimeInterval&  );
         //   int findGeneralPublishers(bsl::vector<balm::Publisher *> *) const;
-        //   int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
-        //                              const balm::Category           *) const;
+        //   int findSpecificPublishers(bsl::vector<Publisher *> *,
+        //                              const Category           *) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3542,7 +3547,7 @@ int main(int argc, char *argv[])
                   mX.registerCollectionCallback(id.category(), cb->function());
 
                 callbacks[id] = bsl::make_pair(handle, cb);
-                ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
+                ASSERT(handle != Obj::e_INVALID_HANDLE);
             }
         }
 
@@ -3581,14 +3586,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == mX.removeCollectionCallback(cbInfo.first));
                 ASSERT(0 != mX.removeCollectionCallback(cbInfo.first));
 
-                cbInfo.first = Obj::e_BALM_INVALID_HANDLE;
+                cbInfo.first = Obj::e_INVALID_HANDLE;
 
                 mX.publishAll();
 
                 CallbackMap::iterator it = callbacks.begin();
                 for (; it != callbacks.end(); ++it) {
                     CallbackInfo& info = it->second;
-                    const int EXP = (info.first == Obj::e_BALM_INVALID_HANDLE)
+                    const int EXP = (info.first == Obj::e_INVALID_HANDLE)
                                     ? 0 : 1;
                     ASSERT(EXP == info.second->invocations());
                     info.second->reset();
@@ -3770,7 +3775,8 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::TimeInterval ELAPSED_TIME(VALUES[i].d_elapsedTime, 0);
-                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_timeStamp);
+                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                        VALUES[i].d_timeStamp);
                 bdlt::DatetimeTz TIME_STAMP(bdlt::Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);
@@ -4316,7 +4322,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == tpc_2.invocations());
 
         if (verbose) {
-            cout << "\tVerify publish(const balm::Category **categories,...)\n";
+            cout << "\tVerify publish(const Category **categories,...)\n";
         }
 
         // Reset dummy callbacks and dummy publishers
@@ -4397,7 +4403,7 @@ int main(int argc, char *argv[])
                *tpc_2.lastElapsedTimes().begin());
 
         if (verbose) {
-            cout << "\tVerify publishAll(bsl::set<const balm::Category *>&,)\n";
+            cout << "\tVerify publishAll(set<const balm::Category *>&,)\n";
         }
 
         // Reset dummy callbacks and dummy publishers

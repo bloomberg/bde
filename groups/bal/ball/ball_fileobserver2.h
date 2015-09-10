@@ -169,13 +169,13 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following code fragments illustrate the essentials of using a file
-// observer within a 'bael' logging system.
+// observer within a 'ball' logging system.
 //
 // First create a 'ball::FileObserver2' named 'fileObserver':
 //..
 //  ball::FileObserver2 fileObserver;
 //..
-// The file observer must then be installed within a 'bael' logging system.
+// The file observer must then be installed within a 'ball' logging system.
 // This is done by passing 'fileObserver' to the 'ball::LoggerManager'
 // 'initSingleton' method:
 //..
@@ -224,8 +224,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_FDSTREAMBUF
-#include <bdlsu_fdstreambuf.h>
+#ifndef INCLUDED_BDLS_FDSTREAMBUF
+#include <bdls_fdstreambuf.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIME
@@ -307,7 +307,7 @@ class FileObserver2 : public Observer {
 
   private:
     // DATA
-    bdlsu::FdStreamBuf     d_logStreamBuf;             // stream buffer for
+    bdls::FdStreamBuf      d_logStreamBuf;             // stream buffer for
                                                        // file logging
 
     bsl::ostream           d_logOutStream;             // output stream for
@@ -568,7 +568,7 @@ class FileObserver2 : public Observer {
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
         // file observer (i.e., the supplied callback should *not* attempt to
-        // write to the 'bael' log).
+        // write to the 'ball' log).
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;

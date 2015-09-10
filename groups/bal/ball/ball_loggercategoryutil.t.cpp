@@ -11,6 +11,7 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 
@@ -99,9 +100,9 @@ static void printCategory(const ball::Category *category)
 }
 void printAllCategories()
 {
-    
+
     ball::LoggerManager& lm = ball::LoggerManager::singleton();
-    using namespace bdlf::PlaceHolders;    
+    using namespace bdlf::PlaceHolders;
     lm.visitCategories(bdlf::BindUtil::bind(printCategory,  _1));
 }
 
@@ -183,7 +184,7 @@ int main(int argc, char *argv[])
         //   level values.  Verify using appropriate asserts that the
         //   categories that match a given regular expression are indeed
         //   modified by 'setThresholdLevels' whereas the categories that fail
-        //   to match the regular expression are uneffected.
+        //   to match the regular expression are unaffected.
         //
         // Testing:
         //   static int setThresholdLevels(*lm, *re, int, int, int, int);
@@ -435,7 +436,7 @@ int main(int argc, char *argv[])
         //   tabulated set of valid threshold level values.  Verify using
         //   appropriate asserts that the categories that match a given name
         //   prefix are indeed modified by 'setThresholdLevels' whereas the
-        //   categories that fail to match the name prefix are uneffected.
+        //   categories that fail to match the name prefix are unaffected.
         //
         // Testing:
         //   static int setTLHierarchically(*lm, *cn, int, int, int, int);

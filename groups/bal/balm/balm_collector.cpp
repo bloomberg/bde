@@ -6,9 +6,9 @@ BSLS_IDENT_RCSID(balm_collector_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // --------------------
-                          // class balm::Collector
-                          // --------------------
+                              // ---------------
+                              // class Collector
+                              // ---------------
 
 }  // close enterprise namespace
 

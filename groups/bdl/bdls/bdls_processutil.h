@@ -1,6 +1,6 @@
-// bdlsu_processutil.h                                                -*-C++-*-
-#ifndef INCLUDED_BDLSU_PROCESSUTIL
-#define INCLUDED_BDLSU_PROCESSUTIL
+// bdls_processutil.h                                                 -*-C++-*-
+#ifndef INCLUDED_BDLS_PROCESSUTIL
+#define INCLUDED_BDLS_PROCESSUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -11,26 +11,26 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide basic platform-independent utilities related to processes.
 //
 //@CLASSES:
-//  bdlsu::ProcessUtil: portable utility methods related to processes
+//  bdls::ProcessUtil: portable utility methods related to processes
 //
 //@AUTHOR: Bruce Szablak (bszablak)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component defines a platform-independent interface for
-// processes.  Currently, it provides (only) a utility to get the current
-// process ID.
+//@DESCRIPTION: This component, 'bdls::ProcessUtil', defines a
+// platform-independent interface for processes.  Currently, it provides (only)
+// a utility to get the current process ID.
 //
 ///Usage
 ///-----
 // Get the current process ID:
 //..
-//  int pid = bdlsu::ProcessUtil::getProcessId();
+//  int pid = bdls::ProcessUtil::getProcessId();
 //..
 // Get the current process name:
 //..
 //  bsl::string processName;
-//  bdlsu::ProcessUtil::getProcessName(&processName);
+//  bdls::ProcessUtil::getProcessName(&processName);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -43,14 +43,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
                              // ==================
                              // struct ProcessUtil
                              // ==================
 
 struct ProcessUtil {
-    // This 'struct' contains utility methods for platform-independent
-    // process operations.
+    // This 'struct' contains utility methods for platform-independent process
+    // operations.
 
     // CLASS METHODS
     static int getProcessId();

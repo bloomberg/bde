@@ -9,11 +9,13 @@
 #include <ball_testobserver.h>                  // for testing only
 #include <ball_transmission.h>                  // for testing only
 
-#include <bdlma_bufferedsequentialallocator.h>  // for testing only
-#include <bdlt_datetimeutil.h>                     // for testing only
+#include <bdlma_bufferedsequentialallocator.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslim_testutil.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -31,9 +33,9 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // The component under test is a container of Observers that forwards records
-// and their corresponding publication contexts to the contained observers.
-// We must ensure that the component behaves correctly as both a container
-// of Observers and a relayer of records and contexts.
+// and their corresponding publication contexts to the contained observers.  We
+// must ensure that the component behaves correctly as both a container of
+// Observers and a re-layer of records and contexts.
 //-----------------------------------------------------------------------------
 // [ 2] ball::MultiplexObserver(bslma::Allocator *ba = 0);
 // [ 2] ~ball::MultiplexObserver();
@@ -48,44 +50,60 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -206,11 +224,15 @@ static int isNthContext(const ball::Context& context, int nth)
 
 class TestAsyncObserver : public ball::Observer {
     // DATA
-    bsl::ostream&       d_stream;       // target of 'publish' method
-    ball::Record         d_record;       // most-recently-published record
-    ball::Context        d_context;      // most-recently-published context
-    int                 d_numRecords;   // total number of published records
-    int                 d_numClears;    // total number of 'clear' called
+    bsl::ostream& d_stream;       // target of 'publish' method
+    ball::Record  d_record;       // most-recently-published record
+    ball::Context d_context;      // most-recently-published context
+    int           d_numRecords;   // total number of published records
+    int           d_numClears;    // total number of 'clear' called
+
+    // NOT IMPLEMENTED
+    TestAsyncObserver(const TestAsyncObserver&);
+    TestAsyncObserver& operator=(const TestAsyncObserver&);
 
   public:
     // CREATORS
@@ -253,8 +275,8 @@ TestAsyncObserver::~TestAsyncObserver()
 
 // MANIPULATORS
 void TestAsyncObserver::publish(
-                             const bsl::shared_ptr<const ball::Record>& record,
-                             const ball::Context&                       context)
+                            const bsl::shared_ptr<const ball::Record>& record,
+                            const ball::Context&                       context)
 {
     d_record  = *record;
     d_context = context;
@@ -334,18 +356,19 @@ int main(int argc, char *argv[])
             ball::MultiplexObserver multiplexor;
             ASSERT(0 == multiplexor.numRegisteredObservers());
 
-            ball::DefaultObserver   defaultObserver(bsl::cout);
-            my_LogfileObserver     logfileObserver(bsl::cout);
-            my_EncryptingObserver  encryptingObserver(bsl::cout);
+            ball::DefaultObserver  defaultObserver(&bsl::cout);
+            my_LogfileObserver     logfileObserver(&bsl::cout);
+            my_EncryptingObserver  encryptingObserver(&bsl::cout);
 
             ASSERT(0 == multiplexor.registerObserver(&defaultObserver));
             ASSERT(0 == multiplexor.registerObserver(&logfileObserver));
             ASSERT(0 == multiplexor.registerObserver(&encryptingObserver));
             ASSERT(3 == multiplexor.numRegisteredObservers());
 
-            // Do *not* do this.  It significantly increases the level #
-            // of this component.
-            //ball::LoggerManager::initSingleton(&multiplexor);
+            // Do *not* do this.  It significantly increases the level # of
+            // this component.
+            //
+            // ball::LoggerManager::initSingleton(&multiplexor);
 
             ASSERT(0 == multiplexor.deregisterObserver(&defaultObserver));
             ASSERT(0 == multiplexor.deregisterObserver(&logfileObserver));
@@ -409,8 +432,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == Y.numRegisteredObservers());
 
             bsl::shared_ptr<ball::Record> mR(
-                               new (testAllocator) ball::Record(&testAllocator),
-                               &testAllocator);
+                              new (testAllocator) ball::Record(&testAllocator),
+                              &testAllocator);
             const bsl::shared_ptr<ball::Record>& R = mR;
 
             Ctxt mC(ball::Transmission::e_TRIGGER, 0, SEQUENCE_LENGTH);
@@ -1276,8 +1299,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
 
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
       } break;
       case 1: {

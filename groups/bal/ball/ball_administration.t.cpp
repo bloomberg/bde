@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-     ball::DefaultObserver observer(cout);
+     ball::DefaultObserver observer(&cout);
      ball::LoggerManagerConfiguration configuration;
      ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..

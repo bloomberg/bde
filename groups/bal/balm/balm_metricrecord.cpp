@@ -9,20 +9,20 @@ BSLS_IDENT_RCSID(balm_metricrecord_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // -----------------------
+                          // ------------------------
                           // class balm::MetricRecord
-                          // -----------------------
+                          // ------------------------
 
 // PUBLIC CONSTANTS
-const double balm::MetricRecord::k_DEFAULT_MIN =
-                                       bsl::numeric_limits<double>::infinity();
-const double balm::MetricRecord::k_DEFAULT_MAX =
-                                      -bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::k_DEFAULT_MIN = 1.0/0;
+                                    // bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::k_DEFAULT_MAX = -1.0/0;
+                                    //-bsl::numeric_limits<double>::infinity();
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-const double balm::MetricRecord::DEFAULT_MIN =
-                                       bsl::numeric_limits<double>::infinity();
-const double balm::MetricRecord::DEFAULT_MAX =
-                                      -bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::DEFAULT_MIN = 1.0/0;
+                                    // bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::DEFAULT_MAX = -1.0/0;
+                                    //-bsl::numeric_limits<double>::infinity();
 #endif
 
 namespace balm {

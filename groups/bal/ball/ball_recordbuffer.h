@@ -7,7 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a protocol for managing log record handles.
 //
 //@CLASSES:
@@ -17,17 +16,17 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@DESCRIPTION: This component defines the base-level protocol for managing
-// record handles (specifically instances of
-// 'bsl::shared_ptr<ball::Record>') in a double-ended buffer.  In
-// particular, the 'ball::RecordBuffer' protocol class provides abstract methods
-// to push a record handle into either end (back or front) of the buffer
-// ('pushBack' and 'pushFront'), to obtain read-only access to the log record
-// positioned at either end ('back' and 'front') and to remove the record
-// positioned at either end ('popBack' and 'popFront').  Note that the classes
-// implementing this protocol are supposed to manage record handles and not the
-// records themselves, specifically, they should not allocate the memory for
-// records and should not explicitly destroy records (a record is destroyed
+//@DESCRIPTION: This component defines the base-level protocol,
+// 'ball::RecordBuffer', for managing record handles (specifically instances of
+// 'bsl::shared_ptr<ball::Record>') in a double-ended buffer.  In particular,
+// the 'ball::RecordBuffer' protocol class provides abstract methods to push a
+// record handle into either end (back or front) of the buffer ('pushBack' and
+// 'pushFront'), to obtain read-only access to the log record positioned at
+// either end ('back' and 'front') and to remove the record positioned at
+// either end ('popBack' and 'popFront').  Note that the classes implementing
+// this protocol are supposed to manage record handles and not the records
+// themselves, specifically, they should not allocate the memory for records
+// and should not explicitly destroy records (a record is destroyed
 // automatically when the reference count associated with its handle becomes
 // zero).  The push methods ('pushBack' and 'pushFront') are not guaranteed to
 // succeed.  Concrete implementations implementations are permitted to remove
@@ -38,205 +37,198 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1
-///- - - - -
-// This example shows the definition of a simple concrete record
-// buffer.  The requisite steps are:
-//..
-//    1. Define a concrete class derived from 'ball::RecordBuffer'.
-//    2. Implement all pure virtual functions.
-//..
-// The concrete thread-safe 'my_RecordBuffer' class in this example
-// implements the 'ball::RecordBuffer' protocol by delegating to an instance of
+///Example 1: Defining a Concrete 'RecordBuffer' Type
+///- - - - - - - - - - - - - - - - - -- - - - - - - -
+// This example shows the definition of a simple concrete record buffer.  The
+// requisite steps are:
+//
+//: 1 Define a concrete class derived from 'ball::RecordBuffer'.
+//: 2 Implement all pure virtual functions.
+//
+// The concrete thread-safe 'my_RecordBuffer' class in this example implements
+// the 'ball::RecordBuffer' protocol by delegating to an instance of
 // 'bsl::vector<bsl::shared_ptr<ball::Record> > ':
 //..
 // my_recordbuffer.h
 //
-//    #include <bdlqq_lockguard.h>
-//    #include <bdlqq_recursivemutex.h>
+//  class my_RecordBuffer : public ball::RecordBuffer {
+//      // This class provides a thread-safe implementation of the
+//      // 'ball::RecordBuffer' protocol.  This implementation employs a
+//      // vector to hold an unlimited number of record handles.
 //
-//    #include <vector>
+//      mutable bdlqq::RecursiveMutex d_mutex; // thread safety provider (see
+                                // the implementation notes for the
+                                // justification for using recursive mutex
+                                // rather a plain mutex)
 //
-//    namespace BloombergLP {
-//    class my_RecordBuffer : public ball::RecordBuffer {
-//        // This class provides a thread-safe implementation of the
-//        // 'ball::RecordBuffer' protocol.  This implementation
-//        // employs a vector to hold an unlimited number of record
-//        // handles.
+//      bsl::vector<bsl::shared_ptr<ball::Record> >
+//                         d_buffer; // buffer of record handles
 //
-//        mutable bdlqq::RecursiveMutex d_mutex; // thread safety provider (see
-//                                              // the implementation notes for
-//                                              // the justification for using
-//                                              // recursive mutex rather a
-//                                              // plain mutex)
+//    private:
+//      // NOT IMPLEMENTED
+//      my_RecordBuffer(const my_RecordBuffer&);
+//      my_RecordBuffer& operator=(const my_RecordBuffer&);
 //
-//        bsl::vector<bsl::shared_ptr<ball::Record> >
-//                                     d_buffer; // buffer of record handles
+//    public:
+//      // CREATORS
+//      my_RecordBuffer();
+//      virtual ~my_RecordBuffer();
 //
-//      private:
-//        // NOT IMPLEMENTED
-//        my_RecordBuffer(const my_RecordBuffer&);
-//        my_RecordBuffer& operator=(const my_RecordBuffer&);
+//      // MANIPULATORS
+//      virtual void beginSequence();
+//      virtual void endSequence();
+//      virtual void popBack();
+//      virtual void popFront();
+//      virtual int pushBack(const bsl::shared_ptr<ball::Record>& handle);
+//      virtual int pushFront(
+//                   const bsl::shared_ptr<ball::Record>& handle);
+//      virtual void removeAll();
 //
-//      public:
-//        // CREATORS
-//        my_RecordBuffer();
-//        virtual ~my_RecordBuffer();
-//
-//        // MANIPULATORS
-//        virtual void beginSequence();
-//        virtual void endSequence();
-//        virtual void popBack();
-//        virtual void popFront();
-//        virtual int pushBack(const bsl::shared_ptr<ball::Record>& handle);
-//        virtual int pushFront(
-//                             const bsl::shared_ptr<ball::Record>& handle);
-//        virtual void removeAll();
-//
-//        // ACCESSORS
-//        virtual const ball::Record& back() const;
-//        virtual const ball::Record& front() const;
-//        virtual int length() const;
-//    };
+//      // ACCESSORS
+//      virtual const bsl::shared_ptr<ball::Record>& back() const;
+//      virtual const bsl::shared_ptr<ball::Record>& front() const;
+//      virtual int length() const;
+//  };
 //..
+//
 ///Implementation Notes
 ///- - - - - - - - - - -
-// Recursive mutex (rather than plain mutex) is chosen to provide
-// thread safety.  This allows the manipulation of the record buffer between
-// the call to 'beginSequence' and 'endSequence'.  If we had used plain
-// mutex, calling any method on the record buffer between the calls to
-// 'beginSequence' and 'endSequence' would result in a deadlock.
+// Recursive mutex (rather than plain mutex) is chosen to provide thread
+// safety.  This allows the manipulation of the record buffer between the call
+// to 'beginSequence' and 'endSequence'.  If we had used plain mutex, calling
+// any method on the record buffer between the calls to 'beginSequence' and
+// 'endSequence' would result in a deadlock.
 //..
-//    // CREATORS
-//    inline
-//    my_RecordBuffer::my_RecordBuffer() { }
+//  // CREATORS
+//  inline
+//  my_RecordBuffer::my_RecordBuffer() { }
 //
-//    // MANIPULATORS
-//    inline
-//    void my_RecordBuffer::beginSequence()
-//    {
-//        d_mutex.lock();
-//    }
+//  // MANIPULATORS
+//  inline
+//  void my_RecordBuffer::beginSequence()
+//  {
+//      d_mutex.lock();
+//  }
 //
-//    inline
-//    void my_RecordBuffer::endSequence()
-//    {
-//        d_mutex.unlock();
-//    }
+//  inline
+//  void my_RecordBuffer::endSequence()
+//  {
+//      d_mutex.unlock();
+//  }
 //
-//    inline
-//    void my_RecordBuffer::popBack()
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        d_buffer.pop_back();
-//    }
+//  inline
+//  void my_RecordBuffer::popBack()
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      d_buffer.pop_back();
+//  }
 //
-//    inline
-//    void my_RecordBuffer::popFront()
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        d_buffer.erase(d_buffer.begin());
-//    }
+//  inline
+//  void my_RecordBuffer::popFront()
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      d_buffer.erase(d_buffer.begin());
+//  }
 //
-//    inline
-//    int my_RecordBuffer::pushBack(
-//                                  const bsl::shared_ptr<ball::Record>& handle)
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        d_buffer.push_back(handle);
-//        return 0;
-//    }
+//  inline
+//  int my_RecordBuffer::pushBack(
+//                       const bsl::shared_ptr<ball::Record>& handle)
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      d_buffer.push_back(handle);
+//      return 0;
+//  }
 //
-//    inline
-//    int my_RecordBuffer::pushFront(
-//                                  const bsl::shared_ptr<ball::Record>& handle)
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        d_buffer.insert(d_buffer.begin(), handle);
-//        return 0;
-//    }
+//  inline
+//  int my_RecordBuffer::pushFront(
+//                       const bsl::shared_ptr<ball::Record>& handle)
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      d_buffer.insert(d_buffer.begin(), handle);
+//      return 0;
+//  }
 //
-//    inline
-//    void my_RecordBuffer::removeAll()
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        d_buffer.clear();
-//    }
+//  inline
+//  void my_RecordBuffer::removeAll()
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      d_buffer.clear();
+//  }
 //
-//    // ACCESSORS
-//    inline
-//    const ball::Record& my_RecordBuffer::back() const
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        return *(d_buffer.back());
-//    }
+//  // ACCESSORS
+//  inline
+//  const bsl::shared_ptr<ball::Record>& my_RecordBuffer::back() const
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      return d_buffer.back();
+//  }
 //
-//    inline
-//    const ball::Record& my_RecordBuffer::front() const
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        return *(d_buffer.front());
-//    }
+//  inline
+//  const bsl::shared_ptr<ball::Record>& my_RecordBuffer::front() const
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      return d_buffer.front();
+//  }
 //
-//    inline
-//    int my_RecordBuffer::length() const
-//    {
-//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
-//        return d_buffer.size();
-//    }
-//    } // namespace BloombergLP
+//  inline
+//  int my_RecordBuffer::length() const
+//  {
+//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      return d_buffer.size();
+//  }
 //..
-// Note that we always implement a virtual destructor (non-inline) in the
-// .cpp file (to indicate the *unique* location of the class's virtual table):
+// Note that we always implement a virtual destructor (non-inline) in the .cpp
+// file (to indicate the *unique* location of the class's virtual table):
 //..
-//    // my_recordbuffer.cpp
+//  // my_recordbuffer.cpp
 //
-//    namespace BloombergLP {
-//    my_RecordBuffer::~my_RecordBuffer() { }
-//    }  // close namespace BloombergLP
+//  my_RecordBuffer::~my_RecordBuffer() { }
 //..
-///Example 2
-///- - - - -
+//
+///Example 2: Using a 'ball::RecordBuffer'
+///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates working with the 'ball::RecordBuffer' protocol.
 // We implement a function 'processRecord' that processes a specified record
 // handle based on its severity.
 //..
-//    void processRecord(const bsl::shared_ptr<ball::Record>& handle,
-//                             ball::RecordBuffer&            buffer)
-//        // Process the specified 'handle', based on it's severity.
-//        // Records (encapsulated in 'handle') with severity equal to or
-//        // *greater* severe than (i.e., with *numerical* value *less*
-//        // than or equal to) 'ball::Severity::BAEL_WARN' are pushed back into
-//        // the specified 'buffer'.  Records with a severity equal to or
-//        // more severe than 'ball::Severity::BAEL_ERROR' are (in addition to
-//        // get pushed back into the 'buffer') printed to 'stdout', and
-//        // then each record contained in 'buffer' is in turn printed to
-//        // 'stdout' and then removed from 'buffer'.  That is, any
-//        // severity level equal to or more severe than
-//        // 'ball::Severity::BAEL_ERROR' triggers a trace-back of all records
-//        // accumulated in the buffer and flushes the buffer.  The
-//        // function is thread safe and thus allows multiple concurrent
-//        // invocations of this function with the same record buffer.
-//    {
-//        int severity = handle->fixedFields().severity();
+//  void processRecord(const bsl::shared_ptr<ball::Record>& handle,
+//                           ball::RecordBuffer&            buffer)
+//      // Process the specified 'handle', based on it's severity.  Records
+//      // (encapsulated in 'handle') with severity equal to or *greater*
+//      // severe than (i.e., with *numerical* value *less* than or equal to)
+//      // 'ball::Severity::e_WARN' are pushed back into the specified
+//      // 'buffer'.  Records with a severity equal to or more severe than
+//      // 'ball::Severity::e_ERROR' are (in addition to get pushed back
+//      // into the 'buffer') printed to 'stdout', and then each record
+//      // contained in 'buffer' is in turn printed to 'stdout' and then
+//      // removed from 'buffer'.  That is, any severity level equal to or
+//      // more severe than 'ball::Severity::e_ERROR' triggers a trace-back
+//      // of all records accumulated in the buffer and flushes the buffer.
+//      // The function is thread safe and thus allows multiple concurrent
+//      // invocations of this function with the same record buffer.
 //
-//        if (ball::Severity::BAEL_WARN >= severity) {
-//            buffer.pushBack(handle);
-//        }
-//        if (ball::Severity::BAEL_ERROR >= severity) {
-//            bsl::cout << *handle;
-//            buffer.beginSequence(); // lock the buffer before traversing
-//            int length = buffer.length();
-//            while (length--) {
-//                bsl::cout << buffer.back();
-//                buffer.popBack();
-//            }
-//            buffer.endSequence();   // unlock the buffer after traversing
-//        }
+//  {
+//      int severity = handle->fixedFields().severity();
 //
-//    }
+//      if (ball::Severity::e_WARN >= severity) {
+//          buffer.pushBack(handle);
+//      }
+//      if (ball::Severity::e_ERROR >= severity) {
+//          bsl::cout << *handle;
+//          buffer.beginSequence(); // lock the buffer before traversing
+//          int length = buffer.length();
+//          while (length--) {
+//              bsl::cout << buffer.back();
+//              buffer.popBack();
+//          }
+//          buffer.endSequence();   // unlock the buffer after traversing
+//      }
+//
+//  }
 //..
+
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -248,11 +240,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Record;
-                           // =======================
+class Record;
+
+                           // ==================
                            // class RecordBuffer
-                           // =======================
+                           // ==================
 
 class RecordBuffer {
     // Provide a protocol (or pure interface) for managing record handles
@@ -261,8 +255,8 @@ class RecordBuffer {
   public:
     // CREATORS
     virtual ~RecordBuffer();
-        // Remove all record handles stored in this record buffer and
-        // destroy this record buffer.
+        // Remove all record handles stored in this record buffer and destroy
+        // this record buffer.
 
     // MANIPULATORS
     virtual void popBack() = 0;
@@ -323,6 +317,7 @@ class RecordBuffer {
     virtual int length() const = 0;
         // Return the number of record handles in this record buffer.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

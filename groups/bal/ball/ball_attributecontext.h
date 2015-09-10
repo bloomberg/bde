@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //         ball::AttributeContext: thread-local list of attribute containers
 //  ball::AttributeContextProctor: proctor for deleting and attribute context
 //
-//@SEE_ALSO: bael_attributeset
+//@SEE_ALSO: ball_attributeset
 //
 //@AUTHOR: Gang Chen (gchen20), Mike Verschell (hverschell)
 //
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // 'getContext()' method.  Attributes can be added or removed from an attribute
 // context using the 'addAttributes()' and removeAttributes()' methods.
 // Finally the 'ball::AttributeContext' provides methods (used primarily by
-// other components in the 'bael' package') to determine the effect of the
+// other components in the 'ball' package') to determine the effect of the
 // current logging rules on the logging thresholds of a category.
 //
 ///Active Rules
@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // First we will define a thread function that will create and install two
 // attributes.  Note that we will use the 'AttributeSet' implementation of the
 // 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer'; the 'bael' package provides a similar class
+// for 'ball_attributecontainer'; the 'ball' package provides a similar class
 // in the 'ball_defaultattributecontainer' component.
 //..
 //  extern "C" void *thread1(void*)
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to call the 'hasRelevantActiveRules()'
 // and 'determineThresholdLevels()' methods.  These methods are used (primarily
-// by other components in the 'bael' package) to determine the effect of the
+// by other components in the 'ball' package) to determine the effect of the
 // current logging rules on the logging thresholds of a category.  Note that a
 // rule is "relevant" if the rule's pattern matches the category's name, and a
 // rule is "active" if 'ball::Rule::evaluate()' returns 'true' for the
@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 //
 // We start by creating a 'ball::CategoryManager' and use it to initialize the
 // static data members of 'ball::AttributeContext'.  Note that, in practice,
-// this initialization *should* *not* be performed by clients of the 'bael'
+// this initialization *should* *not* be performed by clients of the 'ball'
 // package':  The 'ball::LoggerManager' singleton will initialize the
 // 'ball::AttributeContext' with the when the singleton is created.
 //..
@@ -271,7 +271,7 @@ BSLS_IDENT("$Id: $")
 //  assert(40  == thresholdLevels.triggerAllLevel());
 //..
 // We must be careful to remove 'attributes' from the attribute context before
-// it goes out of scope and is destroyed.  Note that the 'bael' package
+// it goes out of scope and is destroyed.  Note that the 'ball' package
 // supplies a component, 'ball_scopedattributes' for adding, and automatically
 // removing, attributes from the current thread's attribute context.
 //..
@@ -458,7 +458,7 @@ class AttributeContext {
     // 'getContext()' method.  The 'addAttributes()' and 'removeAttributes()'
     // methods are used to add and remove collections of attributes from the
     // (thread-local) context object.  Finally the 'AttributeContext' provides
-    // methods (used primarily by other components in the 'bael' package') to
+    // methods (used primarily by other components in the 'ball' package') to
     // determine the effect of the current logging rules on the logging
     // thresholds of a category.  The 'hasRelevantActiveRules()' method,
     // returns 'true' if there are any relevant and active rules that might
@@ -549,7 +549,7 @@ class AttributeContext {
         // once will log an error message to 'stderr', but will have no other
         // effect.  Note that in practice this method will be called
         // *automatically* when the 'LoggerManager' is initialized -- i.e., it
-        // is not intended to be called directly by clients of the 'bael'
+        // is not intended to be called directly by clients of the 'ball'
         // package.
 
     static AttributeContext *getContext();

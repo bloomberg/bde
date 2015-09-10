@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <ball_log.h>
 
 #include <bdlf_bind.h>
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_pathutil.h>
-#include <bdlsu_pipeutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+#include <bdls_pipeutil.h>
 
 #include <bslma_default.h>
 
@@ -80,7 +80,7 @@ namespace balb {
 
 int PipeControlChannel::sendEmptyMessage()
 {
-    return bdlsu::PipeUtil::send(d_pipeName, "\n");
+    return bdls::PipeUtil::send(d_pipeName, "\n");
 }
 
 int PipeControlChannel::readNamedPipe()
@@ -151,7 +151,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
     BALL_LOG_TRACE << "Creating named pipe '" << pipeName << "'"
                    << BALL_LOG_END;
 
-    if (bdlsu::PipeUtil::isOpenForReading(pipeName)) {
+    if (bdls::PipeUtil::isOpenForReading(pipeName)) {
         BALL_LOG_ERROR << "Named pipe '" << pipeName << "' already exists"
                        << BALL_LOG_END;
         return -2;
@@ -305,8 +305,8 @@ int PipeControlChannel::readNamedPipe()
                BALL_LOG_TRACE << "Read data from pipe: '";
                bsl::copy(buffer,
                          buffer + bytesRead,
-                         bsl::ostream_iterator<char>(BAEL_STREAM));
-               BAEL_STREAM << "'" << BALL_LOG_END;
+                         bsl::ostream_iterator<char>(BALL_STREAM));
+               BALL_STREAM << "'" << BALL_LOG_END;
 
                d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
                bsl::vector<char>::iterator it = bsl::find(d_buffer.begin(),
@@ -341,24 +341,24 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -7;                                                    // RETURN
     }
 
-    if (bdlsu::FilesystemUtil::exists(pipeName)) {
+    if (bdls::FilesystemUtil::exists(pipeName)) {
        // The pipe already exists, but it may have been left over from a
        // previous crash.  Check whether there is a reader on the pipe, in
        // which case fail; otherwise unlink the pipe and continue.
-       if (bdlsu::PipeUtil::isOpenForReading(pipeName)) {
+       if (bdls::PipeUtil::isOpenForReading(pipeName)) {
            BALL_LOG_ERROR << "Named pipe "
                              "'" << pipeName << "' "
                              "is already in use by another process"
                           << BALL_LOG_END;
            return -2;                                                 // RETURN
        }
-       bdlsu::FilesystemUtil::remove(pipeName.c_str());
+       bdls::FilesystemUtil::remove(pipeName.c_str());
     }
 
     // TBD: USE BDEU_PATHUTIL
     bsl::string dirname;
-    if (0 == bdlsu::PathUtil::getDirname(&dirname, pipeName)) {
-        if (!bdlsu::FilesystemUtil::exists(dirname)) {
+    if (0 == bdls::PathUtil::getDirname(&dirname, pipeName)) {
+        if (!bdls::FilesystemUtil::exists(dirname)) {
             BALL_LOG_ERROR << "Named pipe directory "
                               "'" << dirname << "' "
                               "does not exist"

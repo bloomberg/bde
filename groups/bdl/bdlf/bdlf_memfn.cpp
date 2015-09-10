@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(bdlf_memfn_cpp,"$Id$ $CSID$")
 ///--------------------
 // bdlf::MemFn: The 'operator()' methods of the 'bdlf::MemFn' wrapper need to
 // be implemented within the class body for SUNPRO CC (even for version 5.5,
-// a.k.a. Studio 8).  This is because that compiler accepts out-of-class-body
+// aka Studio 8).  This is because that compiler accepts out-of-class-body
 // definitions for template members, but not for template operators.
 //
 // bdlf::MemFnInstance: There are two ways to handle instance wrappers around

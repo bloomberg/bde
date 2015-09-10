@@ -1379,7 +1379,7 @@ TcpCbChannel::TcpCbChannel(
               bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this)
             , d_allocator_p);
 
-    d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+    d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
 
 TcpCbChannel::TcpCbChannel(
@@ -1427,7 +1427,7 @@ TcpCbChannel::TcpCbChannel(
               bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this)
             , d_allocator_p);
 
-    d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
+    d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
 
 TcpCbChannel::~TcpCbChannel() {

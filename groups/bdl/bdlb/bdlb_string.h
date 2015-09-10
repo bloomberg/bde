@@ -10,17 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utility functions on C-style and 'STL' strings.
 //
 //@CLASSES:
-//  bdlb::String: namespace for pure procedures on C-style and 'STL' strings
+//  bdlb::String: namespace for functions on C-style and 'STL' strings
 //
 //@AUTHOR: Jeff Mendelsohn (jmendels)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a suite of pure procedures that operate
-// on C-style strings and 'bsl::string'.  Note that the functions in this
-// component will accept 0 as an *input* string, provided a length of
-// 0 is supplied, however 0 may not be be supplied for an *output* string
-// parameter or for parameters expecting a 0-terminated string.
+//@DESCRIPTION: This component defines a utility 'struct', 'bdlb::String', that
+// provides a suite of functions that operate on C-style strings and
+// 'bsl::string'.  Note that the functions in this component will accept 0 as
+// an *input* string, provided a length of 0 is supplied; however, 0 may not be
+// be supplied for an *output* string parameter or for parameters expecting a
+// 0-terminated string.
 //
 ///Synopsis
 ///--------
@@ -77,15 +78,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlb {
-                         // ==================
-                         // struct String
-                         // ==================
+                               // =============
+                               // struct String
+                               // =============
 
 struct String {
-    // This 'struct' provides a namespace for a suite of pure procedures on
-    // C-style strings and 'bsl::string'.
+    // This 'struct' provides a namespace for a suite of functions on C-style
+    // strings and 'bsl::string'.
 
     // CLASS METHODS
     static bool areEqualCaseless(const char *lhsString, const char *rhsString);
@@ -100,7 +100,7 @@ struct String {
     static bool areEqualCaseless(const char *lhsString,
                                  int         lhsLength,
                                  const char *rhsString,
-                                int         rhsLength);
+                                 int         rhsLength);
     static bool areEqualCaseless(const char         *lhsString,
                                  int                 lhsLength,
                                  const bsl::string&  rhsString);
@@ -186,9 +186,9 @@ struct String {
         // length) after this operation.
 
     static void pad(bsl::string *string, int numChars, char padChar = ' ');
-        // Append repeatedly to the specified 'string' the specified 'padChar'
-        // until the length of 'string' is 'numChars'.  This operation has no
-        // effect if 'string.size() >= numChars'.
+        // Append repeatedly to the specified 'string' the optionally specified
+        // 'padChar' until the length of 'string' is 'numChars'.  This
+        // operation has no effect if 'string.size() >= numChars'.
 
     static void rtrim(char *string);
     static void rtrim(bsl::string *string);
@@ -258,20 +258,20 @@ struct String {
         // Copy into the specified 'dstString' at most the specified first
         // 'dstLength' characters from the specified 'srcString' of the
         // specified 'srcLength'.  If 'srcLength < dstLength', repeatedly
-        // append to 'dstString' the specified 'padChar' until the total number
-        // of characters written to 'dstString' is 'dstLength'.
+        // append to 'dstString' the optionally specified 'padChar' until the
+        // total number of characters written to 'dstString' is 'dstLength'.
 
     static void toLower(char *string);
     static void toLower(char *string, int length);
     static void toLower(bsl::string *string);
-        // Replace all upper case characters in 'string' with their lowercase
-        // equivalent.
+        // Replace all upper case characters in the specified 'string' (of the
+        // optionally specified 'length') with their lowercase equivalent.
 
     static void toUpper(char *string);
     static void toUpper(char *string, int length);
     static void toUpper(bsl::string *string);
-        // Replace all lower case characters in 'string' with their uppercase
-        // equivalent.
+        // Replace all lower case characters in the specified 'string' (of the
+        // optionally specified 'length') with their uppercase equivalent.
 
     static void trim(char *string);
     static void trim(char *string, int *length);
@@ -286,7 +286,7 @@ struct String {
         // indicated by the specified '*begin' and '*end' iterators by
         // appropriately advancing '*begin' and regressing '*end'.  If the
         // string indicated by '*begin' and '*end' is empty, or consists solely
-        // of whitespace characters, '*begin' is uneffected and '*end' is
+        // of whitespace characters, '*begin' is unchanged and '*end' is
         // regressed to '*begin'.  Otherwise, advance '*begin' to the first
         // non-whitespace character whose position is greater than or equal to
         // '*begin'; regress '*end' to one past the position of the last
@@ -329,27 +329,29 @@ struct String {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                        INLINE DEFINITIONS
 // ============================================================================
 
-                         // ------------------
-                         // struct String
-                         // ------------------
+                               // -------------
+                               // struct String
+                               // -------------
 
 // CLASS METHODS
 inline
 bool String::areEqualCaseless(const char         *lhsString,
-                                   const bsl::string&  rhsString)
+                              const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString);
 
-    return areEqualCaseless(lhsString, &rhsString[0], (int)rhsString.size());
+    return areEqualCaseless(lhsString,
+                            &rhsString[0],
+                            static_cast<int>(rhsString.size()));
 }
 
 inline
 bool String::areEqualCaseless(const char *lhsString,
-                                   int         lhsLength,
-                                   const char *rhsString)
+                              int         lhsLength,
+                              const char *rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -360,8 +362,8 @@ bool String::areEqualCaseless(const char *lhsString,
 
 inline
 bool String::areEqualCaseless(const char         *lhsString,
-                                   int                 lhsLength,
-                                   const bsl::string&  rhsString)
+                              int                 lhsLength,
+                              const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -369,42 +371,42 @@ bool String::areEqualCaseless(const char         *lhsString,
     return areEqualCaseless(lhsString,
                             lhsLength,
                             rhsString.data(),
-                            (int)rhsString.size());
+                            static_cast<int>(rhsString.size()));
 }
 
 inline
 bool String::areEqualCaseless(const bsl::string&  lhsString,
-                                   const char         *rhsString)
+                              const char         *rhsString)
 {
     BSLS_ASSERT_SAFE(rhsString);
 
     return areEqualCaseless(rhsString,
                             lhsString.data(),
-                            (int)lhsString.size());
+                            static_cast<int>(lhsString.size()));
 }
 
 inline
 bool String::areEqualCaseless(const bsl::string&  lhsString,
-                                   const char         *rhsString,
-                                   int                 rhsLength)
+                              const char         *rhsString,
+                              int                 rhsLength)
 {
     BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
     BSLS_ASSERT_SAFE(0 <= rhsLength);
 
     return areEqualCaseless(lhsString.data(),
-                            (int)lhsString.size(),
+                            static_cast<int>(lhsString.size()),
                             rhsString,
                             rhsLength);
 }
 
 inline
 bool String::areEqualCaseless(const bsl::string& lhsString,
-                                   const bsl::string& rhsString)
+                              const bsl::string& rhsString)
 {
     return areEqualCaseless(lhsString.data(),
-                            (int)lhsString.size(),
+                            static_cast<int>(lhsString.size()),
                             rhsString.data(),
-                            (int)rhsString.size());
+                            static_cast<int>(rhsString.size()));
 }
 
 inline
@@ -420,7 +422,7 @@ char *String::copy(const char *string, bslma::Allocator *basicAllocator)
 
 inline
 char *String::copy(const bsl::string&  string,
-                        bslma::Allocator   *basicAllocator)
+                   bslma::Allocator   *basicAllocator)
 {
     BSLS_ASSERT_SAFE(basicAllocator);
 
@@ -431,17 +433,19 @@ char *String::copy(const bsl::string&  string,
 
 inline
 int String::lowerCaseCmp(const char         *lhsString,
-                              const bsl::string&  rhsString)
+                         const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString);
 
-    return lowerCaseCmp(lhsString, &rhsString[0], (int)rhsString.size());
+    return lowerCaseCmp(lhsString,
+                        &rhsString[0],
+                        static_cast<int>(rhsString.size()));
 }
 
 inline
 int String::lowerCaseCmp(const char *lhsString,
-                              int         lhsLength,
-                              const char *rhsString)
+                         int         lhsLength,
+                         const char *rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -452,8 +456,8 @@ int String::lowerCaseCmp(const char *lhsString,
 
 inline
 int String::lowerCaseCmp(const char         *lhsString,
-                              int                 lhsLength,
-                              const bsl::string&  rhsString)
+                         int                 lhsLength,
+                         const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -461,40 +465,42 @@ int String::lowerCaseCmp(const char         *lhsString,
     return lowerCaseCmp(lhsString,
                         lhsLength,
                         rhsString.data(),
-                        (int)rhsString.size());
+                        static_cast<int>(rhsString.size()));
 }
 
 inline
 int String::lowerCaseCmp(const bsl::string&  lhsString,
-                              const char         *rhsString)
+                         const char         *rhsString)
 {
     BSLS_ASSERT_SAFE(rhsString);
 
-    return -lowerCaseCmp(rhsString, lhsString.data(), (int)lhsString.size());
+    return -lowerCaseCmp(rhsString,
+                         lhsString.data(),
+                         static_cast<int>(lhsString.size()));
 }
 
 inline
 int String::lowerCaseCmp(const bsl::string&  lhsString,
-                              const char         *rhsString,
-                              int                 rhsLength)
+                         const char         *rhsString,
+                         int                 rhsLength)
 {
     BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
     BSLS_ASSERT_SAFE(0 <= rhsLength);
 
     return lowerCaseCmp(lhsString.data(),
-                        (int)lhsString.size(),
+                        static_cast<int>(lhsString.size()),
                         rhsString,
                         rhsLength);
 }
 
 inline
 int String::lowerCaseCmp(const bsl::string& lhsString,
-                              const bsl::string& rhsString)
+                         const bsl::string& rhsString)
 {
     return lowerCaseCmp(lhsString.data(),
-                        (int)lhsString.size(),
+                        static_cast<int>(lhsString.size()),
                         rhsString.data(),
-                        (int)rhsString.size());
+                        static_cast<int>(rhsString.size()));
 }
 
 inline
@@ -502,7 +508,7 @@ void String::ltrim(bsl::string *string)
 {
     BSLS_ASSERT_SAFE(string);
 
-    int length = (int)string->size();
+    int length = static_cast<int>(string->size());
     if (length > 0) {
         ltrim(&(*string)[0], &length);
         string->resize(length);
@@ -515,7 +521,7 @@ void String::pad(bsl::string *string, int numChars, char padChar)
     BSLS_ASSERT_SAFE(string);
     BSLS_ASSERT_SAFE(0 <= numChars);
 
-    if (string->size() < (bsl::size_t)numChars) {
+    if (string->size() < static_cast<bsl::size_t>(numChars)) {
         string->resize(numChars, padChar);
     }
 }
@@ -525,7 +531,7 @@ void String::rtrim(bsl::string *string)
 {
     BSLS_ASSERT_SAFE(string);
 
-    int length = (int)string->size();
+    int length = static_cast<int>(string->size());
     if (length > 0) {
         rtrim(&(*string)[0], &length);
         string->resize(length);
@@ -537,7 +543,7 @@ void String::toLower(bsl::string *string)
 {
     BSLS_ASSERT_SAFE(string);
 
-    int length = (int)string->size();
+    int length = static_cast<int>(string->size());
     if (length > 0) {
         toLower(&(*string)[0], length);
     }
@@ -548,7 +554,7 @@ void String::toUpper(bsl::string *string)
 {
     BSLS_ASSERT_SAFE(string);
 
-    int length = (int)string->size();
+    int length = static_cast<int>(string->size());
     if (length > 0) {
         toUpper(&(*string)[0], length);
     }
@@ -570,7 +576,7 @@ void String::trim(bsl::string *string)
 {
     BSLS_ASSERT_SAFE(string);
 
-    int length = (int)string->size();
+    int length = static_cast<int>(string->size());
     if (length > 0) {
         rtrim(&(*string)[0], &length);
         ltrim(&(*string)[0], &length);
@@ -580,17 +586,19 @@ void String::trim(bsl::string *string)
 
 inline
 int String::upperCaseCmp(const char         *lhsString,
-                              const bsl::string&  rhsString)
+                         const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString);
 
-    return upperCaseCmp(lhsString, &rhsString[0], (int)rhsString.size());
+    return upperCaseCmp(lhsString,
+                        &rhsString[0],
+                        static_cast<int>(rhsString.size()));
 }
 
 inline
 int String::upperCaseCmp(const char *lhsString,
-                              int         lhsLength,
-                              const char *rhsString)
+                         int         lhsLength,
+                         const char *rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -601,8 +609,8 @@ int String::upperCaseCmp(const char *lhsString,
 
 inline
 int String::upperCaseCmp(const char         *lhsString,
-                              int                 lhsLength,
-                              const bsl::string&  rhsString)
+                         int                 lhsLength,
+                         const bsl::string&  rhsString)
 {
     BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
     BSLS_ASSERT_SAFE(0 <= lhsLength);
@@ -610,43 +618,45 @@ int String::upperCaseCmp(const char         *lhsString,
     return upperCaseCmp(lhsString,
                         lhsLength,
                         rhsString.data(),
-                        (int)rhsString.size());
+                        static_cast<int>(rhsString.size()));
 }
 
 inline
 int String::upperCaseCmp(const bsl::string&  lhsString,
-                              const char         *rhsString)
+                         const char         *rhsString)
 {
     BSLS_ASSERT_SAFE(rhsString);
 
-    return -upperCaseCmp(rhsString, lhsString.data(), (int)lhsString.size());
+    return -upperCaseCmp(rhsString,
+                         lhsString.data(),
+                         static_cast<int>(lhsString.size()));
 }
 
 inline
 int String::upperCaseCmp(const bsl::string&  lhsString,
-                              const char         *rhsString,
-                              int                 rhsLength)
+                         const char         *rhsString,
+                         int                 rhsLength)
 {
     BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
     BSLS_ASSERT_SAFE(0 <= rhsLength);
 
     return upperCaseCmp(lhsString.data(),
-                        (int)lhsString.size(),
+                        static_cast<int>(lhsString.size()),
                         rhsString,
                         rhsLength);
 }
 
 inline
 int String::upperCaseCmp(const bsl::string& lhsString,
-                              const bsl::string& rhsString)
+                         const bsl::string& rhsString)
 {
     return upperCaseCmp(lhsString.data(),
-                        (int)lhsString.size(),
+                        static_cast<int>(lhsString.size()),
                         rhsString.data(),
-                        (int)rhsString.size());
+                        static_cast<int>(rhsString.size()));
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
@@ -654,15 +664,15 @@ int String::upperCaseCmp(const bsl::string& lhsString,
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

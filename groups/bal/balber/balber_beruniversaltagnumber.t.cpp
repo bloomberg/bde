@@ -3,6 +3,8 @@
 
 #include <bdlat_arrayfunctions.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_allocator.h>
 
 #include <bsls_types.h>
@@ -45,31 +47,27 @@ void aSsErT(int c, const char *s, int i)
 }
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_ cout << "\t" << flush; // tab
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2056,13 +2054,16 @@ typedef bdlat_TypeCategory                TC;
 
 #define TEST_SELECT_WITH_OPTIONS(type, formattingMode, expected, options) {   \
         type object;                                                          \
-        const balber::BerUniversalTagNumber::Value expectedResult = expected;    \
-        balber::BerUniversalTagNumber::Value result =                            \
-         balber::BerUniversalTagNumber::select(object, formattingMode, options); \
+        const balber::BerUniversalTagNumber::Value expectedResult = expected; \
+        balber::BerUniversalTagNumber::Value result =                         \
+                                balber::BerUniversalTagNumber::select(        \
+                                                               object,        \
+                                                               formattingMode,\
+                                                               options);      \
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
-        balber::BerUniversalTagNumber::Value result2 =                           \
-            balber::BerUniversalTagNumber::select(object,                        \
-                                         formattingMode | FM::e_UNTAGGED, \
+        balber::BerUniversalTagNumber::Value result2 =                        \
+            balber::BerUniversalTagNumber::select(object,                     \
+                                         formattingMode | FM::e_UNTAGGED,     \
                                                options);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
     }
@@ -2183,9 +2184,10 @@ int main(int argc, char *argv[])
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
-        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>         DateVariant;
-        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>         TimeVariant;
-        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> DatetimeVariant;
+        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>       DateVariant;
+        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>       TimeVariant;
+        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                               DatetimeVariant;
 
         if (veryVerbose) cout << "Testing non-dynamic types with options"
                               << endl;
@@ -2481,9 +2483,10 @@ int main(int argc, char *argv[])
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
-        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>         DateVariant;
-        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>         TimeVariant;
-        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> DatetimeVariant;
+        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>       DateVariant;
+        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>       TimeVariant;
+        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                               DatetimeVariant;
 
         if (veryVerbose) cout << "Testing non-dynamic types with options"
                               << endl;

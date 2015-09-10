@@ -146,12 +146,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Record;
+class Record;
 
-                        // ================================
+                        // ===========================
                         // class RecordStringFormatter
-                        // ================================
+                        // ===========================
 
 class RecordStringFormatter {
     // This class provides a value-semantic log record formatter that holds a
@@ -179,7 +180,7 @@ class RecordStringFormatter {
                                               // time.
 
     // DATA
-    bsl::string           d_formatSpec;       // 'printf'-style format spec.
+    bsl::string            d_formatSpec;       // 'printf'-style format spec.
     bdlt::DatetimeInterval d_timestampOffset;  // offset added to timestamps
 
   public:
@@ -198,15 +199,15 @@ class RecordStringFormatter {
         //..
 
     explicit RecordStringFormatter(const char       *format,
-                                        bslma::Allocator *basicAllocator = 0);
+                                   bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having the specified 'format'
         // specification and a timestamp offset of 0.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit RecordStringFormatter(
-                             const bdlt::DatetimeInterval&  offset,
-                             bslma::Allocator             *basicAllocator = 0);
+                            const bdlt::DatetimeInterval&  offset,
+                            bslma::Allocator              *basicAllocator = 0);
         // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
         //
         // Create a record formatter having a default format specification and
@@ -218,9 +219,8 @@ class RecordStringFormatter {
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
 
-    explicit RecordStringFormatter(
-                             bool              publishInLocalTime,
-                             bslma::Allocator *basicAllocator = 0);
+    explicit RecordStringFormatter(bool              publishInLocalTime,
+                                   bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having a default format specification, and
         // if the specified 'publishInLocalTime' flag is 'true', format the
         // timestamp of each logged record in the local time of the current
@@ -235,10 +235,9 @@ class RecordStringFormatter {
         // each formatted record and so track transitions into and out of
         // Daylight Saving Time.
 
-    RecordStringFormatter(
-                             const char                   *format,
-                             const bdlt::DatetimeInterval&  offset,
-                             bslma::Allocator             *basicAllocator = 0);
+    RecordStringFormatter(const char                    *format,
+                          const bdlt::DatetimeInterval&  offset,
+                          bslma::Allocator              *basicAllocator = 0);
         // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
         //
         // Create a record formatter having the specified 'format'
@@ -247,10 +246,9 @@ class RecordStringFormatter {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    RecordStringFormatter(
-                             const char       *format,
-                             bool              publishInLocalTime,
-                             bslma::Allocator *basicAllocator = 0);
+    RecordStringFormatter(const char       *format,
+                          bool              publishInLocalTime,
+                          bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having the specified 'format'
         // specification, and if the specified 'publishInLocalTime' flag is
         // 'true', format the timestamp of each log in the local time of the
@@ -261,9 +259,8 @@ class RecordStringFormatter {
         // of each formatted record and so track transitions into and out of
         // Daylight Saving Time.
 
-    RecordStringFormatter(
-                        const RecordStringFormatter&  original,
-                        bslma::Allocator                  *basicAllocator = 0);
+    RecordStringFormatter(const RecordStringFormatter&  original,
+                          bslma::Allocator             *basicAllocator = 0);
         // Create a record formatter initialized to the value of the specified
         // 'original' record formatter.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -273,8 +270,7 @@ class RecordStringFormatter {
         // Destroy this record formatter.
 
     // MANIPULATORS
-    RecordStringFormatter& operator=(
-                                        const RecordStringFormatter& rhs);
+    RecordStringFormatter& operator=(const RecordStringFormatter& rhs);
         // Assign to this record formatter the value of the specified 'rhs'
         // record formatter.
 
@@ -328,7 +324,6 @@ bool operator==(const RecordStringFormatter& lhs,
     // same value if they have the same format specification and the same
     // timestamp offset.
 
-inline
 bool operator!=(const RecordStringFormatter& lhs,
                 const RecordStringFormatter& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' record formatters do not
@@ -336,19 +331,19 @@ bool operator!=(const RecordStringFormatter& lhs,
     // differ in value if their format specifications differ or their timestamp
     // offsets differ.
 
-bsl::ostream& operator<<(bsl::ostream&                     output,
+bsl::ostream& operator<<(bsl::ostream&                output,
                          const RecordStringFormatter& rhs);
-    // Write the specified 'rhs' record formatter to the specified output
-    // 'stream' in some reasonable (single-line) format and return a reference
+    // Write the specified 'rhs' record formatter to the specified 'output'
+    // stream in some reasonable (single-line) format and return a reference
     // to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------------
+                        // ---------------------------
                         // class RecordStringFormatter
-                        // --------------------------------
+                        // ---------------------------
 // MANIPULATORS
 inline
 void RecordStringFormatter::disablePublishInLocalTime()
@@ -370,7 +365,7 @@ void RecordStringFormatter::setFormat(const char *format)
 
 inline
 void RecordStringFormatter::setTimestampOffset(
-                                           const bdlt::DatetimeInterval& offset)
+                                          const bdlt::DatetimeInterval& offset)
 {
     d_timestampOffset = offset;
 }
@@ -401,7 +396,7 @@ RecordStringFormatter::timestampOffset() const
 // FREE OPERATORS
 inline
 bool ball::operator!=(const RecordStringFormatter& lhs,
-                const RecordStringFormatter& rhs)
+                      const RecordStringFormatter& rhs)
 {
     return !(lhs == rhs);
 }

@@ -27,13 +27,13 @@ ElementAttribute::ElementAttribute()
 
 ElementAttribute::ElementAttribute(
     const PrefixStack *prefixStack,
-    const char               *qualifiedName,
-    const char               *value,
-    const char               *prefix,
-    const char               *localName,
-    int                       namespaceId,
-    const char               *namespaceUri,
-    unsigned                  flags)
+    const char        *qualifiedName,
+    const char        *value,
+    const char        *prefix,
+    const char        *localName,
+    int                namespaceId,
+    const char        *namespaceUri,
+    unsigned           flags)
 : d_prefixStack(prefixStack)
 , d_qualifiedName(qualifiedName)
 , d_value(value)
@@ -58,13 +58,13 @@ void ElementAttribute::reset()
 }
 
 void ElementAttribute::reset(const PrefixStack *prefixStack,
-                                    const char               *qualifiedName,
-                                    const char               *value,
-                                    const char               *prefix,
-                                    const char               *localName,
-                                    int                       namespaceId,
-                                    const char               *namespaceUri,
-                                    unsigned                  flags)
+                             const char        *qualifiedName,
+                             const char        *value,
+                             const char        *prefix,
+                             const char        *localName,
+                             int                namespaceId,
+                             const char        *namespaceUri,
+                             unsigned           flags)
 {
     d_prefixStack   = prefixStack;
     d_qualifiedName = qualifiedName;
@@ -158,12 +158,9 @@ const char *ElementAttribute::namespaceUri() const
     return d_namespaceUri;
 }
 
-bsl::ostream&
-ElementAttribute::print(bsl::ostream& os,
-                               int           ,
-                               int           ) const
+bsl::ostream &ElementAttribute::print(bsl::ostream &stream, int, int) const
 {
-    return os;
+    return stream;
 }
 }  // close package namespace
 

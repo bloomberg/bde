@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(ball_patternutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
+
 // ----------------------------------------------------------------------------
 //                   State Transition Diagram for 'isValidPattern'
 // ----------------------------------------------------------------------------
@@ -62,6 +63,7 @@ bool PatternUtil::isValidPattern(const char *pattern)
 //  automatically performed when the current input character is read to reach
 //  a new state).
 //-----------------------------------------------------------------------------
+//..
 //
 //                            P != '\' && P != '*"
 //                           && P != '\0' && P == S
@@ -88,10 +90,10 @@ bool PatternUtil::isValidPattern(const char *pattern)
 //     |                                         ^
 //     |_________________________________________|
 //
+//..
 // ----------------------------------------------------------------------------
 
-bool PatternUtil::isMatch(const char *inputString,
-                               const char *pattern)
+bool PatternUtil::isMatch(const char *inputString, const char *pattern)
 {
     char c;
     while (*pattern && *inputString) {
@@ -123,6 +125,7 @@ bool PatternUtil::isMatch(const char *inputString,
     return ( 0  == *pattern && 0 == *inputString)
         || ('*' == *pattern && 0 == pattern[1]);
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

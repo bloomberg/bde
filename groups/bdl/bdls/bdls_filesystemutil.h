@@ -1,6 +1,6 @@
-// bdlsu_filesystemutil.h                                             -*-C++-*-
-#ifndef INCLUDED_BDLSU_FILESYSTEMUTIL
-#define INCLUDED_BDLSU_FILESYSTEMUTIL
+// bdls_filesystemutil.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#define INCLUDED_BDLS_FILESYSTEMUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide methods for filesystem access with multi-language names.
 //
 //@CLASSES:
-//  bdlsu::FilesystemUtil: namespace for filesystem access methods
+//  bdls::FilesystemUtil: namespace for filesystem access methods
 //
-//@SEE_ALSO: bdlsu_pathutil
+//@SEE_ALSO: bdls_pathutil
 //
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
 // Hyman Rosen (hrosen4), Alexander Beels (abeels)
 //
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods, supporting multi-language file and path names.
-// Each method in the 'bdlsu::FilesystemUtil' namespace is a thin wrapper on top
+// Each method in the 'bdls::FilesystemUtil' namespace is a thin wrapper on top
 // of the operating system's own filesystem access functions, providing a
 // consistent and unambiguous interface for handling files on all supported
 // platforms.
@@ -27,8 +27,8 @@ BSLS_IDENT("$Id: $")
 // Methods in this component can be used to manipulate files with any name in
 // any language on all supported platforms.  To provide such support, the
 // following restrictions are applied to file names and patterns passed to
-// methods of this component:  On Windows, all file names and patterns must
-// be passed as UTF-8-encoded strings; file search results will similarly be
+// methods of this component: On Windows, all file names and patterns must be
+// passed as UTF-8-encoded strings; file search results will similarly be
 // encoded as UTF-8.  On Posix, file names and patterns may be passed in any
 // encoding, but all processes accessing a given file must encode its name in
 // the same encoding.  On modern Posix installations, this effectively means
@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 ///-------------------
 // The behavior of the 'open' method is governed by three sets of enumerations:
 //
-///Open/Create Policy: 'bdlsu::FilesystemUtil::FileOpenPolicy'
+///Open/Create Policy: 'bdls::FilesystemUtil::FileOpenPolicy'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsu::FilesystemUtil::FileOpenPolicy' governs whether 'open' creates a new
+// 'bdls::FilesystemUtil::FileOpenPolicy' governs whether 'open' creates a new
 // file or opens an existing one.  The following values are possible:
 //
 //: o e_OPEN          : Open an existing file.
@@ -51,9 +51,9 @@ BSLS_IDENT("$Id: $")
 //: o e_OPEN_OR_CREATE: Open a file if it exists, and create a new file
 //:                     otherwise.
 //
-///Input/Output Access Policy: 'bdlsu::FilesystemUtil::FileIOPolicy'
+///Input/Output Access Policy: 'bdls::FilesystemUtil::FileIOPolicy'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsu::FilesystemUtil::FileIOPolicy' governs what Input/Output operations
+// 'bdls::FilesystemUtil::FileIOPolicy' governs what Input/Output operations
 // are allowed on a file after it is opened.  The following values are
 // possible:
 //
@@ -63,9 +63,9 @@ BSLS_IDENT("$Id: $")
 //: o e_APPEND_ONLY: Allow appending to end-of-file only.
 //: o e_READ_APPEND: Allow both reading and appending to end-of-file.
 //
-///Truncation Policy: 'bdlsu::FilesystemUtil::FileTruncatePolicy'
+///Truncation Policy: 'bdls::FilesystemUtil::FileTruncatePolicy'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsu::FilesystemUtil::FileTruncatePolicy' governs whether 'open' deletes
+// 'bdls::FilesystemUtil::FileTruncatePolicy' governs whether 'open' deletes
 // the existing contents of a file when it is opened.  The following values are
 // possible:
 //
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
-// The 'bdlsu::FilesystemUtil::read' and 'bdlsu::FilesystemUtil::write' methods
+// The 'bdls::FilesystemUtil::read' and 'bdls::FilesystemUtil::write' methods
 // add no atomicity guarantees for reading and writing to those provided (if
 // any) by the underlying platform's methods for reading and writing (see
 // 'http://lwn.net/articles/180387/').
@@ -106,7 +106,7 @@ BSLS_IDENT("$Id: $")
 // File-name encodings have the following caveats for the following operating
 // systems:
 //
-//: o On Windows, methods of 'bdlsu::FilesystemUtil' that take a file or
+//: o On Windows, methods of 'bdls::FilesystemUtil' that take a file or
 //:   directory name or pattern as a 'char*' or 'bsl::string' type assume that
 //:   the name is encoded in UTF-8.  The routines attempt to convert the name
 //:   to a UTF-16 'wchar_t' string via 'bdlde::CharConvertUtf16::utf8ToUtf16',
@@ -126,9 +126,9 @@ BSLS_IDENT("$Id: $")
 //:   representation but are treated as different names by the filesystem.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
-//:   'bdlsu::FilesystemUtil' as a 'char*' or 'bsl::string' type is passed
+//:   'bdls::FilesystemUtil' as a 'char*' or 'bsl::string' type is passed
 //:   unchanged to the underlying system file APIs.  Because the file names and
-//:   patterns are passed unchanged, 'bdlsu::FilesystemUtil' methods will work
+//:   patterns are passed unchanged, 'bdls::FilesystemUtil' methods will work
 //:   correctly on Posix with any encoding, but will *interoperate* only with
 //:   processes that use the same encoding as the current process.
 //:
@@ -161,19 +161,19 @@ BSLS_IDENT("$Id: $")
 // locations, and create the directories if they do not exist:
 //..
 //  bsl::string oldPath(logPath), newPath(logPath);
-//  bdlsu::PathUtil::appendRaw(&oldPath, "old");
-//  bdlsu::PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdlsu::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+//  bdls::PathUtil::appendRaw(&oldPath, "old");
+//  bdls::PathUtil::appendRaw(&newPath, "new");
+//  int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
 //  assert(0 == rc);
-//  rc = bdlsu::FilesystemUtil::createDirectories(newPath.c_str(), true);
+//  rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
 // for all such files in the log directory:
 //..
-//  bdlsu::PathUtil::appendRaw(&logPath, "*.log");
+//  bdls::PathUtil::appendRaw(&logPath, "*.log");
 //  bsl::vector<bsl::string> logFiles;
-//  bdlsu::FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
+//  bdls::FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
 //..
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
@@ -184,21 +184,21 @@ BSLS_IDENT("$Id: $")
 //  for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
 //                                                it != logFiles.end(); ++it) {
 //    assert(0 ==
-//               bdlsu::FilesystemUtil::getLastModificationTime(&modTime, *it));
-//    assert(0 == bdlsu::PathUtil::getLeaf(&fileName, *it));
+//               bdls::FilesystemUtil::getLastModificationTime(&modTime, *it));
+//    assert(0 == bdls::PathUtil::getLeaf(&fileName, *it));
 //    bsl::string *whichDirectory =
 //                2 < (bdlt::CurrentTime::utc() - modTime).totalDays()
 //                ? &oldPath
 //                : &newPath;
-//    bdlsu::PathUtil::appendRaw(whichDirectory, fileName.c_str());
-//    assert(0 == bdlsu::FilesystemUtil::move(it->c_str(),
+//    bdls::PathUtil::appendRaw(whichDirectory, fileName.c_str());
+//    assert(0 == bdls::FilesystemUtil::move(it->c_str(),
 //                                         whichDirectory->c_str()));
-//    bdlsu::PathUtil::popLeaf(whichDirectory);
+//    bdls::PathUtil::popLeaf(whichDirectory);
 //  }
 //..
-///Example 2: Using 'bdlsu::FilesystemUtil::visitPaths'
+///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsu::FilesystemUtil::visitPaths' enables clients to define a functor to
+// 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
@@ -207,11 +207,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
 //                               const char               *item,
-//                               const bdlt::Datetime&      start,
-//                               const bdlt::Datetime&      end)
+//                               const bdlt::Datetime&     start,
+//                               const bdlt::Datetime&     end)
 //  {
 //      bdlt::Datetime datetime;
-//      int ret = bdlsu::FilesystemUtil::getLastModificationTime(&datetime,
+//      int ret = bdls::FilesystemUtil::getLastModificationTime(&datetime,
 //                                                              item);
 //
 //      if (ret) {
@@ -225,20 +225,20 @@ BSLS_IDENT("$Id: $")
 //      vector->push_back(item);
 //  }
 //..
-// Then, with the help of 'bdlsu::FilesystemUtil::visitPaths' and
+// Then, with the help of 'bdls::FilesystemUtil::visitPaths' and
 // 'bdlf::BindUtil::bind', we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
 // start and end time (both specified as a 'bdlt::Datetime'):
 //..
 //  void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
 //                                    const char               *pattern,
-//                                    const bdlt::Datetime&      start,
-//                                    const bdlt::Datetime&      end)
+//                                    const bdlt::Datetime&     start,
+//                                    const bdlt::Datetime&     end)
 //  {
 //      result->clear();
-//      bdlsu::FilesystemUtil::visitPaths(
-//                                pattern,
-//                                bdlf::BindUtil::bind(&getFilesWithinTimeframe,
+//      bdls::FilesystemUtil::visitPaths(
+//                               pattern,
+//                               bdlf::BindUtil::bind(&getFilesWithinTimeframe,
 //                                                    result,
 //                                                    bdlf::PlaceHolders::_1,
 //                                                    start,
@@ -252,6 +252,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLF_FUNCTION
 #include <bdlf_function.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -274,24 +278,14 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef INCLUDED_SYS_TYPES
+#ifndef INCLUDED_TYPES_H
 #include <sys/types.h>
-#define INCLUDED_SYS_TYPES
+#define INCLUDED_TYPES_H
 #endif
 
 namespace BloombergLP {
 
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close namespace bdet
-
-namespace bdlsu {
+namespace bdls {
                            // =====================
                            // struct FilesystemUtil
                            // =====================
@@ -490,7 +484,7 @@ struct FilesystemUtil {
                               bool                followLinksFlag = false);
         // Return 'true' if there currently exists a regular file at the
         // specified 'path', and 'false' otherwise.  If there is a symbolic
-        // link at 'path', follow it only if the optionally-specified
+        // link at 'path', follow it only if the optionally specified
         // 'followLinksFlag' is 'true' (otherwise, return 'false' as the
         // symbolic link itself is not a regular file irrespective of the file
         // to which it points).  Platform-specific note: On POSIX, this is a
@@ -508,9 +502,9 @@ struct FilesystemUtil {
         // is 'true' (otherwise return 'false').  Platform-specific note: On
         // Windows, a "shortcut" is not a symbolic link.
 
-    static int getLastModificationTime(bdlt::Datetime      *time,
+    static int getLastModificationTime(bdlt::Datetime     *time,
                                        const bsl::string&  path);
-    static int getLastModificationTime(bdlt::Datetime      *time,
+    static int getLastModificationTime(bdlt::Datetime     *time,
                                        const char         *path);
         // Load into the specified 'time' the last modification time of the
         // file at the specified 'path', as reported by the filesystem.  Return
@@ -526,19 +520,19 @@ struct FilesystemUtil {
     static int createDirectories(
                               const char         *path,
                               bool                isLeafDirectoryFlag = false);
-        // Create any directories in 'path' which do not exist.  If the
-        // optionally specified 'isLeafDirectoryFlag' is 'true', then treat the
-        // last filename in the path as a directory and attempt to create it.
-        // Otherwise, treat the last filename as a regular file and ignore it.
-        // Return 0 on success, and a non-zero value if any needed directories
-        // in the path could not be created.
+        // Create any directories in the specified 'path' that do not exist.
+        // If the optionally specified 'isLeafDirectoryFlag' is 'true', then
+        // treat the last filename in 'path' as a directory and attempt to
+        // create it.  Otherwise, treat the last filename as a regular file and
+        // ignore it.  Return 0 on success, and a non-zero value if any needed
+        // directories in 'path' could not be created.
 
     static void visitPaths(
-                     const bsl::string&                               pattern,
-                     const bdlf::Function<void(*)(const char *path)>&  visitor);
+                    const bsl::string&                                pattern,
+                    const bdlf::Function<void(*)(const char *path)>&  visitor);
     static void visitPaths(
-                     const char                                      *pattern,
-                     const bdlf::Function<void(*)(const char *path)>&  visitor);
+                    const char                                       *pattern,
+                    const bdlf::Function<void(*)(const char *path)>&  visitor);
         // Call the specified 'visitor' functor for each path in the filesystem
         // matching the specified 'pattern'.  If 'visitor' deletes files or
         // directories during the search, the behavior is
@@ -588,9 +582,9 @@ struct FilesystemUtil {
 
     static Offset getFileSizeLimit();
         // Return the file size limit for this process, 'k_OFFSET_MAX' if no
-        // limit is set, or a negative value if an error occurs.  Note that
-        // if you are doing any calculations involving the returned value, it
-        // is recommended to check for 'k_OFFSET_MAX' specifically to avoid
+        // limit is set, or a negative value if an error occurs.  Note that if
+        // you are doing any calculations involving the returned value, it is
+        // recommended to check for 'k_OFFSET_MAX' specifically to avoid
         // integer overflow in your calculations.
 
     static int lock(FileDescriptor descriptor, bool lockWriteFlag);
@@ -606,18 +600,18 @@ struct FilesystemUtil {
 
     static int tryLock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor' if it is
-        // currently available.  If 'lockWrite' is true, acquire an exclusive
-        // write lock unless another process has any type of lock on the file.
-        // If 'lockWriteFlag' is false, acquire a shared read lock unless a
-        // process has a write lock.  This method will not block.  Return 0 on
-        // success, 'k_ERROR_LOCKING_CONFLICT' if the platform reports the lock
-        // could not be acquired because another process holds a conflicting
-        // lock, and a negative value for any other kind of error.  Note that
-        // this operation locks the indicated file for the current *process*,
-        // but the behavior is unspecified (and platform-dependent) when either
-        // attempting to lock 'descriptor' multiple times, or attempting to
-        // lock another descriptor referring to the same file, within a single
-        // process.
+        // currently available.  If the specified 'lockWriteFlag' is true,
+        // acquire an exclusive write lock unless another process has any type
+        // of lock on the file.  If 'lockWriteFlag' is false, acquire a shared
+        // read lock unless a process has a write lock.  This method will not
+        // block.  Return 0 on success, 'k_ERROR_LOCKING_CONFLICT' if the
+        // platform reports the lock could not be acquired because another
+        // process holds a conflicting lock, and a negative value for any other
+        // kind of error.  Note that this operation locks the indicated file
+        // for the current *process*, but the behavior is unspecified (and
+        // platform-dependent) when either attempting to lock 'descriptor'
+        // multiple times, or attempting to lock another descriptor referring
+        // to the same file, within a single process.
 
     static int unlock(FileDescriptor descriptor);
         // Release any lock this process holds on the file with the specified
@@ -634,22 +628,19 @@ struct FilesystemUtil {
         // mapped area.  Return 0 on success, and a non-zero value otherwise.
         // The access permissions for mapping memory are defined by the
         // specified 'mode', which may be a combination of
-        // 'MemoryUtil::BDESU_ACCESS_READ',
-        // 'MemoryUtil::BDESU_ACCESS_WRITE' and
-        // 'MemoryUtil::BDESU_ACCESS_EXECUTE'.  Note that on failure, the
-        // value of 'address' is undefined.  Also note that mapping will
-        // succeed even if there are fewer than 'offset + size' bytes in the
-        // specified file, and an attempt to access the mapped memory beyond
-        // the end of the file will result in undefined behavior (i.e., this
-        // function does not grow the file to guarantee it can accommodate the
-        // mapped region).
+        // 'MemoryUtil::k_ACCESS_READ', 'MemoryUtil::k_ACCESS_WRITE' and
+        // 'MemoryUtil::k_ACCESS_EXECUTE'.  Note that on failure, the value of
+        // 'address' is undefined.  Also note that mapping will succeed even if
+        // there are fewer than 'offset + size' bytes in the specified file,
+        // and an attempt to access the mapped memory beyond the end of the
+        // file will result in undefined behavior (i.e., this function does not
+        // grow the file to guarantee it can accommodate the mapped region).
 
     static int unmap(void *address, int size);
         // Unmap the memory mapping with the specified base 'address' and
         // specified 'size'.  Return 0 on success, and a non-zero value
-        // otherwise.  The behavior is undefined unless the area with the
-        // specified 'address' and 'size' was previously mapped with a 'map'
-        // call.
+        // otherwise.  The behavior is undefined unless this area with
+        // 'address' and 'size' was previously mapped with a 'map' call.
 
     static int sync(char *address, int numBytes, bool syncFlag);
         // Synchronize the contents of the specified 'numBytes' of mapped
@@ -681,10 +672,11 @@ struct FilesystemUtil {
         // next write at the pointer will increase the file size.
 
     static int read(FileDescriptor descriptor, void *buffer, int numBytes);
-        // Read 'numBytes' bytes beginning at the file pointer of the file with
-        // the specified 'descriptor' into the specified 'bufffer'.  Return
-        // 'numBytes' on success; the number of bytes read if there were not
-        // enough available; or a negative number on some other error.
+        // Read the specified 'numBytes' bytes beginning at the file pointer of
+        // the file with the specified 'descriptor' into the specified
+        // 'bufffer'.  Return 'numBytes' on success; the number of bytes read
+        // if there were not enough available; or a negative number on some
+        // other error.
 
     static int remove(const bsl::string&  path, bool recursiveFlag = false);
     static int remove(const char         *path, bool recursiveFlag = false);
@@ -718,10 +710,10 @@ struct FilesystemUtil {
     static int write(FileDescriptor  descriptor,
                      const void     *buffer,
                      int             numBytes);
-        // Write 'numBytes' from the specified 'buffer' address to the file
-        // with the specified 'descriptor'.  Return 'numBytes' on success; the
-        // number of bytes written if space was exhausted; or a negative value
-        // on some other error.
+        // Write the specified 'numBytes' from the specified 'buffer' address
+        // to the file with the specified 'descriptor'.  Return 'numBytes' on
+        // success; the number of bytes written if space was exhausted; or a
+        // negative value on some other error.
 
     static int growFile(
                   FileDescriptor descriptor,
@@ -729,19 +721,20 @@ struct FilesystemUtil {
                   bool           reserveFlag = false,
                   bsl::size_t    increment = k_DEFAULT_FILE_GROWTH_INCREMENT);
         // Grow the file with the specified 'descriptor' to the size of at
-        // least 'size' bytes.  Return 0 on success, and a non-zero value
-        // otherwise.  If the optionally specified 'reserveFlag' is true, make
-        // sure the space on disk is preallocated and not allocated on demand,
-        // preventing a possible out-of-disk-space error when accessing the
-        // data on file systems with sparse file support.  Preallocation is
-        // done by writing unspecified data to file in blocks of the specified
-        // 'increment'.  Note that if the size of the file is greater than or
-        // equal to 'size', this function has no effect.  Also note that the
-        // contents of the newly grown portion of the file is undefined.
+        // least the specified 'size' bytes.  Return 0 on success, and a
+        // non-zero value otherwise.  If the optionally specified 'reserveFlag'
+        // is true, make sure the space on disk is preallocated and not
+        // allocated on demand, preventing a possible out-of-disk-space error
+        // when accessing the data on file systems with sparse file support.
+        // Preallocation is done by writing unspecified data to file in blocks
+        // of the optionally specified 'increment'.  Note that if the size of
+        // the file is greater than or equal to 'size', this function has no
+        // effect.  Also note that the contents of the newly grown portion of
+        // the file is undefined.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                            // ---------------------
@@ -750,27 +743,26 @@ struct FilesystemUtil {
 
 // CLASS METHODS
 inline
-int FilesystemUtil::createDirectories(
-                                        const bsl::string& path,
-                                        bool               isLeafDirectoryFlag)
+int FilesystemUtil::createDirectories(const bsl::string& path,
+                                      bool               isLeafDirectoryFlag)
 {
     return createDirectories(path.c_str(), isLeafDirectoryFlag);
 }
 
 inline
 void FilesystemUtil::visitPaths(
-                       const bsl::string&                              pattern,
-                       const bdlf::Function<void(*)(const char *path)>& visitor)
+                      const bsl::string&                               pattern,
+                      const bdlf::Function<void(*)(const char *path)>& visitor)
 {
     return visitPaths(pattern.c_str(), visitor);
 }
 
 inline
-FilesystemUtil::FileDescriptor
-FilesystemUtil::open(const bsl::string& path,
-                           FileOpenPolicy     openPolicy,
-                           FileIOPolicy       ioPolicy,
-                           FileTruncatePolicy truncatePolicy)
+FilesystemUtil::FileDescriptor FilesystemUtil::open(
+                                             const bsl::string& path,
+                                             FileOpenPolicy     openPolicy,
+                                             FileIOPolicy       ioPolicy,
+                                             FileTruncatePolicy truncatePolicy)
 {
     return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
 }
@@ -783,21 +775,21 @@ bool FilesystemUtil::exists(const bsl::string& path)
 
 inline
 bool FilesystemUtil::isRegularFile(const bsl::string& path,
-                                         bool               followLinksFlag)
+                                   bool               followLinksFlag)
 {
     return isRegularFile(path.c_str(), followLinksFlag);
 }
 
 inline
 bool FilesystemUtil::isDirectory(const bsl::string& path,
-                                       bool               followLinksFlag)
+                                 bool               followLinksFlag)
 {
     return isDirectory(path.c_str(), followLinksFlag);
 }
 
 inline
-int FilesystemUtil::getLastModificationTime(bdlt::Datetime      *time,
-                                                  const bsl::string&  path)
+int FilesystemUtil::getLastModificationTime(bdlt::Datetime     *time,
+                                            const bsl::string&  path)
 {
     BSLS_ASSERT_SAFE(time);
 
@@ -818,7 +810,7 @@ int FilesystemUtil::rollFileChain(const bsl::string& path, int maxSuffix)
 
 inline
 int FilesystemUtil::move(const bsl::string& oldPath,
-                               const bsl::string& newPath)
+                         const bsl::string& newPath)
 {
     return move(oldPath.c_str(), newPath.c_str());
 }
@@ -830,8 +822,7 @@ int FilesystemUtil::setWorkingDirectory(const bsl::string& path)
 }
 
 inline
-FilesystemUtil::Offset FilesystemUtil::getFileSize(
-                                                       const bsl::string& path)
+FilesystemUtil::Offset FilesystemUtil::getFileSize(const bsl::string& path)
 {
     return getFileSize(path.c_str());
 }
@@ -842,8 +833,8 @@ FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
 {
     return getAvailableSpace(path.c_str());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

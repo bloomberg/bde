@@ -27,6 +27,8 @@
 #define snprintf _snprintf_s
 #endif
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -48,10 +50,10 @@ using bsl::flush;
 // [ 2]  balm::MetricRegistry(bslma::Allocator *);
 // [ 2]  ~balm::MetricRegistry();
 // MANIPULATORS
-// [ 2]  balm::MetricId addId(const bslstl::StringRef& , const bslstl::StringRef& );
-// [ 3]  balm::MetricId getId(const bslstl::StringRef& , const bslstl::StringRef& );
-// [ 2]  const balm::Category *addCategory(const bslstl::StringRef& category);
-// [ 4]  const balm::Category *getCategory(const bslstl::StringRef& category);
+// [ 2]  balm::MetricId addId(const StringRef& , const StringRef& );
+// [ 3]  balm::MetricId getId(const StringRef& , const StringRef& );
+// [ 2]  const balm::Category *addCategory(const StringRef& category);
+// [ 4]  const balm::Category *getCategory(const StringRef& category);
 // [ 6]  void setCategoryEnabled(const balm::Category* , isEnabled);
 // [ 6]  void setAllCategoriesEnabled(bool );
 // [10]  void setPreferredPublicationType(const balm::MetricId& ,
@@ -63,9 +65,8 @@ using bsl::flush;
 // ACCESSORS
 // [ 2]  bsl::size_t numMetrics() const;
 // [ 2]  bsl::size_t numCategories() const;
-// [ 2]  balm::MetricId findId(const bslstl::StringRef& ,
-//                           const bslstl::StringRef& ) const;
-// [ 2]  const balm::Category *findCategory(const bslstl::StringRef& ) const;
+// [ 2]  balm::MetricId findId(const StringRef&, const StringRef& ) const;
+// [ 2]  const balm::Category *findCategory(const StringRef& ) const;
 // [ 5]  void getAllCategories(bsl::vector<const balm::Category *> *) const;
 // [ 7]  bsl::ostream& print(bsl::ostream& , int, int) const;
 //-----------------------------------------------------------------------------
@@ -74,9 +75,10 @@ using bsl::flush;
 // [ 9] BSLMA ALLOCATION EXCEPTION TEST
 // [15] CONCURRENCY TEST
 // [16] USAGE EXAMPLE
-//=============================================================================
+
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -88,49 +90,30 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n" \
-                         << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::Category         Cat;
 typedef balm::MetricId         Id;
@@ -139,9 +122,9 @@ typedef balm::PublicationType  Type;
 typedef balm::MetricFormat     Format;
 typedef balm::MetricFormatSpec Spec;
 
-//=============================================================================
-//                  GLOBAL CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        GLOBAL CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
@@ -178,10 +161,10 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool      d_pool;
-    bdlqq::Barrier             d_barrier;
-    balm::MetricRegistry      *d_registry_p;
-    bslma::Allocator         *d_allocator_p;
+    bdlmt::FixedThreadPool  d_pool;
+    bdlqq::Barrier          d_barrier;
+    balm::MetricRegistry   *d_registry_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -192,7 +175,7 @@ class ConcurrencyTest {
     // CREATORS
     ConcurrencyTest(int                  numThreads,
                     balm::MetricRegistry *registry,
-                    bslma::Allocator    *basicAllocator)
+                    bslma::Allocator     *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_registry_p(registry)
@@ -228,13 +211,13 @@ void ConcurrencyTest::execute()
     bslma::TestAllocator cAlloc;
     balm::MetricFormat formatA(&cAlloc);
     balm::MetricFormat formatB(&cAlloc);
-    formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+    formatB.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
     balm::MetricFormat formatC(&cAlloc);
-    formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
-    formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
+    formatC.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
+    formatC.setFormatSpec(Type::e_AVG, Spec(1.0, "%d"));
     balm::MetricFormat formatD(&cAlloc);
-    formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
-    formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
+    formatD.setFormatSpec(Type::e_MIN, Spec(2.0, "%f"));
+    formatD.setFormatSpec(Type::e_MAX, Spec(2.0, "%d"));
 
     const balm::MetricFormat *FORMATS[] = {
         &formatA,
@@ -244,13 +227,13 @@ void ConcurrencyTest::execute()
     };
     const int NUM_FORMATS = sizeof FORMATS / sizeof *FORMATS;
 
-    Type::Value TYPES[] = { Type::e_BALM_TOTAL,
-                            Type::e_BALM_COUNT,
-                            Type::e_BALM_MIN,
-                            Type::e_BALM_MAX,
-                            Type::e_BALM_AVG,
-                            Type::e_BALM_RATE,
-                            Type::e_BALM_UNSPECIFIED
+    Type::Value TYPES[] = { Type::e_TOTAL,
+                            Type::e_COUNT,
+                            Type::e_MIN,
+                            Type::e_MAX,
+                            Type::e_AVG,
+                            Type::e_RATE,
+                            Type::e_UNSPECIFIED
     };
     const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
@@ -447,13 +430,13 @@ void ConcurrencyTest::runTest()
     d_pool.drain();
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -491,10 +474,10 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry' object,
-// 'registry', and then using this registry to create a 'balm::MetricId' for a
-// metric "MetricA" belonging to the category "MyCategory" (i.e.,
-// "MyCategory.MetricA").
+// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry'
+// object, 'registry', and then using this registry to create a
+// 'balm::MetricId' for a metric "MetricA" belonging to the category
+// "MyCategory" (i.e., "MyCategory.MetricA").
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
     balm::MetricRegistry  registry(allocator);
@@ -890,13 +873,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator cAlloc;
         balm::MetricFormat formatA(&cAlloc);
         balm::MetricFormat formatB(&cAlloc);
-        formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+        formatB.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
         balm::MetricFormat formatC(&cAlloc);
-        formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
-        formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
+        formatC.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
+        formatC.setFormatSpec(Type::e_AVG, Spec(1.0, "%d"));
         balm::MetricFormat formatD(&cAlloc);
-        formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
-        formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
+        formatD.setFormatSpec(Type::e_MIN, Spec(2.0, "%f"));
+        formatD.setFormatSpec(Type::e_MAX, Spec(2.0, "%d"));
 
         const balm::MetricFormat *FORMATS[] = {
             &formatA,
@@ -943,8 +926,8 @@ int main(int argc, char *argv[])
             ASSERT(*f1 == *f2);
 
             // Verify the strings are shared.
-            ASSERT(f1->formatSpec(Type::e_BALM_TOTAL)->format() ==
-                   f2->formatSpec(Type::e_BALM_TOTAL)->format());
+            ASSERT(f1->formatSpec(Type::e_TOTAL)->format() ==
+                   f2->formatSpec(Type::e_TOTAL)->format());
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 10: {
@@ -983,13 +966,13 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        Type::Value TYPES[] = { Type::e_BALM_TOTAL,
-                                Type::e_BALM_COUNT,
-                                Type::e_BALM_MIN,
-                                Type::e_BALM_MAX,
-                                Type::e_BALM_AVG,
-                                Type::e_BALM_RATE,
-                                Type::e_BALM_UNSPECIFIED
+        Type::Value TYPES[] = { Type::e_TOTAL,
+                                Type::e_COUNT,
+                                Type::e_MIN,
+                                Type::e_MAX,
+                                Type::e_AVG,
+                                Type::e_RATE,
+                                Type::e_UNSPECIFIED
         };
         const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
@@ -999,7 +982,7 @@ int main(int argc, char *argv[])
             const char *NAME = METRICS[i].d_name;
 
             balm::MetricId id = mX.addId(CAT, NAME);
-            ASSERT(Type::e_BALM_UNSPECIFIED ==
+            ASSERT(Type::e_UNSPECIFIED ==
                    id.description()->preferredPublicationType());
 
             for (int j = 0; j < NUM_TYPES; ++j) {
@@ -1517,7 +1500,7 @@ int main(int argc, char *argv[])
         //   to add a category.
         //
         // Testing:
-        //   const balm::Category *getCategory(const bslstl::StringRef& );
+        //   const balm::Category *getCategory(const StringRef& category);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getCategory'."
@@ -1596,8 +1579,7 @@ int main(int argc, char *argv[])
         //   'addCategory'.
         //
         // Testing:
-        //   balm::MetricId getId(const bslstl::StringRef& ,
-        //                       const bslstl::StringRef& );
+        //   balm::MetricId getId(const StringRef& , const StringRef& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getId'."
@@ -1732,16 +1714,14 @@ int main(int argc, char *argv[])
         //   the modification.
         //
         // Testing:
-        //   MetricRegistry(bslma::Allocator *);
-        //   ~MetricRegistry();
-        //   MetricId addId(const bslstl::StringRef& ,
-        //                       const bslstl::StringRef& );
-        //   const Category *addCategory(const bslstl::StringRef& );
+        //  balm::MetricRegistry(bslma::Allocator *);
+        //   ~balm::MetricRegistry();
+        //   balm::MetricId addId(const StringRef& , const StringRef& );
+        //   const balm::Category *addCategory(const StringRef& category);
         //   bsl::size_t numMetrics() const;
         //   bsl::size_t numCategories() const;
-        //   MetricId findId(const bslstl::StringRef& ,
-        //                        const bslstl::StringRef& ) const;
-        //   const balm::Category *findCategory(const bslstl::StringRef& ) const;
+        //   balm::MetricId findId(const StringRef&, const StringRef& ) const;
+        //   const balm::Category *findCategory(const StringRef& ) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting basic mainpulator and accessors."

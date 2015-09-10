@@ -5,11 +5,13 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>       // 'atoi'
 #include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -136,7 +138,7 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
-
+    
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
         // --------------------------------------------------------------------
@@ -275,7 +277,6 @@ int main(int argc, char *argv[])
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
 
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
@@ -289,40 +290,44 @@ int main(int argc, char *argv[])
             const Enum  VALUE = DATA[ti].d_value;
             const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            ostringstream out(std::string(CTRL, SIZE));
             Obj::print(out, VALUE, LEVEL, SPL) << ends;
 
-            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << out.str() << endl;
 
             const int SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
-            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
-            LOOP3_ASSERT(LINE, ti, buf, 0 == memcmp(buf, EXP, SZ));
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+            LOOP2_ASSERT(LINE,
+                         ti,
+                         XX == out.str()[SIZE - 1]);      // Check for overrun.
+            LOOP3_ASSERT(LINE,
+                         ti,
+                         out.str(),
+                         0 == memcmp(out.str().c_str(), EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(out.str().c_str() + SZ,
                                                 CTRL + SZ, SIZE - SZ));
 
             if (0 == LEVEL && 4 == SPL) {
                 if (veryVerbose)
                     cout << "\tRepeat for 'print' default arguments." << endl;
 
-                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
-                                          // values.
-
-                ostrstream out(buf, sizeof buf);
+                ostringstream out(std::string(CTRL, SIZE));
                 Obj::print(out, VALUE) << ends;
 
-                if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+                if (veryVerbose) {
+                    cout << "  ACTUAL FORMAT: " << out.str() << endl;
+                }
 
-                LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for
-                                                              // overrun.
-                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
-                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+                LOOP2_ASSERT(LINE, ti, XX == out.str()[SIZE - 1]); // Check for
+                                                                   // overrun.
+                LOOP2_ASSERT(LINE,
+                             ti,
+                             0 == memcmp(out.str().c_str(), EXP, SZ));
+                LOOP2_ASSERT(LINE, ti,  0 == memcmp(out.str().c_str() + SZ,
                                                     CTRL + SZ, SIZE - SZ));
             }
         }
@@ -336,14 +341,13 @@ int main(int argc, char *argv[])
             const Enum  VALUE = DATA[ti].d_value;
             // const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            ostringstream out(bsl::string(CTRL, SIZE));
+            out.setstate(ios::badbit);
             Obj::print(out, VALUE, LEVEL, SPL);
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
         }
 
         if (verbose) cout << "\nVerify 'print' signature." << endl;
@@ -409,7 +413,6 @@ int main(int argc, char *argv[])
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
 
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
@@ -421,22 +424,22 @@ int main(int argc, char *argv[])
             const Enum  VALUE = DATA[ti].d_value;
             const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            ostringstream out(bsl::string(CTRL, SIZE));
             out << VALUE << ends;
 
-            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << out.str() << endl;
 
             const int SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
-            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+            LOOP2_ASSERT(LINE,
+                         ti,
+                         XX == out.str()[SIZE - 1]);      // Check for overrun.
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(out.str().c_str(), EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(out.str().c_str() + SZ,
                                                 CTRL + SZ, SIZE - SZ));
         }
 
@@ -447,14 +450,13 @@ int main(int argc, char *argv[])
             const Enum  VALUE = DATA[ti].d_value;
             // const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            ostringstream out(bsl::string(CTRL, SIZE));
+            out.setstate(ios::badbit);
             out << VALUE;
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
         }
 
         if (verbose) cout << "\nVerify '<<' operator signature." << endl;
@@ -517,6 +519,8 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        bsls::Types::Int64 numBlocksTotal = defaultAllocator.numBlocksTotal();
+    
         if (verbose) cout << "\nVerify enumerator values are sequential."
                           << endl;
 
@@ -553,6 +557,7 @@ int main(int argc, char *argv[])
             (*FP)(Obj::k_INVALID_CHARS_BIT);
         }
 
+        ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -560,7 +565,6 @@ int main(int argc, char *argv[])
       }
     }
 
-    ASSERT(0 == defaultAllocator.numBlocksTotal());
     ASSERT(0 ==  globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {

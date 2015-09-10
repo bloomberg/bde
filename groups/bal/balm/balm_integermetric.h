@@ -39,12 +39,12 @@ BSLS_IDENT("$Id: $")
 ///Choosing Between 'balm::IntegerMetric' and Macros
 ///------------------------------------------------
 // The 'balm::IntegerMetric' class and the macros defined in 'balm_metrics'
-// provide the same basic functionality. Clients may find 'balm::IntegerMetric'
-// objects better suited to collecting integer metrics associated with a
-// particular instance of a stateful object, while macros are better suited to
-// collecting metrics associated with a particular code path (rather than an
-// object instance).  In most instances, however, choosing between the two is
-// simply a matter of taste.
+// provide the same basic functionality.  Clients may find
+// 'balm::IntegerMetric' objects better suited to collecting integer metrics
+// associated with a particular instance of a stateful object, while macros are
+// better suited to collecting metrics associated with a particular code path
+// (rather than an object instance).  In most instances choosing is a matter of
+// taste.
 //
 ///Thread Safety
 ///-------------
@@ -59,58 +59,28 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following examples demonstrate how to configure, collect, and publish
-// integer metrics.
+// metrics.
 //
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricsManager'
-// instance and perform a trivial configuration.
-//
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
-// the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which it will
-// publish metrics.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
-//..
-//  int main(int argc, char *argv[])
-//  {
-//
-//      // ...
-//
-//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
-// Once the default manager object has been created, it can be accessed using
-// the 'instance' operation.
-//..
-//     balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
-//     assert(0 != manager);
-//..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope.  Clients that choose to call
-// 'balm::DefaultMetricsManager::create' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
-//
-///Example 2 - Metric Collection with 'balm::Metric'
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Alternatively, we can use a 'balm::Metric' to record metric values.  In this
-// third example we implement a hypothetical event manager object, similar in
-// purpose to the 'handleEvent' function of example 2.  We use
+///Example 1 - Metric collection with 'balm::IntegerMetric'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We can use 'balm::IntegerMetric' objects to record metric values.  In this
+// example we implement a hypothetical event manager object.  We use
 // 'balm::IntegerMetric' objects to record metrics for the size of the request,
-// and the number of failures.
+// the elapsed processing time, and the number of failures.
 //..
 //  class EventManager {
 //
 //      // DATA
 //      balm::IntegerMetric d_messageSize;
+//      balm::IntegerMetric d_elapsedTime;
 //      balm::IntegerMetric d_failedRequests;
 //
 //    public:
+//
 //      // CREATORS
 //      EventManager()
-//      : d_requestSize("MyCategory", "EventManager/size")
+//      : d_messageSize("MyCategory", "EventManager/size")
+//      , d_elapsedTime("MyCategory", "EventManager/elapsedTime")
 //      , d_failedRequests("MyCategory", "EventManager/failedRequests")
 //      {}
 //
@@ -124,16 +94,79 @@ BSLS_IDENT("$Id: $")
 //
 //         d_messageSize.update(eventMessage.size());
 //
+//         bsls::TimeInterval start = bdlt::CurrentTime::now();
+//
 //         // Process 'data' ('returnCode' may change).
 //
 //         if (0 != returnCode) {
 //             d_failedRequests.increment();
 //         }
+//
+//         bsls::TimeInterval end = bdlt::CurrentTime::now();
+//         d_elapsedTime.update((end - start).totalMicroseconds());
 //         return returnCode;
 //      }
 //
 //  // ...
 //  };
+//..
+///Example 2 - Create and access the default 'balm::MetricsManager' instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create the default 'balm::MetricManager'
+// instance and perform a trivial configuration.
+//
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the scoped guard an output stream ('stdout') that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//
+//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
+//..
+// Once the default instance has been created, it can be accessed using the
+// 'instance' operation.
+//..
+//      balm::MetricsManager *manager =
+//                                     balm::DefaultMetricsManager::instance();
+//      assert(0 != manager);
+//..
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// 'balm::DefaultMetricsManager::create' must also explicitly call
+// 'balm::DefaultMetricsManager::release()'.
+//
+// Now that we have created a 'balm::MetricsManager' instance, we can use the
+// instance to publish metrics collected using the event manager described in
+// Example 1:
+//..
+//      EventManager eventManager;
+//
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      manager->publishAll();
+//
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      eventManager.handleEvent(0, "a");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdefg");
+//
+//      manager->publishAll();
+//  }
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -167,33 +200,32 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                         // ========================
-                         // class IntegerMetric
-                         // ========================
+                            // ===================
+                            // class IntegerMetric
+                            // ===================
 
 class IntegerMetric {
     // This class provides an in-core value semantic type for recording and
     // aggregating the values of an integer metric.  The value of a
-    // 'IntegerMetric' object is characterized by the
-    // 'IntegerCollector' object it uses to collect metric-event values.
-    // Each instance of this class establishes (at construction) an
-    // association to a 'IntegerCollector' object to which the metric
-    // delegates.  A 'IntegerMetric' value is constant after construction
-    // (i.e., it does not support assignment or provide manipulators that
-    // modify its collector value), so that synchronization primitives are not
-    // required to protect its data members.  Note that if a collector or
-    // metrics manager is not supplied at construction, and if the default
-    // metrics manager has not been instantiated, then the metric will be
-    // inactive (i.e., 'isActive()' is 'false') and the manipulator methods of
-    // the integer metric object will have no effect.
+    // 'IntegerMetric' object is characterized by the 'IntegerCollector' object
+    // it uses to collect metric-event values.  Each instance of this class
+    // establishes (at construction) an association to an 'IntegerCollector'
+    // object to which the metric delegates.  A 'IntegerMetric' value is
+    // constant after construction (i.e., it does not support assignment or
+    // provide manipulators that modify its collector value), so that
+    // synchronization primitives are not required to protect its data members.
+    // Note that if a collector or metrics manager is not supplied at
+    // construction, and if the default metrics manager has not been
+    // instantiated, then the metric will be inactive (i.e., 'isActive()' is
+    // 'false') and the manipulator methods of the integer metric object will
+    // have no effect.
 
     // DATA
     IntegerCollector *d_collector_p;  // collected metric data (held, not
-                                           // owned); may be 0, but cannot be
-                                           // invalid
+                                      // owned); may be 0, but cannot be
+                                      // invalid
 
-    const volatile bool   *d_isEnabled_p;  // is category enabled (held, not
-                                           // owned)
+    const bool       *d_isEnabled_p;  // is category enabled (held, not owned)
 
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );
@@ -207,9 +239,8 @@ class IntegerMetric {
 
   public:
     // CLASS METHODS
-    static IntegerCollector *lookupCollector(
-                                             const char          *category,
-                                             const char          *name,
+    static IntegerCollector *lookupCollector(const char     *category,
+                                             const char     *name,
                                              MetricsManager *manager = 0);
         // Return an integer collector corresponding to the specified metric
         // 'category' and 'name'.  Optionally specify a metrics 'manager' used
@@ -218,20 +249,19 @@ class IntegerMetric {
         // metrics manager has not been initialized, return 0.  The behavior
         // is undefined unless 'category' and 'name' are null-terminated.
 
-    static IntegerCollector *lookupCollector(
-                                            const MetricId&  metricId,
-                                            MetricsManager  *manager = 0);
+    static IntegerCollector *lookupCollector(const MetricId&  metricId,
+                                             MetricsManager  *manager = 0);
         // Return an integer collector for the specified 'metricId'.
         // Optionally specify a metrics 'manager' used to provide the
         // collector.  If 'manager' is 0, use the default metrics manager, if
         // initialized; if 'manager' is 0 and the default metrics manager has
         // not been initialized, return 0.  The behavior is undefined unless
-        // 'metricId' is a valid metric id supplied by the
-        // 'MetricsRegistry' of the indicated metrics manager.
+        // 'metricId' is a valid metric id supplied by the 'MetricsRegistry'
+        // of the indicated metrics manager.
 
     // CREATORS
     IntegerMetric(const char          *category,
-                       const char          *name,
+                       const char     *name,
                        MetricsManager *manager = 0);
         // Create an integer metric object to collect values for the metric
         // identified by the specified 'category' and 'name'.  Optionally
@@ -245,7 +275,7 @@ class IntegerMetric {
         // null-terminated.
 
     explicit IntegerMetric(const MetricId&  metricId,
-                                MetricsManager  *manager = 0);
+                           MetricsManager  *manager = 0);
         // Create an integer metric object to collect values for the specified
         // 'metricId'.  Optionally specify a metrics 'manager' used to provide
         // a collector for 'metricId'.  If 'manager' is 0, use the default
@@ -254,15 +284,15 @@ class IntegerMetric {
         // in the inactive state (i.e., 'isActive()' is 'false') in which case
         // instance methods that would otherwise update the metric will have
         // no effect.  The behavior is undefined unless 'metricId' is a valid
-        // id returned by the 'MetricRepository' object owned by the
-        // indicated metrics manager.
+        // id returned by the 'MetricRepository' object owned by the indicated
+        // metrics manager.
 
     explicit IntegerMetric(IntegerCollector *collector);
         // Create an integer metric object to collect values for the metric
         // implied by the specified 'collector' (i.e.,
         // 'collector->metricId()').  The behavior is undefined unless
-        // 'collector' is a valid address of a 'IntegerCollector' object
-        // and the collector object supplied has a valid id (i.e.,
+        // 'collector' is a valid address of a 'IntegerCollector' object and
+        // the collector object supplied has a valid id (i.e.,
         // 'collector->metricId().isValid()').
 
     IntegerMetric(const IntegerMetric& original);
@@ -326,10 +356,14 @@ class IntegerMetric {
         // manipulator operations will have no effect.  An integer metric will
         // be inactive if either (1) it was not initialized with a valid metric
         // identifier or (2) the associated metric category has been disabled
-        // (see the 'MetricsManager' method 'setCategoryEnabled').  Note
-        // that invoking this method is logically equivalent to the expression
+        // (see the 'MetricsManager' method 'setCategoryEnabled').  Note that
+        // invoking this method is logically equivalent to the expression
         // '0 != collector() && metricId().category()->enabled()'.
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // FREE OPERATORS
 inline
@@ -347,71 +381,70 @@ bool operator!=(const IntegerMetric& lhs, const IntegerMetric& rhs);
     // collector objects or if one, but not both, have a null collector (i.e.,
     // 'collector()' is 0).
 
-                   // =================================
-                   // class IntegerMetric_MacroImp
-                   // =================================
+                        // ============================
+                        // class IntegerMetric_MacroImp
+                        // ============================
 
 struct IntegerMetric_MacroImp {
     // This structure provides a namespace for functions used to implement the
     // macros defined by this component.
     //
     // This is an implementation type of this component and *must* *not* be
-    // used by clients of the 'baem' package.
+    // used by clients of the 'balm' package.
 
     // CLASS METHODS
     static void getCollector(IntegerCollector **collector,
                              CategoryHolder    *holder,
-                             const char             *category,
-                             const char             *metric);
+                             const char        *category,
+                             const char        *metric);
         // Load the specified 'collector' with the address of the default
-        // integer collector (from the default metrics manager) for the metric
-        // identified by the specified 'category' and 'name', and register the
-        // specified 'holder' for 'category'.   Note that '*collector' must be
-        // assigned *before* registering 'holder' to ensure that the macros
-        // always have a valid 'collector' when 'holder.enabled()' is 'true'.
+        // integer collector (from the default metrics manager) for the
+        // specified 'metric' identified by the specified 'category' and
+        // 'name', and register the specified 'holder' for 'category'.   Note
+        // that '*collector' must be assigned *before* registering 'holder' to
+        // ensure that the macros always have a valid 'collector' when
+        // 'holder.enabled()' is 'true'.
 
     static void getCollector(
                        IntegerCollector       **collector,
                        CategoryHolder          *holder,
-                       const char                   *category,
-                       const char                   *metric,
+                       const char              *category,
+                       const char              *metric,
                        PublicationType::Value   preferredPublicationType);
         // Load the specified 'collector' with the address of the default
-        // integer collector (from the default metrics manager) for the metric
-        // identified by the specified 'category' and 'name', register the
-        // specified 'holder' for 'category', and set the identified metric's
-        // preferred publication type to the specified
+        // integer collector (from the default metrics manager) for the
+        // specified 'metric' identified by the specified 'category' and
+        // 'name', register the specified 'holder' for 'category', and set the
+        // identified metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
         // valid collector' when 'holder.enabled()' is 'true'.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ------------------------
-                         // class IntegerMetric
-                         // ------------------------
+                            // -------------------
+                            // class IntegerMetric
+                            // -------------------
 
 // CLASS METHODS
 inline
-IntegerCollector *IntegerMetric::lookupCollector(
-                                             const char          *category,
-                                             const char          *name,
-                                             MetricsManager *manager)
+IntegerCollector *IntegerMetric::lookupCollector(const char     *category,
+                                                 const char     *name,
+                                                 MetricsManager *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     return manager
-         ? manager->collectorRepository().getDefaultIntegerCollector(category,
-                                                                     name)
+         ? manager->
+               collectorRepository().getDefaultIntegerCollector(category, name)
          : 0;
 }
 
 inline
-IntegerCollector *IntegerMetric::lookupCollector(
-                                              const MetricId&  metricId,
-                                              MetricsManager  *manager)
+IntegerCollector *IntegerMetric::lookupCollector(const MetricId&  metricId,
+                                                 MetricsManager  *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     return manager
@@ -421,9 +454,9 @@ IntegerCollector *IntegerMetric::lookupCollector(
 
 // CREATORS
 inline
-IntegerMetric::IntegerMetric(const char          *category,
-                                       const char          *name,
-                                       MetricsManager *manager)
+IntegerMetric::IntegerMetric(const char     *category,
+                             const char     *name,
+                             MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
 {
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
@@ -434,7 +467,7 @@ IntegerMetric::IntegerMetric(const char          *category,
 
 inline
 IntegerMetric::IntegerMetric(const MetricId&  metricId,
-                                       MetricsManager  *manager)
+                             MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
 {
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
@@ -476,9 +509,9 @@ void IntegerMetric::update(int value)
 
 inline
 void IntegerMetric::accumulateCountTotalMinMax(int count,
-                                                    int total,
-                                                    int min,
-                                                    int max)
+                                               int total,
+                                               int min,
+                                               int max)
 {
     if (*d_isEnabled_p) {
         d_collector_p->accumulateCountTotalMinMax(count, total, min, max);

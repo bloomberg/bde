@@ -37,13 +37,13 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following code fragments illustrate the essentials of using a default
-// observer within a 'bael' logging system.
+// observer within a 'ball' logging system.
 //
 // First create a 'ball::DefaultObserver' named 'defaultObserver':
 //..
 //     ball::DefaultObserver defaultObserver(&bsl::cout);
 //..
-// The default observer must then be installed within a 'bael' logging system.
+// The default observer must then be installed within a 'ball' logging system.
 // This is done by passing 'defaultObserver' to the 'ball::LoggerManager'
 // constructor, which also requires a 'ball::LoggerManagerConfiguration'
 // object.
@@ -103,11 +103,13 @@ class DefaultObserver : public Observer {
         // Create a default observer that transmits log records to the
         // specified 'stream'.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     DefaultObserver(bsl::ostream& stream);
         // Create a default observer that transmits log records to the
         // specified 'stream'.
         //
         // DEPRECATED: replaced by 'DefaultObserver(bsl::ostream *stream)'
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     virtual ~DefaultObserver();
         // Destroy this default observer.
@@ -133,16 +135,18 @@ class DefaultObserver : public Observer {
 
 // CREATORS
 inline
-DefaultObserver::DefaultObserver(bsl::ostream& stream)
-: d_stream(&stream)
-{
-}
-
-inline
 DefaultObserver::DefaultObserver(bsl::ostream *stream)
 : d_stream(stream)
 {
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+DefaultObserver::DefaultObserver(bsl::ostream& stream)
+: d_stream(&stream)
+{
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 

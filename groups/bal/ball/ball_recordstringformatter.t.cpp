@@ -10,7 +10,9 @@
 #include <bdlt_currenttime.h>
 #include <bslim_testutil.h>
 
+#include <bdlt_datetime.h>
 #include <bdlt_iso8601util.h>
+#include <bdlt_localtimeoffset.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -21,11 +23,13 @@
 
 
 #include <bsl_iostream.h>
+#include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
 
-#include <bsl_cstring.h>                       // for 'strcmp'
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>                  // for 'strcmp'
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>                      // for 'getpid'
@@ -49,9 +53,9 @@ using bsl::string;
 // The component under test is implemented using one 'bsl::string' object and
 // one 'bdlt::DatetimeInterval' object.  The value-semantic correctness of this
 // component therefore largely depends on that of those two contained class.
-// We simply follow the standard 10-case test suite.  In addition,
-// since the implemented class is a function object, the 'operator()' method
-// that provides string-based formatting support is extensively tested.
+// We simply follow the standard 10-case test suite.  In addition, since the
+// implemented class is a function object, the 'operator()' method that
+// provides string-based formatting support is extensively tested.
 //
 // CREATORS
 // [ 2] ball::RecordStringFormatter(*ba = 0);
@@ -60,10 +64,10 @@ using bsl::string;
 // [13] ball::RecordStringFormatter(bool, *ba = 0);
 // [10] ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0);
 // [13] ball::RecordStringFormatter(const char *, bool, *ba = 0);
-// [ 7] ball::RecordStringFormatter(const bael::RSF&, *ba = 0);
+// [ 7] ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
 // [ 2] ~ball::RecordStringFormatter();
 // MANIPULATORS
-// [ 9] const bael::RSF& operator=(const bael::RSF& other);
+// [ 9] const ball::RSF& operator=(const ball::RSF& other);
 // [13] void disablePublishInLocalTime();
 // [13] void enablePublishInLocalTime();
 // [ 2] void setFormat(const char *format);
@@ -74,9 +78,9 @@ using bsl::string;
 // [ 2] const bdlt::DatetimeInterval& timestampOffset() const;
 // [11] void operator()(bsl::ostream&, const ball::Record&) const;
 // FREE OPERATORS
-// [ 6] bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
-// [ 6] bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
+// [ 6] bool operator==(const ball::RSF& lhs, const ball::RSF& rhs);
+// [ 6] bool operator!=(const ball::RSF& lhs, const ball::RSF& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::RSF&);
 // ----------------------------------------------------------------------------
 // [ 1] breathing test
 // [12] USAGE example
@@ -294,7 +298,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 Create an object with a distinguished local time offset and
         //:   verify that the '%i' format specification is resolved to
-        //:   the specifed offset or the actual local time offset according
+        //:   the specified offset or the actual local time offset according
         //:   to the state of the 'publishInLocalTime' attribute.  (C-5..6)
         //
         // Testing:
@@ -503,7 +507,7 @@ int main(int argc, char *argv[])
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
         const bsls::Types::Uint64
-                                threadID  = bdlqq::ThreadUtil::selfIdAsUint64();
+                               threadID  = bdlqq::ThreadUtil::selfIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else
@@ -1090,7 +1094,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const bael::RSF& operator=(const bael::RSF& other);
+        //   const ball::RSF& operator=(const ball::RSF& other);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n===========================" << endl;
@@ -1211,7 +1215,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::RecordStringFormatter(const bael::RSF&, *ba = 0);
+        //   ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1278,8 +1282,8 @@ int main(int argc, char *argv[])
         //    S X S.
         //
         // Testing:
-        //   bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
-        //   bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
+        //   bool operator==(const ball::RSF& lhs, const ball::RSF& rhs);
+        //   bool operator!=(const ball::RSF& lhs, const ball::RSF& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -1388,7 +1392,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::RSF&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1398,37 +1402,29 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_lineNum;   // source line number
             const char *d_format;    // format string
-            int         d_days;      // day field value
-            int         d_hours;     // hour field value
-            int         d_minutes;   // minute field value
-            int         d_seconds;   // second field value
-            int         d_msecs;     // millisecond field value
+            bool        d_localTime; // format in local time
             const char *d_output;    // expected output format
         } DATA[] = {
-            //line fmt days  hrs  mins  secs  msecs   expected output
-            //---- --- ----  ---  ----  ----  -----   -------------
-            { L_, "%%",  0,    0,    0,    0,     0,  "'%%' +0_00:00:00.000" },
-            { L_, "%",   1,   23,   59,   59,   999,  "'%' +1_23:59:59.999"  },
-            { L_, "%t", -1,  -23,  -59,  -59,  -999,  "'%t' -1_23:59:59.999" },
-            { L_, "",    1,   23,   59,   59,  1000,  "'' +2_00:00:00.000"   },
-            { L_, "\\", -1,  -23,  -59,  -59, -1000,  "'\\' -2_00:00:00.000" },
+            //line fmt localTime expected output
+            //---- --- --------- ---------------
+            { L_, "%%", true,    "'%%' local-time" },
+            { L_, "%",  true,    "'%' local-time"  },
+            { L_, "%t", true,    "'%t' local-time" },
+            { L_, "",   false,   "'' UTC"          },
+            { L_, "\\", false,   "'\\' UTC"        },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const bdlt::DatetimeInterval interval(DATA[i].d_days,
-                                                 DATA[i].d_hours,
-                                                 DATA[i].d_minutes,
-                                                 DATA[i].d_seconds,
-                                                 DATA[i].d_msecs);
-            Obj mX;  const Obj& X = mX;
-            mX.setTimestampOffset(interval);
-            mX.setFormat(DATA[i].d_format);
+            Obj mX(DATA[i].d_format, DATA[i].d_localTime);  const Obj& X = mX;
 
             ostringstream os;
             os << X;
-            LOOP_ASSERT(DATA[i].d_lineNum, os.str() == DATA[i].d_output);
+            ASSERTV(os.str(),
+                    DATA[i].d_output,
+                    DATA[i].d_lineNum,
+                    os.str() == DATA[i].d_output);
         }
       } break;
       case 4: {

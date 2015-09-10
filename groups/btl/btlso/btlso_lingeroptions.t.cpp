@@ -164,7 +164,7 @@ typedef btlso::LingerOptions Obj;
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::VALUE);
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -211,9 +211,9 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the linger
 // options for a stream-based socket.  This example shows how to create a
-// function that takes 'btlso::LingerOptions' as an argument and sets the linger
-// options of a socket.  We will assume Berkeley socket API is available to
-// configure the socket.
+// function that takes 'btlso::LingerOptions' as an argument and sets the
+// linger options of a socket.  We will assume Berkeley socket API is available
+// to configure the socket.
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
 //..
@@ -586,7 +586,6 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
-
       } break;
       case 6: {
         // --------------------------------------------------------------------

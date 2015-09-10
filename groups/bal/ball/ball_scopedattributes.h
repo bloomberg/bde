@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component provides an object, 'ball::ScopedAttributes',
+//@DESCRIPTION: This component provides a type, 'ball::ScopedAttributes',
 // that serves as a "scoped helper" to safely manage 'ball::AttributeContainer'
 // objects for the current attribute context.  A 'ball::ScopedAttributes'
 // object, upon construction, will install a 'ball::AttributeContainer' object
@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 // remove that 'ball::AttributeContainer' object from the current attribute
 // context upon destruction.
 //
-// Note that the 'ball::AttributeContainer' supplied at construction
-// must remain valid and *unmodified* for the lifetime of this object.
+// Note that the 'ball::AttributeContainer' supplied at construction must
+// remain valid and *unmodified* for the lifetime of this object.
 //
 ///USAGE
 ///-----
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that we use the 'AttributeSet' implementation of the
 // 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer' (the 'bael' package provides a similar class
+// for 'ball_attributecontainer' (the 'ball' package provides a similar class
 // in the 'ball_defaultattributecontainer' component).
 //..
 //  {
@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //      assert(true == context->hasAttribute(a1));
 //      assert(true == context->hasAttribute(a2));
 //..
-// When 'attributeGuard' goes out of scope and is destroyed, 'attributes'
-// are removed from the current thread's attribute context, which prevents the
+// When 'attributeGuard' goes out of scope and is destroyed, 'attributes' are
+// removed from the current thread's attribute context, which prevents the
 // attribute context from referring to an invalid memory address (on the
 // stack).
 //..
@@ -73,24 +73,33 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
+#include <ball_attributecontainer.h>
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
+#include <ball_attributecontainerlist.h>
+#endif
+
 #ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #include <ball_attributecontext.h>
 #endif
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class AttributeContainer;
+class AttributeContainer;
 
-                        // ===========================
+                        // ======================
                         // class ScopedAttributes
-                        // ===========================
+                        // ======================
 
 class ScopedAttributes {
     // This class installs a 'AttributeContainer' object in the current
     // attribute context on construction, and removes it on destruction.  Note
-    // that the 'AttributeContainer' supplied at construction must remain
-    // valid and *unmodified* for the lifetime of this object.
+    // that the 'AttributeContainer' supplied at construction must remain valid
+    // and *unmodified* for the lifetime of this object.
 
     const AttributeContext::iterator  d_it ;   // refers to attributes
 
@@ -110,17 +119,16 @@ class ScopedAttributes {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
+                        // ----------------------
                         // class ScopedAttributes
-                        // ---------------------------
+                        // ----------------------
 
 // CREATORS
 inline
-ScopedAttributes::ScopedAttributes(
-                                    const AttributeContainer* attributes)
+ScopedAttributes::ScopedAttributes(const AttributeContainer* attributes)
 : d_it(AttributeContext::getContext()->addAttributes(attributes))
 {
 }
@@ -130,6 +138,7 @@ ScopedAttributes::~ScopedAttributes()
 {
     AttributeContext::getContext()->removeAttributes(d_it);
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

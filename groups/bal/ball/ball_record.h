@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Record: container for fixed and user-defined log record fields
 //
-//@SEE_ALSO: ball_recordattributes, bael_logger
+//@SEE_ALSO: ball_recordattributes, ball_logger
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
@@ -21,12 +21,49 @@ BSLS_IDENT("$Id: $")
 // record type, useful for transmitting a customized log record as a single
 // instance rather than passing around individual attributes separately.  Note
 // that this class is a pure attribute class with no constraints, other than
-// the total memory required for the class.  Also note that this class is
-// not thread-safe.
+// the total memory required for the class.  Also note that this class is not
+// thread-safe.
 //
 ///Usage
 ///------
+// This section illustrates intended use of this component.
 //
+///Example 1: Basic Use of 'ball::Record'
+/// - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates how to create and set the properties of
+// a 'ball::Record'.  Note that users of the 'ball' logging subsystem are not
+// expected to create records directly.
+//
+// First we default create a 'ball::Record', 'record', and verify it has a
+// default set of attributes:
+//..
+//  ball::Record record;
+//
+//  ASSERT(ball::RecordAttributes() == record.fixedFields());
+//  ASSERT(0                        == record.userFields().length());
+//..
+// Then, we set the fixed fields of the record to contain a simple message:
+//..
+//  int                 processId = bdlsu::ProcessUtil::getProcessId();
+//  bsls::Types::Uint64 threadId  = bdlqq::ThreadUtil::selfIdAsUint64();
+//
+//  ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
+//                                    processId,                // process id
+//                                    threadId,                 // thread id
+//                                    __FILE__,                 // filename
+//                                    __LINE__,                 // line number
+//                                    "ExampleCategory",        // category
+//                                    ball::Severity::e_WARN,   // severity
+//                                    "Simple Test Message");   // message
+//  record.setFixedFields(attributes);
+//
+//  ASSERT(attributes == record.fixedFields());
+//..
+// Finally, we write the record to a stream:
+//..
+//  bsl::ostringstream output;
+//  output << record << bsl::endl;
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -52,6 +89,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -67,18 +112,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                           // =================
+                           // ============
                            // class Record
-                           // =================
+                           // ============
 
 class Record {
-    // This class provides a container for a set of fields that are
-    // appropriate for a user-configurable log record.  The class contains a
-    // 'RecordAttributes' object that in turn holds a fixed set of
-    // fields, and a 'ball::UserFields' object that holds a set of optional,
-    // user-defined fields.  For each of these two sub-containers there is an
-    // accessor for obtaining the container value and a manipulator for
-    // changing that value.
+    // This class provides a container for a set of fields that are appropriate
+    // for a user-configurable log record.  The class contains a
+    // 'RecordAttributes' object that in turn holds a fixed set of fields, and
+    // a 'ball::UserFields' object that holds a set of optional, user-defined
+    // fields.  For each of these two sub-containers there is an accessor for
+    // obtaining the container value and a manipulator for changing that value.
     //
     // Additionally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment and equality
@@ -96,15 +140,16 @@ class Record {
 
     RecordAttributes   d_fixedFields;  // bytes used by fixed fields
 
-    ball::UserFields               d_userFields;   // bytes used by user fields
+    ball::UserFields   d_userFields;   // bytes used by user fields
 
-    bslma::Allocator       *d_allocator_p;  // allocator used to supply
-                                            // memory; held but not own
+    bslma::Allocator  *d_allocator_p;  // allocator used to supply memory;
+                                       // held but not own
 
     // FRIENDS
     friend bool operator==(const Record&, const Record&);
 
   public:
+
     // CLASS METHODS
     static void deleteObject(const Record *object);
         // Destroy the specified '*object' and use the allocator held by
@@ -113,8 +158,7 @@ class Record {
 
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Record,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Record, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit Record(bslma::Allocator *basicAllocator = 0);
@@ -123,17 +167,17 @@ class Record {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Record(const RecordAttributes&            fixedFields,
-                const ball::UserFields&  userFields,
-                bslma::Allocator             *basicAllocator = 0);
+    Record(const RecordAttributes&  fixedFields,
+           const ball::UserFields&  userFields,
+           bslma::Allocator        *basicAllocator = 0);
         // Create a log record with fixed fields having the value of the
         // specified 'fixedFields' and user-defined fields having the value of
         // the specified 'userFields'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Record(const Record&  original,
-                bslma::Allocator   *basicAllocator = 0);
+    Record(const Record&     original,
+           bslma::Allocator *basicAllocator = 0);
         // Create a log record having the value of the specified 'original'
         // log record.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -190,31 +234,29 @@ class Record {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const Record& lhs, const Record& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' log records have the same
     // value, and 'false' otherwise.  Two log records have the same value if
     // the respective fixed fields have the same value and the respective
     // user-defined fields have the same value.
 
-inline
 bool operator!=(const Record& lhs, const Record& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' log records do not have
     // the same value, and 'false' otherwise.  Two log records do not have the
     // same value if either the respective fixed fields or user-defined fields
     // do not have the same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Record& record);
     // Format the members of the specified 'record' to the specified output
     // 'stream' and return a reference to the modifiable 'stream'.
+
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                           // -----------------
+                           // ------------
                            // class Record
-                           // -----------------
+                           // ------------
 
 // CLASS METHODS
 inline
@@ -235,8 +277,8 @@ Record::Record(bslma::Allocator *basicAllocator)
 
 inline
 Record::Record(const RecordAttributes&  fixedFields,
-                         const ball::UserFields&              userFields,
-                         bslma::Allocator             *basicAllocator)
+               const ball::UserFields&  userFields,
+               bslma::Allocator        *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(fixedFields, &d_allocator)
 , d_userFields(userFields, &d_allocator)
@@ -245,8 +287,8 @@ Record::Record(const RecordAttributes&  fixedFields,
 }
 
 inline
-Record::Record(const Record&  original,
-                         bslma::Allocator   *basicAllocator)
+Record::Record(const Record&     original,
+               bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(original.d_fixedFields, &d_allocator)
 , d_userFields(original.d_userFields, &d_allocator)

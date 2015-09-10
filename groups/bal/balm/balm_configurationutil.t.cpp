@@ -21,7 +21,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_c_stdio.h>
+#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 
@@ -37,29 +37,28 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] static int setPreferredPublicationType(
-//                             const char                  *category,
-//                             const char                  *metricName,
-//                             balm::PublicationType::Value  publicationType,
-//                             balm::MetricsManager         *manager = 0);
-// [ 3] static int setFormatSpec(
 //                               const char                   *category,
 //                               const char                   *metricName,
-//                               balm::PublicationType::Value   publicationType,
-//                               const balm::MetricFormatSpec&  formatSpec,
-//                               balm::MetricsManager          *manager = 0);
-// [ 2] static int setFormat(const char               *category,
-//                           const char               *metricName,
+//                               balm::PublicationType::Value  publicationType,
+//                               balm::MetricsManager         *manager = 0);
+// [ 2] static int setFormat(const char                *category,
+//                           const char                *metricName,
 //                           const balm::MetricFormat&  format,
 //                           balm::MetricsManager      *manager = 0);
-// [ 4] static balm::MetricDescription::UserDataKey createUserDataKey(
-//                                                      balm::MetricsManager *);
+// [ 3] static int setFormatSpec(
+//                              const char                    *category,
+//                              const char                    *metricName,
+//                              balm::PublicationType::Value   publicationType,
+//                              const balm::MetricFormatSpec&  formatSpec,
+//                              balm::MetricsManager          *manager = 0);
+// [ 4] createUserDataKey(balm::MetricsManager *);
 // [ 5] static void setUserData(const char *,
 //                              const char *,
-//                              balm::MetricDescription::UserDataKey  ,
+//                              balm::MetricDescription::UserDataKey,
 //                              const void *,
 //                              balm::MetricsManager *);
 // [ 6] static void setUserData(const char *,
-//                              balm::MetricDescription::UserDataKey  ,
+//                              balm::MetricDescription::UserDataKey,
 //                              const void *,
 //                              balm::MetricsManager *);
 //-----------------------------------------------------------------------------
@@ -67,9 +66,9 @@ using bsl::flush;
 // [ 8] USAGE EXAMPLE 2
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -81,43 +80,30 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::ConfigurationUtil              Obj;
 typedef balm::MetricFormatSpec               Spec;
@@ -125,9 +111,9 @@ typedef balm::MetricsManager                 MMgr;
 typedef balm::PublicationType                Type;
 typedef balm::MetricRegistry                 Registry;
 typedef balm::MetricDescription::UserDataKey Key;
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 ///Using a Metric's User Data
 ///- - - - - - - - - - - - -
@@ -178,7 +164,7 @@ typedef balm::MetricDescription::UserDataKey Key;
 //
     // CREATORS
     ThresholdPublisher::ThresholdPublisher(
-                              balm::MetricDescription::UserDataKey thresholdKey)
+                             balm::MetricDescription::UserDataKey thresholdKey)
     : d_thresholdKey(thresholdKey)
     {
     }
@@ -215,9 +201,9 @@ typedef balm::MetricDescription::UserDataKey Key;
     }
 
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -229,27 +215,27 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     const Type::Value ALL_TYPES[] = {
-        Type::e_BALM_UNSPECIFIED,
-        Type::e_BALM_TOTAL,
-        Type::e_BALM_COUNT,
-        Type::e_BALM_MIN,
-        Type::e_BALM_MAX,
-        Type::e_BALM_AVG,
-        Type::e_BALM_RATE,
-        Type::e_BALM_RATE_COUNT
+        Type::e_UNSPECIFIED,
+        Type::e_TOTAL,
+        Type::e_COUNT,
+        Type::e_MIN,
+        Type::e_MAX,
+        Type::e_AVG,
+        Type::e_RATE,
+        Type::e_RATE_COUNT
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
     bslma::TestAllocator cAlloc;
     balm::MetricFormat formatA(&cAlloc);
     balm::MetricFormat formatB(&cAlloc);
-    formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+    formatB.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
     balm::MetricFormat formatC(&cAlloc);
-    formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
-    formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
+    formatC.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
+    formatC.setFormatSpec(Type::e_AVG, Spec(1.0, "%d"));
     balm::MetricFormat formatD(&cAlloc);
-    formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
-    formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
+    formatD.setFormatSpec(Type::e_MIN, Spec(2.0, "%f"));
+    formatD.setFormatSpec(Type::e_MAX, Spec(2.0, "%d"));
 
     const balm::MetricFormat *FORMATS[] = {
         &formatA,
@@ -304,16 +290,17 @@ int main(int argc, char *argv[])
 // Now we create a user data key for our threshold information:
 //..
         balm::MetricDescription::UserDataKey thresholdKey =
-                                   balm::ConfigurationUtil::createUserDataKey();
+                                  balm::ConfigurationUtil::createUserDataKey();
 //..
 // Now we create an instance of our application specific publisher type,
 // 'ThresholdPublisher', and configure the default metrics manager to publish
 // metrics to it:
 //..
         bsl::shared_ptr<balm::Publisher> publisher(
-              new (*allocator) ThresholdPublisher(thresholdKey),
-              allocator);
-        balm::DefaultMetricsManager::instance()->addGeneralPublisher(publisher);
+                             new (*allocator) ThresholdPublisher(thresholdKey),
+                             allocator);
+        balm::DefaultMetricsManager::instance()->addGeneralPublisher(
+                                                                    publisher);
 //..
 // Next we configure two metric thresholds:
 //..
@@ -332,7 +319,7 @@ int main(int argc, char *argv[])
         BALM_METRICS_UPDATE("myCategory", "elapsedTime", 2);
         BALM_METRICS_UPDATE("myCategory", "numRequests", 150);
 // Finally, we publish the metric.  Note that in practice, clients of
-// the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
+// the 'balm' package can use the 'balm::PublicationScheduler' to schedule the
 // periodic publication of metrics:
 //..
     balm::DefaultMetricsManager::instance()->publishAll();
@@ -364,8 +351,12 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example demonstrates how to use a 'balm::ConfigurationUtil' to
-// configure the output for a metric.
+// The following examples demonstrate how to use 'balm::ConfigurationUtil'.
+//
+///Configuring the Output of a Metric
+/// - - - - - - - - - - - - - - - - -
+// This example uses 'balm::ConfigurationUtil' to configure the output for a
+// metric.
 //
 // We start by initializing a default metrics manager by creating a
 // 'balm::DefaultMetricsManagerScopedGuard', which manages the
@@ -379,7 +370,6 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
 //  {
-//
         // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -389,28 +379,34 @@ int main(int argc, char *argv[])
 // preferred publication type for the metric to be average:
 //..
         balm::ConfigurationUtil::setPreferredPublicationType(
-                                               "myCategory",
-                                               "avgElapsedTimeMs",
-                                               balm::PublicationType::e_BALM_AVG);
+                                                 "myCategory",
+                                                 "avgElapsedTimeMs",
+                                                 balm::PublicationType::e_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0.
 //..
        balm::ConfigurationUtil::setFormatSpec(
-                                     "myCategory",
-                                     "avgElapsedTimeMs",
-                                     balm::PublicationType::e_BALM_AVG,
-                                     balm::MetricFormatSpec(1000.0, "%.2f ms"));
+                                    "myCategory",
+                                    "avgElapsedTimeMs",
+                                    balm::PublicationType::e_AVG,
+                                    balm::MetricFormatSpec(1000.0, "%.2f ms"));
 //..
 // We now collect some example an example value of .005:
 //..
        BALM_METRICS_UPDATE("myCategory", "avgElapsedTimeMs", .005);
 //..
 // Finally, we publish the metric.  Note that in practice, clients of
-// the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
+// the 'balm' package can use the 'balm::PublicationScheduler' to schedule the
 // periodic publication of metrics:
 //..
     balm::DefaultMetricsManager::instance()->publishAll();
+//..
+// The output for the publication will look like:
+//..
+//  06AUG2009_20:27:51.982+0000 1 Records
+//          Elapsed Time: 0.000816s
+//                  myCategory.avgElapsedTimeMs[ avg (total/count) = 5.00 ms ]
 //..
     } break;
       case 6: {
@@ -729,8 +725,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   balm::MetricDescription::UserDataKey createUserDataKey(
-        //                                              balm::MetricsManager *);
+        //   createUserDataKey(balm::MetricsManager *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -806,7 +801,7 @@ int main(int argc, char *argv[])
             MMgr mgr(Z); const MMgr& MGR = mgr;
             for (int i = 0; i < NUM_IDS; ++i) {
 
-                // Initialized BAEM_UNSPECIFIED publication type to SPEC1
+                // Initialized 'e_UNSPECIFIED' publication type to SPEC1
                 ASSERT(0 == Obj::setFormatSpec(IDS[i],
                                                IDS[i],
                                                (Type::Value)0,
@@ -867,12 +862,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::e_BALM_MIN,
+                                               Type::e_MIN,
                                                SPEC1,
                                                0));
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::e_BALM_MIN,
+                                               Type::e_MIN,
                                                SPEC1));
             }
         }
@@ -882,7 +877,7 @@ int main(int argc, char *argv[])
         {
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             const MMgr *MGR = balm::DefaultMetricsManager::instance();
-            // Initialized BAEM_UNSPECIFIED publication type to SPEC1
+            // Initialized 'e_UNSPECIFIED' publication type to SPEC1
             ASSERT(0 == Obj::setFormatSpec(IDS[0],
                                            IDS[0],
                                            (Type::Value)0,
@@ -1008,10 +1003,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == balm::DefaultMetricsManager::instance());
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::e_BALM_MIN, 0));
+                           IDS[i], IDS[i],Type::e_MIN, 0));
 
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::e_BALM_MIN));
+                           IDS[i], IDS[i],Type::e_MIN));
             }
         }
 

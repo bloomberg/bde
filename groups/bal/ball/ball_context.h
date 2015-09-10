@@ -37,16 +37,16 @@ BSLS_IDENT("$Id: $")
 // This attribute class assumes that the following constraints on contained
 // values hold:
 //..
-//    if (ball::Transmission::BAEL_PASSTHROUGH == transmissionCause()) {
+//    if (ball::Transmission::e_PASSTHROUGH == transmissionCause()) {
 //        assert(0 == recordIndex());
 //        assert(1 == sequenceLength());
 //    }
 //    else {
 //        assert(
-//         ball::Transmission::BAEL_TRIGGER            == transmissionCause()
-//      || ball::Transmission::BAEL_TRIGGER_ALL        == transmissionCause()
-//      || ball::Transmission::BAEL_MANUAL_PUBLISH     == transmissionCause()
-//      || ball::Transmission::BAEL_MANUAL_PUBLISH_ALL == transmissionCause());
+//         ball::Transmission::e_TRIGGER            == transmissionCause()
+//      || ball::Transmission::e_TRIGGER_ALL        == transmissionCause()
+//      || ball::Transmission::e_MANUAL_PUBLISH     == transmissionCause()
+//      || ball::Transmission::e_MANUAL_PUBLISH_ALL == transmissionCause());
 //        assert(0 <= recordIndex());
 //        assert(1 <= sequenceLength());
 //        assert(recordIndex() < sequenceLength());
@@ -117,19 +117,19 @@ BSLS_IDENT("$Id: $")
 //        using namespace std;
 //
 //        switch (context.transmissionCause()) {
-//          case ball::Transmission::BAEL_PASSTHROUGH: {
+//          case ball::Transmission::e_PASSTHROUGH: {
 //            cout << "Single Pass-through Message: ";
 //          } break;
-//          case ball::Transmission::BAEL_TRIGGER_ALL: {
+//          case ball::Transmission::e_TRIGGER_ALL: {
 //            cout << "Remotely ";               // no 'break'; concatenated
 //                                               // output
 //          } break;
-//          case ball::Transmission::BAEL_TRIGGER: {
+//          case ball::Transmission::e_TRIGGER: {
 //            cout << "Triggered Publication Sequence: Message "
 //                 << context.recordIndex() + 1  // Account for 0-based index.
 //                 << " of " << context.sequenceLength() << ": ";
 //          } break;
-//          case ball::Transmission::BAEL_MANUAL_PUBLISH: {
+//          case ball::Transmission::e_MANUAL_PUBLISH: {
 //            cout << "Manually triggered Message: ";
 //          } break;
 //          default: {
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //            // Do nothing beyond archiving the message.
 //          } break;
 //          case WARN: {
-//            ball::Context context(ball::Transmission::BAEL_PASSTHROUGH,
+//            ball::Context context(ball::Transmission::e_PASSTHROUGH,
 //                                  0,
 //                                  1);
 //            publish(message, context);
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 //          case ERROR: {
 //            int index  = 0;
 //            int length = archive.length();
-//            ball::Context context(ball::Transmission::BAEL_TRIGGER,
+//            ball::Context context(ball::Transmission::e_TRIGGER,
 //                                 index, length);
 //            while (length--) {
 //                publish(archive[length], context);
@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //        }
 //    }
 //..
-// Note that 'ball::Transmission::BAEL_TRIGGER_ALL' is not used by 'my_Logger',
+// Note that 'ball::Transmission::e_TRIGGER_ALL' is not used by 'my_Logger',
 // but is included in the switch statement for completeness.
 //
 // Finally, we declare a 'my_Logger' named 'logger' and simulate the logging of

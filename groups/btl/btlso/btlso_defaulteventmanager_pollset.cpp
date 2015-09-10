@@ -6,30 +6,18 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_AIX)
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_eventmanagertester.h>           // for testing only
-#include <btlso_ioutil.h>                       // for testing only
-#include <btlso_socketimputil.h>                // for testing only
-#include <btlso_socketoptutil.h>                // for testing only
-#endif
-
 #include <btlso_flag.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 
 #include <bdlqq_threadutil.h>
 
-#include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_vector.h>
 #include <bsl_utility.h>
@@ -41,18 +29,20 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
 // 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>
 
-#define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
-#define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
+#define BTLSO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
+#define BTLSO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
 
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
 
 namespace btlso {
-                             // ---------------
-                             // PRIVATE METHODS
-                             // ---------------
 
+          // --------------------------------------------
+          // class DefaultEventManager<Platform::POLLSET>
+          // --------------------------------------------
+
+// PRIVATE CLASS METHODS
 int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
                                                          int numSignaled) const
 {
@@ -61,7 +51,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
     int numCallbacks = 0;
 
     const CallbackMap::const_iterator cbEnd = d_callbacks.end();
-    CallbackMap::const_iterator cbIt;
+    CallbackMap::const_iterator       cbIt;
 
     for (int i = 0; i < numSignaled; ++i) {
         const struct ::pollfd& currData = d_signaled[i];
@@ -69,12 +59,14 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
         // READ/ACCEPT.
 
         enum { DEFAULT_MASK = POLLERR | POLLHUP | POLLNVAL };
+
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                  currData.revents & (POLLIN | DEFAULT_MASK))) {
+
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                      cbEnd != (cbIt = d_callbacks.find(
-                                 Event(currData.fd,
-                                             EventType::e_READ))))) {
+                                                 Event(currData.fd,
+                                                       EventType::e_READ))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
@@ -82,8 +74,8 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 if (cbEnd != (cbIt = d_callbacks.find(
-                                Event(currData.fd,
-                                            EventType::e_ACCEPT)))) {
+                                                Event(currData.fd,
+                                                      EventType::e_ACCEPT)))) {
                     (cbIt->second)();
                     ++numCallbacks;
                 }
@@ -93,10 +85,11 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
         // WRITE/CONNECT.
 
         if (currData.revents & (POLLOUT | DEFAULT_MASK)) {
+
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                      cbEnd != (cbIt = d_callbacks.find(
-                                Event(currData.fd,
-                                            EventType::e_WRITE))))) {
+                                                Event(currData.fd,
+                                                      EventType::e_WRITE))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
@@ -104,8 +97,8 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 if (cbEnd != (cbIt = d_callbacks.find(
-                               Event(currData.fd,
-                                           EventType::e_CONNECT)))) {
+                                               Event(currData.fd,
+                                                     EventType::e_CONNECT)))) {
                     (cbIt->second)();
                     ++numCallbacks;
                 }
@@ -115,13 +108,11 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
 
     return numCallbacks;
 }
-                             // --------
-                             // CREATORS
-                             // --------
 
-DefaultEventManager<Platform::POLLSET>::
-DefaultEventManager(TimeMetrics *timeMetric,
-                          bslma::Allocator  *basicAllocator)
+// CREATORS
+DefaultEventManager<Platform::POLLSET>::DefaultEventManager(
+                                              TimeMetrics      *timeMetric,
+                                              bslma::Allocator *basicAllocator)
 : d_ps(::pollset_create(-1))
 , d_fdCount(0)
 , d_callbacks(basicAllocator)
@@ -131,20 +122,16 @@ DefaultEventManager(TimeMetrics *timeMetric,
     BSLS_ASSERT(-1 != d_ps);
 }
 
-DefaultEventManager<Platform::POLLSET>::
-~DefaultEventManager()
+DefaultEventManager<Platform::POLLSET>::~DefaultEventManager()
 {
     int rc = ::pollset_destroy(d_ps);
     BSLS_ASSERT(-1 != rc);
 }
 
-                             // ------------
-                             // MANIPULATORS
-                             // ------------
-
-int DefaultEventManager<Platform::POLLSET>::
-                                     dispatch(const bsls::TimeInterval& timeout,
-                                              int                      flags)
+// MANIPULATORS
+int DefaultEventManager<Platform::POLLSET>::dispatch(
+                                             const bsls::TimeInterval& timeout,
+                                             int                       flags)
 {
     bsls::TimeInterval now(bdlt::CurrentTime::now());
 
@@ -154,8 +141,9 @@ int DefaultEventManager<Platform::POLLSET>::
         }
         while (timeout > now) {
             bsls::TimeInterval currTimeout(timeout - now);
-            struct timespec ts;
-            ts.tv_sec = currTimeout.seconds();
+            struct timespec    ts;
+
+            ts.tv_sec  = currTimeout.seconds();
             ts.tv_nsec = currTimeout.nanoseconds();
 
             // Sleep till it's time.
@@ -189,36 +177,36 @@ int DefaultEventManager<Platform::POLLSET>::
                 // Convert this timeout to a 32 bit value in milliseconds.
 
                 relativeTimeout = currTimeout.seconds() * 1000
-                          + currTimeout.nanoseconds() / 1000000 + 1;
+                                  + currTimeout.nanoseconds() / 1000000 + 1;
                 BSLS_ASSERT(relativeTimeout >= 0);
             }
             else {
-                relativeTimeout = BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT;
+                relativeTimeout = BTLSO_EVENTMANAGERIMP_POLL_NO_TIMEOUT;
             }
 
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
-                // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
-                //               relativeTimeout);
 
-                rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
+                rfds = ::pollset_poll(d_ps,
+                                      &d_signaled[0],
+                                      d_fdCount,
                                       relativeTimeout);
+
                 savedErrno = errno;
                 d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
-                // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
-                //               relativeTimeout);
-
-                rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
+                rfds = ::pollset_poll(d_ps,
+                                      &d_signaled[0],
+                                      d_fdCount,
                                       relativeTimeout);
                 savedErrno = errno;
             }
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-                && !(bteso_Flag::k_ASYNC_INTERRUPT & flags)
-                && now < timeout);
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
+              && now < timeout);
 
         if (0 >= rfds) {
             if (0 == rfds) {
@@ -265,25 +253,30 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(int flags)
         do {
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
-                rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
-                                       BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT);
+
+                rfds = ::pollset_poll(d_ps,
+                                      &d_signaled[0],
+                                      d_fdCount,
+                                      BTLSO_EVENTMANAGERIMP_POLL_INF_TIMEOUT);
+
                 savedErrno = errno;
                 d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
-                rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
-                                       BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT);
+                rfds = ::pollset_poll(d_ps,
+                                      &d_signaled[0],
+                                      d_fdCount,
+                                      BTLSO_EVENTMANAGERIMP_POLL_INF_TIMEOUT);
                 savedErrno = errno;
             }
             errno = 0;
-        } while (
-            (0 > rfds && EINTR == savedErrno)
-                 && !(bteso_Flag::k_ASYNC_INTERRUPT & flags));
+        } while ((0 > rfds && EINTR == savedErrno)
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             if (0 == rfds) {
-                // No events.  We weren't interrupted.  Shouldn't happen.
-                // the POLL event manager returns 0 in this case.
+                // No events.  We weren't interrupted.  Shouldn't happen. The
+                // POLL event manager returns 0 in this case.
 
                 return 0;                                             // RETURN
             }
@@ -310,9 +303,9 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(int flags)
 }
 
 int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
-                              const SocketHandle::Handle&   socketHandle,
-                              const EventType::Type         eventType,
-                              const EventManager::Callback& callback)
+                                    const SocketHandle::Handle&   socketHandle,
+                                    const EventType::Type         eventType,
+                                    const EventManager::Callback& callback)
 {
     int rc;
 
@@ -336,9 +329,11 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
     ctl.fd = socketHandle;
 
     unsigned short eventMask;
-    ::pollfd queryPollfd;
+    ::pollfd       queryPollfd;
+
     queryPollfd.fd = socketHandle;
     rc = ::pollset_query(d_ps, &queryPollfd);
+
     if (1 == rc) {
         // the file descriptor is already registered
 
@@ -370,8 +365,9 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
         // Only WRITE can be registered simultaneously with READ.
 
         BSLS_ASSERT(0 == (eventMask & ~POLLOUT));
-        BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
-                   Event(socketHandle, EventType::e_CONNECT)));
+        BSLS_ASSERT_SAFE(!eventMask
+                      || !d_callbacks.count(Event(socketHandle,
+                                                  EventType::e_CONNECT)));
         eventMask |= POLLIN;
       } break;
       case EventType::e_CONNECT: {
@@ -384,8 +380,9 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
         // Only READ can be registered simultaneously with WRITE.
 
         BSLS_ASSERT(0 == (eventMask & ~POLLIN));
-        BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
-                    Event(socketHandle, EventType::e_ACCEPT)));
+        BSLS_ASSERT_SAFE(!eventMask
+                      || !d_callbacks.count(Event(socketHandle,
+                                                  EventType::e_ACCEPT)));
         eventMask |= POLLOUT;
       } break;
       default: {
@@ -404,21 +401,25 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
 }
 
 void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
-                                const SocketHandle::Handle& socketHandle,
-                                EventType::Type             eventType)
+                                      const SocketHandle::Handle& socketHandle,
+                                      EventType::Type             eventType)
 {
     int rc;
 
     // Determine from d_callbacks if the event is currently registered.
 
-    Event event(socketHandle, eventType);
+    Event                 event(socketHandle, eventType);
     CallbackMap::iterator cbIt = d_callbacks.find(event);
+
     BSLS_ASSERT(d_callbacks.end() != cbIt);
+
     d_callbacks.erase(cbIt);
 
     ::pollfd queryPollfd;
     queryPollfd.fd = socketHandle;
+
     rc = ::pollset_query(d_ps, &queryPollfd);
+
     if (1 != rc) {
         // perhaps the fd was closed.
 
@@ -428,11 +429,11 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     // Translate the type of event.
 
     switch (eventType) {
-      case EventType::e_ACCEPT:
+      case EventType::e_ACCEPT:                                 // FALL THROUGH
       case EventType::e_READ: {
         queryPollfd.events &= ~POLLIN;
       } break;
-      case EventType::e_CONNECT:
+      case EventType::e_CONNECT:                                // FALL THROUGH
       case EventType::e_WRITE: {
         queryPollfd.events &= ~POLLOUT;
       } break;
@@ -475,18 +476,25 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     }
 }
 
-int DefaultEventManager<Platform::POLLSET>::
-               deregisterSocket(const SocketHandle::Handle& socketHandle)
+int DefaultEventManager<Platform::POLLSET>::deregisterSocket(
+                                      const SocketHandle::Handle& socketHandle)
 {
     int numCallbacks = 0;
 
     Event event(socketHandle, EventType::e_ACCEPT);
+
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::e_CONNECT);
+
+    event.setType(EventType::e_CONNECT);
+
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::e_READ);
+
+    event.setType(EventType::e_READ);
+
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::e_WRITE);
+
+    event.setType(EventType::e_WRITE);
+
     numCallbacks += d_callbacks.erase(event);
 
     BSLS_ASSERT((unsigned) numCallbacks <= 2);
@@ -514,26 +522,25 @@ int DefaultEventManager<Platform::POLLSET>::
 void DefaultEventManager<Platform::POLLSET>::deregisterAll()
 {
     d_callbacks.clear();
+
     int rc = ::pollset_destroy(d_ps);
     BSLS_ASSERT(0 == rc);
+
     d_ps = ::pollset_create(-1);
 }
 
-                             // ---------
-                             // ACCESSORS
-                             // ---------
-
-bool DefaultEventManager<Platform::POLLSET>::
-                                               hasLimitedSocketCapacity() const
+// ACCESSORS
+bool DefaultEventManager<Platform::POLLSET>::hasLimitedSocketCapacity() const
 {
     return false;
 }
 
 int DefaultEventManager<Platform::POLLSET>::numSocketEvents(
-                          const SocketHandle::Handle& socketHandle) const
+                                const SocketHandle::Handle& socketHandle) const
 {
     ::pollfd queryPollfd;
     queryPollfd.fd = socketHandle;
+
     int rc = ::pollset_query(d_ps, &queryPollfd);
     if (0 == rc) {
         return 0;                                                     // RETURN
@@ -550,12 +557,13 @@ int DefaultEventManager<Platform::POLLSET>::numEvents() const
     return d_callbacks.size();
 }
 
-int DefaultEventManager<Platform::POLLSET>::
-              isRegistered(const SocketHandle::Handle& handle,
-                           const EventType::Type       eventType) const
+int DefaultEventManager<Platform::POLLSET>::isRegistered(
+                                   const SocketHandle::Handle& handle,
+                                   const EventType::Type       eventType) const
 {
     return 1 == d_callbacks.count(Event(handle, eventType));
 }
+
 }  // close package namespace
 
 }  // close namespace BloombergLP

@@ -2,6 +2,10 @@
 
 #include <ball_thresholdaggregate.h>
 
+#include <bslim_testutil.h>
+
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -20,52 +24,78 @@ using namespace bsl;  // automatically added by script
 // [12] static int hash(const ball::ThresholdAggregate&, int size);
 // [11] static bool areValidThresholdLevels(int, int, int, int);
 // [ 2] ball::ThresholdAggregate(int, int, int, int);
-// [ 7] ball::ThresholdAggregate(const bael::TA&, bdema::Alct * = 0);
+// [ 7] ball::ThresholdAggregate(const ball::TA&, bdema::Alct * = 0);
 // [ 2] ~ball::ThresholdAggregate();
 // [10] int setLevels(int, int, int, int);
-// [ 9] const bael::TA& operator=(const bael::TA& other);
+// [ 9] const ball::TA& operator=(const ball::TA& other);
 // [ 4] int recordLevel() const;
 // [ 4] int passLevel() const;
 // [ 4] int triggerLevel() const;
 // [ 4] int triggerAllLevel() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const bael::TA& lhs, const bael::TA& rhs);
-// [ 6] bool operator!=(const bael::TA& lhs, const bael::TA& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::TA&);
+// [ 6] bool operator==(const ball::TA& lhs, const ball::TA& rhs);
+// [ 6] bool operator!=(const ball::TA& lhs, const ball::TA& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::TA&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] UNUSED
 // [ 8] UNUSED
 // [13] USAGE EXAMPLE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -440,7 +470,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const bael::TA& operator=(const bael::TA& other)
+        //   const ball::TA& operator=(const ball::TA& other)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assigment Operator"
                           << "\n==========================" << endl;
@@ -533,7 +563,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::ThresholdAggregate(const bael::TA&, bdema::Alct * = 0)
+        //   ball::ThresholdAggregate(const ball::TA&, bdema::Alct * = 0)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -580,8 +610,8 @@ int main(int argc, char *argv[])
         //   cross product S X S.
         //
         // Testing:
-        //   bool operator==(const bael::TA& lhs, const bael::TA& rhs)
-        //   bool operator!=(const bael::TA& lhs, const bael::TA& rhs)
+        //   bool operator==(const ball::TA& lhs, const ball::TA& rhs)
+        //   bool operator!=(const ball::TA& lhs, const ball::TA& rhs)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -638,7 +668,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const bael::TA&)
+        //   bsl::ostream& operator<<(bsl::ostream&, const ball::TA&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

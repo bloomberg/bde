@@ -20,7 +20,8 @@ namespace BloombergLP {
 
 // ACCESSORS
 #ifdef BDE_BUILD_TARGET_SAFE2
-bool balxml::Formatter::ElemContext::matchTag(const bslstl::StringRef& tag) const
+bool balxml::Formatter::ElemContext::matchTag(
+                                            const bslstl::StringRef& tag) const
 {
     if (d_tagLen != bsl::min(tag.length(), 255)) {
         // Lengths don't match
@@ -40,10 +41,10 @@ namespace balxml {
 
 // CREATORS
 Formatter::Formatter(bsl::streambuf   *output,
-                                   int               indentLevel,
-                                   int               spacesPerLevel,
-                                   int               wrapColumn,
-                                   bslma::Allocator *basic_allocator)
+                     int               indentLevel,
+                     int               spacesPerLevel,
+                     int               wrapColumn,
+                     bslma::Allocator *basic_allocator)
 : d_outputStreamObj(output)
 , d_outputStream(d_outputStreamObj)
 , d_indentLevel(indentLevel)
@@ -64,10 +65,10 @@ Formatter::Formatter(bsl::streambuf   *output,
 }
 
 Formatter::Formatter(bsl::ostream&     output,
-                                   int               indentLevel,
-                                   int               spacesPerLevel,
-                                   int               wrapColumn,
-                                   bslma::Allocator *basic_allocator)
+                     int               indentLevel,
+                     int               spacesPerLevel,
+                     int               wrapColumn,
+                     bslma::Allocator *basic_allocator)
 : d_outputStreamObj(0)
 , d_outputStream(output)
 , d_indentLevel(indentLevel)
@@ -103,7 +104,7 @@ void Formatter::indent()
 }
 
 void Formatter::doAddAttribute(const bslstl::StringRef& name,
-                                      const bslstl::StringRef& value)
+                               const bslstl::StringRef& value)
 {
     BSLS_ASSERT(e_IN_TAG == d_state);
     BSLS_ASSERT(0 != name.length());
@@ -177,7 +178,7 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
 
 // MANIPULATORS
 void Formatter::openElement(const bslstl::StringRef& name,
-                                   WhitespaceType         ws)
+                            WhitespaceType           ws)
 {
 // TBD: Why ?
 //     BSLS_ASSERT(d_state != e_AT_END);
@@ -226,8 +227,8 @@ void Formatter::closeElement(const bslstl::StringRef& name)
     d_isFirstData = false;
 
     if (d_wrapColumn < 0) {
-        // Compact mode: 'd_elementNesting' is not used.
-        // Use indent level to determine if we are at the end.
+        // Compact mode: 'd_elementNesting' is not used.  Use indent level to
+        // determine if we are at the end.
         d_state = 0 == d_indentLevel ? e_AT_END : e_BETWEEN_TAGS;
     }
     else {
@@ -266,7 +267,7 @@ void Formatter::addHeader(const bslstl::StringRef& encoding)
 }
 
 void Formatter::addComment(const bslstl::StringRef& comment,
-                                  bool                   forceNewline)
+                           bool                     forceNewline)
 {
     if (e_AT_START == d_state) {
         d_state = e_AFTER_START_NO_TAG;

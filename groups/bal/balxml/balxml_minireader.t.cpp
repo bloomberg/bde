@@ -1,6 +1,10 @@
 // balxml_minireader.t.cpp                                            -*-C++-*-
 #include <balxml_minireader.h>
 
+#include <balxml_errorinfo.h>
+
+#include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
@@ -15,59 +19,58 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
 #define CHK(X) (X != 0 ? (const char *) X : "(null)")
-
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -83,16 +86,14 @@ typedef balxml::NamespaceRegistry Registry;
 const bsl::string::size_type npos = bsl::string::npos;
 
 struct XmlEl {
-    long                    d_startPosExpected;
-    long                    d_endPosExpected;
-    balxml::Reader::NodeType d_typeExpected;
-    const char             *d_text;
-    const char             *d_textExpected; // 0 if any expected is OK
+    long                      d_startPosExpected;
+    long                      d_endPosExpected;
+    balxml::Reader::NodeType  d_typeExpected;
+    const char               *d_text;
+    const char               *d_textExpected; // 0 if any expected is OK
 };
 
-void prepareXmlFromTable(bsl::string&  outDoc,
-                         XmlEl        *table,
-                         int           count)
+void prepareXmlFromTable(bsl::string& outDoc, XmlEl* table, int count)
 {
     outDoc.clear();
     for (int i=0; i < count; ++i) {
@@ -105,9 +106,7 @@ void prepareXmlFromTable(bsl::string&  outDoc,
     }
 }
 
-void parseAndCompare(const char *name,
-                     XmlEl      *table,
-                     int         elementCount)
+void parseAndCompare(const char* name, XmlEl* table, int elementCount)
 {
     bsl::string xmlDoc;
 
@@ -165,10 +164,10 @@ void parseAndCompare(const char *name,
     reader.close ();
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 XmlEl table91[] =
 {
-    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION ,
+    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION,
           "<?xml version='1.0' encoding='UTF-8'?>" , 0 },
     {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE, "\n" , 0},
     {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<RootElement>", 0 },
@@ -192,7 +191,7 @@ XmlEl table91[] =
 
 XmlEl table81[] =
 {
-    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION ,
+    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION,
           "<?xml version='1.0' encoding='UTF-8'?>" , 0 },
     {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE, "\n" , 0},
     {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT,
@@ -216,14 +215,14 @@ XmlEl table81[] =
     {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n", 0 }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Start of usage example, extract to the 'balxml::Reader' header file.
 //
 // Utility function to skip past white space.
 //..
 int advancePastWhiteSpace(balxml::Reader& reader) {
     static const char whiteSpace[] = "\n\r\t ";
-    const char *value = '\0';
+    const char *value = 0;
     int         type = 0;
     int         rc = 0;
 
@@ -231,10 +230,9 @@ int advancePastWhiteSpace(balxml::Reader& reader) {
         rc    = reader.advanceToNextNode();
         value = reader.nodeValue();
         type  = reader.nodeType();
-    } while(0 == rc &&
-            type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
-            (type == balxml::Reader::e_NODE_TYPE_TEXT &&
-             bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
+    } while ((0 == rc && type == balxml::Reader::e_NODE_TYPE_WHITESPACE) ||
+             (type == balxml::Reader::e_NODE_TYPE_TEXT &&
+              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
     ASSERT( reader.nodeType() != balxml::Reader::e_NODE_TYPE_WHITESPACE);
 
@@ -442,11 +440,11 @@ int usageExample()
 //..
 // End of usage example, extract to the 'balxml::Reader' header file.
 
-//=============================================================================
+// ============================================================================
 //  Let make numElements and numElements static
 //  to be accessible out of scope parse () function for future analysis.
 //  Since test is single threaded, no MT-issues are here
-//=============================================================================
+// ============================================================================
 static int test = 0;
 
 static void  processNode(balxml::Reader *reader)
@@ -504,8 +502,8 @@ static int parseAndProcess(balxml::Reader *reader)
     return rc;
 }
 
-// XML header information used by ggg function.
-// 'strXmlStart' + 'strXmlEnd' = 256 bytes.
+// XML header information used by ggg function.  'strXmlStart' + 'strXmlEnd' =
+// 256 bytes.
 const char strXmlStart[] =
     "<?xml version='1.0' encoding='UTF-8'?>\n"
     "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
@@ -639,10 +637,11 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
 // each node read recursively read nested nodes from 'currentDepth' to
 // 'depth'.
 void readNodes(Obj& reader,
-               int currentNode,
-               int numNodes,
-               int currentDepth,
-               int depth) {
+               int  currentNode,
+               int  numNodes,
+               int  currentDepth,
+               int  depth)
+{
     if (currentNode == numNodes) {
         return;                                                       // RETURN
     }
@@ -1065,14 +1064,14 @@ int main(int argc, char *argv[])
           // 'ATTRIBUTES' attributes.  For example if 'ATTRIBUTES' == 2, then
           // the XML input will look like this:
           //
-          // <?xml version='1.0' encoding='UTF-8'?>
-          // <!-- RCSId_bascfg_xsd = $Id: $ -->
-          // <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-          //     elementFormDefault='qualified'
-          //     xmlns:bdem='http://bloomberg.com/schemas/bdem'
-          //     bdem:package='bascfg'>
-          //     <N att='0' att='1'/>
-          // </xs:schema>
+          //  <?xml version='1.0' encoding='UTF-8'?>
+          //  <!-- RCSId_bascfg_xsd = $Id: $ -->
+          //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+          //      elementFormDefault='qualified'
+          //      xmlns:bdem='http://bloomberg.com/schemas/bdem'
+          //      bdem:package='bascfg'>
+          //      <N att='0' att='1'/>
+          //  </xs:schema>
 
           bsl::string xmlStr;
           xmlStr.assign(strXmlStart);
@@ -1098,7 +1097,7 @@ int main(int argc, char *argv[])
 
           LOOP_ASSERT(LINE, reader.isOpen());
           LOOP_ASSERT(LINE,
-                    reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+                      reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           rc = advancePastWhiteSpace(reader);
@@ -1217,14 +1216,14 @@ int main(int argc, char *argv[])
           // name has 'LENGTH' length.  For example if 'LENGTH' == 2, then the
           // XML input will look like this:
           //
-          // <?xml version='1.0' encoding='UTF-8'?>
-          // <!-- RCSId_bascfg_xsd = $Id: $ -->
-          // <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-          //     elementFormDefault='qualified'
-          //     xmlns:bdem='http://bloomberg.com/schemas/bdem'
-          //     bdem:package='bascfg'>
-          //     <longNamelongName/>
-          // </xs:schema>
+          //  <?xml version='1.0' encoding='UTF-8'?>
+          //  <!-- RCSId_bascfg_xsd = $Id: $ -->
+          //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+          //      elementFormDefault='qualified'
+          //      xmlns:bdem='http://bloomberg.com/schemas/bdem'
+          //      bdem:package='bascfg'>
+          //      <longNamelongName/>
+          // < /xs:schema>
 
           bsl::string xmlStr;
           xmlStr.assign(strXmlStart);
@@ -1419,7 +1418,7 @@ int main(int argc, char *argv[])
 
           LOOP_ASSERT(LINE,  reader.isOpen());
           LOOP_ASSERT(LINE,
-                    reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+                      reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           readNodes(reader, 0, NODES, 0, DEPTH);
@@ -1862,8 +1861,8 @@ int main(int argc, char *argv[])
                     << "-  -  -  -  -  -  -  -  -\n"
                     << bsl::endl;
         {
-          // The bdem:package attribute with in the xs:schema element has
-          // a invalid value.
+          // The bdem:package attribute with in the xs:schema element has an
+          // invalid value.
           static const char xmlStr[] =
             "<?xml version='1.0' encoding='UTF-8'?>\n"
             "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
@@ -1988,6 +1987,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTION 'GGG'
+        //
         // Plan:
         //   Test the behavior of 'ggg'.
         //   * Create local strings representing the expected xml "header" and
@@ -2011,10 +2011,10 @@ int main(int argc, char *argv[])
         //                 int          depth);
         //   void readDepth(Obj& reader, int currentDepth, int depth);
         //   void readNodes(Obj& reader,
-        //                  int currentNode,
-        //                  int numNodes,
-        //                  int currentDepth,
-        //                  int depth);
+        //                  int  currentNode,
+        //                  int  numNodes,
+        //                  int  currentDepth,
+        //                  int  depth);
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
             << "Testing 'ggg' generator functions" << bsl::endl
@@ -2081,6 +2081,7 @@ int main(int argc, char *argv[])
       case 2: {
         //--------------------------------------------------------------------
         // BOOTSTRAP TEST
+        //
         // Concerns:
         //   1. The 'balxml::MiniReader's' constructors work properly:
         //      a. The initial value is correct.

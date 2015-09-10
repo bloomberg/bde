@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a scoped guard class intended to
 // simplify the task of recording (to a metric) the elapsed time of a block of
-// code.  The 'balm::StopwatchScopedGuard' is supplied the identity
-// of a metric on construction, and an optional enumerated constant
-// indicating the time units to report values in (by default, values are
-// reported in seconds).  The guard measures the elapsed time between its
-// construction and destruction, and on destruction records that elapsed time,
-// in the indicated time units, to the supplied metric.
+// code.  The 'balm::StopwatchScopedGuard' is supplied the identity of a metric
+// on construction, and an optional enumerated constant indicating the time
+// units to report values in (by default, values are reported in seconds).  The
+// guard measures the elapsed time between its construction and destruction,
+// and on destruction records that elapsed time, in the indicated time units,
+// to the supplied metric.
 //
 ///Choosing Between 'balm::StopwatchScopedGuard' and Macros
 ///-------------------------------------------------------
@@ -39,10 +39,10 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // 'balm::StopwatchScopedGuard' is *const* *thread-safe*, meaning that
-// accessors may be invoked concurrently from different threads, but it is
-// not safe to access or modify a 'balm::StopwatchScopedGuard' in one thread
-// while another thread modifies the same object.  Note however, that at this
-// time 'balm::StopwatchScopedGuard' provides no manipulator methods.
+// accessors may be invoked concurrently from different threads, but it is not
+// safe to access or modify a 'balm::StopwatchScopedGuard' in one thread while
+// thread modifies the same object.  Note however, that at this another time
+// 'balm::StopwatchScopedGuard' provides no manipulator methods.
 //
 ///Usage
 ///-----
@@ -51,17 +51,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which it will
-// publish metrics.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the scoped guard an output stream ('stdout') that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {
@@ -73,19 +73,19 @@ BSLS_IDENT("$Id: $")
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation:
 //..
-//      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
-//      assert(0 != manager);
+//     balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+//     assert(0 != manager);
 //..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope.  Clients that choose to call
-// 'balm::DefaultMetricsManager::create()' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// the 'balm::DefaultMetricsManager::create' method must also explicitly call
+// the 'balm::DefaultMetricsManager::release' method.
 //
 ///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
-// processor similar to the one in example 2.  We use a 'balm::Metric'
+// processor similar to the one in example 3.  We use a 'balm::Metric'
 // ('d_elapsedTime') and a 'balm::StopwatchScopedGuard' ('guard') to record the
 // elapsed time of the request-processing function.
 //..
@@ -95,6 +95,7 @@ BSLS_IDENT("$Id: $")
 //      balm::Metric d_elapsedTime;
 //
 //    public:
+//
 //      // CREATORS
 //      RequestProcessor()
 //      : d_elapsedTime("MyCategory", "RequestProcessor/elapsedTime")
@@ -102,20 +103,44 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int processRequest(const bsl::string& request)
-//          // Process the specified 'request'; return 0 on success, and a
+//          // Process the specified 'request'.  Return 0 on success, and a
 //          // non-zero value otherwise.
 //      {
 //         int returnCode = 0;
 //
 //         balm::StopwatchScopedGuard guard(&d_elapsedTime);
 //
-//         // Perform some task.
+//  // ...
 //
 //         return returnCode;
 //      }
 //
 //  // ...
 //  };
+//
+//  // ...
+//
+//      RequestProcessor processor;
+//
+//      processor.processRequest("ab");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdef");
+//
+//      manager->publishAll();
+//
+//      processor.processRequest("ab");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdef");
+//
+//      processor.processRequest("a");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdefg");
+//
+//      manager->publishAll();
+//
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -153,9 +178,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balm {
-                     // ===============================
-                     // class StopwatchScopedGuard
-                     // ===============================
+                         // ==========================
+                         // class StopwatchScopedGuard
+                         // ==========================
 
 class StopwatchScopedGuard {
     // This class provides a mechanism for recording, to a metric, the elapsed
@@ -165,35 +190,34 @@ class StopwatchScopedGuard {
     // report the elapsed time; by default a guard will report time in seconds.
     // The supplied time units determine the scale of the double value reported
     // by this guard, but does *not* affect the precision of the elapsed time
-    // measurement.  Each instance of this class delegates to a
-    // 'Collector' for the metric.  This 'Collector' is initialized
-    // on construction based on the constructor arguments.  If this scoped
-    // guard is not initialized with an active metric, or if the supplied
-    // metric becomes inactive before the scoped guard is destroyed, then
-    // 'isActive()' will return 'false' and no metric values will be recorded.
-    // Note that if the metric supplied at construction is not active when the
-    // scoped guard is constructed, the scoped guard will not become active or
-    // record metric values regardless of the future state of that supplied
-    // metric.
+    // measurement.  Each instance of this class delegates to a 'Collector' for
+    // the metric.  This 'Collector' is initialized on construction based on
+    // the constructor arguments.  If this scoped guard is not initialized with
+    // an active metric, or if the supplied metric becomes inactive before the
+    // scoped guard is destroyed, then 'isActive()' will return 'false' and no
+    // metric values will be recorded.  Note that if the metric supplied at
+    // construction is not active when the scoped guard is constructed, the
+    // scoped guard will not become active or record metric values regardless
+    // of the future state of that supplied metric.
 
   public:
     // PUBLIC TYPES
     enum Units {
         // An enumeration of supported time units.
 
-        e_BALM_NANOSECONDS   = 1000000000,
-        e_BALM_MICROSECONDS  = 1000000,
-        e_BALM_MILLISECONDS  = 1000,
-        e_BALM_SECONDS       = 1
+        k_NANOSECONDS   = 1000000000,
+        k_MICROSECONDS  = 1000000,
+        k_MILLISECONDS  = 1000,
+        k_SECONDS       = 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEM_NANOSECONDS   = e_BALM_NANOSECONDS
-      , BAEM_MICROSECONDS  = e_BALM_MICROSECONDS
-      , BAEM_MILLISECONDS  = e_BALM_MILLISECONDS
-      , BAEM_SECONDS       = e_BALM_SECONDS
-      , NANOSECONDS        = e_BALM_NANOSECONDS
-      , MICROSECONDS       = e_BALM_MICROSECONDS
-      , MILLISECONDS       = e_BALM_MILLISECONDS
-      , SECONDS            = e_BALM_SECONDS
+      , BAEM_NANOSECONDS   = k_NANOSECONDS
+      , BAEM_MICROSECONDS  = k_MICROSECONDS
+      , BAEM_MILLISECONDS  = k_MILLISECONDS
+      , BAEM_SECONDS       = k_SECONDS
+      , NANOSECONDS        = k_NANOSECONDS
+      , MICROSECONDS       = k_MICROSECONDS
+      , MILLISECONDS       = k_MILLISECONDS
+      , SECONDS            = k_SECONDS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -213,18 +237,18 @@ class StopwatchScopedGuard {
   public:
     // CREATORS
     explicit StopwatchScopedGuard(Metric *metric,
-                                  Units        timeUnits = e_BALM_SECONDS);
+                                  Units   timeUnits = k_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'metric'.  Optionally specify the 'timeUnits' in which to
         // report elapsed time.  If 'metric->isActive()' is 'false', this
         // object will also be inactive (i.e., will not record any values).
         // The behavior is undefined unless 'metric' is a valid address of a
-        // 'Metric' object.  Note that 'timeUnits' indicates the scale of
-        // the double value reported by this guard, but does *not* affect the
+        // 'Metric' object.  Note that 'timeUnits' indicates the scale of the
+        // double value reported by this guard, but does *not* affect the
         // precision of the elapsed time measurement.
 
     explicit StopwatchScopedGuard(Collector *collector,
-                                  Units           timeUnits = e_BALM_SECONDS);
+                                  Units      timeUnits = k_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'collector'.  Optionally specify the 'timeUnits' in which
         // to report elapsed time.  If 'collector' is 0 or
@@ -237,40 +261,39 @@ class StopwatchScopedGuard {
         // measurement.
 
     StopwatchScopedGuard(const MetricId&  metricId,
-                               MetricsManager  *manager = 0);
+                         MetricsManager  *manager = 0);
     StopwatchScopedGuard(const MetricId&  metricId,
-                               Units                 timeUnit,
-                               MetricsManager  *manager = 0);
+                         Units            timeUnits,
+                         MetricsManager  *manager = 0);
         // Initialize this scoped guard to record an elapsed time to the
-        // specified 'metricId' from the optionally specified
-        // 'manager'.  Optionally specify the 'timeUnits' in which to report
-        // elapsed time.  If 'timeUnits' is not provided, the elapsed time
-        // will be reported in seconds.  If 'manager' is 0, the
-        // 'DefaultMetricsManager' singleton instance is used.  If no
-        // 'manager' is supplied and the default instance has not been
-        // created, this object will be inactive (i.e., it will not record any
-        // values); similarly, if the metric's associated category
-        // is disabled (i.e., 'metricId.category()->enabled()' is 'false'),
-        // then this object will be inactive.  The behavior is undefined
-        // unless unless 'metricId' is a valid id returned by the
-        // 'MetricRepository' object owned by the indicated metrics
-        // manager.  Note that 'timeUnits' indicates the scale of the double
-        // value reported by this guard, but does *not* affect the precision
-        // of the elapsed time measurement.
+        // specified 'metricId' from the optionally specified 'manager'.
+        // Optionally specify the 'timeUnits' in which to report elapsed time.
+        // If 'timeUnits' is not provided, the elapsed time will be reported in
+        // seconds.  If 'manager' is 0, the 'DefaultMetricsManager' singleton
+        // instance is used.  If no 'manager' is supplied and the default
+        // instance has not been created, this object will be inactive (i.e.,
+        // it will not record any values); similarly, if the metric's
+        // associated category is disabled (i.e.,
+        // 'metricId.category()->enabled()' is 'false'), then this object will
+        // be inactive.  The behavior is undefined unless unless 'metricId' is
+        // a valid id returned by the 'MetricRepository' object owned by the
+        // indicated metrics manager.  Note that 'timeUnits' indicates the
+        // scale of the double value reported by this guard, but does *not*
+        // affect the precision of the elapsed time measurement.
 
-    StopwatchScopedGuard(const char          *category,
-                              const char          *name,
-                              MetricsManager *manager = 0);
-    StopwatchScopedGuard(const char          *category,
-                              const char          *name,
-                              Units                timeUnit,
-                              MetricsManager *manager = 0);
+    StopwatchScopedGuard(const char     *category,
+                         const char     *name,
+                         MetricsManager *manager = 0);
+    StopwatchScopedGuard(const char     *category,
+                         const char     *name,
+                         Units           timeUnits,
+                         MetricsManager *manager = 0);
         // Initialize this scoped guard to record an elapsed time to the
         // metric, identified by the specified 'category' and 'name', from the
         // optionally specified 'manager'.  Optionally specify the 'timeUnits'
-        // in which to report elapsed time.  If 'timeUnit' is not provided, the
-        // elapsed time will be reported in seconds.  If 'manager' is 0, use
-        // the 'DefaultMetricsManager' instance.  If no 'manager' is
+        // in which to report elapsed time.  If 'timeUnits' is not provided,
+        // the elapsed time will be reported in seconds.  If 'manager' is 0,
+        // use the 'DefaultMetricsManager' instance.  If no 'manager' is
         // supplied, and the default instance has not been created, this
         // object will be inactive (i.e., it will not record any values);
         // similarly, if the identified 'category' is disabled, then this
@@ -297,17 +320,17 @@ class StopwatchScopedGuard {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                    // -------------------------------
-                    // class StopwatchScopedGuard
-                    // -------------------------------
+                         // --------------------------
+                         // class StopwatchScopedGuard
+                         // --------------------------
 
 // CREATORS
 inline
 StopwatchScopedGuard::StopwatchScopedGuard(Metric *metric,
-                                                     Units        timeUnits)
+                                           Units   timeUnits)
 : d_stopwatch()
 , d_timeUnits(timeUnits)
 , d_collector_p(metric->isActive() ? metric->collector() : 0)
@@ -319,7 +342,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(Metric *metric,
 
 inline
 StopwatchScopedGuard::StopwatchScopedGuard(Collector *collector,
-                                                     Units           timeUnits)
+                                           Units      timeUnits)
 : d_stopwatch()
 , d_timeUnits(timeUnits)
 , d_collector_p((collector && collector->metricId().category()->enabled())
@@ -332,15 +355,13 @@ StopwatchScopedGuard::StopwatchScopedGuard(Collector *collector,
 }
 
 inline
-StopwatchScopedGuard::StopwatchScopedGuard(
-                                               const MetricId&  metricId,
-                                               MetricsManager  *manager)
+StopwatchScopedGuard::StopwatchScopedGuard(const MetricId&  metricId,
+                                           MetricsManager  *manager)
 : d_stopwatch()
-, d_timeUnits(e_BALM_SECONDS)
+, d_timeUnits(k_SECONDS)
 , d_collector_p(0)
 {
-    Collector *collector = Metric::lookupCollector(metricId,
-                                                             manager);
+    Collector *collector = Metric::lookupCollector(metricId, manager);
     d_collector_p = (collector &&
                      collector->metricId().category()->enabled())
                     ? collector : 0;
@@ -350,16 +371,14 @@ StopwatchScopedGuard::StopwatchScopedGuard(
 }
 
 inline
-StopwatchScopedGuard::StopwatchScopedGuard(
-                                               const MetricId&  metricId,
-                                               Units                 timeUnits,
-                                               MetricsManager  *manager)
+StopwatchScopedGuard::StopwatchScopedGuard(const MetricId&  metricId,
+                                           Units            timeUnits,
+                                           MetricsManager  *manager)
 : d_stopwatch()
 , d_timeUnits(timeUnits)
 , d_collector_p(0)
 {
-    Collector *collector = Metric::lookupCollector(metricId,
-                                                             manager);
+    Collector *collector = Metric::lookupCollector(metricId, manager);
     d_collector_p = (collector &&
                      collector->metricId().category()->enabled())
                     ? collector : 0;
@@ -369,16 +388,14 @@ StopwatchScopedGuard::StopwatchScopedGuard(
 }
 
 inline
-StopwatchScopedGuard::StopwatchScopedGuard(
-                                            const char          *category,
-                                            const char          *name,
-                                            MetricsManager *manager)
+StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
+                                           const char     *name,
+                                           MetricsManager *manager)
 : d_stopwatch()
-, d_timeUnits(e_BALM_SECONDS)
+, d_timeUnits(k_SECONDS)
 , d_collector_p(0)
 {
-    Collector *collector =
-                         Metric::lookupCollector(category, name, manager);
+    Collector *collector = Metric::lookupCollector(category, name, manager);
 
     d_collector_p = (collector &&
                      collector->metricId().category()->enabled())
@@ -390,22 +407,17 @@ StopwatchScopedGuard::StopwatchScopedGuard(
 }
 
 inline
-StopwatchScopedGuard::StopwatchScopedGuard(
-                                            const char          *category,
-                                            const char          *name,
-                                            Units                timeUnits,
-                                            MetricsManager *manager)
+StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
+                                           const char     *name,
+                                           Units           timeUnits,
+                                           MetricsManager *manager)
 : d_stopwatch()
 , d_timeUnits(timeUnits)
 , d_collector_p(0)
 {
-    Collector *collector =
-                         Metric::lookupCollector(category, name, manager);
-
-    d_collector_p = (collector &&
-                     collector->metricId().category()->enabled())
+    Collector *collector = Metric::lookupCollector(category, name, manager);
+    d_collector_p = (collector && collector->metricId().category()->enabled())
                     ? collector : 0;
-
     if (d_collector_p) {
         d_stopwatch.start();
     }

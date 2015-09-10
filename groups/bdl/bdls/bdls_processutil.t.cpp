@@ -1,7 +1,9 @@
-// bdlsu_processutil.t.cpp                                            -*-C++-*-
-#include <bdlsu_processutil.h>
+// bdls_processutil.t.cpp                                             -*-C++-*-
+#include <bdls_processutil.h>
 
-#include <bdlsu_filesystemutil.h>
+#include <bslim_testutil.h>
+
+#include <bdls_filesystemutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -12,49 +14,56 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-static int testStatus = 0;
-static int verbose, veryVerbose, veryVeryVerbose;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
-#define V(X) { if (verbose) P(X) }            // Print in verbose mode
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlsu::FilesystemUtil    FUtil;
-typedef bdlsu::ProcessUtil Obj;
+typedef bdls::FilesystemUtil    FUtil;
+typedef bdls::ProcessUtil Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -63,9 +72,10 @@ typedef bdlsu::ProcessUtil Obj;
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     switch(test) { case 0:
       case 2: {
@@ -114,13 +124,13 @@ int main(int argc, char *argv[])
                       << "==============" << bsl::endl;
         }
 
-        ASSERT(0 != bdlsu::ProcessUtil::getProcessId());
+        ASSERT(0 != bdls::ProcessUtil::getProcessId());
 
         // Some platforms may truncate the process name if, for example, it is
         // a very long absolute path.  So test for a prefix match.
 
         bsl::string name;
-        ASSERT(0 == bdlsu::ProcessUtil::getProcessName(&name));
+        ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
 
         const int nameLen = static_cast<int>(name.size());
 

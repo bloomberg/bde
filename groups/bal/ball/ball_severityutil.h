@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of utility functions on 'ball::Severity' levels.
 //
 //@CLASSES:
-//   ball::SeverityUtil: namespace for pure procedures on 'ball::Severity::Level'
+//  ball::SeverityUtil: namespace for functions on 'ball::Severity::Level'
 //
 //@AUTHOR: Steven Breitstein (sbreitst), Henry Verschell (hversche)
 //
@@ -32,17 +32,17 @@ BSLS_IDENT("$Id: $")
 //..
 //    static int  ball::SeverityUtil::fromAsciiCaseless(
 //                                              ball::Severity::Level *level,
-//                                              const char           *name);
+//                                              const char            *name);
 //
 //    static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
 //..
 ///Usage
 ///-----
 // In this example, we show how to validate that a set of C-style strings
-// correspond to 'ball::Severity::Level' enumerators, and then use those strings
-// to generate enumerator values that, in turn, may be used to administer a
-// logger manager.  Here, for convenience, we define our strings in an array,
-// much as how we might receive them from a command line:
+// correspond to 'ball::Severity::Level' enumerators, and then use those
+// strings to generate enumerator values that, in turn, may be used to
+// administer a logger manager.  Here, for convenience, we define our strings
+// in an array, much as how we might receive them from a command line:
 //..
 //    const char *argv[] = {
 //        "INFO",   // record
@@ -83,9 +83,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                        // ========================
+                        // ===================
                         // struct SeverityUtil
-                        // ========================
+                        // ===================
 
 struct SeverityUtil {
     // This 'struct' provides a namespace for non-primitive procedures on the
@@ -93,60 +93,63 @@ struct SeverityUtil {
 
     // CLASS METHODS
     static int fromAsciiCaseless(Severity::Level *level,
-                                 const char           *name);
-        // Load into the specified 'level' the value of the
-        // 'Severity::Level' enumerator corresponding to the specified
-        // 'name' (without regard to the case of the characters in 'name').
-        // Return 0 on success, and a non-zero value with no effect on
-        // 'level' otherwise.  The behavior is undefined unless 'level' is
-        // non-null and 'name' is a null-terminated (C-style) string.  Note
-        // that this procedure will fail unless true == isValidName(name).
+                                 const char      *name);
+        // Load into the specified 'level' the value of the 'Severity::Level'
+        // enumerator corresponding to the specified 'name' (without regard to
+        // the case of the characters in 'name').  Return 0 on success, and a
+        // non-zero value with no effect on 'level' otherwise.  The behavior is
+        // undefined unless 'level' is non-null and 'name' is a null-terminated
+        // (C-style) string.  Note that this procedure will fail unless
+        // 'isValidName(name)' is 'true.
 
     static bool isValidNameCaseless(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
         // in the 'Severity::Level' enumeration (without regard to the
         // characters in 'name'), and 'false' otherwise.  The behavior is
-        // undefined unless 'name' is a null-terminated (C-style) string.
-        // Note that the names corresponding to 'Severity::Level'
-        // enumerators are case *insensitive*.
+        // undefined unless 'name' is a null-terminated (C-style) string.  Note
+        // that the names corresponding to 'Severity::Level' enumerators are
+        // case *insensitive*.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int fromAscii(Severity::Level *level, const char *name);
-        // Load into the specified 'level' the value of the
-        // 'Severity::Level' enumerator corresponding to the specified
-        // 'name' (without regard to the case of the characters in 'name').
-        // Return 0 on success, and a non-zero value with no effect on
-        // 'level' otherwise.  The behavior is undefined unless 'level' is
-        // non-null and 'name' is a null-terminated (C-style) string.  Note
-        // that this procedure will fail unless true == isValidName(name).
+        // Load into the specified 'level' the value of the 'Severity::Level'
+        // enumerator corresponding to the specified 'name' (without regard to
+        // the case of the characters in 'name').  Return 0 on success, and a
+        // non-zero value with no effect on 'level' otherwise.  The behavior is
+        // undefined unless 'level' is non-null and 'name' is a null-terminated
+        // (C-style) string.  Note that this procedure will fail unless
+        // 'isValidName(name)' is 'true'.
         //
         // DEPRECATED: Use 'fromAsciiCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'baelu::Severity'.
+        // 'ballu::Severity'.
 
     static bool isValidName(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
-        // in the 'Severity::Level' enumeration, and 'false' otherwise.
-        // The behavior is undefined unless 'name' is a null-terminated
-        // (C-style) string.  Note that the names corresponding to
-        // 'Severity::Level' enumerators are case *insensitive*.
+        // in the 'Severity::Level' enumeration, and 'false' otherwise.  The
+        // behavior is undefined unless 'name' is a null-terminated (C-style)
+        // string.  Note that the names corresponding to 'Severity::Level'
+        // enumerators are case *insensitive*.
         //
         // DEPRECATED: Use 'isValidNameCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'baelu::Severity'.
+        // 'ballu::Severity'.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------
+                        // -------------------
                         // struct SeverityUtil
-                        // ------------------------
+                        // -------------------
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // CLASS METHODS
 inline
 int SeverityUtil::fromAscii(Severity::Level *level,
-                                 const char           *name)
+                            const char      *name)
 {
     return fromAsciiCaseless(level, name);
 }
@@ -156,6 +159,8 @@ bool SeverityUtil::isValidName(const char *name)
 {
     return isValidNameCaseless(name);
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 }  // close package namespace
 
 }  // close enterprise namespace

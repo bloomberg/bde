@@ -33,6 +33,8 @@
 #define snprintf _snprintf_s
 #endif
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -90,13 +92,13 @@ using bsl::flush;
 // [ 2] 'gg', 'TestPublisher'                       (generator, helper classes)
 // [ 4] PRIVATE METHOD TEST: 'publish'              (private method)
 // [ 5] AUXILIARY TEST: SCHEDULING FREQUENCY        (behavior matches schedule)
-// [11] BAEM ALLOCATION EXCEPTION TEST
+// [11] BALM ALLOCATION EXCEPTION TEST
 // [12] CONCURRENCY TEST
 // [13] USAGE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -108,44 +110,32 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                      *NON* STANDARD BALM TEST MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                *NON* STANDARD BAEM TEST MACROS
-//-----------------------------------------------------------------------------
-
-// Code defined between the 'BAEM_BEGIN_RETRY_TEST' and 'BAEM_END_RETRY_TEST'
+// Code defined between the 'BALM_BEGIN_RETRY_TEST' and 'BALM_END_RETRY_TEST'
 // macros will executed once, and, if there is a test failure, executed again
 // up to the specified number of 'ATTEMPTS'.  These macros are used to bracket
 // code that may intermittently fail: tests that depend on operating system
@@ -153,14 +143,14 @@ static void aSsErT(int c, const char *s, int i)
 // code succeeds in under 'ATTEMPTS' iterations, the test is successful and
 // 'testStatus' will not be modified (though error messages may be reported to
 // the console), otherwise the test will fail and 'testStatus' will not be 0.
-#define BAEM_BEGIN_RETRY_TEST_IMP(ATTEMPTS, QUIET) {                          \
+#define BALM_BEGIN_RETRY_TEST_IMP(ATTEMPTS, QUIET) {                          \
     {                                                                         \
         static int firstTime = 1;                                             \
         if (veryVerbose && firstTime) cout <<                                 \
-            "### BAEM RETRY TEST" << endl;                                    \
+            "### BALM RETRY TEST" << endl;                                    \
         firstTime = 0;                                                        \
     }                                                                         \
-    if (veryVeryVerbose) cout << "### Begin baem retry test." << endl;        \
+    if (veryVeryVerbose) cout << "### Begin balm retry test." << endl;        \
     const int  __numAttempts = (ATTEMPTS);                                    \
     const int  __savedStatus = testStatus;                                    \
     int        __attempt     = 0;                                             \
@@ -173,10 +163,10 @@ static void aSsErT(int c, const char *s, int i)
         }                                                                     \
         testStatus = __savedStatus;
 
-#define BAEM_BEGIN_RETRY_TEST(ATTEMPTS)  \
-                                     BAEM_BEGIN_RETRY_TEST_IMP(ATTEMPTS, false)
+#define BALM_BEGIN_RETRY_TEST(ATTEMPTS)  \
+                                     BALM_BEGIN_RETRY_TEST_IMP(ATTEMPTS, false)
 
-#define BAEM_END_RETRY_TEST                                                   \
+#define BALM_END_RETRY_TEST                                                   \
     } while (testStatus !=  __savedStatus && ++__attempt < __numAttempts);    \
     if (__savedStatus != testStatus) {                                        \
         if (!__quietMode) {                                                   \
@@ -186,9 +176,9 @@ static void aSsErT(int c, const char *s, int i)
     }                                                                         \
 }
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::PublicationScheduler        Obj;
 typedef bsl::pair<const balm::Category *,
@@ -213,9 +203,9 @@ enum {
     MICROSECS_PER_MILLISEC = 1000         // one thousand
 };
 
-//=============================================================================
-//                 NON-STANDARD BAEM EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  NON-STANDARD BALM EXCEPTION TEST MACROS
+// ----------------------------------------------------------------------------
 
 // Note that the following exception test macros are similar to the standard
 // 'BSLMA_EXCEPTION_TEST' macros but, perform additional tests to verify the
@@ -225,11 +215,11 @@ enum {
 // 'balm::PublicationScheduler' named 'MX'.
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_BAEM_EXCEPTION_TEST {                                       \
+#define BEGIN_BALM_EXCEPTION_TEST {                                       \
     {                                                                     \
         static int firstTime = 1;                                         \
         if (veryVerbose && firstTime) cout <<                             \
-            "### BAEM EXCEPTION TEST -- (ENABLED) --" << endl;            \
+            "### BALM EXCEPTION TEST -- (ENABLED) --" << endl;            \
         firstTime = 0;                                                    \
     }                                                                     \
     if (veryVeryVerbose) cout <<                                          \
@@ -240,7 +230,7 @@ enum {
     do {                                                                  \
         try {
 
-#define END_BAEM_EXCEPTION_TEST                                           \
+#define END_BALM_EXCEPTION_TEST                                           \
         } catch (bslma::TestAllocatorException& e) {                      \
             Schedule schedule(Z);                                         \
             bsls::TimeInterval interval;                                   \
@@ -270,20 +260,20 @@ enum {
         "### End bdema exception test." << endl;                          \
 }
 #else
-#define BEGIN_BAEM_EXCEPTION_TEST                                         \
+#define BEGIN_BALM_EXCEPTION_TEST                                         \
 {                                                                         \
     static int firstTime = 1;                                             \
     if (verbose && firstTime) { cout <<                                   \
-        "### BAEM EXCEPTION TEST -- (NOT ENABLED) --" << endl;            \
+        "### BALM EXCEPTION TEST -- (NOT ENABLED) --" << endl;            \
         firstTime = 0;                                                    \
     }                                                                     \
 }
-#define END_BAEM_EXCEPTION_TEST
+#define END_BALM_EXCEPTION_TEST
 #endif
 
-//=============================================================================
-//                      CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 // from 'bdlmt_timereventscheduler.t.cpp'.
 void microSleep(int microSeconds, int seconds)
@@ -319,9 +309,9 @@ bool withinWindow(const bsls::TimeInterval& value,
     return withinWindow;
 }
 
-                      // ===================
-                      // class TestPublisher
-                      // ===================
+                            // ===================
+                            // class TestPublisher
+                            // ===================
 
 class TestPublisher : public balm::Publisher {
     // This class defines a test implementation of the 'balm::Publisher'
@@ -476,9 +466,9 @@ class TestPublisher : public balm::Publisher {
 
 };
 
-                      // --------------------------------------
-                      // class TestPublisher::InvocationSummary
-                      // --------------------------------------
+                   // --------------------------------------
+                   // class TestPublisher::InvocationSummary
+                   // --------------------------------------
 
 // CREATORS
 inline
@@ -488,9 +478,9 @@ TestPublisher::InvocationSummary::InvocationSummary()
 , d_elapsedTime()
 {
 }
-                      // -------------------------------------
-                      // class TestPublisher::InvocationIdLess
-                      // -------------------------------------
+                   // -------------------------------------
+                   // class TestPublisher::InvocationIdLess
+                   // -------------------------------------
 
 // ACCESSORS
 bool TestPublisher::InvocationIdLess::operator()(
@@ -512,9 +502,9 @@ bool TestPublisher::InvocationIdLess::operator()(
     return false;
 }
 
-                      // -------------------
-                      // class TestPublisher
-                      // -------------------
+                            // -------------------
+                            // class TestPublisher
+                            // -------------------
 
 // CREATORS
 inline
@@ -628,9 +618,9 @@ bsl::ostream& TestPublisher::print(bsl::ostream&   stream,
     return stream;
 }
 
-                        // ============
-                        // class Action
-                        // ============
+                                // ============
+                                // class Action
+                                // ============
 
 class Action {
      // This class defines a value semantic type used to describe a
@@ -749,9 +739,9 @@ int Action::interval() const
     return d_interval;
 }
 
-                      // =====================
-                      // class ConcurrencyTest
-                      // =====================
+                           // =====================
+                           // class ConcurrencyTest
+                           // =====================
 
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
@@ -991,9 +981,9 @@ void ConcurrencyTest::runTest()
     d_pool.drain();
 }
 
-//=============================================================================
-//                              Helper Functions
-//=============================================================================
+// ============================================================================
+//                             Helper Functions
+// ============================================================================
 
 inline bsls::TimeInterval invalidInterval()
     // Return the value used to indicate an invalid schedule interval.
@@ -1148,9 +1138,9 @@ void gg(bsl::vector<Action>  *actions,
     }
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // SimpleStreamPublisher was defined in 'balm_publisher.h'.
 
@@ -1224,9 +1214,9 @@ void gg(bsl::vector<Action>  *actions,
         }
     }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1311,7 +1301,7 @@ int main(int argc, char *argv[])
                             allocator);
 //..
 // We now register the 'publisher' we have created with the metrics 'manager'
-// to publish our categories.  The, we 'start' the timer-event scheduler we
+// to publish our categories.  Then, we 'start' the timer-event scheduler we
 // will supply to the 'balm::PublicationScheduler'.
 //..
     manager.addGeneralPublisher(publisher);
@@ -1335,13 +1325,14 @@ int main(int argc, char *argv[])
 // specified.
 //..
     bsls::TimeInterval intervalA, intervalB, intervalC, defaultInterval;
-        ASSERT( scheduler.findCategorySchedule(&intervalA, "A"));
-        ASSERT( scheduler.findCategorySchedule(&intervalB, "B"));
-        ASSERT(!scheduler.findCategorySchedule(&intervalC, "C"));
-        ASSERT( scheduler.getDefaultSchedule(&defaultInterval));
-        ASSERT(bsls::TimeInterval(.05) == intervalA);
-        ASSERT(bsls::TimeInterval(.05) == intervalB);
-        ASSERT(bsls::TimeInterval(.10) == defaultInterval);
+    ASSERT( scheduler.findCategorySchedule(&intervalA, "A"));
+    ASSERT( scheduler.findCategorySchedule(&intervalB, "B"));
+    ASSERT(!scheduler.findCategorySchedule(&intervalC, "C"));
+    ASSERT( scheduler.getDefaultSchedule(&defaultInterval));
+
+    ASSERT(bsls::TimeInterval(.05) == intervalA);
+    ASSERT(bsls::TimeInterval(.05) == intervalB);
+    ASSERT(bsls::TimeInterval(.10) == defaultInterval);
 //..
 // Finally we add a couple metrics and wait just over .1 seconds.
 //..
@@ -1395,14 +1386,14 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // BAEM ALLOCATION EXCEPTION TEST
+        // BALM ALLOCATION EXCEPTION TEST
         //
         // Concerns:
         //   That 'scheduleCategory' and 'setDefaultSchedule' are exception
         //   safe.
         //
         // Plan:
-        //   Use the 'BAEM_BEGIN_RETRY_TEST' to verify the manipulator methods
+        //   Use the 'BALM_BEGIN_RETRY_TEST' to verify the manipulator methods
         //   of this object are exception neutral.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -1445,7 +1436,7 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler timer(Z);
         Obj mX(&manager, &timer, &testAllocator); const Obj& MX = mX;
         for (int i = 0; i < NUM_SPECS; ++i) {
-            BEGIN_BAEM_EXCEPTION_TEST {
+            BEGIN_BALM_EXCEPTION_TEST {
             bsl::vector<Action> actions(Z);
             gg(&actions, registry, TEST_SPECS[i]);
 
@@ -1497,7 +1488,7 @@ int main(int argc, char *argv[])
             ASSERT(0               == timer.numEvents());
 
             mX.cancelAll();
-            } END_BAEM_EXCEPTION_TEST
+            } END_BALM_EXCEPTION_TEST
         }
       } break;
       case 10: {
@@ -2128,7 +2119,7 @@ int main(int argc, char *argv[])
         const int TIME_UNIT = 100 * NANOSECS_PER_MILLISEC; // 100 milliseconds
 
         for (int i = 0; i < NUM_SPECS; ++i) {
-            BAEM_BEGIN_RETRY_TEST(3) {
+            BALM_BEGIN_RETRY_TEST(3) {
             bsl::vector<Action> actions(Z);
             gg(&actions, manager.metricRegistry(), TEST_SPECS[i]);
 
@@ -2229,7 +2220,7 @@ int main(int argc, char *argv[])
                              invocation->d_numInvocations,
                              expInvocations == invocation->d_numInvocations);
             }
-        } BAEM_END_RETRY_TEST
+        } BALM_END_RETRY_TEST
         }
       } break;
       case 4: {
@@ -2262,7 +2253,7 @@ int main(int argc, char *argv[])
                           << "TESTING: invocation of 'publisher'" << endl
                           << "==================================" << endl;
 
-        BAEM_BEGIN_RETRY_TEST(3) {
+        BALM_BEGIN_RETRY_TEST(3) {
         // 1. Create a metrics manager and add a 'TestPublisher' to it.
         balm::MetricsManager   manager(Z);
         balm::MetricRegistry& reg = manager.metricRegistry();
@@ -2386,7 +2377,7 @@ int main(int argc, char *argv[])
             manager.publishAll(); // reset the previous publication time
             tp.reset();
         }
-        } BAEM_END_RETRY_TEST
+        } BALM_END_RETRY_TEST
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2562,7 +2553,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING HELPERS: TestPublisher, gg, BAEM_*_RETRY_TEST
+        // TESTING HELPERS: TestPublisher, gg, BALM_*_RETRY_TEST
         //
         // Concerns:
         //
@@ -2573,7 +2564,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "TEST HELPERS: TestPublisher, gg, BAEM_*_RETRY_TEST\n"
+            << "TEST HELPERS: TestPublisher, gg, BALM_*_RETRY_TEST\n"
             << "==================================================\n";
 
         {
@@ -2703,33 +2694,33 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose)
-                cout << "\tTesting BAEM_*_RETRY_TEST\n";
+                cout << "\tTesting BALM_*_RETRY_TEST\n";
 
             {
                 static int count = 0;
-                BAEM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
+                BALM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
                     ++count;
-                } BAEM_END_RETRY_TEST
+                } BALM_END_RETRY_TEST
                 ASSERT(1 == count);
             }
             {
                 static int count = 0;
-                BAEM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
+                BALM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
                     if (count < 4) {
                         ++testStatus;
                     }
                     ++count;
-                } BAEM_END_RETRY_TEST
+                } BALM_END_RETRY_TEST
                 LOOP_ASSERT(count, 5 == count);
                 ASSERT(0 == testStatus);
             }
             {
                 int savedStatus = testStatus;
                 static int count = 0;
-                BAEM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
+                BALM_BEGIN_RETRY_TEST_IMP(5, !verbose) {
                     ++testStatus;
                     ++count;
-                } BAEM_END_RETRY_TEST
+                } BALM_END_RETRY_TEST
                 int updatedStatus = testStatus;
                 testStatus = savedStatus;
                 ASSERT(updatedStatus == savedStatus + 1)
@@ -3100,7 +3091,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == timer.numEvents());
 
         {
-            BAEM_BEGIN_RETRY_TEST(3) {
+            BALM_BEGIN_RETRY_TEST(3) {
             if (veryVerbose) {
                 cout << "\tVerify callbacks are invoked\n";
             }
@@ -3157,7 +3148,7 @@ int main(int argc, char *argv[])
             ASSERT(withinWindow(tp3.lastElapsedTime(), INTVL_A, 40));
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            } BAEM_END_RETRY_TEST
+            } BALM_END_RETRY_TEST
         }
 
         ASSERT(0 == defaultAllocator.numBytesInUse());

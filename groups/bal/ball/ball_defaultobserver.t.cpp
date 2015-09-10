@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose)
             cout << "Publish a single message (deprecated c'tor)." << endl;
         {
@@ -195,6 +196,7 @@ int main(int argc, char *argv[])
             X.publish(ball::Record(fixed, userValues),
                     ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
         }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "Publish a single message." << endl;
         {
@@ -211,28 +213,6 @@ int main(int argc, char *argv[])
                       ball::Context(ball::Transmission::e_PASSTHROUGH,
                                                0,
                                                1));
-        }
-
-        if (verbose) cout << "Publish a sequence of three messages "
-                          << "(deprecated c'tor)." << endl;
-        {
-            Obj X(bsl::cout);
-
-            ball::RecordAttributes fixed;
-            ball::UserFields  userValues;
-
-            const int NUM_MESSAGES = 3;
-            for (int n = 0; n < NUM_MESSAGES; ++n) {
-                bdlt::Datetime now =
-                                    bdlt::EpochUtil::convertFromTimeT(time(0));
-                fixed.setTimestamp(now);
-                fixed.setProcessID(201 + n);
-                fixed.setThreadID(31 + n);
-                X.publish(ball::Record(fixed, userValues),
-                          ball::Context(ball::Transmission::e_TRIGGER,
-                                       n,
-                                       NUM_MESSAGES));
-            }
         }
 
         if (verbose) cout << "Publish a sequence of three messages." << endl;

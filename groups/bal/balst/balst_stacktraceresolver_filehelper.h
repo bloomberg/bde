@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Make sure file does not already exist.
 //..
-//  bdlsu::FilesystemUtil::remove(fileNameBuffer);
+//  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 // Next, Create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      ta.deallocate(result);
 //  }
-//  bdlsu::FilesystemUtil::remove(fileNameBuffer);
+//  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
-#ifndef INCLUDED_bdlsu_filesystemutil
-#include <bdlsu_filesystemutil.h>
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include <bdls_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -151,9 +151,9 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdlsu::FilesystemUtil          FilesystemUtil;
+    typedef bdls::FilesystemUtil           FilesystemUtil;
                                                 // shorthand for class
-                                                // 'bdlsu::FilesystemUtil'
+                                                // 'bdls::FilesystemUtil'
     typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
                                                       // descriptor
     typedef FilesystemUtil::Offset         Offset;

@@ -4,8 +4,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslim_testutil.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_climits.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -49,48 +52,61 @@ using namespace bsl;  // automatically added by script
 // [ 8] UNUSED
 // [10] UNUSED
 // [13] USAGE EXAMPLE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) {                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t"               \
-                     << #J << ": " << J << "\t"               \
-                     << #K << ": " << K << "\n"               \
-                     << #L << ": " << L << "\n";              \
-                     aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -98,7 +114,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef ball::Predicate        Obj;
 typedef ball::Attribute::Value Value;
-typedef bsls::Types::Int64    Int64;
+typedef bsls::Types::Int64     Int64;
 
 #define VA_NAME   ""
 #define VA_VALUE  0
@@ -213,14 +229,15 @@ Value createValue(int type, int v1, Int64 v2, const char *v3)
     return variant;
 }
 
-bool compareText(bslstl::StringRef lhs, 
+bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
-   // Return 'true' if the specified 'lhs' has the same value as the specified'
-   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-   // which, if 'lhs' and 'rhs' are not the same', a description of how the
-   // two strings differ will be written.  If 'errorStream' is not supplied,
-   // 'stdout' will be used to report an error description.
+    // Return 'true' if the specified 'lhs' has the same value as the
+    // specified' rhs' and 'false' otherwise.  Optionally specify a
+    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
+    // description of how the two strings differ will be written.  If
+    // 'errorStream' is not supplied, 'stdout' will be used to report an error
+    // description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -706,7 +723,7 @@ int main(int argc, char *argv[])
             Obj w(U); const Obj& W = w;                         // control
             u = u;
 
-            if (veryVerbose) { T_(); P_(U); P_(W); }
+            if (veryVerbose) { T_; P_(U); P_(W); }
             LOOP2_ASSERT(LINE1, LINE2, U == W);
         }
         }
@@ -754,7 +771,7 @@ int main(int argc, char *argv[])
             Obj x(name, value); const Obj& X = x;
             Obj y(X);           const Obj& Y = y;
 
-            if (veryVerbose) { T_(); P_(W); P_(X); P(Y); }
+            if (veryVerbose) { T_; P_(W); P_(X); P(Y); }
 
             LOOP2_ASSERT(LINE1, LINE2, X == W);
             LOOP2_ASSERT(LINE1, LINE2, Y == W);

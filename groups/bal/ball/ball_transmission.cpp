@@ -9,10 +9,10 @@ BSLS_IDENT_RCSID(ball_transmission_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-// PRIVATE CLASS METHODS
 
-void Transmission::print(bsl::ostream&            stream,
-                              Transmission::Cause value)
+// PRIVATE CLASS METHODS
+void Transmission::print(bsl::ostream&       stream,
+                         Transmission::Cause value)
 {
     stream << Transmission::toAscii(value);
 }
@@ -21,8 +21,6 @@ void Transmission::print(bsl::ostream&            stream,
 
 const char *Transmission::toAscii(Transmission::Cause value)
 {
-#define CASE(X) case(X): return #X;
-
     switch(value) {
       case(e_PASSTHROUGH)       : return "PASSTHROUGH";
       case(e_TRIGGER)           : return "TRIGGER";
@@ -31,9 +29,8 @@ const char *Transmission::toAscii(Transmission::Cause value)
       case(e_MANUAL_PUBLISH_ALL): return "MANUAL_PUBLISH_ALL";
       default: return "(* UNKNOWN *)";
     }
-
-#undef CASE
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

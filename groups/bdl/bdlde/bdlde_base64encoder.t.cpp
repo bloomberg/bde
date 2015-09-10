@@ -11,8 +11,8 @@
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
 #include <bsl_cctype.h>    // isgraph()
-#include <bsl_strstream.h> // ostrstream
 #include <bsl_climits.h>   // INT_MAX
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -1229,8 +1229,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            static char buf[100];
-            ostrstream  out(buf, sizeof buf);
+            ostringstream out;
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -1240,10 +1239,10 @@ int main(int argc, char *argv[])
             const char EXP[] = "a<00>b<07>c<08>d<0F>e<10>f<80>g<FF><00>";
 
             if (veryVerbose) {
-                cout << "\tRESULT = " << buf << endl;
+                cout << "\tRESULT = " << out.str().c_str() << endl;
                 cout << "\tEXPECT = " << EXP << endl;
             }
-            ASSERT(0 == strncmp(EXP, buf, sizeof EXP));
+            ASSERT(0 == strncmp(EXP, out.str().c_str(), sizeof EXP));
         }
 
         if (verbose) cout << "\nTry instantiating an encoder." << endl;
@@ -1956,16 +1955,17 @@ int main(int argc, char *argv[])
 //     // text to the specified output stream 'os'.  Return 0 on success, and a
 //     // negative value otherwise.
 //..
-        bsl::istrstream inStream(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
-        bsl::strstream  outStream;
-        bsl::strstream  backInStream;
+        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
+                                                sizeof(BLOOMBERG_NEWS)));
+        bsl::stringstream  outStream;
+        bsl::stringstream  backInStream;
 
         ASSERT(0 == streamEncoder(outStream, inStream));
         ASSERT(0 == streamDecoder(backInStream, outStream));
 
-        cout << backInStream.rdbuf()->str();
+        cout << backInStream.str();
 
-        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.rdbuf()->str()));
+        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 
       } break;
       case 10: {
@@ -3372,8 +3372,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            static char buf[100];
-            ostrstream  out(buf, sizeof buf);
+            ostringstream out;
 
             const char  in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                                "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -3383,10 +3382,10 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             const char EXP[] = "a<00>b<07>c<08>d<0F>e<10>f<80>g<FF><00>";
 
             if (veryVerbose) {
-                cout << "\tRESULT = " << buf << endl;
+                cout << "\tRESULT = " << out.str().c_str() << endl;
                 cout << "\tEXPECT = " << EXP << endl;
             }
-            ASSERT(0 == strncmp(EXP, buf, sizeof EXP));
+            ASSERT(0 == strncmp(EXP, out.str().c_str(), sizeof EXP));
         }
 
         if (verbose) cout << "\nTry instantiating an encoder." << endl;

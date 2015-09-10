@@ -17,9 +17,9 @@ BSLS_IDENT_RCSID(balm_metricformat_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                      // ---------------------------
-                      // class balm::MetricFormatSpec
-                      // ---------------------------
+                        // ----------------------------
+                        // class balm::MetricFormatSpec
+                        // ----------------------------
 
 // PRIVATE CONSTANTS
 const char *balm::MetricFormatSpec::k_DEFAULT_FORMAT = "%f";
@@ -27,19 +27,17 @@ const char *balm::MetricFormatSpec::k_DEFAULT_FORMAT = "%f";
 namespace balm {
 // CLASS METHODS
 bsl::ostream& MetricFormatSpec::formatValue(
-                                       bsl::ostream&                stream,
-                                       double                       value,
-                                       const MetricFormatSpec& formatSpec)
+                                       bsl::ostream&           stream,
+                                       double                  value,
+                                       const MetricFormatSpec& format)
 {
     enum { e_INITIAL_BUFFER_SIZE = 32 };
 
     char buffer[e_INITIAL_BUFFER_SIZE];
-    int rc = snprintf(buffer,
-                      e_INITIAL_BUFFER_SIZE,
-                      formatSpec.format(),
-                      value * formatSpec.scale());
+    int rc = snprintf(buffer, e_INITIAL_BUFFER_SIZE, format.format(),
+                                                       value * format.scale());
     if (rc < 0) {
-        stream << "Invalid format " << formatSpec << " applied to " << value
+        stream << "Invalid format " << format << " applied to " << value
                << bsl::flush;
         return stream;                                                // RETURN
     }
@@ -54,12 +52,10 @@ bsl::ostream& MetricFormatSpec::formatValue(
 
     bsl::vector<char> newBuffer;
     newBuffer.resize(rc + 1);
-    rc = snprintf(newBuffer.data(),
-                  newBuffer.size(),
-                  formatSpec.format(),
-                  value * formatSpec.scale());
+    rc = snprintf(newBuffer.data(), newBuffer.size(), format.format(),
+                                                       value * format.scale());
     if ((unsigned)rc >= newBuffer.size()) {
-        stream << "Invalid format " << formatSpec << " applied to " << value
+        stream << "Invalid format " << format << " applied to " << value
                << bsl::flush;
         return stream;                                                // RETURN
     }
@@ -74,9 +70,9 @@ bsl::ostream& MetricFormatSpec::print(bsl::ostream& stream) const
     return stream;
 }
 
-                          // -----------------------
-                          // class MetricFormat
-                          // -----------------------
+                             // ------------------
+                             // class MetricFormat
+                             // ------------------
 
 // MANIPULATORS
 void MetricFormat::clearFormatSpec(
@@ -84,8 +80,8 @@ void MetricFormat::clearFormatSpec(
 {
     d_formatSpecs[publicationType].reset();
 
-    // If there are no non-null format specs, then resize 'd_formatSpecs'
-    // to be an empty vector.
+    // If there are no non-null format specs, then resize 'd_formatSpecs' to be
+    // an empty vector.
 
     bsl::vector<AggregateFormatSpec>::const_iterator it =
                                                          d_formatSpecs.begin();
@@ -99,8 +95,8 @@ void MetricFormat::clearFormatSpec(
 
 // ACCESSORS
 bsl::ostream& MetricFormat::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                       int      level,
+                                       int      spacesPerLevel) const
 {
     const char *NL = (spacesPerLevel > 0) ? "\n" : " ";
 

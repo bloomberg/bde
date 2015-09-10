@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of utility functions for category management.
 //
 //@CLASSES:
-//      ball::LoggerCategoryUtil: namespace for category management utilities
+//  ball::LoggerCategoryUtil: namespace for category management utilities
 //
 //@SEE_ALSO: ball_loggermanager, ball_categorymanager
 //
 //@AUTHOR: Hong Shi (hshi2), Gang Chen (gchen20)
 //
-//@DESCRIPTION: This component provides a set of utility functions for
-// managing the categories contained in 'ball::LoggerManager' based on the
-// notion of hierarchy.  In particular, the 'setThresholdLevelsHierarchically'
-// function modifies the threshold levels of each category in
-// 'ball::LoggerManager' whose name has the specified string as a prefix.  The
-// 'addCategoryHierarchically' function creates a new category that inherits
-// threshold levels from the exiting category whose name is the longest prefix
-// match, if such a category exists.
+//@DESCRIPTION: This component defines a 'struct', 'ball::LoggerCategoryUtil',
+// that provides a set of utility functions for managing the categories
+// contained in a 'ball::LoggerManager' based on the notion of hierarchy.  In
+// particular, the 'setThresholdLevelsHierarchically' function modifies the
+// threshold levels of each category in 'ball::LoggerManager' whose name has
+// the specified string as a prefix.  The 'addCategoryHierarchically' function
+// creates a new category that inherits threshold levels from the exiting
+// category whose name is the longest prefix match, if such a category exists.
 //
 ///Deprecation Notice
 ///------------------
@@ -124,12 +124,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                    // ==============================
+                    // ===============================
                     // struct ball::LoggerCategoryUtil
-                    // ==============================
+                    // ===============================
 
 
-namespace ball {class LoggerManager;
+namespace ball {
+
+class LoggerManager;
 class Category;
 
 struct LoggerCategoryUtil {
@@ -144,12 +146,12 @@ struct LoggerCategoryUtil {
         // specified 'categoryName'; return the address of the modifiable new
         // category on success, and 0, with no effect, if a category by that
         // name already exists or if the number of existing categories in
-        // 'loggerManager' has reached the maximum capacity.  The newly
-        // created category will have the same threshold levels as the
-        // category in 'loggerManager' whose name is the longest prefix of
-        // 'categoryName', and the default levels, if no such category exists.
-        // The behavior is undefined unless 'loggerManager' is not null and
-        // 'categoryName' is null-terminated.
+        // 'loggerManager' has reached the maximum capacity.  The newly created
+        // category will have the same threshold levels as the category in
+        // 'loggerManager' whose name is the longest prefix of 'categoryName',
+        // and the default levels, if no such category exists.  The behavior is
+        // undefined unless 'loggerManager' is not null and 'categoryName' is
+        // null-terminated.
 
     static int setThresholdLevelsHierarchically(
                                             LoggerManager *loggerManager,
@@ -158,15 +160,15 @@ struct LoggerCategoryUtil {
                                             int            passLevel,
                                             int            triggerLevel,
                                             int            triggerAllLevel);
-        // Set, in the specified 'loggerManager', the threshold levels of
-        // every category whose name has, as a prefix, the specified
+        // Set, in the specified 'loggerManager', the threshold levels of every
+        // category whose name has, as a prefix, the specified
         // 'categoryNamePrefix' to the specified threshold values,
         // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
-        // Return the number of categories whose threshold levels were set,
-        // and a negative value, with no effect, if any of the specified
-        // threshold values is outside the range [0 .. 255].  The behavior is
-        // undefined unless 'loggerManager' is not null and
-        // 'categoryNamePrefix' is null-terminated.
+        // Return the number of categories whose threshold levels were set, and
+        // a negative value, with no effect, if any of the specified threshold
+        // values is outside the range [0 .. 255].  The behavior is undefined
+        // unless 'loggerManager' is not null and 'categoryNamePrefix' is
+        // null-terminated.
 
     static int setThresholdLevels(LoggerManager *loggerManager,
                                   const char    *regularExpression,
@@ -177,22 +179,22 @@ struct LoggerCategoryUtil {
         // DEPRECATED:: Use 'setThresholdLevelsHierarchically' instead.
         //
         // Set the threshold levels of each category in the specified
-        // 'loggerManager' whose name matches the specified
-        // 'regularExpression' to the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel', and 'triggerAllLevel' values, respectively, if each
-        // of the threshold values is in the range [0 .. 255].  Return the
-        // number of categories whose threshold levels were set, or a negative
-        // value if the threshold values were invalid.  The behavior is
-        // undefined unless 'loggerManager' is non-null and
-        // 'regularExpression' is null-terminated.  Note that the only regular
-        // expressions supported in this release are of the form (1) "X*",
-        // matching every category name in the registry of the form "XY",
-        // where X and Y are arbitrary strings (including the empty string),
-        // and (2) "X", matching at most one category in the registry, where X
-        // is an arbitrary string not ending in '*'; that is, only a '*'
-        // located at the end of 'regularExpression' is recognized as a
-        // special character.
+        // 'loggerManager' whose name matches the specified 'regularExpression'
+        // to the specified 'recordLevel', 'passLevel', 'triggerLevel', and
+        // 'triggerAllLevel' values, respectively, if each of the threshold
+        // values is in the range [0 .. 255].  Return the number of categories
+        // whose threshold levels were set, or a negative value if the
+        // threshold values were invalid.  The behavior is undefined unless
+        // 'loggerManager' is non-null and 'regularExpression' is
+        // null-terminated.  Note that the only regular expressions supported
+        // in this release are of the form (1) "X*", matching every category
+        // name in the registry of the form "XY", where X and Y are arbitrary
+        // strings (including the empty string), and (2) "X", matching at most
+        // one category in the registry, where X is an arbitrary string not
+        // ending in '*'; that is, only a '*' located at the end of
+        // 'regularExpression' is recognized as a special character.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

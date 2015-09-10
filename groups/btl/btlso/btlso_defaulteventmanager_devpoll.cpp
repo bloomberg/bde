@@ -4,18 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlso_eventmanagertester.h>           // for testing only
-#include <btlso_socketimputil.h>                // for testing only
-#include <btlso_socketoptutil.h>                // for testing only
-#endif
-
 #include <btlso_timemetrics.h>
 #include <btlso_flag.h>
 
@@ -34,44 +22,32 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace btlso {
+
 namespace {
     // unnamed namespace for private resources
 
-    enum {
-        MIN_IOCTL_TIMEOUT_MS = 333  // force spinning of devpoll every 333ms,
-                                    // otherwise a bug on Solaris may cause
-                                    // missing events if passing a longer
-                                    // timeout to ioctl(fd, DP_POLL, ...)
-    };
+enum {
+    MIN_IOCTL_TIMEOUT_MS = 333  // force spinning of devpoll every 333ms,
+                                // otherwise a bug on Solaris may cause
+                                // missing events if passing a longer timeout
+                                // to ioctl(fd, DP_POLL, ...)
+};
 
-typedef bsl::unordered_map<btlso::Event,
-                           btlso::EventManager::Callback,
-                           btlso::EventHash>              CallbackMap;
-typedef bsl::unordered_map<int, int>                     EventmaskMap;
-
-#if 0  // not used
-static void printPollFds(const pollfd *data, int length) {
-    BSLS_ASSERT(data);
-    BSLS_ASSERT(0 <= length);
-    for (int i = 0; i < length; ++i) {
-        const pollfd& c = data[i];
-        bsl::cout << "(" << c.fd << ", " << c.events << ", " << c.revents
-                  << ") ";
-    }
-    bsl::cout << '\n';
-}
-#endif
+typedef bsl::unordered_map<Event, EventManager::Callback, EventHash>
+                                                                  CallbackMap;
+typedef bsl::unordered_map<int, int>                              EventmaskMap;
 
 static
-inline int dispatchCallbacks(
-    bsl::vector<struct ::pollfd>&                signaled,
-    int                                          rfds,
-    CallbackMap                                 *callbacks)
+inline int dispatchCallbacks(bsl::vector<struct ::pollfd>&  signaled,
+                             int                            rfds,
+                             CallbackMap                   *callbacks)
 {
     int numCallbacks = 0;
 
     for (int i = 0; i < rfds; ++i) {
         const struct ::pollfd *currData = &signaled[i];
+
         BSLS_ASSERT(currData);
         BSLS_ASSERT(currData->revents);
 
@@ -79,17 +55,16 @@ inline int dispatchCallbacks(
 
         if (currData->revents & POLLIN) {
             CallbackMap::iterator cbit, cbend = callbacks->end();
-            if (cbend != (cbit = callbacks->find(
-                  btlso::Event(currData->fd, btlso::EventType::e_READ)))
-             || cbend != (cbit = callbacks->find(
-                  btlso::Event(currData->fd, btlso::EventType::e_ACCEPT)))) {
+
+            if (cbend != (cbit = callbacks->find(Event(currData->fd,
+                                                       EventType::e_READ)))
+             || cbend != (cbit = callbacks->find(Event(
+                                                      currData->fd,
+                                                      EventType::e_ACCEPT)))) {
                 cbit->second.operator()();
                 ++numCallbacks;
-                if ((bsl::size_t)i >= signaled.size()) {
-                    // If deregisterAll was called in the callback (see DRQS
-                    // 10105162), d_signaled is cleared and the loop must be
-                    // exited.
 
+                if (static_cast<bsl::size_t>(i) >= signaled.size()) {
                     break;
                 }
             }
@@ -105,15 +80,16 @@ inline int dispatchCallbacks(
 
         if (currData->revents & POLLOUT) {
             CallbackMap::iterator  cbit, cbend = callbacks->end();
-            if (cbend != (cbit = callbacks->find(
-                 btlso::Event(currData->fd, btlso::EventType::e_WRITE)))
-             || cbend != (cbit = callbacks->find(
-                 btlso::Event(currData->fd, btlso::EventType::e_CONNECT)))) {
+
+            if (cbend != (cbit = callbacks->find(Event(currData->fd,
+                                                       EventType::e_WRITE)))
+             || cbend != (cbit = callbacks->find(Event(
+                                                     currData->fd,
+                                                     EventType::e_CONNECT)))) {
                 cbit->second.operator()();
                 ++numCallbacks;
-                if ((bsl::size_t)i >= signaled.size()) {
-                    // Same as above.
 
+                if (static_cast<bsl::size_t>(i) >= signaled.size()) {
                     break;
                 }
             }
@@ -124,15 +100,14 @@ inline int dispatchCallbacks(
 
 } // close unnamed namespace
 
-namespace btlso {
-         // ---------------------------------------------------------
-         // class DefaultEventManager<Platform::DEV_POLL>
-         // ---------------------------------------------------------
+         // --------------------------------------------
+         // class DefaultEventManager<Platform::DEVPOLL>
+         // --------------------------------------------
 
 // CREATORS
 DefaultEventManager<Platform::DEVPOLL>::DefaultEventManager(
-                                            TimeMetrics *timeMetric,
-                                            bslma::Allocator  *basicAllocator)
+                                              TimeMetrics      *timeMetric,
+                                              bslma::Allocator *basicAllocator)
 : d_callbacks(basicAllocator)
 , d_timeMetric_p(timeMetric)
 , d_signaled(basicAllocator)
@@ -142,8 +117,7 @@ DefaultEventManager<Platform::DEVPOLL>::DefaultEventManager(
 
 }
 
-DefaultEventManager<Platform::DEVPOLL>::
-                                                   ~DefaultEventManager()
+DefaultEventManager<Platform::DEVPOLL>::~DefaultEventManager()
 {
     int rc = close(d_dpFd);
     BSLS_ASSERT(0 == rc);
@@ -151,22 +125,23 @@ DefaultEventManager<Platform::DEVPOLL>::
 
 // MANIPULATORS
 int DefaultEventManager<Platform::DEVPOLL>::dispatch(
-                               const bsls::TimeInterval& timeout,
-                               int                      flags)
+                                             const bsls::TimeInterval& timeout,
+                                             int                       flags)
 {
     bsls::TimeInterval now(bdlt::CurrentTime::now());
 
     if (!numEvents()) {
         if (timeout <= now) {
-            return 0;
+            return 0;                                                 // RETURN
         }
         while (timeout > now) {
             bsls::TimeInterval currTimeout(timeout - now);
-            struct timespec ts;
-            ts.tv_sec = currTimeout.seconds();
+            struct timespec    ts;
+            ts.tv_sec  = currTimeout.seconds();
             ts.tv_nsec = currTimeout.nanoseconds();
 
             // Sleep till it's time.
+
             int savedErrno;
             int rc;
             if (d_timeMetric_p) {
@@ -183,17 +158,17 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             if (0 > rc) {
                 if (EINTR == savedErrno) {
-                    if (flags & bteso_Flag::k_ASYNC_INTERRUPT) {
-                        return -1;
+                    if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
+                        return -1;                                    // RETURN
                     }
                 }
                 else {
-                    return -2;
+                    return -2;                                        // RETURN
                 }
             }
             now = bdlt::CurrentTime::now();
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int ncbs = 0;                    // number of callbacks dispatched
@@ -207,29 +182,36 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
 
             // This was added to fix a (very frequent) Purify UMR.  The cost is
             // insignificant.
+
             if (oldlength < (int) d_eventmasks.size()) {
-                bsl::memset(&d_signaled[oldlength], 0,
-                  sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
+                bsl::memset(
+                    &d_signaled[oldlength],
+                    0,
+                    sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
             }
 
             struct dvpoll dopoll;
             dopoll.dp_nfds = d_signaled.size();
-            dopoll.dp_fds = &d_signaled.front();
+            dopoll.dp_fds  = &d_signaled.front();
 
             if (timeout < now) {
                 // The ioctl() call should return immediately.
+
                 dopoll.dp_timeout = 0;
             }
             else {
                 // Calculate the time remaining for the ioctl() call.
+
                 bsls::TimeInterval curr_timeout(timeout - now);
+
                 // Convert this timeout to a 32 bit value in milliseconds.
-                dopoll.dp_timeout =
-                    curr_timeout.seconds() * 1000
-                    + curr_timeout.nanoseconds()/1000000 + 1;
+
+                dopoll.dp_timeout = curr_timeout.seconds() * 1000
+                                      + curr_timeout.nanoseconds()/1000000 + 1;
             }
-            dopoll.dp_timeout = bsl::min(dopoll.dp_timeout,
-                                         (int)MIN_IOCTL_TIMEOUT_MS);
+            dopoll.dp_timeout = bsl::min(
+                                       dopoll.dp_timeout,
+                                       static_cast<int>(MIN_IOCTL_TIMEOUT_MS));
 
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
@@ -243,17 +225,16 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             }
             errno = 0;
             now = bdlt::CurrentTime::now();
-        } while (
-            (0 > rfds && EINTR == savedErrno)
-                 && !(bteso_Flag::k_ASYNC_INTERRUPT & flags)
-                 && now < timeout);
+        } while ((0 > rfds && EINTR == savedErrno)
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
+              && now < timeout);
 
         if (0 >= rfds) {
             return rfds
                    ? -1 == rfds && EINTR == savedErrno
                      ? -1
                      : -2
-                   : 0;
+                   : 0;                                               // RETURN
         }
 
         ncbs += dispatchCallbacks(d_signaled, rfds, &d_callbacks);
@@ -266,11 +247,11 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
 int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
 {
     if (!numEvents()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int ncbs = 0;                    // number of callbacks dispatched
-    while  (0 == ncbs) {
+    while (0 == ncbs) {
         int rfds;                    // number of returned fds
         int savedErrno = 0;          // saved errno value set by 'poll'
 
@@ -280,14 +261,16 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
         // This was added to fix a (very frequent) Purify UMR.  The cost is
         // insignificant.
 
-        if (oldlength < (int) d_eventmasks.size()) {
-            bsl::memset(&d_signaled[oldlength], 0,
-                  sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
+        if (oldlength < static_cast<int>(d_eventmasks.size())) {
+            bsl::memset(
+                    &d_signaled[oldlength],
+                    0,
+                    sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
         }
 
         struct dvpoll dopoll;
-        dopoll.dp_nfds = d_signaled.size();
-        dopoll.dp_fds = &d_signaled.front();
+        dopoll.dp_nfds    = d_signaled.size();
+        dopoll.dp_fds     = &d_signaled.front();
         dopoll.dp_timeout = MIN_IOCTL_TIMEOUT_MS;
 
         do {
@@ -302,16 +285,15 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
                 savedErrno = errno;
             }
             errno = 0;
-        } while (
-            (0 > rfds && EINTR == savedErrno)
-                 && !(bteso_Flag::k_ASYNC_INTERRUPT & flags));
+        } while ((0 > rfds && EINTR == savedErrno)
+              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             return rfds
                    ? -1 == rfds && EINTR == savedErrno
                      ? -1
                      : -2
-                   : 0;
+                   : 0;                                               // RETURN
         }
 
         ncbs += dispatchCallbacks(d_signaled, rfds, &d_callbacks);
@@ -320,9 +302,9 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
 }
 
 int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
-                                  const SocketHandle::Handle&   handle,
-                                  const EventType::Type         event,
-                                  const EventManager::Callback& callback)
+                                        const SocketHandle::Handle&   handle,
+                                        const EventType::Type         event,
+                                        const EventManager::Callback& callback)
 {
     // If 'event' is already registered overwrite callback.
 
@@ -330,15 +312,15 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
     CallbackMap::iterator cbIt = d_callbacks.find(handleEvent);
     if (d_callbacks.end() != cbIt) {
         cbIt->second = callback;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // If not, retrieve the handle from d_eventmasks.
 
     EventmaskMap::iterator eventmaskIt = d_eventmasks.find(handle);
     int  eventmask = (d_eventmasks.end() != eventmaskIt)
-                   ? eventmaskIt->second
-                   : 0;
+                     ? eventmaskIt->second
+                     : 0;
 
     // Prepare a ::pollfd object to write to /dev/poll
 
@@ -348,39 +330,49 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
 
     switch (event) {
         // No other event can be registered simultaneously with ACCEPT.
+
       case EventType::e_ACCEPT: {
         BSLS_ASSERT(0 == eventmask);
+
         pfd.events = (eventmask |= POLLIN);
       } break;
 
         // No other event can be registered simultaneously with CONNECT.
+
       case EventType::e_CONNECT: {
         BSLS_ASSERT(0 == eventmask);
+
         pfd.events = (eventmask |= POLLOUT);
       } break;
 
         // Only WRITE can be registered simultaneously with READ.
+
       case EventType::e_READ: {
         BSLS_ASSERT(0 == (eventmask & ~POLLOUT));
+
         pfd.events = (eventmask |= POLLIN);
       } break;
 
         // Only READ can be registered simultaneously with WRITE.
+
       case EventType::e_WRITE: {
         BSLS_ASSERT(0 == (eventmask & ~POLLIN));
+
         pfd.events = (eventmask |= POLLOUT);
       } break;
 
-      default:
+      default: {
         BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
-        return -1;
+
+        return -1;                                                    // RETURN
+      } break;
     }
 
     // Write the new event mask for this fd to /dev/poll.
 
     int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
     if (rc != sizeof(struct ::pollfd)) {
-        return errno;
+        return errno;                                                 // RETURN
     }
 
     if (d_eventmasks.end() == eventmaskIt) {
@@ -406,12 +398,12 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
 }
 
 void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
-                                      const SocketHandle::Handle& handle,
-                                      EventType::Type             event)
+                                            const SocketHandle::Handle& handle,
+                                            EventType::Type             event)
 {
     // Determine from d_callbacks if the event is currently registered.
 
-    Event  handleEvent(handle, event);
+    Event                 handleEvent(handle, event);
     CallbackMap::iterator cbIt = d_callbacks.find(handleEvent);
     BSLS_ASSERT(d_callbacks.end() != cbIt);
 
@@ -419,24 +411,30 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
 
     int pollevent = 0;
     switch (event) {
-      case EventType::e_ACCEPT:
-      case EventType::e_READ:
+      case EventType::e_ACCEPT:                                 // FALL THROUGH
+      case EventType::e_READ: {
+
         pollevent = POLLIN;
-        break;
-      case EventType::e_CONNECT:
-      case EventType::e_WRITE:
+
+      } break;
+      case EventType::e_CONNECT:                                // FALL THROUGH
+      case EventType::e_WRITE: {
+
         pollevent = POLLOUT;
-        break;
-      default:
+
+      } break;
+      default: {
         BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
-        return;
+
+        return;                                                       // RETURN
+      } break;
     }
 
     // Retrieve the handle from d_eventmask.
 
     EventmaskMap::iterator eventmaskIt = d_eventmasks.find(handle);
-    BSLS_ASSERT(d_eventmasks.end() != eventmaskIt &&
-                                            (eventmaskIt->second & pollevent));
+    BSLS_ASSERT(d_eventmasks.end() != eventmaskIt
+             && (eventmaskIt->second & pollevent));
 
     // Clear the corresponding event bit to get the new eventmask.
 
@@ -447,9 +445,10 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
     // The write it out with a new mask, if applicable.
 
     struct ::pollfd pfd;
-    pfd.fd = handle;
-    pfd.events = POLLREMOVE;
+    pfd.fd      = handle;
+    pfd.events  = POLLREMOVE;
     pfd.revents = 0;      // just to satisfy purify
+
     int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
     BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
 
@@ -478,52 +477,41 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
 }
 
 int DefaultEventManager<Platform::DEVPOLL>::deregisterSocket(
-                                      const SocketHandle::Handle& handle)
+                                            const SocketHandle::Handle& handle)
 {
     EventmaskMap::iterator eventmaskIt = d_eventmasks.find(handle);
     if (d_eventmasks.end() == eventmaskIt) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     struct ::pollfd req;
-    req.fd = handle;
-    req.events = POLLREMOVE;
+    req.fd      = handle;
+    req.events  = POLLREMOVE;
     req.revents = 0;
+
     int rc = ::write(d_dpFd, &req, sizeof(struct ::pollfd));
     BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
 
     int result = 0;
     if (eventmaskIt->second & POLLIN) {
         if (eventmaskIt->second & POLLOUT) {
-            result += d_callbacks.erase(Event(
-                                                 handle,
-                                                 EventType::e_READ));
-            result += d_callbacks.erase(Event(
-                                                handle,
-                                                EventType::e_WRITE));
+            result += d_callbacks.erase(Event(handle, EventType::e_READ));
+            result += d_callbacks.erase(Event(handle, EventType::e_WRITE));
         }
         else {
             // Either ACCEPT or READ.
             // Either CONNECT or WRITE.
 
-            result += d_callbacks.erase(Event(
-                                               handle,
-                                               EventType::e_ACCEPT));
-            result += d_callbacks.erase(Event(
-                                                 handle,
-                                                 EventType::e_READ));
+            result += d_callbacks.erase(Event(handle, EventType::e_ACCEPT));
+            result += d_callbacks.erase(Event(handle, EventType::e_READ));
         }
     }
     else {
         BSLS_ASSERT(eventmaskIt->second & POLLOUT);
         // Either CONNECT or WRITE.
 
-        result += d_callbacks.erase(Event(
-                                              handle,
-                                              EventType::e_CONNECT));
-        result += d_callbacks.erase(Event(
-                                                handle,
-                                                EventType::e_WRITE));
+        result += d_callbacks.erase(Event(handle, EventType::e_CONNECT));
+        result += d_callbacks.erase(Event(handle, EventType::e_WRITE));
     }
     BSLS_ASSERT(0 < result);
     BSLS_ASSERT(2 >= result);
@@ -531,22 +519,26 @@ int DefaultEventManager<Platform::DEVPOLL>::deregisterSocket(
     return result;
 }
 
-void DefaultEventManager<Platform::DEVPOLL>::deregisterAll() {
-
+void DefaultEventManager<Platform::DEVPOLL>::deregisterAll()
+{
     int i = 0;
     d_signaled.resize(d_eventmasks.size());
-    EventmaskMap::iterator endIt = d_eventmasks.end();
+
+    EventmaskMap::iterator      endIt = d_eventmasks.end();
     for (EventmaskMap::iterator it = d_eventmasks.begin(); it != endIt; ++it) {
-        d_signaled[i].fd = it->first;
-        d_signaled[i].events = POLLREMOVE;
+        d_signaled[i].fd      = it->first;
+        d_signaled[i].events  = POLLREMOVE;
         d_signaled[i].revents = 0;
         ++i;
     }
 
     if (!d_signaled.empty()) {
-        int rc = write(d_dpFd, &d_signaled.front(),
+
+        int rc = write(d_dpFd,
+                       &d_signaled.front(),
                        i * sizeof(struct ::pollfd));
-        BSLS_ASSERT((int)(sizeof(struct ::pollfd) * i) == rc);
+
+        BSLS_ASSERT(static_cast<int>((sizeof(struct ::pollfd) * i)) == rc);
     }
 
     d_callbacks.clear();
@@ -554,17 +546,15 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterAll() {
     d_signaled.clear();
 }
 
-                             // ---------
-                             // ACCESSORS
-                             // ---------
-
+// ACCESSORS
 int DefaultEventManager<Platform::DEVPOLL>::numSocketEvents(
-        const SocketHandle::Handle& handle) const
+                                      const SocketHandle::Handle& handle) const
 {
     EventmaskMap::const_iterator eventmaskIt = d_eventmasks.find(handle);
+
     return d_eventmasks.end() != eventmaskIt
-         ? (1 + (eventmaskIt->second == (POLLIN | POLLOUT)))
-         : 0;
+           ? (1 + (eventmaskIt->second == (POLLIN | POLLOUT)))
+           : 0;
 }
 
 int DefaultEventManager<Platform::DEVPOLL>::numEvents() const
@@ -573,11 +563,12 @@ int DefaultEventManager<Platform::DEVPOLL>::numEvents() const
 }
 
 int DefaultEventManager<Platform::DEVPOLL>::isRegistered(
-        const SocketHandle::Handle& handle,
-        const EventType::Type       event) const
+                                       const SocketHandle::Handle& handle,
+                                       const EventType::Type       event) const
 {
     return d_callbacks.end() != d_callbacks.find(Event(handle, event));
 }
+
 }  // close package namespace
 
 }  // close namespace BloombergLP

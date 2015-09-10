@@ -10,7 +10,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_string.h>      // test case 11, string
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 #include <bsl_vector.h>      // test case 11, vector
 
 using namespace BloombergLP;
@@ -1587,16 +1587,16 @@ int main(int argc, char *argv[])
         //   value and also an expected output FMT.  For each datum, construct
         //   an independent object 'mX' and call 'update' with STR and LEN.
         //   Assert that the object contains the expected MD5 value.  Create an
-        //   'ostrstream' object and use the 'print' function to stream
+        //   'ostringstream' object and use the 'print' function to stream
         //   'mX'.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
         //   To test the '<<' operator, construct an independent object 'obj'
         //   for each test vector in DATA and then call 'update' with STR and
         //   LEN.  Assert that the object contains the expected MD5 value.
-        //   Create an 'ostrstream' object and use the '<<' operator to stream
-        //   'obj'.  Finally, compare the contents of the stream object with
-        //   the expected FMT value.
+        //   Create an 'ostringstream' object and use the '<<' operator to
+        //   stream 'obj'.  Finally, compare the contents of the stream object
+        //   with the expected FMT value.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
@@ -1665,11 +1665,12 @@ int main(int argc, char *argv[])
 
             char buf[SIZE];
             memset(buf, 0, sizeof(buf));
-            ostrstream outbuf(buf, SIZE);
+            ostringstream outbuf(bsl::string(buf, SIZE));
             X.print(outbuf);
-            if (veryVerbose) { T_ P_(X); P_(FMT); P(buf); }
+            if (veryVerbose) { T_ P_(X); P_(FMT); P(outbuf.str()); }
 
-            LOOP_ASSERT(LINE, 0 == bsl::strncmp(buf, FMT, 32));
+            LOOP_ASSERT(LINE,
+                        0 == bsl::strncmp(outbuf.str().c_str(), FMT, 32));
         }
 
         if (verbose) cout << "\n2. Testing 'operator<<'." << endl;
@@ -1690,10 +1691,11 @@ int main(int argc, char *argv[])
 
             char buf[SIZE];
             memset(buf, 0, sizeof(buf));
-            ostrstream outbuf(buf, SIZE);
+            ostringstream outbuf(bsl::string(buf, SIZE));
             outbuf << X;
-            if (veryVerbose) { T_ P_(X); P_(FMT); P(buf); }
-            LOOP_ASSERT(LINE, 0 == bsl::strncmp(buf, FMT, 32));
+            if (veryVerbose) { T_ P_(X); P_(FMT); P(outbuf.str()); }
+            LOOP_ASSERT(LINE,
+                        0 == bsl::strncmp(outbuf.str().c_str(), FMT, 32));
         }
 
       } break;

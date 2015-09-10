@@ -16,6 +16,8 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -39,22 +41,21 @@ using bsl::flush;
 // CLASS METHODS
 // [ 3] static balm::MetricsManager *manager(balm::MetricsManager *manager);
 // [ 1] static balm::MetricsManager *create(bslma::Allocator *);
-// [ 2] static balm::MetricsManager *create(bsl::ostream& , bslma::Allocator *);
+// [ 2] static balm::MetricsManager *create(ostream& , Allocator *);
 // [ 1] static balm::MetricsManager *instance();
 // [ 1] static void destroy();
 //-----------------------------------------------------------------------------
 // balm::DefaultMetricsManagerScopedGuard
 // CREATORS
 // [ 4] balm::DefaultMetricsManagerScopedGuard(bslma::Allocator *);
-// [ 5] balm::DefaultMetricsManagerScopedGuard(bsl::ostream&,
-//                                            bslma::Allocator *);
+// [ 5] balm::DefaultMetricsManagerScopedGuard(bsl::cout, Allocator)
 // [ 3] ~balm::DefaultMetricsManagerScopedGuard();
 //-----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -66,56 +67,43 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::DefaultMetricsManagerScopedGuard ObjGuard;
 typedef balm::DefaultMetricsManager            Obj;
 typedef balm::MetricsManager                   Mgr;
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -156,32 +144,34 @@ int main(int argc, char *argv[])
 // The following examples demonstrate how to create, configure, and destroy
 // the default 'balm::MetricsManager' instance.
 //
-///Example 1 - Create and access the default 'balm::MetricsManager' instance
+///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
-// instance and publishes a single metric to the console.  See the
-// documentation of 'balm::Metric' and 'balm::MetricsManager' for information on
-// how to record metrics.
+// This example demonstrates how to create the default 'balm::MetricManager'
+// instance and publish a single metric to the console.  See the documentation
+// of 'balm_metric' and 'balm_metricsmanager' for information on how to record
+// metrics.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  Note that the default
-// metrics manager is intended to be created and destroyed by the *owner* of
-// 'main'.  The instance should be created during the initialization of an
-// application (while the task has a single thread) and destroyed just prior to
-// termination (when there is similarly a single thread).
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the 'balm::DefaultMetricsManagerScopedGuard' an output stream
+// ('stdout') to which it will publish metrics.  Note that the default metrics
+// manager is intended to be created and destroyed by the *owner* of 'main'.
+// The instance should be created during the initialization of an application
+// (while the task has a single thread) and destroyed just prior to termination
+// (when there is similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
     {
-
+//
         // ...
-
+//
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
 //..
 // Once the default instance has been created, it can be accessed using the
 // static 'instance' method.
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                      ASSERT(0 != manager);
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // The default metrics manager, by default, is configured with a
 // 'balm::StreamPublisher' object that will publish all recorded metrics to the
@@ -189,19 +179,25 @@ int main(int argc, char *argv[])
 // for a single metric, and then publish all metrics.
 //..
         balm::Collector *myMetric =
-              manager->collectorRepository().getDefaultCollector("MyCategory",
-                                                                 "MyMetric");
+                        manager->collectorRepository().getDefaultCollector(
+                                                     "MyCategory", "MyMetric");
         myMetric->update(10);
         manager->publishAll();
+//
+        // ... rest of program elided ...
+    }
 //..
 // The output of this example would look similar to:
 //..
+// 05FEB2009_19:20:12.697+0000 1 Records
+//    Elapsed Time: 0.009311s
+//            MyCategory.MyMetric [ count = 1, total = 10, min = 10, max = 10 ]
 //..
 // Note that the default metrics manager will be destroyed when 'managerGuard'
 // exits this scope and is destroyed.  Clients that choose to explicitly call
 // 'balm::DefaultMetricsManager::create()' must also explicitly call
 // 'balm::DefaultMetricsManager::destroy()'.
-    }
+
         ASSERT(0 == balm::DefaultMetricsManager::instance());
 
       } break;
@@ -222,14 +218,14 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //   balm::DefaultMetricsManagerScopedGuard(bsl::cout, bslma::Allocator)
+        //   balm::DefaultMetricsManagerScopedGuard(bsl::cout, Allocator)
         //
         // --------------------------------------------------------------------
 
         if (verbose) cout
             << endl
-            << "balm::DefaultMetricsManagerScopedGuard(bsl::cout, ...)" << endl
-            << "=====================================================" << endl;
+            << "balm::DefaultMetricsManagerScopedGuard(cout, ...)" << endl
+            << "=================================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -247,7 +243,8 @@ int main(int argc, char *argv[])
               ASSERT(0 != Obj::instance());
               bsl::vector<balm::Publisher *> publishers;
               ASSERT(1 == Obj::instance()->findGeneralPublishers(&publishers));
-              ASSERT(0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
+              ASSERT(
+                    0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
           }
 
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -266,7 +263,8 @@ int main(int argc, char *argv[])
 
               bsl::vector<balm::Publisher *> publishers;
               ASSERT(1 == Obj::instance()->findGeneralPublishers(&publishers));
-              ASSERT(0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
+              ASSERT(
+                    0 != dynamic_cast<balm::StreamPublisher *>(publishers[0]));
 
           }
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -299,7 +297,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "balm::DefaultMetricsManagerScopedGuard" << endl
-                          << "=====================================" << endl;
+                          << "======================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);
           ASSERT(0 == testAllocator.numBytesInUse());
@@ -404,9 +402,7 @@ int main(int argc, char *argv[])
         //
         //
         // Testing:
-        //  static balm::MetricsManager *create(bsl::ostream&,
-        //                                     bslma::Allocator *);
-        //
+        //   static balm::MetricsManager *create(ostream& , Allocator *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -449,7 +445,7 @@ int main(int argc, char *argv[])
                 bsl::vector<balm::Publisher *> publishers;
                 ASSERT(1 == x->findGeneralPublishers(&publishers));
                 balm::StreamPublisher *streamPublisher =
-                           dynamic_cast<balm::StreamPublisher *>(publishers[0]);
+                          dynamic_cast<balm::StreamPublisher *>(publishers[0]);
                 ASSERT(0 != streamPublisher);
 
 
@@ -504,7 +500,7 @@ int main(int argc, char *argv[])
                 bsl::vector<balm::Publisher *> publishers;
                 ASSERT(1 == x->findGeneralPublishers(&publishers));
                 balm::StreamPublisher *streamPublisher =
-                           dynamic_cast<balm::StreamPublisher *>(publishers[0]);
+                          dynamic_cast<balm::StreamPublisher *>(publishers[0]);
                 ASSERT(0 != streamPublisher);
             }
 

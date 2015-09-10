@@ -10,6 +10,8 @@
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
 
+#include <bslim_testutil.h>
+
 #include <bdlsb_memoutstreambuf.h>      // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>  // for testing only
 
@@ -26,6 +28,8 @@
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
+
+#include <bslim_testutil.h>
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -58,39 +62,27 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P(I); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P_(I) P(J) aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { P_(I) P_(J) P(K) aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { P_(I) P_(J) P_(K) P(L) aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { P_(I) P_(J) P_(K) P_(L) P(M) aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P(N) aSsErT(1, #X, __LINE__); } }
-
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#undef P
-#define P(X) { bsl::cout << #X " = "; \
-    bdlb::PrintMethods::print(bsl::cout, X, -1, -1); bsl::cout << bsl::endl; }
-#define P_(X) { bsl::cout << #X " = "; \
-    bdlb::PrintMethods::print(bsl::cout, X, -1, -1); bsl::cout << ", " \
-    << bsl::flush; }
 
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
-#define L_ __LINE__                                // current Line number
-#define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -98,9 +90,6 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
 typedef bdlt::PosixDateImpUtil  DateUtil;
-
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 static bool         verbose = false;
 static bool     veryVerbose = false;

@@ -1,11 +1,11 @@
-// bdlsu_processutil.cpp                                              -*-C++-*-
-#include <bdlsu_processutil.h>
+// bdls_processutil.cpp                                               -*-C++-*-
+#include <bdls_processutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlsu_processutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
 #include <bdlsb_memoutstreambuf.h>
-#include <bdlsu_fdstreambuf.h>
+#include <bdls_fdstreambuf.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -34,7 +34,7 @@ BSLS_IDENT_RCSID(bdlsu_processutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlsu {
+namespace bdls {
                              // ------------------
                              // struct ProcessUtil
                              // ------------------

@@ -19,11 +19,11 @@ namespace BloombergLP {
 static
 int createCacheData(
            btlso::IpResolutionCache_Entry::DataPtr         *result,
-           const char                                     *hostname,
-           int                                            *errorCode,
+           const char                                      *hostname,
+           int                                             *errorCode,
            const bdlt::Datetime&                            currentTime,
            btlso::IpResolutionCache::ResolveByNameCallback  resolverCallback,
-           bslma::Allocator                               *basicAllocator)
+           bslma::Allocator                                *basicAllocator)
     // Load, into the specified 'result', a shared pointer to a newly created
     // 'bteso::IpResolutionCache_Data' object (using the specified
     // 'basicAllocator' to supply memory) containing the IPv4 addresses of the
@@ -53,9 +53,10 @@ int createCacheData(
 }
 
 namespace btlso {
-                        // ==================================
+
+                        // ----------------------------
                         // class IpResolutionCache_Data
-                        // ==================================
+                        // ----------------------------
 
 class IpResolutionCache_Data {
     // This class provides storage for a set of IP addresses and a
@@ -64,24 +65,23 @@ class IpResolutionCache_Data {
     // DATA
     bsl::vector<IPv4Address> d_addresses;     // set of IP addresses
 
-    bdlt::Datetime                  d_creationTime;  // time at which this
-                                                    // object is created
+    bdlt::Datetime           d_creationTime;  // time at which this
+                                              // object is created
   private:
     // NOT IMPLEMENTED
     IpResolutionCache_Data(const IpResolutionCache_Data&);
-    IpResolutionCache_Data& operator=(
-                                          const IpResolutionCache_Data&);
+    IpResolutionCache_Data& operator=(const IpResolutionCache_Data&);
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IpResolutionCache,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(IpResolutionCache,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATOR
     IpResolutionCache_Data(
-                    const bsl::vector<IPv4Address>&  ipAddresses,
-                    const bdlt::Datetime&                   creationTime,
-                    bslma::Allocator                      *basicAllocator = 0);
+                          const bsl::vector<IPv4Address>&  ipAddresses,
+                          const bdlt::Datetime&            creationTime,
+                          bslma::Allocator                *basicAllocator = 0);
         // Create an object storing the specified 'ipAddresses', and having the
         // specified 'creationTime'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -97,23 +97,18 @@ class IpResolutionCache_Data {
         // object was created.
 };
 
-                        // ----------------------------------
-                        // class IpResolutionCache_Data
-                        // ----------------------------------
-
 // CREATORS
 IpResolutionCache_Data::IpResolutionCache_Data(
-                     const bsl::vector<IPv4Address>&  addresses,
-                     const bdlt::Datetime&                   creationTime,
-                     bslma::Allocator                      *basicAllocator)
+                               const bsl::vector<IPv4Address>&  addresses,
+                               const bdlt::Datetime&            creationTime,
+                               bslma::Allocator                *basicAllocator)
 : d_addresses(addresses, basicAllocator)
 , d_creationTime(creationTime)
 {
 }
 
 // ACCESSORS
-const bsl::vector<IPv4Address>& IpResolutionCache_Data::addresses()
-                                                                          const
+const bsl::vector<IPv4Address>& IpResolutionCache_Data::addresses() const
 {
     return d_addresses;
 }
@@ -123,13 +118,12 @@ const bdlt::Datetime& IpResolutionCache_Data::creationTime() const
     return d_creationTime;
 }
 
-                        // ------------------------------
+                        // -----------------------
                         // class IpResolutionCache
-                        // ------------------------------
+                        // -----------------------
 
 // CREATORS
-IpResolutionCache::IpResolutionCache(
-                                              bslma::Allocator *basicAllocator)
+IpResolutionCache::IpResolutionCache(bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_timeToLive(0, 1)
 , d_rwLock()
@@ -138,9 +132,8 @@ IpResolutionCache::IpResolutionCache(
 {
 }
 
-IpResolutionCache::IpResolutionCache(
-                                       ResolveByNameCallback  resolverCallback,
-                                       bslma::Allocator      *basicAllocator)
+IpResolutionCache::IpResolutionCache(ResolveByNameCallback  resolverCallback,
+                                     bslma::Allocator      *basicAllocator)
 : d_cache(basicAllocator)
 , d_timeToLive(0, 1)
 , d_rwLock()
@@ -152,9 +145,9 @@ IpResolutionCache::IpResolutionCache(
 
 // MANIPULATORS
 int IpResolutionCache::getCacheData(
-                             IpResolutionCache_Entry::DataPtr *result,
-                             const char                             *hostname,
-                             int                                    *errorCode)
+                                   IpResolutionCache_Entry::DataPtr *result,
+                                   const char                       *hostname,
+                                   int                              *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
@@ -234,7 +227,7 @@ int IpResolutionCache::getCacheData(
     // should update the entry).
 
     bdlqq::LockGuard<bdlqq::Mutex> updatingLockGuard(&entry->updatingLock(),
-                                                   true);
+                                                     true);
     dataPtr = entry->data();
 
     int rc = createCacheData(&dataPtr,
@@ -256,10 +249,10 @@ int IpResolutionCache::getCacheData(
 }
 
 int IpResolutionCache::resolveAddress(
-                               bsl::vector<IPv4Address> *result,
-                               const char                     *hostname,
-                               int                             maxNumAddresses,
-                               int                            *errorCode)
+                                     bsl::vector<IPv4Address> *result,
+                                     const char               *hostname,
+                                     int                       maxNumAddresses,
+                                     int                      *errorCode)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
@@ -299,9 +292,9 @@ void IpResolutionCache::removeAll()
 
 // ACCESSORS
 int IpResolutionCache::lookupAddressRaw(
-                         bsl::vector<IPv4Address> *result,
-                         const char                     *hostname,
-                         int                             maxNumAddresses) const
+                               bsl::vector<IPv4Address> *result,
+                               const char               *hostname,
+                               int                       maxNumAddresses) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
@@ -318,7 +311,7 @@ int IpResolutionCache::lookupAddressRaw(
 
     {
         bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(&d_rwLock);
-        AddressMap::const_iterator it = d_cache.find(hostname);
+        AddressMap::const_iterator           it = d_cache.find(hostname);
         if (d_cache.end() == it) {
             return FAILURE;                                           // RETURN
         }
@@ -329,13 +322,16 @@ int IpResolutionCache::lookupAddressRaw(
         return FAILURE;                                               // RETURN
     }
 
-    int size = bsl::min(maxNumAddresses, (int)dataPtr->addresses().size());
+    int size = bsl::min(maxNumAddresses,
+                        static_cast<int>(dataPtr->addresses().size()));
+
     result->resize(size);
     bsl::copy(dataPtr->addresses().begin(),
               dataPtr->addresses().begin() + size,
               result->begin());
     return SUCCESS;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

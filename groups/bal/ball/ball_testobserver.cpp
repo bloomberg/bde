@@ -4,12 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_testobserver_cpp,"$Id$ $CSID$")
 
+#include <ball_transmission.h>
+
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
 
 // STATIC DATA MEMBER INITIALIZATION
-bsls::AtomicInt ball::TestObserver::s_count;
+bsls::AtomicOperations::AtomicTypes::Int ball::TestObserver::s_count = {0};
 
 namespace ball {
 // CREATORS
@@ -19,7 +21,7 @@ TestObserver::~TestObserver()
 
 // MANIPULATORS
 void TestObserver::publish(const Record&  record,
-                                const Context& context)
+                           const Context& context)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
@@ -32,10 +34,11 @@ void TestObserver::publish(const Record&  record,
                  << " publishing record number " << d_numRecords << '\n'
                  << "Context: cause = " << context.transmissionCause() << '\n'
                  << "         count = " << context.recordIndex() + 1
-                 << " of an expected " << context.sequenceLength()
+                 << " of an expected "  << context.sequenceLength()
                  << " total records.\n" << bsl::flush;
     }
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

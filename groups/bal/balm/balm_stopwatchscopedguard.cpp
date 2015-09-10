@@ -6,9 +6,9 @@ BSLS_IDENT_RCSID(balm_stopwatchscopedguard_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                      // -------------------------------
+                      // --------------------------------
                       // class balm::StopwatchScopedGuard
-                      // -------------------------------
+                      // --------------------------------
 
 }  // close enterprise namespace
 

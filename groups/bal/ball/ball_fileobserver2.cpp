@@ -25,8 +25,8 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlf_memfn.h>
 
-#include <bdlsu_filesystemutil.h>
-#include <bdlsu_processutil.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
@@ -184,7 +184,7 @@ static void getLogFileName(bsl::string    *logFileName,
                        << logFileTimestamp.second();
                   } break;
                   case 'p': {
-                    os << bdlsu::ProcessUtil::getProcessId();
+                    os << bdls::ProcessUtil::getProcessId();
                   } break;
                   case '%': {
                   } break;
@@ -241,7 +241,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(stream);
     BSLS_ASSERT(filename);
 
-    typedef bdlsu::FilesystemUtil FileUtil;
+    typedef bdls::FilesystemUtil FileUtil;
 
     const bool fileExistFlag = FileUtil::exists(filename);
 
@@ -258,7 +258,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
         return -1;                                                    // RETURN
     }
 
-    bdlsu::FdStreamBuf *streamBuf = dynamic_cast<bdlsu::FdStreamBuf *>(
+    bdls::FdStreamBuf *streamBuf = dynamic_cast<bdls::FdStreamBuf *>(
                                                               stream->rdbuf());
     BSLS_ASSERT(streamBuf);
 
@@ -312,7 +312,7 @@ static bdlt::Datetime computeNextRotationTime(
     // Notice that the logic for computing the next time interval must
     // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
     // possible use of 'bsls::Log' to report warnings about date math.  Such
-    // warnings, when issued from within a function in BAEL cause an attempt
+    // warnings, when issued from within a function in BALL cause an attempt
     // to recursively re-enter the file-observer (and a dead-lock).  Once
     // 'bdlt' no longer uses bsls log to report date arithmetic this logic can
     // be returned to:
@@ -454,7 +454,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
                    d_logFilePattern.c_str(),
                    d_publishInLocalTime);
 
-    if (bdlsu::FilesystemUtil::exists(d_logFileName.c_str())) {
+    if (bdls::FilesystemUtil::exists(d_logFileName.c_str())) {
         bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
         if (d_publishInLocalTime) {
             timeStampSuffix += localTimeOffsetInterval(oldLogFileTimestamp);
@@ -524,7 +524,7 @@ int FileObserver2::rotateIfNecessary(bsl::string           *rotatedLogFileName,
 
 // CREATORS
 FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
-: d_logStreamBuf(bdlsu::FilesystemUtil::k_INVALID_FD, false)
+: d_logStreamBuf(bdls::FilesystemUtil::k_INVALID_FD, false)
 , d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
@@ -598,8 +598,8 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     // 'getLastModificationTime' method will simply fail without modifying
     // 'd_logFileTimestampUtc' if the log file does not already exist.
 
-    bdlsu::FilesystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
-                                                   d_logFileName);
+    bdls::FilesystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
+                                                  d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(

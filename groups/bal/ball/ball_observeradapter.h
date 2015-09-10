@@ -42,10 +42,10 @@ BSLS_IDENT("$Id: $")
 // const-reference to a 'ball::Record' object:
 //..
 //  class MyOstreamObserver : public ball::ObserverAdapter {
-//    ostream& d_stream;
+//    bsl::ostream  *d_stream;
 //
 //  public:
-//    explicit MyOstreamObserver(ostream& stream) : d_stream(stream) { }
+//    explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
 //    virtual ~MyOstreamObserver();
 //    virtual void publish(const ball::Record&  record,
 //                         const ball::Context& context);
@@ -72,8 +72,7 @@ BSLS_IDENT("$Id: $")
 //                << fixedFields.category()                << ' '
 //                << fixedFields.message()                 << ' ';
 //
-// TBD: Fix List reference
-//      const bdlmxxx::List& userFields = record.userFields();
+//      const ball::UserFields& userFields = record.userFields();
 //      const int numUserFields = userFields.length();
 //      for (int i = 0; i < numUserFields; ++i) {
 //          *d_stream << userFields[i] << ' ';
@@ -82,43 +81,42 @@ BSLS_IDENT("$Id: $")
 //      *d_stream << '\n' << bsl::flush;
 //  }
 //..
-// Now, create a 'MyOstreamObserver' object and assign the address of this
-// object to a 'ball::ObserverAdapter' pointer:
+// Now, we defined a function 'main' in which we create a 'MyOstreamObserver'
+// object and assign the address of this object to a 'ball::ObserverAdapter'
+// pointer:
 //..
-//  char buf[2048];
-//  ostrstream out(buf, sizeof buf);
-//  MyOstreamObserver    myObserver(out);
-//  ball::ObserverAdapter *adapter = &myObserver;
+//  int main(bool verbose)
+//  {
+//      bsl::ostringstream     out;
+//      MyOstreamObserver      myObserver(&out);
+//      ball::ObserverAdapter *adapter = &myObserver;
 //..
 // Finally, publish three messages by calling 'publish' method accepting a
 // shared-pointer, provided by 'ball::ObserverAdapter', that in turn will call
 // the 'publish' method defined in 'MyOstreamObserver':
 //..
-//  bdlt::Datetime         now;
-//  ball::RecordAttributes fixed;
-//  bdlmxxx::List             emptyList;
+//      bdlt::Datetime         now;
+//      ball::RecordAttributes fixedFields;
+//      ball::UserFields       userFields;
 //
-//  cout << "Publish a sequence of three messages." << endl;
+//      const int NUM_MESSAGES = 3;
+//      for (int n = 0; n < NUM_MESSAGES; ++n) {
+//          fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 //
-//  out.seekp(0);
-//  const int NUM_MESSAGES = 3;
-//  for (int n = 0; n < NUM_MESSAGES; ++n) {
-//      bdetu_Datetime::convertFromTimeT(&now, time(0));
-//      fixed.setTimestamp(now);
-//      fixed.setProcessID(201 + n);
-//      fixed.setThreadID(31 + n);
-//
-//      bsl::shared_ptr<const ball::Record> handle(
-//                        new (testAllocator) ball::Record(fixed,
-//                                                        emptyList,
-//                                                        &testAllocator));
-//      adapter->publish(handle,
-//                       ball::Context(ball::Transmission::BAEL_TRIGGER,
-//                                    n,
-//                                    NUM_MESSAGES));
+//          bsl::shared_ptr<const ball::Record> handle;
+//          handle.createInplace(bslma::Default::allocator(),
+//                               fixedFields,
+//                               userFields);
+//          adapter->publish(handle,
+//                           ball::Context(ball::Transmission::e_TRIGGER,
+//                                         n,
+//                                         NUM_MESSAGES));
+//      }
+//      if (verbose) {
+//          bsl::cout << out.str() << bsl::endl;
+//      }
+//      return 0;
 //  }
-//  out << ends;
-//  cout << buf << endl;
 //..
 // The above code fragments print to 'stdout' like this:
 //..
@@ -143,12 +141,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace ball {class Record;
+namespace ball {
+
+class Record;
 class Context;
 
-                        // ==========================
+                        // =====================
                         // class ObserverAdapter
-                        // ==========================
+                        // =====================
 
 class ObserverAdapter : public Observer {
     // This class aids in the implementation of the 'Observer' protocol
@@ -161,33 +161,32 @@ class ObserverAdapter : public Observer {
         // Destroy this observer.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context) = 0;
+    virtual void publish(const Record&  record, const Context& context) = 0;
         // Process the specified log 'record' having the specified publishing
         // 'context'.
 
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);
         // Process the record referred by the specified log shared pointer
-        // 'record'.  Note that classes that derive from
-        // 'ObserverAdapter' should *not* implement this method.
+        // 'record'.  Note that classes that derive from 'ObserverAdapter'
+        // should *not* implement this method.
 
     virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was
-        // supplied to the 'publish' method and is held by this observer.
-        // Note that classes that derive from 'ObserverAdapter' should
-        // *not* implement this method.  Also note that this operation should
-        // be called if resources underlying the previously provided
-        // shared-pointers must be released.
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method and is held by this observer.  Note that
+        // classes that derive from 'ObserverAdapter' should *not* implement
+        // this method.  Also note that this operation should be called if
+        // resources underlying the previously provided shared-pointers must be
+        // released.
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                          // --------------------------
+                          // ---------------------
                           // class ObserverAdapter
-                          // --------------------------
+                          // ---------------------
 
 // MANIPULATORS
 inline
@@ -202,8 +201,8 @@ inline
 void ObserverAdapter::releaseRecords()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 
 }  // close enterprise namespace
 

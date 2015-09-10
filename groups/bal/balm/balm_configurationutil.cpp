@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(balm_configurationutil_cpp,"$Id$ $CSID$")
 #include <balm_metricregistry.h>
 #include <balm_metrics.h>
 #include <balm_metricsmanager.h>
+#include <balm_metricid.h>
 
 #include <balm_metricsample.h>   // for testing only
 #include <balm_publisher.h>      // for testing only
@@ -20,15 +21,15 @@ BSLS_IDENT_RCSID(balm_configurationutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balm {
-                      // -----------------------------
-                      // struct ConfigurationUtil
-                      // -----------------------------
+                          // ------------------------
+                          // struct ConfigurationUtil
+                          // ------------------------
 
 // CLASS METHODS
-int ConfigurationUtil::setFormat(const char               *category,
-                                      const char               *metricName,
-                                      const MetricFormat&  format,
-                                      MetricsManager      *manager)
+int ConfigurationUtil::setFormat(const char          *category,
+                                 const char          *metricName,
+                                 const MetricFormat&  format,
+                                 MetricsManager      *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {
@@ -39,12 +40,11 @@ int ConfigurationUtil::setFormat(const char               *category,
     return 0;
 }
 
-int ConfigurationUtil::setFormatSpec(
-                                 const char                   *category,
-                                 const char                   *metricName,
-                                 PublicationType::Value   publicationType,
-                                 const MetricFormatSpec&  formatSpec,
-                                 MetricsManager          *manager)
+int ConfigurationUtil::setFormatSpec(const char              *category,
+                                     const char              *metricName,
+                                     PublicationType::Value   publicationType,
+                                     const MetricFormatSpec&  formatSpec,
+                                     MetricsManager          *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {
@@ -67,10 +67,10 @@ int ConfigurationUtil::setFormatSpec(
 }
 
 int ConfigurationUtil::setPreferredPublicationType(
-                                  const char                  *category,
-                                  const char                  *metricName,
-                                  PublicationType::Value  publicationType,
-                                  MetricsManager         *manager)
+                                       const char             *category,
+                                       const char             *metricName,
+                                       PublicationType::Value  publicationType,
+                                       MetricsManager         *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {
@@ -92,12 +92,11 @@ MetricDescription::UserDataKey ConfigurationUtil::createUserDataKey(
     return manager->metricRegistry().createUserDataKey();
 }
 
-void ConfigurationUtil::setUserData(
-                               const char                          *category,
-                               const char                          *metricName,
-                               MetricDescription::UserDataKey  key,
-                               const void                          *value,
-                               MetricsManager                 *manager)
+void ConfigurationUtil::setUserData(const char                     *category,
+                                    const char                     *metricName,
+                                    MetricDescription::UserDataKey  key,
+                                    const void                     *value,
+                                    MetricsManager                 *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {
@@ -110,10 +109,10 @@ void ConfigurationUtil::setUserData(
 }
 
 void ConfigurationUtil::setUserData(
-                             const char                          *categoryName,
-                             MetricDescription::UserDataKey  key,
-                             const void                          *value,
-                             MetricsManager                 *manager)
+                                  const char                     *categoryName,
+                                  MetricDescription::UserDataKey  key,
+                                  const void                     *value,
+                                  MetricsManager                 *manager)
 {
     manager = DefaultMetricsManager::manager(manager);
     if (0 == manager) {

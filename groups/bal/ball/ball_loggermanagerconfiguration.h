@@ -31,11 +31,10 @@ BSLS_IDENT("$Id: $")
 // 'ball::LoggerManagerConfiguration' class to simply the definition of some of
 // the attributes:
 //..
-// TBD: fix documentation xxxList
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
-//  bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>
-//                                               UserPopulatorCallback
+//  bdlf::Function<void (*)(ball::UserFields*, const ball::UserFieldsSchema&)>
+//                                               UserFieldsPopulatorCallback;
 //
 //  bdlf::Function<void (*)(bsl::string *, const char *)>
 //                                               CategoryNameFilterCallback
@@ -48,11 +47,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  TYPE                                         NAME
 //  ------------------------------------------   ------------------------------
-//  ball::LoggerManagerDefaults                   defaults
+//  ball::LoggerManagerDefaults                  defaults
 //
-//  bdlmxxx::Schema                              userSchema
+//  ball::UserFieldsSchema                       userSchema
 //
-//  UserPopulatorCallback                        userPopulatorCallback
+//  UserFieldsPopulatorCallback                  userFieldsPopulatorCallback
 //
 //  CategoryNameFilterCallback                   categoryNameFilterCallback
 //
@@ -70,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //  userSchema                      defines optional user-defined fields in a
 //                                  log record
 //
-//  userPopulatorCallback           populates user-defined fields in a log
+//  userFieldsPopulatorCallback     populates user-defined fields in a log
 //                                  record
 //
 //  categoryNameFilterCallback      invoked on category names, e.g., to re-map
@@ -87,12 +86,12 @@ BSLS_IDENT("$Id: $")
 //                                  log to indicate whether a series of log
 //                                  records were logged due to either a Trigger
 //                                  or Trigger-All event; if this attribute is
-//                                  'BAEL_BEGIN_END_MARKERS', then
+//                                  'e_BEGIN_END_MARKERS', then
 //                                  "BEGIN RECORD DUMP" and "END RECORD DUMP"
 //                                  will be written before and after each
 //                                  sequence of records logged due to a Trigger
 //                                  or Trigger-All event; default is
-//                                  'BAEL_BEGIN_END_MARKERS'.
+//                                  'e_BEGIN_END_MARKERS'.
 //..
 // The constraints are as follows:
 //..
@@ -101,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //  | defaults                       | (a constrained-attribute type) |
 //  +--------------------------------+--------------------------------+
 //  | userSchema                     | (single attribute)             |
-//  | userPopulatorCallback          |                                |
+//  | userFieldsPopulatorCallback    |                                |
 //  +--------------------------------+--------------------------------+
 //  | categoryNameFilterCallback     | (none)                         |
 //  +--------------------------------+--------------------------------+
@@ -129,82 +128,79 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerConfiguration' object.  First, we create a configuration
-// object named 'config'.  Note that it is necessarily initialized to valid but
-// unpublished defaults:
+// 'ball::LoggerManagerConfiguration' object.
+//
+// First we define a simple function that will serve as a
+// 'UserFieldsPopulatorCallback', a callback that will be invoked for each
+// logged message to populate user defined fields for the log record:
 //..
-//  ball::LoggerManagerConfiguration config;
-//
-//  assert(    0 == config.setDefaultRecordBufferSizeIfValid(32768));
-//  assert(    0 == config.setDefaultLoggerBufferSizeIfValid(1024));
-//  assert(    0 == config.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
-//
-//  assert(32768 == config.defaultRecordBufferSize());
-//  assert( 1024 == config.defaultLoggerBufferSize());
-//  assert(  192 == config.defaultRecordLevel());
-//  assert(   64 == config.defaultPassLevel());
-//  assert(   48 == config.defaultTriggerLevel());
-//  assert(   32 == config.defaultTriggerAllLevel());
-//
-//  assert(ball::LoggerManagerConfiguration::BAEL_LIFO == config.logOrder());
-//  assert(ball::LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS
-//                                                 == config.triggerMarkers());
-//..
-// Next, set each attribute.  Note that the user schema and the corresponding
-// user populator functor must be set atomically (i.e., with a single
-// two-argument "set" method).  The user is responsible for the logical
-// sensibility of the functor attributes, and especially the coherence of the
-// schema and its populator.
-//
-// We will need to define a few objects before we can call the "set" methods.
-// Also, to illustrate a non-null functor, we will create a trivial function
-// payload 'pop' for the user populator functor attribute:
-//..
-//  void pop(bdlmxxx::List *list, bdlmxxx::Schema schema)
+//  void exampleCallback(ball::UserFields              *fields,
+//                       const ball::UserFieldsSchema&  schema)
 //  {
+//    // Verify the schema matches this callbacks expectations.
+//
+//    BSLS_ASSERT(1                             == schema.length());
+//    BSLS_ASSERT(ball::UserFieldType::e_STRING == schema.type(0));
+//    BSLS_ASSERT("example"                     == schema.name(0));
+//
+//    fields->appendString("example user field value");
 //  }
 //..
-// Now we can proceed to define the contents of our 'config' object.  We will
-// need a schema and three functors, two of which will be default-constructed
-// and not populated, resulting in "null" functors:
+// Next, we define a function 'inititialize' in which we will create and
+// configure a 'ball::LoggerManagerConfiguration' object (see
+// {'ball_loggermanager'} for an example of how to create the logger-manager
+// singleton object):
 //..
-//  bdlmxxx::Schema schema;
-//  schema.createRecord("A");
+//  void initializeConfiguration(bool verbose)
+//  {
+//    ball::LoggerManagerConfiguration config;
 //
-//  UserPopulatorCallback          populator;
-//  CategoryNameFilterCallback     nameFilter;
-//  DefaultThresholdLevelsCallback defaultThresholds;
-//
-//  populator = &pop;
 //..
-// Note that the 'bdlf::Function' can be created with an optional allocator.
-// The same allocator that is used to initialize the logger manager singleton
-// (which is the global allocator if one is not explicitly supplied) should
-// also be passed to 'bdlf::Function'.  In this simple example, we allow the
-// default allocator to be used.
-//
-// We are now ready to populate our 'config' object, which is our goal.  Note
-// that the "set" methods called in this example cannot fail, so they return
-// 'void':
+// Here, we configure the default record buffer size, logger buffer size, and
+// the various logging thresholds (see {'ball_loggermanager'} for more
+// information on the various threshold levels):
 //..
-//  config.setUserFieldsSchema(schema, populator);
-//  config.setCategoryNameFilterCallback(nameFilter);
-//  config.setDefaultThresholdLevelsCallback(defaultThresholds);
-//  config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
-//  config.setTriggerMarkers(ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+//    if (0 != config.setDefaultRecordBufferSizeIfValid(32768) ||
+//        0 != config.setDefaultLoggerBufferSizeIfValid(1024)  ||
+//        0 != config.setDefaultThresholdLevelsIfValid(0, 64, 0, 0)) {
+//       bsl::cerr << "Failed set log configuration defaults." << bsl::endl;
+//       bsl::exit(-1);
+//    }
 //
-//  assert(           schema == config.userSchema());
-//  // assert(        populator == config.userPopulatorCallback());
-//  // assert(       nameFilter == config.categoryNameFilterCallback());
-//  // assert(defaultThresholds == config.defaultThresholdLevelsCallback());
-//  assert(ball::LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
-//  assert(ball::LoggerManagerConfiguration::BAEL_NO_MARKERS
+//    ASSERT(32768 == config.defaultRecordBufferSize());
+//    ASSERT( 1024 == config.defaultLoggerBufferSize());
+//    ASSERT(    0 == config.defaultRecordLevel());
+//    ASSERT(   64 == config.defaultPassLevel());
+//    ASSERT(    0 == config.defaultTriggerLevel());
+//    ASSERT(    0 == config.defaultTriggerAllLevel());
+//..
+// Next, we create a user field schema, that will be used with the user field
+// populator callback 'exampleCallback':
+//..
+//    ball::UserFieldsSchema schema;
+//    schema.appendFieldDescription("example", ball::UserFieldType::e_STRING);
+//..
+// Now, we set populate the configuration options in our schema (note that the
+// following methods cannot fail and return 'void'):
+//..
+//    config.setUserFieldsSchema(schema, &exampleCallback);
+//    config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
+//    config.setTriggerMarkers(
+//                          ball::LoggerManagerConfiguration::e_NO_MARKERS);
+//..
+// Then, we verify the options are configured correctly:
+//..
+//    ASSERT(schema == config.userFieldsSchema());
+//    ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
+//    ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
 //                                                 == config.triggerMarkers());
 //..
-// The configuration object is now validly configured with our choice of
-// parameters.  We can now print the configuration value to 'stdout':
+// Finally, we print the configuration value to 'stdout' and return:
 //..
-//  bsl::cout << config << bsl::endl;
+//    if (verbose) {
+//      bsl::cout << config << bsl::endl;
+//    }
+//  }
 //..
 // This produces the following (multi-line) output:
 //..
@@ -213,20 +209,20 @@ BSLS_IDENT("$Id: $")
 //      [
 //          recordBufferSize : 32768
 //          loggerBufferSize : 1024
-//          recordLevel      : 192
+//          recordLevel      : 0
 //          passLevel        : 64
-//          triggerLevel     : 48
-//          triggerAllLevel  : 32
+//          triggerLevel     : 0
+//          triggerAllLevel  : 0
 //      ]
 //      User Fields Schema:
-//      {
-//          SEQUENCE RECORD "A" {
-//          }
-//      }
+//      [
+//          example = STRING
+//      ]
 //      User Fields Populator functor is not null
 //      Category Name Filter functor is null
 //      Default Threshold Callback functor is null
 //      Logging order is FIFO
+//      Trigger markers are NO_MARKERS
 //  ]
 //..
 
@@ -248,6 +244,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -309,9 +313,9 @@ class LoggerManagerConfiguration {
         // registry by the 'setCategory(const char *)' method.
 
     enum LogOrder {
-        // The 'LogOrder' enumeration defines the order in which messages
-        // will be published to the underlying observer in the case of
-        // Trigger and Trigger-All events.
+        // The 'LogOrder' enumeration defines the order in which messages will
+        // be published to the underlying observer in the case of Trigger and
+        // Trigger-All events.
 
         e_FIFO,  // oldest logged messages are published first
         e_LIFO   // newest logged messages are published first
@@ -328,28 +332,28 @@ class LoggerManagerConfiguration {
         // The 'TriggerMarkers' enumeration defines whether text will be
         // written to the log to indicate whether a series of log records were
         // logged due to either a Trigger or Trigger-All event.  If this
-        // attribute is 'BAEL_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
+        // attribute is 'e_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
         // "END RECORD DUMP" will be written before and after each sequence of
         // records logged due to a Trigger or Trigger-All event.  The default
-        // value of this attribute is 'BAEL_BEGIN_END_MARKERS'.
+        // value of this attribute is 'e_BEGIN_END_MARKERS'.
 
         e_NO_MARKERS,        // don't print any markers
 
         e_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
-                                // "END RECORD DUMP" markers (default)
+                             // "END RECORD DUMP" markers (default)
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_NO_MARKERS = e_NO_MARKERS
+      , BAEL_NO_MARKERS        = e_NO_MARKERS
       , BAEL_BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
-      , NO_MARKERS        = e_NO_MARKERS
-      , BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
+
+      , NO_MARKERS             = e_NO_MARKERS
+      , BEGIN_END_MARKERS      = e_BEGIN_END_MARKERS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
     // DATA
-    LoggerManagerDefaults
-                          d_defaults;             // default buffer size for
+    LoggerManagerDefaults d_defaults;             // default buffer size for
                                                   // logger (for macros) and
                                                   // set of constrained default
                                                   // severity threshold levels
@@ -410,17 +414,20 @@ class LoggerManagerConfiguration {
         // severity threshold level, and 'false' otherwise.  Valid severity
         // threshold levels are in the range '[0 .. 255]'.
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(LoggerManagerConfiguration,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    explicit LoggerManagerConfiguration(
-                                         bslma::Allocator *basicAllocator = 0);
+    explicit LoggerManagerConfiguration(bslma::Allocator *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having valid default values for all attributes.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     LoggerManagerConfiguration(
-                   const LoggerManagerConfiguration&  original,
-                   bslma::Allocator                       *basicAllocator = 0);
+                        const LoggerManagerConfiguration&  original,
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having the in-core value of the specified 'original' object.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -444,23 +451,23 @@ class LoggerManagerConfiguration {
 
     int setDefaultRecordBufferSizeIfValid(int numBytes);
         // Set the default-logger record-buffer size attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'numBytes' if '0 < numBytes'.  Return 0 on success, and a
-        // non-zero value otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'numBytes' if '0 < numBytes'.  Return 0 on success, and a non-zero
+        // value otherwise with no effect on this object.
 
     int setDefaultLoggerBufferSizeIfValid(int numBytes);
         // Set the default logger-message-buffer size attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'numBytes' if '0 < numBytes'.  Return 0 on success, and a
-        // non-zero value otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'numBytes' if '0 < numBytes'.  Return 0 on success, and a non-zero
+        // value otherwise with no effect on this object.
 
     int setDefaultThresholdLevelsIfValid(int passLevel);
         // Set the passthrough severity threshold level attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'passLevel', if it is in the range '[0 .. 255]', and set
-        // all the other threshold levels (recordLevel, triggerLevel,
-        // triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
-        // otherwise with no effect on this object.
+        // 'LoggerManagerDefaults' attribute of this object to the specified
+        // 'passLevel', if it is in the range '[0 .. 255]', and set all the
+        // other threshold levels (recordLevel, triggerLevel, triggerAllLevel)
+        // to 0.  Return 0 on success, and a non-zero value otherwise with no
+        // effect on this object.
 
     int setDefaultThresholdLevelsIfValid(int recordLevel,
                                          int passLevel,
@@ -474,14 +481,14 @@ class LoggerManagerConfiguration {
         // on this object.
 
     void setUserFieldsSchema(
-                       const ball::UserFieldsSchema   fieldDescriptions,
+                       const ball::UserFieldsSchema       fieldDescriptions,
                        const UserFieldsPopulatorCallback& populatorCallback);
         // Set the user-defined-fields attributes of this object such that the
         // specified 'populatorCallback' will be invoked and supplied the
-        // specified 'fieldDescriptions'.  Note that this method cannot
-        // fail per se, but it is the user's responsibility to make sure that
-        // 'populatorCallback' can populate a 'ball::UserFields' object
-        // in a way consistent with the 'fieldDescriptions'.
+        // specified 'fieldDescriptions'.  Note that this method cannot fail
+        // per se, but it is the user's responsibility to make sure that
+        // 'populatorCallback' can populate a 'ball::UserFields' object in a
+        // way consistent with the 'fieldDescriptions'.
 
     void setCategoryNameFilterCallback(
                                  const CategoryNameFilterCallback& nameFilter);
@@ -593,17 +600,17 @@ bool operator!=(const LoggerManagerConfiguration& lhs,
     // have different in-core values if their representations are not
     // identical.
 
-bsl::ostream& operator<<(bsl::ostream&                          stream,
+bsl::ostream& operator<<(bsl::ostream&                     stream,
                          const LoggerManagerConfiguration& configuration);
-}  // close package namespace
     // Write a reasonable representation of the specified 'configuration'
     // object to the specified output 'stream', indicating whether the
     // contained functors are or are not "null".
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

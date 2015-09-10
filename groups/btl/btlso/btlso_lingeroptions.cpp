@@ -13,18 +13,18 @@ BSLS_IDENT_RCSID(btlso_lingeroptions_cpp,"$Id$ $CSID$")
 
 
 namespace BloombergLP {
-
 namespace btlso {
-                       // -------------------------
+
+                       // -------------------
                        // class LingerOptions
-                       // -------------------------
+                       // -------------------
 
 // ACCESSORS
                                   // Aspects
 
 bsl::ostream& LingerOptions::print(bsl::ostream& stream,
-                                         int           level,
-                                         int           spacesPerLevel) const
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -34,11 +34,12 @@ bsl::ostream& LingerOptions::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& btlso::operator<<(bsl::ostream&              stream,
-                         const LingerOptions& object)
+bsl::ostream& btlso::operator<<(bsl::ostream&        stream,
+                                const LingerOptions& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();

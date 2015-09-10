@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 //                                          releaseRecords
 //..
 // 'ball::MultiplexObserver' is a concrete class derived from 'ball::Observer'
-// that processes the log records it receives through its 'publish' method
-// by forwarding them to other concrete observers.  'ball::MultiplexObserver'
+// that processes the log records it receives through its 'publish' method by
+// forwarding them to other concrete observers.  'ball::MultiplexObserver'
 // maintains a registry of observers to which it forwards log records.  Clients
 // of 'ball::MultiplexObserver' register observers using the 'registerObserver'
 // method and unregister observers with the 'deregisterObserver' method.  Once
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Multiplexing observers are used to interface a 'bael' logging system, which
+// Multiplexing observers are used to interface a 'ball' logging system, which
 // generates log records, with the multiplicity of observers that are to
 // receive the generated records that are published.  Establishing this
 // interface proceeds in three logical steps:
@@ -61,12 +61,12 @@ BSLS_IDENT("$Id: $")
 //        that a 'ball::MultiplexObserver' may be registered with another
 //        'ball::MultiplexObserver'.)
 //    (3) Install the distinguished multiplexor from step (1) within the
-//        'bael' logging system.
+//        'ball' logging system.
 //..
 // This example demonstrates the use of a multiplexing observer to forward log
-// records from a 'bael' logging system to three registered observers.
-// Each of the three registered observers performs distinct actions upon
-// receipt of log records:
+// records from a 'ball' logging system to three registered observers.  Each of
+// the three registered observers performs distinct actions upon receipt of log
+// records:
 //..
 //    (1) 'defaultObserver', an instance of 'ball::DefaultObserver', formats
 //        the records it receives and outputs them to 'stdout'.
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //     multiplexor.registerObserver(&encryptingObserver);
 //     assert(3 == multiplexor.numRegisteredObservers());
 //..
-// Then, 'multiplexor' is installed within a 'bael' logging system to be the
+// Then, 'multiplexor' is installed within a 'ball' logging system to be the
 // direct recipient of published log records.  This registration is done by
 // supplying 'multiplexor' to the 'ball::LoggerManager::initSingleton' method
 // that is used to initialize the singleton logger manager:
@@ -116,8 +116,8 @@ BSLS_IDENT("$Id: $")
 //     multiplexor.deregisterObserver(&logfileObserver);
 //     multiplexor.deregisterObserver(&encryptingObserver);
 //..
-// Note that any observer must exist before registering with multiplexor.
-// Any observer already registered must deregister before its destruction.
+// Note that any observer must exist before registering with multiplexor.  Any
+// observer already registered must deregister before its destruction.
 // Additional observers may be registered with 'multiplexor' at any time.
 // Similarly, observers may be unregistered at any time.  This capability
 // allows for extremely flexible observation scenarios.
@@ -160,13 +160,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace ball {
 
-namespace ball {class Record;
+class Record;
 class Context;
 
-                         // ============================
+                         // =======================
                          // class MultiplexObserver
-                         // ============================
+                         // =======================
 
 class MultiplexObserver : public Observer {
     // This class provides a multiplexing implementation of the 'Observer'
@@ -177,10 +178,10 @@ class MultiplexObserver : public Observer {
     // each registered observer.
 
     // DATA
-    bsl::set<Observer *> d_observerSet;  // observer registry
+    bsl::set<Observer *>    d_observerSet;  // observer registry
 
-    mutable bdlqq::RWMutex     d_rwMutex;      // protects concurrent access
-                                              // to 'd_observerSet'
+    mutable bdlqq::RWMutex  d_rwMutex;      // protects concurrent access to
+                                            // 'd_observerSet'
 
     // NOT IMPLEMENTED
     MultiplexObserver(const MultiplexObserver&);
@@ -216,9 +217,9 @@ class MultiplexObserver : public Observer {
         // observers registered with this multiplexing observer.
 
     virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was
-        // supplied to the 'publish' method, and is held by this observer.
-        // This implementation processes 'releaseRecords' by calling
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method, and is held by this observer.  This
+        // implementation processes 'releaseRecords' by calling
         // 'releaseRecords' on each of the registered observers.  Note that
         // this operation should be called if resources underlying the
         // previously provided shared-pointers must be released.
@@ -248,17 +249,16 @@ class MultiplexObserver : public Observer {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                         // ----------------------------
+                         // -----------------------
                          // class MultiplexObserver
-                         // ----------------------------
+                         // -----------------------
 
 // CREATORS
 inline
-MultiplexObserver::MultiplexObserver(
-                                              bslma::Allocator *basicAllocator)
+MultiplexObserver::MultiplexObserver(bslma::Allocator *basicAllocator)
 : d_observerSet(basicAllocator)
 {
 }
@@ -270,6 +270,7 @@ int MultiplexObserver::numRegisteredObservers() const
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return static_cast<int>(d_observerSet.size());
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

@@ -18,7 +18,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // Standard enumeration test plan.
 //
-// 'bael::Trans' is sometimes used in the documentation as an abbreviation for
+// 'ball::Trans' is sometimes used in the documentation as an abbreviation for
 // 'ball::Transmission'.
 //-----------------------------------------------------------------------------
 // 'ball::Transmission' private methods (tested indirectly):
@@ -83,6 +83,7 @@ class my_Logger {
     my_Logger(ostream& stream);
     ~my_Logger();
     void publish(const char *message, ball::Transmission::Cause cause);
+
     // ...
 };
 
@@ -92,7 +93,7 @@ my_Logger::my_Logger(ostream& stream) : d_os(stream) { }
 
 my_Logger::~my_Logger() { }
 
-void my_Logger::publish(const char               *message,
+void my_Logger::publish(const char                *message,
                         ball::Transmission::Cause  cause)
 {
 using namespace bsl;  // automatically added by script
@@ -132,6 +133,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -167,16 +169,16 @@ int main(int argc, char *argv[])
 
         my_Logger logger(out);
 
-        const char *MSG_BAEL_PASSTHROUGH = "report relatively minor problem";
-        const char *MSG_BAEL_TRIGGER     =
+        const char *MSG_BALL_PASSTHROUGH = "report relatively minor problem";
+        const char *MSG_BALL_TRIGGER     =
                                       "report serious thread-specific problem";
-        const char *MSG_BAEL_TRIGGER_ALL = "report process-impacting problem";
+        const char *MSG_BALL_TRIGGER_ALL = "report process-impacting problem";
 
-        logger.publish(MSG_BAEL_PASSTHROUGH,
+        logger.publish(MSG_BALL_PASSTHROUGH,
                        ball::Transmission::e_PASSTHROUGH);
-        logger.publish(MSG_BAEL_TRIGGER,
+        logger.publish(MSG_BALL_TRIGGER,
                        ball::Transmission::e_TRIGGER);
-        logger.publish(MSG_BAEL_TRIGGER_ALL,
+        logger.publish(MSG_BALL_TRIGGER_ALL,
                        ball::Transmission::e_TRIGGER_ALL);
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
@@ -185,6 +187,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST
+        //
         // Concerns:
         //   The following must hold for the enumeration under test:
         //     - The enumerator values must be consecutive integers in the

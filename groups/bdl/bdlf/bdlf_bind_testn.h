@@ -1,26 +1,22 @@
-// bdlsu_filedescriptorguard.cpp                                      -*-C++-*-
-#include <bdlsu_filedescriptorguard.h>
+// bdlf_bind_testn.h                                                  -*-C++-*-
+#ifndef INCLUDED_BDLF_BIND_TESTN
+#define INCLUDED_BDLF_BIND_TESTN
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdesu_filecloseproctor_cpp,"$Id$ $CSID$")
+//@PURPOSE: Provide a test sequence for 'bdlf_bind' with N arguments.
+//
+//@CLASSES:
+//
+//@SEE_ALSO: bdlf_bind bdlf_bind_test bdlf_bind_test[0--14]
+//
+//@DESCRIPTION: This component provides a test sequence for 'bdlf_bind' with N
+// arguments.  There is no code other than in the test driver.  It is not
+// intended for public use.
 
-namespace BloombergLP {
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
 
-namespace bdlsu {
-// MANIPULATORS
-void FileDescriptorGuard::closeAndRelease()
-{
-    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_descriptor);
-
-    int rc = FilesystemUtil::close(d_descriptor);
-    BSLS_ASSERT(0 == rc && "close failed");
-    (void) rc;    // suppress unuwed warning in opt build
-
-    d_descriptor = FilesystemUtil::k_INVALID_FD;
-}
-}  // close package namespace
-
-}  // close enterprise namespace
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

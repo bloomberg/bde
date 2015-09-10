@@ -10,20 +10,19 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide socket multiplexer implementation using Linux 'epoll'.
 //
 //@CLASSES:
-//  btlso::DefaultEventManager<btlso::Platform::EPOLL>: 'epoll'-based multiplexer
+//  btlso::DefaultEventManager<btlso::Platform::EPOLL>: 'epoll' multiplexer
 //
 //@SEE_ALSO: btlso_eventmanager btlso_defaulteventmanager btlso_timemetrics
 //
-//@SEE_ALSO: btlso_tcptimereventmanager  bteso_eventmanagertest
-//
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
-//@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the Linux 'epoll' system calls to monitor for socket events and
-// adheres to the 'btlso::EventManager' protocol.  In particular, this protocol
-// supports the registration of level-triggered socket events, along with an
-// associated 'bdlf::Function' callback functor, which is invoked when the
-// corresponding socket event occurs.
+//@DESCRIPTION: This component provides an implementation of an event manager,
+// 'btlso::DefaultEventManager<btlso::Platform::EPOLL>', that uses the Linux
+// 'epoll' system calls to monitor for socket events and adheres to the
+// 'btlso::EventManager' protocol.  In particular, this protocol supports the
+// registration of level-triggered socket events, along with an associated
+// 'bdlf::Function' callback functor, which is invoked when the corresponding
+// socket event occurs.
 //
 // Registering a socket event requires specifying a socket handle and the type
 // of event to monitor on the indicated socket.  Socket event registrations
@@ -66,7 +65,7 @@ BSLS_IDENT("$Id: $")
 ///Performance
 ///-----------
 // Given that S is the number of socket events registered, this component
-// provides the following complexity guarantees: TBD XXX
+// provides the following complexity guarantees:
 //..
 //  +=======================================================================+
 //  |        FUNCTION          | EXPECTED COMPLEXITY | WORST CASE COMPLEXITY|
@@ -95,21 +94,27 @@ BSLS_IDENT("$Id: $")
 // times spend in IO-bound and CPU-bound operations using the category IDs
 // defined in 'btlso::TimeMetrics'.
 //
-///USAGE EXAMPLE
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using an event manager
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a
 // 'btlso::DefaultEventManager<btlso::Platform::EPOLL>' object; also create a
 // (locally-connected) socket pair:
 //..
 //  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-//                               btlso::TimeMetrics::e_CPU_BOUND);
+//                                btlso::TimeMetrics::e_CPU_BOUND);
+//
 //  btlso::DefaultEventManager<btlso::Platform::EPOLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
 //  int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-//                           socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
+//                                      socket,
+//                                      btlso::SocketImpUtil::k_SOCKET_STREAM);
 //
 //  assert(0 == rc);
 //..
@@ -120,22 +125,30 @@ BSLS_IDENT("$Id: $")
 //..
 //  int numBytes = 5;
 //  btlso::EventManager::Callback readCb(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_READ,
-//                              socket[0], numBytes, &mX));
+//                               bdlf::BindUtil::bind(&genericCb,
+//                                                    btlso::EventType::e_READ,
+//                                                    socket[0],
+//                                                    numBytes,
+//                                                    &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_READ, readCb);
 //
 //  numBytes = 25;
 //  btlso::EventManager::Callback writeCb1(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[0], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[0],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE, writeCb1);
 //
 //  numBytes = 15;
 //  btlso::EventManager::Callback writeCb2(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[1], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[1],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE, writeCb2);
-//
 //
 //  assert(3 == mX.numEvents());
 //  assert(2 == mX.numSocketEvents(socket[0]));
@@ -151,11 +164,11 @@ BSLS_IDENT("$Id: $")
 // have a timeout requirement, a different version of 'dispatch' (in which no
 // timeout is specified) can also be called.
 //..
-//  btlso::EventManager::InterruptOpt opt =
-//                                      btlso::EventManager::NON_INTERRUPTIBLE;
+//  int                flags = 0;
 //  bsls::TimeInterval deadline(bdlt::CurrentTime::now());
+//
 //  deadline += 5;    // timeout 5 seconds from now.
-//  rc = mX.dispatch(deadline, opt);   assert(2 == rc);
+//  rc = mX.dispatch(deadline, flags);   assert(2 == rc);
 //..
 // Now we try to remove the write request of 'socket[0]' from the event manager
 // by calling 'deregisterSocketEvent()' and verify the state:
@@ -190,35 +203,38 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == mX.numSocketEvents(socket[1]));
 //  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
 //  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
 //  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
 //..
 // The following snippets of code show what a 'genericCb' may look like:
 //..
-//  static void
-//  genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
-//            int bytes, btlso::EventManager *mX)
+//  static void genericCb(btlso::EventType::Type       event,
+//                        btlso::SocketHandle::Handle  socket,
+//                        int                          bytes,
+//                        btlso::EventManager         *mX)
 //  {
 //      // User specified callback function that is invoked when a socket
 //      // event is detected.
 //
 //      enum {
-//          MAX_READ_SIZE  = 8192,   // The numbers are for illustrative
-//          MAX_WRITE_SIZE = 70000   // purposes only.
+//          k_MAX_READ_SIZE  =  8192,   // The numbers are for illustrative
+//          k_MAX_WRITE_SIZE = 70000    // purposes only.
 //      };
 //
 //      switch (event) {
 //        case btlso::EventType::e_READ: {
 //            assert(0 < bytes);
-//            char buffer[MAX_READ_SIZE];
+//
+//            char buffer[k_MAX_READ_SIZE];
 //
 //            int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
 //            assert(0 < rc);
 //        } break;
 //        case btlso::EventType::e_WRITE: {
-//            char wBuffer[MAX_WRITE_SIZE];
+//            char wBuffer[k_MAX_WRITE_SIZE];
 //            assert(0 < bytes);
-//            assert(MAX_WRITE_SIZE >= bytes);
+//            assert(k_MAX_WRITE_SIZE >= bytes);
+//
 //            memset(wBuffer,'4', bytes);
 //            int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
 //            assert(0 < rc);
@@ -259,20 +275,12 @@ BSLS_IDENT("$Id: $")
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -298,78 +306,76 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_SYS_EPOLL
 #endif
 
-namespace bsl {
-template <> struct is_trivially_copyable<epoll_event> : true_type {};
-}  // close namespace bsl
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
+namespace bsls { class TimeInterval; }
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
+namespace btlso {
 
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
+class TimeMetrics;
 
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
-
-namespace btlso {class TimeMetrics;
-
-           // ======================================================
+           // ==========================================
            // class DefaultEventManager<Platform::EPOLL>
-           // ======================================================
+           // ==========================================
+
 template <>
-class DefaultEventManager<Platform::EPOLL>
-                                                    : public EventManager
+class DefaultEventManager<Platform::EPOLL> : public EventManager
 {
   private:
     struct HandleEvents {
-        bool                         d_isValid;
+        bool                   d_isValid;
         EventManager::Callback d_readCallback;
         EventManager::Callback d_writeCallback;
         EventType::Type        d_readEventType;
         EventType::Type        d_writeEventType;
-        int                          d_mask;
+        int                    d_mask;
 
-        BSLALG_DECLARE_NESTED_TRAITS(HandleEvents,
-                                     bslalg::TypeTraitBitwiseMoveable);
+        BSLMF_NESTED_TRAIT_DECLARATION(HandleEvents, bslmf::IsBitwiseMoveable);
     };
 
     typedef bsl::unordered_map<int, HandleEvents> EventMap;
 
-    int                          d_epollFd;      // epoll fd
+    int                                d_epollFd;// epoll fd
 
-    bsl::vector<struct ::epoll_event>
-                                 d_signaled;     // array of 'epoll_event'
+    bsl::vector<struct ::epoll_event>  d_signaled;
+                                                 // array of 'epoll_event'
                                                  // structures indicating
                                                  // pending IO operations
 
-    bool                         d_isInvokingCb; // is the manager invoking
+    bool                               d_isInvokingCb;
+                                                 // is the manager invoking
                                                  // callbacks
 
-    TimeMetrics           *d_timeMetric_p; // metrics to use for
+    TimeMetrics                       *d_timeMetric_p;
+                                                 // metrics to use for
                                                  // reporting percent-busy
                                                  // statistics
 
-    EventMap                     d_events;       // map of socket handles
-                                                 // to associated events
+    EventMap                           d_events; // map of socket handles to
+                                                 // associated events
 
-    bsl::vector<EventMap::iterator>
-                                 d_entriesBeingRemoved;
+    bsl::vector<EventMap::iterator>    d_entriesBeingRemoved;
                                                  // if we're in a user cb, we
                                                  // will not update the map
                                                  // right away but keep the
                                                  // list what needs to be
                                                  // removed here
 
-    int                          d_numEvents;    // number of registered events
+    int                                d_numEvents;
+                                                 // number of registered events
 
     // PRIVATE MANIPULATORS
     int dispatchCallbacks(const bsl::vector<struct ::epoll_event>& signaled,
                           int                                      numReady);
+        // Invoke the callbacks in the specified 'signaled' vector of events
+        // with the specified 'numReady' number of ready callbacks.  Return the
+        // number of callbacks that were invoked.
 
     int dispatchImp(int flags, const bsls::TimeInterval *timeout = 0);
+        // For each pending socket event, invoke the corresponding callback
+        // registered with this event manager.
 
   private:
     // NOT IMPLEMENTED
@@ -383,8 +389,8 @@ class DefaultEventManager<Platform::EPOLL>
 
     // CREATORS
     explicit
-    DefaultEventManager(TimeMetrics *timeMetric     = 0,
-                              bslma::Allocator  *basicAllocator = 0);
+    DefaultEventManager(TimeMetrics      *timeMetric     = 0,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a 'epoll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
@@ -403,18 +409,18 @@ class DefaultEventManager<Platform::EPOLL>
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked), (2) the specified absolute
         // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system
-        // call is interrupted by a signal.  Return the number of dispatched
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call
+        // is interrupted by a signal.  Return the number of dispatched
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
         // method will return (-1) if 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will
-        // automatically restart (i.e., reissue the identical system call).
-        // Note that all callbacks are invoked in the same thread that invokes
-        // 'dispatch', and the order of invocation, relative to the order of
-        // registration, is unspecified.  Also note that -1 is never returned
-        // unless 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that all
+        // callbacks are invoked in the same thread that invokes 'dispatch',
+        // and the order of invocation, relative to the order of registration,
+        // is unspecified.  Also note that -1 is never returned unless 'flags'
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -426,10 +432,10 @@ class DefaultEventManager<Platform::EPOLL>
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return (-1) if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
-        // and otherwise will automatically restart (i.e., reissue the
-        // identical system call).  Note that all callbacks are invoked in the
-        // same thread that invokes 'dispatch', and the order of invocation,
+        // return (-1) if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT' and
+        // otherwise will automatically restart (i.e., reissue the identical
+        // system call).  Note that all callbacks are invoked in the same
+        // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'option' is set to
         // 'bteso_Flag::k_ASYNC_INTERRUPT'.
@@ -442,13 +448,13 @@ class DefaultEventManager<Platform::EPOLL>
         // 'handle'.  Each socket event registration stays in effect until it
         // is subsequently deregistered; the callback is invoked each time the
         // corresponding event is detected.  'EventType::e_READ' and
-        // 'EventType::e_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  If a registration attempt
-        // is made for an event that is already registered, the callback
-        // associated with this event will be overwritten with the new one.
-        // Simultaneous registration of incompatible events for the same socket
-        // 'handle' will result in undefined behavior.  Return 0 in success and
-        // a non-zero value, which is the same as native error code, on error.
+        // 'EventType::e_WRITE' are the only events that can be registered
+        // simultaneously for a socket.  If a registration attempt is made for
+        // an event that is already registered, the callback associated with
+        // this event will be overwritten with the new one.  Simultaneous
+        // registration of incompatible events for the same socket 'handle'
+        // will result in undefined behavior.  Return 0 in success and a
+        // non-zero value, which is the same as native error code, on error.
 
     void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                EventType::Type             event);
@@ -485,23 +491,29 @@ class DefaultEventManager<Platform::EPOLL>
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
-           // ======================================================
+           // ------------------------------------------
            // class DefaultEventManager<Platform::EPOLL>
-           // ======================================================
+           // ------------------------------------------
 
 // ACCESSORS
 inline
-bool DefaultEventManager<Platform::EPOLL>::
-                                               hasLimitedSocketCapacity() const
+bool DefaultEventManager<Platform::EPOLL>::hasLimitedSocketCapacity() const
 {
     return false;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace
+
+namespace bsl {
+
+template <> struct is_trivially_copyable<epoll_event> : true_type {};
+
+}  // close namespace bsl
 
 #endif // BSLS_PLATFORM_OS_LINUX
 

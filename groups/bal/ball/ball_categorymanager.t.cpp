@@ -722,24 +722,24 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta;
         int VALUES[] = { 1,
-                         31,  // BAEL_FATAL - 1
-                         32,  // BAEL_FATAL
-                         33,  // BAEL_FATAL + 1
-                         63,  // BAEL_ERROR - 1
-                         64,  // BAEL_ERROR
-                         65,  // BAEL_ERROR + 1
-                         95,  // BAEL_WARN - 1
-                         96,  // BAEL_WARN
-                         97,  // BAEL_WARN + 1
-                         127, // BAEL_INFO - 1
-                         128, // BAEL_INFO
-                         129, // BAEL_INFO + 1
-                         159, // BAEL_DEBUG - 1
-                         160, // BAEL_DEBUG
-                         161, // BAEL_DEBUG + 1
-                         191, // BAEL_TRACE - 1
-                         192, // BAEL_TRACE
-                         193  // BAEL_TRACE + 1
+                         31,  // e_FATAL - 1
+                         32,  // e_FATAL
+                         33,  // e_FATAL + 1
+                         63,  // e_ERROR - 1
+                         64,  // e_ERROR
+                         65,  // e_ERROR + 1
+                         95,  // e_WARN - 1
+                         96,  // e_WARN
+                         97,  // e_WARN + 1
+                         127, // e_INFO - 1
+                         128, // e_INFO
+                         129, // e_INFO + 1
+                         159, // e_DEBUG - 1
+                         160, // e_DEBUG
+                         161, // e_DEBUG + 1
+                         191, // e_TRACE - 1
+                         192, // e_TRACE
+                         193  // e_TRACE + 1
         };
         const int NUM_VALUES = sizeof (VALUES) / sizeof(*VALUES);
         bsl::vector<Thresholds> thresholds(&ta);
@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   The 'addCategory' function taking a ball::CategoryHolder object
         //   works exactly as the 'addCategory' without the
-        //   bael_CategoryHolder.
+        //   ball_CategoryHolder.
         //
         // Plan
         //   Construct a category manager.  Add some categories with varied
@@ -1142,16 +1142,16 @@ int main(int argc, char *argv[])
      {  L_,  256,      0,        0,        0,       "ALL.FS",  (Holder*) 32 },
      {  L_,  0,        256,      0,        0,       "ALL.TCP", (Holder*) 32 },
      {  L_,  0,        0,        256,      0,       "ALL.1.2", (Holder*) 32 },
-     {  L_,  0,        0,        0,        256,     "BAEL",    (Holder*) 64 },
-     {  L_,  256,      256,      256,      256,     "BAEL",    (Holder*) 64 },
-     {  L_,  INT_MAX,  0,        0,        0,       "BAEL.LOG",(Holder*) 64 },
-     {  L_,  0,        INT_MAX,  0,        0,       "BAEL_LOG",(Holder*) 64 },
+     {  L_,  0,        0,        0,        256,     "BALL",    (Holder*) 64 },
+     {  L_,  256,      256,      256,      256,     "BALL",    (Holder*) 64 },
+     {  L_,  INT_MAX,  0,        0,        0,       "BALL.LOG",(Holder*) 64 },
+     {  L_,  0,        INT_MAX,  0,        0,       "BALL_LOG",(Holder*) 64 },
      {  L_,  0,        0,        INT_MAX,  0,       "B123",    (Holder*) 64 },
      {  L_,  0,        0,        0,        INT_MAX, "12345",   (Holder*) 64 },
      {  L_,  INT_MAX,  INT_MAX,  INT_MAX,  INT_MAX, "BDE",     (Holder*) 64 },
      {  L_,  -1,       0,        0,        0,       "BDECS",   (Holder*) 256},
      {  L_,  0,        -1,       0,        0,       "BDE.CS",  (Holder*) 256},
-     {  L_,  0,        0,        -1,       0,       "BAEL",    (Holder*) 256},
+     {  L_,  0,        0,        -1,       0,       "BALL",    (Holder*) 256},
      {  L_,  0,        0,        0,        -1,      "XYZ",     (Holder*) 256},
      {  L_,  -1,       -1,       -1,       -1,      "WXZY",    (Holder*) 256},
      {  L_,  INT_MIN,  0,        0,        0,       "7902",    (Holder*) 256},

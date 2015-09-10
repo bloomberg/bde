@@ -23,6 +23,8 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bslim_testutil.h>
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -60,9 +62,9 @@ using bsl::flush;
 // [ 6] ELAPSED TIME VALUE
 // [ 8] USAGE
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -74,45 +76,33 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() cout << '\t' << flush;
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balm::StopwatchScopedGuard       Obj;
-typedef Obj::Units                      Units;
+typedef Obj::Units                       Units;
 typedef balm::MetricsManager             MetricsManager;
 typedef balm::DefaultMetricsManager      DefaultManager;
 typedef balm::MetricRegistry             Registry;
@@ -123,9 +113,9 @@ typedef balm::Category                   Category;
 typedef balm::Metric                     Metric;
 typedef bsl::shared_ptr<balm::Publisher> PublisherPtr;
 
-//=============================================================================
-//                      CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 bool within(double value, Units scale, double expectedS, double windowMs)
     // Return 'true' if the specified 'value' in the specified 'scale' is
@@ -157,9 +147,9 @@ balm::MetricRecord recordValue(balm::Collector *collector)
     return record;
 }
 
-                      // ===================
-                      // class TestPublisher
-                      // ===================
+                            // ===================
+                            // class TestPublisher
+                            // ===================
 
 class TestPublisher : public balm::Publisher {
     // This class defines a test implementation of the 'balm::Publisher' that
@@ -179,7 +169,7 @@ class TestPublisher : public balm::Publisher {
     bsl::vector<balm::MetricRecord> d_recordBuffer;    // last samples records
 
     bsl::vector<balm::MetricRecord> d_sortedRecords;   // last sample's records
-                                                      // in sorted order
+                                                       // in sorted order
 
     balm::MetricSample              d_sample;          // reconstructed last
                                                       // sample (using
@@ -258,9 +248,9 @@ class TestPublisher : public balm::Publisher {
 
 };
 
-                      // -------------------
-                      // class TestPublisher
-                      // -------------------
+                            // -------------------
+                            // class TestPublisher
+                            // -------------------
 
 // CREATORS
 inline
@@ -373,18 +363,18 @@ bool TestPublisher::contains(const balm::MetricId& id) const
     return indexOf(id) != -1;
 }
 
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 //..
 ///Example 2 - Metric collection with 'balm::StopwatchScopedGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We can alternatively use the 'balm::StopwatchScopedGuard' to record metric
+// Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
-// processor similar to example 3.  We use 'balm::Metric' and a
-// 'balm::StopwatchScopedGuard' to record the elapsed time of the request
-// processing function.
+// processor similar to the one in example 3.  We use a 'balm::Metric'
+// ('d_elapsedTime') and a 'balm::StopwatchScopedGuard' ('guard') to record the
+// elapsed time of the request-processing function.
 //..
     class RequestProcessor {
 
@@ -416,9 +406,9 @@ bool TestPublisher::contains(const balm::MetricId& id) const
     };
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -455,17 +445,17 @@ int main(int argc, char *argv[])
 
 ///Example 1 - Create and configure the default 'balm::MetricsManager' instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'baem::MetricManager'
+// This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
 // provide the scoped guard an output stream ('stdout') that it will publish
-// metrics to.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  An instance of the manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
     {
@@ -477,8 +467,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation.
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when 'managerGuard'
 // exits this scoped and is destroyed.  Clients that choose to explicitly call
@@ -557,9 +547,9 @@ int main(int argc, char *argv[])
 
         balm::MetricRecord record = recordValue(collector);
         ASSERT(COUNT == record.count());
-        ASSERT(within(record.total(), Obj::e_BALM_SECONDS, expectedTotal, 1.0))
-        ASSERT(within(record.max(), Obj::e_BALM_SECONDS, expectedMax, 1.0))
-        ASSERT(within(record.min(), Obj::e_BALM_SECONDS, expectedMin, 1.0))
+        ASSERT(within(record.total(), Obj::k_SECONDS, expectedTotal, 1.0))
+        ASSERT(within(record.max(), Obj::k_SECONDS, expectedMax, 1.0))
+        ASSERT(within(record.min(), Obj::k_SECONDS, expectedMin, 1.0))
 
       } break;
       case 5: {
@@ -633,35 +623,35 @@ int main(int argc, char *argv[])
             sw.start();
             {
                 balm::StopwatchScopedGuard gA_D(a_D);
-                balm::StopwatchScopedGuard gA_S(a_S, Obj::e_BALM_SECONDS);
-                balm::StopwatchScopedGuard gA_Ms(a_Ms, Obj::e_BALM_MILLISECONDS);
-                balm::StopwatchScopedGuard gA_Us(a_Us, Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gA_Ns(a_Ns, Obj::e_BALM_NANOSECONDS);
+                balm::StopwatchScopedGuard gA_S(a_S, Obj::k_SECONDS);
+                balm::StopwatchScopedGuard gA_Ms(a_Ms, Obj::k_MILLISECONDS);
+                balm::StopwatchScopedGuard gA_Us(a_Us, Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gA_Ns(a_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gB_D(idB_D);
-                balm::StopwatchScopedGuard gB_S(idB_S, Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gB_S(idB_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gB_Ms(idB_Ms,
-                                                Obj::e_BALM_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gB_Us(idB_Us,
-                                                Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gB_Ns(idB_Ns, Obj::e_BALM_NANOSECONDS);
+                                                 Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gB_Ns(idB_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gC_D(&mC_D);
-                balm::StopwatchScopedGuard gC_S(&mC_S, Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gC_S(&mC_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gC_Ms(&mC_Ms,
-                                                Obj::e_BALM_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gC_Us(&mC_Us,
-                                                Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gC_Ns(&mC_Ns, Obj::e_BALM_NANOSECONDS);
+                                                 Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gC_Ns(&mC_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gD_D("D", "D");
-                balm::StopwatchScopedGuard gD_S ("D", "S", Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gD_S ("D", "S", Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gD_Ms("D", "Ms",
-                                                Obj::e_BALM_MILLISECONDS);
+                                                 Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gD_Us("D", "Us",
-                                                Obj::e_BALM_MICROSECONDS);
+                                                 Obj::k_MICROSECONDS);
                 balm::StopwatchScopedGuard gD_Ns("D", "Ns",
-                                                Obj::e_BALM_NANOSECONDS);
+                                                 Obj::k_NANOSECONDS);
 
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
@@ -692,42 +682,29 @@ int main(int argc, char *argv[])
             balm::MetricRecord rD_Us = recordValue(d_Us);
             balm::MetricRecord rD_Ns = recordValue(d_Ns);
 
-            ASSERT(within(rA_D.total(),  Obj::e_BALM_SECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rA_Ms.total(), Obj::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Us.total(), Obj::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rA_Ns.total(), Obj::e_BALM_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rA_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rA_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rA_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rA_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rB_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_Ms.total(), Obj::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Us.total(), Obj::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Ns.total(), Obj::e_BALM_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rB_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rB_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rB_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rB_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rC_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_Ms.total(), Obj::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Us.total(), Obj::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rC_Ns.total(), Obj::e_BALM_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rC_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rC_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rC_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rC_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
 
-            ASSERT(within(rD_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_Ms.total(), Obj::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rD_Us.total(), Obj::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rD_Ns.total(), Obj::e_BALM_NANOSECONDS,
-                                                               expected, 1.0));
+            ASSERT(within(rD_D.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rD_S.total(),  Obj::k_SECONDS,      expected, 1.0));
+            ASSERT(within(rD_Ms.total(), Obj::k_MILLISECONDS, expected, 1.0));
+            ASSERT(within(rD_Us.total(), Obj::k_MICROSECONDS, expected, 1.0));
+            ASSERT(within(rD_Ns.total(), Obj::k_NANOSECONDS,  expected, 1.0));
         }
       } break;
       case 4: {
@@ -1023,7 +1000,8 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::TimeInterval ELAPSED_TIME(VALUES[i].d_elapsedTime, 0);
-                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_timeStamp);
+                bdlt::Date dt = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                        VALUES[i].d_timeStamp);
                 bdlt::DatetimeTz TIME_STAMP(bdlt::Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);

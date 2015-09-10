@@ -11,17 +11,18 @@ BSLS_IDENT_RCSID(btlso_endpoint_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlso {
-                            // --------------------
+
+                            // --------------
                             // class Endpoint
-                            // --------------------
+                            // --------------
 
 // ACCESSORS
 
                                   // Aspects
 
 bsl::ostream& Endpoint::print(bsl::ostream& stream,
-                                    int           level,
-                                    int           spacesPerLevel) const
+                              int           level,
+                              int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -31,11 +32,11 @@ bsl::ostream& Endpoint::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& btlso::operator<<(bsl::ostream&         stream,
-                         const Endpoint& object)
+bsl::ostream& btlso::operator<<(bsl::ostream& stream, const Endpoint& object)
 {
     stream << object.hostname() << ':' << object.port();
     return stream;

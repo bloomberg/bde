@@ -17,9 +17,10 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Henry Verschell (hverschell@bloomberg.net)
 //
-//@DESCRIPTION: This component defines an enumeration of aggregation
-// types that metrics may be published using.  Concrete 'balm::Publisher'
-// implementations may use this these types to configure their output.
+//@DESCRIPTION: This component defines an enumeration
+// 'balm::PublicationType::Value' of aggregation types to use to publish
+// metrics.  Concrete 'balm::Publisher' implementations may use this these
+// types to configure their output.
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -48,9 +49,9 @@ BSLS_IDENT_PRAGMA_ONCE
 namespace BloombergLP {
 
 namespace balm {
-                           // ==========================
+                           // =====================
                            // class PublicationType
-                           // ==========================
+                           // =====================
 
 struct PublicationType {
     // This class defines an enumeration of aggregation type that can be used
@@ -60,53 +61,53 @@ struct PublicationType {
   public:
     // TYPES
     enum Value {
-        e_BALM_UNSPECIFIED = 0
+        e_UNSPECIFIED = 0
             // There is no defined publication type for the metric.
-      , e_BALM_TOTAL       = 1
+      , e_TOTAL       = 1
             // The total of the measured metric values over the published
             // interval.
-      , e_BALM_COUNT       = 2
+      , e_COUNT       = 2
             // The count of updates over the published interval.
-      , e_BALM_MIN         = 3
+      , e_MIN         = 3
             // The minimum measured metric value over the published interval.
-      , e_BALM_MAX         = 4
+      , e_MAX         = 4
             // The maximum measured metric value over the published interval.
-      , e_BALM_AVG         = 5
+      , e_AVG         = 5
             // The average measured metric value over published interval (i.e.,
             // total / count).
-      , e_BALM_RATE        = 6
+      , e_RATE        = 6
             // The total measured metric value per second over the published
             // interval (i.e., total / sample interval).
-      , e_BALM_RATE_COUNT  = 7
+      , e_RATE_COUNT  = 7
             // The count of measured events per second over the published
             // interval (i.e., count / sample interval).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEM_UNSPECIFIED = e_BALM_UNSPECIFIED
+      , BAEM_UNSPECIFIED = e_UNSPECIFIED
             // There is no defined publication type for the metric.
-      , BAEM_TOTAL       = e_BALM_TOTAL
+      , BAEM_TOTAL       = e_TOTAL
             // The total of the measured metric values over the published
             // interval.
-      , BAEM_COUNT       = e_BALM_COUNT
+      , BAEM_COUNT       = e_COUNT
             // The count of updates over the published interval.
-      , BAEM_MIN         = e_BALM_MIN
+      , BAEM_MIN         = e_MIN
             // The minimum measured metric value over the published interval.
-      , BAEM_MAX         = e_BALM_MAX
+      , BAEM_MAX         = e_MAX
             // The maximum measured metric value over the published interval.
-      , BAEM_AVG         = e_BALM_AVG
+      , BAEM_AVG         = e_AVG
             // The average measured metric value over published interval (i.e.,
             // total / count).
-      , BAEM_RATE        = e_BALM_RATE
+      , BAEM_RATE        = e_RATE
             // The total measured metric value per second over the published
             // interval (i.e., total / sample interval).
-      , BAEM_RATE_COUNT  = e_BALM_RATE_COUNT
+      , BAEM_RATE_COUNT  = e_RATE_COUNT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        e_BALM_LENGTH = 8
+        k_LENGTH = 8
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        , BAEM_LENGTH = e_BALM_LENGTH
+        , BAEM_LENGTH = k_LENGTH
 #endif
     };
 
@@ -137,17 +138,16 @@ struct PublicationType {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 };
 
 // FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
+bsl::ostream& operator<<(bsl::ostream&          stream,
                          PublicationType::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // TRAITS
 }  // close package namespace
@@ -157,12 +157,12 @@ BDLAT_DECL_ENUMERATION_TRAITS(balm::PublicationType)
 namespace balm {
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // --------------------------
+                           // ---------------------
                            // class PublicationType
-                           // --------------------------
+                           // ---------------------
 
 // CLASS METHODS
 inline
@@ -174,8 +174,8 @@ int PublicationType::fromString(Value *result, const bsl::string& string)
 }
 
 inline
-bsl::ostream& PublicationType::print(bsl::ostream&               stream,
-                                          PublicationType::Value value)
+bsl::ostream& PublicationType::print(bsl::ostream&          stream,
+                                     PublicationType::Value value)
 {
     return stream << toString(value);
 }
@@ -185,8 +185,8 @@ bsl::ostream& PublicationType::print(bsl::ostream&               stream,
 // FREE FUNCTIONS
 
 inline
-bsl::ostream& balm::operator<<(bsl::ostream&               stream,
-                         PublicationType::Value rhs)
+bsl::ostream& balm::operator<<(bsl::ostream&          stream,
+                               PublicationType::Value rhs)
 {
     return PublicationType::print(stream, rhs);
 }
