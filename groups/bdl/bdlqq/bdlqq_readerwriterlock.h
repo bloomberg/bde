@@ -74,11 +74,11 @@ BSLS_IDENT("$Id: $")
 // when a user "badges" in or out, which should be relatively infrequent.
 //..
 // struct UserInfo{
-//     long           d_UserId;
-//     char           d_UserName[MAX_USER_NAME];
-//     char           d_badge_location[MAX_BADGE_LOCATION];
-//     int            d_inOutStatus;
-//     bdlt::Datetime d_badgeTime;
+//     long               d_UserId;
+//     char               d_UserName[MAX_USER_NAME];
+//     char               d_badge_location[MAX_BADGE_LOCATION];
+//     int                d_inOutStatus;
+//     bsls::TimeInterval d_badgeTime;
 // };
 //
 // class UserInfoCache {

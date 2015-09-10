@@ -2,12 +2,12 @@
 
 #include <bdlqq_readerwriterlock.h>
 
-#include <bdlqq_barrier.h>     // for testing only
+#include <bdlqq_barrier.h>           // for testing only
 #include <bdlqq_threadattributes.h>
-#include <bdlt_datetime.h>     // for testing only
-#include <bsls_atomic.h>       // for testing only
+#include <bsls_timeinterval.h>       // for testing only
+#include <bsls_atomic.h>             // for testing only
 
-#include <bsl_map.h>           // for usage example
+#include <bsl_map.h>                 // for usage example
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -455,10 +455,11 @@ void* TestUpgradeThread1(void *ptr)
 #define MAX_BADGE_LOCATION 40
 
 struct UserInfo{
-    long d_UserId;
-    char d_UserName[MAX_USER_NAME];
-    char d_badge_location[MAX_BADGE_LOCATION];
-    bdlt::Datetime d_badgeTime;
+    long               d_UserId;
+    char               d_UserName[MAX_USER_NAME];
+    char               d_badge_location[MAX_BADGE_LOCATION];
+    int                d_inOutStatus;
+    bsls::TimeInterval d_badgeTime;
 };
 
 class UserInfoCache {
