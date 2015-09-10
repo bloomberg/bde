@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //    // ...
 //
 //    enum { TIMED_OUT = -1 };
-//    bsls::TimeInterval timeout = bdlt::CurrentTime::now();
+//    bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
 //
 //    // Advance 'timeout' to some delta into the future here.
 //

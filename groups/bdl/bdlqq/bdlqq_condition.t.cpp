@@ -5,7 +5,7 @@
 #include <bdlqq_mutex.h>
 #include <bsls_atomic.h>
 
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
               lock.lock();
               bsls::Stopwatch timer;
               timer.start();
-              x.timedWait(&lock, bdlt::CurrentTime::now() + 2);
+              x.timedWait(&lock, bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
               ASSERT(1.8 <= elapsed && elapsed <= 2.2);
               lock.unlock();

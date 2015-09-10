@@ -10,7 +10,7 @@
 #include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_stopwatch.h>
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
         // Exercises basic functionality.
         // --------------------------------------------------------------------
 
-        bsls::TimeInterval future = bdlt::CurrentTime::now();
+        bsls::TimeInterval future = bsls::SystemTime::nowRealtimeClock();
         future.addSeconds(100);
         if (verbose) cout << endl
                           << "Breathing Test" << endl

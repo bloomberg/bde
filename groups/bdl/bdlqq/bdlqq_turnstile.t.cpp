@@ -8,8 +8,9 @@
 #include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_datetime.h>
-#include <bdlt_currenttime.h>
+
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -135,12 +136,11 @@ static int veryVeryVeryVerbose = 0;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 static
-void waitTurnAndSleepCallback(
-        bdlqq::Turnstile          *turnstile,
-        bsls::AtomicInt           *counter,
-        bdlqq::Barrier            *barrier,
-        const bsls::TimeInterval&  sleepInterval,
-        const bdlt::Datetime&      stopTime)
+void waitTurnAndSleepCallback(bdlqq::Turnstile          *turnstile,
+                              bsls::AtomicInt           *counter,
+                              bdlqq::Barrier            *barrier,
+                              const bsls::TimeInterval&  sleepInterval,
+                              const bsls::TimeInterval&  stopTime)
 {
     barrier->wait();
 
@@ -158,15 +158,14 @@ void waitTurnAndSleepCallback(
                     "counter = " << value
                  << ENDL;
         }
-    } while (bdlt::CurrentTime::utc() < stopTime);
+    } while (bsls::SystemTime::nowRealtimeClock() < stopTime);
 }
 
 static
-void waitTurnCallback(
-        bdlqq::Turnstile      *turnstile,
-        bsls::AtomicInt       *counter,
-        bdlqq::Barrier        *barrier,
-        const bdlt::Datetime&  stopTime)
+void waitTurnCallback(bdlqq::Turnstile          *turnstile,
+                      bsls::AtomicInt           *counter,
+                      bdlqq::Barrier            *barrier,
+                      const bsls::TimeInterval&  stopTime)
 {
     barrier->wait();
 
@@ -182,7 +181,7 @@ void waitTurnCallback(
                     "counter = " << value
                  << ENDL;
         }
-    } while (bdlt::CurrentTime::utc() < stopTime);
+    } while (bsls::SystemTime::nowRealtimeClock() < stopTime);
 }
 
 static
@@ -364,7 +363,7 @@ int main(int argc, char *argv[])
         const int               NUM_TURNS   = 50;
         const int               NUM_THREADS = 3;
 
-        bdlt::Datetime stopTime(bdlt::CurrentTime::utc());
+        bsls::TimeInterval stopTime(bsls::SystemTime::nowRealtimeClock());
         stopTime.addMilliseconds(2 * OFFSET.totalMilliseconds());
 
         Obj        mX(RATE, OFFSET);
@@ -439,7 +438,7 @@ int main(int argc, char *argv[])
         const int               NUM_TURNS   = 8;
         const int               NUM_THREADS = 3;
 
-        bdlt::Datetime stopTime(bdlt::CurrentTime::utc());
+        bsls::TimeInterval stopTime(bsls::SystemTime::nowRealtimeClock());
         stopTime.addMilliseconds(2 * OFFSET.totalMilliseconds());
 
         Obj        mX(RATE, OFFSET);

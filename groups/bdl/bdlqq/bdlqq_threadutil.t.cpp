@@ -8,7 +8,7 @@
 
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -1535,10 +1535,10 @@ int main(int argc, char *argv[])
             bsls::TimeInterval actualTime;
             {
                 // realtime clock
-                expectedTime = bdlt::CurrentTime::now();
+                expectedTime = bsls::SystemTime::nowRealtimeClock();
                 expectedTime.addMilliseconds(i * 100);
                 Obj::sleepUntil(expectedTime);
-                actualTime = bdlt::CurrentTime::now();
+                actualTime = bsls::SystemTime::nowRealtimeClock();
                 ASSERT(actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
@@ -1567,9 +1567,9 @@ int main(int argc, char *argv[])
             bsls::TimeInterval expectedTime;
             bsls::TimeInterval actualTime;
             { // realtime clock
-                expectedTime = bdlt::CurrentTime::now();
+                expectedTime = bsls::SystemTime::nowRealtimeClock();
                 Obj::sleepUntil(expectedTime - bsls::TimeInterval(1));
-                actualTime = bdlt::CurrentTime::now();
+                actualTime = bsls::SystemTime::nowRealtimeClock();
                 ASSERT(actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
@@ -2071,10 +2071,12 @@ int main(int argc, char *argv[])
 #endif
 
         for (int i = 0; i < 8; ++i) {
-            double start   = bdlt::CurrentTime::now().totalSecondsAsDouble();
+            double start   =
+                   bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
             bdlqq::ThreadUtil::microSleep(SLEEP_MICROSECONDS);
-            double elapsed = bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                                                                         start;
+            double elapsed =
+                    bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble()
+                                                                       - start;
 
             double overshoot = elapsed - SLEEP_SECONDS;
 
@@ -2445,13 +2447,15 @@ int main(int argc, char *argv[])
                 cout << "sleepUntil for " << i * 30 << "s" << endl;
             }
 
-            bsls::TimeInterval expectedTime = bdlt::CurrentTime::now();
+            bsls::TimeInterval expectedTime =
+                                          bsls::SystemTime::nowRealtimeClock();
 
             expectedTime.addSeconds(i * 30);
 
             Obj::sleepUntil(expectedTime);
 
-            bsls::TimeInterval actualTime = bdlt::CurrentTime::now();
+            bsls::TimeInterval actualTime =
+                                          bsls::SystemTime::nowRealtimeClock();
 
             ASSERT(actualTime >= expectedTime);
             LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),

@@ -2,7 +2,7 @@
 
 #include <bdlqq_timedsemaphore.h>
 
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
@@ -99,11 +99,11 @@ int main(int argc, char *argv[])
             X.post();
             X.post(2);
             X.wait();
-            ASSERT(0 == X.timedWait(bdlt::CurrentTime::now() +
+            ASSERT(0 == X.timedWait(bsls::SystemTime::nowRealtimeClock() +
                                     bsls::TimeInterval(60)));
             ASSERT(0 == X.tryWait());
             ASSERT(0 != X.tryWait());
-            ASSERT(0 != X.timedWait(bdlt::CurrentTime::now() +
+            ASSERT(0 != X.timedWait(bsls::SystemTime::nowRealtimeClock() +
                                     bsls::TimeInterval(1)));
         }
       } break;

@@ -6,7 +6,7 @@
 #include <bdlqq_lockguard.h>
 #include <bdlqq_mutex.h>
 #include <bsls_atomic.h>
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_cerrno.h>
 #include <bsl_cstdlib.h>
@@ -175,7 +175,7 @@ extern "C" void *consumer(void *arg_p)
     while (!finished) {
         // Set the timeout to be one second from now.
 
-        bsls::TimeInterval timeout = bdlt::CurrentTime::now();
+        bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
         timeout.addMilliseconds(1000);
 
         // Wait for work requests to be added to the queue.
@@ -297,7 +297,8 @@ int main(int argc, char *argv[])
         bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
 
         for (int i = 0; i < 8; ++i) {
-            const bsls::TimeInterval start = bdlt::CurrentTime::now();
+            const bsls::TimeInterval start =
+                                          bsls::SystemTime::nowRealtimeClock();
             const bsls::TimeInterval timeout = start + SLEEP_SECONDS;
             const bsls::TimeInterval minTimeout = timeout + OVERSHOOT_MIN;
 
@@ -307,7 +308,7 @@ int main(int argc, char *argv[])
             int j;
             for (j = 0; j < 4; ++j) {
                 sts = condition.timedWait(&mutex, timeout);
-                finish = bdlt::CurrentTime::now();
+                finish = bsls::SystemTime::nowRealtimeClock();
                 if (finish > minTimeout) {
                     break;
                 }
@@ -350,7 +351,7 @@ int main(int argc, char *argv[])
         bdlqq::Mutex mutex;
         bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
 
-        bsls::TimeInterval startT = bdlt::CurrentTime::now();
+        bsls::TimeInterval startT = bsls::SystemTime::nowRealtimeClock();
         double start = startT.totalSecondsAsDouble();
         bsls::TimeInterval endT  = startT + bsls::TimeInterval(0.1);
         bsls::TimeInterval endT2 = startT + bsls::TimeInterval(0.11);
@@ -361,14 +362,14 @@ int main(int argc, char *argv[])
             if (-1 == sts) {
                 break;
             }
-            if (bdlt::CurrentTime::now() > endT2) {
+            if (bsls::SystemTime::nowRealtimeClock() > endT2) {
                 ASSERT(0 && "should have timed out by now");
                 break;
             }
         }
         ASSERT(0 != sts);
         double finish =
-                       bdlt::CurrentTime::now().totalSecondsAsDouble() - start;
+           bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble() - start;
         double end = endT.totalSecondsAsDouble() - start;
         LOOP2_ASSERT(finish, end, finish >= end);
         if (verbose) {
