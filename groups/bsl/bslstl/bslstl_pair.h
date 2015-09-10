@@ -298,15 +298,29 @@ BSL_OVERRIDES_STD mode"
 #include <bslh_hash.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>       // 'std::swap'
-#define INCLUDED_ALGORITHM
-#endif
-
 #ifndef INCLUDED_UTILITY
-#include <utility>         // 'std::pair'
+#include <utility> // 'std::pair' and (in C++11 mode) 'std::swap'
 #define INCLUDED_UTILITY
 #endif
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// If the compiler supports rvalue references, then we have C++11 'std::swap',
+// which has a complicated SFINAE clause.  Fortunately, it is defined in
+// <utility>, which is included.
+//
+// However, if the compiler does not support rvalue references, then we have
+// C++03 'std::swap', which has a trivial signature.  We forward-declare it
+// here because otherwise we'd have to '#include <algorithm>', which causes
+// difficult-to-fix cyclic dependencies between the native library and bsl.
+#ifdef std
+#   error This header should not be #included with 'std' being a macro
+#endif
+namespace std {
+template <class TYPE> void swap(TYPE& a, TYPE& b);
+}
+
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 namespace bsl {
 

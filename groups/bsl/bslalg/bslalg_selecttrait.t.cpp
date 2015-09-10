@@ -193,6 +193,17 @@ struct my_BothTraitsClass {
                                    bslma::UsesBslmaAllocator);
 };
 
+namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_NilTraitClass' would normally be implicitly bitwise
+// moveable.  Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_NilTraitClass> : bsl::false_type { };
+
+}  // close bslmf namespace
+}  // close enterprise namespace
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

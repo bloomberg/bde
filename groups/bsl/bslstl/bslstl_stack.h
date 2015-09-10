@@ -286,6 +286,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_enableif.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -674,7 +678,7 @@ stack<VALUE, CONTAINER>::stack(
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(CONTAINER&& container)
-: d_container(std::move(container))
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(container))
 , c(d_container)
 {}
 
@@ -687,14 +691,15 @@ stack<VALUE, CONTAINER>::stack(
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(container), basicAllocator)
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(container),
+              basicAllocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(stack&& original)
-: d_container(std::move(original.d_container))
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(original.d_container))
 , c(d_container)
 {}
 
@@ -707,7 +712,8 @@ stack<VALUE, CONTAINER>::stack(
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(original.d_container), basicAllocator)
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(original.d_container),
+              basicAllocator)
 , c(d_container)
 {}
 
@@ -851,7 +857,7 @@ template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::push(value_type&& value)
 {
-    d_container.push_back(std::move(value));
+    d_container.push_back(BloombergLP::bslmf::MovableRefUtil::move(value));
 }
 #endif
 

@@ -79,6 +79,7 @@ namespace bsl
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 #include <bslstl_equalto.h>
+#include <bslstl_function.h>
 #include <bslstl_hash.h>
 #include <bslstl_referencewrapper.h>
 
