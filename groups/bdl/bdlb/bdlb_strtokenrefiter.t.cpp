@@ -7,7 +7,7 @@
 #include <bsl_cstdlib.h>                  // 'bsl::atoi()'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>                // 'bsl::ostrstream'
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -129,7 +129,7 @@ void reconstruct(const char *input,
                  const char *softDelims,
                  const char *hardDelims)
 {
-    bsl::ostrstream ostr;
+    bsl::ostringstream ostr;
     Obj mI(input, softDelims, hardDelims);  const Obj& I = mI;
     ostr << I.previousDelimiter();   // only once per string
     for (; I; ++mI) {
@@ -137,8 +137,7 @@ void reconstruct(const char *input,
         ostr << I.delimiter();       // current (trailing) delimiter
     }
     ostr << ends;
-    ASSERT(0 == bsl::strcmp(ostr.str(), input));
-    ostr.rdbuf()->freeze(0);         // return ownership of str to ostr
+    ASSERT(0 == bsl::strcmp(ostr.str().c_str(), input));
 }
 
 static

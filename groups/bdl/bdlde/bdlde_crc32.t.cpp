@@ -11,7 +11,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // atoi()
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -1888,23 +1888,23 @@ int main(int argc, char *argv[])
         //   value and also an expected output FMT.  For each datum, construct
         //   an independent object 'mX' and call 'update' with STR and LEN.
         //   Assert that the object contains the expected CRC value.  Create an
-        //   'ostrstream' object and use the 'print' function to stream
+        //   'ostringstream' object and use the 'print' function to stream
         //   'mX'.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
         //   To test the 'print' operator, for each datum, construct an
         //   independent object 'mX' and call 'update' with STR and LEN.
         //   Assert that the object contains the expected CRC value.  Create an
-        //   'ostrstream' object and use the 'print' function to stream
+        //   'ostringstream' object and use the 'print' function to stream
         //   'mX'.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
         //   To test the '<<' operator, construct an independent object 'obj'
         //   for each test vector in DATA and then call 'update' with STR and
         //   LEN.  Assert that the object contains the expected CRC value.
-        //   Create an 'ostrstream' object and use the '<<' operator to stream
-        //   'obj'.  Finally, compare the contents of the stream object with
-        //   the expected FMT value.
+        //   Create an 'ostringstream' object and use the '<<' operator to
+        //   stream 'obj'.  Finally, compare the contents of the stream object
+        //   with the expected FMT value.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
@@ -1949,10 +1949,10 @@ int main(int argc, char *argv[])
 
             char buf[SIZE];
             memset(buf, 0, sizeof(buf));
-            ostrstream outbuf(buf, SIZE);
+            ostringstream outbuf(bsl::string(buf, SIZE));
             X.print(outbuf);
-            if (veryVerbose) { T_ P_(X); P_(FMT); P(buf); }
-            LOOP_ASSERT(LINE, 0 == strcmp(buf, FMT));
+            if (veryVerbose) { T_ P_(X); P_(FMT); P(outbuf.str()); }
+            LOOP_ASSERT(LINE, 0 == strcmp(outbuf.str().c_str(), FMT));
         }
 
         if (verbose) cout << "\n3. Testing 'operator<<'." << endl;
@@ -1970,10 +1970,10 @@ int main(int argc, char *argv[])
 
             char buf[SIZE];
             memset(buf, 0, sizeof(buf));
-            ostrstream outbuf(buf, SIZE);
+            ostringstream outbuf(bsl::string(buf, SIZE));
             outbuf << X;
-            if (veryVerbose) { T_ P_(X); P_(FMT); P(buf); }
-            LOOP_ASSERT(LINE, 0 == strcmp(buf, FMT));
+            if (veryVerbose) { T_ P_(X); P_(FMT); P(outbuf.str()); }
+            LOOP_ASSERT(LINE, 0 == strcmp(outbuf.str().c_str(), FMT));
         }
 
       } break;
