@@ -6,7 +6,11 @@
 #include <btlmt_session.h>
 
 #include <btlb_blobutil.h>
+
+#include <btlso_flag.h>
+
 #include <bslma_testallocator.h>
+
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
 #include <bdlqq_barrier.h>
@@ -673,7 +677,7 @@ void *connectFunction(void *args)
             if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 continue;
             }
-            socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -683,7 +687,7 @@ void *connectFunction(void *args)
             rc = socket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
@@ -723,7 +727,7 @@ void *listenFunction(void *args)
     btlso::StreamSocket<btlso::IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
     ASSERT(0 ==
-            acceptSocket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE));
+            acceptSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE));
 
     bsl::vector<char> buffer(NUM_BYTES);
 
@@ -734,7 +738,7 @@ void *listenFunction(void *args)
             if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 continue;
             }
-            acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+            acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -744,7 +748,7 @@ void *listenFunction(void *args)
             rc = acceptSocket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+                acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
@@ -2043,7 +2047,7 @@ int main(int argc, char *argv[])
             MTCOUT << "Bringing down the channel" << MTENDL;
         }
 
-        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 
         factory.deallocate(socket);
 
@@ -2917,7 +2921,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == socket->connect(ADDRESS));
 
-        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 
         barrier.wait();
       } break;
