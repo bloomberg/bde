@@ -995,7 +995,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
           case 'R':
                                // close receive
               ret = channel->socket()->shutdown(
-                                               btlso::Flag::e_SHUTDOWN_RECEIVE);
+                                              btlso::Flag::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
               break;
           case 'S':
