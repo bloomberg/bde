@@ -1,6 +1,6 @@
-// bdlqq_semaphore.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SEMAPHORE
-#define INCLUDED_BDLQQ_SEMAPHORE
+// bslmt_semaphore.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLMT_SEMAPHORE
+#define INCLUDED_BSLMT_SEMAPHORE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a semaphore class.
 //
 //@CLASSES:
-//  bdlqq::Semaphore: semaphore class
+//  bslmt::Semaphore: semaphore class
 //
-//@SEE_ALSO: bdlqq_timedsemaphore
+//@SEE_ALSO: bslmt_timedsemaphore
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
 //@DESCRIPTION: This component defines a portable and efficient thread
-// synchronization primitive.  In particular, 'bdlqq::Semaphore' is an
+// synchronization primitive.  In particular, 'bslmt::Semaphore' is an
 // efficient synchronization primitive that enables sharing of a counted number
 // of resources or exclusive access.  The usage model of this facility is
 // modeled on POSIX semaphores and Windows semaphores.
@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      bsl::deque<int> d_queue;        // underlying queue
-//      bdlqq::Semaphore d_mutexSem;     // mutual-access semaphore
-//      bdlqq::Semaphore d_resourceSem;  // resource-availability semaphore
+//      bslmt::Semaphore d_mutexSem;     // mutual-access semaphore
+//      bslmt::Semaphore d_resourceSem;  // resource-availability semaphore
 //
 //      // NOT IMPLEMENTED
 //      IntQueue(const IntQueue&);
@@ -101,28 +101,28 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_COUNTED
-#include <bdlqq_semaphoreimpl_counted.h>
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
+#include <bslmt_semaphoreimpl_counted.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_PTHREAD
-#include <bdlqq_semaphoreimpl_pthread.h>
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
+#include <bslmt_semaphoreimpl_pthread.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_WIN32
-#include <bdlqq_semaphoreimpl_win32.h>
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_WIN32
+#include <bslmt_semaphoreimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
@@ -190,49 +190,49 @@ class Semaphore {
 
 // CREATORS
 inline
-bdlqq::Semaphore::Semaphore()
+bslmt::Semaphore::Semaphore()
 : d_impl(0)
 {
 }
 
 inline
-bdlqq::Semaphore::Semaphore(int count)
+bslmt::Semaphore::Semaphore(int count)
 : d_impl(count)
 {
 }
 
 inline
-bdlqq::Semaphore::~Semaphore()
+bslmt::Semaphore::~Semaphore()
 {
 }
 
 inline
-void bdlqq::Semaphore::post()
+void bslmt::Semaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void bdlqq::Semaphore::post(int value)
+void bslmt::Semaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int bdlqq::Semaphore::tryWait()
+int bslmt::Semaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void bdlqq::Semaphore::wait()
+void bslmt::Semaphore::wait()
 {
     d_impl.wait();
 }
 
 // ACCESSORS
 inline
-int bdlqq::Semaphore::getValue() const
+int bslmt::Semaphore::getValue() const
 {
     return d_impl.getValue();
 }

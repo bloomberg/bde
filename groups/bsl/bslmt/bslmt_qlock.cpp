@@ -1,23 +1,23 @@
-// bdlqq_qlock.cpp                                                    -*-C++-*-
-#include <bdlqq_qlock.h>
+// bslmt_qlock.cpp                                                    -*-C++-*-
+#include <bslmt_qlock.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_qlock_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 #include <bsls_atomicoperations.h>
-#include <bdlqq_threadlocalvariable.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_semaphore.h>
+#include <bslmt_threadlocalvariable.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_semaphore.h>
 
-#include <bdlqq_barrier.h> // for testing only
+#include <bslmt_barrier.h> // for testing only
 
 namespace {
 
 using namespace BloombergLP;
 
-typedef bdlqq::Semaphore *SemaphorePtr;
+typedef bslmt::Semaphore *SemaphorePtr;
 
 #ifdef BCES_THREAD_LOCAL_VARIABLE
 // The thread-local variable that caches a thread-specific semaphore used by
@@ -25,7 +25,7 @@ typedef bdlqq::Semaphore *SemaphorePtr;
 BCES_THREAD_LOCAL_VARIABLE(SemaphorePtr, s_semaphore, 0)
 #endif
 
-typedef bdlqq::ThreadUtil::Key TlsKey;
+typedef bslmt::ThreadUtil::Key TlsKey;
 
 // The global TLS key for the thread-specific semaphore used by the 'setFlag'
 // and 'waitOnFlag' methods.
@@ -55,7 +55,7 @@ void releaseTlsKey(TlsKey *key)
     // Delete the TLS key and release the TLS key object which was allocated
     // with the 'semaphoreAllocator()'.
 {
-    bdlqq::ThreadUtil::deleteKey(*key);
+    bslmt::ThreadUtil::deleteKey(*key);
     semaphoreAllocator().deleteObjectRaw(key);
 }
 
@@ -85,7 +85,7 @@ struct SemaphoreKeyGuard {
         // to be 0 (e.g., in the main thread calls 'pthread_exit'), in which
         // case 'releaseSemaphoreObject' is a no-op.
 
-        releaseSemaphoreObject(bdlqq::ThreadUtil::getSpecific(*d_key_p));
+        releaseSemaphoreObject(bslmt::ThreadUtil::getSpecific(*d_key_p));
         releaseTlsKey(d_key_p);
     }
 };
@@ -93,8 +93,8 @@ struct SemaphoreKeyGuard {
 extern "C" void deleteThreadLocalSemaphore(void *semaphore)
     // Free the memory for the specified 'semaphore'.  The behavior is
     // undefined unless 'semaphore' is either the address of a valid
-    // 'bdlqq::Semaphore' pointer, or 0.  Note that this function is intended
-    // to serve as a "destructor" callback for 'bdlqq::ThreadUtil::createKey'.
+    // 'bslmt::Semaphore' pointer, or 0.  Note that this function is intended
+    // to serve as a "destructor" callback for 'bslmt::ThreadUtil::createKey'.
     // Note that 'deleteThreadLocalSemaphore' doesn't run on the main thread.
     // The main thread deletes the semaphore object in the 'SemaphoreKeyGuard'
     // destructor.
@@ -112,7 +112,7 @@ TlsKey *initializeSemaphoreTLSKey()
 {
     TlsKey *key = new (semaphoreAllocator()) TlsKey;
 
-    int rc  = bdlqq::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
+    int rc  = bslmt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
     BSLS_ASSERT_OPT(rc == 0);
 
     void *oldKey =
@@ -160,11 +160,11 @@ SemaphorePtr getSemaphoreForCurrentThread()
     // Use a thread local variable if it's supported directly.
 
     if (!s_semaphore) {
-        s_semaphore = new (semaphoreAllocator()) bdlqq::Semaphore();
+        s_semaphore = new (semaphoreAllocator()) bslmt::Semaphore();
 
         // Still need to store the object in the thread specific key to release
         // it properly on thread exit.
-        bdlqq::ThreadUtil::setSpecific(*getSemaphoreTLSKey(), s_semaphore);
+        bslmt::ThreadUtil::setSpecific(*getSemaphoreTLSKey(), s_semaphore);
     }
 
     return s_semaphore;
@@ -173,11 +173,11 @@ SemaphorePtr getSemaphoreForCurrentThread()
 
     TlsKey *key = getSemaphoreTLSKey();
     SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(
-        bdlqq::ThreadUtil::getSpecific(*key));
+        bslmt::ThreadUtil::getSpecific(*key));
 
     if (!sema) {
-        sema = new (semaphoreAllocator()) bdlqq::Semaphore();
-        bdlqq::ThreadUtil::setSpecific(*key, sema);
+        sema = new (semaphoreAllocator()) bslmt::Semaphore();
+        bslmt::ThreadUtil::setSpecific(*key, sema);
     }
 
     return sema;
@@ -195,7 +195,7 @@ namespace BloombergLP {
 #define FLAG_SET_WITHOUT_SEMAPHORE (reinterpret_cast<SemaphorePtr>(-1L))
 
 // MANIPULATORS
-void bdlqq::QLock_EventFlag::set()
+void bslmt::QLock_EventFlag::set()
 {
     // If the flag is unset and not (yet) associated with a semaphore, simply
     // set the flag.
@@ -213,7 +213,7 @@ void bdlqq::QLock_EventFlag::set()
     }
 }
 
-void bdlqq::QLock_EventFlag::waitUntilSet(int spinRetryCount)
+void bslmt::QLock_EventFlag::waitUntilSet(int spinRetryCount)
 {
     Semaphore *flagValue = 0;
 
@@ -252,7 +252,7 @@ void bdlqq::QLock_EventFlag::waitUntilSet(int spinRetryCount)
                              // ----------------
 
 // MANIPULATORS
-void bdlqq::QLockGuard::unlockRaw()
+void bslmt::QLockGuard::unlockRaw()
 {
     enum { SPIN = 1000 };
 
@@ -276,7 +276,7 @@ void bdlqq::QLockGuard::unlockRaw()
     d_next->d_readyFlag.set();
 }
 
-void bdlqq::QLockGuard::lock()
+void bslmt::QLockGuard::lock()
 {
     enum { SPIN = 100 };
 
@@ -300,7 +300,7 @@ void bdlqq::QLockGuard::lock()
     d_locked = true;
 }
 
-int bdlqq::QLockGuard::tryLock()
+int bslmt::QLockGuard::tryLock()
 {
     BSLS_ASSERT(d_qlock_p);
 

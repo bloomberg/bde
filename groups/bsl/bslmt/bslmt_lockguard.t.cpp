@@ -1,5 +1,5 @@
-// bdlqq_lockguard.t.cpp                                              -*-C++-*-
-#include <bdlqq_lockguard.h>
+// bslmt_lockguard.t.cpp                                              -*-C++-*-
+#include <bslmt_lockguard.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>  // 'strcmp'
@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bdlqq::LockGuard' class.  It
+// This program tests the functionality of the 'bslmt::LockGuard' class.  It
 // verifies that the class properly locks the synchronization object at
 // construction time, and that it properly unlocks the object at destruction
 // time.  A helper class, 'my_Mutex', is created to facilitate the test
@@ -21,27 +21,27 @@ using namespace bsl;  // automatically added by script
 // provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
-// bdlqq::LockGuard
+// bslmt::LockGuard
 // ============================================================================
-// [2] bdlqq::LockGuard();
-// [2] ~bdlqq::LockGuard();
+// [2] bslmt::LockGuard();
+// [2] ~bslmt::LockGuard();
 // [2] release();
 //
-// bdlqq::LockGuardUnlock
+// bslmt::LockGuardUnlock
 // ============================================================================
-// [3] bdlqq::LockGuardUnlock();
-// [3] ~bdlqq::LockGuardUnlock();
+// [3] bslmt::LockGuardUnlock();
+// [3] ~bslmt::LockGuardUnlock();
 // [3] release();
 
-// bdlqq::LockGuardTryLock
+// bslmt::LockGuardTryLock
 // ============================================================================
-// [4] bdlqq::LockGuardTryLock();
-// [4] ~bdlqq::LockGuardTryLock();
+// [4] bslmt::LockGuardTryLock();
+// [4] ~bslmt::LockGuardTryLock();
 // [4] release();
 //-----------------------------------------------------------------------------
 // [1] Ensure helper class 'my_Mutex' works as expected
-// [5] INTERACTION BETW. 'bdlqq::LockGuard' AND 'bdlqq::LockGuardUnlock'
-// [6] DEPRECATED 'bdlqq::TryLockGuard' and 'bdlqq::UnLockGuard'
+// [5] INTERACTION BETW. 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
+// [6] DEPRECATED 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard'
 // [7] USAGE EXAMPLES
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -95,7 +95,7 @@ int someOtherCondition = 0;
 
 struct my_Mutex {
     // This class provides a simulated mutual exclusion mechanism which
-    // conforms to the interface required by the bdlqq::LockGuard class.  It
+    // conforms to the interface required by the bslmt::LockGuard class.  It
     // operates using a counter to track the symbolic "locked" state.  Each
     // call to the lock and unlock functions increment or decrement the lock
     // count respectively.  The current state of the lock count is accessible
@@ -145,7 +145,7 @@ static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
 
 static void safeFunc(my_Object *obj, my_Mutex *mutex)
 {
-    bdlqq::LockGuard<my_Mutex> guard(mutex);
+    bslmt::LockGuard<my_Mutex> guard(mutex);
     if (someCondition) {
         obj->someMethod();
         return;                                                       // RETURN
@@ -165,7 +165,7 @@ static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
     // locking fails.
 {
     const int RETRIES = 1; // use higher values for higher success rate
-    bdlqq::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
+    bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
     if (guard.ptr()) { // mutex is locked
         if (someCondition) {
             obj->someMethod();
@@ -182,12 +182,12 @@ static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
 
 void f(my_Mutex *mutex)
 {
-    bdlqq::LockGuard<my_Mutex> guard(mutex);
+    bslmt::LockGuard<my_Mutex> guard(mutex);
 
     // critical section here
 
     {
-        bdlqq::LockGuardUnlock<my_Mutex> guard(mutex);
+        bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
 
         // mutex is unlocked here
 
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
         // TESTING backwards-compatibility
         //
         // Concern:
-        //   That 'bdlqq::TryLockGuard' and 'bdlqq::UnLockGuard' are equivalent
+        //   That 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard' are equivalent
         //   to their new, properly-named counterparts.
         //
         // Plan:
@@ -299,16 +299,16 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard constructors & destructor" <<endl;
             {   // next will fail
-                bdlqq::TryLockGuard<my_Mutex> l1(&mX);
+                bslmt::TryLockGuard<my_Mutex> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(0 == X.lockCount());
                 ASSERT(0 == l1.ptr());
                 {   // next will succeed
-                    bdlqq::TryLockGuard<my_Mutex> l2(&mX);
+                    bslmt::TryLockGuard<my_Mutex> l2(&mX);
                     if(verbose)  P(X.lockCount());
                     ASSERT(1 == X.lockCount());
                     {   // next will succeed at second attempt
-                        bdlqq::TryLockGuard<my_Mutex> l3(&mX,10);
+                        bslmt::TryLockGuard<my_Mutex> l3(&mX,10);
                         if(verbose)  P(X.lockCount());
                         ASSERT(2 == X.lockCount());
                     }
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard release" << endl;
             {
-                bdlqq::TryLockGuard<my_Mutex> l1(&mX, 2);
+                bslmt::TryLockGuard<my_Mutex> l1(&mX, 2);
 
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
@@ -342,17 +342,17 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard constructor & destructor" <<endl;
             {
-                bdlqq::UnLockGuard<my_Mutex> l1(&mX);
+                bslmt::UnLockGuard<my_Mutex> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(-1 == X.lockCount());
                 {
                     const int PRE_UNLOCKED = 0;
-                    bdlqq::UnLockGuard<my_Mutex> l2(&mX, PRE_UNLOCKED);
+                    bslmt::UnLockGuard<my_Mutex> l2(&mX, PRE_UNLOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(-2 == X.lockCount());
                     {
                         const int PRE_UNLOCKED = 1; mX.unlock();
-                        bdlqq::UnLockGuard<my_Mutex> l3(&mX, PRE_UNLOCKED);
+                        bslmt::UnLockGuard<my_Mutex> l3(&mX, PRE_UNLOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(-3 == X.lockCount());
                     }
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard release" << endl;
             {
-                bdlqq::UnLockGuard<my_Mutex> l1(&mX);
+                bslmt::UnLockGuard<my_Mutex> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -385,16 +385,16 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // INTERACTION BETWEEN 'bdlqq::LockGuard' AND 'bdlqq::LockGuardUnlock'
+        // INTERACTION BETWEEN 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
         //
         // Concern:
-        //   That bdlqq::LockGuard and bdlqq::LockGuardUnlock interact together
+        //   That bslmt::LockGuard and bslmt::LockGuardUnlock interact together
         //   as expected.  That two different lock guards on two different
         //   'my_Mutex' objects do not interfere with each other.
         //
         // Plan:
         //   We verify that using two independent 'my_Mutex' objects with two
-        //   distinct 'bdlqq::LockGuard' *and* 'bdlqq::LockGuardUnlock' objects
+        //   distinct 'bslmt::LockGuard' *and* 'bslmt::LockGuardUnlock' objects
         //   in the same scope have no effect on each other.
         //
         // Testing:
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\tTesting interaction between "
-                    "'bdlqq::LockGuard' and bdlqq::LockGuardUnlock'" << endl
+                    "'bslmt::LockGuard' and bslmt::LockGuardUnlock'" << endl
                  << "=============================="
                     "========================================" << endl;
 
@@ -414,14 +414,14 @@ int main(int argc, char *argv[])
 
             mX1.lock();
             {
-                bdlqq::LockGuard<my_Mutex> l1(&mX1);
-                bdlqq::LockGuard<my_Mutex> l2(&mX2);
+                bslmt::LockGuard<my_Mutex> l1(&mX1);
+                bslmt::LockGuard<my_Mutex> l2(&mX2);
                 ASSERT(2 == X1.lockCount());
                 ASSERT(1 == X2.lockCount());
 
                 {
-                    bdlqq::LockGuardUnlock<my_Mutex> u1(&mX1);
-                    bdlqq::LockGuardUnlock<my_Mutex> u2(&mX2);
+                    bslmt::LockGuardUnlock<my_Mutex> u1(&mX1);
+                    bslmt::LockGuardUnlock<my_Mutex> u2(&mX2);
                     ASSERT(1 == X1.lockCount());
                     ASSERT(0 == X2.lockCount());
                 }
@@ -435,41 +435,41 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::LockGuardTryLock'
+        // TESTING CLASS 'bslmt::LockGuardTryLock'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::LockGuardTryLock'
+        //   That the basic functionality of the 'bslmt::LockGuardTryLock'
         //   class template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bdlqq::LockGuardTryLock'
+        //   We begin by creating a series of nested 'bslmt::LockGuardTryLock'
         //   objects using a common 'my_Mutex' object.  With each new object we
         //   verify that the lock function is called only if the constructor
         //   succeeds.  As each object is destroyed, we verify that the unlock
         //   function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::LockGuard' and calling 'release'.  We
+        //   constructing a new 'bslmt::LockGuard' and calling 'release'.  We
         //   verify that the returned pointer matches the value we supplied
         //   only if the constructor succeeded in acquiring the lock.  We then
         //   verify that 'release' makes no attempt to unlock the supplied
-        //   object and that when the 'bdlqq::LockGuardTryLock' object is
+        //   object and that when the 'bslmt::LockGuardTryLock' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::LockGuardTryLock' can be created
+        //   Finally we test that a 'bslmt::LockGuardTryLock' can be created
         //   with a null lock, and that 'release' may be called on the guard.
         //
         // Testing:
-        //   bdlqq::LockGuardTryLock();
-        //   ~bdlqq::LockGuardTryLock();
-        //   bdlqq::LockGuardTryLock::release();
-        //   bdlqq::LockGuardTryLock::ptr();
+        //   bslmt::LockGuardTryLock();
+        //   ~bslmt::LockGuardTryLock();
+        //   bslmt::LockGuardTryLock::release();
+        //   bslmt::LockGuardTryLock::ptr();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "\tTesting: \n"
-                          << "\t  bdlqq::LockGuardTryLock(); \n"
-                          << "\t  ~bdlqq::LockGuardTryLock(); \n"
-                          << "\t  bdlqq::LockGuardTryLock::release(); \n"
+                          << "\t  bslmt::LockGuardTryLock(); \n"
+                          << "\t  ~bslmt::LockGuardTryLock(); \n"
+                          << "\t  bslmt::LockGuardTryLock::release(); \n"
                           << endl;
 
         {
@@ -478,16 +478,16 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard constructors & destructor" <<endl;
             {   // next will fail
-                bdlqq::LockGuardTryLock<my_Mutex> l1(&mX);
+                bslmt::LockGuardTryLock<my_Mutex> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(0 == X.lockCount());
                 ASSERT(0 == l1.ptr());
                 {   // next will succeed
-                    bdlqq::LockGuardTryLock<my_Mutex> l2(&mX);
+                    bslmt::LockGuardTryLock<my_Mutex> l2(&mX);
                     if(verbose)  P(X.lockCount());
                     ASSERT(1 == X.lockCount());
                     {   // next will succeed at second attempt
-                        bdlqq::LockGuardTryLock<my_Mutex> l3(&mX,10);
+                        bslmt::LockGuardTryLock<my_Mutex> l3(&mX,10);
                         if(verbose)  P(X.lockCount());
                         ASSERT(2 == X.lockCount());
                     }
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard release" << endl;
             {
-                bdlqq::LockGuardTryLock<my_Mutex> l1(&mX, 2);
+                bslmt::LockGuardTryLock<my_Mutex> l1(&mX, 2);
 
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
@@ -517,49 +517,49 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::LockGuardTryLock<my_Mutex> mX(0, 6);
+            bslmt::LockGuardTryLock<my_Mutex> mX(0, 6);
         }
         {
-            bdlqq::LockGuardTryLock<my_Mutex> mX(0, 6);
+            bslmt::LockGuardTryLock<my_Mutex> mX(0, 6);
             mX.release();
         }
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::LockGuardUnlock'
+        // TESTING CLASS 'bslmt::LockGuardUnlock'
         //
         // Concern:
         //   That the basic functionality of the 'bcemt::LockUnGuard' class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bdlqq::LockGuardUnlock'
+        //   We begin by creating a series of nested 'bslmt::LockGuardUnlock'
         //   objects using a common 'my_Mutex' object.  With each new object
         //   we verify that the unlock function is called.  As each object is
         //   destroyed, we verify that the lock function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::LockGuardUnlock' and calling 'release'.
+        //   constructing a new 'bslmt::LockGuardUnlock' and calling 'release'.
         //   We verify that the returned pointer matches the value we supplied.
         //   We then verify that 'release' makes no attempt to unlock
-        //   the supplied object and that when the 'bdlqq::LockGuardUnlock'
+        //   the supplied object and that when the 'bslmt::LockGuardUnlock'
         //   object is destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::LockGuardUnlock' can be created
+        //   Finally we test that a 'bslmt::LockGuardUnlock' can be created
         //   with a null lock, and that 'release' may be called on the guard.
         //
         // Testing:
-        //   bdlqq::LockGuardUnlock();
-        //   ~bdlqq::LockGuardUnlock();
-        //   bdlqq::LockGuardUnlock::release();
-        //   bdlqq::LockGuardUnlock::ptr();
+        //   bslmt::LockGuardUnlock();
+        //   ~bslmt::LockGuardUnlock();
+        //   bslmt::LockGuardUnlock::release();
+        //   bslmt::LockGuardUnlock::ptr();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "\tTesting: \n"
-                          << "\t  bdlqq::LockGuardUnlock(); \n"
-                          << "\t  ~bdlqq::LockGuardUnlock(); \n"
-                          << "\t  bdlqq::LockGuardUnlock::release(); \n"
+                          << "\t  bslmt::LockGuardUnlock(); \n"
+                          << "\t  ~bslmt::LockGuardUnlock(); \n"
+                          << "\t  bslmt::LockGuardUnlock::release(); \n"
                           << endl;
 
         {
@@ -568,17 +568,17 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard constructor & destructor" <<endl;
             {
-                bdlqq::LockGuardUnlock<my_Mutex> l1(&mX);
+                bslmt::LockGuardUnlock<my_Mutex> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(-1 == X.lockCount());
                 {
                     const int PRE_UNLOCKED = 0;
-                    bdlqq::LockGuardUnlock<my_Mutex> l2(&mX, PRE_UNLOCKED);
+                    bslmt::LockGuardUnlock<my_Mutex> l2(&mX, PRE_UNLOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(-2 == X.lockCount());
                     {
                         const int PRE_UNLOCKED = 1; mX.unlock();
-                        bdlqq::LockGuardUnlock<my_Mutex> l3(&mX, PRE_UNLOCKED);
+                        bslmt::LockGuardUnlock<my_Mutex> l3(&mX, PRE_UNLOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(-3 == X.lockCount());
                     }
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard release" << endl;
             {
-                bdlqq::LockGuardUnlock<my_Mutex> l1(&mX);
+                bslmt::LockGuardUnlock<my_Mutex> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -609,49 +609,49 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::LockGuardUnlock<my_Mutex> mX(0);
+            bslmt::LockGuardUnlock<my_Mutex> mX(0);
         }
         {
-            bdlqq::LockGuardUnlock<my_Mutex> mX(0);
+            bslmt::LockGuardUnlock<my_Mutex> mX(0);
             mX.release();
         }
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::LockGuard'
+        // TESTING CLASS 'bslmt::LockGuard'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::LockGuard' class
+        //   That the basic functionality of the 'bslmt::LockGuard' class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bdlqq::LockGuard'
+        //   We begin by creating a series of nested 'bslmt::LockGuard'
         //   objects using a common 'my_Mutex' object.  With each new object
         //   we verify the the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::LockGuard' and calling 'release'.
+        //   constructing a new 'bslmt::LockGuard' and calling 'release'.
         //   We verify that the returned pointer matches the value we supplied.
         //   We then verify that 'release' makes no attempt to unlock
-        //   the supplied object and that when the 'bdlqq::LockGuard' object is
+        //   the supplied object and that when the 'bslmt::LockGuard' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::LockGuard' can be created with a
+        //   Finally we test that a 'bslmt::LockGuard' can be created with a
         //   null lock, and that 'release' may be called on the guard.
         //
         // Testing:
-        //   bdlqq::LockGuard();
-        //   ~bdlqq::LockGuard();
-        //   bdlqq::LockGuard::release();
-        //   bdlqq::LockGuard::ptr();
+        //   bslmt::LockGuard();
+        //   ~bslmt::LockGuard();
+        //   bslmt::LockGuard::release();
+        //   bslmt::LockGuard::ptr();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "\tTesting: \n"
-                          << "\t  bdlqq::LockGuard(); \n"
-                          << "\t  ~bdlqq::LockGuard(); \n"
-                          << "\t  bdlqq::LockGuard::release(); \n" << endl;
+                          << "\t  bslmt::LockGuard(); \n"
+                          << "\t  ~bslmt::LockGuard(); \n"
+                          << "\t  bslmt::LockGuard::release(); \n" << endl;
 
         {
             my_Mutex mX;    const my_Mutex &X = mX;
@@ -659,17 +659,17 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard constructor & destructor" <<endl;
             {
-                bdlqq::LockGuard<my_Mutex> l1(&mX);
+                bslmt::LockGuard<my_Mutex> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
                 {
                     const int PRE_LOCKED = 0;
-                    bdlqq::LockGuard<my_Mutex> l2(&mX, PRE_LOCKED);
+                    bslmt::LockGuard<my_Mutex> l2(&mX, PRE_LOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(2 == X.lockCount());
                     {
                         const int PRE_LOCKED = 1; mX.lock();
-                        bdlqq::LockGuard<my_Mutex> l3(&mX, PRE_LOCKED);
+                        bslmt::LockGuard<my_Mutex> l3(&mX, PRE_LOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(3 == X.lockCount());
                     }
@@ -684,7 +684,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard release" << endl;
             {
-                bdlqq::LockGuard<my_Mutex> l1(&mX);
+                bslmt::LockGuard<my_Mutex> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -700,10 +700,10 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::LockGuard<my_Mutex> mX(0);
+            bslmt::LockGuard<my_Mutex> mX(0);
         }
         {
-            bdlqq::LockGuard<my_Mutex> mX(0);
+            bslmt::LockGuard<my_Mutex> mX(0);
             mX.release();
         }
 

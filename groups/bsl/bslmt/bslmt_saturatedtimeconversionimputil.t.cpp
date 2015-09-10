@@ -1,6 +1,6 @@
-// bdlqq_saturatedtimeconversionimputil.t.cpp                         -*-C++-*-
+// bslmt_saturatedtimeconversionimputil.t.cpp                         -*-C++-*-
 
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -9,7 +9,7 @@
 #include <bsl_limits.h>
 #include <bsl_string.h>
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 #include <windows.h>
 #endif
 
@@ -125,7 +125,7 @@ void aSsErT(int c, const char *s, int i)
 //                              GLOBAL TYPEDEF
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::SaturatedTimeConversionImpUtil Obj;
+typedef bslmt::SaturatedTimeConversionImpUtil Obj;
 typedef bsls::Types::Int64                   Int64;
 typedef bsls::Types::Uint64                  Uint64;
 
@@ -157,7 +157,7 @@ int veryVeryVerbose;
 BSLMF_ASSERT(sizeof(long long) == sizeof(bsls::Types::Int64));
 BSLMF_ASSERT(sizeof(int)       <  sizeof(bsls::Types::Int64));
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
                         // * asserts about 'DWORD'
 
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
         // 'bsls::TimeInterval' is able to represent intervals that are outside
         // the range of intervals that can be represented by an 'unsigned int'
         // number of milliseconds (e.g., any negative time interval).
-        // 'bdlqq::SaturatedTimeConversionImpUtil' handles values outside the
+        // 'bslmt::SaturatedTimeConversionImpUtil' handles values outside the
         // representable range of the destination type by "saturating", that is
         // values outside the representable range of the destination type will
         // be assigned the maximum or minimum representable value of the
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
         // precision:
 
         sourceInterval.setInterval(4, 321000000);
-        bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                          &destinationInterval, sourceInterval);
         ASSERT(4321 == destinationInterval);
 
@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
         bsls::TimeInterval maximumTimeInterval(
                                 maxDestinationInterval / 1000,
                                 (maxDestinationInterval % 1000) * 1000 * 1000);
-        bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, maximumTimeInterval);
         ASSERT(maxDestinationInterval == destinationInterval);
 
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
 
         bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
                                             bsls::TimeInterval(0, 1000 * 1000);
-        bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                        &destinationInterval, aboveMaxInterval);
         ASSERT(maxDestinationInterval == destinationInterval);
 
@@ -600,7 +600,7 @@ int main(int argc, char *argv[])
         // saturated conversion is 0 (the minimum representable value):
 
         bsls::TimeInterval belowMinimumInterval(-1, 0);
-        bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, belowMinimumInterval);
         ASSERT(0 == destinationInterval);
       } break;
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING 'toMilliseec'\n"
                              "=====================\n";
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
         typedef unsigned int DWORD;
 #else
         BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));

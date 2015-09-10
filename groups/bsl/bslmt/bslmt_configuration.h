@@ -1,6 +1,6 @@
-// bdlqq_configuration.h                                              -*-C++-*-
-#ifndef INCLUDED_BDLQQ_CONFIGURATION
-#define INCLUDED_BDLQQ_CONFIGURATION
+// bslmt_configuration.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLMT_CONFIGURATION
+#define INCLUDED_BSLMT_CONFIGURATION
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities to allow configuration of values for BCE.
 //
 //@CLASSES:
-//  bdlqq::Configuration: namespace for utilities managing default BCE values
+//  bslmt::Configuration: namespace for utilities managing default BCE values
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@SEE_ALSO: bdlqq_threadattributes, bdlqq_threadutil
+//@SEE_ALSO: bslmt_threadattributes, bslmt_threadutil
 //
 //@DESCRIPTION: This component defines a utility 'struct',
-// 'bdlqq::Configuration', that is a name space for pure functions used for
+// 'bslmt::Configuration', that is a name space for pure functions used for
 // providing access to, and configuring, default values for BCE-relevant
-// parameters.  The 'bdlqq::Configuration' utility currently provides static
+// parameters.  The 'bslmt::Configuration' utility currently provides static
 // methods to access and modify the BCE library's default stack size, as well
 // as functions that access the platform's native default stack size and guard
 // size.  The BCE default stack size is initially configured to
-// 'bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE', in which case thread
+// 'bslmt::ThreadAttributes::BCEMT_UNSET_STACK_SIZE', in which case thread
 // creation is to use the native default thread stack size.
 //
 ///Usage
@@ -41,19 +41,19 @@ BSLS_IDENT("$Id: $")
 // operating system supplied value to account for the extra stack space devoted
 // to storing registers.  Note that operations creating a thread should perform
 // a similar inverse adjustment when configuring the new thread's stack size
-// (see 'bdlqq_threadutil').
+// (see 'bslmt_threadutil').
 //
 // First, we examine the platform's native thread stack size:
 //..
 //  const int nativeDefault =
-//                        bdlqq::Configuration::nativeDefaultThreadStackSize();
+//                        bslmt::Configuration::nativeDefaultThreadStackSize();
 //
 //  assert(nativeDefault > 0);
 //..
 // Then, we verify that 'defaultThreadStackSize' is unset.
 //..
-//  assert(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
-//                             bdlqq::Configuration::defaultThreadStackSize());
+//  assert(bslmt::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+//                             bslmt::Configuration::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
@@ -62,22 +62,22 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we set the default size for BCE to the new size:
 //..
-//  bdlqq::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
+//  bslmt::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
 //..
 // Finally, we verify that BCE's default thread stack size has been set to the
 // value we specified:
 //..
-//  assert(bdlqq::Configuration::defaultThreadStackSize() ==
+//  assert(bslmt::Configuration::defaultThreadStackSize() ==
 //                                                        newDefaultStackSize);
-//  assert(bdlqq::Configuration::defaultThreadStackSize() != nativeDefault);
+//  assert(bslmt::Configuration::defaultThreadStackSize() != nativeDefault);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                            // ====================
                            // struct Configuration

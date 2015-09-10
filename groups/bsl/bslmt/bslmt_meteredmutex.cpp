@@ -1,10 +1,10 @@
-// bdlqq_meteredmutex.cpp                                             -*-C++-*-
-#include <bdlqq_meteredmutex.h>
+// bslmt_meteredmutex.cpp                                             -*-C++-*-
+#include <bslmt_meteredmutex.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_meteredmutex_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_meteredmutex_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_barrier.h>  // for testing only
+#include <bslmt_barrier.h>  // for testing only
 
 #include <bsls_types.h>
 
@@ -15,7 +15,7 @@ namespace BloombergLP {
                             // ------------------
 
 // MANIPULATORS
-void bdlqq::MeteredMutex::resetMetrics()
+void bslmt::MeteredMutex::resetMetrics()
 {
     // Loop is used here to ensure that 'd_lastResetTime' is not modified (by
     // some other thread) between the computation of 't1' and the modification

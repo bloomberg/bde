@@ -1,28 +1,28 @@
-// bdlqq_conditionimpl_win32.h                                        -*-C++-*-
-#ifndef INCLUDED_BDLQQ_CONDITIONIMPL_WIN32
-#define INCLUDED_BDLQQ_CONDITIONIMPL_WIN32
+// bslmt_conditionimpl_win32.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_WIN32
+#define INCLUDED_BSLMT_CONDITIONIMPL_WIN32
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bdlqq::Condition'.
+//@PURPOSE: Provide a win32 implementation of 'bslmt::Condition'.
 //
 //@CLASSES:
-//  bdlqq::ConditionImpl<Win32Threads>: win32 specialization
+//  bslmt::ConditionImpl<Win32Threads>: win32 specialization
 //
-//@SEE_ALSO: bdlqq_condition
+//@SEE_ALSO: bslmt_condition
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Condition'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
 // for Windows (win32) via the template specialization:
 //..
-//  bdlqq::ConditionImpl<Platform::Win32Threads>
+//  bslmt::ConditionImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Condition'.
+// should instead use 'bslmt::Condition'.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -43,20 +43,20 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BDLQQ_SLUICE
-#include <bdlqq_sluice.h>
+#ifndef INCLUDED_BSLMT_SLUICE
+#include <bslmt_sluice.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class ConditionImpl;
@@ -160,7 +160,7 @@ class ConditionImpl<Platform::Win32Threads> {
 
 // CREATORS
 inline
-bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
+bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
 : d_waitSluice(clockType, &bslma::MallocFreeAllocator::singleton())
 {
@@ -169,26 +169,26 @@ bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
 }
 
 inline
-bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::~ConditionImpl()
+bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::~ConditionImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::broadcast()
+void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::broadcast()
 {
     d_waitSluice.signalAll();
 }
 
 inline
-void bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::signal()
+void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 {
     d_waitSluice.signalOne();
 }
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 #endif
 

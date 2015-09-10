@@ -1,28 +1,28 @@
-// bdlqq_semaphoreimpl_pthread.h                                      -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_PTHREAD
-#define INCLUDED_BDLQQ_SEMAPHOREIMPL_PTHREAD
+// bslmt_semaphoreimpl_pthread.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
+#define INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bdlqq::Semaphore'.
+//@PURPOSE: Provide a POSIX implementation of 'bslmt::Semaphore'.
 //
 //@CLASSES:
-//  bdlqq::SemaphoreImpl<PosixSemaphore>: POSIX specialization
+//  bslmt::SemaphoreImpl<PosixSemaphore>: POSIX specialization
 //
-//@SEE_ALSO: bdlqq_semaphore
+//@SEE_ALSO: bslmt_semaphore
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // for POSIX threads ("pthreads") via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<Platform::PosixThreads>
+//  bslmt::SemaphoreImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Semaphore'.
+// should instead use 'bslmt::Semaphore'.
 //
 ///Usage
 ///-----
@@ -30,15 +30,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#if defined(BDLQQ_PLATFORM_POSIX_SEMAPHORE)
+#if defined(BSLMT_PLATFORM_POSIX_SEMAPHORE)
 
 // Platform-specific implementation starts here.
 
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
@@ -117,7 +117,7 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
 
 // CREATORS
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::~SemaphoreImpl()
+bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_destroy(&d_sem);
 
@@ -127,7 +127,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post()
+void bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::post()
 {
     int result = ::sem_post(&d_sem);
 
@@ -136,14 +136,14 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post()
 }
 
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::tryWait()
+int bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::tryWait()
 {
     return ::sem_trywait(&d_sem);
 }
 
 // ACCESSORS
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::getValue() const
+int bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::getValue() const
 {
     int value = 0;
     int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
@@ -156,7 +156,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::getValue() const
 
 }  // close enterprise namespace
 
-#endif  // defined(BDLQQ_PLATFORM_POSIX_SEMAPHORE)
+#endif  // defined(BSLMT_PLATFORM_POSIX_SEMAPHORE)
 
 #endif
 

@@ -1,6 +1,6 @@
-// bdlqq_recursivemutex.h                                             -*-C++-*-
-#ifndef INCLUDED_BDLQQ_RECURSIVEMUTEX
-#define INCLUDED_BDLQQ_RECURSIVEMUTEX
+// bslmt_recursivemutex.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEX
+#define INCLUDED_BSLMT_RECURSIVEMUTEX
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,33 +10,33 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a platform-independent recursive mutex.
 //
 //@CLASSES:
-//  bdlqq::RecursiveMutex: platform-independent recursive mutex
+//  bslmt::RecursiveMutex: platform-independent recursive mutex
 //
-//@SEE_ALSO: bdlqq_mutex
+//@SEE_ALSO: bslmt_mutex
 //
 //@DESCRIPTION: This component provides a mutually exclusive lock primitive
 // ("mutex") that is "recursive" - a given thread can lock a recursive mutex
 // multiple times, and then release it by unlocking it the same number of
-// times.  The 'bdlqq::RecursiveMutex' class provides the following operations:
+// times.  The 'bslmt::RecursiveMutex' class provides the following operations:
 // 'lock', 'tryLock', and 'unlock'.
 //
-// The non-recursive mutex 'bdlqq::Mutex' has substantially lower overhead than
-// 'bdlqq::RecursiveMutex', and should be used instead if at all possible.  In
+// The non-recursive mutex 'bslmt::Mutex' has substantially lower overhead than
+// 'bslmt::RecursiveMutex', and should be used instead if at all possible.  In
 // particular, it is rare to need a recursive mutex.
 //
 // The behavior is undefined if 'unlock' is invoked on a
-// 'bdlqq::RecursiveMutex' object from a thread that does not currently own the
+// 'bslmt::RecursiveMutex' object from a thread that does not currently own the
 // lock.
 //
 ///Usage
 ///-----
-// As the name implies, 'bdlqq::RecursiveMutex' supports multiple calls to
+// As the name implies, 'bslmt::RecursiveMutex' supports multiple calls to
 // 'lock', which *must* be balanced by a corresponding number of calls to
-// 'unlock'.  Suppose that we are using a 'bdlqq::RecursiveMutex' object to
+// 'unlock'.  Suppose that we are using a 'bslmt::RecursiveMutex' object to
 // guarantee exclusive access to some object.  The following sketches the
-// "recursive" nature of 'bdlqq::RecursiveMutex':
+// "recursive" nature of 'bslmt::RecursiveMutex':
 //..
-//  void foo(bdlqq::RecursiveMutex *recMutex)
+//  void foo(bslmt::RecursiveMutex *recMutex)
 //  {
 //..
 // Assume that we do not have exclusive access upon entry to 'foo'.
@@ -60,28 +60,28 @@ BSLS_IDENT("$Id: $")
 //..
 //  }
 //..
-// Note that 'bdlqq::RecursiveMutex' has substantially more overhead than does
-// 'bdlqq::Mutex'.  Consequently, the latter should be used unless recursive
+// Note that 'bslmt::RecursiveMutex' has substantially more overhead than does
+// 'bslmt::Mutex'.  Consequently, the latter should be used unless recursive
 // locking is truly warranted.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_PTHREAD
-#include <bdlqq_recursivemuteximpl_pthread.h>
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
+#include <bslmt_recursivemuteximpl_pthread.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_WIN32
-#include <bdlqq_recursivemuteximpl_win32.h>
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_WIN32
+#include <bslmt_recursivemuteximpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class RecursivemutexImpl;
@@ -147,30 +147,30 @@ class RecursiveMutex {
 
 // CREATORS
 inline
-bdlqq::RecursiveMutex::RecursiveMutex()
+bslmt::RecursiveMutex::RecursiveMutex()
 {
 }
 
 inline
-bdlqq::RecursiveMutex::~RecursiveMutex()
+bslmt::RecursiveMutex::~RecursiveMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::RecursiveMutex::lock()
+void bslmt::RecursiveMutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-int bdlqq::RecursiveMutex::tryLock()
+int bslmt::RecursiveMutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void bdlqq::RecursiveMutex::unlock()
+void bslmt::RecursiveMutex::unlock()
 {
     d_imp.unlock();
 }

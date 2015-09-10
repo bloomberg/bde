@@ -1,6 +1,6 @@
-// bdlqq_turnstile.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLQQ_TURNSTILE
-#define INCLUDED_BDLQQ_TURNSTILE
+// bslmt_turnstile.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLMT_TURNSTILE
+#define INCLUDED_BSLMT_TURNSTILE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism to meter time.
 //
 //@CLASSES:
-//  bdlqq::Turnstile: mechanism to meter time
+//  bslmt::Turnstile: mechanism to meter time
 //
 //@AUTHOR: David Rubin (drubin6@bloomberg.net)
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlqq::Turnstile', to
+//@DESCRIPTION: This component provides a mechanism, 'bslmt::Turnstile', to
 // meter time.  A turnstile is configured with a rate that specified how many
 // "events" per second the turnstile should allow.  After the rate is set (via
 // the constructor or the 'reset' method), callers may execute the 'waitTurn'
@@ -26,15 +26,15 @@ BSLS_IDENT("$Id: $")
 ///Comparison With Sleep
 ///---------------------
 // A straightforward implementation of metering is to call some form of sleep
-// (e.g., 'bdlqq::ThreadUtil::microSleep') with a computed rate after each
+// (e.g., 'bslmt::ThreadUtil::microSleep') with a computed rate after each
 // processing step.  However, simply calling "sleep" accumulates errors since
 // this implementation does not account for the time taken during the
 // processing step.  For example, given two functions that take 'rate' (turns
 // per second) and 'duration' (expected execution time in seconds), and execute
 // 'rate * duration' calls to 'bsl::sqrt', calling 'waitTurn' on a turnstile or
-// 'bdlqq::ThreadUtil::microSleep' with duration '1000000 / rate',
+// 'bslmt::ThreadUtil::microSleep' with duration '1000000 / rate',
 // respectively; the elapsed time for each call results in the following table,
-// showing that the 'bdlqq::Turnstile' implementation maintains the correct
+// showing that the 'bslmt::Turnstile' implementation maintains the correct
 // rate while the 'microSleep' implementation accumulates errors.
 //..
 //                     Elapsed Time
@@ -50,19 +50,19 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // Except for the 'reset' method, this component is thread-safe and
 // thread-aware, meaning that multiple threads may safely use their own
-// instances or a shared instance of a 'bdlqq::Turnstile' object, provided that
+// instances or a shared instance of a 'bslmt::Turnstile' object, provided that
 // 'reset' is not called on a turnstile object while another thread is
 // accessing or modifying the same object.
 //
 ///Timer Resolution
 ///----------------
 // The 'waitTurn' method has a resolution of 10 milliseconds.  Therefore,
-// 'bdlqq::Turnstile' cannot guarantee that all turns can be taken in each one
+// 'bslmt::Turnstile' cannot guarantee that all turns can be taken in each one
 // second interval if a rate higher than 100 turns per second is specified.
 //
 ///Usage
 ///-----
-// The following example illustrates the use of 'bdlqq::Turnstile' to control
+// The following example illustrates the use of 'bslmt::Turnstile' to control
 // the rate of output being written to a specified output stream.  The example
 // function, 'heartbeat', prints a specified message at a specified rate for a
 // specified duration.  An instance of 'bsls::Stopwatch' is used to measure
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsls::Stopwatch  timer;
 //      timer.start();
-//      bdlqq::Turnstile turnstile(rate);
+//      bslmt::Turnstile turnstile(rate);
 //
 //      while (true) {
 //          turnstile.waitTurn();
@@ -90,23 +90,23 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// The benefits of using 'bdlqq::Turnstile' in the above example, as opposed to
-// simply calling 'sleep' in a loop, are twofold.  Firstly, 'bdlqq::Turnstile'
+// The benefits of using 'bslmt::Turnstile' in the above example, as opposed to
+// simply calling 'sleep' in a loop, are twofold.  Firstly, 'bslmt::Turnstile'
 // automatically accounts for drift caused by additional processing, so the
 // loop is allowed to execute immediately if the program fails to execute the
 // loop at the specified 'rate'.  Secondly, computing the sleep time and
 // executing the sleep call, are encapsulated in the turnstile component, which
 // improves the overall readability of the program.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                              // ===============
                              // class Turnstile

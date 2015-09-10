@@ -1,14 +1,14 @@
-// bdlqq_entrypointfunctoradapter.cpp                                 -*-C++-*-
-#include <bdlqq_entrypointfunctoradapter.h>
+// bslmt_entrypointfunctoradapter.cpp                                 -*-C++-*-
+#include <bslmt_entrypointfunctoradapter.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-void *bdlqq_EntryPointFunctorAdapter_invoker(void* argument) {
-    bdlqq::EntryPointFunctorAdapter_Base* threadArg =
-        (bdlqq::EntryPointFunctorAdapter_Base*)argument;
+void *bslmt_EntryPointFunctorAdapter_invoker(void* argument) {
+    bslmt::EntryPointFunctorAdapter_Base* threadArg =
+        (bslmt::EntryPointFunctorAdapter_Base*)argument;
     threadArg->function()(argument);
     return 0;
 }

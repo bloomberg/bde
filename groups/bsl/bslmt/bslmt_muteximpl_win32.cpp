@@ -1,8 +1,8 @@
-// bdlqq_muteximpl_win32.cpp                                          -*-C++-*-
-#include <bdlqq_muteximpl_win32.h>
+// bslmt_muteximpl_win32.cpp                                          -*-C++-*-
+#include <bslmt_muteximpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_muteximpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_muteximpl_win32_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 #include <bsls_platform.h>
@@ -15,12 +15,12 @@ BSLS_IDENT_RCSID(bdlqq_muteximpl_win32_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {
 
 BSLMF_ASSERT(sizeof(CRITICAL_SECTION) ==
-             sizeof(void *) * bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::
+             sizeof(void *) * bslmt::MutexImpl<bslmt::Platform::Win32Threads>::
                                                  CRITICAL_SECTION_BUFFER_SIZE);
 
 }  // close enterprise namespace

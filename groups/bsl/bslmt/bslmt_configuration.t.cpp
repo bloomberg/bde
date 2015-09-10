@@ -1,7 +1,7 @@
-// bdlqq_configuration.t.cpp                                          -*-C++-*-
-#include <bdlqq_configuration.h>
+// bslmt_configuration.t.cpp                                          -*-C++-*-
+#include <bslmt_configuration.h>
 
-#include <bdlqq_threadattributes.h>
+#include <bslmt_threadattributes.h>
 
 #include <bsl_cstddef.h>  // 'size_t'
 #include <bsl_cstdlib.h>  // 'atoi()'
@@ -16,11 +16,11 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bdlqq::Configuration' class.
+// This program tests the functionality of the 'bslmt::Configuration' class.
 //
-// Note that since this component is below 'bdlqq::ThreadUtil', we cannot
+// Note that since this component is below 'bslmt::ThreadUtil', we cannot
 // actually create any threads and verify stack sizes, so some testing of this
-// component is done in 'bdlqq_threadutil.t.cpp'.
+// component is done in 'bslmt_threadutil.t.cpp'.
 //
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
@@ -74,7 +74,7 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::Configuration Obj;
+typedef bslmt::Configuration Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             ASSERT(native == Obj::nativeDefaultThreadStackSize());
-            ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
+            ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                 Obj::defaultThreadStackSize());
         }
 
@@ -147,13 +147,13 @@ int main(int argc, char *argv[])
         // First, we examine the native thread stack size:
 
         const int nativeDefault =
-                          bdlqq::Configuration::nativeDefaultThreadStackSize();
+                          bslmt::Configuration::nativeDefaultThreadStackSize();
         ASSERT(nativeDefault > 0);
 
         // Then, we verify that 'defaultThreadStackSize' is unset.
 
-        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
-                               bdlqq::Configuration::defaultThreadStackSize());
+        ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
+                               bslmt::Configuration::defaultThreadStackSize());
 
         // Next, we define 'newDefaultStackSize' to some size other than the
         // native default size:
@@ -162,14 +162,14 @@ int main(int argc, char *argv[])
 
         // Now, we set the default size to the new size:
 
-        bdlqq::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
+        bslmt::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
 
         // Finally, we verify that the default thread stack size has been set
         // to the value we specified:
 
-        ASSERT(bdlqq::Configuration::defaultThreadStackSize() ==
+        ASSERT(bslmt::Configuration::defaultThreadStackSize() ==
                                                           newDefaultStackSize);
-        ASSERT(bdlqq::Configuration::defaultThreadStackSize() !=
+        ASSERT(bslmt::Configuration::defaultThreadStackSize() !=
                                                                 nativeDefault);
       }  break;
       case 2: {
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
                              "==============\n";
 
         bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
-        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
+        ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                        (int) defaultStackSize);
 
         defaultStackSize = Obj::nativeDefaultThreadStackSize();

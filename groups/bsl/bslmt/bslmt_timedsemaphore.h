@@ -1,6 +1,6 @@
-// bdlqq_timedsemaphore.h                                             -*-C++-*-
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHORE
-#define INCLUDED_BDLQQ_TIMEDSEMAPHORE
+// bslmt_timedsemaphore.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHORE
+#define INCLUDED_BSLMT_TIMEDSEMAPHORE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,21 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a timed semaphore class.
 //
 //@CLASSES:
-//  bdlqq::TimedSemaphore: timed semaphore class
+//  bslmt::TimedSemaphore: timed semaphore class
 //
-//@SEE_ALSO: bdlqq_semaphore
+//@SEE_ALSO: bslmt_semaphore
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
 //@DESCRIPTION: This component defines a portable and efficient thread
-// synchronization primitive.  In particular, 'bdlqq::TimedSemaphore' is an
+// synchronization primitive.  In particular, 'bslmt::TimedSemaphore' is an
 // efficient synchronization primitive that enables sharing of a counted number
 // of resources or exclusive access.
 //
-// 'bdlqq::TimedSemaphore' differs from 'bdlqq::Semaphore' in that the former
+// 'bslmt::TimedSemaphore' differs from 'bslmt::Semaphore' in that the former
 // supports a 'timedWait' method, whereas the latter does not.  In addition,
-// 'bdlqq::Semaphore' has a 'getValue' accessor, whereas
-// 'bdlqq::TimedSemaphore' does not.  In the case of the timed semaphore,
+// 'bslmt::Semaphore' has a 'getValue' accessor, whereas
+// 'bslmt::TimedSemaphore' does not.  In the case of the timed semaphore,
 // 'getValue' cannot be implemented efficiently on all platforms, so that
 // method is *intentionally* not provided.
 //
@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      bdlc::Queue<int>      d_queue;       // underlying queue
-//      bdlqq::TimedSemaphore d_mutexSem;    // mutual-access semaphore
-//      bdlqq::TimedSemaphore d_resourceSem; // resource-availability semaphore
+//      bslmt::TimedSemaphore d_mutexSem;    // mutual-access semaphore
+//      bslmt::TimedSemaphore d_resourceSem; // resource-availability semaphore
 //
 //      // NOT IMPLEMENTED
 //      IntQueue(const IntQueue&);
@@ -120,24 +120,24 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_POSIXADV
-#include <bdlqq_timedsemaphoreimpl_posixadv.h>
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
+#include <bslmt_timedsemaphoreimpl_posixadv.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_PTHREAD
-#include <bdlqq_timedsemaphoreimpl_pthread.h>
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_PTHREAD
+#include <bslmt_timedsemaphoreimpl_pthread.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_WIN32
-#include <bdlqq_timedsemaphoreimpl_win32.h>
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
+#include <bslmt_timedsemaphoreimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
@@ -234,50 +234,50 @@ class TimedSemaphore {
 
 // CREATORS
 inline
-bdlqq::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
+bslmt::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
 : d_impl(clockType)
 {
 }
 
 inline
-bdlqq::TimedSemaphore::TimedSemaphore(int                         count,
+bslmt::TimedSemaphore::TimedSemaphore(int                         count,
                                       bsls::SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
 
 inline
-bdlqq::TimedSemaphore::~TimedSemaphore()
+bslmt::TimedSemaphore::~TimedSemaphore()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::TimedSemaphore::post()
+void bslmt::TimedSemaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void bdlqq::TimedSemaphore::post(int value)
+void bslmt::TimedSemaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int bdlqq::TimedSemaphore::timedWait(const bsls::TimeInterval& timeout)
+int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& timeout)
 {
     return d_impl.timedWait(timeout);
 }
 
 inline
-int bdlqq::TimedSemaphore::tryWait()
+int bslmt::TimedSemaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void bdlqq::TimedSemaphore::wait()
+void bslmt::TimedSemaphore::wait()
 {
     d_impl.wait();
 }

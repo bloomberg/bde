@@ -1,16 +1,16 @@
-// bdlqq_threadutilimpl_pthread.cpp                                   -*-C++-*-
-#include <bdlqq_threadutilimpl_pthread.h>
+// bslmt_threadutilimpl_pthread.cpp                                   -*-C++-*-
+#include <bslmt_threadutilimpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_configuration.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#include <bslmt_configuration.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -45,9 +45,9 @@ static inline
 int localPthreadsPolicy(int policy)
     // Return the native pthreads scheduling policy corresponding to the
     // specified 'policy' which is of type
-    // 'bdlqq::ThreadAttributes::SchedulingPolicy'.
+    // 'bslmt::ThreadAttributes::SchedulingPolicy'.
 {
-    typedef bdlqq::ThreadAttributes Attr;
+    typedef bslmt::ThreadAttributes Attr;
 
     switch (policy) {
       case Attr::e_SCHED_OTHER:   return SCHED_OTHER;                 // RETURN
@@ -66,13 +66,13 @@ int localPthreadsPolicy(int policy)
 }
 
 static int initPthreadAttribute(pthread_attr_t                 *dest,
-                                const bdlqq::ThreadAttributes&  src)
+                                const bslmt::ThreadAttributes&  src)
     // Initialize the specified pthreads attribute type 'dest', configuring it
     // with information from the specified thread attributes object 'src'.
     // Note that it is assumed that 'dest' is uninitialized and
     // 'pthread_attr_init' has not already been call on it.
 {
-    typedef bdlqq::ThreadAttributes Attr;
+    typedef bslmt::ThreadAttributes Attr;
 
     int rc = pthread_attr_init(dest);
     if (0 != rc) {
@@ -112,7 +112,7 @@ static int initPthreadAttribute(pthread_attr_t                 *dest,
 
     int stackSize = src.stackSize();
     if (Attr::e_UNSET_STACK_SIZE == stackSize) {
-        stackSize = bdlqq::Configuration::defaultThreadStackSize();
+        stackSize = bslmt::Configuration::defaultThreadStackSize();
     }
 
     if (Attr::e_UNSET_STACK_SIZE != stackSize) {
@@ -196,11 +196,11 @@ class MachClockGuard {
 
 // CLASS DATA
 const pthread_t
-bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::INVALID_HANDLE =
+bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::INVALID_HANDLE =
                                                                 (pthread_t) -1;
 
 // CLASS METHODS
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
                                             Handle                  *handle,
                                             const ThreadAttributes&  attribute,
                                             bcemt_ThreadFunction     function,
@@ -231,7 +231,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
 
                 // *** Thread Priorities ***
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
       getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy policy)
 {
     typedef ThreadAttributes Attributes;
@@ -326,7 +326,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
 
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
       getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy policy)
 {
     int pPolicy;
@@ -367,7 +367,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
     return priority;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleep(
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleep(
                                        const bsls::TimeInterval&  sleepTime,
                                        bsls::TimeInterval        *unsleeptTime)
 {
@@ -383,7 +383,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleep(
     return result;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::microSleep(
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
                                                int                 microsecs,
                                                int                 seconds,
                                                bsls::TimeInterval *unsleptTime)
@@ -404,7 +404,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::microSleep(
     return result;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
+int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
                              const bsls::TimeInterval&   absoluteTime,
                              bool                        retryOnSignalInterupt,
                              bsls::SystemClockType::Enum clockType)

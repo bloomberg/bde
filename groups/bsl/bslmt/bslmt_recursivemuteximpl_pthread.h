@@ -1,29 +1,29 @@
-// bdlqq_recursivemuteximpl_pthread.h                                 -*-C++-*-
-#ifndef INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_PTHREAD
-#define INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_PTHREAD
+// bslmt_recursivemuteximpl_pthread.h                                 -*-C++-*-
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
+#define INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bdlqq::RecursiveMutex'.
+//@PURPOSE: Provide a POSIX implementation of 'bslmt::RecursiveMutex'.
 //
 //@CLASSES:
-//  bdlqq::RecursiveMutexImpl<PosixThreads>: POSIX specialization
+//  bslmt::RecursiveMutexImpl<PosixThreads>: POSIX specialization
 //
-//@SEE_ALSO: bdlqq_recursivemutex
+//@SEE_ALSO: bslmt_recursivemutex
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::RecursiveMutex' for POSIX threads ("pthreads") via the template
+// 'bslmt::RecursiveMutex' for POSIX threads ("pthreads") via the template
 // specialization:
 //..
-//  bdlqq::RecursiveMutexImpl<Platform::PosixThreads>
+//  bslmt::RecursiveMutexImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::RecursiveMutex'.
+// should instead use 'bslmt::RecursiveMutex'.
 //
 ///Usage
 ///-----
@@ -31,15 +31,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class RecursiveMutexImpl;
@@ -136,14 +136,14 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::~RecursiveMutexImpl()
+bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::~RecursiveMutexImpl()
 {
     pthread_mutex_destroy(&d_lock);
 }
 
 }  // close enterprise namespace
 
-#endif // BDLQQ_PLATFORM_POSIX_THREADS
+#endif // BSLMT_PLATFORM_POSIX_THREADS
 
 #endif
 

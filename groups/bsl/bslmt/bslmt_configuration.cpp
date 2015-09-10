@@ -1,10 +1,10 @@
-// bdlqq_configuration.cpp                                            -*-C++-*-
-#include <bdlqq_configuration.h>
+// bslmt_configuration.cpp                                            -*-C++-*-
+#include <bslmt_configuration.h>
 
-#include <bdlqq_threadattributes.h>
+#include <bslmt_threadattributes.h>
 
 #include <bsls_atomicoperations.h>
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
@@ -14,18 +14,18 @@
 #include <bsl_cstddef.h>
 #include <bsl_c_limits.h>
 
-#if defined(BDLQQ_PLATFORM_POSIX_THREADS)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS)
 # include <pthread.h>
-#elif defined(BDLQQ_PLATFORM_WIN32_THREADS)
+#elif defined(BSLMT_PLATFORM_WIN32_THREADS)
 # include <windows.h>
 #else
 # error unrecognized threading platform
 #endif
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_configuration_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_configuration_cpp,"$Id$ $CSID$")
 
-#if defined(BDLQQ_PLATFORM_POSIX_THREADS)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS)
 
 # ifdef BSLS_PLATFORM_OS_SOLARIS
 static int nativeDefaultThreadStackSizeImp()
@@ -67,7 +67,7 @@ static int nativeDefaultThreadStackSizeImp()
     // adjust the returned value to reflect the amount of memory that will be
     // available to clients for initializing data on the stack.  Note that
     // mechanisms for creating a thread should have a corresponding inverse of
-    // this adjustment (see 'bdlqq_threadutil').
+    // this adjustment (see 'bslmt_threadutil').
 
     threadStackSize /= 2;
 #  endif
@@ -106,7 +106,7 @@ namespace BloombergLP {
 static bsls::AtomicOperations::AtomicTypes::Int
 defaultThreadStackSizeValue = { -1 };
 
-int bdlqq::Configuration::defaultThreadStackSize()
+int bslmt::Configuration::defaultThreadStackSize()
 {
     if (bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue) <
                                                                            0) {
@@ -116,7 +116,7 @@ int bdlqq::Configuration::defaultThreadStackSize()
     return bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue);
 }
 
-int bdlqq::Configuration::nativeDefaultThreadStackSize()
+int bslmt::Configuration::nativeDefaultThreadStackSize()
 {
     static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
 
@@ -129,9 +129,9 @@ int bdlqq::Configuration::nativeDefaultThreadStackSize()
     return bsls::AtomicOperations::getIntRelaxed(&ret);
 }
 
-int bdlqq::Configuration::nativeDefaultThreadGuardSize()
+int bslmt::Configuration::nativeDefaultThreadGuardSize()
 {
-#if defined(BDLQQ_PLATFORM_POSIX_THREADS)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS)
     static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
 
     if (bsls::AtomicOperations::getIntRelaxed(&ret) < 0) {
@@ -161,7 +161,7 @@ int bdlqq::Configuration::nativeDefaultThreadGuardSize()
 #endif
 }
 
-int bdlqq::Configuration::recommendedDefaultThreadStackSize()
+int bslmt::Configuration::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
@@ -177,9 +177,9 @@ int bdlqq::Configuration::recommendedDefaultThreadStackSize()
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
 
-void bdlqq::Configuration::setDefaultThreadStackSize(int numBytes)
+void bslmt::Configuration::setDefaultThreadStackSize(int numBytes)
 {
-#if defined(BDLQQ_PLATFORM_POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
     BSLS_ASSERT_OPT(numBytes >= static_cast<int>(PTHREAD_STACK_MIN));
 #else
     BSLS_ASSERT_OPT(numBytes > 0);

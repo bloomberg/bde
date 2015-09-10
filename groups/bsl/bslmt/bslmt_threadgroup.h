@@ -1,6 +1,6 @@
-// bdlqq_threadgroup.h                                                -*-C++-*-
-#ifndef INCLUDED_BDLQQ_THREADGROUP
-#define INCLUDED_BDLQQ_THREADGROUP
+// bslmt_threadgroup.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLMT_THREADGROUP
+#define INCLUDED_BSLMT_THREADGROUP
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,13 +12,13 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@CLASSES:
-// bdlqq::ThreadGroup: A container that manages a group of threads.
+// bslmt::ThreadGroup: A container that manages a group of threads.
 //
-//@SEE_ALSO: bdlqq_threadutil, bdlqq_threadattributes
+//@SEE_ALSO: bslmt_threadutil, bslmt_threadattributes
 //
 //@DESCRIPTION: This component provides a simple mechanism for managing a group
 // of threads.  The group is represented by an instance of the
-// 'bdlqq::ThreadGroup' class.  To use this component, the client code calls
+// 'bslmt::ThreadGroup' class.  To use this component, the client code calls
 // 'addThread', providing a function to be executed.  The specified function is
 // executed in a new thread managed by the thread group (note that 'addThread'
 // is thread-safe).  The 'joinAll' call blocks until all threads in the group
@@ -28,14 +28,14 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This component is thread-safe and thread-enabled, meaning that multiple
 // threads may safely use their own instances or a shared instance of a
-// 'bdlqq::ThreadGroup' object.
+// 'bslmt::ThreadGroup' object.
 //
 ///Usage
 ///-----
-// The following usage example illustrates how 'bdlqq::ThreadGroup' might be
+// The following usage example illustrates how 'bslmt::ThreadGroup' might be
 // used in a typical test driver to simplify the execution of a common function
 // in multiple threads.  Suppose that we are interested in creating a
-// stress-test for the 'bdlqq::Mutex' class.  The test is controlled by two
+// stress-test for the 'bslmt::Mutex' class.  The test is controlled by two
 // parameters: the number of executions (defined by subsequent calls to 'lock'
 // and 'unlock', and the amount of contention, defined by the number of threads
 // accessing the mutex.  The test can be expressed as two functions.  The first
@@ -44,10 +44,10 @@ BSLS_IDENT("$Id: $")
 //  class MutexTestJob {
 //     int           d_numIterations;
 //     int          *d_value_p;
-//     bdlqq::Mutex *d_mutex_p;
+//     bslmt::Mutex *d_mutex_p;
 //
 //   public:
-//     MutexTestJob(int numIterations, int *value, bdlqq::Mutex *mutex)
+//     MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
 //     : d_numIterations(numIterations)
 //     , d_value_p(value)
 //     , d_mutex_p(mutex)
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //
 //     void operator()() {
 //        for (int i = 0; i < d_numIterations; ++i) {
-//           bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
+//           bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
 //           ++*d_value_p;
 //        }
 //     }
@@ -68,12 +68,12 @@ BSLS_IDENT("$Id: $")
 //      const int NUM_ITERATIONS = 10000;
 //      const int NUM_THREADS    = 8;
 //
-//      bdlqq::Mutex   mutex;                     // object under test
+//      bslmt::Mutex   mutex;                     // object under test
 //      int            value = 0;
 //
 //      MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 //
-//      bdlqq::ThreadGroup tg(&ta);
+//      bslmt::ThreadGroup tg(&ta);
 //      for (int i = 0; i < NUM_THREADS; ++i) {
 //          ASSERT(0 == tg.addThread(testJob));
 //      }
@@ -84,24 +84,24 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(0 == ta.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                             // =================
                             // class ThreadGroup
@@ -213,20 +213,20 @@ class ThreadGroup {
 // MANIPULATORS
 template<typename INVOKABLE>
 inline
-int bdlqq::ThreadGroup::addThread(const INVOKABLE& functor)
+int bslmt::ThreadGroup::addThread(const INVOKABLE& functor)
 {
     return addThread(functor, ThreadAttributes());
 }
 
 template<typename INVOKABLE>
 inline
-int bdlqq::ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
+int bslmt::ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
 
 template<typename INVOKABLE>
-int bdlqq::ThreadGroup::addThread(const INVOKABLE&        functor,
+int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
                                   const ThreadAttributes& attributes)
 {
     ThreadUtil::Handle handle;
@@ -248,7 +248,7 @@ int bdlqq::ThreadGroup::addThread(const INVOKABLE&        functor,
 }
 
 template<typename INVOKABLE>
-int bdlqq::ThreadGroup::addThreads(const INVOKABLE&        functor,
+int bslmt::ThreadGroup::addThreads(const INVOKABLE&        functor,
                                    int                     numThreads,
                                    const ThreadAttributes& attributes)
 {
@@ -265,7 +265,7 @@ int bdlqq::ThreadGroup::addThreads(const INVOKABLE&        functor,
 
 // ACCESSORS
 inline
-int bdlqq::ThreadGroup::numThreads() const
+int bslmt::ThreadGroup::numThreads() const
 {
    return d_numThreads.loadRelaxed();
 }

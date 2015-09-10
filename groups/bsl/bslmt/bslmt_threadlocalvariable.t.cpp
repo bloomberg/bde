@@ -1,5 +1,5 @@
-// bdlqq_threadlocalvariable.t.cpp                                    -*-C++-*-
-#include <bdlqq_threadlocalvariable.h>
+// bslmt_threadlocalvariable.t.cpp                                    -*-C++-*-
+#include <bslmt_threadlocalvariable.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -24,7 +24,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The 'bdlqq_threadlocalvariable' component defines a macro
+// The 'bslmt_threadlocalvariable' component defines a macro
 // 'BCES_THREAD_LOCAL_VARIABLE' that declares a thread local variable.  The
 // tests verify that the variable is static (i.e., it has the same address on
 // every invocation on the same thread), that it is thread-local (i.e., it has

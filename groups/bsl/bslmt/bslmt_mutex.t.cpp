@@ -1,9 +1,9 @@
-// bdlqq_mutex.t.cpp                                                  -*-C++-*-
+// bslmt_mutex.t.cpp                                                  -*-C++-*-
 
-#include <bdlqq_mutex.h>
+#include <bslmt_mutex.h>
 
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -52,7 +52,7 @@ static void aSsErT(int c, const char *s, int i)
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::Mutex Obj;
+typedef bslmt::Mutex Obj;
 
 class ZeroInt {
     int d_i;
@@ -131,14 +131,14 @@ namespace BCEMT_MUTEX_CASE_MINUS_1 {
     enum { NUM_NOT_URGENT_THREADS = 128,
            NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
 
-int translatePriority(bdlqq::ThreadAttributes::SchedulingPolicy policy,
+int translatePriority(bslmt::ThreadAttributes::SchedulingPolicy policy,
                       bool                                      low)
 {
     if (low) {
-        return bdlqq::ThreadUtil::getMinSchedulingPriority(policy);   // RETURN
+        return bslmt::ThreadUtil::getMinSchedulingPriority(policy);   // RETURN
     }
     else {
-        return bdlqq::ThreadUtil::getMaxSchedulingPriority(policy);   // RETURN
+        return bslmt::ThreadUtil::getMaxSchedulingPriority(policy);   // RETURN
     }
 }
 
@@ -148,7 +148,7 @@ struct F {
     static bool           s_firstThread;
     static bsls::AtomicInt s_lockCount;
     static bsls::AtomicInt s_finished;
-    static bdlqq::Mutex    s_mutex;
+    static bslmt::Mutex    s_mutex;
 
     // CREATORS
     F() : d_urgent(false) {}
@@ -160,7 +160,7 @@ int            F::s_urgentPlace;
 bool           F::s_firstThread = 1;
 bsls::AtomicInt F::s_finished(0);
 bsls::AtomicInt F::s_lockCount(0);
-bdlqq::Mutex    F::s_mutex;
+bslmt::Mutex    F::s_mutex;
 
 void F::operator()()
 {
@@ -174,7 +174,7 @@ void F::operator()()
 
             // Careful!  This could take 2 seconds to wake up!
 
-            bdlqq::ThreadUtil::microSleep(200 * 1000);
+            bslmt::ThreadUtil::microSleep(200 * 1000);
             ASSERT(NUM_THREADS == s_lockCount);
         }
         s_mutex.unlock();
@@ -227,15 +227,15 @@ int main(int argc, char *argv[])
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             attr.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-            bdlqq::ThreadUtil::Handle dum;
-            bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
+            bslmt::ThreadUtil::Handle dum;
+            bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
             for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {
-                bdlqq::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 != args.d_retval); // should fail
@@ -247,11 +247,11 @@ int main(int argc, char *argv[])
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
-            bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
+            bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
             for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {
-                bdlqq::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 == args.d_retval); // should succeed
@@ -268,11 +268,11 @@ int main(int argc, char *argv[])
 
         namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
 
-        typedef bdlqq::ThreadAttributes::SchedulingPolicy Policy;
-        const Policy DF = bdlqq::ThreadAttributes::e_SCHED_DEFAULT;
-        const Policy SO = bdlqq::ThreadAttributes::e_SCHED_OTHER;
-        const Policy SF = bdlqq::ThreadAttributes::e_SCHED_FIFO;
-        const Policy SR = bdlqq::ThreadAttributes::e_SCHED_RR;
+        typedef bslmt::ThreadAttributes::SchedulingPolicy Policy;
+        const Policy DF = bslmt::ThreadAttributes::e_SCHED_DEFAULT;
+        const Policy SO = bslmt::ThreadAttributes::e_SCHED_OTHER;
+        const Policy SF = bslmt::ThreadAttributes::e_SCHED_FIFO;
+        const Policy SR = bslmt::ThreadAttributes::e_SCHED_RR;
 
         ZeroIntMap urgentPlaces[2];
 
@@ -335,21 +335,21 @@ int main(int argc, char *argv[])
             TC::F::s_firstThread = true;
 
             TC::F fs[TC::NUM_THREADS];
-            bdlqq::ThreadUtil::Handle handles[TC::NUM_THREADS];
+            bslmt::ThreadUtil::Handle handles[TC::NUM_THREADS];
 
-            bdlqq::ThreadAttributes notUrgentAttr;
+            bslmt::ThreadAttributes notUrgentAttr;
             notUrgentAttr.setStackSize(1024 * 1024);
             notUrgentAttr.setInheritSchedule(0);
             notUrgentAttr.setSchedulingPolicy(POLICY);
 
-            bdlqq::ThreadAttributes urgentAttr(notUrgentAttr);
+            bslmt::ThreadAttributes urgentAttr(notUrgentAttr);
 
             if (NORM_PRI) {
                 notUrgentAttr.setSchedulingPriority(
-                                bdlqq::ThreadUtil::convertToSchedulingPriority(
+                                bslmt::ThreadUtil::convertToSchedulingPriority(
                                                  POLICY, NORM_NOT_URGENT_PRI));
                 urgentAttr.   setSchedulingPriority(
-                                bdlqq::ThreadUtil::convertToSchedulingPriority(
+                                bslmt::ThreadUtil::convertToSchedulingPriority(
                                                  POLICY, NORM_URGENT_PRI));
             }
             else {
@@ -362,11 +362,11 @@ int main(int argc, char *argv[])
             int rc;
             int numThreads = 0;
             for ( ; numThreads < TC::NUM_THREADS; ++numThreads) {
-                bdlqq::ThreadAttributes *attr
+                bslmt::ThreadAttributes *attr
                                       = numThreads < TC::NUM_NOT_URGENT_THREADS
                                       ? &notUrgentAttr
                                       : &urgentAttr;
-                rc = bdlqq::ThreadUtil::create(&handles[numThreads],
+                rc = bslmt::ThreadUtil::create(&handles[numThreads],
                                               *attr,
                                               fs[numThreads]);
                 LOOP3_ASSERT(LINE, rc, numThreads, 0 == rc);
@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
             }
 
             for (int j = 0; j < numThreads; ++j) {
-                rc = bdlqq::ThreadUtil::join(handles[j]);
+                rc = bslmt::ThreadUtil::join(handles[j]);
                 LOOP3_ASSERT(LINE, rc, j, 0 == rc);
                 if (rc) {
                     break;

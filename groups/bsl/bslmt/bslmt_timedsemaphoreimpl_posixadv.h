@@ -1,32 +1,32 @@
-// bdlqq_timedsemaphoreimpl_posixadv.h                                -*-C++-*-
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_POSIXADV
-#define INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_POSIXADV
+// bslmt_timedsemaphoreimpl_posixadv.h                                -*-C++-*-
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
+#define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide "advanced" POSIX implementation of 'bdlqq::TimedSemaphore'.
+//@PURPOSE: Provide "advanced" POSIX implementation of 'bslmt::TimedSemaphore'.
 //
 //@CLASSES:
-//  bdlqq::TimedSemaphoreImpl<PosixAdvTimedSemaphore>: POSIXa specialization
+//  bslmt::TimedSemaphoreImpl<PosixAdvTimedSemaphore>: POSIXa specialization
 //
-//@SEE_ALSO: bdlqq_timedsemaphore
+//@SEE_ALSO: bslmt_timedsemaphore
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::TimedSemaphore' for conforming POSIX platforms via the template
+// 'bslmt::TimedSemaphore' for conforming POSIX platforms via the template
 // specialization:
 //..
-//  bdlqq::TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore>
+//  bslmt::TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::TimedSemaphore'.
+// should instead use 'bslmt::TimedSemaphore'.
 //
-// This implementation of 'bdlqq::TimedSemaphore' is preferred over that
-// defined in 'bdlqq_timedsemaphoreimpl_pthread' on platforms that support
+// This implementation of 'bslmt::TimedSemaphore' is preferred over that
+// defined in 'bslmt_timedsemaphoreimpl_pthread' on platforms that support
 // advanced realtime POSIX extensions (e.g., 'sem_timedwait').
 //
 ///Supported Clock-Types
@@ -48,15 +48,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIXADV_TIMEDSEMAPHORE
+#ifdef BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
 // Platform-specific implementation starts here.
 
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
@@ -163,7 +163,7 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 
 // CREATORS
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -171,7 +171,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
 }
 
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -179,7 +179,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
 }
 
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     ~TimedSemaphoreImpl()
 {
     ::sem_destroy(&d_sem);
@@ -187,13 +187,13 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
 
 // MANIPULATORS
 inline
-void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post()
+void bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::post()
 {
     ::sem_post(&d_sem);
 }
 
 inline
-int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     tryWait()
 {
     return ::sem_trywait(&d_sem);
@@ -201,7 +201,7 @@ int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 #endif
 

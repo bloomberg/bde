@@ -1,28 +1,28 @@
-// bdlqq_conditionimpl_pthread.h                                      -*-C++-*-
-#ifndef INCLUDED_BDLQQ_CONDITIONIMPL_PTHREAD
-#define INCLUDED_BDLQQ_CONDITIONIMPL_PTHREAD
+// bslmt_conditionimpl_pthread.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_PTHREAD
+#define INCLUDED_BSLMT_CONDITIONIMPL_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bdlqq::Condition'.
+//@PURPOSE: Provide a POSIX implementation of 'bslmt::Condition'.
 //
 //@CLASSES:
-//  bdlqq::ConditionImpl<PosixThreads>: POSIX specialization
+//  bslmt::ConditionImpl<PosixThreads>: POSIX specialization
 //
-//@SEE_ALSO: bdlqq_condition
+//@SEE_ALSO: bslmt_condition
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Condition'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
 // for POSIX threads ("pthreads") via the template specialization:
 //..
-//  bdlqq::ConditionImpl<Platform::PosixThreads>
+//  bslmt::ConditionImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Condition'.
+// should instead use 'bslmt::Condition'.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -43,16 +43,16 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class ConditionImpl;
@@ -175,33 +175,33 @@ class ConditionImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::~ConditionImpl()
+bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::~ConditionImpl()
 {
     pthread_cond_destroy(&d_cond);
 }
 
 // MANIPULATORS
 inline
-void bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::broadcast()
+void bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::broadcast()
 {
     pthread_cond_broadcast(&d_cond);
 }
 
 inline
-void bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::signal()
+void bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::signal()
 {
     pthread_cond_signal(&d_cond);
 }
 
 inline
-int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::wait(Mutex *mutex)
+int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::wait(Mutex *mutex)
 {
     return pthread_cond_wait(&d_cond, &mutex->nativeMutex());
 }
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 #endif
 

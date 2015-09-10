@@ -1,8 +1,8 @@
-// bdlqq_recursivemuteximpl_win32.cpp                                 -*-C++-*-
-#include <bdlqq_recursivemuteximpl_win32.h>
+// bslmt_recursivemuteximpl_win32.cpp                                 -*-C++-*-
+#include <bslmt_recursivemuteximpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_recursivemuteximpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_recursivemuteximpl_win32_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

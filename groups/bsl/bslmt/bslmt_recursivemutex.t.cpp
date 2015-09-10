@@ -1,8 +1,8 @@
-// bdlqq_recursivemutex.t.cpp                                         -*-C++-*-
-#include <bdlqq_recursivemutex.h>
+// bslmt_recursivemutex.t.cpp                                         -*-C++-*-
+#include <bslmt_recursivemutex.h>
 
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 #include <bsls_atomic.h>
 
 #include <bsls_stopwatch.h>
@@ -49,7 +49,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::RecursiveMutex Obj;
+typedef bslmt::RecursiveMutex Obj;
 
 extern "C" {
    typedef void *(*ThreadFunction)(void *);
@@ -57,18 +57,18 @@ extern "C" {
 
 void My_Sleep(int ms)
 {
-    bdlqq::ThreadUtil::microSleep(1000 * ms);
+    bslmt::ThreadUtil::microSleep(1000 * ms);
 }
 
 void My_CreateDetachedThread(ThreadFunction function, void* userData) {
-    bdlqq::ThreadAttributes attr;
-    attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-    bdlqq::ThreadUtil::Handle dum;
-    bdlqq::ThreadUtil::create(&dum, attr, function, userData);
+    bslmt::ThreadAttributes attr;
+    attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
+    bslmt::ThreadUtil::Handle dum;
+    bslmt::ThreadUtil::create(&dum, attr, function, userData);
 }
 
 struct Case1 {
-    bdlqq::RecursiveMutex *d_lock;
+    bslmt::RecursiveMutex *d_lock;
     bsls::AtomicInt d_retval;
     bsls::AtomicInt d_retvalSet;
 };
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                 MAX_SLEEP_CYCLES = 1000
             };
 
-            bdlqq::RecursiveMutex lock;
+            bslmt::RecursiveMutex lock;
             lock.lock();
             ASSERT(0 == lock.tryLock());
 

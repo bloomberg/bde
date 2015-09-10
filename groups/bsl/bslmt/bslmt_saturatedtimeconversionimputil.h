@@ -1,6 +1,6 @@
-// bdlqq_saturatedtimeconversionimputil.h                             -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SATURATEDTIMECONVERSIONIMPUTIL
-#define INCLUDED_BDLQQ_SATURATEDTIMECONVERSIONIMPUTIL
+// bslmt_saturatedtimeconversionimputil.h                             -*-C++-*-
+#ifndef INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
+#define INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide special narrowing conversions for time types.
 //
 //@CLASSES:
-//   bdlqq::SaturatedTimeConversionImpUtil: saturating time conversions.
+//   bslmt::SaturatedTimeConversionImpUtil: saturating time conversions.
 //
 //@SEE_ALSO:
 //
@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // representable range of the destination variable, the destination variable
 // will be set to its maximum or minimum value (whichever is closer to the
 // input value).  Such saturating conversions are typically used to implement
-// functions with a time-out (e.g., 'bdlqq::Condition::timedWait') where a
+// functions with a time-out (e.g., 'bslmt::Condition::timedWait') where a
 // user-supplied time-out must be converted to a different time type before
 // calling a system-library function.  In such situations it is often simpler,
 // safer, and within contract to perform a saturating conversion, rather than
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // interval expressed in milliseconds.  A 'bsls::TimeInterval' is able to
 // represent intervals that are outside the range of intervals that can be
 // represented by an 'unsigned int' number of milliseconds (e.g., any negative
-// time interval).  'bdlqq::SaturatedTimeConversionImpUtil' handles values
+// time interval).  'bslmt::SaturatedTimeConversionImpUtil' handles values
 // outside the representable range of the destination type by "saturating",
 // that is values outside the representable range of the destination type will
 // be assigned the maximum or minimum representable value of the destination
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // 'toMillisec' converts it without modification (beyond loss of precision):
 //..
 //  sourceInterval.setInterval(4, 321000000);
-//  bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 //                                       &destinationInterval, sourceInterval);
 //  assert(4321 == destinationInterval);
 //..
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //  bsls::TimeInterval maximumTimeInterval(
 //                              maxDestinationInterval / 1000,
 //                              (maxDestinationInterval % 1000) * 1000 * 1000);
-//  bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 //                                 &destinationInterval, maximumTimeInterval);
 //  assert(maxDestinationInterval == destinationInterval);
 //..
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
 //                                          bsls::TimeInterval(0, 1000 * 1000);
-//  bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 //                                     &destinationInterval, aboveMaxInterval);
 //  assert(maxDestinationInterval == destinationInterval);
 //..
@@ -83,21 +83,17 @@ BSLS_IDENT("$Id: $")
 // conversion is 0 (the minimum representable value):
 //..
 //  bsls::TimeInterval belowMinimumInterval(-1, 0);
-//  bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 //                                 &destinationInterval, belowMinimumInterval);
 //  assert(0 == destinationInterval);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
-#include <bsls_timeinterval.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -110,6 +106,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                    // ====================================
                    // class SaturatedTimeConversionImpUtil
@@ -160,7 +160,7 @@ struct SaturatedTimeConversionImpUtil {
     // defined as a struct on Windows, to guarantee that 'TimeSpec' exists on
     // all platforms.
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
     typedef timespec TimeSpec;
 #else
     struct TimeSpec {

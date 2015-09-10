@@ -1,12 +1,12 @@
-// bdlqq_once.cpp                                                     -*-C++-*-
-#include <bdlqq_once.h>
+// bslmt_once.cpp                                                     -*-C++-*-
+#include <bslmt_once.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_once_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_once_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_threadattributes.h>    // for testing only
-#include <bdlqq_threadutil.h>          // for testing only
-#include <bdlqq_barrier.h>             // for testing only
+#include <bslmt_threadattributes.h>    // for testing only
+#include <bslmt_threadutil.h>          // for testing only
+#include <bslmt_barrier.h>             // for testing only
 
 #include <bsl_exception.h>
 
@@ -18,7 +18,7 @@ namespace BloombergLP {
                                 // class Once
                                 // ----------
 
-bool bdlqq::Once::enter(Once::OnceLock *onceLock)
+bool bslmt::Once::enter(Once::OnceLock *onceLock)
 {
     if (e_DONE == bsls::AtomicOperations::getInt(&d_state)) {
         return false;                                                 // RETURN
@@ -43,7 +43,7 @@ bool bdlqq::Once::enter(Once::OnceLock *onceLock)
     return false;
 }
 
-void bdlqq::Once::leave(Once::OnceLock *onceLock)
+void bslmt::Once::leave(Once::OnceLock *onceLock)
 {
     BSLS_ASSERT(e_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
@@ -51,7 +51,7 @@ void bdlqq::Once::leave(Once::OnceLock *onceLock)
     onceLock->unlock();
 }
 
-void bdlqq::Once::cancel(Once::OnceLock *onceLock)
+void bslmt::Once::cancel(Once::OnceLock *onceLock)
 {
     BSLS_ASSERT(e_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
@@ -63,7 +63,7 @@ void bdlqq::Once::cancel(Once::OnceLock *onceLock)
                              // class OnceGuard
                              // ---------------
 
-bdlqq::OnceGuard::~OnceGuard()
+bslmt::OnceGuard::~OnceGuard()
 {
     if (e_IN_PROGRESS != d_state) {
         return;                                                       // RETURN
@@ -78,7 +78,7 @@ bdlqq::OnceGuard::~OnceGuard()
     }
 }
 
-bool bdlqq::OnceGuard::enter()
+bool bslmt::OnceGuard::enter()
 {
     if (e_DONE == d_state) {
         return false;                                                 // RETURN
@@ -96,7 +96,7 @@ bool bdlqq::OnceGuard::enter()
     }
 }
 
-void bdlqq::OnceGuard::leave()
+void bslmt::OnceGuard::leave()
 {
     if (e_IN_PROGRESS == d_state) {
         d_once->leave(&d_onceLock);
@@ -104,7 +104,7 @@ void bdlqq::OnceGuard::leave()
     }
 }
 
-void bdlqq::OnceGuard::cancel()
+void bslmt::OnceGuard::cancel()
 {
     if (e_IN_PROGRESS == d_state) {
         d_once->cancel(&d_onceLock);

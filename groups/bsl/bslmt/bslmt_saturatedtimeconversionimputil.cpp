@@ -1,8 +1,8 @@
-// bdlqq_saturatedtimeconversionimputil.cpp                           -*-C++-*-
-#include <bdlqq_saturatedtimeconversionimputil.h>
+// bslmt_saturatedtimeconversionimputil.cpp                           -*-C++-*-
+#include <bslmt_saturatedtimeconversionimputil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_conditional.h>
 
@@ -110,7 +110,7 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
 }
 
 // PUBLIC CLASS METHODS
-void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
+void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
                                                 TimeSpec                  *dst,
                                                 const bsls::TimeInterval&  src)
 {
@@ -133,7 +133,7 @@ void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
-void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
+void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
                                                 mach_timespec_t           *dst,
                                                 const bsls::TimeInterval&  src)
 {
@@ -154,7 +154,7 @@ void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
 }
 #endif
 
-void bdlqq::SaturatedTimeConversionImpUtil::toTimeT(
+void bslmt::SaturatedTimeConversionImpUtil::toTimeT(
                                                  bsl::time_t              *dst,
                                                  const bsls::Types::Int64  src)
 {
@@ -163,7 +163,7 @@ void bdlqq::SaturatedTimeConversionImpUtil::toTimeT(
     toTimeTImp(dst, src);
 }
 
-void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                                 unsigned int              *dst,
                                                 const bsls::TimeInterval&  src)
 {
@@ -186,7 +186,7 @@ void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
     }
 }
 
-void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                                 unsigned long             *dst,
                                                 const bsls::TimeInterval&  src)
 {
@@ -203,7 +203,7 @@ void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
     *dst = result;
 }
 
-void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                                 bsls::Types::Uint64       *dst,
                                                 const bsls::TimeInterval&  src)
 {

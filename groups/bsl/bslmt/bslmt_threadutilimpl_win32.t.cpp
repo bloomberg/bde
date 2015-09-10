@@ -1,9 +1,9 @@
-// bdlqq_threadutilimpl_win32.t.cpp                                   -*-C++-*-
-#include <bdlqq_threadutilimpl_win32.h>
+// bslmt_threadutilimpl_win32.t.cpp                                   -*-C++-*-
+#include <bslmt_threadutilimpl_win32.h>
 
 int main()
 {
-    return -1;  // tested in bdlqq_threadutil
+    return -1;  // tested in bslmt_threadutil
 }
 
 // ----------------------------------------------------------------------------

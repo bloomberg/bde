@@ -1,10 +1,10 @@
-// bdlqq_recursivemuteximpl_pthread.cpp                               -*-C++-*-
-#include <bdlqq_recursivemuteximpl_pthread.h>
+// bslmt_recursivemuteximpl_pthread.cpp                               -*-C++-*-
+#include <bslmt_recursivemuteximpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_recursivemuteximpl_pthread_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_recursivemuteximpl_pthread_cpp,"$Id$ $CSID$")
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 
@@ -13,7 +13,7 @@ namespace BloombergLP {
              // ------------------------------------------------
 
 // CREATORS
-bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::RecursiveMutexImpl()
+bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::RecursiveMutexImpl()
 #ifndef PTHREAD_MUTEX_RECURSIVE
 : d_spin(bsls::SpinLock::s_unlocked)
 #endif
@@ -30,7 +30,7 @@ bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::RecursiveMutexImpl()
 }
 
 // MANIPULATORS
-void bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::lock()
+void bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::lock()
 {
 #ifdef PTHREAD_MUTEX_RECURSIVE
     pthread_mutex_lock(&d_lock);
@@ -52,7 +52,7 @@ void bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::lock()
 #endif
 }
 
-int bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
+int bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::tryLock()
 {
 #ifdef PTHREAD_MUTEX_RECURSIVE
     return pthread_mutex_trylock(&d_lock);                            // RETURN
@@ -79,7 +79,7 @@ int bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
 #endif
 }
 
-void bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
+void bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::unlock()
 {
 #ifdef PTHREAD_MUTEX_RECURSIVE
     pthread_mutex_unlock(&d_lock);

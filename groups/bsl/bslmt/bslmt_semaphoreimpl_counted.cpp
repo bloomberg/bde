@@ -1,14 +1,14 @@
-// bdlqq_semaphoreimpl_counted.cpp                                    -*-C++-*-
-#include <bdlqq_semaphoreimpl_counted.h>
+// bslmt_semaphoreimpl_counted.cpp                                    -*-C++-*-
+#include <bslmt_semaphoreimpl_counted.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_counted_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_semaphoreimpl_counted_cpp,"$Id$ $CSID$")
 
-#ifdef BDLQQ_PLATFORM_COUNTED_SEMAPHORE
+#ifdef BSLMT_PLATFORM_COUNTED_SEMAPHORE
 
-#include <bdlqq_lockguard.h>    // for testing only
-#include <bdlqq_mutex.h>        // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>    // for testing only
+#include <bslmt_mutex.h>        // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 #endif
 

@@ -1,12 +1,12 @@
-// bdlqq_semaphore.cpp                                                -*-C++-*-
-#include <bdlqq_semaphore.h>
+// bslmt_semaphore.cpp                                                -*-C++-*-
+#include <bslmt_semaphore.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_semaphore_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_semaphore_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>    // for testing only
-#include <bdlqq_mutex.h>        // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>    // for testing only
+#include <bslmt_mutex.h>        // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

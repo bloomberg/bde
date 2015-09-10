@@ -1,8 +1,8 @@
-// bdlqq_platform.cpp                                                 -*-C++-*-
-#include <bdlqq_platform.h>
+// bslmt_platform.cpp                                                 -*-C++-*-
+#include <bslmt_platform.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_platform_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_platform_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

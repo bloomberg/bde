@@ -1,9 +1,9 @@
-// bdlqq_barrier.t.cpp                                                -*-C++-*-
-#include <bdlqq_barrier.h>
+// bslmt_barrier.t.cpp                                                -*-C++-*-
+#include <bslmt_barrier.h>
 
 #include <bsls_atomic.h>  // for testing only
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
@@ -11,7 +11,9 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 
+/* TBD -- bind
 #include <bdlf_bind.h>
+*/
 
 #include <bsl_algorithm.h>
 #include <bsl_functional.h>
@@ -44,8 +46,8 @@ using namespace bsl;  // automatically added by script
 // 'timedWait' can be unblocked by a call to 'wait' and vice versa.  Finally,
 // we make sure the usage example compiles and runs as expected.
 //-----------------------------------------------------------------------------
-// [2] bdlqq::Barrier(int numThreads);
-// [2] ~bdlqq::Barrier();
+// [2] bslmt::Barrier(int numThreads);
+// [2] ~bslmt::Barrier();
 // [3] void wait();
 // [4] void timedWait(const bsls::TimeInterval& timeOut);
 // [2] int numThreads();
@@ -117,7 +119,7 @@ struct ThreadArgs {
     // are used in testing.  The use of the individual data members depends on
     // the context.
 
-    bdlqq::Barrier  d_barrier;     // barrier used for testing
+    bslmt::Barrier  d_barrier;     // barrier used for testing
 
     bsls::AtomicInt d_waitCount;   // count of threads waiting or about to
                                   // wait on the barrier being tested
@@ -155,8 +157,8 @@ struct Control
     int           d_numIterations;
     int           d_numThreads;
 
-    bdlqq::Barrier d_b1;
-    bdlqq::Barrier d_b2;
+    bslmt::Barrier d_b1;
+    bslmt::Barrier d_b2;
 
     Control(int numIterations, int numThreads)
         : d_numIterations(numIterations)
@@ -194,28 +196,28 @@ extern "C" void *b(void *arg)
 
         bsl::memset(mem, filler, sizeof(c->d_b2));
 
-        bdlqq::ThreadUtil::yield();
-        new (mem) bdlqq::Barrier(c->d_numThreads);
+        bslmt::ThreadUtil::yield();
+        new (mem) bslmt::Barrier(c->d_numThreads);
     }
     return 0;
 }
 
 void test(int numIterations, int numThreads)
 {
-    bsl::vector<bdlqq::ThreadUtil::Handle>  hh;
+    bsl::vector<bslmt::ThreadUtil::Handle>  hh;
     Control c(numIterations, numThreads);
 
     for (int i = 0; i<numThreads-1; ++i) {
-        bdlqq::ThreadUtil::Handle h;
-        bdlqq::ThreadUtil::create(&h, &a, (void *)&c);
+        bslmt::ThreadUtil::Handle h;
+        bslmt::ThreadUtil::create(&h, &a, (void *)&c);
         hh.push_back(h);
     }
-    bdlqq::ThreadUtil::Handle h;
-    bdlqq::ThreadUtil::create(&h, &b, (void *)&c);
+    bslmt::ThreadUtil::Handle h;
+    bslmt::ThreadUtil::create(&h, &b, (void *)&c);
     hh.push_back(h);
 
     for (int i = 0; i<numThreads; ++i) {
-        bdlqq::ThreadUtil::join(hh[i]);
+        bslmt::ThreadUtil::join(hh[i]);
     }
 }
 
@@ -276,7 +278,7 @@ struct ThreadArgs4 {
     // are used in testing.  The use of the individual data members depends on
     // the context.
 
-    bdlqq::Barrier  d_barrier;     // barrier used for testing
+    bslmt::Barrier  d_barrier;     // barrier used for testing
 
     int            d_timeOut;     // time out to use when calling 'timedWait'
                                   // (in microseconds)
@@ -346,7 +348,7 @@ extern "C" void * testThread4(void *arg)
 #ifdef BSLS_PLATFORM_OS_AIX
         // Avoid spinning as it can block on some overoptimized platforms.
 
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
 #endif
     }
 
@@ -430,7 +432,7 @@ int cancelAtExchange(Trade &)
 
 struct TradeThreadArgument {
     bsl::vector<Trade> *d_trades_p;
-    bdlqq::Barrier      *d_barrier_p;
+    bslmt::Barrier      *d_barrier_p;
     volatile bool      *d_errorFlag_p;
     int                 d_tradeNum;
 };
@@ -475,13 +477,13 @@ bool processBasketTrade(BasketTrade &trade)
     // i.e., all the trades succeed, or none of the trades are executed.
 {
     TradeThreadArgument arguments[MAX_BASKET_TRADES];
-    bdlqq::ThreadAttributes attributes;
-    bdlqq::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
+    bslmt::ThreadAttributes attributes;
+    bslmt::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
 
     int numTrades = trade.d_trades.size();
     LOOP_ASSERT(numTrades, 0 < numTrades && MAX_BASKET_TRADES >= numTrades);
 
-    bdlqq::Barrier barrier(numTrades);
+    bslmt::Barrier barrier(numTrades);
     bool errorFlag = false;
 
     for (int i = 0; i<numTrades; ++i) {
@@ -489,13 +491,13 @@ bool processBasketTrade(BasketTrade &trade)
         arguments[i].d_barrier_p   = &barrier;
         arguments[i].d_errorFlag_p = &errorFlag;
         arguments[i].d_tradeNum    = i;
-        bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+        bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                  tradeProcessingThread,
                                  &arguments[i]);
     }
 
     for (int i = 0; i<numTrades;++i) {
-        bdlqq::ThreadUtil::join(threadHandles[i]);
+        bslmt::ThreadUtil::join(threadHandles[i]);
     }
 
     return errorFlag == false;
@@ -504,12 +506,12 @@ bool processBasketTrade(BasketTrade &trade)
 class Case8_Driver
 {
    bsls::AtomicInt *d_state;
-   bdlqq::Barrier *d_barrier;
+   bslmt::Barrier *d_barrier;
    int d_numCycles;
 
 public:
 
-   Case8_Driver(bsls::AtomicInt *state, bdlqq::Barrier *barrier, int numCycles)
+   Case8_Driver(bsls::AtomicInt *state, bslmt::Barrier *barrier, int numCycles)
    : d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
 
    void operator()() {
@@ -524,7 +526,7 @@ public:
 
 class Case7_Waiter {
 
-   typedef bdlqq::Barrier Barrier;
+   typedef bslmt::Barrier Barrier;
 
    Barrier        *d_barrier;
    bsls::AtomicInt *d_state;
@@ -544,14 +546,16 @@ public:
 
    void begin() {
       ASSERT(0 != d_state);
-      bdlqq::ThreadAttributes detached;
-      bdlqq::ThreadUtil::Handle dummy;
+      bslmt::ThreadAttributes detached;
+      bslmt::ThreadUtil::Handle dummy;
       detached.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
-      ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached,
+      /* TBD -- bind
+      ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached,
                            bdlf::BindUtil::bind(&Case7_Waiter::run,
                                                this)));
+      */
    }
 
    void run() {
@@ -566,7 +570,7 @@ public:
    }
 };
 
-void case7(bdlqq::Barrier *barrier, bool verbose, int numThreads, int numWaits)
+void case7(bslmt::Barrier *barrier, bool verbose, int numThreads, int numWaits)
 {
    bsls::AtomicInt state(0);
    vector<Case7_Waiter > waiters;
@@ -583,7 +587,7 @@ void case7(bdlqq::Barrier *barrier, bool verbose, int numThreads, int numWaits)
          cout << "Waiting: " << i+1 << "/" << numWaits+1 << endl;
          coutLock.unlock();
       }
-      while (state < ((i+1) * numThreads)) bdlqq::ThreadUtil::yield();
+      while (state < ((i+1) * numThreads)) bslmt::ThreadUtil::yield();
    }
    ASSERT(state == numWaits * numThreads);
 }
@@ -638,13 +642,13 @@ int main(int argc, char *argv[])
            NUM_WAIT_CYCLES = 50
         };
 
-        bdlqq::Barrier normalBarrier(2);
+        bslmt::Barrier normalBarrier(2);
 
-        bdlqq::ThreadAttributes detached;
+        bslmt::ThreadAttributes detached;
         bsls::AtomicInt state(0);
-        bdlqq::ThreadUtil::Handle dummy;
+        bslmt::ThreadUtil::Handle dummy;
         detached.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
         if (veryVerbose) {
            cout << "Unencumbered test" << endl;
@@ -654,7 +658,7 @@ int main(int argc, char *argv[])
                             &normalBarrier,
                             NUM_WAIT_CYCLES);
 
-        ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached, driver));
+        ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached, driver));
 
         for (int i = 0; i < NUM_WAIT_CYCLES; ++i) {
            if (veryVerbose) {
@@ -672,7 +676,7 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------------------
         // Reusable barrier test
         //
-        // Concern: that bdlqq::Barrier is reusable by the same thread group,
+        // Concern: that bslmt::Barrier is reusable by the same thread group,
         // i.e., that N threads, after passing wait(), may pass a second wait()
         // correctly.
         //
@@ -694,7 +698,7 @@ int main(int argc, char *argv[])
        // These are test invariants rather than component invariants:
        ASSERT(NUM_THREADS * NUM_SHORT_WAITS < numeric_limits<int>::max());
        ASSERT(NUM_LONG_WAITS < NUM_SHORT_WAITS);
-       bdlqq::Barrier basicBarrier(NUM_THREADS);
+       bslmt::Barrier basicBarrier(NUM_THREADS);
        if (veryVerbose) {
           cout << "   ...Basic barrier..." << endl;
        }
@@ -763,7 +767,7 @@ int main(int argc, char *argv[])
                 TIMEOUT    = 100000 // 0.1s, in microseconds
             };
 
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadAttributes attributes;
 
             {
                 if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
@@ -771,15 +775,15 @@ int main(int argc, char *argv[])
                 ThreadArgs args(NTHREADS,
                                 TIMEOUT,
                                 bsls::SystemClockType::e_REALTIME);
-                bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+                bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread5a, &args);
                 }
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
 
                 ASSERT(0 == args.d_numTimedOut);
@@ -789,12 +793,12 @@ int main(int argc, char *argv[])
                                  bsls::SystemClockType::e_REALTIME);
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread5b, &args1);
                 }
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
 
                 ASSERT(0 == args1.d_numTimedOut);
@@ -806,15 +810,15 @@ int main(int argc, char *argv[])
                 ThreadArgs args(NTHREADS,
                                 TIMEOUT,
                                 bsls::SystemClockType::e_MONOTONIC);
-                bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+                bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread5a, &args);
                 }
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
 
                 ASSERT(0 == args.d_numTimedOut);
@@ -824,12 +828,12 @@ int main(int argc, char *argv[])
                                  bsls::SystemClockType::e_MONOTONIC);
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread5b, &args1);
                 }
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
 
                 ASSERT(0 == args1.d_numTimedOut);
@@ -889,19 +893,19 @@ int main(int argc, char *argv[])
             cout << "\tTesting 'timedWait' with timeouts" << endl
                  << "\t---------------------------------" << endl;
 
-        bdlqq::ThreadAttributes attributes;
+        bslmt::ThreadAttributes attributes;
 
         {
             if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
             {
                 ThreadArgs4 args(NTHREADS,
                                  TIMEOUT,
                                  bsls::SystemClockType::e_REALTIME);
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread4, &args);
                 }
 
@@ -909,14 +913,14 @@ int main(int argc, char *argv[])
                 ++args.d_stopCount;
                 while (NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
 #endif
                 }
 
                 LOOP_ASSERT(args.d_numTimedOut,
                             NTHREADS == args.d_numTimedOut);
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
             }
         }
@@ -924,14 +928,14 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tUsing MONOTONIC clock" << endl;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
             {
                 ThreadArgs4 args(NTHREADS,
                                  TIMEOUT,
                                  bsls::SystemClockType::e_MONOTONIC);
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread4, &args);
                 }
 
@@ -939,14 +943,14 @@ int main(int argc, char *argv[])
                 ++args.d_stopCount;
                 while (NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
 #endif
                 }
 
                 LOOP_ASSERT(args.d_numTimedOut,
                             NTHREADS == args.d_numTimedOut);
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
             }
         }
@@ -958,7 +962,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
             ThreadArgs4 args(NTHREADS,
                              60 * TIMEOUT,
@@ -969,7 +973,7 @@ int main(int argc, char *argv[])
                 args.d_stopCount = 0;
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread4, &args);
                 }
 
@@ -996,7 +1000,7 @@ int main(int argc, char *argv[])
                     ++args.d_stopCount;
                     while(NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
-                        bdlqq::ThreadUtil::yield();
+                        bslmt::ThreadUtil::yield();
 #endif
                     }
 
@@ -1004,7 +1008,7 @@ int main(int argc, char *argv[])
                                  0 == args.d_numTimedOut);
 
                     for (int i = 0; i < NTHREADS; ++i) {
-                        bdlqq::ThreadUtil::join(threadHandles[i]);
+                        bslmt::ThreadUtil::join(threadHandles[i]);
                     }
                 }
                 else {
@@ -1016,7 +1020,7 @@ int main(int argc, char *argv[])
 
                     ++args.d_stopCount;
                     for (int i = 0; i < NTHREADS; ++i) {
-                        bdlqq::ThreadUtil::join(threadHandles[i]);
+                        bslmt::ThreadUtil::join(threadHandles[i]);
                     }
                 }
             }
@@ -1025,7 +1029,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\tUsing MONOTONIC clock" << endl;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
 
             ThreadArgs4 args(NTHREADS,
                              60 * TIMEOUT,
@@ -1036,7 +1040,7 @@ int main(int argc, char *argv[])
                 args.d_stopCount = 0;
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                              testThread4, &args);
                 }
 
@@ -1063,7 +1067,7 @@ int main(int argc, char *argv[])
                     ++args.d_stopCount;
                     while(NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
-                        bdlqq::ThreadUtil::yield();
+                        bslmt::ThreadUtil::yield();
 #endif
                     }
 
@@ -1071,7 +1075,7 @@ int main(int argc, char *argv[])
                                  0 == args.d_numTimedOut);
 
                     for (int i = 0; i < NTHREADS; ++i) {
-                        bdlqq::ThreadUtil::join(threadHandles[i]);
+                        bslmt::ThreadUtil::join(threadHandles[i]);
                     }
                 }
                 else {
@@ -1083,7 +1087,7 @@ int main(int argc, char *argv[])
 
                     ++args.d_stopCount;
                     for (int i = 0; i < NTHREADS; ++i) {
-                        bdlqq::ThreadUtil::join(threadHandles[i]);
+                        bslmt::ThreadUtil::join(threadHandles[i]);
                     }
                 }
             }
@@ -1122,21 +1126,21 @@ int main(int argc, char *argv[])
         {
             const int NTHREADS = 4;
             ThreadArgs args(NTHREADS+1);
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int n = 0; n < 2; ++n)
             {
                 if (verbose) cout << "\titeration number " << n << endl;
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                             testThread3, &args);
                 }
                 while (NTHREADS != args.d_waitCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
                     // avoid spinning as this can preempt on some platforms
 
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
 #endif
                 }
                 enum { NUM_CHECK = 100000 };
@@ -1149,7 +1153,7 @@ int main(int argc, char *argv[])
 
                 while (0 != args.d_waitCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
 #endif
                 }
 
@@ -1158,7 +1162,7 @@ int main(int argc, char *argv[])
                 }
 
                 for (int i = 0; i < NTHREADS; ++i) {
-                    bdlqq::ThreadUtil::join(threadHandles[i]);
+                    bslmt::ThreadUtil::join(threadHandles[i]);
                 }
             }
         }
@@ -1178,8 +1182,8 @@ int main(int argc, char *argv[])
         //   and verify that it is initialized with the correct value.
         //
         // Testing:
-        //   bdlqq::Barrier(int numThreads);
-        //   ~bdlqq::Barrier();
+        //   bslmt::Barrier(int numThreads);
+        //   ~bslmt::Barrier();
         //   int numThreads();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -1206,19 +1210,19 @@ int main(int argc, char *argv[])
                 const int NUM  = VALUES[i].d_numThreads;
 
                 {
-                    bdlqq::Barrier x(NUM); const bdlqq::Barrier &X = x;
+                    bslmt::Barrier x(NUM); const bslmt::Barrier &X = x;
                     LOOP_ASSERT(LINE, NUM == X.numThreads());
                 }
 
                 {
-                    bdlqq::Barrier x(NUM, bsls::SystemClockType::e_REALTIME);
-                    const bdlqq::Barrier &X = x;
+                    bslmt::Barrier x(NUM, bsls::SystemClockType::e_REALTIME);
+                    const bslmt::Barrier &X = x;
                     LOOP_ASSERT(LINE, NUM == X.numThreads());
                 }
 
                 {
-                    bdlqq::Barrier x(NUM, bsls::SystemClockType::e_MONOTONIC);
-                    const bdlqq::Barrier &X = x;
+                    bslmt::Barrier x(NUM, bsls::SystemClockType::e_MONOTONIC);
+                    const bslmt::Barrier &X = x;
                     LOOP_ASSERT(LINE, NUM == X.numThreads());
                 }
             }
@@ -1247,7 +1251,7 @@ int main(int argc, char *argv[])
             const bsls::TimeInterval TIMEOUT(1000);
                                             // 1000s, enough to ensure time out
 
-            bdlqq::Barrier b(1);
+            bslmt::Barrier b(1);
             ASSERT(1 == b.numThreads());
             b.wait();
             ASSERT(0 == b.timedWait(TIMEOUT));

@@ -1,11 +1,11 @@
-// bdlqq_sluice.t.cpp                                                 -*-C++-*-
-#include <bdlqq_sluice.h>
+// bslmt_sluice.t.cpp                                                 -*-C++-*-
+#include <bslmt_sluice.h>
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_semaphore.h>    // for testing only
-#include <bdlqq_threadgroup.h>  // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>    // for testing only
+#include <bslmt_threadgroup.h>  // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 #include <bsls_atomic.h>
 
@@ -70,9 +70,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define NL()  cout << endl;                   // Print newline
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
-#define MTCOUT   { coutMutex.lock(); cout << bdlqq::ThreadUtil::selfIdAsInt() \
+#define MTCOUT   { coutMutex.lock(); cout << bslmt::ThreadUtil::selfIdAsInt() \
                                           << ": "
 #define MTENDL   endl;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -81,13 +81,13 @@ static bdlqq::Mutex coutMutex;
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::Sluice Obj;
+typedef bslmt::Sluice Obj;
 
 class My_TestAllocator : public bslma::Allocator{
 
     // DATA
     bslma::TestAllocator d_allocator;
-    bdlqq::Mutex          d_lock;
+    bslmt::Mutex          d_lock;
 
   public:
     explicit
@@ -100,13 +100,13 @@ class My_TestAllocator : public bslma::Allocator{
 
     virtual void *allocate(size_type size)
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
         return d_allocator.allocate(size);
     }
 
     virtual void deallocate(void *address)
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
         d_allocator.deallocate(address);
     }
 
@@ -125,7 +125,7 @@ class My_TestAllocator : public bslma::Allocator{
 
 void enterAndWaitUntilDone(Obj            *sluice,
                            int            *done,
-                           bdlqq::Mutex    *lock,
+                           bslmt::Mutex    *lock,
                            bsls::AtomicInt *iterations)
 {
     while (1) {
@@ -141,13 +141,13 @@ void enterAndWaitUntilDone(Obj            *sluice,
     }
 }
 
-void enterPostSleepAndWait(Obj *sluice, bdlqq::Semaphore *sem)
+void enterPostSleepAndWait(Obj *sluice, bslmt::Semaphore *sem)
 {
     const void *token = sluice->enter();
 
     sem->post();
 
-    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(2));
+    bslmt::ThreadUtil::sleep(bsls::TimeInterval(2));
     sluice->wait(token);
 }
 
@@ -188,10 +188,10 @@ int main(int argc, char *argv[])
 
         Obj mX(&ta);
         int done = 0;
-        bdlqq::Mutex lock;
+        bslmt::Mutex lock;
         bsls::AtomicInt iterations(0);
 
-        bdlqq::ThreadGroup tg;
+        bslmt::ThreadGroup tg;
 
         ASSERT(NUM_WAITING_THREADS ==
                tg.addThreads(bdlf::BindUtil::bind(&enterAndWaitUntilDone,
@@ -255,19 +255,19 @@ int main(int argc, char *argv[])
         Obj mX;
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            bdlqq::Semaphore readySem;
+            bslmt::Semaphore readySem;
 
-            bdlqq::ThreadUtil::Handle h;
-            int rc = bdlqq::ThreadUtil::create(&h,
+            bslmt::ThreadUtil::Handle h;
+            int rc = bslmt::ThreadUtil::create(&h,
                                    bdlf::BindUtil::bind(&enterPostSleepAndWait,
                                                        &mX, &readySem));
             BSLS_ASSERT(0 == rc); // test invariant
 
             readySem.wait();
             mX.signalOne();
-            bdlqq::ThreadUtil::join(h);
+            bslmt::ThreadUtil::join(h);
 
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
             rc = tg.addThreads(bdlf::BindUtil::bind(&enterPostSleepAndWait,
                                                    &mX, &readySem),
                                NUM_SIGNALED_THREADS);

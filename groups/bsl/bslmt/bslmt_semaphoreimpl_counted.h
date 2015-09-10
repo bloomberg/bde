@@ -1,29 +1,29 @@
-// bdlqq_semaphoreimpl_counted.h                                      -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_COUNTED
-#define INCLUDED_BDLQQ_SEMAPHOREIMPL_COUNTED
+// bslmt_semaphoreimpl_counted.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
+#define INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an implementation of 'bdlqq::Semaphore' with count.
+//@PURPOSE: Provide an implementation of 'bslmt::Semaphore' with count.
 //
 //@CLASSES:
-//  bdlqq::SemaphoreImpl<CountedSemaphore>: semaphore specialization with count
+//  bslmt::SemaphoreImpl<CountedSemaphore>: semaphore specialization with count
 //
-//@SEE_ALSO: bdlqq_semaphore
+//@SEE_ALSO: bslmt_semaphore
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<Platform::CountedSemaphore>
+//  bslmt::SemaphoreImpl<Platform::CountedSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Semaphore'.
+// should instead use 'bslmt::Semaphore'.
 //
-// This implementation of 'bdlqq::Semaphore' is intended for platforms where a
-// separate count must be maintained.  'bdlqq::Semaphore' supports large
+// This implementation of 'bslmt::Semaphore' is intended for platforms where a
+// separate count must be maintained.  'bslmt::Semaphore' supports large
 // values, but the native semaphores provided on some platforms are restricted
 // to a relatively small range of values (e.g., '[ 0 .. 32000 ]' on AIX) and on
 // some other platforms do not provide a count at all (Darwin).  To support
@@ -37,15 +37,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_COUNTED_SEMAPHORE
+#ifdef BSLMT_PLATFORM_COUNTED_SEMAPHORE
 
 // Platform-specific implementation starts here.
 
@@ -54,15 +54,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BCEMT_SEMAPHOREIMPL_PTHREAD
-#include <bdlqq_semaphoreimpl_pthread.h>
+#include <bslmt_semaphoreimpl_pthread.h>
 #endif
 
 #ifndef BCEMT_SEMAPHOREIMPL_DARWIN
-#include <bdlqq_semaphoreimpl_darwin.h>
+#include <bslmt_semaphoreimpl_darwin.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
@@ -132,7 +132,7 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
 
 // CREATORS
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::SemaphoreImpl(
+bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::SemaphoreImpl(
                                                                      int count)
 : d_resources(count)
 , d_sem(0)
@@ -140,13 +140,13 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::SemaphoreImpl(
 }
 
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::~SemaphoreImpl()
+bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::~SemaphoreImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post()
+void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post()
 {
     if (++d_resources <= 0) {
         d_sem.post();
@@ -154,7 +154,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post()
 }
 
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post(int number)
+void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post(int number)
 {
     for (int i = 0; i < number; ++i) {
         post();
@@ -162,7 +162,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post(int number)
 }
 
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::tryWait()
+int bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
         if (i == d_resources.testAndSwap(i, i - 1)) {
@@ -174,7 +174,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::tryWait()
 }
 
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::wait()
+void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -185,7 +185,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::wait()
 
 // ACCESSORS
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::getValue() const
+int bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;

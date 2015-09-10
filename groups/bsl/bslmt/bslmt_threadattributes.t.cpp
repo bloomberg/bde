@@ -1,12 +1,12 @@
-// bdlqq_threadattributes.t.cpp                                       -*-C++-*-
-#include <bdlqq_threadattributes.h>
+// bslmt_threadattributes.t.cpp                                       -*-C++-*-
+#include <bslmt_threadattributes.h>
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 #include <pthread.h>
 #endif
 
@@ -52,7 +52,7 @@ static void aSsErT(int c, const char *s, int i)
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::ThreadAttributes Obj;
+typedef bslmt::ThreadAttributes Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -89,26 +89,26 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following snippets of code illustrate basic use of this component.
-// First we create a default-constructed 'bdlqq::ThreadAttributes' object and
+// First we create a default-constructed 'bslmt::ThreadAttributes' object and
 // assert that its detached state does indeed have the default value (i.e.,
-// 'bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE'):
+// 'bslmt::ThreadAttributes::BCEMT_CREATE_JOINABLE'):
 //..
-    bdlqq::ThreadAttributes attributes;
-    ASSERT(bdlqq::ThreadAttributes::e_CREATE_JOINABLE ==
+    bslmt::ThreadAttributes attributes;
+    ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
                                                    attributes.detachedState());
 //..
 // Next we modify the detached state of 'attributes' to have the non-default
-// value 'bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED':
+// value 'bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED':
 //..
     attributes.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-    ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
+    ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
                                                    attributes.detachedState());
 //..
 // Finally, we make a copy of 'attributes':
 //..
-    bdlqq::ThreadAttributes copy(attributes);
-    ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
+    bslmt::ThreadAttributes copy(attributes);
+    ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
                                                          copy.detachedState());
     ASSERT(attributes == copy);
 //..
@@ -233,18 +233,18 @@ int main(int argc, char *argv[])
 #if 0
         // 'Imp has been eliminated
 
-        typedef bdlqq::ThreadAttributes::Imp Imp;
+        typedef bslmt::ThreadAttributes::Imp Imp;
 
-        ASSERT(bdlqq::ThreadAttributes::e_CREATE_JOINABLE ==
+        ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
                                                    Imp::e_CREATE_JOINABLE);
-        ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
+        ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
                                                    Imp::e_CREATE_DETACHED);
 
-        ASSERT(bdlqq::ThreadAttributes::e_SCHED_OTHER ==
+        ASSERT(bslmt::ThreadAttributes::e_SCHED_OTHER ==
                                                    Imp::e_SCHED_OTHER);
-        ASSERT(bdlqq::ThreadAttributes::e_SCHED_FIFO  ==
+        ASSERT(bslmt::ThreadAttributes::e_SCHED_FIFO  ==
                                                    Imp::e_SCHED_FIFO);
-        ASSERT(bdlqq::ThreadAttributes::e_SCHED_RR    ==
+        ASSERT(bslmt::ThreadAttributes::e_SCHED_RR    ==
                                                    Imp::e_SCHED_RR);
 #endif
       } break;
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
         //   Li 64: Other (0, 0, 0), Fifo (1, 0, 99), RR (1, 0, 99)
         // --------------------------------------------------------------------
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
         int rc = 0;
 
         pthread_attr_t attr;
@@ -344,16 +344,16 @@ int main(int argc, char *argv[])
         //   Li 64: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
         // --------------------------------------------------------------------
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
 
-#define MAXPRI(policy)  (bdlqq::ThreadAttributes::getMaxSchedPriority(policy))
-#define MINPRI(policy)  (bdlqq::ThreadAttributes::getMinSchedPriority(policy))
+#define MAXPRI(policy)  (bslmt::ThreadAttributes::getMaxSchedPriority(policy))
+#define MINPRI(policy)  (bslmt::ThreadAttributes::getMinSchedPriority(policy))
 
-        typedef bdlqq::ThreadAttributes::SchedulingPolicy Policy;
+        typedef bslmt::ThreadAttributes::SchedulingPolicy Policy;
 
-        const Policy OTHER = bdlqq::ThreadAttributes::e_SCHED_OTHER;
-        const Policy FIFO  = bdlqq::ThreadAttributes::e_SCHED_FIFO;
-        const Policy RR    = bdlqq::ThreadAttributes::e_SCHED_RR;
+        const Policy OTHER = bslmt::ThreadAttributes::e_SCHED_OTHER;
+        const Policy FIFO  = bslmt::ThreadAttributes::e_SCHED_FIFO;
+        const Policy RR    = bslmt::ThreadAttributes::e_SCHED_RR;
 
         attr.setSchedulingPolicy(OTHER);
 

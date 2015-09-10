@@ -1,6 +1,6 @@
-// bdlqq_qlock.h                                                      -*-C++-*-
-#ifndef INCLUDED_BDLQQ_QLOCK
-#define INCLUDED_BDLQQ_QLOCK
+// bslmt_qlock.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_QLOCK
+#define INCLUDED_BSLMT_QLOCK
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide small, statically-initializable mutex lock.
 //
 //@CLASSES:
-//       bdlqq::QLock: Small, statically-initializable intra-process mutex
-//  bdlqq::QLockGuard: Automatic locking-unlocking of bdlqq::QLock
+//       bslmt::QLock: Small, statically-initializable intra-process mutex
+//  bslmt::QLockGuard: Automatic locking-unlocking of bslmt::QLock
 //
-//@SEE_ALSO: bdlqq_mutex, bcemt_atomictypes, bdlqq_lockguard, bdlqq_once
+//@SEE_ALSO: bslmt_mutex, bcemt_atomictypes, bslmt_lockguard, bslmt_once
 //
 //@AUTHOR: Vlad Kliatchko (vkliatchko@bloomberg.net) (design)
 //         Alex Libman (alibman1@bloomberg.net) (integration with BCE)
@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a portable and efficient lock for
 // ensuring that only one thread at a time enters a specific "critical region"
 // -- a section of code that accesses a shared resource.  The functionality of
-// the 'bdlqq::QLock' class overlaps those of the 'bdlqq::Mutex' and
+// the 'bslmt::QLock' class overlaps those of the 'bslmt::Mutex' and
 // 'bsls::SpinLock' classes, but with different usage and performance
 // characteristics, as shown in the following grid:
 //..
@@ -40,9 +40,9 @@ BSLS_IDENT("$Id: $")
 // where large numbers of locks may be needed.  For example, a node-based data
 // structure that needs a lock for each node can benefit from the small size
 // and low initialization cost of a QLock compared to that of a conventional
-// mutex.  A 'bdlqq::Mutex' object cannot be initialized statically because
+// mutex.  A 'bslmt::Mutex' object cannot be initialized statically because
 // some platforms (e.g., Windows XP) do not have a native
-// statically-initializable mutex type.  A 'bdlqq::QLock' object, in contrast
+// statically-initializable mutex type.  A 'bslmt::QLock' object, in contrast
 // is statically initializable on all platforms.
 //
 // The performance characteristics of a QLock are very similar to those of a
@@ -61,24 +61,24 @@ BSLS_IDENT("$Id: $")
 // however, in that the scheduler is given less leeway to schedule threads in
 // the most efficient manner.
 //
-///The 'bdlqq::QLockGuard' Class
+///The 'bslmt::QLockGuard' Class
 ///----------------------------
-// A 'bdlqq::QLock' is different from other locking classes such as
-// 'bdlqq::Mutex' and 'bsls::SpinLock' in that it cannot be manipulated except
-// through the auxiliary 'bdlqq::QLockGuard' class.  The reason for this
+// A 'bslmt::QLock' is different from other locking classes such as
+// 'bslmt::Mutex' and 'bsls::SpinLock' in that it cannot be manipulated except
+// through the auxiliary 'bslmt::QLockGuard' class.  The reason for this
 // limited interface is that a QLock requires a small amount of additional
 // storage for each thread that is holding or waiting for the lock.  The
-// 'bdlqq::QLockGuard' provides this extra storage efficiently on the stack.
+// 'bslmt::QLockGuard' provides this extra storage efficiently on the stack.
 //
-// In typical usage, a 'bdlqq::QLockGuard' is created as a local (stack)
+// In typical usage, a 'bslmt::QLockGuard' is created as a local (stack)
 // variable, acquires the lock in its constructor and releases the lock in its
 // destructor.  If the lock is in use at construction time, then the current
 // thread blocks until the lock becomes available.  Although the QLock itself
 // is intended to be shared among multiple threads, the guard object must never
 // be used by more than one thread at a time.  When multiple threads want to
-// acquire the same QLock, each must use its own 'bdlqq::QLockGuard' object.
+// acquire the same QLock, each must use its own 'bslmt::QLockGuard' object.
 //
-// 'bdlqq::QLockGuard' also provides the following manipulators typical of
+// 'bslmt::QLockGuard' also provides the following manipulators typical of
 // locking classes:
 //..
 //  void lock();    // Acquire the lock, waiting if necessary
@@ -88,27 +88,27 @@ BSLS_IDENT("$Id: $")
 // As with other types of mutexes, only one thread my hold the lock at a time.
 // Other threads attempting to call 'lock' will block until the lock becomes
 // available.  However, it is important to remember that the manipulators
-// listed above are only pass-through operations on the shared 'bdlqq::QLock'
+// listed above are only pass-through operations on the shared 'bslmt::QLock'
 // object.  In other words, upon return from calling 'lock' on a
-// 'bdlqq::QLockGuard' object, a thread has actually acquired the lock to the
-// underlying 'bdlqq::QLock'.
+// 'bslmt::QLockGuard' object, a thread has actually acquired the lock to the
+// underlying 'bslmt::QLock'.
 //
 // Although it is only a proxy for the actual QLock, 'lock'/'unlock'/'tryLock'
-// interface of 'bdlqq::QLockGuard' allows it to be treated as though it were
+// interface of 'bslmt::QLockGuard' allows it to be treated as though it were
 // itself a lock.  In particular, it is possible to instantiate the
-// 'bdlqq::LockGuard' and 'bdlqq::LockGuardUnlock' class templates using
-// 'bdlqq::QLockGuard'.  This layering of guard classes is useful for creating
+// 'bslmt::LockGuard' and 'bslmt::LockGuardUnlock' class templates using
+// 'bslmt::QLockGuard'.  This layering of guard classes is useful for creating
 // regions where the QLock is locked or unlocked.  For example, if a thread
 // acquires a QLock and then needs to temporarily relinquish it, it could use a
-// 'bdlqq::LockGuardUnlock' as follows:
+// 'bslmt::LockGuardUnlock' as follows:
 //..
 //  void Node::update()
 //  {
-//     bdlqq::QLockGuard qguard(&d_qlock);  // 'd_qlock' is a 'bdlqq::QLock'.
+//     bslmt::QLockGuard qguard(&d_qlock);  // 'd_qlock' is a 'bslmt::QLock'.
 //     readLunarState();
 //     if (d_moonIsFull) {
 //         // Free lock while we sleep
-//         bdlqq::LockGuardUnlock<bdlqq::QLockGuard> unlock(&qguard)
+//         bslmt::LockGuardUnlock<bslmt::QLockGuard> unlock(&qguard)
 //         sleep(TWENTY_FOUR_HOURS);
 //     }
 //     // Lock has been re-acquired
@@ -117,14 +117,14 @@ BSLS_IDENT("$Id: $")
 //..
 // The behavior is undefined if 'unlock' is invoked from a thread that did not
 // successfully acquire the lock, or if 'lock' is called twice in a thread
-// without an intervening call to 'unlock' (i.e., 'bdlqq::QLockGuard' is
+// without an intervening call to 'unlock' (i.e., 'bslmt::QLockGuard' is
 // non-recursive).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlqq::QLock' to Implement a Thread-Safe Singleton
+///Example 1: Using 'bslmt::QLock' to Implement a Thread-Safe Singleton
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For this example, assume that we have the need to use the string "Hello"
 // repeatedly in the form of an 'bsl::string' object.  Rather than construct
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 // "Hello".  Unfortunately, as this is a multithreaded application, there is
 // the danger that more than one thread will attempt to initialize the
 // singleton simultaneously, causing a memory leak at best and memory
-// corruption at worse.  To solve this problem, we use a 'bdlqq::QLock' to
+// corruption at worse.  To solve this problem, we use a 'bslmt::QLock' to
 // synchronize access to the singleton.
 //
 // We begin by wrapping the singleton in a function:
@@ -147,28 +147,28 @@ BSLS_IDENT("$Id: $")
 // a QLock to control access to the singleton.  Note that both of these
 // variables are statically initialized, so there is no need for a run-time
 // constructor and hence no danger of a race condition among threads.  The need
-// for static initialization is the main reason we choose to use 'bdlqq::QLock'
-// over 'bdlqq::Mutex':
+// for static initialization is the main reason we choose to use 'bslmt::QLock'
+// over 'bslmt::Mutex':
 //..
 //      static const bsl::string *singletonPtr = 0;
-//      static bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;
+//      static bslmt::QLock qlock = BSLMT_QLOCK_INITIALIZER;
 //..
 // Before checking the status of the singleton pointer, we must make sure that
 // we are not accessing the pointer at the same time that some other thread is
 // modifying the pointer.  We do this by acquiring the lock by constructing a
-// 'bdlqq::QLockGuard' object:
+// 'bslmt::QLockGuard' object:
 //..
-//      bdlqq::QLockGuard qlockGuard(&qlock);
+//      bslmt::QLockGuard qlockGuard(&qlock);
 //..
 // Now we are inside the critical region.  If the pointer has not already been
 // set, we can initialize the singleton knowing that no other thread is
 // manipulating or accessing these variables at the same time.  Note that this
 // critical region involves constructing a variable of type 'bsl::string'.
 // This operation, while not ultra-expensive, is too lengthy for comfortably
-// holding a spinlock.  Again, the characteristics of 'bdlqq::QLock' are
+// holding a spinlock.  Again, the characteristics of 'bslmt::QLock' are
 // superior to the alternatives for this application.  (It is worth noting that
 // the QLock concept was created specifically to permit this kind of one-time
-// processing.  See also 'bdlqq_once'.)
+// processing.  See also 'bslmt_once'.)
 //..
 //      if (! singletonPtr) {
 //          static bsl::string singleton("Hello");
@@ -176,7 +176,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //..
 // Finally, we return a reference to the singleton.  The destructor for
-// 'bdlqq::QLockGuard' will automatically unlock the QLock and allow another
+// 'bslmt::QLockGuard' will automatically unlock the QLock and allow another
 // thread into the critical region.
 //..
 //      return *singletonPtr;
@@ -199,8 +199,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -216,15 +216,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 class Semaphore;
 
-#define BDLQQ_QLOCK_INITIALIZER  { {0} }
+#define BSLMT_QLOCK_INITIALIZER  { {0} }
     // Use this macro as the value for initializing an object of type 'QLock'
     // For example:
     //..
-    //  QLock mylock = BDLQQ_QLOCK_INITIALIZER;
+    //  QLock mylock = BSLMT_QLOCK_INITIALIZER;
     //..
 
                                // ============
@@ -237,7 +237,7 @@ struct QLock {
     // can only be manipulated through the use of a 'QLockGuard'.  The
     // following idiom is used to initialize objects of type 'QLock':
     //..
-    //  QLock mylock = BDLQQ_QLOCK_INITIALIZER;
+    //  QLock mylock = BSLMT_QLOCK_INITIALIZER;
     //..
 
   private:
@@ -289,7 +289,7 @@ class QLock_EventFlag {
     // is called while the flag is already set, or if 'waitUntilSet' is called
     // while another thread is waiting for the flag.
     //
-    // This class is an implementation detail of the 'bdlqq_qlock', and must
+    // This class is an implementation detail of the 'bslmt_qlock', and must
     // not be used by client code.
 
   private:
@@ -418,14 +418,14 @@ class QLockGuard  {
 
 // MANIPULATORS
 inline
-void bdlqq::QLock::initialize()
+void bslmt::QLock::initialize()
 {
     bsls::AtomicOperations::setPtrRelaxed(&d_guardQueueTail, 0);
 }
 
 // ACCESSORS
 inline
-bool bdlqq::QLock::isLocked() const
+bool bslmt::QLock::isLocked() const
 {
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
@@ -436,19 +436,19 @@ bool bdlqq::QLock::isLocked() const
 
 // CREATORS
 inline
-bdlqq::QLock_EventFlag::QLock_EventFlag()
+bslmt::QLock_EventFlag::QLock_EventFlag()
 : d_status(0)
 {
 }
 
 inline
-bdlqq::QLock_EventFlag::~QLock_EventFlag()
+bslmt::QLock_EventFlag::~QLock_EventFlag()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::QLock_EventFlag::reset()
+void bslmt::QLock_EventFlag::reset()
 {
     d_status = 0;
 }
@@ -459,7 +459,7 @@ void bdlqq::QLock_EventFlag::reset()
 
 // CREATORS
 inline
-bdlqq::QLockGuard::QLockGuard()
+bslmt::QLockGuard::QLockGuard()
 : d_qlock_p   (0)
 , d_next      (0)
 , d_readyFlag ()
@@ -469,7 +469,7 @@ bdlqq::QLockGuard::QLockGuard()
 }
 
 inline
-bdlqq::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
+bslmt::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 : d_qlock_p   (qlock)
 , d_next      (0)
 , d_readyFlag ()
@@ -482,7 +482,7 @@ bdlqq::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 }
 
 inline
-bdlqq::QLockGuard::~QLockGuard()
+bslmt::QLockGuard::~QLockGuard()
 {
     if (d_locked) {
         unlockRaw();
@@ -491,7 +491,7 @@ bdlqq::QLockGuard::~QLockGuard()
 
 // MANIPULATORS
 inline
-void bdlqq::QLockGuard::setQLock(QLock *qlock)
+void bslmt::QLockGuard::setQLock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
 
@@ -499,7 +499,7 @@ void bdlqq::QLockGuard::setQLock(QLock *qlock)
 }
 
 inline
-void bdlqq::QLockGuard::lock(QLock *qlock)
+void bslmt::QLockGuard::lock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
     BSLS_ASSERT_SAFE(qlock);
@@ -509,7 +509,7 @@ void bdlqq::QLockGuard::lock(QLock *qlock)
 }
 
 inline
-void bdlqq::QLockGuard::unlock()
+void bslmt::QLockGuard::unlock()
 {
     if (d_locked) {
         // Release the lock, and reset the state variables so it can be

@@ -1,10 +1,10 @@
-// bdlqq_turnstile.t.cpp                                              -*-C++-*-
+// bslmt_turnstile.t.cpp                                              -*-C++-*-
 
-#include <bdlqq_turnstile.h>
+#include <bslmt_turnstile.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
 #include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
@@ -42,10 +42,10 @@ using bsl::flush;
 // measure intervals.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 4] bdlqq::Turnstile(
+// [ 4] bslmt::Turnstile(
 //              double                   rate,
 //              const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
-// [ 1] ~bdlqq::Turnstile();
+// [ 1] ~bslmt::Turnstile();
 //
 // MANIPULATORS
 // [ 2] bsls::Types::Int64 waitTurn();
@@ -105,10 +105,10 @@ const double EPSILON = 0.035;          // 35 milliseconds
 //-----------------------------------------------------------------------------
 // The following macros facilitate thread-safe streaming to standard output.
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
 #define COUT  coutMutex.lock();                                               \
-              { bsl::cout << bdlqq::ThreadUtil::selfIdAsInt() << ": "
+              { bsl::cout << bslmt::ThreadUtil::selfIdAsInt() << ": "
 #define ENDL  bsl::endl;  } coutMutex.unlock()
 #define FLUSH bsl::flush; } coutMutex.unlock()
 
@@ -122,7 +122,7 @@ static bdlqq::Mutex coutMutex;
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
-typedef bdlqq::Turnstile    Obj;
+typedef bslmt::Turnstile    Obj;
 typedef bsls::Types::Int64 Int64;
 
 enum { USPS = 1000000 };  // microseconds per second
@@ -136,9 +136,9 @@ static int veryVeryVeryVerbose = 0;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 static
-void waitTurnAndSleepCallback(bdlqq::Turnstile          *turnstile,
+void waitTurnAndSleepCallback(bslmt::Turnstile          *turnstile,
                               bsls::AtomicInt           *counter,
-                              bdlqq::Barrier            *barrier,
+                              bslmt::Barrier            *barrier,
                               const bsls::TimeInterval&  sleepInterval,
                               const bsls::TimeInterval&  stopTime)
 {
@@ -149,7 +149,7 @@ void waitTurnAndSleepCallback(bdlqq::Turnstile          *turnstile,
 
         int value = ++*counter;
 
-        bdlqq::ThreadUtil::sleep(sleepInterval);
+        bslmt::ThreadUtil::sleep(sleepInterval);
 
         ASSERT(0 < turnstile->lagTime());
 
@@ -162,9 +162,9 @@ void waitTurnAndSleepCallback(bdlqq::Turnstile          *turnstile,
 }
 
 static
-void waitTurnCallback(bdlqq::Turnstile          *turnstile,
+void waitTurnCallback(bslmt::Turnstile          *turnstile,
                       bsls::AtomicInt           *counter,
-                      bdlqq::Barrier            *barrier,
+                      bslmt::Barrier            *barrier,
                       const bsls::TimeInterval&  stopTime)
 {
     barrier->wait();
@@ -194,7 +194,7 @@ void processorWithTurnstile(
     // 'rate' (given in messages per second) for the specified 'duration'.
 
     bsls::Stopwatch timer;
-    bdlqq::Turnstile turnstile(rate);
+    bslmt::Turnstile turnstile(rate);
     double          elapsed = 0.0;
     int             numTurns = static_cast<int>(rate * duration);
 
@@ -230,7 +230,7 @@ void processorWithSleep(
     for (int i = 0; i < numTurns; ++i) {
         bsl::sqrt(static_cast<double>(i));
         if (i + 1 == numTurns) break;
-        bdlqq::ThreadUtil::microSleep(sleepInterval);
+        bslmt::ThreadUtil::microSleep(sleepInterval);
         elapsed = timer.elapsedTime();
     }
 
@@ -252,7 +252,7 @@ void heartbeat(
 
     bsls::Stopwatch timer;
     timer.start();
-    bdlqq::Turnstile turnstile(rate);
+    bslmt::Turnstile turnstile(rate);
 
     while (true) {
         turnstile.waitTurn();
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
         //   lower than the configured rate.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 50.  Create
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 50.  Create
         //   multiple threads bound to a callback that calls 'waitTurn',
         //   increments an atomic counter, and then sleeps.  Start the threads.
         //   Join the threads, and verify that the value of the counter is
@@ -369,18 +369,18 @@ int main(int argc, char *argv[])
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
 
-        bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+        bsl::vector<bslmt::ThreadUtil::Handle> handles;
         bsls::AtomicInt                        counter;
         bsls::TimeInterval                     sleepInterval(0.075);  // 75ms
-        bdlqq::Barrier                         barrier(NUM_THREADS + 1);
+        bslmt::Barrier                         barrier(NUM_THREADS + 1);
         handles.reserve(NUM_THREADS);
 
         ASSERT(10 < sleepInterval.totalMilliseconds());
             // Guarantee that the threads will sleep
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::Handle handle;
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handle,
+            bslmt::ThreadUtil::Handle handle;
+            ASSERT(0 == bslmt::ThreadUtil::create(&handle,
                                                  bdlf::BindUtil::bind(
                                                      &waitTurnAndSleepCallback,
                                                      &mX,
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
 
         // Cleanup threads
         for (int i = 0; i < (int) handles.size(); ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
         ASSERT(0         < X.lagTime());
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
         //     'waitTurn' at the configured rate.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 50.  Create
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 50.  Create
         //   multiple threads bound to a callback that calls 'waitTurn', and
         //   then increments an atomic counter.  Start the threads.  Join the
         //   threads, and verify that the value of the counter is at least the
@@ -444,13 +444,13 @@ int main(int argc, char *argv[])
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
 
-        bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+        bsl::vector<bslmt::ThreadUtil::Handle> handles;
         bsls::AtomicInt                        counter;
-        bdlqq::Barrier                         barrier(NUM_THREADS + 1);
+        bslmt::Barrier                         barrier(NUM_THREADS + 1);
         handles.reserve(NUM_THREADS);
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::Handle handle;
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handle,
+            bslmt::ThreadUtil::Handle handle;
+            ASSERT(0 == bslmt::ThreadUtil::create(&handle,
                                                  bdlf::BindUtil::bind(
                                                      &waitTurnCallback,
                                                      &mX,
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
 
         // Cleanup threads
         for (int i = 0; i < (int) handles.size(); ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
         Int64 lt = X.lagTime();
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
         //     a specified start time blocks until that time.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 1, and a start
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a start
         //   time offset of 1 second; and a non-modifiable reference to 'mX'
         //   named 'X'.  Call 'waitTurn' on 'mX' and 'lagTime' on 'X'.  Verify
         //   that the result of both calls is positive, indicating that the
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
         //   wait time.
         //
         // Testing:
-        //   bdlqq::Turnstile(
+        //   bslmt::Turnstile(
         //       double                   rate,
         //       const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
         // --------------------------------------------------------------------
@@ -536,7 +536,7 @@ int main(int argc, char *argv[])
         //     a specified start time blocks until that time.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 1, and a
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a
         //   non-modifiable reference to 'mX' named 'X'.  Call 'waitTurn' on
         //   'mX' and 'lagTime' on 'X' to establish that the caller waits on
         //   the turnstile and that the caller is not lagging.  Then, call
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
         ASSERT(0 ==  X.lagTime());   // not lagging
 
-        bdlqq::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * USPS);
         ASSERT(0 == mX.waitTurn());
         ASSERT(0 <   X.lagTime());   // lagging after sleep
 
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
         //     more slowly than the specified rate.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 10.0, and a
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 10.0, and a
         //   non-modifiable reference to 'mX' named 'X'.  In a loop, call
         //   'waitTurn' on 'mX' and 'lagTime' on 'X'.  Verify that the result
         //   of 'waitTime' is within 10ms of the expected maximum wait time,
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
         // Wait 2.25 times the period time
 
         int sleepTime = (int) (2.5 * USPS * WT);
-        bdlqq::ThreadUtil::microSleep(sleepTime);
+        bslmt::ThreadUtil::microSleep(sleepTime);
 
         // At this point.  'X.lagTime() == 1.5 * USPS * WT + epsA'.  Take one
         // turn.
@@ -698,12 +698,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Exercise the basic functionality of the 'bdlqq::Turnstile' class.
+        //   Exercise the basic functionality of the 'bslmt::Turnstile' class.
         //   Ensure that a turnstile can be instantiated and destroyed.  Also
         //   exercise the primary manipulators and accessors.
         //
         // Plan:
-        //   Create a 'bdlqq::Turnstile', 'mX', with a rate of 1, and a
+        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a
         //   non-modifiable reference to 'mX' named 'X'.  Call 'waitTurn' on
         //   'mX' and 'lagTime' on 'X'.  Destroy 'mX'.
         //
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Compare the difference in elapsed time between 'sleep' and
-        //   'bdlqq::Turnstile' implementations of the heartbeat usage example
+        //   'bslmt::Turnstile' implementations of the heartbeat usage example
         //   at various rates.
         //
         // Plan:
@@ -741,14 +741,14 @@ int main(int argc, char *argv[])
         //   that the drift resulting from calling "sleep" in the
         //   'processWithSleep' function results in a greater difference from
         //   the expected time that the elapsed time returned by the
-        //   'bdlqq::Turnstile' implementation.
+        //   'bslmt::Turnstile' implementation.
         //
         // Testing:
-        //   Comparison of 'sleep' to 'bdlqq::Turnstile'
+        //   Comparison of 'sleep' to 'bslmt::Turnstile'
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Comparison of 'sleep' to 'bdlqq::Turnstile'" << endl
+            cout << "Comparison of 'sleep' to 'bslmt::Turnstile'" << endl
                  << "==========================================" << endl;
         }
 
@@ -807,15 +807,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Before recent changes to this component, a system clock change
-        //:   could cause the 'bdlqq::Turnstile' to appear to hang.
+        //:   could cause the 'bslmt::Turnstile' to appear to hang.
         //
         // Plan:
-        //: 1 Create a 'bdlqq::Turnstile' which prints a message once a second,
+        //: 1 Create a 'bslmt::Turnstile' which prints a message once a second,
         //:   externally change the time, externally verify the messages do
         //:   not stop printing.
         //
         // Testing:
-        //   'bdlqq::Turnstile' behavior is immune to system clock changes.
+        //   'bslmt::Turnstile' behavior is immune to system clock changes.
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -835,9 +835,9 @@ int main(int argc, char *argv[])
              << endl << "message."
              << endl;
 
-        bdlqq::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * USPS);
 
-        bdlqq::Turnstile turnstile(1.0);
+        bslmt::Turnstile turnstile(1.0);
         unsigned count = 0;
         while (count < 300) {
             turnstile.waitTurn();

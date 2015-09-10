@@ -1,15 +1,15 @@
-// bdlqq_threadutilimpl_win32.cpp                                     -*-C++-*-
-#include <bdlqq_threadutilimpl_win32.h>
+// bslmt_threadutilimpl_win32.cpp                                     -*-C++-*-
+#include <bslmt_threadutilimpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 
-#include <bdlqq_configuration.h>
-#include <bdlqq_threadattributes.h>
+#include <bslmt_configuration.h>
+#include <bslmt_threadattributes.h>
 
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -36,8 +36,8 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CLASS DATA
-const bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::INVALID_HANDLE =
+const bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::INVALID_HANDLE =
                                                    { INVALID_HANDLE_VALUE, 0 };
 
 namespace {
@@ -80,7 +80,7 @@ struct ThreadStartupInfo {
     // Control structure used to pass startup information to the thread entry
     // function.
 
-    bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle  d_handle;
+    bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle  d_handle;
     bcemt_ThreadFunction                                          d_function;
     void                                                         *d_threadArg;
     ThreadStartupInfo                                            *d_next;
@@ -90,7 +90,7 @@ struct ThreadSpecificDestructor {
     // This structure implements a linked list of destructors associated with
     // thread-specific key.
 
-    bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Key  d_key;
+    bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Key  d_key;
     bcemt_KeyDestructorFunction                                d_destructor;
     ThreadSpecificDestructor                                  *d_next;
 };
@@ -325,7 +325,7 @@ static unsigned _stdcall ThreadEntry(void *arg)
                // --------------------------------------------
 
 // CLASS METHODS
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                                 Handle               *thread,
                                                 bcemt_ThreadFunction  function,
                                                 void                 *userData)
@@ -334,7 +334,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     return create(thread, attribute, function, userData);
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                             Handle                  *handle,
                                             const ThreadAttributes&  attribute,
                                             bcemt_ThreadFunction     function,
@@ -389,7 +389,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     return 0;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::join(
                                                               Handle&   handle,
                                                               void    **status)
 {
@@ -426,7 +426,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
     return FALSE == result ? 3 : 0;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::detach(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::detach(
                                                                 Handle& handle)
 {
     if (handle.d_handle == GetCurrentThread()
@@ -451,7 +451,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::detach(
     return 2;
 }
 
-void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::exit(void *status)
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::exit(void *status)
 {
     invokeDestructors();
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
@@ -464,7 +464,7 @@ void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::exit(void *status)
     _endthreadex((unsigned)(bsls::Types::IntPtr)status);
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::createKey(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::createKey(
                                        Key                         *key,
                                        bcemt_KeyDestructorFunction  destructor)
 {
@@ -493,7 +493,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::createKey(
     return 0;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::deleteKey(Key& key)
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::deleteKey(Key& key)
 {
     ThreadSpecificDestructor *prev = 0;
     if (!TlsFree(key)) {
@@ -519,14 +519,14 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::deleteKey(Key& key)
     return 0;
 }
 
-bool bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqual(
+bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqual(
                                                                const Handle& a,
                                                                const Handle& b)
 {
     return a.d_id == b.d_id;
 }
 
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
                                       const bsls::TimeInterval&   absoluteTime,
                                       bsls::SystemClockType::Enum clockType)
 {
@@ -598,7 +598,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

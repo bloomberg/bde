@@ -1,10 +1,10 @@
-// bdlqq_condition.cpp                                                -*-C++-*-
-#include <bdlqq_condition.h>
+// bslmt_condition.cpp                                                -*-C++-*-
+#include <bslmt_condition.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_condition_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_condition_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_mutex.h>   // for testing only
+#include <bslmt_mutex.h>   // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

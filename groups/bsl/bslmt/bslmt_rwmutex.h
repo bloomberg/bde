@@ -1,6 +1,6 @@
-// bdlqq_rwmutex.h                                                    -*-C++-*-
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#define INCLUDED_BDLQQ_RWMUTEX
+// bslmt_rwmutex.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#define INCLUDED_BSLMT_RWMUTEX
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,11 +12,11 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@CLASSES:
-//   bdlqq::RWMutex: platform-independent wrapper of an RW mutex
+//   bslmt::RWMutex: platform-independent wrapper of an RW mutex
 //
-//@SEE_ALSO: bdlqq_readerwriterlock
+//@SEE_ALSO: bslmt_readerwriterlock
 //
-//@DESCRIPTION: This component provides a class, 'bdlqq::RWMutex', that defines
+//@DESCRIPTION: This component provides a class, 'bslmt::RWMutex', that defines
 // a platform-independent RW mutex.  An RW mutex provides for a shared "read"
 // lock that may be held simultaneously by any number of threads, and a "write"
 // lock that is exclusive (i.e., it may be held by only one thread at a time).
@@ -27,12 +27,12 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -43,13 +43,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BDLQQ_PLATFORM_WIN32_THREADS) || defined(BSLS_PLATFORM_OS_AIX)
-#ifndef INCLUDED_BDLQQ_READERWRITERLOCK
-#include <bdlqq_readerwriterlock.h>
+#if defined(BSLMT_PLATFORM_WIN32_THREADS) || defined(BSLS_PLATFORM_OS_AIX)
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#include <bslmt_readerwriterlock.h>
 #endif
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 #ifndef INCLUDED_PTHREAD
 #include <pthread.h>
 #define INCLUDED_PTHREAD
@@ -57,16 +57,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 struct RWMutexImpl;
 
 }  // close package namespace
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
-namespace bdlqq {
+namespace bslmt {
 
                      // ================================
                      // struct RWMutexImpl<PosixThreads>
@@ -98,9 +98,9 @@ struct RWMutexImpl<Platform::PosixThreads> {
 
 }  // close package namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
-namespace bdlqq {
+namespace bslmt {
 
                               // =============
                               // class RWMutex
@@ -116,7 +116,7 @@ class RWMutex {
     // continuously acquiring the shared lock.
 
     // DATA
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BDLQQ_PLATFORM_WIN32_THREADS)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLMT_PLATFORM_WIN32_THREADS)
     ReaderWriterLock d_impl;
 #else
     RWMutexImpl<Platform::ThreadPolicy> d_impl;
@@ -176,7 +176,7 @@ class RWMutex {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
                             // ------------------
                             // struct RWMutexImpl
@@ -184,7 +184,7 @@ class RWMutex {
 
 // CREATORS
 inline
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::RWMutexImpl()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
 {
     const int rc = pthread_rwlock_init(&d_lock, NULL);
 
@@ -195,7 +195,7 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::RWMutexImpl()
 }
 
 inline
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::~RWMutexImpl()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::~RWMutexImpl()
 {
     const int rc = pthread_rwlock_destroy(&d_lock);
 
@@ -208,7 +208,7 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::~RWMutexImpl()
 // MANIPULATORS
 inline
 void
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockRead()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockRead()
 {
     const int rc = pthread_rwlock_rdlock(&d_lock);
 
@@ -220,7 +220,7 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockRead()
 
 inline
 void
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockWrite()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockWrite()
 {
     const int rc = pthread_rwlock_wrlock(&d_lock);
 
@@ -232,26 +232,26 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockWrite()
 
 inline
 int
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockRead()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockRead()
 {
     return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
 }
 
 inline
 int
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockWrite()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockWrite()
 {
     return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
 }
 
 inline
 void
-bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
+bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::unlock()
 {
     pthread_rwlock_unlock(&d_lock);
 }
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
                               // -------------
                               // class RWMutex
@@ -259,42 +259,42 @@ bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 
 // CREATORS
 inline
-bdlqq::RWMutex::RWMutex()
+bslmt::RWMutex::RWMutex()
 {
 }
 
 inline
-bdlqq::RWMutex::~RWMutex()
+bslmt::RWMutex::~RWMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::RWMutex::lockRead()
+void bslmt::RWMutex::lockRead()
 {
     d_impl.lockRead();
 }
 
 inline
-void bdlqq::RWMutex::lockWrite()
+void bslmt::RWMutex::lockWrite()
 {
     d_impl.lockWrite();
 }
 
 inline
-int bdlqq::RWMutex::tryLockRead()
+int bslmt::RWMutex::tryLockRead()
 {
     return d_impl.tryLockRead();
 }
 
 inline
-int bdlqq::RWMutex::tryLockWrite()
+int bslmt::RWMutex::tryLockWrite()
 {
     return d_impl.tryLockWrite();
 }
 
 inline
-void bdlqq::RWMutex::unlock()
+void bslmt::RWMutex::unlock()
 {
     d_impl.unlock();
 }

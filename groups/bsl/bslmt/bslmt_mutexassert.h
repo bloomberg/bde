@@ -1,6 +1,6 @@
-// bdlqq_mutexassert.h                                                -*-C++-*-
-#ifndef INCLUDED_BDLQQ_MUTEXASSERT
-#define INCLUDED_BDLQQ_MUTEXASSERT
+// bslmt_mutexassert.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLMT_MUTEXASSERT
+#define INCLUDED_BSLMT_MUTEXASSERT
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,11 +12,11 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//  BDLQQ_MUTEXASSERT_IS_LOCKED: verify a mutex is locked in non-opt modes
-//  BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE: verify a mutex is locked in safe mode
-//  BDLQQ_MUTEXASSERT_IS_LOCKED_OPT: verify a mutex is locked in all modes
+//  BSLMT_MUTEXASSERT_IS_LOCKED: verify a mutex is locked in non-opt modes
+//  BSLMT_MUTEXASSERT_IS_LOCKED_SAFE: verify a mutex is locked in safe mode
+//  BSLMT_MUTEXASSERT_IS_LOCKED_OPT: verify a mutex is locked in all modes
 //
-//@SEE_ALSO: bdlqq_mutex
+//@SEE_ALSO: bslmt_mutex
 //
 //@DESCRIPTION: This component provides macros for asserting that a mutex is
 // locked.  It does not distinguish between locks held by the current thread or
@@ -28,12 +28,12 @@ BSLS_IDENT("$Id: $")
 // The three macros defined by the component are analogous to the macros
 // defined by 'BSLS_ASSERT':
 //
-//: o 'BDLQQ_MUTEXASSERT_IS_LOCKED': active when 'BSLS_ASSERT' is active
+//: o 'BSLMT_MUTEXASSERT_IS_LOCKED': active when 'BSLS_ASSERT' is active
 //:
-//: o 'BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE': active when 'BSLS_ASSERT_SAFE' is
+//: o 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE': active when 'BSLS_ASSERT_SAFE' is
 //:   active
 //:
-//: o 'BDLQQ_MUTEXASSERT_IS_LOCKED_OPT': active when 'BSLS_ASSERT_OPT' is
+//: o 'BSLMT_MUTEXASSERT_IS_LOCKED_OPT': active when 'BSLS_ASSERT_OPT' is
 //:   active
 //
 // In build modes where any one of these macros is not active, calling it will
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // question is indeed locked.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use 'BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE'
+// guarded by an internal mutex.  We can use 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE'
 // to ensure (in appropriate build modes) that proper internal locking of the
 // mutex is taking place.
 //
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
 //                                       // standard container
 //
-//      mutable bdlqq::Mutex  d_mutex;    // mutex to provide thread safety
+//      mutable bslmt::Mutex  d_mutex;    // mutex to provide thread safety
 //
 //      // PRIVATE MANIPULATOR
 //      int popImp(int *result);
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //  // PRIVATE MANIPULATOR
 //  int MyThreadSafeQueue::popImp(int *result)
 //  {
-//      BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex);
+//      BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex);
 //
 //      if (d_deque.empty()) {
 //          return -1;                                                // RETURN
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BDLQQ_MUTEXASSERT_IS_LOCKED*' macros.  We use the '...IS_LOCKED_SAFE...'
+// 'BSLMT_MUTEXASSERT_IS_LOCKED*' macros.  We use the '...IS_LOCKED_SAFE...'
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
@@ -231,10 +231,10 @@ BSLS_IDENT("$Id: $")
 //
 // Now, we build in safe mode (which enables our check), run the program (which
 // calls 'example2Function'), and observe that, when we call 'popAll', the
-// 'BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
+// 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
 // and aborts:
 //..
-//  Assertion failed: BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
+//  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
 //  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
 //  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
@@ -246,8 +246,8 @@ BSLS_IDENT("$Id: $")
 // different results, but in all cases should prevent the program from
 // proceeding normally.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -255,40 +255,40 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED(mutex_p) do {                         \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
+    #define BSLMT_MUTEXASSERT_IS_LOCKED(mutex_p) do {                         \
+        bslmt::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
-                           "BDLQQ_MUTEXASSERT_IS_LOCKED(" #mutex_p ")",       \
+                           "BSLMT_MUTEXASSERT_IS_LOCKED(" #mutex_p ")",       \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED(mutex_p) ((void) 0)
+    #define BSLMT_MUTEXASSERT_IS_LOCKED(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(mutex_p) do {                    \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(mutex_p) do {                    \
+        bslmt::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
-                           "BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(" #mutex_p ")",  \
+                           "BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(" #mutex_p ")",  \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(mutex_p) ((void) 0)
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) do {                     \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) do {                     \
+        bslmt::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
-                           "BDLQQ_MUTEXASSERT_IS_LOCKED_OPT(" #mutex_p ")",   \
+                           "BSLMT_MUTEXASSERT_IS_LOCKED_OPT(" #mutex_p ")",   \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BDLQQ_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) ((void) 0)
+    #define BSLMT_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) ((void) 0)
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 class Mutex;
 
@@ -312,8 +312,8 @@ struct MutexAssert_Imp {
         // performed, 'file' is the name of the source file that called the
         // macro, and 'line' is the line number in the file where the macro was
         // called.  This function is intended to implement
-        // 'BDLQQ_MUTEXASSERT_IS_LOCKED', 'BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE',
-        // and 'BDLQQ_MUTEXASSERT_IS_LOCKED_OPT' and should not otherwise be
+        // 'BSLMT_MUTEXASSERT_IS_LOCKED', 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE',
+        // and 'BSLMT_MUTEXASSERT_IS_LOCKED_OPT' and should not otherwise be
         // called directly.
 };
 }  // close package namespace

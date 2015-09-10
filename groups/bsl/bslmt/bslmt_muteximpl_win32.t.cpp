@@ -1,5 +1,5 @@
-// bdlqq_muteximpl_win32.t.cpp                                        -*-C++-*-
-#include <bdlqq_muteximpl_win32.h>
+// bslmt_muteximpl_win32.t.cpp                                        -*-C++-*-
+#include <bslmt_muteximpl_win32.h>
 
 #include <bsls_atomic.h>
 
@@ -9,7 +9,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 
@@ -51,7 +51,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::MutexImpl<bdlqq::Platform::Win32Threads> Obj;
+typedef bslmt::MutexImpl<bslmt::Platform::Win32Threads> Obj;
 
 void My_DoLock(Obj::NativeType* lock) {
     EnterCriticalSection(lock);

@@ -1,14 +1,14 @@
-// bdlqq_sluice.cpp                                                   -*-C++-*-
-#include <bdlqq_sluice.h>
+// bslmt_sluice.cpp                                                   -*-C++-*-
+#include <bslmt_sluice.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_sluice_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_sluice_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
-#include <bdlqq_semaphore.h>    // for testing only
-#include <bdlqq_threadgroup.h>  // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_semaphore.h>    // for testing only
+#include <bslmt_threadgroup.h>  // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -21,7 +21,7 @@ namespace BloombergLP {
                     // ----------------------------------
 
 // CREATORS
-bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
+bslmt::Sluice::GenerationDescriptor::GenerationDescriptor(
                                          bsls::SystemClockType::Enum clockType)
 : d_numThreads(0)
 , d_numSignaled(0)
@@ -35,7 +35,7 @@ bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
                                // ------------
 
 // CREATORS
-bdlqq::Sluice::Sluice(bslma::Allocator *basicAllocator)
+bslmt::Sluice::Sluice(bslma::Allocator *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
@@ -44,7 +44,7 @@ bdlqq::Sluice::Sluice(bslma::Allocator *basicAllocator)
 {
 }
 
-bdlqq::Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
+bslmt::Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
                       bslma::Allocator            *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
@@ -54,7 +54,7 @@ bdlqq::Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
 {
 }
 
-bdlqq::Sluice::~Sluice()
+bslmt::Sluice::~Sluice()
 {
     BSLS_ASSERT(0 == d_signaledGeneration);
     BSLS_ASSERT(0 == d_pendingGeneration);
@@ -71,7 +71,7 @@ bdlqq::Sluice::~Sluice()
 }
 
 // MANIPULATORS
-const void *bdlqq::Sluice::enter()
+const void *bslmt::Sluice::enter()
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -97,7 +97,7 @@ const void *bdlqq::Sluice::enter()
     return g;
 }
 
-void bdlqq::Sluice::wait(const void *token)
+void bslmt::Sluice::wait(const void *token)
 {
     GenerationDescriptor *g =
                 static_cast<GenerationDescriptor *>(const_cast<void *>(token));
@@ -129,7 +129,7 @@ void bdlqq::Sluice::wait(const void *token)
     }
 }
 
-int bdlqq::Sluice::timedWait(const void                *token,
+int bslmt::Sluice::timedWait(const void                *token,
                              const bsls::TimeInterval&  timeout)
 {
     GenerationDescriptor *g =
@@ -173,7 +173,7 @@ int bdlqq::Sluice::timedWait(const void                *token,
     }
 }
 
-void bdlqq::Sluice::signalAll()
+void bslmt::Sluice::signalAll()
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -208,7 +208,7 @@ void bdlqq::Sluice::signalAll()
     }
 }
 
-void bdlqq::Sluice::signalOne()
+void bslmt::Sluice::signalOne()
 {
     LockGuard<Mutex> lock(&d_mutex);
 

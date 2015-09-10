@@ -1,6 +1,6 @@
-// bdlqq_writelockguard.h                                             -*-C++-*-
-#ifndef INCLUDED_BDLQQ_WRITELOCKGUARD
-#define INCLUDED_BDLQQ_WRITELOCKGUARD
+// bslmt_writelockguard.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
+#define INCLUDED_BSLMT_WRITELOCKGUARD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,38 +10,38 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a generic proctor for write synchronization objects.
 //
 //@CLASSES:
-//  bdlqq::WriteLockGuard: automatic locking-unlocking for write access
-//  bdlqq::WriteLockGuardUnlock: automatic unlocking-locking for write access
-//  bdlqq::WriteLockGuardTryLock: automatic non-blocking locking-unlocking for
+//  bslmt::WriteLockGuard: automatic locking-unlocking for write access
+//  bslmt::WriteLockGuardUnlock: automatic unlocking-locking for write access
+//  bslmt::WriteLockGuardTryLock: automatic non-blocking locking-unlocking for
 //                               write access
-// bdlqq::LockWriteGuard: DEPRECATED
+// bslmt::LockWriteGuard: DEPRECATED
 //
-//@SEE_ALSO: bdlqq_lockguard, bdlqq_readlockguard, bdlqq_rwmutex
+//@SEE_ALSO: bslmt_lockguard, bslmt_readlockguard, bslmt_rwmutex
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann)
 //
 //@DESCRIPTION: This component provides generic proctors to automatically lock
 // and unlock an external synchronization object for writing.  The
-// synchronization object can be any type (e.g., 'bdlqq::ReaderWriterLock')
+// synchronization object can be any type (e.g., 'bslmt::ReaderWriterLock')
 // that provides the following methods:
 //..
 //  void lockWrite();
 //  void unlock();
 //..
-// Both 'bdlqq::WriteLockGuard' and 'bdlqq::WriteLockGuardUnlock' implement the
+// Both 'bslmt::WriteLockGuard' and 'bslmt::WriteLockGuardUnlock' implement the
 // "construction is acquisition, destruction is release" idiom.  During
-// construction, 'bdlqq::WriteLockGuard' automatically calls 'lockWrite' on the
+// construction, 'bslmt::WriteLockGuard' automatically calls 'lockWrite' on the
 // user-supplied object, and 'unlock' when it is destroyed (unless released).
-// 'bdlqq::WriteLockGuardUnlock' does the opposite -- it invokes the 'unlock'
+// 'bslmt::WriteLockGuardUnlock' does the opposite -- it invokes the 'unlock'
 // method when constructed and the 'lockWrite' method when destroyed.
 //
-// A third type of guard, 'bdlqq::WriteLockGuardTryLock', attempts to acquire a
+// A third type of guard, 'bslmt::WriteLockGuardTryLock', attempts to acquire a
 // lock, and if acquisition succeeds, releases it upon destruction.  Since the
 // acquisition is done at construction time, it is not possible to return a
-// value to indicate success.  Rather, the 'bdlqq::WriteLockGuardTryLock'
+// value to indicate success.  Rather, the 'bslmt::WriteLockGuardTryLock'
 // contains a pointer to the synchronization object if 'tryLock' succeeds, and
 // is null otherwise.  The synchronization object can be any type (e.g.,
-// 'bdlqq::Mutex' or 'bdlqq::RecursiveMutex') that provides the following
+// 'bslmt::Mutex' or 'bslmt::RecursiveMutex') that provides the following
 // methods:
 //..
 //  int tryLockWrite();
@@ -55,17 +55,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Behavior of the 'release' method
 ///--------------------------------
-// Like all BDE proctor classes, each of the three 'bdlqq::WriteLockGuard*'
+// Like all BDE proctor classes, each of the three 'bslmt::WriteLockGuard*'
 // classes provides a 'release' method that terminates the proctor's management
 // of any lock object that the proctor holds.  The 'release' method has *no*
 // *effect* on the state of the lock object.
 //
-// In particular, 'bdlqq::WriteLockGuard::release' does not unlock the lock
+// In particular, 'bslmt::WriteLockGuard::release' does not unlock the lock
 // object under management.  If a user wants to release the lock object *and*
 // unlock the lock object (because the lock is no longer required before the
 // guard goes out of scope), the following idiom can be used:
 //..
-//  // 'guard' is an existing guard of type 'bdlqq::WriteLockGuard<my_RLock>',
+//  // 'guard' is an existing guard of type 'bslmt::WriteLockGuard<my_RLock>',
 //  // created in a scope that we do not control.
 //
 //  {
@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void safeFunc(my_Object *obj, my_RWLock *rwlock)
 //  {
-//      bdlqq::WriteLockGuard<my_RWLock> guard(rwlock);
+//      bslmt::WriteLockGuard<my_RWLock> guard(rwlock);
 //      if (someCondition) {
 //          obj->someUpgradeMethod();
 //          return;
@@ -126,14 +126,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bdlqq::WriteLockGuardTryLock' in the typical following fashion:
+// a 'bslmt::WriteLockGuardTryLock' in the typical following fashion:
 //..
 //  static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
 //      // Perform upgrade and return positive value if locking succeeds.
 //      // Return 0 if locking fails.
 //  {
 //      const int RETRIES = 1; // use higher values for higher success rate
-//      bdlqq::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
+//      bslmt::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
 //      if (guard.ptr()) { // rwlock is locked
 //          if (someUpgradeCondition) {
 //              obj->someUpgradeMethod();
@@ -149,23 +149,23 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // If the underlying lock object provides an upgrade from a lock for read to a
-// lock for write (as does 'bdlqq::ReaderWriterLock' with the
+// lock for write (as does 'bslmt::ReaderWriterLock' with the
 // 'upgradeToWriteLock' function, for example), and the lock is already guarded
-// by a 'bdlqq::LockReadGuard', then it is not necessary to transfer the guard
-// to a 'bdlqq::WriteLockGuard'.  In fact, a combination of
-// 'bdlqq::LockReadGuard' and 'bdlqq::WriteLockGuard' guarding a common lock
+// by a 'bslmt::LockReadGuard', then it is not necessary to transfer the guard
+// to a 'bslmt::WriteLockGuard'.  In fact, a combination of
+// 'bslmt::LockReadGuard' and 'bslmt::WriteLockGuard' guarding a common lock
 // object should probably never be needed.
 //
 // Care must be taken so as not to interleave guard objects in such a way as to
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive read/write lock).
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                            // ====================
                            // class WriteLockGuard
@@ -352,7 +352,7 @@ class WriteLockGuardTryLock {
 // CREATORS
 template <class T>
 inline
-bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock)
+bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -362,7 +362,7 @@ bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock)
 
 template <class T>
 inline
-bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
+bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preLocked) {
@@ -372,7 +372,7 @@ bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
 
 template <class T>
 inline
-bdlqq::WriteLockGuard<T>::~WriteLockGuard()
+bslmt::WriteLockGuard<T>::~WriteLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -383,7 +383,7 @@ bdlqq::WriteLockGuard<T>::~WriteLockGuard()
 
 template <class T>
 inline
-T *bdlqq::WriteLockGuard<T>::release()
+T *bslmt::WriteLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -393,7 +393,7 @@ T *bdlqq::WriteLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::WriteLockGuard<T>::ptr() const
+T *bslmt::WriteLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -405,7 +405,7 @@ T *bdlqq::WriteLockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
+bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -415,7 +415,7 @@ bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock, int preUnlocked)
+bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock, int preUnlocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preUnlocked) {
@@ -425,7 +425,7 @@ bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock, int preUnlocked)
 
 template <class T>
 inline
-bdlqq::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
+bslmt::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockWrite();
@@ -435,7 +435,7 @@ bdlqq::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::WriteLockGuardUnlock<T>::release()
+T *bslmt::WriteLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -445,7 +445,7 @@ T *bdlqq::WriteLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::WriteLockGuardUnlock<T>::ptr() const
+T *bslmt::WriteLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -456,7 +456,7 @@ T *bdlqq::WriteLockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bdlqq::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
+bslmt::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -471,7 +471,7 @@ bdlqq::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
 
 template <class T>
 inline
-bdlqq::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
+bslmt::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -481,7 +481,7 @@ bdlqq::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::WriteLockGuardTryLock<T>::release()
+T *bslmt::WriteLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -491,7 +491,7 @@ T *bdlqq::WriteLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::WriteLockGuardTryLock<T>::ptr() const
+T *bslmt::WriteLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -503,14 +503,14 @@ T *bdlqq::WriteLockGuardTryLock<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bdlqq::LockWriteGuard<T>::LockWriteGuard(T *lock)
+bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock)
 : WriteLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-bdlqq::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLocked)
+bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLocked)
 : WriteLockGuard<T>(lock, preLocked)
 {
 }

@@ -1,6 +1,6 @@
-// bdlqq_timedsemaphore.t.cpp                                         -*-C++-*-
+// bslmt_timedsemaphore.t.cpp                                         -*-C++-*-
 
-#include <bdlqq_timedsemaphore.h>
+#include <bslmt_timedsemaphore.h>
 
 #include <bsls_systemtime.h>
 
@@ -69,7 +69,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::TimedSemaphore Obj;
+typedef bslmt::TimedSemaphore Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM

@@ -1,10 +1,10 @@
-// bdlqq_conditionimpl_pthread.t.cpp                                  -*-C++-*-
-#include <bdlqq_conditionimpl_pthread.h>
+// bslmt_conditionimpl_pthread.t.cpp                                  -*-C++-*-
+#include <bslmt_conditionimpl_pthread.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
@@ -54,7 +54,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads> Obj;
+typedef bslmt::ConditionImpl<bslmt::Platform::PosixThreads> Obj;
 
 extern "C" {
    typedef void *(*ThreadFunction)(void *);
@@ -63,10 +63,10 @@ extern "C" {
 struct PingPongArgs
 {
     Obj* d_cond;
-    bdlqq::Mutex *d_lock;
+    bslmt::Mutex *d_lock;
     bsls::AtomicInt d_count;
 
-    PingPongArgs(Obj* cond, bdlqq::Mutex *lock)
+    PingPongArgs(Obj* cond, bslmt::Mutex *lock)
         : d_cond(cond), d_lock(lock), d_count(0)
     {}
 };
@@ -112,7 +112,7 @@ struct my_WorkItem {
 
 struct my_WorkQueue {
     deque<my_WorkItem> d_queue;  // queue of work requests
-    bdlqq::Mutex        d_mx;     // protects the shared queue
+    bslmt::Mutex        d_mx;     // protects the shared queue
     Obj                d_cv;     // signals the existence of new work
 };
 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nPing-pong test" << endl;
 
         Obj x;
-        bdlqq::Mutex lock;
+        bslmt::Mutex lock;
         PingPongArgs args1(&x, &lock);
         PingPongArgs args2(&x, &lock);
 
@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
 #endif
 
         Obj condition;
-        bdlqq::Mutex     mutex;
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
+        bslmt::Mutex     mutex;
+        bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
 
         for (int i = 0; i < 8; ++i) {
             const bsls::TimeInterval start =
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
         //   becomes true, and verify that the time has elapsed afterward.
         //
         // Testing:
-        //   int timedWait(bdlqq::Mutex*, const bsls::TimeInterval&);
+        //   int timedWait(bslmt::Mutex*, const bsls::TimeInterval&);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -348,8 +348,8 @@ int main(int argc, char *argv[])
         }
 
         Obj cond;
-        bdlqq::Mutex mutex;
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
+        bslmt::Mutex mutex;
+        bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
 
         bsls::TimeInterval startT = bsls::SystemTime::nowRealtimeClock();
         double start = startT.totalSecondsAsDouble();

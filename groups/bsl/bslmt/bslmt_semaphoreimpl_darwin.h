@@ -1,27 +1,27 @@
-// bdlqq_semaphoreimpl_darwin.h                                       -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_DARWIN
-#define INCLUDED_BDLQQ_SEMAPHOREIMPL_DARWIN
+// bslmt_semaphoreimpl_darwin.h                                       -*-C++-*-
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_DARWIN
+#define INCLUDED_BSLMT_SEMAPHOREIMPL_DARWIN
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a Darwin implementation of 'bdlqq::Semaphore'.
+//@PURPOSE: Provide a Darwin implementation of 'bslmt::Semaphore'.
 //
 //@CLASSES:
-//  bdlqq::SemaphoreImpl<DarwinSemaphore>: semaphore specialization for Darwin
+//  bslmt::SemaphoreImpl<DarwinSemaphore>: semaphore specialization for Darwin
 //
-//@SEE_ALSO: bdlqq_semaphore
+//@SEE_ALSO: bslmt_semaphore
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // for POSIX threads ("pthreads") according to the POSIX support on Darwin
 // platform via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<Platform::DarwinSemaphore>
+//  bslmt::SemaphoreImpl<Platform::DarwinSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Semaphore'.
+// should instead use 'bslmt::Semaphore'.
 //
 ///Usage
 ///-----
@@ -29,16 +29,16 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
@@ -113,7 +113,7 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
 
 // CREATORS
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::~SemaphoreImpl()
+bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_close(d_sem_p);
 
@@ -123,7 +123,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post()
+void bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::post()
 {
     int result = ::sem_post(d_sem_p);
 
@@ -132,7 +132,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post()
 }
 
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::tryWait()
+int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::tryWait()
 {
     return ::sem_trywait(d_sem_p);
 
@@ -140,7 +140,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::tryWait()
 
 // ACCESSORS
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::getValue() const
+int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
 {
     // Not implemented on Darwin, but sem_getvalue still returns success.
     BSLS_ASSERT(false &&

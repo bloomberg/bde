@@ -1,8 +1,8 @@
-// bdlqq_threadutil.cpp                                               -*-C++-*-
-#include <bdlqq_threadutil.h>
+// bslmt_threadutil.cpp                                               -*-C++-*-
+#include <bslmt_threadutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadutil_cpp,"$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -21,7 +21,7 @@ namespace BloombergLP {
                             // -----------------
 
 // CLASS METHODS
-int bdlqq::ThreadUtil::convertToSchedulingPriority(
+int bslmt::ThreadUtil::convertToSchedulingPriority(
                ThreadAttributes::SchedulingPolicy policy,
                double                             normalizedSchedulingPriority)
 {

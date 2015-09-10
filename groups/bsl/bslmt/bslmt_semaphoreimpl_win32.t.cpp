@@ -1,12 +1,12 @@
-// bdlqq_semaphoreimpl_win32.t.cpp                                    -*-C++-*-
-#include <bdlqq_semaphoreimpl_win32.h>
+// bslmt_semaphoreimpl_win32.t.cpp                                    -*-C++-*-
+#include <bslmt_semaphoreimpl_win32.h>
 
-#include <bdlqq_lockguard.h>   // for testing only
-#include <bdlqq_mutex.h>       // for testing only
-#include <bdlqq_threadutil.h>  // for testing only
+#include <bslmt_lockguard.h>   // for testing only
+#include <bslmt_mutex.h>       // for testing only
+#include <bslmt_threadutil.h>  // for testing only
 
 #include <bsls_atomic.h>
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bsls_timeinterval.h>
 
@@ -18,7 +18,7 @@
 
 #include <bsl_cstdlib.h>
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 
@@ -81,9 +81,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define NL()  cout << endl;                   // Print newline
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
-#define MTCOUT   { coutMutex.lock(); cout << bdlqq::ThreadUtil::selfIdAsInt() \
+#define MTCOUT   { coutMutex.lock(); cout << bslmt::ThreadUtil::selfIdAsInt() \
                                           << ": "
 #define MTENDL   endl;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -92,7 +92,7 @@ static bdlqq::Mutex coutMutex;
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore> Obj;
+typedef bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
@@ -157,7 +157,7 @@ private:
     }
 
     // MANIPULATORS
-    int wait(bdlqq::Mutex *mutex)
+    int wait(bslmt::Mutex *mutex)
     {
         WaitForSingleObject(d_semBlockLock, INFINITE);
         ++d_waitersBlocked;
@@ -261,7 +261,7 @@ class MyBarrier {
     // Barrier, but depending on bcemt Barrier itself here would cause a
     // dependency cycle.
 
-    bdlqq::Mutex     d_mutex;      // mutex used to control access to this
+    bslmt::Mutex     d_mutex;      // mutex used to control access to this
                                   // barrier.
     MyCondition d_cond;       // condition variable used for signaling
                                   // blocked threads.
@@ -331,11 +331,11 @@ MyBarrier::~MyBarrier()
     while (1) {
 
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
             if (0 == d_numPending) break;
         }
 
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     BSLS_ASSERT( 0 == d_numWaiting );
@@ -343,7 +343,7 @@ MyBarrier::~MyBarrier()
 
 void MyBarrier::wait()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     int sigCount = d_sigCount;
     if (++d_numWaiting == d_numThreads) {
         ++d_sigCount;
@@ -394,7 +394,7 @@ extern "C" void *thread4Post(void *arg)
     for (int i = 0; i < t.d_numIterations; ++i) {
         t.d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -435,7 +435,7 @@ extern "C" void *thread3Post(void *arg)
     for (int i = 0; i <  (t.d_numWaitThreads * t.d_numIterations / 4); ++i) {
         t.d_sem->post(4);
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -469,7 +469,7 @@ extern "C" void *thread2Post(void *arg) {
     while (0 < n) {
         if (n == t->d_numInitialPosts->testAndSwap(n, n-1)) {
             if (t->d_verbose) MTCOUT << "\t\tPost from thread "
-                                     << bdlqq::ThreadUtil::selfIdAsInt()
+                                     << bslmt::ThreadUtil::selfIdAsInt()
                                      << MTENDL;
             t->d_sem->post();
         }
@@ -479,10 +479,10 @@ extern "C" void *thread2Post(void *arg) {
     t->d_barrier->wait();
     for (int i = 0; i < t->d_numIterations; ++i) {
         if (t->d_verbose) MTCOUT << "\t\tPost from thread "
-                                 << bdlqq::ThreadUtil::selfIdAsInt() << MTENDL;
+                                 << bslmt::ThreadUtil::selfIdAsInt() << MTENDL;
         t->d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -493,10 +493,10 @@ extern "C" void *thread2Wait(void * arg) {
 
     for (int i = 0; i < t->d_numIterations; ++i) {
         if (t->d_verbose) MTCOUT << "\t\tWait initiated from thread "
-                                 << bdlqq::ThreadUtil::selfIdAsInt() << MTENDL;
+                                 << bslmt::ThreadUtil::selfIdAsInt() << MTENDL;
         t->d_sem->wait();
         if (t->d_verbose) MTCOUT << "\t\tWait completed from thread "
-                                 << bdlqq::ThreadUtil::selfIdAsInt() << MTENDL;
+                                 << bslmt::ThreadUtil::selfIdAsInt() << MTENDL;
         ++*t->d_past;
     }
     return 0;
@@ -567,7 +567,7 @@ void IntQueue::pushInt(int n)
 }
 
 struct BenchData {
-    bdlqq::ThreadUtil::Handle    handle;
+    bslmt::ThreadUtil::Handle    handle;
     Obj                        *resource;
     Obj                        *queue;
     int                         count;
@@ -642,7 +642,7 @@ int main(int argc, char *argv[]) {
 
         Obj sem(0);
 
-        bdlqq::ThreadUtil::Handle threads[NUM_WAIT_THREADS];
+        bslmt::ThreadUtil::Handle threads[NUM_WAIT_THREADS];
         MyBarrier barrier(NUM_WAIT_THREADS+1);
 
         struct ThreadInfo4 info;
@@ -650,7 +650,7 @@ int main(int argc, char *argv[]) {
         info.d_barrier = &barrier;
         info.d_sem = &sem;
         for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
-            int rc = bdlqq::ThreadUtil::create(&threads[i],
+            int rc = bslmt::ThreadUtil::create(&threads[i],
                                               thread6wait,
                                               &info);
             ASSERT(0 == rc);
@@ -664,17 +664,17 @@ int main(int argc, char *argv[]) {
         // MODE 1: THREADS WAITING
 
         barrier.wait();
-        bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+        bslmt::ThreadUtil::microSleep(10000); // 10 ms
         sem.post(NUM_POST);
         for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
         // if we reach here, we woke up all the threads the correct number of
         // times
 
         for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
-            int rc = bdlqq::ThreadUtil::create(&threads[i],
+            int rc = bslmt::ThreadUtil::create(&threads[i],
                                               thread6wait,
                                               &info);
             ASSERT(0 == rc);
@@ -690,7 +690,7 @@ int main(int argc, char *argv[]) {
         sem.post(NUM_POST);
         barrier.wait();
         for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
         // if we reach here, we woke up all the threads the correct number of
@@ -729,7 +729,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'trywait'" << endl
                           << "=================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[10];
+        bslmt::ThreadUtil::Handle threads[10];
         MyBarrier barrier(10);
         Obj sem(0);
 
@@ -739,16 +739,16 @@ int main(int argc, char *argv[]) {
         info.d_sem = &sem;
 
         for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2],
                                                  thread4Post,
                                                  &info));
 
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2 + 1],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2 + 1],
                                                    thread4Wait,
                                                    &info));
         }
         for (int i = 0; i < 10; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
       } break;
@@ -771,7 +771,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'post(int number)'" << endl
                           << "==========================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[6];
+        bslmt::ThreadUtil::Handle threads[6];
         MyBarrier barrier(6);
         Obj sem(0);
 
@@ -782,15 +782,15 @@ int main(int argc, char *argv[]) {
         info.d_sem = &sem;
 
         for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i],
                                                  thread3Wait,
                                                  &info));
         }
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[5],
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[5],
                                              thread3Post,
                                              &info));
         for (int i = 0; i < 6; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
       } break;
@@ -831,7 +831,7 @@ int main(int argc, char *argv[]) {
         for (int n = 0; n < 5; ++n) {
             if (veryVerbose) cout << "\tPosting " << n << " first." << endl;
 
-            bdlqq::ThreadUtil::Handle threads[NUM_POSTERS + NUM_WAITERS];
+            bslmt::ThreadUtil::Handle threads[NUM_POSTERS + NUM_WAITERS];
             MyBarrier barrier(NUM_POSTERS+ 1);
             bsls::AtomicInt posts(n);
             bsls::AtomicInt past (0);
@@ -846,16 +846,16 @@ int main(int argc, char *argv[]) {
             info.d_verbose = veryVeryVerbose;
 
             for (int i = 0; i < NUM_POSTERS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i],
+                ASSERT(0 == bslmt::ThreadUtil::create(&threads[i],
                                                      thread2Post,
                                                      &info));
             }
 
             for (int i = 0; i < NUM_WAITERS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::create(
+                ASSERT(0 == bslmt::ThreadUtil::create(
                                &threads[i + NUM_POSTERS], thread2Wait, &info));
             }
-            bdlqq::ThreadUtil::microSleep(1000 * 100);
+            bslmt::ThreadUtil::microSleep(1000 * 100);
             ASSERT(0 == past);
             ASSERT(0 == past);
             barrier.wait();
@@ -866,7 +866,7 @@ int main(int argc, char *argv[]) {
                 if (veryVeryVerbose)
                     MTCOUT << "\t\tWaiters still blocking, "
                            << posts << "." << MTENDL;
-                bdlqq::ThreadUtil::microSleep(1000 * 100);
+                bslmt::ThreadUtil::microSleep(1000 * 100);
             }
             barrier.wait();
             // Unleash the remaining posters.
@@ -876,7 +876,7 @@ int main(int argc, char *argv[]) {
             // that all the waiters were satisfied.
 
             for (int i = 0; i < 10; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+                ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
             }
         }
 
@@ -936,7 +936,7 @@ int main(int argc, char *argv[]) {
             consumerData[i].queue = &queue;
             consumerData[i].count = 0;
             consumerData[i].stop = false;
-            bdlqq::ThreadUtil::create(&consumerData[i].handle,
+            bslmt::ThreadUtil::create(&consumerData[i].handle,
                                      benchConsumer,
                                      (void*)(consumerData+i));
         }
@@ -944,7 +944,7 @@ int main(int argc, char *argv[]) {
             producerData[i].resource = &resource;
             producerData[i].queue = &queue;
             producerData[i].stop = false;
-            bdlqq::ThreadUtil::create(&producerData[i].handle,
+            bslmt::ThreadUtil::create(&producerData[i].handle,
                                      benchProducer,
                                      (void*)(producerData+i));
         }
@@ -958,7 +958,7 @@ int main(int argc, char *argv[]) {
             bsls::Types::Int64 throughput;
             bsls::Types::Int64 throughputCPU;
             for(int i=0; i<seconds; i++) {
-                bdlqq::ThreadUtil::microSleep(1000000);
+                bslmt::ThreadUtil::microSleep(1000000);
                 bsls::Types::Int64 totalMessages = 0;
                 for(int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
@@ -993,7 +993,7 @@ int main(int argc, char *argv[]) {
             producerData[i].stop = true;
         }
         for(int i=0; i<numProducers; i++) {
-            bdlqq::ThreadUtil::join(producerData[i].handle);
+            bslmt::ThreadUtil::join(producerData[i].handle);
             cout << 'p' << flush;
         }
         for(int i=0; i<numConsumers; i++) {
@@ -1001,7 +1001,7 @@ int main(int argc, char *argv[]) {
         }
         resource.post(numConsumers);
         for(int i=0; i<numConsumers;i++) {
-            bdlqq::ThreadUtil::join(consumerData[i].handle);
+            bslmt::ThreadUtil::join(consumerData[i].handle);
             cout << 'c' << flush;
         }
         cout << endl;

@@ -1,28 +1,28 @@
-// bdlqq_recursivemuteximpl_win32.h                                   -*-C++-*-
-#ifndef INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_WIN32
-#define INCLUDED_BDLQQ_RECURSIVEMUTEXIMPL_WIN32
+// bslmt_recursivemuteximpl_win32.h                                   -*-C++-*-
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_WIN32
+#define INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_WIN32
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bdlqq::RecursiveMutex'.
+//@PURPOSE: Provide a win32 implementation of 'bslmt::RecursiveMutex'.
 //
 //@CLASSES:
-//  bdlqq::RecursiveMutexImpl<Win32Threads>: win32 specialization
+//  bslmt::RecursiveMutexImpl<Win32Threads>: win32 specialization
 //
-//@SEE_ALSO: bdlqq_recursivemutex
+//@SEE_ALSO: bslmt_recursivemutex
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::RecursiveMutex' for Windows (win32) via the template specialization:
+// 'bslmt::RecursiveMutex' for Windows (win32) via the template specialization:
 //..
-//  bdlqq::RecursiveMutexImpl<Platform::Win32Threads>
+//  bslmt::RecursiveMutexImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::RecursiveMutex'.
+// should instead use 'bslmt::RecursiveMutex'.
 //
 ///Usage
 ///-----
@@ -30,24 +30,24 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform specific implementation starts here.
 
-#ifndef INCLUDED_BDLQQ_MUTEXIMPL_WIN32
-#include <bdlqq_muteximpl_win32.h>
+#ifndef INCLUDED_BSLMT_MUTEXIMPL_WIN32
+#include <bslmt_muteximpl_win32.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class RecursiveMutexImpl;
@@ -67,7 +67,7 @@ class RecursiveMutexImpl<Platform::Win32Threads>
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 #endif
 

@@ -1,5 +1,5 @@
-// bdlqq_recursivemuteximpl_pthread.t.cpp                             -*-C++-*-
-#include <bdlqq_recursivemuteximpl_pthread.h>
+// bslmt_recursivemuteximpl_pthread.t.cpp                             -*-C++-*-
+#include <bslmt_recursivemuteximpl_pthread.h>
 
 #include <bsls_atomic.h>
 
@@ -11,7 +11,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // ----------------------------------------------------------------------------
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -51,7 +51,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads> Obj;
+typedef bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads> Obj;
 
 extern "C" {
    typedef void *(*ThreadFunction)(void *);

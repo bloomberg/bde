@@ -1,8 +1,8 @@
-// bdlqq_lockguard.cpp                                                -*-C++-*-
-#include <bdlqq_lockguard.h>
+// bslmt_lockguard.cpp                                                -*-C++-*-
+#include <bslmt_lockguard.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_lockguard_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_lockguard_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

@@ -1,6 +1,6 @@
-// bdlqq_mutex.h                                                      -*-C++-*-
-#ifndef INCLUDED_BDLQQ_MUTEX
-#define INCLUDED_BDLQQ_MUTEX
+// bslmt_mutex.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_MUTEX
+#define INCLUDED_BSLMT_MUTEX
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,24 +10,24 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a platform-independent mutex.
 //
 //@CLASSES:
-//  bdlqq::Mutex: platform-independent mutex
+//  bslmt::Mutex: platform-independent mutex
 //
-//@SEE_ALSO: bdlqq_recursivemutex, bdlqq_mutex
+//@SEE_ALSO: bslmt_recursivemutex, bslmt_mutex
 //
 //@DESCRIPTION: This component provides a mutually exclusive lock primitive
 // ("mutex") by wrapping a suitable platform-specific mechanism.  The
-// 'bdlqq::Mutex' class provides the following operations: 'lock', 'tryLock',
+// 'bslmt::Mutex' class provides the following operations: 'lock', 'tryLock',
 // and 'unlock'.
 //
-// The behavior is undefined if 'unlock' is invoked on a 'bdlqq::Mutex' object
+// The behavior is undefined if 'unlock' is invoked on a 'bslmt::Mutex' object
 // from a thread that did not successfully acquire the lock, or if 'lock' is
 // called twice in a thread without calling 'unlock' in between (i.e.,
-// 'bdlqq::Mutex' is non-recursive).  In particular, 'lock' *may* or *may*
+// 'bslmt::Mutex' is non-recursive).  In particular, 'lock' *may* or *may*
 // *not* deadlock if the current thread holds the lock.
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate the use of 'bdlqq::Mutex' to write
+// The following snippets of code illustrate the use of 'bslmt::Mutex' to write
 // a thread-safe class, 'my_SafeAccount', given a thread-unsafe class,
 // 'my_Account'.  The simple 'my_Account' class is defined as follows:
 //..
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // The implementation of this class is straightforward and omitted here for
 // brevity.
 //
-// Next, we use a 'bdlqq::Mutex' object to render atomic the function calls of
+// Next, we use a 'bslmt::Mutex' object to render atomic the function calls of
 // a new thread-safe class that uses the thread-unsafe class in its
 // implementation.  Note the typical use of 'mutable' for the lock:
 //..
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      my_Account          *d_account_p;  // held, not owned
-//      mutable bdlqq::Mutex  d_lock;       // guard access to 'd_account_p'
+//      mutable bslmt::Mutex  d_lock;       // guard access to 'd_account_p'
 //
 //      // NOT IMPLEMENTED
 //      my_SafeAccountHandle(const my_SafeAccountHandle&);
@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //          // withdrawal from the account held by this handle.
 //  };
 //..
-// The implementation show-casing the use of 'bdlqq::Mutex' follows:
+// The implementation show-casing the use of 'bslmt::Mutex' follows:
 //..
 //  // CREATORS
 //  my_SafeAccountHandle::my_SafeAccountHandle(my_Account *account)
@@ -142,9 +142,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Where appropriate, clients should use a lock-guard to ensure that an
 // acquired mutex is always properly released, even if an exception is thrown.
-// See 'bdlqq_lockguard' for more information:
+// See 'bslmt_lockguard' for more information:
 //..
-//      d_lock.lock();  // consider using 'bdlqq::LockGuard'
+//      d_lock.lock();  // consider using 'bslmt::LockGuard'
 //      d_account_p->deposit(amount);
 //      d_lock.unlock();
 //  }
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 //
 //  void my_SafeAccountHandle::withdraw(double amount)
 //  {
-//      d_lock.lock();  // consider using 'bdlqq::LockGuard'
+//      d_lock.lock();  // consider using 'bslmt::LockGuard'
 //      d_account_p->withdraw(amount);
 //      d_lock.unlock();
 //  }
@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //
 //  double my_SafeAccountHandle::balance() const
 //  {
-//      d_lock.lock();  // consider using 'bdlqq::LockGuard'
+//      d_lock.lock();  // consider using 'bslmt::LockGuard'
 //      const double res = d_account_p->balance();
 //      d_lock.unlock();
 //      return res;
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  double check[5] = { 25.0, 100.0, 99.95, 75.0, 50.0 };
 //
-//  handle.lock();  // consider using 'bdlqq::LockGuard'
+//  handle.lock();  // consider using 'bslmt::LockGuard'
 //
 //  double originalBalance = handle.account()->balance();
 //  for (int i = 0; i < 5; ++i) {
@@ -206,24 +206,24 @@ BSLS_IDENT("$Id: $")
 //  handle.unlock();
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEXIMPL_PTHREAD
-#include <bdlqq_muteximpl_pthread.h>
+#ifndef INCLUDED_BSLMT_MUTEXIMPL_PTHREAD
+#include <bslmt_muteximpl_pthread.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEXIMPL_WIN32
-#include <bdlqq_muteximpl_win32.h>
+#ifndef INCLUDED_BSLMT_MUTEXIMPL_WIN32
+#include <bslmt_muteximpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class MutexImpl;
@@ -300,36 +300,36 @@ class Mutex {
 
 // CREATORS
 inline
-bdlqq::Mutex::Mutex()
+bslmt::Mutex::Mutex()
 {
 }
 
 inline
-bdlqq::Mutex::~Mutex()
+bslmt::Mutex::~Mutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::Mutex::lock()
+void bslmt::Mutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-bdlqq::Mutex::NativeType& bdlqq::Mutex::nativeMutex()
+bslmt::Mutex::NativeType& bslmt::Mutex::nativeMutex()
 {
     return d_imp.nativeMutex();
 }
 
 inline
-int bdlqq::Mutex::tryLock()
+int bslmt::Mutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void bdlqq::Mutex::unlock()
+void bslmt::Mutex::unlock()
 {
     d_imp.unlock();
 }

@@ -1,6 +1,6 @@
-// bdlqq_platform.t.cpp                                               -*-C++-*-
+// bslmt_platform.t.cpp                                               -*-C++-*-
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
@@ -26,8 +26,8 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //-----------------------------------------------------------------------------
 
-int typeTest(const bdlqq::Platform::PosixThreads&) { return 1; }
-int typeTest(const bdlqq::Platform::Win32Threads&) { return 2; }
+int typeTest(const bslmt::Platform::PosixThreads&) { return 1; }
+int typeTest(const bslmt::Platform::Win32Threads&) { return 2; }
 
 //=============================================================================
 //                             TEST PLAN
@@ -67,28 +67,28 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "Verify typedefs are set" << endl;
 
         #ifdef BSLS_PLATFORM_OS_UNIX
-        bdlqq::Platform::ThreadPolicy policy;
+        bslmt::Platform::ThreadPolicy policy;
         ASSERT(1 == typeTest(policy));
         #endif
 
         #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bdlqq::Platform::ThreadPolicy policy;
+        bslmt::Platform::ThreadPolicy policy;
         ASSERT(2 == typeTest(policy));
         #endif
 
         if (verbose) {
             cout << endl << "Print sefined symbols" << endl;
 
-            #if defined(BDLQQ_PLATFORM_POSIX_THREADS)
-                ASSERT(0 <= BDLQQ_PLATFORM_POSIX_THREADS);
+            #if defined(BSLMT_PLATFORM_POSIX_THREADS)
+                ASSERT(0 <= BSLMT_PLATFORM_POSIX_THREADS);
                 cout  << "\tBCES_PLATFORM_POSIX_THREADS = "
-                      <<    BDLQQ_PLATFORM_POSIX_THREADS << endl;
+                      <<    BSLMT_PLATFORM_POSIX_THREADS << endl;
             #endif
 
-            #if defined(BDLQQ_PLATFORM_WIN32_THREADS)
-                ASSERT(0 <= BDLQQ_PLATFORM_WIN32_THREADS);
+            #if defined(BSLMT_PLATFORM_WIN32_THREADS)
+                ASSERT(0 <= BSLMT_PLATFORM_WIN32_THREADS);
                 cout  << "\tBCES_PLATFORM_WIN32_THREADS = "
-                      <<    BDLQQ_PLATFORM_WIN32_THREADS << endl;
+                      <<    BSLMT_PLATFORM_WIN32_THREADS << endl;
             #endif
 
         }

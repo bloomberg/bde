@@ -1,8 +1,8 @@
-// bdlqq_threadgroup.t.cpp                                            -*-C++-*-
+// bslmt_threadgroup.t.cpp                                            -*-C++-*-
 
-#include <bdlqq_threadgroup.h>
-#include <bdlqq_semaphore.h>
-#include <bdlqq_lockguard.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_lockguard.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
@@ -27,8 +27,8 @@ using bsl::flush;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bdlqq::ThreadGroup(bslma::Allocator *basicAllocator = 0);
-// [ 5] ~bdlqq::ThreadGroup();
+// [ 1] bslmt::ThreadGroup(bslma::Allocator *basicAllocator = 0);
+// [ 5] ~bslmt::ThreadGroup();
 //
 // MANIPULATORS
 // [ 2] int addThread(functor);
@@ -109,8 +109,8 @@ class ThreadChecker {
 
     // DATA
     int           d_numCalls;
-    bdlqq::Mutex  d_mutex;
-    bdlqq::Mutex *d_startBarrier;
+    bslmt::Mutex  d_mutex;
+    bslmt::Mutex *d_startBarrier;
 
   public:
     // TYPES
@@ -129,7 +129,7 @@ class ThreadChecker {
     };
 
     // CREATORS
-    explicit ThreadChecker(bdlqq::Mutex* startBarrier)
+    explicit ThreadChecker(bslmt::Mutex* startBarrier)
        : d_numCalls(0),
          d_startBarrier(startBarrier)
     {}
@@ -157,10 +157,10 @@ class ThreadChecker {
 class MutexTestJob {
    int           d_numIterations;
    int          *d_value_p;
-   bdlqq::Mutex *d_mutex_p;
+   bslmt::Mutex *d_mutex_p;
 
  public:
-   MutexTestJob(int numIterations, int *value, bdlqq::Mutex *mutex)
+   MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
    : d_numIterations(numIterations)
    , d_value_p(value)
    , d_mutex_p(mutex)
@@ -168,20 +168,20 @@ class MutexTestJob {
 
    void operator()() {
       for (int i = 0; i < d_numIterations; ++i) {
-         bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
+         bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
          ++*d_value_p;
       }
    }
 };
 
 class MutexTestSyncJob : private MutexTestJob {
-    bdlqq::Semaphore *d_startSemaphore_p;
+    bslmt::Semaphore *d_startSemaphore_p;
 
 public:
     MutexTestSyncJob(int              *value,
-                     bdlqq::Mutex     *mutex,
+                     bslmt::Mutex     *mutex,
                      int               numIterations,
-                     bdlqq::Semaphore *startSemaphore)
+                     bslmt::Semaphore *startSemaphore)
     : MutexTestJob(numIterations, value, mutex)
     , d_startSemaphore_p(startSemaphore)
     {}
@@ -193,14 +193,14 @@ public:
 };
 
 class MutexTestDoubleSyncJob : private MutexTestSyncJob {
-    bdlqq::Semaphore *d_doneSync_p;
+    bslmt::Semaphore *d_doneSync_p;
 
 public:
     MutexTestDoubleSyncJob(int              *value,
-                           bdlqq::Mutex     *mutex,
+                           bslmt::Mutex     *mutex,
                            int               numIterations,
-                           bdlqq::Semaphore *startSemaphore,
-                           bdlqq::Semaphore *doneSync)
+                           bslmt::Semaphore *startSemaphore,
+                           bslmt::Semaphore *doneSync)
     : MutexTestSyncJob(value, mutex, numIterations, startSemaphore)
     , d_doneSync_p(doneSync)
     {}
@@ -212,15 +212,15 @@ public:
 };
 
 class SynchronizedAddJob {
-    bdlqq::ThreadGroup *d_tg_p;
+    bslmt::ThreadGroup *d_tg_p;
     MutexTestJob        d_job;
-    bdlqq::Mutex       *d_start_p;
+    bslmt::Mutex       *d_start_p;
     int                 d_numThreadsToAdd;
 
 public:
-    SynchronizedAddJob(bdlqq::ThreadGroup* tg,
+    SynchronizedAddJob(bslmt::ThreadGroup* tg,
                        const MutexTestJob& job,
-                       bdlqq::Mutex*       start,
+                       bslmt::Mutex*       start,
                        int                 numThreadsToAdd)
     : d_tg_p(tg)
     , d_job(job)
@@ -286,12 +286,12 @@ int main(int argc, char *argv[])
             const int NUM_ITERATIONS = 10000;
             const int NUM_THREADS    = 8;
 
-            bdlqq::Mutex   mutex;                     // object under test
+            bslmt::Mutex   mutex;                     // object under test
             int            value = 0;
 
             MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 
-            bdlqq::ThreadGroup tg(&ta);
+            bslmt::ThreadGroup tg(&ta);
             for (int i = 0; i < NUM_THREADS; ++i) {
                 ASSERT(0 == tg.addThread(testJob));
             }
@@ -325,9 +325,9 @@ int main(int argc, char *argv[])
             const int NUM_THREADS    = 8;
             const int NUM_BATCHES    = 3;   // assert(NUM_BATCHES >= 3)
 
-            bdlqq::Mutex     mutex;
-            bdlqq::Semaphore startSemaphore;
-            bdlqq::Semaphore doneSemaphore;
+            bslmt::Mutex     mutex;
+            bslmt::Semaphore startSemaphore;
+            bslmt::Semaphore doneSemaphore;
 
             int value = 0;
 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
                                             &startSemaphore, &doneSemaphore);
 
             {
-                bdlqq::ThreadGroup tg(&ta);
+                bslmt::ThreadGroup tg(&ta);
 
                 // Threads in the first batch are added individually
                 for (int i = 0; i < NUM_THREADS; ++i) {
@@ -390,10 +390,10 @@ int main(int argc, char *argv[])
             const int NUM_ITERATIONS = 100;
             const int NUM_THREADS    = 3;
 
-            bdlqq::Mutex mutex;
-            bdlqq::Semaphore startSemaphore;
+            bslmt::Mutex mutex;
+            bslmt::Semaphore startSemaphore;
 
-            bdlqq::ThreadGroup mX(&ta);
+            bslmt::ThreadGroup mX(&ta);
 
             int value = 0;
 
@@ -462,14 +462,14 @@ int main(int argc, char *argv[])
             const int NUM_ADDING_THREADS           = 16;
 
             int value = 0;
-            bdlqq::Mutex   mutex;
-            bdlqq::Mutex   startMutex;
+            bslmt::Mutex   mutex;
+            bslmt::Mutex   startMutex;
             startMutex.lock();
 
             MutexTestJob testFunc(NUM_ITERATIONS, &value, &mutex);
 
-            bdlqq::ThreadGroup tg(&ta);
-            bdlqq::ThreadGroup addingGroup(&ta);
+            bslmt::ThreadGroup tg(&ta);
+            bslmt::ThreadGroup addingGroup(&ta);
             for (int i = 0; i < NUM_ADDING_THREADS; ++i) {
                 LOOP_ASSERT(i, 0 == addingGroup.addThread(SynchronizedAddJob(
                                             &tg,
@@ -493,13 +493,13 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Exercise the basic functionality of the 'bdlqq::ThreadGroup'
+        //   Exercise the basic functionality of the 'bslmt::ThreadGroup'
         //   class.  We want to ensure that thread groups can be instantiated
         //   and destroyed.  We also want to exercise the primary manipulators
         //   and accessors.
         //
         // Plan:
-        //   Create a 'bdlqq::ThreadGroup', 'mX', and a
+        //   Create a 'bslmt::ThreadGroup', 'mX', and a
         //   non-modifiable reference to 'mX' named 'X'.  Add multiple threads
         //   by calling 'addThread' on 'mX', and verify the number of threads
         //   by calling 'numThreads' on 'X'.  Call 'joinAll' on 'mX', and
@@ -516,10 +516,10 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-           bdlqq::ThreadGroup        mX(&ta);
-           const bdlqq::ThreadGroup&  X = mX;
+           bslmt::ThreadGroup        mX(&ta);
+           const bslmt::ThreadGroup&  X = mX;
 
-           bdlqq::Mutex startBarrier;
+           bslmt::Mutex startBarrier;
 
            // Perform two iterations to ensure the object behaves correctly
            // after 'joinAll' is called.

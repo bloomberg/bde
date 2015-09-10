@@ -1,6 +1,6 @@
-// bdlqq_condition.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLQQ_CONDITION
-#define INCLUDED_BDLQQ_CONDITION
+// bslmt_condition.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLMT_CONDITION
+#define INCLUDED_BSLMT_CONDITION
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a portable, efficient condition variable.
 //
 //@CLASSES:
-//  bdlqq::Condition: portable intra-process signaling mechanism
+//  bslmt::Condition: portable intra-process signaling mechanism
 //
-//@SEE_ALSO: bdlqq_mutex
+//@SEE_ALSO: bslmt_mutex
 //
-//@DESCRIPTION: The 'bdlqq::Condition' class provided by this component
+//@DESCRIPTION: The 'bslmt::Condition' class provided by this component
 // implements the concept of a *condition* *variable*, enabling multiple
 // threads to communicate information about the state of shared data.  A
 // condition variable is a signaling mechanism associated with a mutex, which
@@ -24,13 +24,13 @@ BSLS_IDENT("$Id: $")
 //
 // One or more threads can wait efficiently on a condition variable, either
 // indefinitely or until some absolute time, by invoking one of the following
-// methods of 'bdlqq::Condition':
+// methods of 'bslmt::Condition':
 //..
-//  int wait(bdlqq::Mutex *mutex);
-//  int timedWait(bdlqq::Mutex *mutex, const bsls::TimeInterval& absoluteTime);
+//  int wait(bslmt::Mutex *mutex);
+//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& absoluteTime);
 //..
 // The caller must lock the mutex before invoking these functions.  The
-// 'bdlqq::Condition' atomically releases the lock and waits, thereby
+// 'bslmt::Condition' atomically releases the lock and waits, thereby
 // preventing other threads from changing the predicate after the lock is
 // released, but before the thread begins to wait.  The 'bcemt' package
 // guarantees that this lock will be reacquired before returning from a call to
@@ -39,13 +39,13 @@ BSLS_IDENT("$Id: $")
 // When invoking the 'timedWait' method, clients must specify a timeout after
 // which the call will return even if the condition is not signaled.  The
 // timeout is expressed as a 'bsls::TimeInterval' object that holds the
-// absolute time according to the clock type the 'bdlqq::Condition' object is
+// absolute time according to the clock type the 'bslmt::Condition' object is
 // constructed with (the default clock is 'bsls::SystemClockType::e_REALTIME').
 // Clients should use the 'bsls::SystemTime::now(clockType)' utility method to
 // obtain the current time.
 //
 // Other threads can indicate that the predicate is true by signaling or
-// broadcasting the same 'bdlqq::Condition' object.  A broadcast wakes up all
+// broadcasting the same 'bslmt::Condition' object.  A broadcast wakes up all
 // waiting threads, whereas a signal wakes only one thread.  The client has no
 // control over which thread will be signaled if multiple threads are waiting:
 //..
@@ -74,11 +74,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Suppose we have a 'bdlqq::Condition' object, 'condition', and a boolean
+// Suppose we have a 'bslmt::Condition' object, 'condition', and a boolean
 // predicate associated with 'condition' (represented here as a free function
 // that returns a 'bool' value):
 //..
-//  bdlqq::Condition condition;
+//  bslmt::Condition condition;
 //
 //  bool predicate()
 //      // Return 'true' if the invariant holds for 'condition', and 'false'
@@ -138,20 +138,20 @@ BSLS_IDENT("$Id: $")
 //    // ...
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITIONIMPL_PTHREAD
-#include <bdlqq_conditionimpl_pthread.h>
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_PTHREAD
+#include <bslmt_conditionimpl_pthread.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITIONIMPL_WIN32
-#include <bdlqq_conditionimpl_win32.h>
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_WIN32
+#include <bslmt_conditionimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
@@ -163,7 +163,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class ConditionImpl;
@@ -254,38 +254,38 @@ class Condition {
 
 // CREATORS
 inline
-bdlqq::Condition::Condition(bsls::SystemClockType::Enum clockType)
+bslmt::Condition::Condition(bsls::SystemClockType::Enum clockType)
 : d_imp(clockType)
 {
 }
 
 inline
-bdlqq::Condition::~Condition()
+bslmt::Condition::~Condition()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::Condition::broadcast()
+void bslmt::Condition::broadcast()
 {
     d_imp.broadcast();
 }
 
 inline
-void bdlqq::Condition::signal()
+void bslmt::Condition::signal()
 {
     d_imp.signal();
 }
 
 inline
-int bdlqq::Condition::timedWait(Mutex                     *mutex,
+int bslmt::Condition::timedWait(Mutex                     *mutex,
                                 const bsls::TimeInterval&  absoluteTime)
 {
     return d_imp.timedWait(mutex, absoluteTime);
 }
 
 inline
-int bdlqq::Condition::wait(Mutex *mutex)
+int bslmt::Condition::wait(Mutex *mutex)
 {
     return d_imp.wait(mutex);
 }

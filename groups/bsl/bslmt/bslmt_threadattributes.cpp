@@ -1,7 +1,7 @@
-// bdlqq_threadattributes.cpp                                         -*-C++-*-
-#include <bdlqq_threadattributes.h>
+// bslmt_threadattributes.cpp                                         -*-C++-*-
+#include <bslmt_threadattributes.h>
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -11,7 +11,7 @@
 #include <bsl_c_limits.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadattributes_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
@@ -21,20 +21,20 @@ namespace BloombergLP {
 // not break compilation, they should be removed in BDE 2.24.
 
 // CLASS METHODS
-int bdlqq::ThreadAttributes::getMaxSchedPriority(
+int bslmt::ThreadAttributes::getMaxSchedPriority(
                                             ThreadAttributes::SchedulingPolicy)
 {
     return e_UNSET_PRIORITY;
 }
 
-int bdlqq::ThreadAttributes::getMinSchedPriority(
+int bslmt::ThreadAttributes::getMinSchedPriority(
                                             ThreadAttributes::SchedulingPolicy)
 {
     return e_UNSET_PRIORITY;
 }
 
 // CREATORS
-bdlqq::ThreadAttributes::ThreadAttributes()
+bslmt::ThreadAttributes::ThreadAttributes()
 : d_detachedState(e_CREATE_JOINABLE)
 , d_guardSize(e_UNSET_GUARD_SIZE)
 , d_inheritScheduleFlag(true)
@@ -45,7 +45,7 @@ bdlqq::ThreadAttributes::ThreadAttributes()
 }
 
 // FREE OPERATORS
-bool bdlqq::operator==(const ThreadAttributes& lhs,
+bool bslmt::operator==(const ThreadAttributes& lhs,
                        const ThreadAttributes& rhs)
 {
     return lhs.detachedState()      == rhs.detachedState()      &&
@@ -56,7 +56,7 @@ bool bdlqq::operator==(const ThreadAttributes& lhs,
            lhs.stackSize()          == rhs.stackSize();
 }
 
-bool bdlqq::operator!=(const ThreadAttributes& lhs,
+bool bslmt::operator!=(const ThreadAttributes& lhs,
                        const ThreadAttributes& rhs)
 {
     return lhs.detachedState()      != rhs.detachedState()      ||

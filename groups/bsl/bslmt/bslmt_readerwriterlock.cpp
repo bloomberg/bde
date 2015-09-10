@@ -1,8 +1,8 @@
-// bdlqq_readerwriterlock.cpp                                         -*-C++-*-
-#include <bdlqq_readerwriterlock.h>
+// bslmt_readerwriterlock.cpp                                         -*-C++-*-
+#include <bslmt_readerwriterlock.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_readerwriterlock_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_readerwriterlock_cpp,"$Id$ $CSID$")
 
 ///Implementation Notes
 ///--------------------
@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(bdlqq_readerwriterlock_cpp,"$Id$ $CSID$")
 //  +------------------------------------ Read broadcast count
 //..
 
-#include <bdlqq_barrier.h>    // for testing only
+#include <bslmt_barrier.h>    // for testing only
 #include <bsls_atomic.h> // for testing only
 
 #include <bsls_types.h>
@@ -28,21 +28,21 @@ BSLS_IDENT_RCSID(bdlqq_readerwriterlock_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 #ifdef BSLS_PLATFORM_OS_AIX // IBM does not properly inline these consts
-const long long bdlqq::ReaderWriterLock::WRITER_MASK;
-const long long bdlqq::ReaderWriterLock::READER_MASK;
-const long long bdlqq::ReaderWriterLock::READER_INC;
-const long long bdlqq::ReaderWriterLock::BLOCKED_READER_MASK;
-const long long bdlqq::ReaderWriterLock::BLOCKED_READER_INC;
-const long long bdlqq::ReaderWriterLock::READ_OK;
-const long long bdlqq::ReaderWriterLock::UPGRADE_PENDING;
-const long long bdlqq::ReaderWriterLock::RESERVATION_PENDING;
-const long long bdlqq::ReaderWriterLock::READ_BCAST_MASK;
-const long long bdlqq::ReaderWriterLock::READ_BCAST_INC;
+const long long bslmt::ReaderWriterLock::WRITER_MASK;
+const long long bslmt::ReaderWriterLock::READER_MASK;
+const long long bslmt::ReaderWriterLock::READER_INC;
+const long long bslmt::ReaderWriterLock::BLOCKED_READER_MASK;
+const long long bslmt::ReaderWriterLock::BLOCKED_READER_INC;
+const long long bslmt::ReaderWriterLock::READ_OK;
+const long long bslmt::ReaderWriterLock::UPGRADE_PENDING;
+const long long bslmt::ReaderWriterLock::RESERVATION_PENDING;
+const long long bslmt::ReaderWriterLock::READ_BCAST_MASK;
+const long long bslmt::ReaderWriterLock::READ_BCAST_INC;
 
 #endif
 
 // MANIPULATORS
-void bdlqq::ReaderWriterLock::lockRead()
+void bslmt::ReaderWriterLock::lockRead()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -74,7 +74,7 @@ void bdlqq::ReaderWriterLock::lockRead()
     }
 }
 
-void bdlqq::ReaderWriterLock::lockReadReserveWrite()
+void bslmt::ReaderWriterLock::lockReadReserveWrite()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -129,7 +129,7 @@ void bdlqq::ReaderWriterLock::lockReadReserveWrite()
     d_owned = 1;
 }
 
-void bdlqq::ReaderWriterLock::lockWrite()
+void bslmt::ReaderWriterLock::lockWrite()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
@@ -159,7 +159,7 @@ void bdlqq::ReaderWriterLock::lockWrite()
     d_owned = 1;
 }
 
-int bdlqq::ReaderWriterLock::tryLockRead()
+int bslmt::ReaderWriterLock::tryLockRead()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
@@ -177,7 +177,7 @@ int bdlqq::ReaderWriterLock::tryLockRead()
     return 0;
 }
 
-int bdlqq::ReaderWriterLock::tryLockWrite()
+int bslmt::ReaderWriterLock::tryLockWrite()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount;
@@ -198,7 +198,7 @@ int bdlqq::ReaderWriterLock::tryLockWrite()
     return 0;
 }
 
-int bdlqq::ReaderWriterLock::upgradeToWriteLock()
+int bslmt::ReaderWriterLock::upgradeToWriteLock()
 {
     int atomic;
     int wait;
@@ -289,7 +289,7 @@ int bdlqq::ReaderWriterLock::upgradeToWriteLock()
     return atomic ? 0 : 1;
 }
 
-int bdlqq::ReaderWriterLock::tryUpgradeToWriteLock()
+int bslmt::ReaderWriterLock::tryUpgradeToWriteLock()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -351,7 +351,7 @@ int bdlqq::ReaderWriterLock::tryUpgradeToWriteLock()
     return 0;
 }
 
-void bdlqq::ReaderWriterLock::unlock()
+void bslmt::ReaderWriterLock::unlock()
 {
     enum {SIG_NONE = 0, SIG_READ = 1, SIG_WRITE=2, SIG_UPGRADE=3 };
 

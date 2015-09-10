@@ -1,5 +1,5 @@
-// bdlqq_readlockguard.t.cpp                                          -*-C++-*-
-#include <bdlqq_readlockguard.h>
+// bslmt_readlockguard.t.cpp                                          -*-C++-*-
+#include <bslmt_readlockguard.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>  // 'strcmp'
@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bdlqq::ReadLockGuard' class.
+// This program tests the functionality of the 'bslmt::ReadLockGuard' class.
 // It verifies that the class properly locks the synchronization object for
 // read at construction time, and that it properly unlocks the object at
 // destruction time.  A helper class, 'my_RWLock', is created to facilitate the
@@ -21,30 +21,30 @@ using namespace bsl;  // automatically added by script
 // interfaces and provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
-// bdlqq::ReadLockGuard
+// bslmt::ReadLockGuard
 // ============================================================================
-// [2] bdlqq::ReadLockGuard();
-// [2] ~bdlqq::ReadLockGuard();
-// [2] bdlqq::ReadLockGuard::release();
-// [2] bdlqq::ReadLockGuard::ptr();
+// [2] bslmt::ReadLockGuard();
+// [2] ~bslmt::ReadLockGuard();
+// [2] bslmt::ReadLockGuard::release();
+// [2] bslmt::ReadLockGuard::ptr();
 //
-// bdlqq::ReadLockGuardUnlock
+// bslmt::ReadLockGuardUnlock
 // ============================================================================
-// [3] bdlqq::ReadLockGuardUnlock();
-// [3] ~bdlqq::ReadLockGuardUnlock();
-// [3] bdlqq::ReadLockGuardUnlock::release();
-// [3] bdlqq::ReadLockGuardUnlock::ptr();
+// [3] bslmt::ReadLockGuardUnlock();
+// [3] ~bslmt::ReadLockGuardUnlock();
+// [3] bslmt::ReadLockGuardUnlock::release();
+// [3] bslmt::ReadLockGuardUnlock::ptr();
 //
-// bdlqq::ReadLockGuardTryLock
+// bslmt::ReadLockGuardTryLock
 // ============================================================================
-// [4] bdlqq::ReadLockGuardTryLock();
-// [4] ~bdlqq::ReadLockGuardTryLock();
-// [4] bdlqq::ReadLockGuardTryLock::release();
-// [4] bdlqq::ReadLockGuardTryLock::ptr();
+// [4] bslmt::ReadLockGuardTryLock();
+// [4] ~bslmt::ReadLockGuardTryLock();
+// [4] bslmt::ReadLockGuardTryLock::release();
+// [4] bslmt::ReadLockGuardTryLock::ptr();
 //-----------------------------------------------------------------------------
 // [1] Ensure helper class 'my_RWLock' works as expected
-// [5] INTERACTION BET. 'bdlqq::ReadLockGuard' AND 'bdlqq::ReadLockGuardUnlock'
-// [6] DEPRECATED 'bdlqq::LockReadGuard'
+// [5] INTERACTION BET. 'bslmt::ReadLockGuard' AND 'bslmt::ReadLockGuardUnlock'
+// [6] DEPRECATED 'bslmt::LockReadGuard'
 // [7] USAGE EXAMPLES
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -99,7 +99,7 @@ int someOtherCondition = 0;
 
 struct my_RWLock {
     // This class provides a simulated mutual exclusion mechanism which
-    // conforms to the interface required by the 'bdlqq::ReadLockGuard' class.
+    // conforms to the interface required by the 'bslmt::ReadLockGuard' class.
     // It operates using a counter to track the symbolic "locked" state.  Each
     // call to the lock and unlock functions increment or decrement the lock
     // count respectively.  The current state of the lock count is accessible
@@ -155,7 +155,7 @@ static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
 
 static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
 {
-    bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
+    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
     if (someCondition) {
         obj->someMethod();
         return;                                                       // RETURN
@@ -174,7 +174,7 @@ static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
     // locking fails.
 {
     const int RETRIES = 1; // use higher values for higher success rate
-    bdlqq::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
+    bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
     if (guard.ptr()) { // rwlock is locked
         if (someCondition) {
             obj->someMethod();
@@ -192,7 +192,7 @@ static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
 static void safeUpgradeFunc(my_Object *obj, my_RWLock *rwlock)
 {
     const my_Object *constObj = obj;
-    bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
+    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
     if (someUpgradeCondition) {
         obj->someUpgradeMethod();
         return;                                                       // RETURN
@@ -211,7 +211,7 @@ static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
     const my_Object *constObj = obj;
     rwlock->lockReadReserveWrite();
     const int PRELOCKED = 1;
-    bdlqq::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
+    bslmt::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
     if (someUpgradeCondition) {
         rwlock->upgradeToWriteLock();
         obj->someUpgradeMethod();
@@ -226,12 +226,12 @@ static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
 
 void f(my_RWLock *rwlock)
 {
-    bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
+    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 
     // critical section here
 
     {
-        bdlqq::ReadLockGuardUnlock<my_RWLock> guard(rwlock);
+        bslmt::ReadLockGuardUnlock<my_RWLock> guard(rwlock);
 
         // rwlock is unlocked here
 
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
         // DEPRECATED CLASSES
         //
         // Concern:
-        //   Backwards compatibility: ensure that the 'bdlqq::LockReadGuard'
+        //   Backwards compatibility: ensure that the 'bslmt::LockReadGuard'
         //   class exists and still works.
         //
         // Plan:
@@ -352,17 +352,17 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard constructor & destructor" <<endl;
             {
-                bdlqq::LockReadGuard<my_RWLock> l1(&mX);
+                bslmt::LockReadGuard<my_RWLock> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
                 {
                     const int PRE_LOCKED = 0;
-                    bdlqq::LockReadGuard<my_RWLock> l2(&mX, PRE_LOCKED);
+                    bslmt::LockReadGuard<my_RWLock> l2(&mX, PRE_LOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(2 == X.lockCount());
                     {
                         const int PRE_LOCKED = 1; mX.lockRead();
-                        bdlqq::LockReadGuard<my_RWLock> l3(&mX, PRE_LOCKED);
+                        bslmt::LockReadGuard<my_RWLock> l3(&mX, PRE_LOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(3 == X.lockCount());
                     }
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard release and ptr access" << endl;
             {
-                bdlqq::LockReadGuard<my_RWLock> l1(&mX);
+                bslmt::LockReadGuard<my_RWLock> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -395,18 +395,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // INTERACTION BETWEEN 'bdlqq::ReadLockGuard' AND
-        // 'bdlqq::ReadLockGuardUnlock'
+        // INTERACTION BETWEEN 'bslmt::ReadLockGuard' AND
+        // 'bslmt::ReadLockGuardUnlock'
         //
         // Concern:
-        //   That 'bdlqq::ReadLockGuard' and 'bdlqq::ReadLockGuardUnlock'
+        //   That 'bslmt::ReadLockGuard' and 'bslmt::ReadLockGuardUnlock'
         //   interact together as expected.  That two different lock guards on
         //   two different 'my_RWLock' objects do not interfere with each
         //   other.
         //
         // Plan:
         //   We verify that using two independent 'my_RWLock' objects with two
-        //   distinct 'bdlqq::ReadLockGuard' *and* 'bdlqq::ReadLockGuardUnlock'
+        //   distinct 'bslmt::ReadLockGuard' *and* 'bslmt::ReadLockGuardUnlock'
         //   objects in the same scope have no effect on each other.
         //
         // Testing:
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\tTesting interaction between "
-                    "'bdlqq::ReadLockGuard' and bdlqq::ReadLockGuardUnlock'"
+                    "'bslmt::ReadLockGuard' and bslmt::ReadLockGuardUnlock'"
                  << endl
                  << "=============================="
                     "========================================"
@@ -428,14 +428,14 @@ int main(int argc, char *argv[])
 
             mX1.lockRead();
             {
-                bdlqq::ReadLockGuard<my_RWLock> l1(&mX1);
-                bdlqq::ReadLockGuard<my_RWLock> l2(&mX2);
+                bslmt::ReadLockGuard<my_RWLock> l1(&mX1);
+                bslmt::ReadLockGuard<my_RWLock> l2(&mX2);
                 ASSERT(2 == X1.lockCount());
                 ASSERT(1 == X2.lockCount());
 
                 {
-                    bdlqq::ReadLockGuardUnlock<my_RWLock> u1(&mX1);
-                    bdlqq::ReadLockGuardUnlock<my_RWLock> u2(&mX2);
+                    bslmt::ReadLockGuardUnlock<my_RWLock> u1(&mX1);
+                    bslmt::ReadLockGuardUnlock<my_RWLock> u2(&mX2);
                     ASSERT(1 == X1.lockCount());
                     ASSERT(0 == X2.lockCount());
                 }
@@ -449,44 +449,44 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::ReadLockGuardTryLock'
+        // TESTING CLASS 'bslmt::ReadLockGuardTryLock'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::ReadLockGuardTryLock'
+        //   That the basic functionality of the 'bslmt::ReadLockGuardTryLock'
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bdlqq::ReadLockGuardTryLock' objects using a common 'my_RWLock'
+        //   'bslmt::ReadLockGuardTryLock' objects using a common 'my_RWLock'
         //   object.  With each new object we verify that the lock function is
         //   called only if the constructor succeeds.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::ReadLockGuard' and calling 'release'.
+        //   constructing a new 'bslmt::ReadLockGuard' and calling 'release'.
         //   We verify that the returned pointer matches the value we supplied
         //   only if the constructor succeeded in acquiring the lock.  We then
         //   verify that 'release' makes no attempt to unlock the supplied
-        //   object and that when the 'bdlqq::ReadLockGuardTryLock' object is
+        //   object and that when the 'bslmt::ReadLockGuardTryLock' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::ReadLockGuardTryLock' can be
+        //   Finally we test that a 'bslmt::ReadLockGuardTryLock' can be
         //   created with a null lock, and that 'release' may be called on the
         //   guard.
         //
         // Testing:
-        //   bdlqq::ReadLockGuardTryLock();
-        //   ~bdlqq::ReadLockGuardTryLock();
-        //   bdlqq::ReadLockGuardTryLock::release();
-        //   bdlqq::ReadLockGuardTryLock::ptr();
+        //   bslmt::ReadLockGuardTryLock();
+        //   ~bslmt::ReadLockGuardTryLock();
+        //   bslmt::ReadLockGuardTryLock::release();
+        //   bslmt::ReadLockGuardTryLock::ptr();
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl << "\tTesting: \n"
-                 << "\t  bdlqq::ReadLockGuardTryLock(); \n"
-                 << "\t  ~bdlqq::ReadLockGuardTryLock(); \n"
-                 << "\t  bdlqq::ReadLockGuardTryLock::release(); \n"
-                 << "\t  bdlqq::ReadLockGuardTryLock::ptr(); \n" << endl;
+                 << "\t  bslmt::ReadLockGuardTryLock(); \n"
+                 << "\t  ~bslmt::ReadLockGuardTryLock(); \n"
+                 << "\t  bslmt::ReadLockGuardTryLock::release(); \n"
+                 << "\t  bslmt::ReadLockGuardTryLock::ptr(); \n" << endl;
 
         {
             my_RWLock mX;    const my_RWLock &X = mX;
@@ -494,16 +494,16 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard constructors & destructor" <<endl;
             {
-                bdlqq::ReadLockGuardTryLock<my_RWLock> l1(&mX);
+                bslmt::ReadLockGuardTryLock<my_RWLock> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(0 == X.lockCount());
                 ASSERT(0 == l1.ptr());
                 {
-                    bdlqq::ReadLockGuardTryLock<my_RWLock> l2(&mX);
+                    bslmt::ReadLockGuardTryLock<my_RWLock> l2(&mX);
                     if(verbose)  P(X.lockCount());
                     ASSERT(1 == X.lockCount());
                     {
-                        bdlqq::ReadLockGuardTryLock<my_RWLock> l3(&mX, 10);
+                        bslmt::ReadLockGuardTryLock<my_RWLock> l3(&mX, 10);
                         if(verbose)  P(X.lockCount());
                         ASSERT(2 == X.lockCount());
                     }
@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t trylock guard release and ptr access" << endl;
             {
-                bdlqq::ReadLockGuardTryLock<my_RWLock> l1(&mX, 2);
+                bslmt::ReadLockGuardTryLock<my_RWLock> l1(&mX, 2);
 
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
@@ -533,52 +533,52 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::ReadLockGuardTryLock<my_RWLock> mX(0, 6);
+            bslmt::ReadLockGuardTryLock<my_RWLock> mX(0, 6);
         }
         {
-            bdlqq::ReadLockGuardTryLock<my_RWLock> mX(0, 6);
+            bslmt::ReadLockGuardTryLock<my_RWLock> mX(0, 6);
             mX.release();
         }
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::ReadLockGuardUnlock'
+        // TESTING CLASS 'bslmt::ReadLockGuardUnlock'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::ReadLockGuardUnlock'
+        //   That the basic functionality of the 'bslmt::ReadLockGuardUnlock'
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bdlqq::ReadLockGuardUnlock' objects using a common 'my_RWLock'
+        //   'bslmt::ReadLockGuardUnlock' objects using a common 'my_RWLock'
         //   object.  With each new object we verify that the unlock function
         //   is called.  As each object is destroyed, we verify that the lock
         //   function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::ReadLockGuardUnlock' and calling
+        //   constructing a new 'bslmt::ReadLockGuardUnlock' and calling
         //   'release'.  We verify that the returned pointer matches the value
         //   we supplied.  We then verify that 'release' makes no attempt to
         //   unlock the supplied object and that when the
-        //   'bdlqq::ReadLockGuardUnlock' object is destroyed, it does not
+        //   'bslmt::ReadLockGuardUnlock' object is destroyed, it does not
         //   unlock the object.
         //
-        //   Finally we test that a 'bdlqq::ReadLockGuardUnlock' can be created
+        //   Finally we test that a 'bslmt::ReadLockGuardUnlock' can be created
         //   with a null lock, and that 'release' may be called on the guard.
         //
         // Testing:
-        //   bdlqq::ReadLockGuardUnlock();
-        //   ~bdlqq::ReadLockGuardUnlock();
-        //   bdlqq::ReadLockGuardUnlock::release();
-        //   bdlqq::ReadLockGuardUnlock::ptr();
+        //   bslmt::ReadLockGuardUnlock();
+        //   ~bslmt::ReadLockGuardUnlock();
+        //   bslmt::ReadLockGuardUnlock::release();
+        //   bslmt::ReadLockGuardUnlock::ptr();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "\tTesting: \n"
-                          << "\t  bdlqq::ReadLockGuardUnlock(); \n"
-                          << "\t  ~bdlqq::ReadLockGuardUnlock(); \n"
-                          << "\t  bdlqq::ReadLockGuardUnlock::release(); \n"
-                          << "\t  bdlqq::ReadLockGuardUnlock::ptr(); \n"
+                          << "\t  bslmt::ReadLockGuardUnlock(); \n"
+                          << "\t  ~bslmt::ReadLockGuardUnlock(); \n"
+                          << "\t  bslmt::ReadLockGuardUnlock::release(); \n"
+                          << "\t  bslmt::ReadLockGuardUnlock::ptr(); \n"
                           << endl;
 
         {
@@ -587,18 +587,18 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard constructor & destructor" <<endl;
             {
-                bdlqq::ReadLockGuardUnlock<my_RWLock> l1(&mX);
+                bslmt::ReadLockGuardUnlock<my_RWLock> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(-1 == X.lockCount());
                 {
                     const int PRE_UNLOCKED = 0;
-                    bdlqq::ReadLockGuardUnlock<my_RWLock> l2(
+                    bslmt::ReadLockGuardUnlock<my_RWLock> l2(
                                                             &mX, PRE_UNLOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(-2 == X.lockCount());
                     {
                         const int PRE_UNLOCKED = 1; mX.unlock();
-                        bdlqq::ReadLockGuardUnlock<my_RWLock> l3(&mX,
+                        bslmt::ReadLockGuardUnlock<my_RWLock> l3(&mX,
                                                                 PRE_UNLOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(-3 == X.lockCount());
@@ -614,7 +614,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t unlock guard release and ptr access" << endl;
             {
-                bdlqq::ReadLockGuardUnlock<my_RWLock> l1(&mX);
+                bslmt::ReadLockGuardUnlock<my_RWLock> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -630,50 +630,50 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::ReadLockGuardUnlock<my_RWLock> mX(0);
+            bslmt::ReadLockGuardUnlock<my_RWLock> mX(0);
         }
         {
-            bdlqq::ReadLockGuardUnlock<my_RWLock> mX(0);
+            bslmt::ReadLockGuardUnlock<my_RWLock> mX(0);
             mX.release();
         }
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bdlqq::ReadLockGuard'
+        // TESTING CLASS 'bslmt::ReadLockGuard'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::ReadLockGuard' class
+        //   That the basic functionality of the 'bslmt::ReadLockGuard' class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bdlqq::ReadLockGuard'
+        //   We begin by creating a series of nested 'bslmt::ReadLockGuard'
         //   objects using a common 'my_RWLock' object.  With each new object
         //   we verify the the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
         //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bdlqq::ReadLockGuard' and calling 'release'.
+        //   constructing a new 'bslmt::ReadLockGuard' and calling 'release'.
         //   We verify that the returned pointer matches the value we supplied.
         //   We then verify that 'release' makes no attempt to unlock the
-        //   supplied object and that when the 'bdlqq::ReadLockGuard' object is
+        //   supplied object and that when the 'bslmt::ReadLockGuard' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::ReadLockGuard' can be created with
+        //   Finally we test that a 'bslmt::ReadLockGuard' can be created with
         //   a null lock, and that 'release' may be called on the guard.
         //
         // Testing:
-        //   bdlqq::ReadLockGuard();
-        //   ~bdlqq::ReadLockGuard();
-        //   bdlqq::ReadLockGuard::release();
-        //   bdlqq::ReadLockGuard::ptr();
+        //   bslmt::ReadLockGuard();
+        //   ~bslmt::ReadLockGuard();
+        //   bslmt::ReadLockGuard::release();
+        //   bslmt::ReadLockGuard::ptr();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "\tTesting: \n"
-                          << "\t  bdlqq::ReadLockGuard(); \n"
-                          << "\t  ~bdlqq::ReadLockGuard(); \n"
-                          << "\t  bdlqq::ReadLockGuard::release(); \n"
-                          << "\t  bdlqq::ReadLockGuard::ptr(); \n" << endl;
+                          << "\t  bslmt::ReadLockGuard(); \n"
+                          << "\t  ~bslmt::ReadLockGuard(); \n"
+                          << "\t  bslmt::ReadLockGuard::release(); \n"
+                          << "\t  bslmt::ReadLockGuard::ptr(); \n" << endl;
 
         {
             my_RWLock mX;    const my_RWLock &X = mX;
@@ -681,17 +681,17 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard constructor & destructor" <<endl;
             {
-                bdlqq::ReadLockGuard<my_RWLock> l1(&mX);
+                bslmt::ReadLockGuard<my_RWLock> l1(&mX);
                 if(verbose)  P(X.lockCount());
                 ASSERT(1 == X.lockCount());
                 {
                     const int PRE_LOCKED = 0;
-                    bdlqq::ReadLockGuard<my_RWLock> l2(&mX, PRE_LOCKED);
+                    bslmt::ReadLockGuard<my_RWLock> l2(&mX, PRE_LOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(2 == X.lockCount());
                     {
                     const int PRE_LOCKED = 1; mX.lockRead();
-                        bdlqq::ReadLockGuard<my_RWLock> l3(&mX, PRE_LOCKED);
+                        bslmt::ReadLockGuard<my_RWLock> l3(&mX, PRE_LOCKED);
                         if(verbose)  P(X.lockCount());
                         ASSERT(3 == X.lockCount());
                     }
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\t\t lock guard release and ptr access" << endl;
             {
-                bdlqq::ReadLockGuard<my_RWLock> l1(&mX);
+                bslmt::ReadLockGuard<my_RWLock> l1(&mX);
                 ASSERT(&mX == l1.ptr());
 
                 if(verbose)  P(X.lockCount());
@@ -722,10 +722,10 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlqq::ReadLockGuard<my_RWLock> mX(0);
+            bslmt::ReadLockGuard<my_RWLock> mX(0);
         }
         {
-            bdlqq::ReadLockGuard<my_RWLock> mX(0);
+            bslmt::ReadLockGuard<my_RWLock> mX(0);
             mX.release();
         }
 

@@ -1,16 +1,16 @@
-// bdlqq_barrier.cpp                                                  -*-C++-*-
-#include <bdlqq_barrier.h>
+// bslmt_barrier.cpp                                                  -*-C++-*-
+#include <bslmt_barrier.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_barrier_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_barrier_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadutil.h> // for yield
+#include <bslmt_lockguard.h>
+#include <bslmt_threadutil.h> // for yield
 #include <bsls_assert.h>
 
 namespace BloombergLP {
 
-bdlqq::Barrier::~Barrier()
+bslmt::Barrier::~Barrier()
 {
     while (1) {
 
@@ -25,7 +25,7 @@ bdlqq::Barrier::~Barrier()
     BSLS_ASSERT( 0 == d_numWaiting );
 }
 
-int bdlqq::Barrier::timedWait(const bsls::TimeInterval &timeout)
+int bslmt::Barrier::timedWait(const bsls::TimeInterval &timeout)
 {
     LockGuard<Mutex> lock(&d_mutex);
     int prevSigCount = d_sigCount;
@@ -48,7 +48,7 @@ int bdlqq::Barrier::timedWait(const bsls::TimeInterval &timeout)
     return 0;
 }
 
-void bdlqq::Barrier::wait()
+void bslmt::Barrier::wait()
 {
     LockGuard<Mutex> lock(&d_mutex);
     int sigCount = d_sigCount;

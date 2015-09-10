@@ -1,11 +1,11 @@
-// bdlqq_recursivemutex.cpp                                           -*-C++-*-
-#include <bdlqq_recursivemutex.h>
+// bslmt_recursivemutex.cpp                                           -*-C++-*-
+#include <bslmt_recursivemutex.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_recursivemutex_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_recursivemutex_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_threadattributes.h>   // for testing only
-#include <bdlqq_threadutil.h>         // for testing only
+#include <bslmt_threadattributes.h>   // for testing only
+#include <bslmt_threadutil.h>         // for testing only
 #include <bsls_atomic.h>         // for testing only
 
 // ----------------------------------------------------------------------------

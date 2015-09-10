@@ -1,16 +1,16 @@
-// bdlqq_timedsemaphoreimpl_win32.cpp                                 -*-C++-*-
-#include <bdlqq_timedsemaphoreimpl_win32.h>
+// bslmt_timedsemaphoreimpl_win32.cpp                                 -*-C++-*-
+#include <bslmt_timedsemaphoreimpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
 
-#include <bdlqq_lockguard.h>     // for testing only
-#include <bdlqq_mutex.h>         // for testing only
-#include <bdlqq_threadutil.h>    // for testing only
+#include <bslmt_lockguard.h>     // for testing only
+#include <bslmt_mutex.h>         // for testing only
+#include <bslmt_threadutil.h>    // for testing only
 
 #include <bsls_systemtime.h>
 
@@ -22,7 +22,7 @@ namespace BloombergLP {
 
 // MANIPULATORS
 int
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::timedWait(
+bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::timedWait(
                                              const bsls::TimeInterval& timeout)
 {
     DWORD milliTimeout = 0;
@@ -37,7 +37,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::timedWait(
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

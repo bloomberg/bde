@@ -1,6 +1,6 @@
-// bdlqq_sluice.h                                                     -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SLUICE
-#define INCLUDED_BDLQQ_SLUICE
+// bslmt_sluice.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLMT_SLUICE
+#define INCLUDED_BSLMT_SLUICE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,19 +10,19 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a "sluice" class.
 //
 //@CLASSES:
-//  bdlqq::Sluice: thread-aware sluice class
+//  bslmt::Sluice: thread-aware sluice class
 //
-//@SEE_ALSO: bdlqq_conditionimpl_win32
+//@SEE_ALSO: bslmt_conditionimpl_win32
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch)
 //
-//@DESCRIPTION: This component provides a "sluice" class, 'bdlqq::Sluice'.  A
+//@DESCRIPTION: This component provides a "sluice" class, 'bslmt::Sluice'.  A
 // sluice is useful for controlling the release of threads from a common
-// synchronization point.  One or more threads may "enter" a 'bdlqq::Sluice'
+// synchronization point.  One or more threads may "enter" a 'bslmt::Sluice'
 // object (via the 'enter' method), and then wait to be released (via either
 // the 'wait' or 'timedWait' method).  Either one waiting thread (via the
 // 'signalOne' method), or all waiting threads (via the 'signalAll' method),
-// may be signaled for release.  In either case, 'bdlqq::Sluice' provides a
+// may be signaled for release.  In either case, 'bslmt::Sluice' provides a
 // guarantee against starvation; newly-entering threads will not indefinitely
 // prevent threads that previously entered from being signaled.
 //
@@ -41,19 +41,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// 'bdlqq::Sluice' is intended to be used to implement other synchronization
-// mechanisms.  In particular, the functionality provided by 'bdlqq::Sluice' is
+// 'bslmt::Sluice' is intended to be used to implement other synchronization
+// mechanisms.  In particular, the functionality provided by 'bslmt::Sluice' is
 // useful for implementing a condition variable:
 //..
 //  class MyCondition {
-//      // This class implements a condition variable based on 'bdlqq::Sluice'.
+//      // This class implements a condition variable based on 'bslmt::Sluice'.
 //
 //      // DATA
-//      bdlqq::Sluice d_waitSluice;  // sluice object
+//      bslmt::Sluice d_waitSluice;  // sluice object
 //
 //    public:
 //      // MANIPULATORS
-//      void wait(bdlqq::Mutex *mutex)
+//      void wait(bslmt::Mutex *mutex)
 //      {
 //          void *token = d_waitSluice.enter();
 //          mutex->unlock();
@@ -73,16 +73,16 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHORE
-#include <bdlqq_timedsemaphore.h>
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHORE
+#include <bslmt_timedsemaphore.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                                // ============
                                // class Sluice

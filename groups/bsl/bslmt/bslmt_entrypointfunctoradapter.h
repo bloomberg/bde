@@ -1,6 +1,6 @@
-// bdlqq_entrypointfunctoradapter.h                                   -*-C++-*-
-#ifndef INCLUDED_BDLQQ_ENTRYPOINTFUNCTORADAPTER
-#define INCLUDED_BDLQQ_ENTRYPOINTFUNCTORADAPTER
+// bslmt_entrypointfunctoradapter.h                                   -*-C++-*-
+#ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
+#define INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -21,7 +21,7 @@ BSLS_IDENT("$: $")
 // constructor and 'void operator()()'.
 //
 // This component also provides a C-linkage function
-// 'bdlqq_EntryPointFunctorAdapter_invoker' that operates on a pointer to
+// 'bslmt_EntryPointFunctorAdapter_invoker' that operates on a pointer to
 // 'EntryPointFunctorAdapter', invoking the invokable object contained within
 // it and then deallocating the adapter object along with the contained
 // invokable object.  Together, 'EntryPointFunctorAdapter' and
@@ -127,19 +127,19 @@ BSLS_IDENT("$: $")
 // WordCountJob job("The quick brown fox jumped over the lazy dog.", &result);
 //
 // bslma::ManagedPtr<
-//     bdlqq::EntryPointFunctorAdapter<WordCountJob> > threadData;
-// bdlqq::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData, job);
+//     bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
+// bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData, job);
 //..
-// Finally, we use 'bdlqq_EntryPointFunctorAdapter_invoker' to invoke the job
+// Finally, we use 'bslmt_EntryPointFunctorAdapter_invoker' to invoke the job
 // in the context of a C-linkage function.  Note that
-// 'bdlqq_EntryPointFunctorAdapter_invoker' will deallocate the adapter object
+// 'bslmt_EntryPointFunctorAdapter_invoker' will deallocate the adapter object
 // and the contained invokable job after executing it, so we must release the
 // adapter from memory management via 'ManagedPtr'.  (In general, system APIs
 // that register callbacks may fail; newly allocated adapters are loaded into
 // 'ManagedPtr' to aid in proper error and exception handling, outside the
 // scope of this example.)
 //..
-// executeWithArgument(bdlqq_EntryPointFunctorAdapter_invoker,
+// executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
 //                     threadData.ptr());
 // threadData.release();
 // assert(9 == result);
@@ -170,13 +170,13 @@ namespace BloombergLP {
 
 extern "C" {
 
-void *bdlqq_EntryPointFunctorAdapter_invoker(void* argument);
+void *bslmt_EntryPointFunctorAdapter_invoker(void* argument);
     // Interpreting 'argument' as an 'EntryPointFunctorAdapter_Base*', invoke
     // 'argument->function(argument)'.  Do not use outside this component.
 
 }
 
-namespace bdlqq {
+namespace bslmt {
 
 struct EntryPointFunctorAdapterUtil;
 

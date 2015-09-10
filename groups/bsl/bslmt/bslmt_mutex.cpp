@@ -1,10 +1,10 @@
-// bdlqq_mutex.cpp                                                    -*-C++-*-
-#include <bdlqq_mutex.h>
+// bslmt_mutex.cpp                                                    -*-C++-*-
+#include <bslmt_mutex.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_mutex_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_mutex_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_threadutil.h>     // for testing only
+#include <bslmt_threadutil.h>     // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

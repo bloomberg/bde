@@ -1,14 +1,14 @@
-// bdlqq_rwmutex.t.cpp                                                -*-C++-*-
+// bslmt_rwmutex.t.cpp                                                -*-C++-*-
 
-#include <bdlqq_rwmutex.h>
+#include <bslmt_rwmutex.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_readerwriterlock.h>
-#include <bdlqq_semaphore.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
-#include <bdlqq_platform.h>
+#include <bslmt_barrier.h>
+#include <bslmt_readerwriterlock.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_platform.h>
 #include <bdlf_bind.h>
 
 #include <bsls_systemtime.h>
@@ -51,12 +51,12 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::RWMutex Obj;
+typedef bslmt::RWMutex Obj;
 
 //=============================================================================
 //                 TEST PLAN: Positive test cases
 //
-// This is a breathing test only. bdlqq::RWMutex is a trivial wrapper which
+// This is a breathing test only. bslmt::RWMutex is a trivial wrapper which
 // passes all calls directly to an underlying implementation.  This test driver
 // will just verify that the calls are reaching some kind of RW mutex by having
 // two reader threads, blocked from finishing by a barrier, access a shared
@@ -68,12 +68,12 @@ typedef bdlqq::RWMutex Obj;
 //                 TEST PLAN: Negative test cases
 //
 // The negative test cases are for manual benchmarking of the POSIX RW mutex
-// vs. the bdlqq_readerwriterlock component.  Case -1 is a speed benchmark of
+// vs. the bslmt_readerwriterlock component.  Case -1 is a speed benchmark of
 // the POSIX RW mutex.  If POSIX is not available on the platform this driver
 // was built for, the test will fail.  Case -2 is a speed benchmark of the
-// bdlqq_readerwriterlock component.  Case -3 checks the 'bias' of the POSIX RW
+// bslmt_readerwriterlock component.  Case -3 checks the 'bias' of the POSIX RW
 // mutex (a concern on IBM) and case -4 checks it for the
-// bdlqq_readerwriterlock component.
+// bslmt_readerwriterlock component.
 //
 // For case -1 and -2, the speed benchmarks, there are two tests done: a
 // contention-free test, intended to measure the time overhead involved simply
@@ -90,12 +90,12 @@ template <class LOCK>
 struct WriteThread
 {
    LOCK*            d_lock;
-   bdlqq::Semaphore *d_startSema;
-   bdlqq::Barrier   *d_releaseBarrier;
+   bslmt::Semaphore *d_startSema;
+   bslmt::Barrier   *d_releaseBarrier;
 
    WriteThread(LOCK *lock = 0,
-               bdlqq::Semaphore *startSema = 0,
-               bdlqq::Barrier   *releaseBarrier = 0)
+               bslmt::Semaphore *startSema = 0,
+               bslmt::Barrier   *releaseBarrier = 0)
       : d_lock(lock),
         d_startSema(startSema),
         d_releaseBarrier(releaseBarrier)
@@ -113,14 +113,14 @@ template <class LOCK>
 struct ReadThread
 {
    LOCK            *d_lock;
-   bdlqq::Barrier   *d_holdBarrier;
-   bdlqq::Barrier   *d_releaseBarrier;
-   bdlqq::Semaphore *d_doneSema;
+   bslmt::Barrier   *d_holdBarrier;
+   bslmt::Barrier   *d_releaseBarrier;
+   bslmt::Semaphore *d_doneSema;
 
    ReadThread(LOCK *lock = 0,
-              bdlqq::Barrier   *holdBarrier = 0,
-              bdlqq::Barrier   *releaseBarrier = 0,
-              bdlqq::Semaphore *doneSema = 0)
+              bslmt::Barrier   *holdBarrier = 0,
+              bslmt::Barrier   *releaseBarrier = 0,
+              bslmt::Semaphore *doneSema = 0)
       : d_lock(lock),
         d_holdBarrier(holdBarrier),
         d_releaseBarrier(releaseBarrier),
@@ -142,11 +142,11 @@ template <class LOCK>
 struct ReadWaitThread
 {
    LOCK*            d_lock;
-   bdlqq::Semaphore *d_startSema;
+   bslmt::Semaphore *d_startSema;
    int*             d_haveLock;
 
    ReadWaitThread(LOCK            *lock = 0,
-                  bdlqq::Semaphore *startSema = 0,
+                  bslmt::Semaphore *startSema = 0,
                   int             *haveLock = 0)
       : d_lock(lock),
         d_startSema(startSema),
@@ -165,14 +165,14 @@ template <class LOCK>
 struct PingPongWriter
 {
    LOCK*            d_locks;
-   bdlqq::Semaphore *d_readySema;
-   bdlqq::Barrier   *d_barrier;
+   bslmt::Semaphore *d_readySema;
+   bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
    double          *d_score;
 
    PingPongWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
-                  bdlqq::Semaphore *readySema=0,
-                  bdlqq::Barrier *barrier=0)
+                  bslmt::Semaphore *readySema=0,
+                  bslmt::Barrier *barrier=0)
       : d_locks(locks),
         d_readySema(readySema),
         d_stop(stop),
@@ -220,14 +220,14 @@ template <class LOCK>
 struct PingPongReader
 {
    LOCK            *d_locks;
-   bdlqq::Semaphore *d_readySema;
-   bdlqq::Barrier   *d_barrier;
+   bslmt::Semaphore *d_readySema;
+   bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
    double          *d_score;
 
    PingPongReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
-                  bdlqq::Semaphore *readySema=0,
-                  bdlqq::Barrier *barrier=0)
+                  bslmt::Semaphore *readySema=0,
+                  bslmt::Barrier *barrier=0)
       : d_locks(locks),
         d_readySema(readySema),
         d_stop(stop),
@@ -275,12 +275,12 @@ template <class LOCK>
 struct ContentionWriter
 {
    LOCK*            d_locks;
-   bdlqq::Barrier   *d_barrier;
+   bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
    double          *d_score;
 
    ContentionWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
-                    double *score=0, bdlqq::Barrier *barrier=0)
+                    double *score=0, bslmt::Barrier *barrier=0)
       : d_locks(locks),
         d_stop(stop),
         d_score(score),
@@ -318,13 +318,13 @@ template <class LOCK>
 struct ContentionReader
 {
    LOCK            *d_locks;
-   bdlqq::Barrier   *d_barrier;
+   bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
    double          *d_score;
 
    ContentionReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
                     double *score=0,
-                    bdlqq::Barrier *barrier=0)
+                    bslmt::Barrier *barrier=0)
       : d_locks(locks),
         d_stop(stop),
         d_score(score),
@@ -410,39 +410,39 @@ int benchmarkSpeed (LOCK*       lock,
    // Now we run the writer by itself for 3 seconds.  This score is the
    // "no-contention overhead."
    bsls::AtomicInt stop(0);
-   bdlqq::Semaphore startSema;
+   bslmt::Semaphore startSema;
    PingPongWriter<LOCK> writerThread(locks, &stop, &score, &startSema);
-   bdlqq::ThreadUtil::Handle hWriter, hReader;
-   if (0 != bdlqq::ThreadUtil::create(&hWriter, writerThread)) {
+   bslmt::ThreadUtil::Handle hWriter, hReader;
+   if (0 != bslmt::ThreadUtil::create(&hWriter, writerThread)) {
       cout << "ERROR: Could not create a thread!! Failing test" << endl;
       return -4;                                                      // RETURN
    }
    startSema.wait();
-   bdlqq::ThreadUtil::sleep(bsls::TimeInterval(3));
+   bslmt::ThreadUtil::sleep(bsls::TimeInterval(3));
    stop = 1;
-   bdlqq::ThreadUtil::join(hWriter);
+   bslmt::ThreadUtil::join(hWriter);
    cout << "Lock \"" << lockName << "\": no-contention-overhead score="
         << score << endl;
    overallScore += score / 6.0;
 
    // Now we run the writer with 1 reader to get the "lo-contention" score.
-   bdlqq::Barrier startBarrier(3);
+   bslmt::Barrier startBarrier(3);
    stop = 0;
    writerThread.d_readySema = 0;
    writerThread.d_barrier = &startBarrier;
    double readerScore;
    PingPongReader<LOCK> readerThread(locks, &stop, &readerScore, 0,
                                      &startBarrier);
-   if (0 != bdlqq::ThreadUtil::create(&hWriter, writerThread) ||
-       0 != bdlqq::ThreadUtil::create(&hReader, readerThread)) {
+   if (0 != bslmt::ThreadUtil::create(&hWriter, writerThread) ||
+       0 != bslmt::ThreadUtil::create(&hReader, readerThread)) {
       cout << "ERROR: Could not create a thread!! Failing test" << endl;
       return -4;                                                      // RETURN
    }
    startBarrier.wait();
-   bdlqq::ThreadUtil::sleep(bsls::TimeInterval(3));
+   bslmt::ThreadUtil::sleep(bsls::TimeInterval(3));
    stop = 1;
-   bdlqq::ThreadUtil::join(hWriter);
-   bdlqq::ThreadUtil::join(hReader);
+   bslmt::ThreadUtil::join(hWriter);
+   bslmt::ThreadUtil::join(hReader);
 
    score = (readerScore + score) * 100.0;
    cout << "Lock \"" << lockName << "\": lo-contention score="
@@ -453,9 +453,9 @@ int benchmarkSpeed (LOCK*       lock,
    // writer over a smaller number of mutexes
    LOCK conLocks[2];
 
-   bdlqq::Barrier startBarrier2(numReaders+2);
+   bslmt::Barrier startBarrier2(numReaders+2);
    stop = 0;
-   bdlqq::ThreadGroup allThreads;
+   bslmt::ThreadGroup allThreads;
 
    if (0 != allThreads.addThread(ContentionWriter<LOCK>(conLocks, &stop,
                                                         &score,
@@ -475,7 +475,7 @@ int benchmarkSpeed (LOCK*       lock,
       }
    }
    startBarrier2.wait();
-   bdlqq::ThreadUtil::sleep(bsls::TimeInterval(3));
+   bslmt::ThreadUtil::sleep(bsls::TimeInterval(3));
    stop = 1;
    allThreads.joinAll();
 
@@ -495,26 +495,26 @@ int benchmarkSpeed (LOCK*       lock,
 template <class LOCK>
 int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
 {
-   bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-   bdlqq::ThreadUtil::Handle h;
+   bslmt::ThreadAttributes detached;
+   detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
+   bslmt::ThreadUtil::Handle h;
 
-   bdlqq::Barrier   readHold(2), readRelease(2), writeRelease(2);
-   bdlqq::Semaphore writeStart;
+   bslmt::Barrier   readHold(2), readRelease(2), writeRelease(2);
+   bslmt::Semaphore writeStart;
 
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&h, detached, ReadThread<LOCK>(lock, &readHold, &readRelease))) {
       return -4;                                                      // RETURN
    }
    readHold.wait();
    // Now there is a read thread holding the lock
 
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease))) {
       return -4;                                                      // RETURN
    }
    writeStart.wait();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
    // Now we can be pretty confident that the write thread is blocked waiting
    // on the mutex.  For our manual benchmarking this is sufficient.
 
@@ -530,15 +530,15 @@ int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
 template <class LOCK>
 int benchmarkBiasFairness(bool* isFair, LOCK* lock)
 {
-   bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-   bdlqq::ThreadUtil::Handle h;
+   bslmt::ThreadAttributes detached;
+   detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
+   bslmt::ThreadUtil::Handle h;
 
-   bdlqq::Barrier   readHold(2), readRelease1(2), writeRelease1(2),
+   bslmt::Barrier   readHold(2), readRelease1(2), writeRelease1(2),
       writeRelease2(2);
-   bdlqq::Semaphore readStart, writeStart, readDone;
+   bslmt::Semaphore readStart, writeStart, readDone;
 
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&h, detached, ReadThread<LOCK>(lock, &readHold,
                                  &readRelease1, &readDone))) {
       return -4;                                                      // RETURN
@@ -546,42 +546,42 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    readHold.wait();
    // Now there is a read thread holding the lock
 
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease1))) {
       return -4;                                                      // RETURN
    }
    writeStart.wait();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
 
    // There is one thread blocked waiting for the write lock.  Create a thread
    // that will block waiting for the read qlock.
    int rwThreadHasLock = 0;
    ReadWaitThread<LOCK> readWaitThread(lock, &readStart,
                                        &rwThreadHasLock);
-   if (0 != bdlqq::ThreadUtil::create(&h, detached, readWaitThread)) {
+   if (0 != bslmt::ThreadUtil::create(&h, detached, readWaitThread)) {
       return -4;                                                      // RETURN
    }
    readStart.wait();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
 
    // Release the first read lock and allow the first write lock to get the
    // lock
    readRelease1.wait();
    readDone.wait();
-   bdlqq::ThreadUtil::yield();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
 
    // Create a second thread to wait on the write lock
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease2))) {
       return -4;                                                      // RETURN
    }
    writeStart.wait();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
 
    // Let the first writer release the lock
    writeRelease1.wait();
-   bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+   bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));
 
    // Now, is the second read thread unblocked?
    *isFair = rwThreadHasLock;
@@ -665,21 +665,21 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
    // it will attempt to get the read lock again.  If it succeeds, read-lock
    // recursion is supported.
 
-   bdlqq::ThreadUtil::Handle handle;
-   bdlqq::Semaphore writeStart;
-   bdlqq::Barrier writeRelease(2);
+   bslmt::ThreadUtil::Handle handle;
+   bslmt::Semaphore writeStart;
+   bslmt::Barrier writeRelease(2);
 
-   bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+   bslmt::ThreadAttributes detached;
+   detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
    lock->lockRead();
-   if (0 != bdlqq::ThreadUtil::create
+   if (0 != bslmt::ThreadUtil::create
        (&handle, detached,
         WriteThread<LOCK>(lock, &writeStart, &writeRelease))) {
       return -4;                                                      // RETURN
    }
    writeStart.wait();
-   bdlqq::ThreadUtil::yield();
+   bslmt::ThreadUtil::yield();
 
    // Now we can be pretty confident that the write thread is blocked waiting
    // on the mutex.  For our manual benchmarking this is sufficient.
@@ -700,7 +700,7 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
    return 0;
 }
 
-void readerThread (bdlqq::Barrier* start, bdlqq::Barrier* end, Obj* mutex)
+void readerThread (bslmt::Barrier* start, bslmt::Barrier* end, Obj* mutex)
 {
    ASSERT(0 == mutex->tryLockRead());
    start->wait();
@@ -731,13 +731,13 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case -1: {
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
          cout << "Running POSIX speed test" << endl;
 
 #ifdef BSLS_PLATFORM_OS_AIX
-         bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads> lock;
+         bslmt::RWMutexImpl<bslmt::Platform::PosixThreads> lock;
 #else
-         bdlqq::RWMutex lock;
+         bslmt::RWMutex lock;
 #endif
 
          ASSERT(0 == benchmarkSpeed(&lock, "PTHREAD", writers, readers));
@@ -748,17 +748,17 @@ int main(int argc, char *argv[])
       case -2: {
          cout << "Running WIN32 speed test" << endl;
 
-         bdlqq::ReaderWriterLock lock;
+         bslmt::ReaderWriterLock lock;
          ASSERT(0 == benchmarkSpeed(&lock, "PURE BCE", writers, readers));
       } break;
       case -3: {
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
          cout << "Running POSIX bias test" << endl;
 
 #ifdef BSLS_PLATFORM_OS_AIX
-         bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads> lock;
+         bslmt::RWMutexImpl<bslmt::Platform::PosixThreads> lock;
 #else
-         bdlqq::RWMutex lock;
+         bslmt::RWMutex lock;
 #endif
          ASSERT(0 == benchmarkBias(&lock, "PTHREAD"));
 #else
@@ -768,22 +768,22 @@ int main(int argc, char *argv[])
       case -4: {
          cout << "Running WIN32 bias test" << endl;
 
-         bdlqq::ReaderWriterLock lock;
+         bslmt::ReaderWriterLock lock;
          ASSERT(0 == benchmarkBias(&lock, "PURE BCE"));
       } break;
       case -5: {
          cout << "Running POSIX recursion test" << endl;
 #ifdef BSLS_PLATFORM_OS_AIX
-         bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads> lock;
+         bslmt::RWMutexImpl<bslmt::Platform::PosixThreads> lock;
 #else
-         bdlqq::RWMutex lock;
+         bslmt::RWMutex lock;
 #endif
          ASSERT(0 == benchmarkRecursion(&lock, "PTHREAD"));
       } break;
       case -6: {
          cout << "Running WIN32 recursion test" << endl;
 
-         bdlqq::ReaderWriterLock lock;
+         bslmt::ReaderWriterLock lock;
          ASSERT(0 == benchmarkRecursion(&lock, "PURE BCE"));
       } break;
 
@@ -792,15 +792,15 @@ int main(int argc, char *argv[])
                           << "=========================="
                           << endl;
         Obj mutex;
-        bdlqq::Barrier startBarrier(3), endBarrier(3);
+        bslmt::Barrier startBarrier(3), endBarrier(3);
 
-        bdlqq::ThreadUtil::Handle t1, t2;
+        bslmt::ThreadUtil::Handle t1, t2;
 
-        if (0 != bdlqq::ThreadUtil::create
+        if (0 != bslmt::ThreadUtil::create
             (&t1, bdlf::BindUtil::bind(&readerThread,
                                       &startBarrier, &endBarrier,
                                       &mutex)) ||
-            0 != bdlqq::ThreadUtil::create
+            0 != bslmt::ThreadUtil::create
             (&t2, bdlf::BindUtil::bind(&readerThread,
                                       &startBarrier, &endBarrier,
                                       &mutex))) {
@@ -811,8 +811,8 @@ int main(int argc, char *argv[])
            ASSERT(0 != mutex.tryLockWrite());
            endBarrier.wait();
 
-           ASSERT(0 == bdlqq::ThreadUtil::join(t1));
-           ASSERT(0 == bdlqq::ThreadUtil::join(t2));
+           ASSERT(0 == bslmt::ThreadUtil::join(t1));
+           ASSERT(0 == bslmt::ThreadUtil::join(t2));
         }
 
       } break;

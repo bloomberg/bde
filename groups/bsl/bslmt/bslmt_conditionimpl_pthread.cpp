@@ -1,15 +1,15 @@
-// bdlqq_conditionimpl_pthread.cpp                                    -*-C++-*-
-#include <bdlqq_conditionimpl_pthread.h>
+// bslmt_conditionimpl_pthread.cpp                                    -*-C++-*-
+#include <bslmt_conditionimpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_conditionimpl_pthread_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
 
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 namespace {
@@ -102,7 +102,7 @@ void initializeCondition(pthread_cond_t              *cond,
                // -------------------------------------------
 
 // CREATORS
-bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
+bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
 #ifdef BSLS_PLATFORM_OS_DARWIN
 : d_clockType(clockType)
@@ -112,7 +112,7 @@ bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
 }
 
 // MANIPULATORS
-int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
+int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::timedWait(
                                             Mutex                     *mutex,
                                             const bsls::TimeInterval&  timeout)
 {

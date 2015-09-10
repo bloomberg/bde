@@ -1,6 +1,6 @@
-// bdlqq_readlockguard.h                                              -*-C++-*-
-#ifndef INCLUDED_BDLQQ_READLOCKGUARD
-#define INCLUDED_BDLQQ_READLOCKGUARD
+// bslmt_readlockguard.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#define INCLUDED_BSLMT_READLOCKGUARD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,38 +10,38 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a generic proctor for read synchronization objects.
 //
 //@CLASSES:
-//  bdlqq::ReadLockGuard: automatic locking-unlocking for read access
-//  bdlqq::ReadLockGuardUnlock: automatic unlocking-locking for read access
-//  bdlqq::ReadLockGuardTryLock: automatic non-blocking locking-unlocking for
+//  bslmt::ReadLockGuard: automatic locking-unlocking for read access
+//  bslmt::ReadLockGuardUnlock: automatic unlocking-locking for read access
+//  bslmt::ReadLockGuardTryLock: automatic non-blocking locking-unlocking for
 //                              read access
-//  bdlqq::LockReadGuard: DEPRECATED
+//  bslmt::LockReadGuard: DEPRECATED
 //
-//@SEE_ALSO: bdlqq_lockguard, bdlqq_writelockguard, bdlqq_rwmutex
+//@SEE_ALSO: bslmt_lockguard, bslmt_writelockguard, bslmt_rwmutex
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann)
 //
 //@DESCRIPTION: This component provides generic proctors to automatically lock
 // and unlock an external synchronization object for reading.  The
-// synchronization object can be any type (e.g., 'bdlqq::ReaderWriterLock')
+// synchronization object can be any type (e.g., 'bslmt::ReaderWriterLock')
 // that provides the following methods:
 //..
 //  void lockRead();
 //  void unlock();
 //..
-// Both 'bdlqq::ReadLockGuard' and 'bdlqq::ReadLockGuardUnlock' implement the
+// Both 'bslmt::ReadLockGuard' and 'bslmt::ReadLockGuardUnlock' implement the
 // "construction is acquisition, destruction is release" idiom.  During
-// construction, 'bdlqq::ReadLockGuard' automatically calls 'lockRead' on the
+// construction, 'bslmt::ReadLockGuard' automatically calls 'lockRead' on the
 // user-supplied object, and 'unlock' when it is destroyed (unless released).
-// 'bdlqq::ReadLockGuardUnlock' does the opposite -- it invokes the 'unlock'
+// 'bslmt::ReadLockGuardUnlock' does the opposite -- it invokes the 'unlock'
 // method when constructed and the 'lockRead' method when destroyed.
 //
-// A third type of guard, 'bdlqq::ReadLockGuardTryLock', attempts to acquire a
+// A third type of guard, 'bslmt::ReadLockGuardTryLock', attempts to acquire a
 // lock, and if acquisition succeeds, releases it upon destruction.  Since the
 // acquisition is done at construction time, it is not possible to return a
-// value to indicate success.  Rather, the 'bdlqq::ReadLockGuardTryLock'
+// value to indicate success.  Rather, the 'bslmt::ReadLockGuardTryLock'
 // contains a pointer to the synchronization object if 'tryLock' succeeds, and
 // is null otherwise.  The synchronization object can be any type (e.g.,
-// 'bdlqq::Mutex' or 'bdlqq::RecursiveMutex') that provides the following
+// 'bslmt::Mutex' or 'bslmt::RecursiveMutex') that provides the following
 // methods:
 //..
 //  int tryLockRead();
@@ -55,17 +55,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Behavior of the 'release' method
 ///--------------------------------
-// Like all BDE proctor classes, each of the three 'bdlqq::ReadLockGuard*'
+// Like all BDE proctor classes, each of the three 'bslmt::ReadLockGuard*'
 // classes provides a 'release' method that terminates the proctor's management
 // of any lock object that the proctor holds.  The 'release' method has *no*
 // *effect* on the state of the lock object.
 //
-// In particular, 'bdlqq::ReadLockGuard::release' does not unlock the lock
+// In particular, 'bslmt::ReadLockGuard::release' does not unlock the lock
 // object under management.  If a user wants to release the lock object *and*
 // unlock the lock object (because the lock is no longer required before the
 // guard goes out of scope), the following idiom can be used:
 //..
-//  // 'guard' is an existing guard of type 'bdlqq::ReadLockGuard<my_RLock>',
+//  // 'guard' is an existing guard of type 'bslmt::ReadLockGuard<my_RLock>',
 //  // created in a scope that we do not control.
 //
 //  {
@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
 //  {
-//      bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
+//      bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 //      if (someCondition) {
 //          obj->someMethod();
 //          return;
@@ -126,14 +126,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bdlqq::ReadLockGuardTryLock' in the typical following fashion:
+// a 'bslmt::ReadLockGuardTryLock' in the typical following fashion:
 //..
 //  static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
 //      // Perform task and return positive value if locking succeeds.
 //      // Return 0 if locking fails.
 //  {
 //      const int RETRIES = 1; // use higher values for higher success rate
-//      bdlqq::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
+//      bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
 //      if (guard.ptr()) { // rwlock is locked
 //          if (someCondition) {
 //              obj->someMethod();
@@ -149,15 +149,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // If the underlying lock object provides an upgrade to a lock for write (as
-// does 'bdlqq::ReaderWriterLock' with the 'upgradeToWriteLock' function, for
+// does 'bslmt::ReaderWriterLock' with the 'upgradeToWriteLock' function, for
 // example), this can be safely used in conjunction with
-// 'bdlqq::ReadLockGuard', as long as the same 'unlock' method is used to
+// 'bslmt::ReadLockGuard', as long as the same 'unlock' method is used to
 // release both kinds of locks.  The following method illustrates this usage:
 //..
 //  static void safeUpdateFunc(my_Object *obj, my_RWLock *rwlock)
 //  {
 //      const my_Object *constObj = obj;
-//      bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
+//      bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 //      if (someUpgradeCondition) {
 //          rwlock->upgradeToWriteLock();
 //          obj->someUpgradeMethod();
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 // In the above code, the call to 'upgradeToWriteLock' is not necessarily
 // atomic, as the upgrade may release the lock for read and be interrupted
 // before getting a lock for write.  It is possible to guarantee atomicity (as
-// does 'bdlqq::ReaderWriterLock' if the 'lockReadReserveWrite' function is
+// does 'bslmt::ReaderWriterLock' if the 'lockReadReserveWrite' function is
 // used instead of 'lockRead', for example), but the standard constructor
 // should not be used.  Instead, the 'lockReadReserveWrite' lock function
 // should be used explicitly, and the guard constructed with an object which is
@@ -184,7 +184,7 @@ BSLS_IDENT("$Id: $")
 //      const my_Object *constObj = obj;
 //      rwlock->lockReadReserveWrite();
 //      const int PRELOCKED = 1;
-//      bdlqq::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
+//      bslmt::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
 //      if (someUpgradeCondition) {
 //          rwlock->upgradeToWriteLock();
 //          obj->someUpgradeMethod();
@@ -200,18 +200,18 @@ BSLS_IDENT("$Id: $")
 // Note that in the code above, the function 'rwlock->lockRead()' is never
 // called, but is nevertheless required for the code to compile.
 //
-// Instantiations of 'bdlqq::ReadLockGuardUnlock' can be interleaved with
-// instantiations of 'bdlqq::ReadLockGuard' to create both critical sections
+// Instantiations of 'bslmt::ReadLockGuardUnlock' can be interleaved with
+// instantiations of 'bslmt::ReadLockGuard' to create both critical sections
 // and regions where the lock is released.
 //..
 //  void f(my_RWLock *lock)
 //  {
-//      bdlqq::ReadLockGuard<my_RWLock> guard(lock);
+//      bslmt::ReadLockGuard<my_RWLock> guard(lock);
 //
 //      // critical section here
 //
 //      {
-//           bdlqq::ReadLockGuardUnlock<my_RWLock> guard(lock);
+//           bslmt::ReadLockGuardUnlock<my_RWLock> guard(lock);
 //
 //          // mutex is unlocked here
 //
@@ -225,12 +225,12 @@ BSLS_IDENT("$Id: $")
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive read/write lock).
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                            // ===================
                            // class ReadLockGuard
@@ -416,7 +416,7 @@ class ReadLockGuardTryLock {
 // CREATORS
 template <class T>
 inline
-bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock)
+bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -426,7 +426,7 @@ bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock)
 
 template <class T>
 inline
-bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
+bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preLocked) {
@@ -436,7 +436,7 @@ bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
 
 template <class T>
 inline
-bdlqq::ReadLockGuard<T>::~ReadLockGuard()
+bslmt::ReadLockGuard<T>::~ReadLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -446,7 +446,7 @@ bdlqq::ReadLockGuard<T>::~ReadLockGuard()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuard<T>::release()
+T *bslmt::ReadLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -456,7 +456,7 @@ T *bdlqq::ReadLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuard<T>::ptr() const
+T *bslmt::ReadLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -468,14 +468,14 @@ T *bdlqq::ReadLockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bdlqq::LockReadGuard<T>::LockReadGuard(T *lock)
+bslmt::LockReadGuard<T>::LockReadGuard(T *lock)
 : ReadLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-bdlqq::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
+bslmt::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
 : ReadLockGuard<T>(lock, preLocked)
 {
 }
@@ -487,7 +487,7 @@ bdlqq::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
 // CREATORS
 template <class T>
 inline
-bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
+bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -497,7 +497,7 @@ bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock, int preUnlocked)
+bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock, int preUnlocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preUnlocked) {
@@ -507,7 +507,7 @@ bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock, int preUnlocked)
 
 template <class T>
 inline
-bdlqq::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
+bslmt::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockRead();
@@ -517,7 +517,7 @@ bdlqq::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuardUnlock<T>::release()
+T *bslmt::ReadLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -527,7 +527,7 @@ T *bdlqq::ReadLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuardUnlock<T>::ptr() const
+T *bslmt::ReadLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -538,7 +538,7 @@ T *bdlqq::ReadLockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bdlqq::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
+bslmt::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
 : d_lock_p(0)
 {
     if (lock) {
@@ -553,7 +553,7 @@ bdlqq::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
 
 template <class T>
 inline
-bdlqq::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
+bslmt::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -563,7 +563,7 @@ bdlqq::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuardTryLock<T>::release()
+T *bslmt::ReadLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -573,7 +573,7 @@ T *bdlqq::ReadLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::ReadLockGuardTryLock<T>::ptr() const
+T *bslmt::ReadLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }

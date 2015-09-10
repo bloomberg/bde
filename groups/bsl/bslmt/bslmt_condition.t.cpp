@@ -1,8 +1,8 @@
-// bdlqq_condition.t.cpp                                              -*-C++-*-
+// bslmt_condition.t.cpp                                              -*-C++-*-
 
-#include <bdlqq_condition.h>
+#include <bslmt_condition.h>
 
-#include <bdlqq_mutex.h>
+#include <bslmt_mutex.h>
 #include <bsls_atomic.h>
 
 #include <bsls_systemtime.h>
@@ -55,7 +55,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::Condition Obj;
+typedef bslmt::Condition Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST THAT THIS IS A CONDITION
         //
-        // Without relying on anything in, e.g., bdlqq_threadutil, test that
+        // Without relying on anything in, e.g., bslmt_threadutil, test that
         // this object likely forwards to an appropriate implementation.  We'll
         // test that timedWait on a default-constructed Condition object
         // returns in roughly the right amount of time.
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
           {
               Obj x;
-              bdlqq::Mutex lock;
+              bslmt::Mutex lock;
 
               lock.lock();
               bsls::Stopwatch timer;
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
           {
               Obj x(bsls::SystemClockType::e_REALTIME);
-              bdlqq::Mutex lock;
+              bslmt::Mutex lock;
 
               lock.lock();
               bsls::Stopwatch timer;
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 
           {
               Obj x(bsls::SystemClockType::e_MONOTONIC);
-              bdlqq::Mutex lock;
+              bslmt::Mutex lock;
 
               lock.lock();
               bsls::Stopwatch timer;

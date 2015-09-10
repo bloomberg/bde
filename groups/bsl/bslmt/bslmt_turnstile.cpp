@@ -1,14 +1,14 @@
-// bdlqq_turnstile.cpp                                                -*-C++-*-
-#include <bdlqq_turnstile.h>
+// bslmt_turnstile.cpp                                                -*-C++-*-
+#include <bslmt_turnstile.h>
 
-#include <bdlqq_barrier.h>        // testing only
-#include <bdlqq_mutex.h>          // testing only
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>        // testing only
+#include <bslmt_mutex.h>          // testing only
+#include <bslmt_threadutil.h>
 
 #include <bsls_systemtime.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_turnstile_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_turnstile_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace {
@@ -22,20 +22,20 @@ enum { MICROSECS_PER_SECOND = 1000 * 1000 };
                              // ---------------
 
 // CREATORS
-bdlqq::Turnstile::Turnstile(double rate, const bsls::TimeInterval& startTime)
+bslmt::Turnstile::Turnstile(double rate, const bsls::TimeInterval& startTime)
 {
     reset(rate, startTime);
 }
 
 // MANIPULATORS
-void bdlqq::Turnstile::reset(double rate, const bsls::TimeInterval& startTime)
+void bslmt::Turnstile::reset(double rate, const bsls::TimeInterval& startTime)
 {
     d_interval  = static_cast<Int64>(MICROSECS_PER_SECOND / rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 }
 
-bsls::Types::Int64 bdlqq::Turnstile::waitTurn()
+bsls::Types::Int64 bslmt::Turnstile::waitTurn()
 {
     enum { MIN_TIMER_RESOLUTION = 10 * 1000 };
         // Assume that minimum timer resolution applicable to "sleep" on all
@@ -79,7 +79,7 @@ bsls::Types::Int64 bdlqq::Turnstile::waitTurn()
 }
 
 // ACCESSORS
-bsls::Types::Int64 bdlqq::Turnstile::lagTime() const
+bsls::Types::Int64 bslmt::Turnstile::lagTime() const
 {
     Int64 nowUSecs = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_timestamp = nowUSecs;

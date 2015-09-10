@@ -1,14 +1,14 @@
-// bdlqq_semaphoreimpl_pthread.cpp                                    -*-C++-*-
-#include <bdlqq_semaphoreimpl_pthread.h>
+// bslmt_semaphoreimpl_pthread.cpp                                    -*-C++-*-
+#include <bslmt_semaphoreimpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_semaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
-#ifdef BDLQQ_PLATFORM_POSIX_SEMAPHORE
+#ifdef BSLMT_PLATFORM_POSIX_SEMAPHORE
 
-#include <bdlqq_lockguard.h>    // for testing only
-#include <bdlqq_mutex.h>        // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>    // for testing only
+#include <bslmt_mutex.h>        // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 #include <bsl_c_errno.h>
 
@@ -19,7 +19,7 @@ namespace BloombergLP {
               // ---------------------------------------------
 
 // CREATORS
-bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::SemaphoreImpl(int count)
+bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::SemaphoreImpl(int count)
 {
     int result = ::sem_init(&d_sem, 0, count);
 
@@ -28,7 +28,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::SemaphoreImpl(int count)
 }
 
 // MANIPULATORS
-void bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post(int number)
+void bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::post(int number)
 {
     for (int i = 0; i < number; i++) {
         post();
@@ -36,7 +36,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post(int number)
 }
 
 void
-bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::wait()
+bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::wait()
 {
     sem_t * sem_p = &d_sem;
     int result = 0;
@@ -50,7 +50,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::wait()
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

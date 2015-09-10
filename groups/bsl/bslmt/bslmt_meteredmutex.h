@@ -1,6 +1,6 @@
-// bdlqq_meteredmutex.h                                               -*-C++-*-
-#ifndef INCLUDED_BDLQQ_METEREDMUTEX
-#define INCLUDED_BDLQQ_METEREDMUTEX
+// bslmt_meteredmutex.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLMT_METEREDMUTEX
+#define INCLUDED_BSLMT_METEREDMUTEX
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mutex capable of keeping track of wait and hold time.
 //
 //@CLASSES:
-// bdlqq::MeteredMutex: mutex capable of keeping track of wait and hold time
+// bslmt::MeteredMutex: mutex capable of keeping track of wait and hold time
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Ujjwal Bhoota (ubhoota)
 //
-//@DESCRIPTION: This component provides a class, 'bdlqq::MeteredMutex', that
+//@DESCRIPTION: This component provides a class, 'bslmt::MeteredMutex', that
 // functions as a mutex and has additional capability to keep track of wait
 // time and hold time.  This class can be used, for example, in evaluating the
 // performance of an application, based on its lock contention behavior.
@@ -64,30 +64,30 @@ BSLS_IDENT("$Id: $")
 //    int oddCount = 0;
 //    int evenCount = 0;
 //
-//    typedef bdlqq::MeteredMutex Obj;
+//    typedef bslmt::MeteredMutex Obj;
 //    Obj oddMutex;
 //    Obj evenMutex;
 //    Obj globalMutex;
 //
 //    enum { NUM_THREADS = 4, SLEEP_TIME = 4 };
-//    bdlqq::Barrier barrier(NUM_THREADS);
+//    bslmt::Barrier barrier(NUM_THREADS);
 //
 //    void executeInParallel(int numThreads,
-//                           bdlqq::ThreadUtil::ThreadFunction func)
+//                           bslmt::ThreadUtil::ThreadFunction func)
 //       // Create the specified 'numThreads', each executing the
 //       // specified 'func'.  Number each thread (sequentially from 0
 //       // to 'numThreads-1') by passing i to i'th thread.  Finally
 //       // join all the threads.
 //    {
-//        bdlqq::ThreadUtil::Handle *threads =
-//                           new bdlqq::ThreadUtil::Handle[numThreads];
+//        bslmt::ThreadUtil::Handle *threads =
+//                           new bslmt::ThreadUtil::Handle[numThreads];
 //        ASSERT(threads);
 //
 //        for (int i = 0; i < numThreads; ++i) {
-//            bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
+//            bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
 //        }
 //        for (int i = 0; i < numThreads; ++i) {
-//            bdlqq::ThreadUtil::join(threads[i]);
+//            bslmt::ThreadUtil::join(threads[i]);
 //        }
 //
 //        delete [] threads;
@@ -101,13 +101,13 @@ BSLS_IDENT("$Id: $")
 //            if (remainder == 1) {
 //                oddMutex.lock();
 //                ++oddCount;
-//                bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
 //                oddMutex.unlock();
 //            }
 //            else {
 //                evenMutex.lock();
 //                ++evenCount;
-//                bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
 //                evenMutex.unlock();
 //            }
 //            return NULL;
@@ -122,13 +122,13 @@ BSLS_IDENT("$Id: $")
 //            if (remainder == 1) {
 //                globalMutex.lock();
 //                ++oddCount;
-//                bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
 //                globalMutex.unlock();
 //            }
 //            else {
 //                globalMutex.lock();
 //                ++evenCount;
-//                bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
 //                globalMutex.unlock();
 //            }
 //            return NULL;
@@ -160,12 +160,12 @@ BSLS_IDENT("$Id: $")
 // waitTimeForStrategy2 = 880765000
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                             // ==================
                             // class MeteredMutex
@@ -271,19 +271,19 @@ class MeteredMutex {
                                 // ------------
 // CREATORS
 inline
-bdlqq::MeteredMutex::MeteredMutex()
+bslmt::MeteredMutex::MeteredMutex()
 : d_lastResetTime(bsls::TimeUtil::getTimer())
 {
 }
 
 inline
-bdlqq::MeteredMutex::~MeteredMutex()
+bslmt::MeteredMutex::~MeteredMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::MeteredMutex::lock()
+void bslmt::MeteredMutex::lock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     d_mutex.lock();
@@ -292,7 +292,7 @@ void bdlqq::MeteredMutex::lock()
 }
 
 inline
-int bdlqq::MeteredMutex::tryLock()
+int bslmt::MeteredMutex::tryLock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     int returnStatus = d_mutex.tryLock();
@@ -305,7 +305,7 @@ int bdlqq::MeteredMutex::tryLock()
 }
 
 inline
-void bdlqq::MeteredMutex::unlock()
+void bslmt::MeteredMutex::unlock()
 {
     d_holdTime += (bsls::TimeUtil::getTimer() - d_startHoldTime);
     d_mutex.unlock();
@@ -313,19 +313,19 @@ void bdlqq::MeteredMutex::unlock()
 
 // ACCESSORS
 inline
-bsls::Types::Int64 bdlqq::MeteredMutex::holdTime() const
+bsls::Types::Int64 bslmt::MeteredMutex::holdTime() const
 {
     return d_holdTime;
 }
 
 inline
-bsls::Types::Int64 bdlqq::MeteredMutex::lastResetTime() const
+bsls::Types::Int64 bslmt::MeteredMutex::lastResetTime() const
 {
     return d_lastResetTime;
 }
 
 inline
-bsls::Types::Int64 bdlqq::MeteredMutex::waitTime() const
+bsls::Types::Int64 bslmt::MeteredMutex::waitTime() const
 {
     return d_waitTime;
 }

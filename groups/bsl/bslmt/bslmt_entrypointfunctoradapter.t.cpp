@@ -1,5 +1,5 @@
-// bdlqq_entrypointfunctoradapter.t.cpp
-#include <bdlqq_entrypointfunctoradapter.h>
+// bslmt_entrypointfunctoradapter.t.cpp
+#include <bslmt_entrypointfunctoradapter.h>
 
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
@@ -175,11 +175,11 @@ int main(int argc, char *argv[])
                              &result);
 
             bslma::ManagedPtr<
-                bdlqq::EntryPointFunctorAdapter<WordCountJob> > threadData;
-            bdlqq::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
+            bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
                                                                  job);
 
-            executeWithArgument(bdlqq_EntryPointFunctorAdapter_invoker,
+            executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
                                 threadData.ptr());
             threadData.release();
             ASSERT(9 == result);

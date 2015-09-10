@@ -1,10 +1,10 @@
-// bdlqq_threadutil.t.cpp                                             -*-C++-*-
-#include <bdlqq_threadutil.h>
+// bslmt_threadutil.t.cpp                                             -*-C++-*-
+#include <bslmt_threadutil.h>
 
-#include <bdlqq_configuration.h>
-#include <bdlqq_threadattributes.h>
+#include <bslmt_configuration.h>
+#include <bslmt_threadattributes.h>
 #include <bsls_atomic.h>
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -28,7 +28,7 @@
 
 #include <errno.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 #include <pthread.h>
 
 # ifdef BSLS_PLATFORM_OS_SOLARIS
@@ -88,8 +88,8 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::ThreadUtil       Obj;
-typedef bdlqq::ThreadAttributes Attr;
+typedef bslmt::ThreadUtil       Obj;
+typedef bslmt::ThreadAttributes Attr;
 
 int verbose;
 int veryVerbose;
@@ -120,11 +120,11 @@ bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
 }
 
 bsl::ostream& operator<<(bsl::ostream&                            stream,
-                         bdlqq::ThreadAttributes::SchedulingPolicy policy)
+                         bslmt::ThreadAttributes::SchedulingPolicy policy)
 {
     switch (policy) {
 #undef CASE
-#define CASE(x) case bdlqq::ThreadAttributes::x: stream << #x; break
+#define CASE(x) case bslmt::ThreadAttributes::x: stream << #x; break
       CASE(e_SCHED_OTHER);
       CASE(e_SCHED_FIFO);
       CASE(e_SCHED_RR);
@@ -212,7 +212,7 @@ extern "C" void *myThreadFunction(void *)
     // five seconds.
 {
     for (int i = 0; i < 3; ++i) {
-        bdlqq::ThreadUtil::microSleep(0, 1);
+        bslmt::ThreadUtil::microSleep(0, 1);
         if (verbose) bsl::cout << "Another second has passed\n";
     }
 
@@ -236,14 +236,14 @@ void createSmallStackSizeThread()
     // Create a detached thread with the small stack size and perform some work
 {
     enum { STACK_SIZE = 16384 };
-    bdlqq::ThreadAttributes attributes;
+    bslmt::ThreadAttributes attributes;
     attributes.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
     attributes.setStackSize(STACK_SIZE);
 
     char initValue = 1;
-    bdlqq::ThreadUtil::Handle handle;
-    bdlqq::ThreadUtil::create(&handle,
+    bslmt::ThreadUtil::Handle handle;
+    bslmt::ThreadUtil::create(&handle,
                              attributes,
                              mySmallStackThreadFunction,
                              &initValue);
@@ -487,11 +487,11 @@ void Functor::operator()()
             // Careful!  This could take 2 seconds to wake up!
 
             while (s_lockCount < NUM_THREADS) {
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(200 * 1000);
+                bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(200 * 1000);
             }
         }
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
 
         // Infrequently have the thread that's holding the lock sleep a little
         // to wait for the other threads to block, controlled by 'TIMER_MASK'.
@@ -499,9 +499,9 @@ void Functor::operator()()
         if ((++s_timerCounter & TIMER_MASK) == 0) {
             int lastLockCount;
             if ((lastLockCount = s_lockCount) < NUM_THREADS) {
-                bdlqq::ThreadUtil::microSleep(10 * 1000);
+                bslmt::ThreadUtil::microSleep(10 * 1000);
                 if (s_lockCount == lastLockCount) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
             }
         }
@@ -692,7 +692,7 @@ void testStackSize()
     enum { FUDGE_FACTOR = 8192 + 2048 * sizeof(void *) };
 #endif
 
-    bdlqq::ThreadAttributes attr;
+    bslmt::ThreadAttributes attr;
     attr.setStackSize(BUFFER_SIZE + FUDGE_FACTOR);
     attr.setGuardSize(MIN_GUARD_SIZE);
 
@@ -883,14 +883,14 @@ void createKeyTestDestructor5(void *data)
         ASSERT((void *) 1 == data);
         int zeroCount = (0 == Obj::getSpecific(TC::childKey1)) +
                         (0 == Obj::getSpecific(TC::childKey2));
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
         ASSERT(zeroCount == TC::terminated + 1);
 #else
         ASSERT(0 == zeroCount);
 #endif
     }
     else {
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
         ASSERT((void *) 5 == data);
 #else
         ASSERT(0);
@@ -1072,10 +1072,10 @@ int main(int argc, char *argv[])
         bslma::Default::setDefaultAllocator(&da);
         bslma::Default::setGlobalAllocator(&ga);
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         attr.setStackSize(10 << 10);    // smaller than the functor object
 
-        bdlqq::ThreadUtil::Handle handles[2];
+        bslmt::ThreadUtil::Handle handles[2];
         int rc;
 
         rc = Obj::create(&handles[0],
@@ -1634,31 +1634,31 @@ int main(int argc, char *argv[])
 
         enum { NUM_THREADS = 3 };
 
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
         bcemt_ThreadFunction functions[NUM_THREADS] = {
                                                   MostUrgentThreadFunctor,
                                                   FairlyUrgentThreadFunctor,
                                                   LeastUrgentThreadFunctor };
         double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
 
-        bdlqq::ThreadAttributes attributes;
+        bslmt::ThreadAttributes attributes;
         attributes.setInheritSchedule(false);
-        const bdlqq::ThreadAttributes::SchedulingPolicy policy =
-                                    bdlqq::ThreadAttributes::e_SCHED_OTHER;
+        const bslmt::ThreadAttributes::SchedulingPolicy policy =
+                                    bslmt::ThreadAttributes::e_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             attributes.setSchedulingPriority(
-                 bdlqq::ThreadUtil::convertToSchedulingPriority(policy,
+                 bslmt::ThreadUtil::convertToSchedulingPriority(policy,
                                                                priorities[i]));
-            int rc = bdlqq::ThreadUtil::create(&handles[i],
+            int rc = bslmt::ThreadUtil::create(&handles[i],
                                                attributes,
                                                functions[i], 0);
             ASSERT(0 == rc);
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            int rc = bdlqq::ThreadUtil::join(handles[i]);
+            int rc = bslmt::ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
 #endif
@@ -1668,7 +1668,7 @@ int main(int argc, char *argv[])
         // BCEMT_CONFIGURATION TEST
         //
         // Concern:
-        //   That bdlqq::Configuration can really affect stack size.
+        //   That bslmt::Configuration can really affect stack size.
         //
         // Plan:
         //   Configure a stack size several times the native default, then
@@ -1677,12 +1677,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const int stackSize =
-                      5 * bdlqq::Configuration::nativeDefaultThreadStackSize();
+                      5 * bslmt::Configuration::nativeDefaultThreadStackSize();
         const int stackToUse =
-                      4 * bdlqq::Configuration::nativeDefaultThreadStackSize();
-        bdlqq::Configuration::setDefaultThreadStackSize(stackSize);
+                      4 * bslmt::Configuration::nativeDefaultThreadStackSize();
+        bslmt::Configuration::setDefaultThreadStackSize(stackSize);
 
-        bdlqq::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::Handle handle;
 
         if (verbose) Q(Test functor with no attributes);
         {
@@ -1692,12 +1692,12 @@ int main(int argc, char *argv[])
             func.s_success    = false;
 
             ASSERT(func.d_stackToUse >
-                     3 * bdlqq::Configuration::nativeDefaultThreadStackSize());
+                     3 * bslmt::Configuration::nativeDefaultThreadStackSize());
 
-            int rc = bdlqq::ThreadUtil::create(&handle, func);
+            int rc = bslmt::ThreadUtil::create(&handle, func);
             ASSERT(0 == rc);
 
-            rc = bdlqq::ThreadUtil::join(handle);
+            rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
 
             ASSERT(func.s_success);
@@ -1711,11 +1711,11 @@ int main(int argc, char *argv[])
             func.d_stackToUse = stackToUse;
             func.s_success    = false;
 
-            bdlqq::ThreadAttributes attr;
-            int rc = bdlqq::ThreadUtil::create(&handle, attr, func);
+            bslmt::ThreadAttributes attr;
+            int rc = bslmt::ThreadUtil::create(&handle, attr, func);
             ASSERT(0 == rc);
 
-            rc = bdlqq::ThreadUtil::join(handle);
+            rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
 
             ASSERT(func.s_success);
@@ -1724,27 +1724,27 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Test C function with no attributes);
         {
-            int rc = bdlqq::ThreadUtil::create(
+            int rc = bslmt::ThreadUtil::create(
                                     &handle,
                                     &configurationTestFunction,
                                     (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
-            rc = bdlqq::ThreadUtil::join(handle);
+            rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
         }
 
         if (verbose) Q(Test C function with default attributes object);
         {
-            bdlqq::ThreadAttributes attr;
-            int rc = bdlqq::ThreadUtil::create(
+            bslmt::ThreadAttributes attr;
+            int rc = bslmt::ThreadUtil::create(
                                     &handle,
                                     attr,
                                     &configurationTestFunction,
                                     (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
-            rc = bdlqq::ThreadUtil::join(handle);
+            rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
         }
       }  break;
@@ -1760,7 +1760,7 @@ int main(int argc, char *argv[])
         //   return to results reterned by 'convertToSchedulingPriority'.
         // --------------------------------------------------------------------
 
-        typedef bdlqq::ThreadAttributes Attr;
+        typedef bslmt::ThreadAttributes Attr;
 
         Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
                                               Attr::e_SCHED_FIFO,
@@ -1951,15 +1951,15 @@ int main(int argc, char *argv[])
         rc = Obj::setSpecific(TC::parentKey2, (void *) 2);
         ASSERT(0 == rc);
 
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(10));
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(10));
+        bslmt::ThreadUtil::join(handle);
 
-        bdlqq::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(20));
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(20));
+        bslmt::ThreadUtil::join(handle);
 
-        bdlqq::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(30));
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::create(&handle, TC::TlsKeyTestFunctor(30));
+        bslmt::ThreadUtil::join(handle);
 
         rc = Obj::deleteKey(TC::parentKey1);
         ASSERT(0 == rc);
@@ -2013,13 +2013,13 @@ int main(int argc, char *argv[])
 
         ASSERT((void *) 2 == Obj::getSpecific(parentKey));
 
-        bdlqq::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::Handle handle;
         rc =
-            bdlqq::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
+            bslmt::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
         ASSERT(0 == rc);
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::join(handle);
 
-#if defined(BDLQQ_PLATFORM_POSIX_THREADS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+#if defined(BSLMT_PLATFORM_POSIX_THREADS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         ASSERT(3 == TC::terminated);
 #else
         ASSERT(2 == TC::terminated);
@@ -2035,8 +2035,8 @@ int main(int argc, char *argv[])
         TC::childKey1 = parentKey;
         TC::childId = Obj::selfId();
 
-        bdlqq::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(false));
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(false));
+        bslmt::ThreadUtil::join(handle);
 
         ASSERT(0 == TC::terminated);
         ASSERT(parentKey != TC::childKey1);
@@ -2073,7 +2073,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 8; ++i) {
             double start   =
                    bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
-            bdlqq::ThreadUtil::microSleep(SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(SLEEP_MICROSECONDS);
             double elapsed =
                     bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble()
                                                                        - start;
@@ -2100,24 +2100,24 @@ int main(int argc, char *argv[])
         // TESTING USAGE Example 1
         //
         // Concern: that the usage examples (including those that were
-        // previously in the 'bdlqq_thread' component) compile and work
+        // previously in the 'bslmt_thread' component) compile and work
         // properly.
         // --------------------------------------------------------------------
 
         // BASIC EXAMPLE
         if (verbose) cout << "\nBasic thread utilities example" << endl;
 
-        bdlqq::Configuration::setDefaultThreadStackSize(
-                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
+        bslmt::Configuration::setDefaultThreadStackSize(
+                    bslmt::Configuration::recommendedDefaultThreadStackSize());
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         attr.setStackSize(1024 * 1024);
 
-        bdlqq::ThreadUtil::Handle handle;
-        int rc = bdlqq::ThreadUtil::create(&handle, attr, myThreadFunction, 0);
+        bslmt::ThreadUtil::Handle handle;
+        int rc = bslmt::ThreadUtil::create(&handle, attr, myThreadFunction, 0);
         ASSERT(0 == rc);
-        bdlqq::ThreadUtil::yield();
-        rc = bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::yield();
+        rc = bslmt::ThreadUtil::join(handle);
         ASSERT(0 == rc);
 
         if (verbose) bsl::cout << "A three second interval has elapsed\n";
@@ -2135,28 +2135,28 @@ int main(int argc, char *argv[])
             cout << "\n isEqual test" << endl;
         }
 
-        bdlqq::ThreadUtil::Handle validH1, validH2;
-        bdlqq::ThreadUtil::create(&validH1, myThreadFunction, 0);
-        bdlqq::ThreadUtil::create(&validH2, myThreadFunction, 0);
-        bdlqq::ThreadUtil::Handle validH1copy = validH1;
+        bslmt::ThreadUtil::Handle validH1, validH2;
+        bslmt::ThreadUtil::create(&validH1, myThreadFunction, 0);
+        bslmt::ThreadUtil::create(&validH2, myThreadFunction, 0);
+        bslmt::ThreadUtil::Handle validH1copy = validH1;
 
-        ASSERT(1 == bdlqq::ThreadUtil::isEqual(validH1, validH1));
-        ASSERT(1 == bdlqq::ThreadUtil::isEqual(validH1, validH1copy));
-        ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1, validH2));
-        ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                            bdlqq::ThreadUtil::invalidHandle(),
+        ASSERT(1 == bslmt::ThreadUtil::isEqual(validH1, validH1));
+        ASSERT(1 == bslmt::ThreadUtil::isEqual(validH1, validH1copy));
+        ASSERT(0 == bslmt::ThreadUtil::isEqual(validH1, validH2));
+        ASSERT(0 == bslmt::ThreadUtil::isEqual(
+                                            bslmt::ThreadUtil::invalidHandle(),
                                             validH2));
-        ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                            bdlqq::ThreadUtil::invalidHandle(),
+        ASSERT(0 == bslmt::ThreadUtil::isEqual(
+                                            bslmt::ThreadUtil::invalidHandle(),
                                             validH1copy));
-        ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1,
-                                          bdlqq::ThreadUtil::invalidHandle()));
-        ASSERT(1 == bdlqq::ThreadUtil::isEqual(
-                                          bdlqq::ThreadUtil::invalidHandle(),
-                                          bdlqq::ThreadUtil::invalidHandle()));
+        ASSERT(0 == bslmt::ThreadUtil::isEqual(validH1,
+                                          bslmt::ThreadUtil::invalidHandle()));
+        ASSERT(1 == bslmt::ThreadUtil::isEqual(
+                                          bslmt::ThreadUtil::invalidHandle(),
+                                          bslmt::ThreadUtil::invalidHandle()));
 
-        bdlqq::ThreadUtil::join(validH1);
-        bdlqq::ThreadUtil::join(validH2);
+        bslmt::ThreadUtil::join(validH1);
+        bslmt::ThreadUtil::join(validH2);
     }  break;
     case 1: {
         // --------------------------------------------------------------------
@@ -2169,24 +2169,24 @@ int main(int argc, char *argv[])
 
        enum { THREAD_COUNT = 10 }; // Actually twice this many
 
-       bdlqq::ThreadAttributes detached;
+       bslmt::ThreadAttributes detached;
        detached.setDetachedState(
-                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;
-       bdlqq::ThreadUtil::Handle handles[THREAD_COUNT], dummy;
+       bslmt::ThreadUtil::Handle handles[THREAD_COUNT], dummy;
        for (int i = 0; i < THREAD_COUNT; ++i) {
-          ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i],
+          ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
                                                joinableChecker.getFunctor()));
-          ASSERT(0 == bdlqq::ThreadUtil::create(&dummy,
+          ASSERT(0 == bslmt::ThreadUtil::create(&dummy,
                                                detached,
                                                detachedChecker.getFunctor()));
        }
 
        // Join the joinable threads
        for (int i = 0; i < THREAD_COUNT; ++i) {
-          ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+          ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
        }
 
        int iterations = 100;
@@ -2194,8 +2194,8 @@ int main(int argc, char *argv[])
                THREAD_COUNT != detachedChecker.count()) &&
               0 < --iterations)
        {
-           bdlqq::ThreadUtil::microSleep(100 * 1000);  // 100 msec
-           bdlqq::ThreadUtil::yield();
+           bslmt::ThreadUtil::microSleep(100 * 1000);  // 100 msec
+           bslmt::ThreadUtil::yield();
        }
 
        ASSERT(THREAD_COUNT == joinableChecker.count());
@@ -2279,7 +2279,7 @@ int main(int argc, char *argv[])
         //   Wi 32:   834239
         // --------------------------------------------------------------------
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
 
         const char *stackSizeString = bsl::getenv("CASE_MINUS_1_STACK_SIZE");
         if (stackSizeString) {
@@ -2291,21 +2291,21 @@ int main(int argc, char *argv[])
                                       bsl::getenv("CASE_MINUS_1_DEFAULT_SIZE");
         if (defaultSizeString) {
             BSLS_ASSERT_OPT(!stackSizeString);
-            bdlqq::Configuration::setDefaultThreadStackSize(
+            bslmt::Configuration::setDefaultThreadStackSize(
                                                       atoi(defaultSizeString));
-            P(bdlqq::Configuration::defaultThreadStackSize());
+            P(bslmt::Configuration::defaultThreadStackSize());
         }
 
-        bdlqq::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::Handle handle;
         if (stackSizeString) {
-            bdlqq::ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain,
+            bslmt::ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain,
                                      0);
         }
         else {
-            bdlqq::ThreadUtil::create(&handle, &testCaseMinus1ThreadMain, 0);
+            bslmt::ThreadUtil::create(&handle, &testCaseMinus1ThreadMain, 0);
         }
 
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::join(handle);
       }  break;
 #ifndef BSLS_PLATFORM_OS_WINDOWS
       case -2: {
@@ -2322,7 +2322,7 @@ int main(int argc, char *argv[])
         //   which doesn't exist on Windows, the test is disabled there.
         // --------------------------------------------------------------------
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         ASSERT(verbose);
         int clearanceTestStackSize = bsl::atoi(argv[2]);
         P(clearanceTestStackSize);
@@ -2331,10 +2331,10 @@ int main(int argc, char *argv[])
 
         clearanceTestAllocaSize = 0;
         clearanceTestState = CLEARANCE_TEST_START;
-        bdlqq::ThreadUtil::Handle handle;
-        int rc = bdlqq::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
+        bslmt::ThreadUtil::Handle handle;
+        int rc = bslmt::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
         ASSERT(0 == rc);
-        rc = bdlqq::ThreadUtil::join(handle);
+        rc = bslmt::ThreadUtil::join(handle);
         ASSERT(0 == rc);
         ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
 
@@ -2346,9 +2346,9 @@ int main(int argc, char *argv[])
             P(diff);
 
             clearanceTestState = CLEARANCE_TEST_START;
-            rc = bdlqq::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
+            rc = bslmt::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
             ASSERT(0 == rc);
-            rc = bdlqq::ThreadUtil::join(handle);
+            rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
 
             ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
@@ -2386,7 +2386,7 @@ int main(int argc, char *argv[])
 
         setbuf(stdout, 0);
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         ASSERT(verbose);
 
 #ifdef PTHREAD_STACK_MIN
@@ -2402,13 +2402,13 @@ int main(int argc, char *argv[])
         attr.setStackSize(stackSize);
         attr.setGuardSize(MIN_GUARD_SIZE);
 
-        bdlqq::ThreadUtil::Handle handle;
-        int rc = bdlqq::ThreadUtil::create(&handle,
+        bslmt::ThreadUtil::Handle handle;
+        int rc = bslmt::ThreadUtil::create(&handle,
                                           attr,
                                           &secondClearanceTest,
                                           (void *) stackSize);
         ASSERT(0 == rc);
-        rc = bdlqq::ThreadUtil::join(handle);
+        rc = bslmt::ThreadUtil::join(handle);
       }  break;
       case -5: {
         // --------------------------------------------------------------------

@@ -1,10 +1,10 @@
-// bdlqq_meteredmutex.t.cpp                                           -*-C++-*-
+// bslmt_meteredmutex.t.cpp                                           -*-C++-*-
 
-#include <bdlqq_meteredmutex.h>
+#include <bslmt_meteredmutex.h>
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>     // for testing only
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>     // for testing only
 
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -19,7 +19,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// Testing bdlqq::MeteredMutex is divided into 3 parts (apart from usage and
+// Testing bslmt::MeteredMutex is divided into 3 parts (apart from usage and
 // breathing test).
 //   (1) Testing mutex behavior, it is tested in [ 2].
 //   (2) Testing 'holdTime' and 'waitTime' (specially in the presence
@@ -28,8 +28,8 @@ using namespace bsl;  // automatically added by script
 //       presence of multiple threads), this is tested in [ 4].
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bdlqq::MeteredMutex();
-// [ 1] ~bdlqq::MeteredMutex();
+// [ 1] bslmt::MeteredMutex();
+// [ 1] ~bslmt::MeteredMutex();
 //
 // MANIPULATORS
 // [ 2] void lock();
@@ -94,27 +94,27 @@ static void aSsErT(int c, const char *s, int i)
 static int verbose;
 static int veryVerbose;
 // static int veryVeryVerbose;  // not used
-typedef bdlqq::MeteredMutex Obj;
+typedef bslmt::MeteredMutex Obj;
 const bsls::Types::Int64 NANOSECONDS_IN_ONE_MICRO_SECOND = 1000LL;
-bdlqq::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
+bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
    // to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
+        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -131,7 +131,7 @@ Obj evenMutex;
 Obj globalMutex;
 
 enum { NUM_THREADS5 = 4, SLEEP_TIME5 = 1 };
-bdlqq::Barrier barrier5(NUM_THREADS5);
+bslmt::Barrier barrier5(NUM_THREADS5);
 
 extern "C" {
   void *strategy1(void *arg)
@@ -141,13 +141,13 @@ extern "C" {
         if (remainder == 1) {
             oddMutex.lock();
             ++oddCount;
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
             oddMutex.unlock();
         }
         else {
             evenMutex.lock();
             ++evenCount;
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
             evenMutex.unlock();
         }
         return NULL;
@@ -162,13 +162,13 @@ extern "C" {
         if (remainder == 1) {
             globalMutex.lock();
             ++oddCount;
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
             globalMutex.unlock();
         }
         else {
             globalMutex.lock();
             ++evenCount;
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
             globalMutex.unlock();
         }
         return NULL;
@@ -180,7 +180,7 @@ extern "C" {
 // ----------------------------------------------------------------------------
 
 enum { NUM_THREADS4 = 4, NUM_ITERATION = 10000000 };
-bdlqq::Barrier barrier4(NUM_THREADS4);
+bslmt::Barrier barrier4(NUM_THREADS4);
 Obj mutex4;
 extern "C" {
   void *resetTest(void *arg)
@@ -216,7 +216,7 @@ enum {
     NUM_ACQUIRE  = 2    // number of times, each thread acquire the lock
 };
 Obj mutex3;
-bdlqq::Barrier barrier3(NUM_THREADS3);
+bslmt::Barrier barrier3(NUM_THREADS3);
 
 extern "C" {
     void *timesTest(void *arg)
@@ -225,7 +225,7 @@ extern "C" {
             barrier3.wait();
 
             mutex3.lock();
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME3);
+            bslmt::ThreadUtil::microSleep(SLEEP_TIME3);
             mutex3.unlock();
         }
         return NULL;
@@ -254,7 +254,7 @@ extern "C" {
         }
         ASSERT(state == VALID);
         state = INVALID;
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME2);
+        bslmt::ThreadUtil::microSleep(SLEEP_TIME2);
         state = VALID;
         mutex2.unlock();
         return NULL;
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
 
         const float ERROR_MARGIN = .6;      // 40 % error margin
         mutex.lock();
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(SLEEP_TIME);
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                             SLEEP_TIME * 1000 * ERROR_MARGIN));
@@ -527,7 +527,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(mutex.tryLock() == 0);
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(SLEEP_TIME);
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                            SLEEP_TIME * 1000  * ERROR_MARGIN));

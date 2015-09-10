@@ -1,12 +1,12 @@
-// bdlqq_conditionimpl_win32.cpp                                      -*-C++-*-
-#include <bdlqq_conditionimpl_win32.h>
+// bslmt_conditionimpl_win32.cpp                                      -*-C++-*-
+#include <bslmt_conditionimpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_conditionimpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_mutex.h>
+#include <bslmt_mutex.h>
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // #define BCEMT_WIN64_DEBUG
 
@@ -17,7 +17,7 @@ namespace BloombergLP {
                // -------------------------------------------
 
 // MANIPULATORS
-int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::timedWait(
+int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::timedWait(
                                             Mutex                     *mutex,
                                             const bsls::TimeInterval&  timeout)
 {
@@ -29,7 +29,7 @@ int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::timedWait(
     return 0 == rc ? 0 : -1;
 }
 
-int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::wait(Mutex *mutex)
+int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::wait(Mutex *mutex)
 {
     const void *sluiceToken = d_waitSluice.enter();
     mutex->unlock();
@@ -41,7 +41,7 @@ int bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::wait(Mutex *mutex)
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

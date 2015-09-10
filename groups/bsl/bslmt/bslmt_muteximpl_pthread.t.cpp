@@ -1,5 +1,5 @@
-// bdlqq_muteximpl_pthread.t.cpp                                      -*-C++-*-
-#include <bdlqq_muteximpl_pthread.h>
+// bslmt_muteximpl_pthread.t.cpp                                      -*-C++-*-
+#include <bslmt_muteximpl_pthread.h>
 
 #include <bsls_atomic.h>
 
@@ -9,7 +9,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // ----------------------------------------------------------------------------
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -49,7 +49,7 @@ static void aSsErT(int c, const char *s, int i) {
 int verbose;
 int veryVerbose;
 
-typedef bdlqq::MutexImpl<bdlqq::Platform::PosixThreads> Obj;
+typedef bslmt::MutexImpl<bslmt::Platform::PosixThreads> Obj;
 
 void My_DoLock(Obj::NativeType* lock) {
     pthread_mutex_lock(lock);

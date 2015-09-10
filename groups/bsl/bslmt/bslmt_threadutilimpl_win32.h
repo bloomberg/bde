@@ -1,28 +1,28 @@
-// bdlqq_threadutilimpl_win32.h                                       -*-C++-*-
-#ifndef INCLUDED_BDLQQ_THREADUTILIMPL_WIN32
-#define INCLUDED_BDLQQ_THREADUTILIMPL_WIN32
+// bslmt_threadutilimpl_win32.h                                       -*-C++-*-
+#ifndef INCLUDED_BSLMT_THREADUTILIMPL_WIN32
+#define INCLUDED_BSLMT_THREADUTILIMPL_WIN32
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bdlqq::ThreadUtil'.
+//@PURPOSE: Provide a win32 implementation of 'bslmt::ThreadUtil'.
 //
 //@CLASSES:
-//  bdlqq::ThreadUtilImpl<Win32Threads>: win32 specialization
+//  bslmt::ThreadUtilImpl<Win32Threads>: win32 specialization
 //
-//@SEE_ALSO: bdlqq_threadutil
+//@SEE_ALSO: bslmt_threadutil
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::ThreadUtil' for Windows (win32) via the template specialization:
+// 'bslmt::ThreadUtil' for Windows (win32) via the template specialization:
 //..
-//  bdlqq::ThreadUtilImpl<Platform::Win32Threads>
+//  bslmt::ThreadUtilImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::ThreadUtil'.
+// should instead use 'bslmt::ThreadUtil'.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -43,31 +43,31 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BDLQQ_SATURATEDTIMECONVERSIONIMPUTIL
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#ifndef INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
+#include <bslmt_saturatedtimeconversionimputil.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -120,16 +120,16 @@ extern "C" {
         // 'bcemt_ThreadFunction' is an alias for a function type taking a
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry point
-        // functions to 'bdlqq::ThreadUtil::create'.
+        // functions to 'bslmt::ThreadUtil::create'.
 
     typedef void (*bcemt_KeyDestructorFunction)(void *);
         // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
         // a single 'void' pointer argument and returning 'void'.  Such
         // functions are suitable to be specified as thread-specific key
-        // destructor functions to 'bdlqq::ThreadUtil::createKey'.
+        // destructor functions to 'bslmt::ThreadUtil::createKey'.
 }
 
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 struct ThreadUtilImpl;
@@ -376,17 +376,17 @@ bool operator!=(const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
 
 // FREE OPERATORS
 inline
-bool bdlqq::operator==(
-              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
+bool bslmt::operator==(
+              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
+              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
 {
     return ThreadUtilImpl<Platform::Win32Threads>::areEqual(lhs, rhs);
 }
 
 inline
-bool bdlqq::operator!=(
-              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
+bool bslmt::operator!=(
+              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
+              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
 {
     return !(lhs == rhs);
 }
@@ -397,27 +397,27 @@ bool bdlqq::operator!=(
 
 // CLASS METHODS
 inline
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
     getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
     getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
-void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::yield()
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 {
     ::SleepEx(0, 0);
 }
 
 inline
-void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleep(
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleep(
                                            const bsls::TimeInterval& sleepTime)
 
 {
@@ -428,7 +428,7 @@ void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleep(
 }
 
 inline
-void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::microSleep(
                                                                  int microsecs,
                                                                  int seconds)
 {
@@ -443,8 +443,8 @@ void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
 }
 
 inline
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::self()
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::self()
 {
     Handle h;
     h.d_id     = GetCurrentThreadId();
@@ -453,37 +453,37 @@ bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::self()
 }
 
 inline
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::NativeHandle
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::nativeHandle(
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::NativeHandle
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::nativeHandle(
                                                           const Handle& handle)
 {
     return handle.d_handle;
 }
 
 inline
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfId()
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfId()
 {
     return GetCurrentThreadId();
 }
 
 inline
 bsls::Types::Uint64
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsInt()
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsInt()
 {
     return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsUint64()
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
 }
 
 inline
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::handleToId(
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle.d_id;
@@ -491,21 +491,21 @@ bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::handleToId(
 
 inline
 bsls::Types::Uint64
-bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsUint64(
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsUint64(
                                                             const Id& threadId)
 {
     return static_cast<bsls::Types::Uint64>(threadId);
 }
 
 inline
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsInt(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsInt(
                                                             const Id& threadId)
 {
     return static_cast<int>(threadId);
 }
 
 inline
-bool bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqualId(
+bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqualId(
                                                                    const Id& a,
                                                                    const Id& b)
 {
@@ -513,14 +513,14 @@ bool bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqualId(
 }
 
 inline
-void *bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::getSpecific(
+void *bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getSpecific(
                                                                 const Key& key)
 {
     return TlsGetValue(key);
 }
 
 inline
-int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::setSpecific(
+int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setSpecific(
                                                              const Key&  key,
                                                              const void *value)
 {
@@ -529,7 +529,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::setSpecific(
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 #endif
 

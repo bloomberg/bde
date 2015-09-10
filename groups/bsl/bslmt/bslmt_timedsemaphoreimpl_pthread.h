@@ -1,29 +1,29 @@
-// bdlqq_timedsemaphoreimpl_pthread.h                                 -*-C++-*-
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_PTHREAD
-#define INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_PTHREAD
+// bslmt_timedsemaphoreimpl_pthread.h                                 -*-C++-*-
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_PTHREAD
+#define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bdlqq::TimedSemaphore'.
+//@PURPOSE: Provide a POSIX implementation of 'bslmt::TimedSemaphore'.
 //
 //@CLASSES:
-//  bdlqq::TimedSemaphoreImpl<PthreadTimedSemaphore>: POSIX specialization
+//  bslmt::TimedSemaphoreImpl<PthreadTimedSemaphore>: POSIX specialization
 //
-//@SEE_ALSO: bdlqq_timedsemaphore
+//@SEE_ALSO: bslmt_timedsemaphore
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::TimedSemaphore' for POSIX threads ("pthreads") via the template
+// 'bslmt::TimedSemaphore' for POSIX threads ("pthreads") via the template
 // specialization:
 //..
-//  bdlqq::TimedSemaphoreImpl<Platform::PosixThreads>
+//  bslmt::TimedSemaphoreImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::TimedSemaphore'.
+// should instead use 'bslmt::TimedSemaphore'.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -44,15 +44,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // Platform specific implementation starts here.
 
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
@@ -166,7 +166,7 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 #endif
 

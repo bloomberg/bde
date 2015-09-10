@@ -1,8 +1,8 @@
-// bdlqq_writelockguard.cpp                                           -*-C++-*-
-#include <bdlqq_writelockguard.h>
+// bslmt_writelockguard.cpp                                           -*-C++-*-
+#include <bslmt_writelockguard.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_writelockguard_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_writelockguard_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

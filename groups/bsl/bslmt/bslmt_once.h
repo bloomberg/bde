@@ -1,6 +1,6 @@
-// bdlqq_once.h                                                       -*-C++-*-
-#ifndef INCLUDED_BDLQQ_ONCE
-#define INCLUDED_BDLQQ_ONCE
+// bslmt_once.h                                                       -*-C++-*-
+#ifndef INCLUDED_BSLMT_ONCE
+#define INCLUDED_BSLMT_ONCE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,24 +10,24 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe way to execute code once per process.
 //
 //@CLASSES:
-//        bdlqq::Once: Gate-keeper for code executed only once per process
-//   bdlqq::OnceGuard: Guard class for safely using 'bdlqq::Once'
+//        bslmt::Once: Gate-keeper for code executed only once per process
+//   bslmt::OnceGuard: Guard class for safely using 'bslmt::Once'
 //
-//@SEE_ALSO: bdlqq_qlock
+//@SEE_ALSO: bslmt_qlock
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provides a pair of classes, 'bdlqq::Once' and
-// 'bdlqq::OnceGuard', which give the caller a way to run a body of code
+//@DESCRIPTION: This component provides a pair of classes, 'bslmt::Once' and
+// 'bslmt::OnceGuard', which give the caller a way to run a body of code
 // exactly once within the current process, particularly in the presence of
-// multiple threads.  This component also defines the macro 'BDLQQ_ONCE_DO',
+// multiple threads.  This component also defines the macro 'BSLMT_ONCE_DO',
 // which provides syntactic sugar to make one-time execution nearly fool-proof.
 // A common use of one-time execution is the initialization of singletons on
 // first use.
 //
-// The 'bdlqq::Once' class is designed to be statically allocated and
-// initialized using the 'BDLQQ_ONCE_INITIALIZER' macro.  Client code may use
-// the 'bdlqq::Once' object in one of two ways: 1) it may use the 'callOnce'
+// The 'bslmt::Once' class is designed to be statically allocated and
+// initialized using the 'BSLMT_ONCE_INITIALIZER' macro.  Client code may use
+// the 'bslmt::Once' object in one of two ways: 1) it may use the 'callOnce'
 // method to call a function or functor or 2) it may call the 'enter' and
 // 'leave' methods just before and after the code that is intended to be
 // executed only once.  That code must be executed conditionally on 'enter'
@@ -36,25 +36,25 @@ BSLS_IDENT("$Id: $")
 // of the code region, indicating that the one-time execution has completed and
 // unblocking any threads waiting on 'enter'.
 //
-// A safer way to use the 'enter' and 'leave' methods of 'bdlqq::Once' is to
-// manage the 'bdlqq::Once' object using a 'bdlqq::OnceGuard' object
-// constructed from the 'bdlqq::Once' object.  Calling 'enter' on the
-// 'bdlqq::OnceGuard' object will call 'enter' on its associated 'bdlqq::Once'
+// A safer way to use the 'enter' and 'leave' methods of 'bslmt::Once' is to
+// manage the 'bslmt::Once' object using a 'bslmt::OnceGuard' object
+// constructed from the 'bslmt::Once' object.  Calling 'enter' on the
+// 'bslmt::OnceGuard' object will call 'enter' on its associated 'bslmt::Once'
 // object.  If the call to 'enter' returns 'true', then the destructor for the
-// guard will automatically call 'leave' on its associated 'bdlqq::Once'
-// object.  The 'bdlqq::OnceGuard' class is intended to be allocated on the
+// guard will automatically call 'leave' on its associated 'bslmt::Once'
+// object.  The 'bslmt::OnceGuard' class is intended to be allocated on the
 // stack (i.e., as a local variable) so that it is automatically destroyed at
 // the end of its enclosing block.  Thus, the to call 'leave' of the
-// 'bdlqq::Once' object is enforced by the compiler.
+// 'bslmt::Once' object is enforced by the compiler.
 //
 // An even easier way to use the facilities of this component is to use the
-// 'BDLQQ_ONCE_DO' macro.  This macro behaves like an 'if' statement --
+// 'BSLMT_ONCE_DO' macro.  This macro behaves like an 'if' statement --
 // executing the following [compound] statement the first time the control
 // passes through it in the course of a program's execution, and blocking other
 // calling threads until the [compound] statement is executed the first time.
-// Thus, bracketing arbitrary code in a 'BDLQQ_ONCE_DO' construct is the
+// Thus, bracketing arbitrary code in a 'BSLMT_ONCE_DO' construct is the
 // easiest way to ensure that code will be executed only once for a program.
-// The 'BDLQQ_ONCE_DO' behaves correctly even if there are 'return' statements
+// The 'BSLMT_ONCE_DO' behaves correctly even if there are 'return' statements
 // within the one-time code block.
 //
 // The implementation of this component uses appropriate memory barriers so
@@ -63,41 +63,41 @@ BSLS_IDENT("$Id: $")
 //
 ///Warning
 ///-------
-// The 'BDLQQ_ONCE_DO' macro consists of a declaration and a 'for' loop.
+// The 'BSLMT_ONCE_DO' macro consists of a declaration and a 'for' loop.
 // Consequently, the following is syntactically incorrect:
 //..
-//  if (xyz) BDLQQ_ONCE_DO { stuff() }
+//  if (xyz) BSLMT_ONCE_DO { stuff() }
 //..
-// Also, a 'break' or 'continue' statement within a 'BDLQQ_ONCE_DO' construct
-// terminates the 'BDLQQ_ONCE_DO', not a surrounding loop or 'switch'
+// Also, a 'break' or 'continue' statement within a 'BSLMT_ONCE_DO' construct
+// terminates the 'BSLMT_ONCE_DO', not a surrounding loop or 'switch'
 // statement.  For example:
 //..
 //  switch (xyz) {
-//    case 0: BDLQQ_ONCE_DO { stuff(); break; /* does not break case */ }
+//    case 0: BSLMT_ONCE_DO { stuff(); break; /* does not break case */ }
 //    case 1: // Oops! case 0 falls through to here.
 //  }
 //..
 //
 ///Thread-Safety
 ///-------------
-// Objects of the 'bdlqq::Once' class are intended to be shared among threads
+// Objects of the 'bslmt::Once' class are intended to be shared among threads
 // and may be accessed and modified simultaneously in multiple threads by using
-// the methods provided.  To allow static initialization, 'bdlqq::Once' is a
+// the methods provided.  To allow static initialization, 'bslmt::Once' is a
 // POD type with public member variables.  It is not safe to directly access or
 // manipulate its member variables (including object initialization)
 // simultaneously from multiple threads.  (Note that static initialization
 // takes place before multiple threading begins, and is thus safe.)
 //
-// The 'bdlqq::OnceGuard' objects are designed to be used only by their creator
+// The 'bslmt::OnceGuard' objects are designed to be used only by their creator
 // threads and are typically created on the stack.  It is not safe to use a
-// 'bdlqq::OnceGuard' by a thread other than its creator.
+// 'bslmt::OnceGuard' by a thread other than its creator.
 //
 ///Usage
 ///-----
 // Typically, the facilities in this component are used to implement a
 // thread-safe singleton.  Below, we implement the a singleton four ways,
-// illustrating the two ways to directly use 'bdlqq::Once', the use of
-// 'bdlqq::OnceGuard', and the use of 'BDLQQ_ONCE_DO'.  In each example, the
+// illustrating the two ways to directly use 'bslmt::Once', the use of
+// 'bslmt::OnceGuard', and the use of 'BSLMT_ONCE_DO'.  In each example, the
 // singleton functions take a C-string ('const char*') argument and return a
 // reference to a 'bsl::string' object constructed from the input string.  Only
 // the first call to each singleton function affect the contents of the
@@ -105,18 +105,18 @@ BSLS_IDENT("$Id: $")
 //
 ///First Implementation
 /// - - - - - - - - - -
-// Our first implementation uses the 'BDLQQ_ONCE_DO' construct, the
+// Our first implementation uses the 'BSLMT_ONCE_DO' construct, the
 // recommended way to use this component.  The function is a variation of the
-// singleton pattern described by Scott Meyers, except that the 'BDLQQ_ONCE_DO'
+// singleton pattern described by Scott Meyers, except that the 'BSLMT_ONCE_DO'
 // macro is used to handle multiple entries to the function in a thread-safe
 // manner:
 //..
-//  #include <bdlqq_once.h>
+//  #include <bslmt_once.h>
 //
 //  const bsl::string& singleton0(const char *s)
 //  {
 //      static bsl::string *theSingletonPtr = 0;
-//      BDLQQ_ONCE_DO {
+//      BSLMT_ONCE_DO {
 //          static bsl::string theSingleton(s,
 //                                          bslma::Default::globalAllocator());
 //          theSingletonPtr = &theSingleton;
@@ -124,17 +124,17 @@ BSLS_IDENT("$Id: $")
 //      return *theSingletonPtr;
 //  }
 //..
-// The 'BDLQQ_ONCE_DO' mechanism suffices for most situations; however, if more
+// The 'BSLMT_ONCE_DO' mechanism suffices for most situations; however, if more
 // flexibility is required, review the remaining examples in this series for
 // more design choices.  The next example will use the lowest-level facilities
-// of 'bdlqq::Once'.  The two following examples use progressively higher-level
+// of 'bslmt::Once'.  The two following examples use progressively higher-level
 // facilities to produce simpler singleton implementations (though none as
-// simple as the 'BDLQQ_ONCE_DO' example above).
+// simple as the 'BSLMT_ONCE_DO' example above).
 //
 ///Second Implementation
 ///- - - - - - - - - - -
 // The next singleton function implementation directly uses the 'doOnce' method
-// of 'bdlqq::Once'.  We begin by declaring a simple function that does most of
+// of 'bslmt::Once'.  We begin by declaring a simple function that does most of
 // the work of the singleton, i.e., constructing the string and setting a
 // (static) pointer to the string:
 //..
@@ -152,15 +152,15 @@ BSLS_IDENT("$Id: $")
 // see the change (and try to initialize the singleton again).
 //
 // The 'singleton1' function, below, calls 'singletonImp' via the 'callOnce'
-// method of 'bdlqq::Once' to ensure that 'singletonImp' is called by only one
+// method of 'bslmt::Once' to ensure that 'singletonImp' is called by only one
 // thread and that the result is visible to all threads.  We start by creating
-// and initializing a static object of type 'bdlqq::Once':
+// and initializing a static object of type 'bslmt::Once':
 //..
 //  #include <bdlf_bind.h>
 //
 //  const bsl::string& singleton1(const char *s)
 //  {
-//      static bdlqq::Once once = BDLQQ_ONCE_INITIALIZER;
+//      static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
 //..
 // Since the 'callOnce' method takes only a no-argument functor (or function),
 // to call 'callOnce', we must bind our argument 's' to our function,
@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 // would not provide any performance benefit.
 //
 // The one advantage of this implementation over the previous one is that an
-// exception thrown from within 'singletonImp' will cause the 'bdlqq::Once'
+// exception thrown from within 'singletonImp' will cause the 'bslmt::Once'
 // object to be restored to its original state, so that the next entry into the
 // singleton will retry the operation.
 //
@@ -197,19 +197,19 @@ BSLS_IDENT("$Id: $")
 // Our next implementation, 'singleton2', eliminates the need for the
 // 'singletonImp' function and thereby does away with the use of the
 // 'bdlf::BindUtil' method; however, it does require use of
-// 'bdlqq::Once::OnceLock', created on each thread's stack and passed to the
-// methods of 'bdlqq::Once'.  First, we declare a static 'bdlqq::Once' object
+// 'bslmt::Once::OnceLock', created on each thread's stack and passed to the
+// methods of 'bslmt::Once'.  First, we declare a static 'bslmt::Once' object
 // as before, and also declare a static pointer to 'bsl::string':
 //..
 //  const bsl::string& singleton2(const char *s)
 //  {
-//      static bdlqq::Once   once            = BDLQQ_ONCE_INITIALIZER;
+//      static bslmt::Once   once            = BSLMT_ONCE_INITIALIZER;
 //      static bsl::string *theSingletonPtr = 0;
 //..
-// Next, we define a local 'bdlqq::Once::OnceLock' object and pass it to the
+// Next, we define a local 'bslmt::Once::OnceLock' object and pass it to the
 // 'enter' method:
 //..
-//      bdlqq::Once::OnceLock onceLock;
+//      bslmt::Once::OnceLock onceLock;
 //      if (once.enter(&onceLock)) {
 //..
 // If the 'enter' method returns 'true', we proceed with the initialization of
@@ -233,20 +233,20 @@ BSLS_IDENT("$Id: $")
 //
 ///Fourth Implementation
 ///- - - - - - - - - - -
-// Our final implementation, 'singleton3', uses 'bdlqq::OnceGuard' to simplify
-// the previous implementation by using 'bdlqq::OnceGuard' to hide (automate)
-// the use of 'bdlqq::Once::OnceLock'.  We begin as before, defining a static
-// 'bdlqq::Once' object and a static 'bsl::string' pointer:
+// Our final implementation, 'singleton3', uses 'bslmt::OnceGuard' to simplify
+// the previous implementation by using 'bslmt::OnceGuard' to hide (automate)
+// the use of 'bslmt::Once::OnceLock'.  We begin as before, defining a static
+// 'bslmt::Once' object and a static 'bsl::string' pointer:
 //..
 //  const bsl::string& singleton3(const char *s)
 //  {
-//      static bdlqq::Once   once            = BDLQQ_ONCE_INITIALIZER;
+//      static bslmt::Once   once            = BSLMT_ONCE_INITIALIZER;
 //      static bsl::string *theSingletonPtr = 0;
 //..
-// We then declare a local 'bdlqq::OnceGuard' object and associate it with the
-// 'bdlqq::Once' object before entering the one-time initialization region:
+// We then declare a local 'bslmt::OnceGuard' object and associate it with the
+// 'bslmt::Once' object before entering the one-time initialization region:
 //..
-//      bdlqq::OnceGuard onceGuard(&once);
+//      bslmt::OnceGuard onceGuard(&once);
 //      if (onceGuard.enter()) {
 //          static bsl::string theSingleton(s);
 //          theSingletonPtr = &theSingleton;
@@ -329,12 +329,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_QLOCK
-#include <bdlqq_qlock.h>
+#ifndef INCLUDED_BSLMT_QLOCK
+#include <bslmt_qlock.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -356,41 +356,41 @@ namespace BloombergLP {
 #   define BCEMT_ONCE_UNIQNUM __LINE__
 #endif
 
-#define BDLQQ_ONCE_DO \
-    BDLQQ_ONCE_DO_IMP(BDLQQ_ONCE_CAT(bcemt_doOnceObj, BCEMT_ONCE_UNIQNUM))
+#define BSLMT_ONCE_DO \
+    BSLMT_ONCE_DO_IMP(BSLMT_ONCE_CAT(bcemt_doOnceObj, BCEMT_ONCE_UNIQNUM))
     // This macro provides a simple control construct to bracket a piece of
     // code that should only be executed once during the course of a
     // multithreaded program.  Usage:
     //..
-    //  BDLQQ_ONCE_DO { /* one-time code goes here */ }
+    //  BSLMT_ONCE_DO { /* one-time code goes here */ }
     //..
-    // Leaving a 'BDLQQ_ONCE_DO' construct via 'break', 'continue', or 'return'
-    // will put the construct in a "done" state (unless 'BDLQQ_ONCE_CANCEL' has
+    // Leaving a 'BSLMT_ONCE_DO' construct via 'break', 'continue', or 'return'
+    // will put the construct in a "done" state (unless 'BSLMT_ONCE_CANCEL' has
     // been called) and will unblock all threads waiting to enter the one-time
     // region.  Note that a 'break' or 'continue' within the one-time code will
-    // terminate only the 'BDLQQ_ONCE_DO' construct, not any surrounding loop
+    // terminate only the 'BSLMT_ONCE_DO' construct, not any surrounding loop
     // or switch statement.  Due to a bug in the Microsoft Visual C++ 2003
     // compiler, the behavior is undefined if an exception is thrown from
     // within this construct and is not caught within the same construct.  Only
-    // one call to 'BDLQQ_ONCE_DO' may appear on a single source-code line in
+    // one call to 'BSLMT_ONCE_DO' may appear on a single source-code line in
     // any code block.
 
-#define BDLQQ_ONCE_CANCEL() bcemt_doOnceGuard.cancel()
+#define BSLMT_ONCE_CANCEL() bcemt_doOnceGuard.cancel()
     // This macro provides a way to cancel once processing within a
-    // 'BDLQQ_ONCE_DO' construct.  It will not compile outside of a
-    // 'BDLQQ_ONCE_DO' construct.  Executing this function-like macro will set
-    // the state of the 'BDLQQ_ONCE_DO' construct to "not entered", possibly
+    // 'BSLMT_ONCE_DO' construct.  It will not compile outside of a
+    // 'BSLMT_ONCE_DO' construct.  Executing this function-like macro will set
+    // the state of the 'BSLMT_ONCE_DO' construct to "not entered", possibly
     // unblocking a thread waiting to enter the one-time code region.  Note
-    // that this macro does not exit the 'BDLQQ_ONCE_DO' construct (i.e., it
+    // that this macro does not exit the 'BSLMT_ONCE_DO' construct (i.e., it
     // does not have 'break' or 'return' semantics).
 
-#define BDLQQ_ONCE_INITIALIZER { BDLQQ_QLOCK_INITIALIZER, { 0 } }
+#define BSLMT_ONCE_INITIALIZER { BSLMT_QLOCK_INITIALIZER, { 0 } }
 
-namespace bdlqq {
+namespace bslmt {
 
     // Use this macro to initialize an object of type 'Once'.  E.g.:
     //..
-    //  Once once = BDLQQ_ONCE_INITIALIZER;
+    //  Once once = BSLMT_ONCE_INITIALIZER;
     //..
 
                                 // ==========
@@ -558,19 +558,19 @@ class OnceGuard {
 
 // Second layer needed to ensure that arguments are expanded before
 // concatenation.
-#define BDLQQ_ONCE_CAT(X, Y) BDLQQ_ONCE_CAT_IMP(X, Y)
-#define BDLQQ_ONCE_CAT_IMP(X, Y) X##Y
+#define BSLMT_ONCE_CAT(X, Y) BSLMT_ONCE_CAT_IMP(X, Y)
+#define BSLMT_ONCE_CAT_IMP(X, Y) X##Y
 
                   // -------------------------------------
-                  // Implementation of BDLQQ_ONCE_DO Macro
+                  // Implementation of BSLMT_ONCE_DO Macro
                   // -------------------------------------
 
 // Use a for-loop to initialize the guard, test if we can enter the
 // once-region, then leave the once-region at the end.  Each invocation of this
 // macro within a source file supplies a different 'doOnceObj' name.
-#define BDLQQ_ONCE_DO_IMP(doOnceObj)                                          \
-    static BloombergLP::bdlqq::Once doOnceObj = BDLQQ_ONCE_INITIALIZER;       \
-    for (BloombergLP::bdlqq::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
+#define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
+    static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
+    for (BloombergLP::bslmt::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
          bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
 
                              // ---------------
@@ -579,7 +579,7 @@ class OnceGuard {
 
 // CREATORS
 inline
-bdlqq::OnceGuard::OnceGuard(Once *once)
+bslmt::OnceGuard::OnceGuard(Once *once)
 : d_once(once)
 , d_state(e_NOT_ENTERED)
 {
@@ -587,7 +587,7 @@ bdlqq::OnceGuard::OnceGuard(Once *once)
 
 // MANIPULATORS
 inline
-void bdlqq::OnceGuard::setOnce(Once *once)
+void bslmt::OnceGuard::setOnce(Once *once)
 {
     BSLS_ASSERT_SAFE(e_IN_PROGRESS != d_state);
 
@@ -597,7 +597,7 @@ void bdlqq::OnceGuard::setOnce(Once *once)
 
 // ACCESSORS
 inline
-bool bdlqq::OnceGuard::isInProgress() const
+bool bslmt::OnceGuard::isInProgress() const
 {
     return e_IN_PROGRESS == d_state;
 }
@@ -608,7 +608,7 @@ bool bdlqq::OnceGuard::isInProgress() const
 
 template <class FUNC>
 inline
-void bdlqq::Once::callOnce(FUNC& function)
+void bslmt::Once::callOnce(FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -628,7 +628,7 @@ void bdlqq::Once::callOnce(FUNC& function)
 
 template <class FUNC>
 inline
-void bdlqq::Once::callOnce(const FUNC& function)
+void bslmt::Once::callOnce(const FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -649,7 +649,7 @@ void bdlqq::Once::callOnce(const FUNC& function)
 }  // close enterprise namespace
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
-#define BDLQQ_ONCE__CAT(X, Y) BDLQQ_ONCE_CAT(X, Y)
+#define BSLMT_ONCE__CAT(X, Y) BSLMT_ONCE_CAT(X, Y)
 #endif
 
 #endif

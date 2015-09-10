@@ -1,6 +1,6 @@
-// bdlqq_threadattributes.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#define INCLUDED_BDLQQ_THREADATTRIBUTES
+// bslmt_threadattributes.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#define INCLUDED_BSLMT_THREADATTRIBUTES
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a description of the attributes of a thread.
 //
 //@CLASSES:
-//  bdlqq::ThreadAttributes: description of the attributes of a thread
+//  bslmt::ThreadAttributes: description of the attributes of a thread
 //
-//@SEE_ALSO: bdlqq_threadutil, bdlqq_configuration
+//@SEE_ALSO: bslmt_threadutil, bslmt_configuration
 //
 //@DESCRIPTION: This component provides a simply constrained (value-semantic)
-// attribute class, 'bdlqq::ThreadAttributes', for describing attributes of a
+// attribute class, 'bslmt::ThreadAttributes', for describing attributes of a
 // thread in a platform-independent way.
 //
 // The default values and constraints for the attributes provided by
-// 'bdlqq::ThreadAttributes' are listed in the following two tables:
+// 'bslmt::ThreadAttributes' are listed in the following two tables:
 //..
 //  Name                Type                   Default
 //  ------------------  ---------------------  -------------------------------
@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // 'BCEMT_CREATE_JOINABLE' and 'BCEMT_CREATE_DETACHED', respectively.  A thread
 // in the joinable state will have its exit status maintained after thread
 // termination.  Any thread can join with a joinable thread (see
-// 'bdlqq_threadutil'), in which case the joining thread will block, waiting
+// 'bslmt_threadutil'), in which case the joining thread will block, waiting
 // for the joined thread's execution to complete, after which the joined
 // thread's termination status will be reported back to the joining thread, and
 // its resources reclaimed.  A thread in a detached state will have its
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // The 'stackSize' attribute indicates the size, in bytes, of the stack that
 // should be provided to a newly created thread.  If the stack size is
 // 'BCEMT_UNSET_STACK_SIZE' then a created thread will be provided a default
-// stack size (see 'bdlqq_configuration').  The 'stackSize' attribute should be
+// stack size (see 'bslmt_configuration').  The 'stackSize' attribute should be
 // interpreted to mean that a created thread can safely define an automatic
 // variable of the configured 'stackSize' bytes in its thread-entry function.
 // Note that, on some platforms, an adjusted value derived from the 'stackSize'
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // If a thread's stack pointer overflows into a guard area, the task will
 // receive an error (e.g., a signal).  If 'guardSize' is
 // 'BCEMT_UNSET_GUARD_SIZE', then a created thread will be provided with a
-// default native guard size (see 'bdlqq_configuration').  Note that the
+// default native guard size (see 'bslmt_configuration').  Note that the
 // interpretation of 'guardSize' may vary among platforms, and the value may be
 // adjusted up (e.g., by rounding up to a multiple of page size) or ignored
 // entirely (e.g., the Windows platform does not support this attribute).
@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 // taken from its parent thread and the configured values of those thread
 // attributes should be ignored.  If 'inheritSchedule' is 'false', then the
 // 'schedulingPolicy' and 'schedulingPriority' attribute values should be used
-// to configure a thread.  See 'bdlqq_threadutil' for information about support
+// to configure a thread.  See 'bslmt_threadutil' for information about support
 // for this attribute.
 //
 ///'schedulingPolicy' Attribute
@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 // 'BCEMT_SCHED_RR' is the same as 'BCEMT_SCHED_FIFO', except that the created
 // thread may be interrupted by a ready thread of equal priority after a finite
 // time-slice.  This attribute is ignored unless 'inheritSchedule' is 'false'.
-// See 'bdlqq_threadutil' for information about support for this attribute.
+// See 'bslmt_threadutil' for information about support for this attribute.
 //
 ///'schedulingPriority' Attribute
 /// - - - - - - - - - - - - - - -
@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 // values range from the minimum to the maximum value for the associated
 // 'schedulingPolicy', with higher numbers indicating a more urgent priority.
 // Functions to obtain the minimum and maximum values are in this component and
-// 'bdlqq_threadutil'.  This attribute is ignored unless 'inheritSchedule' is
-// 'false'.  See 'bdlqq_threadutil' for information about support for this
+// 'bslmt_threadutil'.  This attribute is ignored unless 'inheritSchedule' is
+// 'false'.  See 'bslmt_threadutil' for information about support for this
 // attribute.
 //
 ///Usage
@@ -118,14 +118,14 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Creating and modifying thread attributes objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will demonstrate creating and configuring a
-// 'bdlqq::ThreadAttributes' object, then using it with a hypothetical
+// 'bslmt::ThreadAttributes' object, then using it with a hypothetical
 // thread-creation function.  Finally we show how a thread creation function
 // might interpret those attributes for the underlying operating system.
 //
 // First we forward declare a routine that we will use to create a thread:
 //..
 //  void myThreadCreate(int                           *threadHandle,
-//                      const bdlqq::ThreadAttributes&  attributes,
+//                      const bslmt::ThreadAttributes&  attributes,
 //                      void (*)()                     function);
 //      // Spawn a thread having properties described by the specified
 //      // 'attributes' and that runs the specified 'function', and assign a
@@ -134,10 +134,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we declare two routines that will return the minimum and maximum
 // thread priority given a scheduling policy.  Note that similar methods exist
-// in 'bdlqq_threadutil'.
+// in 'bslmt_threadutil'.
 //..
-//  int myMinPriority(bdlqq::ThreadAttributes::SchedulingPolicy policy);
-//  int myMaxPriority(bdlqq::ThreadAttributes::SchedulingPolicy policy);
+//  int myMinPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
+//  int myMaxPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
 //..
 // Next we define a function that we will use as our thread entry point.  This
 // function declares a single variable on the stack of predetermined size.
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Then, we define our main function, in which we demonstrate configuring a
-// 'bdlqq::ThreadAttributes' object describing the properties a thread we will
+// 'bslmt::ThreadAttributes' object describing the properties a thread we will
 // create.
 //..
 //  int testMain()
@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 // the value supplied should be a reasonable *upper* bound on the anticipated
 // requirement.
 //..
-//      bdlqq::ThreadAttributes attributes;
+//      bslmt::ThreadAttributes attributes;
 //      attributes.setStackSize(BUFFER_SIZE);
 //..
 // Then, we set the 'detachedState' property to 'BCEMT_CREATE_DETACHED',
@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 // reclaimed upon termination.
 //..
 //      attributes.setDetachedState(
-//                             bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
 //..
 // Now, we create a thread, using the attributes configured above:
 //..
@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 // attributes object might be interpreted by it:
 //..
 //  void myThreadCreate(int                           *threadHandle,
-//                      const bdlqq::ThreadAttributes&  attributes,
+//                      const bslmt::ThreadAttributes&  attributes,
 //                      void (*)()                     function)
 //      // Spawn a thread with properties described by the specified
 //      // 'attributes', running the specified 'function', and assign a handle
@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      int stackSize = attributes.stackSize();
 //      if (BCEMT_UNSET_STACK_SIZE == stackSize) {
-//          stackSize = bdlqq::Configuration::defaultThreadStackSize();
+//          stackSize = bslmt::Configuration::defaultThreadStackSize();
 //      }
 //      // Add a "fudge factor" to 'stackSize' to ensure that the client
 //      // can declare an object of 'stackSize' bytes on the stack safely.
@@ -214,7 +214,7 @@ BSLS_IDENT("$Id: $")
 //
 //      int guardSize = attributes.guardSize();
 //      if (BCEMT_UNSET_GUARD_SIZE == guardSize) {
-//          guardSize = bdlqq::Configuration::nativeDefaultThreadGuardSize();
+//          guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
 //      }
 //
 //      int policy = attributes.schedulingPolicy();
@@ -236,8 +236,8 @@ BSLS_IDENT("$Id: $")
 // Notice that a new value derived from the 'stackSize' attribute is used so
 // that the meaning of the attribute is platform neutral.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -253,7 +253,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                           // ======================
                           // class ThreadAttributes
@@ -409,7 +409,7 @@ class ThreadAttributes {
         // 'value' (in bytes).  'BCEMT_UNSET_GUARD_SIZE == guardSize' is
         // intended to indicate that the default value as defined by the
         // platform is to be used.  This default value is typically the size of
-        // one or two pages (see 'bdlqq_configuration').  The behavior is
+        // one or two pages (see 'bslmt_configuration').  The behavior is
         // undefined unless 'BCEMT_UNSET_GUARD_SIZE == guardSize' or
         // 'guardSize >= 0'.
 
@@ -421,12 +421,12 @@ class ThreadAttributes {
         // the respective values supplied by this object; whereas a value of
         // 'true' indicates that the thread *should* inherit these attributes
         // and ignore the respective values in this object.  See
-        // 'bdlqq_threadutil' for information about support for this attribute.
+        // 'bslmt_threadutil' for information about support for this attribute.
 
     void setSchedulingPolicy(SchedulingPolicy value);
         // Set the value of the 'schedulingPolicy' attribute of this object to
         // the specified 'value'.  This attribute is ignored unless
-        // 'inheritSchedule' is 'false'.  See 'bdlqq_threadutil' for
+        // 'inheritSchedule' is 'false'.  See 'bslmt_threadutil' for
         // information about this attribute.
 
     void setSchedulingPriority(int value);
@@ -436,14 +436,14 @@ class ThreadAttributes {
         // more urgent priorities.  Note that the valid range of priorities
         // depends upon the platform and 'schedulingPolicy' attribute, and the
         // minimum and maximum priority values are determined by methods in
-        // 'bdlqq_threadutil'.  See 'bdlqq_threadutil' for information about
+        // 'bslmt_threadutil'.  See 'bslmt_threadutil' for information about
         // this attribute.
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
         // 'value'.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread
         // creation should use the default stack size value provided by
-        // 'bdlqq_configuration'.  The behavior is undefined unless
+        // 'bslmt_configuration'.  The behavior is undefined unless
         // 'BCEMT_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 
     // ACCESSORS
@@ -460,7 +460,7 @@ class ThreadAttributes {
         // value 'BCEMT_UNSET_GUARD_SIZE == guardSize' is intended to indicate
         // that the default value as defined by the platform (which is
         // typically the size of one or two pages) should be obtained from
-        // 'bdlqq_configuration' and used.
+        // 'bslmt_configuration' and used.
 
     bool inheritSchedule() const;
         // Return the value of the 'inheritSchedule' attribute of this object.
@@ -469,13 +469,13 @@ class ThreadAttributes {
         // the thread that created it and instead should use the respective
         // values supplied by this object; whereas a value of 'true' indicates
         // that the thread *should* inherit these attributes and ignore the
-        // respective values in this object.  See 'bdlqq_threadutil' for
+        // respective values in this object.  See 'bslmt_threadutil' for
         // information about support for this attribute.
 
     SchedulingPolicy schedulingPolicy() const;
         // Return the value of the 'schedulingPolicy' attribute of this object.
         // This attribute is ignored unless 'inheritSchedule' is 'false'.  See
-        // 'bdlqq_threadutil' for information about this attribute.
+        // 'bslmt_threadutil' for information about this attribute.
 
     int schedulingPriority() const;
         // Return the value of the 'schedulingPriority' attribute of this
@@ -483,13 +483,13 @@ class ThreadAttributes {
         // 'false'.  Higher values of 'value' signify more urgent priorities.
         // Note that the valid range of priorities depends upon the platform
         // and 'schedulingPolicy' attribute, and the minimum and maximum
-        // priority values are determined by methods in 'bdlqq_threadutil'.
-        // See 'bdlqq_threadutil' for information about this attribute.
+        // priority values are determined by methods in 'bslmt_threadutil'.
+        // See 'bslmt_threadutil' for information about this attribute.
 
     int stackSize() const;
         // Return the value of the 'stackSize' attribute of this object.  If
         // 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation should use
-        // the default stack size value provided by 'bdlqq_configuration'.
+        // the default stack size value provided by 'bslmt_configuration'.
 };
 
 // FREE OPERATORS
@@ -519,7 +519,7 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
 
 // CREATORS
 inline
-bdlqq::ThreadAttributes::ThreadAttributes(const ThreadAttributes& original)
+bslmt::ThreadAttributes::ThreadAttributes(const ThreadAttributes& original)
 : d_detachedState(original.d_detachedState)
 , d_guardSize(original.d_guardSize)
 , d_inheritScheduleFlag(original.d_inheritScheduleFlag)
@@ -531,7 +531,7 @@ bdlqq::ThreadAttributes::ThreadAttributes(const ThreadAttributes& original)
 
 // MANIPULATORS
 inline
-bdlqq::ThreadAttributes& bdlqq::ThreadAttributes::operator=(
+bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
                                                    const ThreadAttributes& rhs)
 {
     d_detachedState       = rhs.d_detachedState;
@@ -545,7 +545,7 @@ bdlqq::ThreadAttributes& bdlqq::ThreadAttributes::operator=(
 }
 
 inline
-void bdlqq::ThreadAttributes::setDetachedState(
+void bslmt::ThreadAttributes::setDetachedState(
                                          ThreadAttributes::DetachedState value)
 {
     BSLS_ASSERT_SAFE(e_CREATE_DETACHED == value ||
@@ -555,7 +555,7 @@ void bdlqq::ThreadAttributes::setDetachedState(
 }
 
 inline
-void bdlqq::ThreadAttributes::setGuardSize(int value)
+void bslmt::ThreadAttributes::setGuardSize(int value)
 {
     BSLMF_ASSERT(-1 == e_UNSET_GUARD_SIZE);
 
@@ -565,13 +565,13 @@ void bdlqq::ThreadAttributes::setGuardSize(int value)
 }
 
 inline
-void bdlqq::ThreadAttributes::setInheritSchedule(bool value)
+void bslmt::ThreadAttributes::setInheritSchedule(bool value)
 {
     d_inheritScheduleFlag = value;
 }
 
 inline
-void bdlqq::ThreadAttributes::setSchedulingPolicy(
+void bslmt::ThreadAttributes::setSchedulingPolicy(
                                       ThreadAttributes::SchedulingPolicy value)
 {
     BSLS_ASSERT_SAFE(e_SCHED_MIN <= (int) value);
@@ -581,13 +581,13 @@ void bdlqq::ThreadAttributes::setSchedulingPolicy(
 }
 
 inline
-void bdlqq::ThreadAttributes::setSchedulingPriority(int value)
+void bslmt::ThreadAttributes::setSchedulingPriority(int value)
 {
     d_schedulingPriority = value;
 }
 
 inline
-void bdlqq::ThreadAttributes::setStackSize(int value)
+void bslmt::ThreadAttributes::setStackSize(int value)
 {
     BSLMF_ASSERT(-1 == e_UNSET_STACK_SIZE);
 
@@ -598,39 +598,39 @@ void bdlqq::ThreadAttributes::setStackSize(int value)
 
 // ACCESSORS
 inline
-bdlqq::ThreadAttributes::DetachedState
-bdlqq::ThreadAttributes::detachedState() const
+bslmt::ThreadAttributes::DetachedState
+bslmt::ThreadAttributes::detachedState() const
 {
     return d_detachedState;
 }
 
 inline
-int bdlqq::ThreadAttributes::guardSize() const
+int bslmt::ThreadAttributes::guardSize() const
 {
     return d_guardSize;
 }
 
 inline
-bool bdlqq::ThreadAttributes::inheritSchedule() const
+bool bslmt::ThreadAttributes::inheritSchedule() const
 {
     return d_inheritScheduleFlag;
 }
 
 inline
-bdlqq::ThreadAttributes::SchedulingPolicy
-bdlqq::ThreadAttributes::schedulingPolicy() const
+bslmt::ThreadAttributes::SchedulingPolicy
+bslmt::ThreadAttributes::schedulingPolicy() const
 {
     return d_schedulingPolicy;
 }
 
 inline
-int bdlqq::ThreadAttributes::schedulingPriority() const
+int bslmt::ThreadAttributes::schedulingPriority() const
 {
     return d_schedulingPriority;
 }
 
 inline
-int bdlqq::ThreadAttributes::stackSize() const
+int bslmt::ThreadAttributes::stackSize() const
 {
     return d_stackSize;
 }

@@ -1,14 +1,14 @@
-// bdlqq_semaphoreimpl_darwin.cpp                                     -*-C++-*-
-#include <bdlqq_semaphoreimpl_darwin.h>
+// bslmt_semaphoreimpl_darwin.cpp                                     -*-C++-*-
+#include <bslmt_semaphoreimpl_darwin.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
-#include <bdlqq_lockguard.h>    // for testing only
-#include <bdlqq_mutex.h>        // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>    // for testing only
+#include <bslmt_mutex.h>        // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
 #include <bsl_string.h>
 #include <bsl_sstream.h>
@@ -27,7 +27,7 @@ namespace BloombergLP {
               // ----------------------------------------------
 
 const char *
-bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::s_semaphorePrefix
+bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::s_semaphorePrefix
     = "bcemt_semaphore_";
 
 namespace {
@@ -45,7 +45,7 @@ bsl::string makeUniqueName(const char *prefix, bsls::Types::UintPtr suffix)
 }  // close unnamed namespace
 
 // CREATORS
-bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(
+bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::SemaphoreImpl(
                                                                      int count)
 {
     bsl::string semaphoreName(
@@ -76,7 +76,7 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(
 }
 
 // MANIPULATORS
-void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post(int number)
+void bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::post(int number)
 {
     for (int i = 0; i < number; i++) {
         post();
@@ -84,7 +84,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post(int number)
 }
 
 void
-bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
+bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::wait()
 {
     sem_t * sem_p = d_sem_p;
     int result = 0;

@@ -1,9 +1,9 @@
-// bdlqq_timedsemaphoreimpl_pthread.t.cpp                             -*-C++-*-
-#include <bdlqq_timedsemaphoreimpl_pthread.h>
+// bslmt_timedsemaphoreimpl_pthread.t.cpp                             -*-C++-*-
+#include <bslmt_timedsemaphoreimpl_pthread.h>
 
-#include <bdlqq_lockguard.h>   // for testing only
-#include <bdlqq_mutex.h>       // for testing only
-#include <bdlqq_threadutil.h>  // for testing only
+#include <bslmt_lockguard.h>   // for testing only
+#include <bslmt_mutex.h>       // for testing only
+#include <bslmt_threadutil.h>  // for testing only
 
 #include <bsls_atomic.h>
 
@@ -86,7 +86,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore> Obj;
+typedef bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore> Obj;
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -115,7 +115,7 @@ class MyCondition {
     }
 
     // MANIPULATORS
-    int wait(bdlqq::Mutex *mutex)
+    int wait(bslmt::Mutex *mutex)
     {
         return pthread_cond_wait(&d_cond, &mutex->nativeMutex());
     }
@@ -131,7 +131,7 @@ class MyBarrier {
     // Barrier, but depending on bcemt Barrier itself here would cause a
     // dependency cycle.
 
-    bdlqq::Mutex     d_mutex;      // mutex used to control access to this
+    bslmt::Mutex     d_mutex;      // mutex used to control access to this
                                   // barrier.
     MyCondition d_cond;       // condition variable used for signaling
                                   // blocked threads.
@@ -201,11 +201,11 @@ MyBarrier::~MyBarrier()
     while (1) {
 
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
             if (0 == d_numPending) break;
         }
 
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     BSLS_ASSERT( 0 == d_numWaiting );
@@ -213,7 +213,7 @@ MyBarrier::~MyBarrier()
 
 void MyBarrier::wait()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     int sigCount = d_sigCount;
     if (++d_numWaiting == d_numThreads) {
         ++d_sigCount;
@@ -248,7 +248,7 @@ extern "C" void *thread5Post(void *arg)
     for (int i = 0; i < t.d_numIterations; ++i) {
         t.d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -289,7 +289,7 @@ extern "C" void *thread4Post(void *arg)
     for (int i = 0; i <  (t.d_numWaitThreads * t.d_numIterations / 4); ++i) {
         t.d_sem->post(4);
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -320,14 +320,14 @@ extern "C" void *thread3Post(void *arg) {
     for (int i = 0; i < t.d_numIterations; ++i) {
         t.d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     t.d_barrier->wait();
     for (int i = 0; i < t.d_numIterations; ++i) {
         t.d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -357,7 +357,7 @@ extern "C" void *thread3Wait(void * arg) {
 
 void testCase3(bsls::SystemClockType::Enum clockType)
 {
-    bdlqq::ThreadUtil::Handle threads[10];
+    bslmt::ThreadUtil::Handle threads[10];
     MyBarrier barrier(10);
     Obj sem(clockType);
 
@@ -368,16 +368,16 @@ void testCase3(bsls::SystemClockType::Enum clockType)
     info.d_clockType = clockType;
 
     for (int i = 0; i < 5; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2],
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2],
                                              thread3Post,
                                              &info));
 
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2 + 1],
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2 + 1],
                                              thread3Wait,
                                              &info));
     }
     for (int i = 0; i < 10; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+        ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
     }
 }
 
@@ -395,7 +395,7 @@ extern "C" void *thread2Post(void *arg) {
     for (int i = 0; i < t.d_numIterations; ++i) {
         t.d_sem->post();
         if (i % 5 == 0) {
-            bdlqq::ThreadUtil::microSleep(10);
+            bslmt::ThreadUtil::microSleep(10);
         }
     }
     return 0;
@@ -518,7 +518,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'trywait'" << endl
                           << "=================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[10];
+        bslmt::ThreadUtil::Handle threads[10];
         MyBarrier barrier(10);
         Obj sem;
 
@@ -528,16 +528,16 @@ int main(int argc, char *argv[]) {
         info.d_sem = &sem;
 
         for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2],
                                                  thread5Post,
                                                  &info));
 
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2 + 1],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2 + 1],
                                                    thread5Wait,
                                                    &info));
         }
         for (int i = 0; i < 10; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
       } break;
@@ -560,7 +560,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'post(int number)'" << endl
                           << "==========================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[6];
+        bslmt::ThreadUtil::Handle threads[6];
         MyBarrier barrier(6);
         Obj sem;
 
@@ -571,15 +571,15 @@ int main(int argc, char *argv[]) {
         info.d_sem = &sem;
 
         for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i],
                                                  thread4Wait,
                                                  &info));
         }
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[5],
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[5],
                                              thread4Post,
                                              &info));
         for (int i = 0; i < 6; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
       } break;
@@ -643,7 +643,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'wait' and 'post'" << endl
                           << "=========================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[10];
+        bslmt::ThreadUtil::Handle threads[10];
         MyBarrier barrier(6);
         bsls::AtomicInt past(0);
         Obj sem;
@@ -655,22 +655,22 @@ int main(int argc, char *argv[]) {
         info.d_past = &past;
 
         for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2],
                                                  thread2Post,
                                                  &info));
 
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i * 2 + 1],
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i * 2 + 1],
                                                  thread2Wait,
                                                  &info));
         }
-        bdlqq::ThreadUtil::microSleep(1000 * 100);
+        bslmt::ThreadUtil::microSleep(1000 * 100);
         ASSERT(0 == past);
         barrier.wait();
-        bdlqq::ThreadUtil::microSleep(1000 * 200);
+        bslmt::ThreadUtil::microSleep(1000 * 200);
         ASSERT(0 != past);
 
         for (int i = 0; i < 10; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
       } break;

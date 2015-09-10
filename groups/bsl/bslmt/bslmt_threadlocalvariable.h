@@ -1,6 +1,6 @@
-// bdlqq_threadlocalvariable.h                                        -*-C++-*-
-#ifndef INCLUDED_BDLQQ_THREADLOCALVARIABLE
-#define INCLUDED_BDLQQ_THREADLOCALVARIABLE
+// bslmt_threadlocalvariable.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMT_THREADLOCALVARIABLE
+#define INCLUDED_BSLMT_THREADLOCALVARIABLE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -193,8 +193,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM

@@ -1,27 +1,27 @@
-// bdlqq_muteximpl_pthread.cpp                                        -*-C++-*-
-#include <bdlqq_muteximpl_pthread.h>
+// bslmt_muteximpl_pthread.cpp                                        -*-C++-*-
+#include <bslmt_muteximpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_muteximpl_pthread_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_muteximpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 
 // Assert 'sizeof' assumption that is made in destructor (below).
 
 BSLMF_ASSERT(
-   0 == sizeof(bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>) % sizeof(int));
+   0 == sizeof(bslmt::MutexImpl<bslmt::Platform::PosixThreads>) % sizeof(int));
 
                  // ---------------------------------------
                  // class MutexImpl<Platform::PosixThreads>
                  // ---------------------------------------
 
 // CREATORS
-bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::~MutexImpl()
+bslmt::MutexImpl<bslmt::Platform::PosixThreads>::~MutexImpl()
 {
     const int status = pthread_mutex_destroy(&d_lock);
     BSLS_ASSERT(0 == status);

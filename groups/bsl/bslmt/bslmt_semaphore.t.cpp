@@ -1,8 +1,8 @@
-// bdlqq_semaphore.t.cpp                                              -*-C++-*-
-#include <bdlqq_semaphore.h>
+// bslmt_semaphore.t.cpp                                              -*-C++-*-
+#include <bslmt_semaphore.h>
 
-#include <bdlqq_threadattributes.h>     // for testing only
-#include <bdlqq_threadutil.h>           // for testing only
+#include <bslmt_threadattributes.h>     // for testing only
+#include <bslmt_threadutil.h>           // for testing only
 
 #include <bsls_timeinterval.h>
 #include <bdlf_bind.h>
@@ -65,9 +65,9 @@ static void aSsErT(int c, const char *s, int i) {
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::Semaphore Obj;
+typedef bslmt::Semaphore Obj;
 
-void waitAndSet(bdlqq::Semaphore *obj, bsls::AtomicInt *val)
+void waitAndSet(bslmt::Semaphore *obj, bsls::AtomicInt *val)
 {
     obj->wait();
     (*val) = 1;
@@ -101,14 +101,14 @@ int main(int argc, char *argv[])
         }
         {
             Obj X;
-            bdlqq::ThreadUtil::Handle h;
+            bslmt::ThreadUtil::Handle h;
             bsls::AtomicInt flag;
-            ASSERT(0 == bdlqq::ThreadUtil::create(
+            ASSERT(0 == bslmt::ThreadUtil::create(
                             &h, bdlf::BindUtil::bind(&waitAndSet, &X, &flag)));
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));
             ASSERT(0 == flag);
             X.post();
-            bdlqq::ThreadUtil::join(h);
+            bslmt::ThreadUtil::join(h);
             ASSERT(1 == flag);
         }
       } break;

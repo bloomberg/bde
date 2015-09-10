@@ -1,28 +1,28 @@
-// bdlqq_muteximpl_pthread.h                                          -*-C++-*-
-#ifndef INCLUDED_BDLQQ_MUTEXIMPL_PTHREAD
-#define INCLUDED_BDLQQ_MUTEXIMPL_PTHREAD
+// bslmt_muteximpl_pthread.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLMT_MUTEXIMPL_PTHREAD
+#define INCLUDED_BSLMT_MUTEXIMPL_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a POSIX implementation of 'bdlqq::Mutex'.
+//@PURPOSE: Provide a POSIX implementation of 'bslmt::Mutex'.
 //
 //@CLASSES:
-//  bdlqq::MutexImpl<Platform::PosixThreads>: POSIX specialization
+//  bslmt::MutexImpl<Platform::PosixThreads>: POSIX specialization
 //
-//@SEE_ALSO: bdlqq_mutex
+//@SEE_ALSO: bslmt_mutex
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Mutex' for
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Mutex' for
 // POSIX threads ("pthreads") via the template specialization:
 //..
-//  bdlqq::MutexImpl<Platform::PosixThreads>
+//  bslmt::MutexImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Mutex'.
+// should instead use 'bslmt::Mutex'.
 //
 ///Usage
 ///-----
@@ -30,15 +30,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_POSIX_THREADS
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class THREAD_POLICY>
 class MutexImpl;
@@ -129,7 +129,7 @@ class MutexImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::MutexImpl()
+bslmt::MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
 {
     const int status = pthread_mutex_init(&d_lock, 0);
     (void) status;
@@ -138,7 +138,7 @@ bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::MutexImpl()
 
 // MANIPULATORS
 inline
-void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::lock()
+void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::lock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -149,7 +149,7 @@ void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::lock()
 }
 
 inline
-int bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
+int bslmt::MutexImpl<bslmt::Platform::PosixThreads>::tryLock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -158,7 +158,7 @@ int bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
 }
 
 inline
-void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::unlock()
+void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::unlock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -169,15 +169,15 @@ void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 }
 
 inline
-bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::NativeType&
-bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::nativeMutex()
+bslmt::MutexImpl<bslmt::Platform::PosixThreads>::NativeType&
+bslmt::MutexImpl<bslmt::Platform::PosixThreads>::nativeMutex()
 {
     return d_lock;
 }
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIX_THREADS
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
 
 #endif
 

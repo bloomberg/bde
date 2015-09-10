@@ -1,11 +1,11 @@
-// bdlqq_threadgroup.cpp                                              -*-C++-*-
-#include <bdlqq_threadgroup.h>
+// bslmt_threadgroup.cpp                                              -*-C++-*-
+#include <bslmt_threadgroup.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadgroup_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadgroup_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_semaphore.h>  // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_semaphore.h>  // for testing only
 #include <bslma_default.h>
 
 #include <bsl_algorithm.h>
@@ -22,38 +22,38 @@ namespace {
 class ThreadDetachGuard {
 
     // INSTANCE DATA
-    bdlqq::ThreadUtil::Handle d_handle;
+    bslmt::ThreadUtil::Handle d_handle;
 
   public:
     // CREATORS
     explicit
-    ThreadDetachGuard(bdlqq::ThreadUtil::Handle handle)
+    ThreadDetachGuard(bslmt::ThreadUtil::Handle handle)
     : d_handle(handle)
     {
     }
 
     ~ThreadDetachGuard()
     {
-        if (bdlqq::ThreadUtil::invalidHandle() != d_handle) {
-            bdlqq::ThreadUtil::detach(d_handle);
+        if (bslmt::ThreadUtil::invalidHandle() != d_handle) {
+            bslmt::ThreadUtil::detach(d_handle);
         }
     }
 
     // MANIPULATORS
     void release()
     {
-        d_handle = bdlqq::ThreadUtil::invalidHandle();
+        d_handle = bslmt::ThreadUtil::invalidHandle();
     }
 };
 
 inline
-void bindJoin(bdlqq::ThreadUtil::Handle handle)
+void bindJoin(bslmt::ThreadUtil::Handle handle)
 {
     // Call 'join' with a null 'status' argument.  Required b/c the AIX
     // compiler does not handle binding functions with default arguments
     // correctly.
 
-    bdlqq::ThreadUtil::join(handle, (void**)0);
+    bslmt::ThreadUtil::join(handle, (void**)0);
 }
 
 }  // close unnamed namespace
@@ -64,20 +64,20 @@ void bindJoin(bdlqq::ThreadUtil::Handle handle)
 
 // CREATORS
 
-bdlqq::ThreadGroup::ThreadGroup(bslma::Allocator *basicAllocator)
+bslmt::ThreadGroup::ThreadGroup(bslma::Allocator *basicAllocator)
 : d_numThreads(0)
 , d_threads(basicAllocator)
 {
 }
 
-bdlqq::ThreadGroup::~ThreadGroup()
+bslmt::ThreadGroup::~ThreadGroup()
 {
     bsl::for_each(d_threads.begin(), d_threads.end(),
                   &ThreadUtil::detach);
 }
 
 // MANIPULATORS
-void bdlqq::ThreadGroup::addThread(const ThreadUtil::Handle& handle) {
+void bslmt::ThreadGroup::addThread(const ThreadUtil::Handle& handle) {
     ThreadDetachGuard detachGuard(handle);
     LockGuard<Mutex> lockGuard(&d_threadsMutex);
 
@@ -86,7 +86,7 @@ void bdlqq::ThreadGroup::addThread(const ThreadUtil::Handle& handle) {
     detachGuard.release();
 }
 
-void bdlqq::ThreadGroup::joinAll()
+void bslmt::ThreadGroup::joinAll()
 {
     LockGuard<Mutex> guard(&d_threadsMutex);
 

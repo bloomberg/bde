@@ -1,13 +1,13 @@
-// bdlqq_mutexassert.cpp                                              -*-C++-*-
-#include <bdlqq_mutexassert.h>
+// bslmt_mutexassert.cpp                                              -*-C++-*-
+#include <bslmt_mutexassert.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_mutex_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_mutex_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>     // for testing only
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>     // for testing only
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -18,12 +18,12 @@ BSLS_IDENT_RCSID(bdlqq_mutex_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-void bdlqq::MutexAssert_Imp::assertIsLockedImpl(Mutex      *mutex,
+void bslmt::MutexAssert_Imp::assertIsLockedImpl(Mutex      *mutex,
                                                 const char *text,
                                                 const char *file,
                                                 int         line)
 {
-#if   defined(BDLQQ_PLATFORM_POSIX_THREADS)
+#if   defined(BSLMT_PLATFORM_POSIX_THREADS)
 
     if (0 == mutex->tryLock()) {    // mutex isn't recursive in pthreads
         // The mutex was unlocked.
@@ -32,7 +32,7 @@ void bdlqq::MutexAssert_Imp::assertIsLockedImpl(Mutex      *mutex,
         bsls::Assert::invokeHandler(text, file, line);
     }
 
-#elif defined(BDLQQ_PLATFORM_WIN32_THREADS)
+#elif defined(BSLMT_PLATFORM_WIN32_THREADS)
 
     if (-1 == mutex->nativeMutex().LockCount) {
         // The mutex was unlocked.

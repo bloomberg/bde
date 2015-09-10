@@ -1,8 +1,8 @@
-// bdlqq_threadlocalvariable.cpp                                      -*-C++-*-
-#include <bdlqq_threadlocalvariable.h>
+// bslmt_threadlocalvariable.cpp                                      -*-C++-*-
+#include <bslmt_threadlocalvariable.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_threadlocalvariable_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_threadlocalvariable_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

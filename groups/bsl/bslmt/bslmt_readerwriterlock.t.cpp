@@ -1,9 +1,9 @@
-// bdlqq_readerwriterlock.t.cpp                                       -*-C++-*-
+// bslmt_readerwriterlock.t.cpp                                       -*-C++-*-
 
-#include <bdlqq_readerwriterlock.h>
+#include <bslmt_readerwriterlock.h>
 
-#include <bdlqq_barrier.h>           // for testing only
-#include <bdlqq_threadattributes.h>
+#include <bslmt_barrier.h>           // for testing only
+#include <bslmt_threadattributes.h>
 #include <bsls_timeinterval.h>       // for testing only
 #include <bsls_atomic.h>             // for testing only
 
@@ -88,7 +88,7 @@ static void aSsErT(int c, const char *s, int i)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::ReaderWriterLock Obj;
+typedef bslmt::ReaderWriterLock Obj;
 enum { NTHREADS = 5 };
 
 // ============================================================================
@@ -101,8 +101,8 @@ class my_Condition {
     // versions of the 'wait' and 'timedWait' functions provided here only
     // return when the condition was actually signaled.  The class is used to
     // simplify testing.
-    bdlqq::Condition       d_cond;
-    bdlqq::Mutex           d_mutex;
+    bslmt::Condition       d_cond;
+    bslmt::Mutex           d_mutex;
     volatile int          d_sigState;
     volatile int          d_bcastCount;
   public:
@@ -112,10 +112,10 @@ class my_Condition {
     ~my_Condition();
         // Destroy a my_Condition object.
 
-    void wait(bdlqq::Mutex *mutex);
+    void wait(bslmt::Mutex *mutex);
         // Block until this condition is signaled by a call to 'signal' or
         // 'broadcast'.
-    int  timedWait(bdlqq::Mutex *mutex, const bsls::TimeInterval &timeout);
+    int  timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &timeout);
         // Block until this condition is signaled by a call to 'signal' or
         // 'broadcast', or until the specified timeout(in abs time).  Return 0
         // if the condition was signaled, and a value of -1 if a timeout
@@ -138,7 +138,7 @@ my_Condition::~my_Condition()
 {
 }
 
-void my_Condition::wait(bdlqq::Mutex *mutex)
+void my_Condition::wait(bslmt::Mutex *mutex)
 {
     d_mutex.lock();
     int bcastCount = d_bcastCount;
@@ -151,7 +151,7 @@ void my_Condition::wait(bdlqq::Mutex *mutex)
     mutex->lock();
 }
 
-int  my_Condition::timedWait(bdlqq::Mutex             *mutex,
+int  my_Condition::timedWait(bslmt::Mutex             *mutex,
                              const bsls::TimeInterval  &timeout)
 {
     d_mutex.lock();
@@ -195,15 +195,15 @@ struct TestArguments {
     Obj              d_lock;
     my_Condition     d_cond1;
     my_Condition     d_cond2;
-    bdlqq::Mutex      d_mutex;
+    bslmt::Mutex      d_mutex;
     volatile int     d_startSigCount;
     volatile int     d_stopSigCount;
     volatile int     d_iterations;
     bsls::AtomicInt   d_count;
     bsls::AtomicInt   d_readCount;
     bsls::AtomicInt   d_writeCount;
-    bdlqq::Barrier    d_barrierAll;     // barrier for all threads
-    bdlqq::Barrier    d_barrier2;       // barrier for two threads
+    bslmt::Barrier    d_barrierAll;     // barrier for all threads
+    bslmt::Barrier    d_barrier2;       // barrier for two threads
   public:
     TestArguments(int iterations=0, int nThreads=NTHREADS);
         // Construct a 'TestArguments' object and initialize all counters to
@@ -335,7 +335,7 @@ void* TestWriterThread1(void *ptr)
     // signaled.  Finally it releases the reader/writer lock using the
     // 'unlockWrite' method.
 {
-    static bdlqq::Mutex m;
+    static bslmt::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
 
@@ -408,7 +408,7 @@ void* TestWriterThread4(void *ptr)
     // signaled.  Finally it releases the reader/writer lock using the
     // 'unlockWrite' method.
 {
-    static bdlqq::Mutex m;
+    static bslmt::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrier2.wait();
 
@@ -465,7 +465,7 @@ struct UserInfo{
 class UserInfoCache {
     typedef bsl::map<int, UserInfo> InfoMap;
 
-    bdlqq::ReaderWriterLock d_lock;
+    bslmt::ReaderWriterLock d_lock;
     InfoMap                d_infoMap;
   public:
     UserInfoCache();
@@ -553,8 +553,8 @@ void UserInfoCache::removeUser(int userId)
 
 struct my_ThreadArgument
 {
-    bdlqq::Barrier            *d_barrier_p;
-    bdlqq::ReaderWriterLock   *d_lock_p;
+    bslmt::Barrier            *d_barrier_p;
+    bslmt::ReaderWriterLock   *d_lock_p;
     bsls::AtomicInt           *d_shared_p;
 };
 
@@ -640,7 +640,7 @@ extern "C" void *case11ThreadRO(void *arg)
 
 extern "C" void *case10Thread(void *arg)
 {
-    bdlqq::ReaderWriterLock *mX = (Obj*) arg;
+    bslmt::ReaderWriterLock *mX = (Obj*) arg;
     ASSERT(mX);
 
     int NUM_ITERATIONS = 10;
@@ -689,7 +689,7 @@ extern "C" void *case10Thread(void *arg)
 
 extern "C" void *case9Thread(void *arg)
 {
-    bdlqq::ReaderWriterLock *mX = (Obj*) arg;
+    bslmt::ReaderWriterLock *mX = (Obj*) arg;
     ASSERT(mX);
 
     int NUM_ITERATIONS = 10;
@@ -734,7 +734,7 @@ extern "C" void *case9Thread(void *arg)
 
 extern "C" void *case8Thread(void *arg)
 {
-    bdlqq::ReaderWriterLock *mX = (Obj*) arg;
+    bslmt::ReaderWriterLock *mX = (Obj*) arg;
     ASSERT(mX);
 
     int NUM_ITERATIONS = 800;
@@ -754,7 +754,7 @@ extern "C" void *case8Thread(void *arg)
 
 extern "C" void *case7Thread(void *arg)
 {
-    bdlqq::ReaderWriterLock *mX = (Obj*) arg;
+    bslmt::ReaderWriterLock *mX = (Obj*) arg;
     ASSERT(mX);
 
     int NUM_ITERATIONS = 10;
@@ -834,23 +834,23 @@ int main(int argc, char *argv[])
         {
             enum { NUM_THREADS = 5 };
             bsls::AtomicInt             shared;
-            bdlqq::Barrier              barrier(NUM_THREADS);
-            bdlqq::ReaderWriterLock     lock;
-            bdlqq::ThreadUtil::Handle   workers[NUM_THREADS];
+            bslmt::Barrier              barrier(NUM_THREADS);
+            bslmt::ReaderWriterLock     lock;
+            bslmt::ThreadUtil::Handle   workers[NUM_THREADS];
             my_ThreadArgument          argument = { &barrier, &lock, &shared };
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                bdlqq::ThreadUtil::ThreadFunction  threadMain = (i % 2)
+                bslmt::ThreadUtil::ThreadFunction  threadMain = (i % 2)
                                                              ? case11ThreadRW
                                                              : case11ThreadRO;
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   threadMain,
                                                   &argument);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
         }
@@ -861,17 +861,17 @@ int main(int argc, char *argv[])
                  << "===============================================" << endl;
         {
             enum { NUM_THREADS = 10 };
-            bdlqq::ReaderWriterLock mX;
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ReaderWriterLock mX;
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &case10Thread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
         }
@@ -882,17 +882,17 @@ int main(int argc, char *argv[])
                  << "===============================================" << endl;
         {
             enum { NUM_THREADS = 10 };
-            bdlqq::ReaderWriterLock mX;
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ReaderWriterLock mX;
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &case9Thread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
         }
@@ -904,17 +904,17 @@ int main(int argc, char *argv[])
                  << "==========================================" << endl;
         {
             enum { NUM_THREADS = 3 };
-            bdlqq::ReaderWriterLock mX;
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ReaderWriterLock mX;
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &case8Thread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
         }
@@ -925,17 +925,17 @@ int main(int argc, char *argv[])
                  << "========================================" << endl;
         {
             enum { NUM_THREADS = 10 };
-            bdlqq::ReaderWriterLock mX;
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ReaderWriterLock mX;
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &case7Thread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
         }
@@ -944,7 +944,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST: USAGE EXAMPLE
         //   The usage example demonstrates a sample class which uses
-        //   a 'bdlqq::ReaderWriterLock' object.  By integrating the code
+        //   a 'bslmt::ReaderWriterLock' object.  By integrating the code
         //   into this test driver, we have verified that it compiles.
         //   Next verify that the class can be instantiated.
         // Plan:
@@ -991,11 +991,11 @@ int main(int argc, char *argv[])
         {
             TestArguments          args;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestWriterThread2, &args );
             }
             args.d_barrierAll.wait();
@@ -1011,7 +1011,7 @@ int main(int argc, char *argv[])
             }
             ASSERT( NTHREADS == args.d_count );
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
 
             if (veryVerbose) {
@@ -1024,13 +1024,13 @@ int main(int argc, char *argv[])
         {
             TestArguments          args;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             args.d_lock.lockWrite();
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestWriterThread2, &args );
             }
 
@@ -1049,7 +1049,7 @@ int main(int argc, char *argv[])
 
             ASSERT(NTHREADS == args.d_count);
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
         if (veryVerbose) cout << endl
@@ -1058,11 +1058,11 @@ int main(int argc, char *argv[])
         {
             TestArguments          args;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestWriterThread2, &args );
             }
             args.d_barrierAll.wait();
@@ -1079,7 +1079,7 @@ int main(int argc, char *argv[])
 
             ASSERT( NTHREADS == args.d_count );
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
 
             if (veryVerbose) {
@@ -1094,15 +1094,15 @@ int main(int argc, char *argv[])
             const int NRLOCKS  = 5;
             TestArguments          args;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NRLOCKS; ++i) {
                 args.d_lock.lockRead();
             }
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestWriterThread3, &args );
 
             }
@@ -1128,7 +1128,7 @@ int main(int argc, char *argv[])
             }
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
 
             if (veryVerbose) {
@@ -1170,11 +1170,11 @@ int main(int argc, char *argv[])
         {
             TestArguments          args(NTHREADS+1);
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestUpgradeThread1, (void*)&args);
             }
             args.d_barrierAll.wait();
@@ -1187,7 +1187,7 @@ int main(int argc, char *argv[])
                     // Some highly optimized implementations like AIX will spin
                     // and prevent other threads from preempting.
 
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 if (veryVeryVerbose) {
                     T_(); P(args.d_count);
@@ -1197,7 +1197,7 @@ int main(int argc, char *argv[])
             args.signalStop();
 
             for (int i=0; i<NTHREADS; ++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
       }break;
@@ -1232,19 +1232,19 @@ int main(int argc, char *argv[])
         {
             TestArguments          args(NTHREADS+1);
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadUtil::Handle writerHandle;
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadUtil::Handle writerHandle;
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestReaderThread2, (void*)&args);
             }
             args.d_barrierAll.wait();
             args.d_barrierAll.wait();
             ASSERT(NTHREADS == args.d_readCount);
 
-            bdlqq::ThreadUtil::create(&writerHandle, attributes,
+            bslmt::ThreadUtil::create(&writerHandle, attributes,
                                      TestWriterThread4, (void*)&args);
             args.d_barrier2.wait();
 
@@ -1263,9 +1263,9 @@ int main(int argc, char *argv[])
             args.d_barrier2.wait();
             ASSERT(1 == args.d_writeCount);
             args.signalStop();
-            bdlqq::ThreadUtil::join(writerHandle);
+            bslmt::ThreadUtil::join(writerHandle);
             for (int i=0; i<NTHREADS; ++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
 
@@ -1307,11 +1307,11 @@ int main(int argc, char *argv[])
         {
             TestArguments          args(NTHREADS+1);
 
-            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NTHREADS; ++i) {
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                bslmt::ThreadUtil::create(&threadHandles[i], attributes,
                                          TestWriterThread1, (void*)&args);
             }
 
@@ -1332,7 +1332,7 @@ int main(int argc, char *argv[])
 
             ASSERT(NTHREADS == args.d_count);
             for (int i=0; i<NTHREADS;++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
 
             if (veryVerbose) {

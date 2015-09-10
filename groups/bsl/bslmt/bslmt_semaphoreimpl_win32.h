@@ -1,28 +1,28 @@
-// bdlqq_semaphoreimpl_win32.h                                        -*-C++-*-
-#ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_WIN32
-#define INCLUDED_BDLQQ_SEMAPHOREIMPL_WIN32
+// bslmt_semaphoreimpl_win32.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_WIN32
+#define INCLUDED_BSLMT_SEMAPHOREIMPL_WIN32
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bdlqq::Semaphore'.
+//@PURPOSE: Provide a win32 implementation of 'bslmt::Semaphore'.
 //
 //@CLASSES:
-//  bdlqq::SemaphoreImpl<Win32Semaphore>: win32 specialization
+//  bslmt::SemaphoreImpl<Win32Semaphore>: win32 specialization
 //
-//@SEE_ALSO: bdlqq_semaphore
+//@SEE_ALSO: bslmt_semaphore
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
+//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // for Windows (win32) via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<Platform::Win32Threads>
+//  bslmt::SemaphoreImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::Semaphore'.
+// should instead use 'bslmt::Semaphore'.
 //
 ///Usage
 ///-----
@@ -30,15 +30,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -86,7 +86,7 @@ extern "C" {
 };
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
@@ -155,7 +155,7 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
 
 // CREATORS
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::SemaphoreImpl(int count)
+bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
 : d_resources(count)
 {
     // Create a semaphore with a 0 count, since the count is actually
@@ -165,14 +165,14 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::SemaphoreImpl(int count)
 }
 
 inline
-bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::~SemaphoreImpl()
+bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::~SemaphoreImpl()
 {
     CloseHandle(d_handle);
 }
 
 // MANIPULATORS
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post()
+void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::post()
 {
     if (++d_resources <= 0) {
         ReleaseSemaphore(d_handle, 1, NULL);
@@ -180,7 +180,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post()
 }
 
 inline
-void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::wait()
+void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -190,7 +190,7 @@ void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::wait()
 
 // ACCESSORS
 inline
-int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
+int bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
@@ -198,7 +198,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 #endif
 

@@ -1,16 +1,16 @@
-// bdlqq_semaphoreimpl_win32.cpp                                      -*-C++-*-
-#include <bdlqq_semaphoreimpl_win32.h>
+// bslmt_semaphoreimpl_win32.cpp                                      -*-C++-*-
+#include <bslmt_semaphoreimpl_win32.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_win32_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_semaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>    // for testing only
-#include <bdlqq_mutex.h>        // for testing only
-#include <bdlqq_threadutil.h>   // for testing only
+#include <bslmt_lockguard.h>    // for testing only
+#include <bslmt_mutex.h>        // for testing only
+#include <bslmt_threadutil.h>   // for testing only
 
-#include <bdlqq_platform.h>
+#include <bslmt_platform.h>
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {
 
@@ -19,14 +19,14 @@ namespace BloombergLP {
               // ---------------------------------------------
 
 // MANIPULATORS
-void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post(int number)
+void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::post(int number)
 {
     for (int i = 0; i < number; ++i) {
         post();
     }
 }
 
-int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::tryWait()
+int bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
         if (i == d_resources.testAndSwap(i, i - 1)) {
@@ -38,7 +38,7 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::tryWait()
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

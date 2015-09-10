@@ -1,6 +1,6 @@
-// bdlqq_readerwriterlock.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLQQ_READERWRITERLOCK
-#define INCLUDED_BDLQQ_READERWRITERLOCK
+// bslmt_readerwriterlock.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#define INCLUDED_BSLMT_READERWRITERLOCK
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a multi-reader/single-writer lock.
 //
 //@CLASSES:
-//   bdlqq::ReaderWriterLock: multi-reader/single-writer lock class
+//   bslmt::ReaderWriterLock: multi-reader/single-writer lock class
 //
 //@SEE_ALSO:
 //
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // reader will block until all *write* *locks* (including those acquired after
 // the reader) are released.
 //
-// 'bdlqq::ReaderWriterLock' also supports atomic conversion from *read* to
+// 'bslmt::ReaderWriterLock' also supports atomic conversion from *read* to
 // *write* *locks*.  This feature allows callers to first acquire a *read*
 // *lock*, determine if a write operation needs to be performed, and
 // conditionally upgrade to a *write* *lock* without possibility of another
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 // class UserInfoCache {
 //     typedef bsl::map<int, UserInfo> InfoMap;
 //
-//     bdlqq::ReaderWriterLock d_lock;
+//     bslmt::ReaderWriterLock d_lock;
 //     InfoMap                 d_infoMap;
 //   public:
 //     UserInfoCache();
@@ -225,28 +225,28 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                           // ======================
                           // class ReaderWriterLock
@@ -419,7 +419,7 @@ class ReaderWriterLock {
 
 // CREATORS
 inline
-bdlqq::ReaderWriterLock::ReaderWriterLock()
+bslmt::ReaderWriterLock::ReaderWriterLock()
 : d_signalState(e_NOT_SIGNALED)
 , d_owned(0)
 {
@@ -427,31 +427,31 @@ bdlqq::ReaderWriterLock::ReaderWriterLock()
 }
 
 inline
-bdlqq::ReaderWriterLock::~ReaderWriterLock()
+bslmt::ReaderWriterLock::~ReaderWriterLock()
 {
 }
 
 // MANIPULATORS
 inline
-int bdlqq::ReaderWriterLock::upgradeToReservedWriteLock()
+int bslmt::ReaderWriterLock::upgradeToReservedWriteLock()
 {
     return upgradeToWriteLock();
 }
 
 inline
-void bdlqq::ReaderWriterLock::unlockRead()
+void bslmt::ReaderWriterLock::unlockRead()
 {
     unlock();
 }
 
 inline
-void bdlqq::ReaderWriterLock::unlockReadUnreserveWrite()
+void bslmt::ReaderWriterLock::unlockReadUnreserveWrite()
 {
     unlock();
 }
 
 inline
-void bdlqq::ReaderWriterLock::unlockWrite()
+void bslmt::ReaderWriterLock::unlockWrite()
 {
     unlock();
 }

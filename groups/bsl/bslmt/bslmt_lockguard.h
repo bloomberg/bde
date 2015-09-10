@@ -1,6 +1,6 @@
-// bdlqq_lockguard.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#define INCLUDED_BDLQQ_LOCKGUARD
+// bslmt_lockguard.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#define INCLUDED_BSLMT_LOCKGUARD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,38 +10,38 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a generic proctor for synchronization objects.
 //
 //@CLASSES:
-//  bdlqq::LockGuard: automatic mutex locking-unlocking
-//  bdlqq::LockGuardUnlock: automatic mutex unlocking-locking
-//  bdlqq::LockGuardTryLock: automatic non-blocking mutex locking-unlocking
-//  bdlqq::UnLockGuard: DEPRECATED
-//  bdlqq::TryLockGuard: DEPRECATED
+//  bslmt::LockGuard: automatic mutex locking-unlocking
+//  bslmt::LockGuardUnlock: automatic mutex unlocking-locking
+//  bslmt::LockGuardTryLock: automatic non-blocking mutex locking-unlocking
+//  bslmt::UnLockGuard: DEPRECATED
+//  bslmt::TryLockGuard: DEPRECATED
 //
-//@SEE_ALSO: bdlqq_readlockguard, bdlqq_writelockguard
+//@SEE_ALSO: bslmt_readlockguard, bslmt_writelockguard
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides generic proctors to automatically lock
 // and unlock an external synchronization object.  The synchronization object
-// can be any type (e.g., 'bdlqq::Mutex' or 'bdlqq::RecursiveMutex') that
+// can be any type (e.g., 'bslmt::Mutex' or 'bslmt::RecursiveMutex') that
 // provides the following methods:
 //..
 //  void lock();
 //  void unlock();
 //..
-// Both 'bdlqq::LockGuard' and 'bdlqq::LockGuardUnlock' implement the
+// Both 'bslmt::LockGuard' and 'bslmt::LockGuardUnlock' implement the
 // "construction is acquisition, destruction is release" idiom.  During
-// construction, 'bdlqq::LockGuard' automatically calls 'lock' on the
+// construction, 'bslmt::LockGuard' automatically calls 'lock' on the
 // user-supplied object, and 'unlock' when it is destroyed (unless released).
-// 'bdlqq::LockGuardUnlock' does the opposite -- it invokes the 'unlock' method
+// 'bslmt::LockGuardUnlock' does the opposite -- it invokes the 'unlock' method
 // when constructed and the 'lock' method when it is destroyed.
 //
-// A third type of guard, 'bdlqq::LockGuardTryLock', attempts to acquire a
+// A third type of guard, 'bslmt::LockGuardTryLock', attempts to acquire a
 // lock, and if acquisition succeeds, releases it upon destruction.  Since the
 // acquisition is done at construction time, it is not possible to return a
-// value to indicate success.  Rather, the 'bdlqq::LockGuardTryLock' contains a
+// value to indicate success.  Rather, the 'bslmt::LockGuardTryLock' contains a
 // pointer to the synchronization object if 'tryLock' succeeds, and is null
-// otherwise.  The synchronization object can be any type (e.g., 'bdlqq::Mutex'
-// or 'bdlqq::RecursiveMutex') that provides the following methods:
+// otherwise.  The synchronization object can be any type (e.g., 'bslmt::Mutex'
+// or 'bslmt::RecursiveMutex') that provides the following methods:
 //..
 //  void tryLock();
 //  void unlock();
@@ -54,17 +54,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Behavior of the 'release' method
 ///--------------------------------
-// Like all BDE proctor classes, each of the three 'bdlqq::LockGuard*' classes
+// Like all BDE proctor classes, each of the three 'bslmt::LockGuard*' classes
 // provides a 'release' method that terminates the proctor's management of any
 // lock object that the proctor holds.  The 'release' method has *no* *effect*
 // on the state of the lock object.
 //
-// In particular, 'bdlqq::ReadLockGuard::release' does not unlock the lock
+// In particular, 'bslmt::ReadLockGuard::release' does not unlock the lock
 // object under management.  If a user wants to release the lock object *and*
 // unlock the lock object (because the lock is no longer required before the
 // guard goes out of scope), the following idiom can be used:
 //..
-//  // 'guard' is an existing guard of type 'bdlqq::LockGuard<my_Lock>',
+//  // 'guard' is an existing guard of type 'bslmt::LockGuard<my_Lock>',
 //  // created in a scope that we do not control.
 //
 //  {
@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void safeFunc(my_Object *obj, my_Mutex *mutex)
 //  {
-//      bdlqq::LockGuard<my_Mutex> guard(mutex);
+//      bslmt::LockGuard<my_Mutex> guard(mutex);
 //      if (someCondition) {
 //          obj->someMethod();
 //          return;
@@ -125,14 +125,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bdlqq::LockGuardTryLock' in the typical following fashion:
+// a 'bslmt::LockGuardTryLock' in the typical following fashion:
 //..
 //  static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
 //      // Perform task and return positive value if locking succeeds.
 //      // Return 0 if locking fails.
 //  {
 //      const int RETRIES = 1; // use higher values for higher success rate
-//      bdlqq::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
+//      bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
 //      if (guard.ptr()) { // mutex is locked
 //          if (someCondition) {
 //              obj->someMethod();
@@ -147,18 +147,18 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Instantiations of 'bdlqq::LockGuardUnlock' can be interleaved with
-// instantiations of 'bdlqq::LockGuard' to create both critical sections and
+// Instantiations of 'bslmt::LockGuardUnlock' can be interleaved with
+// instantiations of 'bslmt::LockGuard' to create both critical sections and
 // regions where the lock is released.
 //..
 //  void f(my_Mutex *mutex)
 //  {
-//      bdlqq::LockGuard<my_Mutex> guard(mutex);
+//      bslmt::LockGuard<my_Mutex> guard(mutex);
 //
 //      // critical section here
 //
 //      {
-//           bdlqq::LockGuardUnlock<my_Mutex> guard(mutex);
+//           bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
 //
 //          // mutex is unlocked here
 //
@@ -172,12 +172,12 @@ BSLS_IDENT("$Id: $")
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive mutex).
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                              // ===============
                              // class LockGuard
@@ -382,7 +382,7 @@ class TryLockGuard : public LockGuardTryLock<T> {
 // CREATORS
 template <class T>
 inline
-bdlqq::LockGuard<T>::LockGuard(T *lock)
+bslmt::LockGuard<T>::LockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -392,7 +392,7 @@ bdlqq::LockGuard<T>::LockGuard(T *lock)
 
 template <class T>
 inline
-bdlqq::LockGuard<T>::LockGuard(T *lock, int preLocked)
+bslmt::LockGuard<T>::LockGuard(T *lock, int preLocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preLocked) {
@@ -402,7 +402,7 @@ bdlqq::LockGuard<T>::LockGuard(T *lock, int preLocked)
 
 template <class T>
 inline
-bdlqq::LockGuard<T>::~LockGuard()
+bslmt::LockGuard<T>::~LockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -412,7 +412,7 @@ bdlqq::LockGuard<T>::~LockGuard()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::LockGuard<T>::release()
+T *bslmt::LockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -422,7 +422,7 @@ T *bdlqq::LockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::LockGuard<T>::ptr() const
+T *bslmt::LockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -434,14 +434,14 @@ T *bdlqq::LockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bdlqq::UnLockGuard<T>::UnLockGuard(T *lock)
+bslmt::UnLockGuard<T>::UnLockGuard(T *lock)
 : LockGuardUnlock<T>(lock)
 {
 }
 
 template <class T>
 inline
-bdlqq::UnLockGuard<T>::UnLockGuard(T *lock, int preUnlockedFlag)
+bslmt::UnLockGuard<T>::UnLockGuard(T *lock, int preUnlockedFlag)
 : LockGuardUnlock<T>(lock, preUnlockedFlag)
 {
 }
@@ -452,7 +452,7 @@ bdlqq::UnLockGuard<T>::UnLockGuard(T *lock, int preUnlockedFlag)
 
 template <class T>
 inline
-bdlqq::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
+bslmt::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
 : LockGuardTryLock<T>(lock, attempts)
 {
 }
@@ -464,7 +464,7 @@ bdlqq::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
 // CREATORS
 template <class T>
 inline
-bdlqq::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
+bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -474,7 +474,7 @@ bdlqq::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bdlqq::LockGuardUnlock<T>::LockGuardUnlock(T *lock, int preUnlocked)
+bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock, int preUnlocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preUnlocked) {
@@ -484,7 +484,7 @@ bdlqq::LockGuardUnlock<T>::LockGuardUnlock(T *lock, int preUnlocked)
 
 template <class T>
 inline
-bdlqq::LockGuardUnlock<T>::~LockGuardUnlock()
+bslmt::LockGuardUnlock<T>::~LockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lock();
@@ -494,7 +494,7 @@ bdlqq::LockGuardUnlock<T>::~LockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::LockGuardUnlock<T>::release()
+T *bslmt::LockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -504,7 +504,7 @@ T *bdlqq::LockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::LockGuardUnlock<T>::ptr() const
+T *bslmt::LockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -515,7 +515,7 @@ T *bdlqq::LockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bdlqq::LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
+bslmt::LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -530,7 +530,7 @@ bdlqq::LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
 
 template <class T>
 inline
-bdlqq::LockGuardTryLock<T>::~LockGuardTryLock()
+bslmt::LockGuardTryLock<T>::~LockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -540,7 +540,7 @@ bdlqq::LockGuardTryLock<T>::~LockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bdlqq::LockGuardTryLock<T>::release()
+T *bslmt::LockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -550,7 +550,7 @@ T *bdlqq::LockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bdlqq::LockGuardTryLock<T>::ptr() const
+T *bslmt::LockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }

@@ -1,6 +1,6 @@
-// bdlqq_platform.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#define INCLUDED_BDLQQ_PLATFORM
+// bslmt_platform.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLMT_PLATFORM
+#define INCLUDED_BSLMT_PLATFORM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 // have a native timed-wait for semaphores require a custom (pthread-based)
 // implementation.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                               // ==============
                               // class Platform
@@ -63,14 +63,14 @@ struct Platform {
     #ifdef BSLS_PLATFORM_OS_UNIX
 
     typedef PosixThreads ThreadPolicy;
-    #define BDLQQ_PLATFORM_POSIX_THREADS 1
+    #define BSLMT_PLATFORM_POSIX_THREADS 1
 
     #endif
 
     #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     typedef Win32Threads ThreadPolicy;
-    #define BDLQQ_PLATFORM_WIN32_THREADS 1
+    #define BSLMT_PLATFORM_WIN32_THREADS 1
 
     #endif
 
@@ -87,14 +87,14 @@ struct Platform {
 
     // The POSIX semaphore on IBM has a maximum count of 32k.  Other POSIX
     // implementations support counts up to 'INT_MAX', and, historically,
-    // 'bdlqq::Semaphore' also supported 'INT_MAX'.  On AIX, use a semaphore
+    // 'bslmt::Semaphore' also supported 'INT_MAX'.  On AIX, use a semaphore
     // that maintains the count in a separate atomic integer to enable
     // consistent semaphore usage across platforms.
 
     typedef CountedSemaphore SemaphorePolicy;
     typedef PosixSemaphore CountedSemaphoreImplPolicy;
-    #define BDLQQ_PLATFORM_COUNTED_SEMAPHORE
-    #define BDLQQ_PLATFORM_POSIX_SEMAPHORE
+    #define BSLMT_PLATFORM_COUNTED_SEMAPHORE
+    #define BSLMT_PLATFORM_POSIX_SEMAPHORE
 
     #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
@@ -102,12 +102,12 @@ struct Platform {
 
     typedef CountedSemaphore SemaphorePolicy;
     typedef DarwinSemaphore CountedSemaphoreImplPolicy;
-    #define BDLQQ_PLATFORM_COUNTED_SEMAPHORE
+    #define BSLMT_PLATFORM_COUNTED_SEMAPHORE
 
     #else
 
     typedef PosixSemaphore SemaphorePolicy;
-    #define BDLQQ_PLATFORM_POSIX_SEMAPHORE
+    #define BSLMT_PLATFORM_POSIX_SEMAPHORE
 
     #endif
 
@@ -132,7 +132,7 @@ struct Platform {
         defined(BSLS_PLATFORM_OS_LINUX)      \
 
     typedef PosixAdvTimedSemaphore TimedSemaphorePolicy;
-    #define BDLQQ_PLATFORM_POSIXADV_TIMEDSEMAPHORE 1
+    #define BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE 1
 
     #else  // 'sem_timedwait' not available; use custom pthread-based semaphore
 

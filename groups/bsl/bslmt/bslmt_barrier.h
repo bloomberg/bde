@@ -1,6 +1,6 @@
-// bdlqq_barrier.h                                                    -*-C++-*-
-#ifndef INCLUDED_BDLQQ_BARRIER
-#define INCLUDED_BDLQQ_BARRIER
+// bslmt_barrier.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLMT_BARRIER
+#define INCLUDED_BSLMT_BARRIER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread barrier component.
 //
 //@CLASSES:
-//   bdlqq::Barrier: thread barrier class
+//   bslmt::Barrier: thread barrier class
 //
-//@SEE_ALSO: bdlqq_mutex, bdlqq_condition
+//@SEE_ALSO: bslmt_mutex, bslmt_condition
 //
 //@AUTHOR: Ilougino Rocha(irocha)
 //
-//@DESCRIPTION: This component defines a thread barrier named 'bdlqq::Barrier'.
+//@DESCRIPTION: This component defines a thread barrier named 'bslmt::Barrier'.
 // Barriers provide a simple mechanism for synchronizing a series of threads at
 // a given point in a program.  A barrier is constructed with a number
 // 'numThreads' which is the number of threads required to reach the
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following example demonstrates the use of a 'bdlqq::Barrier' to create
+// The following example demonstrates the use of a 'bslmt::Barrier' to create
 // "checkpoints" in a threaded "basket trade" processing logic.  In this
 // example, a "basket" is a series of trades submitted as one logical trade.
 // If any given trade fails to process for any reason, then all the trades must
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // all trades to complete a given step before any individual trade thread
 // proceeds to the next step.
 //
-// The 'bdlqq::Barrier' is used repeatedly at each processing stage to wait for
+// The 'bslmt::Barrier' is used repeatedly at each processing stage to wait for
 // all trades to complete the given stage before continuing to the next stage.
 //
 // To begin, we define the fundamental structures 'Trade' and 'BasketTrade'.
@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Functions 'validateTrade', 'insertToDatabase', and 'submitToExchange' define
 // functionality for the three stages of trade processing.  Again, the
-// 'bdlqq::Barrier' will be used so that no individual trade moves forward to
+// 'bslmt::Barrier' will be used so that no individual trade moves forward to
 // the next stage before all trades have completed the given stage.  So, for
 // instance, no individual trade can call the 'insertToDatabase' function until
 // all trades have successfully completed the 'validateTrade' function.
@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //..
 // struct TradeThreadArgument {
 //     bsl::vector<Trade> *d_trades_p;
-//     bdlqq::Barrier     *d_barrier_p;
+//     bslmt::Barrier     *d_barrier_p;
 //     volatile bool      *d_errorFlag_p;
 //     int                 d_tradeNum;
 // };
@@ -206,9 +206,9 @@ BSLS_IDENT("$Id: $")
 //     return args;
 // }
 //..
-// Function 'tradeProcessingThread' is a callback for 'bdlqq::ThreadUtil',
+// Function 'tradeProcessingThread' is a callback for 'bslmt::ThreadUtil',
 // which requires 'void' pointers for argument and return type and 'extern "C"'
-// linkage.  'bdlqq::ThreadUtil::create()' expects a pointer to this function,
+// linkage.  'bslmt::ThreadUtil::create()' expects a pointer to this function,
 // and provides that function pointer to the newly created thread.  The new
 // thread then executes this function.
 //
@@ -233,8 +233,8 @@ BSLS_IDENT("$Id: $")
 //     // all the trades succeed, or none of the trades are executed.
 // {
 //     TradeThreadArgument arguments[MAX_BASKET_TRADES];
-//     bdlqq::ThreadAttributes attributes;
-//     bdlqq::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
+//     bslmt::ThreadAttributes attributes;
+//     bslmt::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
 //
 //     int numTrades = trade.d_trades.length();
 //     assert(0 < numTrades && MAX_BASKET_TRADES >= numTrades);
@@ -242,10 +242,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
 // thread will be created for each trade in the basket, use the number of
-// trades as the barrier count.  When 'bdlqq::Barrier::wait()' is called, the
+// trades as the barrier count.  When 'bslmt::Barrier::wait()' is called, the
 // barrier will require 'numTrades' objects to wait before all are released.
 //..
-//     bdlqq::Barrier barrier(numTrades);
+//     bslmt::Barrier barrier(numTrades);
 //     bool errorFlag = 0;
 //
 //..
@@ -256,14 +256,14 @@ BSLS_IDENT("$Id: $")
 //         arguments[i].d_barrier_p   = &barrier;
 //         arguments[i].d_errorFlag_p = &errorFlag;
 //         arguments[i].d_tradeNum    = i;
-//         bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+//         bslmt::ThreadUtil::create(&threadHandles[i], attributes,
 //                                  tradeProcessingThread, &arguments[i]);
 //     }
 //..
 // Wait for all threads to complete.
 //..
 //     for (int i = 0; i < numTrades; ++i) {
-//         bdlqq::ThreadUtil::join(threadHandles[i]);
+//         bslmt::ThreadUtil::join(threadHandles[i]);
 //     }
 //..
 // Check if any error occurred.
@@ -272,16 +272,16 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
@@ -293,7 +293,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
                               // =============
                               // class Barrier
@@ -376,7 +376,7 @@ class Barrier {
 // ============================================================================
 
 // CREATORS
-inline bdlqq::Barrier::Barrier(int                         numThreads,
+inline bslmt::Barrier::Barrier(int                         numThreads,
                                bsls::SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
@@ -389,7 +389,7 @@ inline bdlqq::Barrier::Barrier(int                         numThreads,
 
 // ACCESSORS
 inline
-int bdlqq::Barrier::numThreads() const
+int bslmt::Barrier::numThreads() const
 {
     return d_numThreads;
 }

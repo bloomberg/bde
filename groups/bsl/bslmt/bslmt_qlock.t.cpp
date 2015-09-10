@@ -1,12 +1,12 @@
-// bdlqq_qlock.t.cpp                                                  -*-C++-*-
-#include <bdlqq_qlock.h>
+// bslmt_qlock.t.cpp                                                  -*-C++-*-
+#include <bslmt_qlock.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_semaphore.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_semaphore.h>
 
 #include <bsls_atomicoperations.h>
 
@@ -29,7 +29,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The basic idea of testing bdlqq::QLock and bdlqq::QLock is to create thread
+// The basic idea of testing bslmt::QLock and bslmt::QLock is to create thread
 // poll and manipulate various test data in parallel, then to check the the
 // integrity of data is preserved.
 //
@@ -42,11 +42,11 @@ using namespace bsl;  // automatically added by script
 // The helper class Rand provides generation of pseudo-random numbers for each
 // thread.
 //-----------------------------------------------------------------------------
-// CLASS bdlqq::QLock CLASS bdlqq::QLockGuard
+// CLASS bslmt::QLock CLASS bslmt::QLockGuard
 // [ 5] Contention test: many threads - many bcemt::QLocks
 // [ 4] Test of internal QLock core primitives:
 //      setFlag and waitOnFlag
-// [ 3] Aggressive contention test: many threads - one bdlqq::QLock
+// [ 3] Aggressive contention test: many threads - one bslmt::QLock
 // [ 2] USAGE EXAMPLE:  MT-Safe Singleton.
 //      Design is based on combination of bsls::AtomicInt
 //      and bcemt_QLocks.
@@ -98,11 +98,11 @@ class MyTask {
   private:
     enum {MAX_THREADS = 100};
 
-    bdlqq::ThreadAttributes    d_attr;
+    bslmt::ThreadAttributes    d_attr;
     TestFunc                  d_f;
     void                     *d_arg;
-    bdlqq::ThreadUtil::Handle  d_handles[MAX_THREADS];
-    bdlqq::Mutex               d_logMutex;
+    bslmt::ThreadUtil::Handle  d_handles[MAX_THREADS];
+    bslmt::Mutex               d_logMutex;
 
     bsls::AtomicInt            d_numThreadsStarted;
      // number of threads started since last call start ()
@@ -116,7 +116,7 @@ class MyTask {
     bsls::AtomicInt            d_totalThreadsFinished;
      // number of threads finished since task creation
 
-    bdlqq::Barrier            *d_barrier;
+    bslmt::Barrier            *d_barrier;
      // Barrier to provide hard contention.  It is created on each start()call
      // and it is destroyed on each stop() call
 
@@ -132,7 +132,7 @@ class MyTask {
         return d_arg;
     }
 
-    bdlqq::Barrier *barrier() const
+    bslmt::Barrier *barrier() const
     {
         return d_barrier;
     }
@@ -177,17 +177,17 @@ MyTask::MyTask(TestFunc f, void *arg)
 , d_totalThreadsFinished(0)
 , d_barrier(0)
 {
-    d_attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
+    d_attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
     d_attr.setStackSize (1024*128);
 
     for (int i=0; i < MAX_THREADS; ++i) {
-        d_handles[i] = bdlqq::ThreadUtil::invalidHandle();
+        d_handles[i] = bslmt::ThreadUtil::invalidHandle();
     }
 
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> lg(&d_logMutex);
+        bslmt::LockGuard<bslmt::Mutex> lg(&d_logMutex);
         bsl::cout << "MyTask CTOR  ThrId="
-                    << bdlqq::ThreadUtil::selfId()
+                    << bslmt::ThreadUtil::selfId()
                     << bsl::endl;
     }
 }
@@ -197,9 +197,9 @@ MyTask::~MyTask()
     stop();
 
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> lg(&d_logMutex);
+        bslmt::LockGuard<bslmt::Mutex> lg(&d_logMutex);
         bsl::cout << "MyTask DTOR  ThrId="
-                  << bdlqq::ThreadUtil::selfId()
+                  << bslmt::ThreadUtil::selfId()
                   << bsl::endl;
     }
 }
@@ -212,23 +212,23 @@ int MyTask::start(int numThreads)
     d_numThreadsFinished = 0;
 
     ASSERT(d_barrier == 0);
-    d_barrier = new  bdlqq::Barrier(numThreads);
+    d_barrier = new  bslmt::Barrier(numThreads);
 
     for (int i=0; i < MAX_THREADS && numThreads > 0; ++i)
     {
-        if (bdlqq::ThreadUtil::isEqual(d_handles[i],
-                                      bdlqq::ThreadUtil::invalidHandle())) {
+        if (bslmt::ThreadUtil::isEqual(d_handles[i],
+                                      bslmt::ThreadUtil::invalidHandle())) {
 
-            int rc = bdlqq::ThreadUtil::create(&d_handles[i],
+            int rc = bslmt::ThreadUtil::create(&d_handles[i],
                                               d_attr,
                                               threadFunc,
                                               this);
             --numThreads;
 
             ASSERT(rc == 0);
-            ASSERT(!bdlqq::ThreadUtil::isEqual(
+            ASSERT(!bslmt::ThreadUtil::isEqual(
                                           d_handles[i],
-                                          bdlqq::ThreadUtil::invalidHandle()));
+                                          bslmt::ThreadUtil::invalidHandle()));
         }
     }
 
@@ -239,12 +239,12 @@ int MyTask::stop()
 {
     for (int i=0; i < MAX_THREADS; ++i) {
 
-        if (!bdlqq::ThreadUtil::isEqual(d_handles[i],
-                                       bdlqq::ThreadUtil::invalidHandle())) {
+        if (!bslmt::ThreadUtil::isEqual(d_handles[i],
+                                       bslmt::ThreadUtil::invalidHandle())) {
 
-            int rc = bdlqq::ThreadUtil::join (d_handles[i], 0);
+            int rc = bslmt::ThreadUtil::join (d_handles[i], 0);
             ASSERT(rc == 0);
-            d_handles[i] = bdlqq::ThreadUtil::invalidHandle();
+            d_handles[i] = bslmt::ThreadUtil::invalidHandle();
         }
     }
     ASSERT (d_numThreadsStarted == d_numThreadsFinished);
@@ -263,9 +263,9 @@ void *MyTask::run()
     ++d_totalThreadsStarted;
 
     if (veryVerbose) {
-       bdlqq::LockGuard<bdlqq::Mutex> lg(&d_logMutex);
+       bslmt::LockGuard<bslmt::Mutex> lg(&d_logMutex);
        bsl::cout << "***Enter Thread: Id="
-                 << bdlqq::ThreadUtil::selfId()
+                 << bslmt::ThreadUtil::selfId()
                  << " Num="
                  << threadNum
                  << bsl::endl;
@@ -282,9 +282,9 @@ void *MyTask::run()
     ++d_totalThreadsFinished;
 
     if (veryVerbose) {
-       bdlqq::LockGuard<bdlqq::Mutex> lg(&d_logMutex);
+       bslmt::LockGuard<bslmt::Mutex> lg(&d_logMutex);
        bsl::cout << "***Leave Thread: Id="
-                 << bdlqq::ThreadUtil::selfId()
+                 << bslmt::ThreadUtil::selfId()
                  << " Num="
                  << threadNum
                  << bsl::endl;
@@ -336,7 +336,7 @@ void printMetrics(bsl::ostream&     out,
         << bsl::endl;
 }
 
-typedef bdlqq::Semaphore Semaphore;
+typedef bslmt::Semaphore Semaphore;
 
 // ----------------------------------------------------------------------------
 // TestCase 7. Multiple-threads, 2-qlocks
@@ -358,13 +358,13 @@ typedef bdlqq::Semaphore Semaphore;
 // ----------------------------------------------------------------------------
 
 struct ContextCase7 {
-    bdlqq::QLock     *d_qlock;
+    bslmt::QLock     *d_qlock;
     bsls::AtomicInt   d_owner;
     bsl::vector<int> d_slots;
 };
 
 struct DataCase7 {
-    bdlqq::Barrier    *d_barrier;  // common barrier
+    bslmt::Barrier    *d_barrier;  // common barrier
     ContextCase7     *d_myContext;
     ContextCase7     *d_otherContext;
 };
@@ -383,7 +383,7 @@ void *testCase7(int threadNum, const MyTask& task)
      while(!flgExit) {
 
         // Lock own context
-        bdlqq::QLockGuard guard(data->d_myContext->d_qlock);
+        bslmt::QLockGuard guard(data->d_myContext->d_qlock);
 
         // set owner of this context
         data->d_myContext->d_owner = threadNum-1;
@@ -398,7 +398,7 @@ void *testCase7(int threadNum, const MyTask& task)
         }
 
         // lets threads of other context to see me
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
 
         // exit flag is OK if this thread has been seen in other context and we
         // have seen all threads in other context
@@ -439,7 +439,7 @@ void *testCase7(int threadNum, const MyTask& task)
 
 struct DataCase6 {
     bsl::vector<int>  d_slots;
-    bdlqq::QLock      *d_qlock;
+    bslmt::QLock      *d_qlock;
 };
 
 void *testCase6(int threadNum, const MyTask& task)
@@ -458,17 +458,17 @@ void *testCase6(int threadNum, const MyTask& task)
     task.barrier()->wait();
 
     {
-        bdlqq::QLockGuard guard(data->d_qlock);
+        bslmt::QLockGuard guard(data->d_qlock);
 
         // sleep enough to allow other threads be enqueued
-        bdlqq::ThreadUtil::microSleep(1000 * 250);
+        bslmt::ThreadUtil::microSleep(1000 * 250);
 
         ASSERT(data->d_slots[threadNum - 1] == 0);
         data->d_slots[threadNum - 1] = 1;
     }
 
     {
-        bdlqq::QLockGuard guard(data->d_qlock);
+        bslmt::QLockGuard guard(data->d_qlock);
 
         // check that all threads have had their turn
         for (i = 0; i < data->d_slots.size(); ++i) {
@@ -502,8 +502,8 @@ void *testCase6(int threadNum, const MyTask& task)
 struct CaseData5 {
     int           d_numIter;
     int           d_numElements;
-    bdlqq::QLock  *d_qlocks;
-    bdlqq::Mutex  *d_mutexes;
+    bslmt::QLock  *d_qlocks;
+    bslmt::Mutex  *d_mutexes;
     int          *d_slots;
 };
 
@@ -518,7 +518,7 @@ void *testCase5_fn1(int threadNum, const MyTask& task)
         // get random slot
         int slotIndex = rand.get() % data->d_numElements;
 
-        bdlqq::QLockGuard guard(&data->d_qlocks[slotIndex]);
+        bslmt::QLockGuard guard(&data->d_qlocks[slotIndex]);
 
         data->d_slots[slotIndex] = 0;
         ASSERT(data->d_slots[slotIndex] == 0);
@@ -550,7 +550,7 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
         // get random slot
         int slotIndex = rand.get() % data->d_numElements;
 
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&data->d_mutexes[slotIndex]);
+        bslmt::LockGuard<bslmt::Mutex> guard(&data->d_mutexes[slotIndex]);
 
         data->d_slots[slotIndex] = 0;
         ASSERT(data->d_slots[slotIndex] == 0);
@@ -710,7 +710,7 @@ void *testCase4_fn1(int threadNum, const MyTask& task)
 
         // barrier wait till other thread set next value
         while ((i+1) != data->d_flagEnd) {
-           bdlqq::ThreadUtil::yield();
+           bslmt::ThreadUtil::yield();
         }
     }
 
@@ -728,7 +728,7 @@ void *testCase4_fn2(int threadNum, const MyTask& task)
         // barrier wait till other thread set next value
 
         while ((i+1) != data->d_flagStart) {
-           bdlqq::ThreadUtil::yield();
+           bslmt::ThreadUtil::yield();
         }
 
         setFlag(&data->d_event2);
@@ -775,8 +775,8 @@ void *testCase4_fn2(int threadNum, const MyTask& task)
 struct DataCase3 {
     int           d_numIter;
     int           d_count;
-    bdlqq::QLock  *d_qlock;
-    bdlqq::Mutex  *d_mutex;
+    bslmt::QLock  *d_qlock;
+    bslmt::Mutex  *d_mutex;
 };
 
 void *testCase3(int threadNum, const MyTask& task)
@@ -789,7 +789,7 @@ void *testCase3(int threadNum, const MyTask& task)
 
      task.barrier()->wait();
 
-     bdlqq::QLockGuard guard;
+     bslmt::QLockGuard guard;
 
      for (int i=0; i < data->d_numIter; ++i) {
 
@@ -801,7 +801,7 @@ void *testCase3(int threadNum, const MyTask& task)
 
          // This will take too long time
          //int  sleepTime = rand.get() % 1000;
-         //bdlqq::ThreadUtil::microSleep(++sleepTime);
+         //bslmt::ThreadUtil::microSleep(++sleepTime);
 
          for (int j=0; j < 20; ++j) {
              data->d_count = rand.get(); // put random value
@@ -833,18 +833,18 @@ void *testCase3a(int threadNum, const MyTask& task)
 
      task.barrier()->wait();
 
-     bdlqq::QLockGuard guard;
+     bslmt::QLockGuard guard;
 
      for (int i=0; i < data->d_numIter; ++i) {
 
          // Critical region set mutex-qlock and lock
-         bdlqq::LockGuard<bdlqq::Mutex> guard(data->d_mutex);
+         bslmt::LockGuard<bslmt::Mutex> guard(data->d_mutex);
 
          int  original = data->d_count;
 
          // This will take too long time
          //int  sleepTime = rand.get() % 1000;
-         //bdlqq::ThreadUtil::microSleep(++sleepTime);
+         //bslmt::ThreadUtil::microSleep(++sleepTime);
 
          for (int j=0; j < 20; ++j) {
              data->d_count = rand.get(); // put random value
@@ -856,7 +856,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 
      task.barrier()->wait();
      {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(data->d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> guard(data->d_mutex);
         ASSERT(data->d_count == data->d_numIter*task.numThreadsStarted());
      }
 
@@ -876,7 +876,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 // "Hello".  Unfortunately, as this is a multithreaded application, there is
 // the danger that more than one thread will attempt to initialize the
 // singleton simultaneously, causing a memory leak at best and memory
-// corruption at worse.  To solve this problem, we use a 'bdlqq::QLock' to
+// corruption at worse.  To solve this problem, we use a 'bslmt::QLock' to
 // synchronize access to the singleton.
 //
 // We begin by wrapping the singleton in a function:
@@ -888,28 +888,28 @@ void *testCase3a(int threadNum, const MyTask& task)
 // a QLock to control access to the singleton.  Note that both of these
 // variables are statically initialized, so there is no need for a run-time
 // constructor and hence no danger of a race condition among threads.  The need
-// for static initialization is the main reason we choose to use 'bdlqq::QLock'
-// over 'bdlqq::Mutex':
+// for static initialization is the main reason we choose to use 'bslmt::QLock'
+// over 'bslmt::Mutex':
 //..
         static const bsl::string *singletonPtr = 0;
-        static bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;
+        static bslmt::QLock qlock = BSLMT_QLOCK_INITIALIZER;
 //..
 // Before checking the status of the singleton pointer, we must make sure that
 // we are not accessing the pointer at the same time that some other thread is
 // modifying the pointer.  We do this by acquiring the lock by constructing a
-// 'bdlqq::QLockGuard' object:
+// 'bslmt::QLockGuard' object:
 //..
-        bdlqq::QLockGuard qlockGuard(&qlock);
+        bslmt::QLockGuard qlockGuard(&qlock);
 //..
 // Now we are inside the critical region.  If the pointer has not already been
 // set, we can initialize the singleton knowing that no other thread is
 // manipulating or accessing these variables at the same time.  Note that this
 // critical region involves constructing a variable of type 'bsl::string'.
 // This operation, while not ultra-expensive, is too lengthy for comfortably
-// holding a spinlock.  Again, the characteristics of 'bdlqq::QLock' are
+// holding a spinlock.  Again, the characteristics of 'bslmt::QLock' are
 // superior to the alternatives for this application.  (It is worth noting that
 // the QLock concept was created specifically to permit this kind of one-time
-// processing.  See also 'bdlqq_once'.)
+// processing.  See also 'bslmt_once'.)
 //..
         if (! singletonPtr) {
             static bsl::string singleton("Hello");
@@ -917,7 +917,7 @@ void *testCase3a(int threadNum, const MyTask& task)
         }
 //..
 // Finally, we return a reference to the singleton.  The destructor for
-// 'bdlqq::QLockGuard' will automatically unlock the QLock and allow another
+// 'bslmt::QLockGuard' will automatically unlock the QLock and allow another
 // thread into the critical region.
 //..
         return *singletonPtr;
@@ -957,7 +957,7 @@ extern "C" void *testCase2(void *)
 //   the global count with incremented value.  The execution of critical
 //   region is protected by global QLock.
 // ----------------------------------------------------------------------------
-static bdlqq::QLock qMutex1  = BDLQQ_QLOCK_INITIALIZER;
+static bslmt::QLock qMutex1  = BSLMT_QLOCK_INITIALIZER;
 void *testCase1(int threadNum, const MyTask& task)
 {
     int *count = (int*)(task.arg());
@@ -968,7 +968,7 @@ void *testCase1(int threadNum, const MyTask& task)
 
     // Critical region
     {
-        bdlqq::QLockGuard qlock(&qMutex1);
+        bslmt::QLockGuard qlock(&qMutex1);
 
         int val = *count;
 
@@ -976,7 +976,7 @@ void *testCase1(int threadNum, const MyTask& task)
         ++val;
 
         // Sleep 10 milliseconds
-        bdlqq::ThreadUtil::microSleep(1000*10);
+        bslmt::ThreadUtil::microSleep(1000*10);
 
         *count = val;
     }
@@ -999,16 +999,16 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
         // --------------------------------------------------------------------
-        // Testing bdlqq::QLock::initialize and bdlqq::QLock::isLocked
+        // Testing bslmt::QLock::initialize and bslmt::QLock::isLocked
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Initialization test"  << bsl::endl;
 
-        bdlqq::QLock qlock;
+        bslmt::QLock qlock;
         qlock.initialize();
         ASSERT(!qlock.isLocked());
 
-        bdlqq::QLockGuard g(&qlock);
+        bslmt::QLockGuard g(&qlock);
         ASSERT(qlock.isLocked());
         g.unlock();
         ASSERT(!qlock.isLocked());
@@ -1036,8 +1036,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Two locks Test"  << bsl::endl;
 
-        bdlqq::QLock qlock1 = BDLQQ_QLOCK_INITIALIZER;
-        bdlqq::QLock qlock2 = BDLQQ_QLOCK_INITIALIZER;
+        bslmt::QLock qlock1 = BSLMT_QLOCK_INITIALIZER;
+        bslmt::QLock qlock2 = BSLMT_QLOCK_INITIALIZER;
 
         ContextCase7 context1;
         ContextCase7 context2;
@@ -1058,7 +1058,7 @@ int main(int argc, char *argv[])
 
         for (int i=0; i < 10; ++i) {
 
-            bdlqq::Barrier  barrier(i*2);
+            bslmt::Barrier  barrier(i*2);
 
             data1.d_barrier = &barrier;
             data2.d_barrier = &barrier;
@@ -1083,10 +1083,10 @@ int main(int argc, char *argv[])
                 ASSERT(context2.d_slots[j] != -1);
             }
 
-            bdlqq::QLockGuard guard1(&qlock1, false);
+            bslmt::QLockGuard guard1(&qlock1, false);
             ASSERT(guard1.tryLock() == 0);
 
-            bdlqq::QLockGuard guard2(&qlock2, false);
+            bslmt::QLockGuard guard2(&qlock2, false);
             ASSERT(guard2.tryLock() == 0);
         }
 
@@ -1114,7 +1114,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Fairness Test"  << bsl::endl;
 
-        bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;
+        bslmt::QLock qlock = BSLMT_QLOCK_INITIALIZER;
         DataCase6   data;
         data.d_qlock = &qlock;
         data.d_slots.clear();
@@ -1128,7 +1128,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == task6.start(i));
             ASSERT(0 == task6.stop());
 
-            bdlqq::QLockGuard guard(data.d_qlock, false);
+            bslmt::QLockGuard guard(data.d_qlock, false);
             ASSERT(guard.tryLock() == 0);
         }
 
@@ -1174,14 +1174,14 @@ int main(int argc, char *argv[])
                 data.d_numElements = MAX_SLOTS;
 
                 data.d_mutexes = 0;
-                data.d_qlocks = new bdlqq::QLock [MAX_SLOTS];
+                data.d_qlocks = new bslmt::QLock [MAX_SLOTS];
                 data.d_slots = new int [MAX_SLOTS];
 
                 for (int j=0; j < MAX_SLOTS; ++j) {
                     data.d_slots[j] = 0;
                     data.d_qlocks[j].initialize();
                 }
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
 
                 ASSERT(0 == task51.start(i));
                 ASSERT(0 == task51.stop());
@@ -1209,7 +1209,7 @@ int main(int argc, char *argv[])
                 data.d_numElements = MAX_SLOTS;
 
                 data.d_qlocks = 0;
-                data.d_mutexes = new bdlqq::Mutex [MAX_SLOTS];
+                data.d_mutexes = new bslmt::Mutex [MAX_SLOTS];
                 data.d_slots = new int [MAX_SLOTS];
 
                 for (int j=0; j < MAX_SLOTS; ++j) {
@@ -1312,8 +1312,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Contention Test: many threads - one QLock"
                           << endl;
 
-        bdlqq::QLock qlock = BDLQQ_QLOCK_INITIALIZER;;
-        bdlqq::Mutex mutex;
+        bslmt::QLock qlock = BSLMT_QLOCK_INITIALIZER;;
+        bslmt::Mutex mutex;
         DataCase3 data;
 
         data.d_count = 0;
@@ -1333,14 +1333,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == task3.stop());
                 ASSERT(data.d_count == i*data.d_numIter);
 
-                bdlqq::QLockGuard guard(data.d_qlock, false);
+                bslmt::QLockGuard guard(data.d_qlock, false);
                 ASSERT(guard.tryLock() == 0);
             }
             sw.stop();
             if (verbose) printMetrics(bsl::cout, "QLock", 10, sw);
        }
 
-       // repeat the same test with bdlqq_mutex
+       // repeat the same test with bslmt_mutex
        {
             bsls::Stopwatch sw;
 
@@ -1375,13 +1375,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsage example: Singleton" << endl;
 
-        bdlqq::ThreadUtil::Handle handle = bdlqq::ThreadUtil::invalidHandle();
-        bdlqq::ThreadUtil::create(&handle, testCase2, 0);
+        bslmt::ThreadUtil::Handle handle = bslmt::ThreadUtil::invalidHandle();
+        bslmt::ThreadUtil::create(&handle, testCase2, 0);
 
         const bsl::string& s1 = helloString();
         void              *s2 = 0;
 
-        bdlqq::ThreadUtil::join(handle, &s2);
+        bslmt::ThreadUtil::join(handle, &s2);
 
         ASSERT(s2 != 0);
         ASSERT(s2 == &s1);
@@ -1421,7 +1421,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == task1.stop());
             ASSERT(count1 == i);
 
-            bdlqq::QLockGuard guard(&qMutex1, false);
+            bslmt::QLockGuard guard(&qMutex1, false);
             ASSERT(guard.tryLock() == 0);
         }
 

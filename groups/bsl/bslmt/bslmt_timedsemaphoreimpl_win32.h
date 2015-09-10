@@ -1,28 +1,28 @@
-// bdlqq_timedsemaphoreimpl_win32.h                                   -*-C++-*-
-#ifndef INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_WIN32
-#define INCLUDED_BDLQQ_TIMEDSEMAPHOREIMPL_WIN32
+// bslmt_timedsemaphoreimpl_win32.h                                   -*-C++-*-
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
+#define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a win32 implementation of 'bdlqq::TimedSemaphore'.
+//@PURPOSE: Provide a win32 implementation of 'bslmt::TimedSemaphore'.
 //
 //@CLASSES:
-//  bdlqq::TimedSemaphoreImpl<Win32TimedSemaphore>: win32 specialization
+//  bslmt::TimedSemaphoreImpl<Win32TimedSemaphore>: win32 specialization
 //
-//@SEE_ALSO: bdlqq_timedsemaphore
+//@SEE_ALSO: bslmt_timedsemaphore
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bdlqq::TimedSemaphore' for Windows (win32) via the template specialization:
+// 'bslmt::TimedSemaphore' for Windows (win32) via the template specialization:
 //..
-//  bdlqq::TimedSemaphoreImpl<Platform::Win32Threads>
+//  bslmt::TimedSemaphoreImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
-// should instead use 'bdlqq::TimedSemaphore'.
+// should instead use 'bslmt::TimedSemaphore'.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -43,19 +43,19 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_PLATFORM
-#include <bdlqq_platform.h>
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
-#ifdef BDLQQ_PLATFORM_WIN32_THREADS
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -103,7 +103,7 @@ extern "C" {
 };
 
 namespace BloombergLP {
-namespace bdlqq {
+namespace bslmt {
 
 template <class TIMED_SEMAPHORE_POLICY>
 class TimedSemaphoreImpl;
@@ -191,7 +191,7 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
 
 // CREATORS
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -199,7 +199,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
 }
 
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -207,7 +207,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
 }
 
 inline
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
+bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     ~TimedSemaphoreImpl()
 {
     CloseHandle(d_handle);
@@ -215,33 +215,33 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
 
 // MANIPULATORS
 inline
-void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::post()
+void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::post()
 {
     ReleaseSemaphore(d_handle, 1, NULL);
 }
 
 inline
-void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::
+void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     post(int number)
 {
     ReleaseSemaphore(d_handle, number, NULL);
 }
 
 inline
-int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::tryWait()
+int bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::tryWait()
 {
     return WaitForSingleObject(d_handle, 0);  // 0 means timeout immediately.
 }
 
 inline
-void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::wait()
+void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::wait()
 {
     WaitForSingleObject(d_handle, 0xFFFFFFFF /* INFINITE */);
 }
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_WIN32_THREADS
+#endif  // BSLMT_PLATFORM_WIN32_THREADS
 
 #endif
 

@@ -1,15 +1,15 @@
-// bdlqq_timedsemaphoreimpl_posixadv.cpp                              -*-C++-*-
-#include <bdlqq_timedsemaphoreimpl_posixadv.h>
+// bslmt_timedsemaphoreimpl_posixadv.cpp                              -*-C++-*-
+#include <bslmt_timedsemaphoreimpl_posixadv.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_muteximpl_pthread.h>   // for testing only
-#include <bdlqq_threadutil.h>          // for testing only
+#include <bslmt_muteximpl_pthread.h>   // for testing only
+#include <bslmt_threadutil.h>          // for testing only
 
-#ifdef BDLQQ_PLATFORM_POSIXADV_TIMEDSEMAPHORE
+#ifdef BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
-#include <bdlqq_saturatedtimeconversionimputil.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
 
 #include <bsls_timeinterval.h>
 #include <bsls_systemclocktype.h>
@@ -25,7 +25,7 @@ namespace BloombergLP {
              // ================================================
 
 // MANIPULATORS
-void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post(
+void bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::post(
                                                                     int number)
 {
     for (int i = 0; i < number; i++) {
@@ -33,7 +33,7 @@ void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post(
     }
 }
 
-int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     timedWait(const bsls::TimeInterval& timeout)
 {
     bsls::TimeInterval realTimeout(timeout);
@@ -58,7 +58,7 @@ int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
 }
 
 void
-bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::wait()
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::wait()
 {
     while (::sem_wait(&d_sem) != 0) {
         if (EINTR != errno) {
@@ -69,7 +69,7 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::wait()
 
 }  // close enterprise namespace
 
-#endif  // BDLQQ_PLATFORM_POSIXADV_TIMEDSEMAPHORE
+#endif  // BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
