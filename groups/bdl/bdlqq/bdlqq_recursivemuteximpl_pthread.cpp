@@ -14,7 +14,9 @@ namespace BloombergLP {
 
 // CREATORS
 bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::RecursiveMutexImpl()
+#ifndef PTHREAD_MUTEX_RECURSIVE
 : d_spin(bsls::SpinLock::s_unlocked)
+#endif
 {
     pthread_mutexattr_t attribute;
     pthread_mutexattr_init(&attribute);
