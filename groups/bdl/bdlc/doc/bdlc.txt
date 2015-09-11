@@ -9,11 +9,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlc' package currently has 1 component having 1 level of physical
+ The 'bdlc' package currently has 2 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  2. bdlc_packedintarrayutil
+
   1. bdlc_packedintarray
 ..
 
@@ -21,3 +23,6 @@
 /------------------
 : 'bdlc_packedintarray':
 :      Provide an extensible, packed array of integral values.
+:
+: 'bdlc_packedintarrayutil':
+:      Provide common non-primitive operations on 'bdlc::PackedIntArray'.

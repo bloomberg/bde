@@ -1387,19 +1387,22 @@ void PackedIntArrayImp<STORAGE>::reserveCapacityImp(
     requiredCapacityInBytes = nextCapacityGE(requiredCapacityInBytes,
                                              d_capacityInBytes);
 
-    // Allocate new memory.
+    if (requiredCapacityInBytes > d_capacityInBytes) {
 
-    void *src = d_storage_p;
-    d_storage_p = d_allocator_p->allocate(requiredCapacityInBytes);
-    d_capacityInBytes = requiredCapacityInBytes;
+        // Allocate new memory.
 
-    // Copy existing data.
+        void *src = d_storage_p;
+        d_storage_p = d_allocator_p->allocate(requiredCapacityInBytes);
+        d_capacityInBytes = requiredCapacityInBytes;
 
-    bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
+        // Copy existing data.
 
-    // Deallocate original memory.
+        bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
 
-    d_allocator_p->deallocate(src);
+        // Deallocate original memory.
+
+        d_allocator_p->deallocate(src);
+    }
 }
 
 // ACCESSORS
