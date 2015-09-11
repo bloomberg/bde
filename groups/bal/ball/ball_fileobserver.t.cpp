@@ -134,7 +134,6 @@ static void aSsErT2(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
 // ============================================================================
@@ -228,7 +227,7 @@ void removeFilesByPrefix(const char *prefix)
     HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
     if (hFind != INVALID_HANDLE_VALUE) {
         fileNames.push_back(findFileData.cFileName);
-        while(FindNextFile(hFind, &findFileData)) {
+        while (FindNextFile(hFind, &findFileData)) {
             fileNames.push_back(findFileData.cFileName);
         }
         FindClose(hFind);
@@ -875,11 +874,11 @@ int main(int argc, char *argv[])
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
         expectedDatetimeField.str("");
         expectedDatetimeField << testUtcDatetime;
-  
+
         if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(), 
+        ASSERTV(expectedDatetimeField.str(),
                 datetimeField,
                 expectedDatetimeField.str() == datetimeField);
         ASSERTV(expectedLoadCount ==
@@ -892,8 +891,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(), 
-                datetimeField, 
+        ASSERTV(expectedDatetimeField.str(),
+                datetimeField,
                 expectedDatetimeField.str() == datetimeField);
 
         ASSERTV(expectedLoadCount ==
@@ -2186,7 +2185,7 @@ int main(int argc, char *argv[])
             multiplexObserver.registerObserver(&mX);
 
             BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-            
+
             if (veryVerbose) {
                 cerr << fn << endl;
                 cerr << fileName << endl;
@@ -2220,7 +2219,7 @@ int main(int argc, char *argv[])
                     getline(coutFs, coutLine);
 
                     ASSERTV(coutLine, line, coutLine == line);
-                    bsl::cerr << "coutLine: '" << coutLine << "'" << endl 
+                    bsl::cerr << "coutLine: '" << coutLine << "'" << endl
                               << "line: '" << line << "'" <<endl;
                 }
                 ++linesNum;
