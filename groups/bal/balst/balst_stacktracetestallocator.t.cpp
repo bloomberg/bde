@@ -27,6 +27,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_set.h>
 #include <bsl_sstream.h>
@@ -2563,7 +2564,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             static
-            bool isInplace = bdlf::FunctionUtil::IsInplace<TC::Functor>::VALUE;
+            bool isInplace = bsl::functionUtil::IsInplace<TC::Functor>::VALUE;
             expectedDefaultAllocations += 0 == isInplace;
 
             static bool firstTime = true;

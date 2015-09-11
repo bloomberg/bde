@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_new.h>
@@ -457,7 +458,7 @@ void StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
 }
 
 void StackTraceTestAllocator::setFailureHandler(
-                                        const bdlf::Function<void (*)()>& func)
+                                             const bsl::function<void()>& func)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 

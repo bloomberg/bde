@@ -14,6 +14,8 @@
 #include <bdlf_bind.h>
 
 #include <bsls_stopwatch.h>
+
+#include <bsl_functional.h>
 #include <bsl_ostream.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
@@ -263,10 +265,10 @@ void MetricConcurrencyTest::execute()
 
 void MetricConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                            d_allocator_p,
-                                            &MetricConcurrencyTest::execute,
-                                            this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
+                                               d_allocator_p,
+                                               &MetricConcurrencyTest::execute,
+                                               this);
 
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);

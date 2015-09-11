@@ -44,6 +44,7 @@
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
+#include <bsl_functional.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
 #include <bsl_new.h>         // placement 'new' syntax
@@ -1247,7 +1248,7 @@ enum {
     NUM_THREADS = 4 // number of threads
 };
 ball::LoggerManager *manager;
-bdlf::Function<void (*)(int *, int *, int *, int *, const char *)> function;
+bsl::function<void(int *, int *, int *, int *, const char *)> function24;
 bslmt::Barrier barrier(NUM_THREADS + 1);
 bslmt::Condition condition;
 
@@ -1278,7 +1279,7 @@ extern "C" {
         // out, because the setter mutex is locked by that thread.
     {
         barrier.wait();
-        manager->setDefaultThresholdLevelsCallback(&function);
+        manager->setDefaultThresholdLevelsCallback(&function24);
         condition.signal();
         return 0;
     }
@@ -1569,8 +1570,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
-        function = &callback;
-        manager->setDefaultThresholdLevelsCallback(&function);
+        function24 = &callback;
+        manager->setDefaultThresholdLevelsCallback(&function24);
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadUtil::create(&handle, setCategory, 0);
         executeInParallel(NUM_THREADS, workerThread30);

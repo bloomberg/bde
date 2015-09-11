@@ -709,8 +709,8 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -764,7 +764,7 @@ class CbChannelAllocator
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(CbChannel *, int)> Callback;
+    typedef bsl::function<void(CbChannel *, int)> Callback;
         // Invoked as a result of an 'allocate' request, 'Callback' is an alias
         // for a callback function object (functor) that returns 'void' and
         // takes as arguments the (possibly null) address of a callback
@@ -772,7 +772,7 @@ class CbChannelAllocator
         // (positive) or an error (negative).  Note that "status" is meaningful
         // only if "channel" is 0.
 
-    typedef bdlf::Function<void (*)(TimedCbChannel *, int)> TimedCallback;
+    typedef bsl::function<void(TimedCbChannel *, int)> TimedCallback;
         // Invoked as a result of an 'allocateTimed' request, 'TimedCallback'
         // is an alias for a callback function object (functor) that returns
         // 'void' and takes as arguments the (possibly null) address of a timed
@@ -781,8 +781,7 @@ class CbChannelAllocator
         // is meaningful only if "channel" is 0.
 
     // MANIPULATORS
-    virtual int allocate(const Callback& callback,
-                         int             flags = 0)                        = 0;
+    virtual int allocate(const Callback & callback, int flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
@@ -806,7 +805,7 @@ class CbChannelAllocator
         // 'isInvalid').  The behavior is undefined unless 'callback' is valid.
 
     virtual int allocateTimed(const TimedCallback& timedCallback,
-                              int                  flags = 0)              = 0;
+                              int                  flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified

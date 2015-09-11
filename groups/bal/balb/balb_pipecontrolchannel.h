@@ -149,8 +149,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -179,7 +179,7 @@ class PipeControlChannel {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(const bslstl::StringRef& message)>
+    typedef bsl::function<void(const bslstl::StringRef& message)>
                                                                ControlCallback;
         // This type of function is called to handle control messages received
         // on the pipe.  The 'message' is one complete message read from the

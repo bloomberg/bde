@@ -514,8 +514,8 @@ BSLS_IDENT("$Id: $")
 #include <btls_iovec.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -555,7 +555,7 @@ class TimedCbChannel : public CbChannel {
         // Destroy this channel.
 
     // TYPES
-    typedef bdlf::Function<void (*)(int, int)> ReadCallback;
+    typedef bsl::function<void(int, int)> ReadCallback;
         // Invoked as a result of any non-buffered read method, 'ReadCallback'
         // is an alias for a callback function object (functor) that returns
         // 'void' and takes as arguments an integer "status" indicating
@@ -567,8 +567,7 @@ class TimedCbChannel : public CbChannel {
         // data-driven optimization, or (4) an operation dequeued (cancelled)
         // by the implementation or the user.
 
-    typedef bdlf::Function<void (*)(const char *, int, int)>
-                                                          BufferedReadCallback;
+    typedef bsl::function<void(const char *, int, int)> BufferedReadCallback;
         // Invoked as a result of any buffered read method,
         // 'BufferedReadCallback' is an alias for a callback function object
         // (functor) that returns 'void' and takes as arguments the (potential)
@@ -581,7 +580,7 @@ class TimedCbChannel : public CbChannel {
         // implementation-dependent, data-driven optimization, or (4) an
         // operation dequeued (cancelled) by the implementation or the user.
 
-    typedef bdlf::Function<void (*)(int, int)> WriteCallback;
+    typedef bsl::function<void(int, int)> WriteCallback;
         // Invoked as a result of any write method, 'WriteCallback' is an alias
         // for a callback function object (functor) that returns 'void' and
         // takes as arguments an integer "status" indicating *success*, an
@@ -626,11 +625,11 @@ class TimedCbChannel : public CbChannel {
         // and remains valid until the (non-null) 'readCallback' completes, and
         // 0 < numBytes.
 
-    virtual int timedRead(char                     *buffer,
-                          int                       numBytes,
+    virtual int timedRead(char                      *buffer,
+                          int                        numBytes,
                           const bsls::TimeInterval&  timeout,
-                          const ReadCallback&       readCallback,
-                          int                       flags = 0)             = 0;
+                          const ReadCallback&        readCallback,
+                          int                        flags = 0)            = 0;
         // Initiate a non-blocking operation to read the specified 'numBytes'
         // from this channel into the specified 'buffer' or interrupt after the
         // specified absolute 'timeout' time is reached; execute the specified

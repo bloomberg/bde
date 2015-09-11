@@ -15,13 +15,14 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
-#include <bsl_ostream.h>
-#include <bsl_string.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
 #include <bsl_c_stdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
@@ -420,10 +421,10 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                                  d_allocator_p,
-                                                  &ConcurrencyTest::execute,
-                                                  this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
+                                                     d_allocator_p,
+                                                     &ConcurrencyTest::execute,
+                                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }

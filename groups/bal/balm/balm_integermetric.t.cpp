@@ -16,12 +16,12 @@
 #include <bslma_testallocator.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
 
 #include <bslim_testutil.h>
 
@@ -268,7 +268,7 @@ void MetricConcurrencyTest::execute()
 
 void MetricConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
                                                d_allocator_p,
                                                &MetricConcurrencyTest::execute,
                                                this);

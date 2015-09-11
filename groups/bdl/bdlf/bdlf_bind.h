@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // a bit more involved) situation.
 //
 // Note that 'bdlf::Bind' functors are typically used with standard algorithms,
-// or with 'bdlf::Function'.  This mechanism is similar to, but much more
+// or with 'bsl::function'.  This mechanism is similar to, but much more
 // powerful than 'bsl::binder1st' or 'bsl::binder2nd'.
 //
 // The difference between a binder created using one of 'bindS' and 'bindSR'
@@ -432,7 +432,7 @@ BSLS_IDENT("$Id: $")
 // limitation applies to free functions with 'extern "C"' linkage.  In that
 // case, the return type has to be given explicitly to the binder.  This can be
 // done by using the 'bdlf::BindUtil::bindR' function.  Note that all
-// 'bdlf::Function' objects have a standard public type 'ResultType' to assist
+// 'bsl::function' objects have a standard public type 'ResultType' to assist
 // the deduction of return type and can be used with 'bdlf::BindUtil::bind'.
 // See the usage example "Binding to a Function Object with Explicit Return
 // Type" below.
@@ -569,7 +569,7 @@ BSLS_IDENT("$Id: $")
 //      // its own stream of events.
 //
 //      // PRIVATE INSTANCE DATA
-//      bdlf::Function<void (*)(int, MyEvent)>  d_callback;
+//      bsl::function<void(int, MyEvent)>  d_callback;
 //
 //      // PRIVATE MANIPULATORS
 //      int getNextEvent(MyEvent *eventBuffer) {
@@ -584,7 +584,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    public:
 //      // CREATORS
-//      MyEventDispatcher(bdlf::Function<void(*)(int, MyEvent)> const& cb)
+//      MyEventDispatcher(bsl::function<void(int, MyEvent)> const& cb)
 //      : d_callback(cb)
 //      {
 //      }

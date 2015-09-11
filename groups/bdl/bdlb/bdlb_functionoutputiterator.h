@@ -170,18 +170,18 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: Adapting a Functor Using bdlf::Function and bdlf::BindUtil::bind
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Adapting a Functor Using bsl::function and bdlf::BindUtil::bind
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates using a 'bdlb::FunctionOutputIterator'
 // with a functor created using 'bdlf::BindUtil'.  Consider the 'Accumulator'
 // class defined in Example 2, which we want to adapt to accumulate a set of
 // integer values.
 //
-// First, define an alias to a 'bdlf::Function' having the signature of the
+// First, define an alias to a 'bsl::function' having the signature of the
 // accumulation functor (note that this matches the signature of
 // 'Accumulator::increment' defined in example 2):
 //..
-//  typedef bdlf::Function<void (*)(int)> AccumulatorFunction;
+//  typedef bsl::function<void(int)> AccumulatorFunction;
 //      // Define an alias for the functor type.
 //
 //..

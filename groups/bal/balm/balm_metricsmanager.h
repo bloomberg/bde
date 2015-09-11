@@ -276,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //..
 // We now register the callback function 'collectMetricsCb' with the metrics
 // manager.  We use 'bdlf::BindUtil' to bind the member function to a
-// 'bdlf::Function' matching the
+// 'bsl::function' matching the
 // 'balm::MetricsManager::RecordsCollectionCallback' function prototype.  The
 // private data member 'd_callbackHandle' is used to store the
 // 'balm::MetricsManager::CallbackHandle' returned for the registered callback;
@@ -387,10 +387,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -405,6 +401,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -454,7 +454,7 @@ class MetricsManager {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(bsl::vector<MetricRecord> *, bool)>
+    typedef bsl::function<void(bsl::vector<MetricRecord> *, bool)>
                                                      RecordsCollectionCallback;
         // 'RecordsCollectionCallback' is an alias for a callback function
         // that appends to the supplied 'MetricRecord' vector the values of the
