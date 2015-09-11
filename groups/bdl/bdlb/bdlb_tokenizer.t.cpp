@@ -731,8 +731,120 @@ int main(int argc, char **argv)
         if (verbose) cout << endl
                           << "TESTING 'reset' METHOD" << endl
                           << "======================" << endl;
-        if (verbose) cout << "TODO" << endl;
-        } break;
+
+        if (verbose) cout << "\nTesting 'reset' method" << endl;
+
+        if (verbose) cout << "\tTesting input string resetting" << endl;
+        {
+            static const struct {
+                int         d_line;            // line number
+                const char *d_ctorInput;       // input for constructor
+                const char *d_ctorValues[3];   // initial object state
+                const char *d_resetInput;      // input for reset method
+                const char *d_resetValues[3];  // object state after reset
+            } DATA[] = {
+            //L#  CTOR   LEADER  TOKEN  DELIM    RESET  LEADER  TOKEN  DELIM
+            //    INPUT                          INPUT
+            //--  -----  ------  -----  -----    -----  ------  -----  -----
+            {L_,  "",    {""                 },  "",    {""                 }},
+            {L_,  "",    {""                 },  "s",   {"s"                }},
+            {L_,  "",    {""                 },  "H",   {"",    "",    "H"  }},
+            {L_,  "",    {""                 },  "0",   {"",    "0",   ""   }},
+
+            {L_,  "s",   {"s"                },  "",    {""                 }},
+            {L_,  "s",   {"s"                },  "st",  {"st"               }},
+            {L_,  "s",   {"s"                },  "H",   {"",    "",    "H"  }},
+            {L_,  "s",   {"s"                },  "0",   {"",    "0",   ""   }},
+
+            {L_,  "H",   {"",    "",    "H"  },  "",    {""                 }},
+            {L_,  "H",   {"",    "",    "H"  },  "s",   {"s"                }},
+            {L_,  "H",   {"",    "",    "H"  },  "Hs",  {"",    "",    "Hs" }},
+            {L_,  "H",   {"",    "",    "H"  },  "0",   {"",    "0",   ""   }},
+
+            {L_,  "0",   {"",    "0",   ""   },  "",    {""                 }},
+            {L_,  "0",   {"",    "0",   ""   },  "s",   {"s"                }},
+            {L_,  "0",   {"",    "0",   ""   },  "H",   {"",    "",    "H"  }},
+            {L_,  "0",   {"",    "0",   ""   },  "01",  {"",    "01",  ""   }},
+            };  // DATA
+
+            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const int   LINE         = DATA[i].d_line;
+                const char *CTOR_INPUT   = DATA[i].d_ctorInput;
+                const char *CTOR_LEADER  = DATA[i].d_ctorValues[0];
+                const char *CTOR_TOKEN   = DATA[i].d_ctorValues[1];
+                const char *CTOR_DELIM   = DATA[i].d_ctorValues[2];
+                const char *RESET_INPUT  = DATA[i].d_resetInput;
+                const char *RESET_LEADER = DATA[i].d_resetValues[0];
+                const char *RESET_TOKEN  = DATA[i].d_resetValues[1];
+                const char *RESET_DELIM  = DATA[i].d_resetValues[2];
+
+                bool CTOR_INPUT_VALID = isValid(CTOR_INPUT,
+                                                SOFT_DELIM_CHARS,
+                                                HARD_DELIM_CHARS,
+                                                TOKEN_CHARS);
+                ASSERTV(LINE, CTOR_INPUT, true == CTOR_INPUT_VALID);
+
+                bool RESET_INPUT_VALID = isValid(RESET_INPUT,
+                                                 SOFT_DELIM_CHARS,
+                                                 HARD_DELIM_CHARS,
+                                                 TOKEN_CHARS);
+                ASSERTV(LINE, RESET_INPUT, true == RESET_INPUT_VALID);
+
+                Obj        mT(CTOR_INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+
+                if (CTOR_TOKEN) {
+                    ASSERTV(LINE, true        == T.isValid());
+                    ASSERTV(LINE, CTOR_LEADER == T.previousDelimiter());
+                    ASSERTV(LINE, CTOR_TOKEN  == T.token());
+                    ASSERTV(LINE, CTOR_DELIM  == T.trailingDelimiter());
+                } else {
+                    ASSERTV(LINE, false       == T.isValid());
+                    ASSERTV(LINE, CTOR_LEADER == T.previousDelimiter());
+                }
+
+                mT.reset(RESET_INPUT);
+
+                if (RESET_TOKEN) {
+                    ASSERTV(LINE, true         == T.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T.previousDelimiter());
+                    ASSERTV(LINE, RESET_TOKEN  == T.token());
+                    ASSERTV(LINE, RESET_DELIM  == T.trailingDelimiter());
+                } else {
+                    ASSERTV(LINE, false        == T.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T.previousDelimiter());
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting delimiters preservation" << endl;
+        {
+            char ctorInput[255];
+            char resetInput[255];
+            char delim = static_cast<char>(0);
+
+            for (int i = 1; i < 256; ++i) {
+                ctorInput[i-1]      = static_cast<char>(i);
+                resetInput[256-i-1] = static_cast<char>(i);
+            }
+
+            Obj        mTSoft(ctorInput, StringRef(&delim, 1), StringRef());
+            const Obj& TSoft = mTSoft;
+            Obj        mTHard(ctorInput, StringRef(), StringRef(&delim, 1));
+            const Obj& THard = mTHard;
+
+            ASSERT(ctorInput == TSoft.token());
+            ASSERT(ctorInput == THard.token());
+
+            mTSoft.reset(resetInput);
+            mTHard.reset(resetInput);
+
+            ASSERT(resetInput == TSoft.token());
+            ASSERT(resetInput == THard.token());
+        }
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // SECONDARY CONSTRUCTOR
@@ -753,7 +865,100 @@ int main(int argc, char **argv)
         if (verbose) cout << endl
                           << "SECONDARY CONSTRUCTOR" << endl
                           << "====================" << endl;
-        if (verbose) cout << "TODO" << endl;
+
+        if (verbose) cout << "\nTesting two-parameter constructor" << endl;
+
+        static const struct {
+            int         d_line;    // line number
+            const char *d_input;   // input
+            const char *d_leader;  // leader (previous delimiter)
+            const char *d_token;   // trailing token
+            const char *d_delim;   // trailing delimiter
+        } DATA[] = {
+            //L#  INPUT    LEADER  TOKEN    DELIM
+            //--  -------  ------  -------  ------
+            {L_,  "",      ""                      },  // Depth 0
+            //--  -------  ------  -------  ------
+            {L_,  "s",     "s"                     },  // Depth 1
+            {L_,  "0",     "",     "0",     ""     },
+            //--  -------  ------  -------  ------
+            {L_,  "st",    "st"                    },  // Depth 2
+            {L_,  "s0",    "s",    "0",     ""     },
+            {L_,  "0s",    "",     "0",     "s"    },
+            {L_,  "01",    "",     "01",    ""     },
+            //--  -------  ------  -------  ------
+            {L_,  "stu",   "stu"                   },  // Depth 3
+            {L_,  "st0",   "st",   "0",     ""     },
+            {L_,  "s0t",   "s",    "0",     "t"    },
+            {L_,  "s01",   "s",    "01",    ""     },
+            {L_,  "0st",   "",     "0",     "st"   },
+            {L_,  "0s1",   "",     "0",     "s",   },
+            {L_,  "01s",   "",     "01",    "s"    },
+            {L_,  "012",   "",     "012",   ""     },
+            //--  -------  ------  -------  ------
+            {L_,  "stuv",  "stuv"                  },  // Depth 4
+            {L_,  "stu0",  "stu",  "0",     ""     },
+            {L_,  "st0u",  "st",   "0",     "u"    },
+            {L_,  "st01",  "st",   "01",    ""     },
+            {L_,  "s0tu",  "s",    "0",     "tu"   },
+            {L_,  "s0t1",  "s",    "0",     "t",   },
+            {L_,  "s01t",  "s",    "01",    "t"    },
+            {L_,  "s012",  "s",    "012",   ""     },
+            {L_,  "0stu",  "",     "0",     "stu"  },
+            {L_,  "0st1",  "",     "0",     "st",  },
+            {L_,  "0s1t",  "",     "0",     "s",   },
+            {L_,  "0s12",  "",     "0",     "s",   },
+            {L_,  "01st",  "",     "01",    "st"   },
+            {L_,  "01s2",  "",     "01",    "s",   },
+            {L_,  "012s",  "",     "012",   "s"    },
+            {L_,  "0123",  "",     "0123",  ""     },
+        };  // DATA
+
+        enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+        for (int i = 0; i < DATA_LEN; ++i) {
+            const int   LINE   = DATA[i].d_line;
+            const char *INPUT  = DATA[i].d_input;
+            const char *LEADER = DATA[i].d_leader;
+            const char *TOKEN  = DATA[i].d_token;
+            const char *DELIM  = DATA[i].d_delim;
+
+            // Make sure that the characters in the input string occur in
+            // the same relative order as they do in each of the respective
+            // character sets defined above, and that they do NOT skip over
+            // any characters in those respective sets.
+
+            bool VALID = isValid(INPUT,
+                                 SOFT_DELIM_CHARS,
+                                 HARD_DELIM_CHARS,
+                                 TOKEN_CHARS);
+            ASSERTV(LINE, INPUT, true == VALID);
+
+            Obj        mTPtr(INPUT, StringRef(SOFT_DELIM_CHARS));
+            const Obj& TPtr = mTPtr;
+
+            Obj        mTRef(StringRef(INPUT),
+                             StringRef(SOFT_DELIM_CHARS));
+            const Obj& TRef = mTPtr;
+
+            if (TOKEN) {
+                ASSERTV(LINE, true   == TPtr.isValid());
+                ASSERTV(LINE, LEADER == TPtr.previousDelimiter());
+                ASSERTV(LINE, TOKEN  == TPtr.token());
+                ASSERTV(LINE, DELIM  == TPtr.trailingDelimiter());
+
+                ASSERTV(LINE, true   == TRef.isValid());
+                ASSERTV(LINE, LEADER == TRef.previousDelimiter());
+                ASSERTV(LINE, TOKEN  == TRef.token());
+                ASSERTV(LINE, DELIM  == TRef.trailingDelimiter());
+            } else {
+                ASSERTV(LINE, false  == TPtr.isValid());
+                ASSERTV(LINE, LEADER == TPtr.previousDelimiter());
+
+                ASSERTV(LINE, false  == TRef.isValid());
+                ASSERTV(LINE, LEADER == TRef.previousDelimiter());
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
