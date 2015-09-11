@@ -433,8 +433,8 @@ BSLS_IDENT("$Id: $")
 // the 'modifiedFollowing' method:
 //..
 //  bdlt::Calendar cal1(bdlt::Date(2015, 1, 1), bdlt::Date(2015,12, 31));
-//  cal1.addWeekendDay(bdlt::DayOfWeek::SUN);
-//  cal1.addWeekendDay(bdlt::DayOfWeek::SAT);
+//  cal1.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+//  cal1.addWeekendDay(bdlt::DayOfWeek::e_SAT);
 //  cal1.addHoliday(bdlt::Date(2015, 7, 3));
 //
 //  bdlt::Calendar cal2(cal1);

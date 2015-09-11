@@ -1199,8 +1199,8 @@ int main(int argc, char *argv[])
 // the 'modifiedFollowing' method:
 //..
     bdlt::Calendar cal1(bdlt::Date(2015, 1, 1), bdlt::Date(2015,12, 31));
-    cal1.addWeekendDay(bdlt::DayOfWeek::SUN);
-    cal1.addWeekendDay(bdlt::DayOfWeek::SAT);
+    cal1.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+    cal1.addWeekendDay(bdlt::DayOfWeek::e_SAT);
     cal1.addHoliday(bdlt::Date(2015, 7, 3));
 
     bdlt::Calendar cal2(cal1);
@@ -7447,8 +7447,8 @@ int main(int argc, char *argv[])
             ASSERT(X.isWeekendDay(bdlt::Date(2015, 5, 18)) == false);
 
             bdlt::DayOfWeekSet wAU;
-            wAU.add(bdlt::DayOfWeek::SUN);
-            wAU.add(bdlt::DayOfWeek::SAT);
+            wAU.add(bdlt::DayOfWeek::e_SUN);
+            wAU.add(bdlt::DayOfWeek::e_SAT);
 
             ASSERT(bdlt::Calendar::WeekendDaysTransition(
                                                       bdlt::Date(1, 1, 1), wAU)
@@ -7485,9 +7485,9 @@ int main(int argc, char *argv[])
             ASSERT(X.isWeekendDay(bdlt::Date(2009, 11, 28)) == false);
 
             bdlt::DayOfWeekSet wMWF;
-            wMWF.add(bdlt::DayOfWeek::MON);
-            wMWF.add(bdlt::DayOfWeek::WED);
-            wMWF.add(bdlt::DayOfWeek::FRI);
+            wMWF.add(bdlt::DayOfWeek::e_MON);
+            wMWF.add(bdlt::DayOfWeek::e_WED);
+            wMWF.add(bdlt::DayOfWeek::e_FRI);
 
             ASSERT(bdlt::Calendar::WeekendDaysTransition(
                                                      bdlt::Date(1, 1, 1), wMWF)
@@ -7524,24 +7524,24 @@ int main(int argc, char *argv[])
             ASSERT(X.isWeekendDay(bdlt::Date(2014, 4, 12)) == false);
 
             bdlt::DayOfWeekSet wAU;
-            wAU.add(bdlt::DayOfWeek::SUN);
-            wAU.add(bdlt::DayOfWeek::SAT);
+            wAU.add(bdlt::DayOfWeek::e_SUN);
+            wAU.add(bdlt::DayOfWeek::e_SAT);
 
             ASSERT(bdlt::Calendar::WeekendDaysTransition(
                                                       bdlt::Date(1, 1, 1), wAU)
                                                 == X.weekendDaysTransition(0));
 
             bdlt::DayOfWeekSet wMWF;
-            wMWF.add(bdlt::DayOfWeek::MON);
-            wMWF.add(bdlt::DayOfWeek::WED);
-            wMWF.add(bdlt::DayOfWeek::FRI);
+            wMWF.add(bdlt::DayOfWeek::e_MON);
+            wMWF.add(bdlt::DayOfWeek::e_WED);
+            wMWF.add(bdlt::DayOfWeek::e_FRI);
 
             ASSERT(bdlt::Calendar::WeekendDaysTransition(
                                                  bdlt::Date(2014, 3, 15), wMWF)
                                                 == X.weekendDaysTransition(1));
 
             bdlt::DayOfWeekSet wT;
-            wT.add(bdlt::DayOfWeek::TUE);
+            wT.add(bdlt::DayOfWeek::e_TUE);
 
             ASSERT(bdlt::Calendar::WeekendDaysTransition(
                                                    bdlt::Date(2014, 3, 30), wT)
