@@ -5,6 +5,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_cstring.h>      // strcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
