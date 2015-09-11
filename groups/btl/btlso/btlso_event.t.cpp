@@ -13,6 +13,7 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_utility.h>      // make_pair()
 
 using namespace bsl;  // automatically added by script
 
