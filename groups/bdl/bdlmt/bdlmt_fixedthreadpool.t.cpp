@@ -6,8 +6,8 @@
 #include <bslma_testallocator.h>
 
 #include <bdlt_currenttime.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
 
 #include <bslma_defaultallocatorguard.h>
 
@@ -142,17 +142,17 @@ bslma::TestAllocator taDefault;
         break; } // things are SNAFU
 
 struct TestJobFunctionArgs {
-    bdlqq::Condition *d_startCond;
-    bdlqq::Condition *d_stopCond;
-    bdlqq::Mutex     *d_mutex;
+    bslmt::Condition *d_startCond;
+    bslmt::Condition *d_stopCond;
+    bslmt::Mutex     *d_mutex;
     volatile int     d_count;
     volatile int     d_startSig;
     volatile int     d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {
-    bdlqq::Barrier   *d_startBarrier_p;
-    bdlqq::Barrier   *d_stopBarrier_p;
+    bslmt::Barrier   *d_startBarrier_p;
+    bslmt::Barrier   *d_stopBarrier_p;
     bsls::AtomicInt   d_count;
 };
 
@@ -201,7 +201,7 @@ void testJobFunction1(void *ptr)
     // signaled.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bdlqq::LockGuard<bdlqq::Mutex> lock(args->d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
@@ -217,7 +217,7 @@ static void testJobFunction2( void *ptr )
     // the supplied counter and returns.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bdlqq::LockGuard<bdlqq::Mutex> lock(args->d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
@@ -292,7 +292,7 @@ static double getCurrentCpuTime()
 struct myFastSearchJobInfo {
     const string        *d_word;    // word to search for
     const string        *d_path;    // path of the file to search
-    bdlqq::Mutex         *d_mutex;   // mutex to control access the result
+    bslmt::Mutex         *d_mutex;   // mutex to control access the result
                                     // file list.
     bsl::vector<string> *d_outList; // list of matching files
 };
@@ -316,7 +316,7 @@ static void myFastSearchJob(void *arg)
      while( nread >= (size_t)wordLen ) {
          buffer[nread] = 0;
          if (strstr(buffer, word)) {
-             bdlqq::LockGuard<bdlqq::Mutex> lock(job->d_mutex);
+             bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
              job->d_outList->push_back(*job->d_path);
              break;
 
@@ -334,8 +334,8 @@ static void myFastSearch(const string&         word,
                          const vector<string>& fileList,
                          vector<string>&       outFileList)
 {
-    bdlqq::Mutex            mutex;
-    bdlqq::ThreadAttributes defaultAttributes;
+    bslmt::Mutex            mutex;
+    bslmt::ThreadAttributes defaultAttributes;
     bdlmt::FixedThreadPool  pool(defaultAttributes,
                                  SEARCH_THREADS,
                                  SEARCH_QUEUE_CAPACITY);
@@ -379,7 +379,7 @@ static void myFastFunctorSearchJob(myFastSearchJobInfo *job)
         while( nread >= (size_t)wordLen ) {
             buffer[nread] = 0;
             if (strstr(buffer, word)) {
-                bdlqq::LockGuard<bdlqq::Mutex> lock(job->d_mutex);
+                bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
                 job->d_outList->push_back(*job->d_path);
                 break;
 
@@ -395,8 +395,8 @@ static void myFastFunctorSearch(const string&         word,
                                 const vector<string>& fileList,
                                 vector<string>&       outFileList)
 {
-    bdlqq::Mutex            mutex;
-    bdlqq::ThreadAttributes defaultAttributes;
+    bslmt::Mutex            mutex;
+    bslmt::ThreadAttributes defaultAttributes;
     bdlmt::FixedThreadPool  pool(defaultAttributes,
                                  SEARCH_THREADS,
                                  SEARCH_QUEUE_CAPACITY);
@@ -437,7 +437,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlqq::Barrier          d_barrier;
+    bslmt::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -552,25 +552,25 @@ struct TryEnqueueRabbit {
 //                         CASE 10 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-void testJobFunction9_2(bdlqq::Barrier *barrier)
+void testJobFunction9_2(bslmt::Barrier *barrier)
 {
     barrier->wait();
 }
 
 class Test9Object {
     Obj *d_threadPool_p;
-    bdlqq::Barrier *d_barrier_p;
+    bslmt::Barrier *d_barrier_p;
 
   private:
     Test9Object(const Test9Object&);
     Test9Object& operator=(const Test9Object&);
 
   public:
-    Test9Object(bdlqq::Barrier *barrier_p, Obj *threadPool_p);
+    Test9Object(bslmt::Barrier *barrier_p, Obj *threadPool_p);
     ~Test9Object();
 };
 
-Test9Object::Test9Object(bdlqq::Barrier *barrier_p, Obj *threadPool_p)
+Test9Object::Test9Object(bslmt::Barrier *barrier_p, Obj *threadPool_p)
 : d_threadPool_p(threadPool_p)
 , d_barrier_p(barrier_p)
 {
@@ -613,7 +613,7 @@ enum {
 };
 
 Obj *xP;
-bdlqq::Barrier barrier(DEPTH_LIMIT + 1);  // to ensure that all the threads
+bslmt::Barrier barrier(DEPTH_LIMIT + 1);  // to ensure that all the threads
                                           // have started
 
 bsls::AtomicInt depthCounter;
@@ -758,7 +758,7 @@ int main(int argc, char *argv[])
             }
 
             do {
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
@@ -798,7 +798,7 @@ int main(int argc, char *argv[])
             }
 
             do {
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
@@ -898,12 +898,12 @@ int main(int argc, char *argv[])
         enum { NTHREADS = 1,
                NQUEUE_CAPACITY = 100 };
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         Obj mX(attr, NTHREADS, NQUEUE_CAPACITY, &testAllocator);
 
         STARTPOOL(mX);
 
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
         {
             Test9Object* p = new Test9Object(&barrier, &mX);
             mX.enqueueJob(testJobFunction9, p);
@@ -934,7 +934,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: cpu time not consumed when idle \n"
                           << "====================================" << endl ;
         {
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
 
             enum {
                 THREADS_THREADS = 25,
@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 T_ P(startIdleCpuTime)
             }
-            bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
                                        - startIdleCpuTime;
 
@@ -980,7 +980,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                  T_ P(startCpuTime)
             }
-            bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING SYNCHRONOUS SIGNALS" << endl
                           << "===========================" << endl ;
         {
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             enum {
                 THREADS = 5,
                 QUEUE_CAPACITY = 10
@@ -1049,9 +1049,9 @@ int main(int argc, char *argv[])
           ASSERT(0 == tp.numActiveThreads());
 
           tp.start();
-          bdlqq::Barrier barrier(NUM_THREADS+1);
+          bslmt::Barrier barrier(NUM_THREADS+1);
           for (int i = 0; i < NUM_THREADS; ++i) {
-              tp.enqueueJob(bdlf::BindUtil::bind(&bdlqq::Barrier::wait,
+              tp.enqueueJob(bdlf::BindUtil::bind(&bslmt::Barrier::wait,
                                                  &barrier));
           }
 
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
             if (NUM_THREADS == tp.numActiveThreads()) {
                 break;
             }
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+              bslmt::ThreadUtil::microSleep(10000); // 10 ms
           }
           ASSERT(NUM_THREADS == tp.numActiveThreads());
 
@@ -1069,7 +1069,7 @@ int main(int argc, char *argv[])
             if (0 == tp.numActiveThreads()) {
                 break;
             }
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+              bslmt::ThreadUtil::microSleep(10000); // 10 ms
           }
           ASSERT(0 == tp.numActiveThreads());
 
@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING a job enqueuing other jobs\n"
                           << "====================================" << endl ;
         {
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             Obj localX(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             xP = &localX;
             STARTPOOL(localX);
@@ -1148,12 +1148,12 @@ int main(int argc, char *argv[])
             const int THREADS  = VALUES[i].d_numThreads;
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
 
-            bdlqq::Barrier startBarrier(THREADS + 1);
-            bdlqq::Barrier stopBarrier(THREADS + 1);
+            bslmt::Barrier startBarrier(THREADS + 1);
+            bslmt::Barrier stopBarrier(THREADS + 1);
 
             TestJobFunctionArgs1 args;
             args.d_startBarrier_p = &startBarrier;
@@ -1237,9 +1237,9 @@ int main(int argc, char *argv[])
             const int THREADS  = VALUES[i].d_numThreads;
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-            bdlqq::Mutex mutex;
-            bdlqq::Condition startCond;
-            bdlqq::Condition stopCond;
+            bslmt::Mutex mutex;
+            bslmt::Condition startCond;
+            bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
 
@@ -1298,9 +1298,9 @@ int main(int argc, char *argv[])
             const int THREADS  = VALUES[i].d_numThreads;
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-            bdlqq::Mutex mutex;
-            bdlqq::Condition startCond;
-            bdlqq::Condition stopCond;
+            bslmt::Mutex mutex;
+            bslmt::Condition startCond;
+            bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1308,7 +1308,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
             const Obj& X = x;
@@ -1357,9 +1357,9 @@ int main(int argc, char *argv[])
                 T_ P_(i) T_ P_(THREADS) P(QUEUE_CAPACITY)
             }
 
-            bdlqq::Mutex mutex;
-            bdlqq::Condition startCond;
-            bdlqq::Condition stopCond;
+            bslmt::Mutex mutex;
+            bslmt::Condition startCond;
+            bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1367,7 +1367,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
             const Obj& X = x;
@@ -1459,7 +1459,7 @@ int main(int argc, char *argv[])
                 const int THREADS  = VALUES[i].d_numThreads;
                 const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-                bdlqq::ThreadAttributes attr;
+                bslmt::ThreadAttributes attr;
                 Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
                 const Obj& X = x;
@@ -1488,7 +1488,7 @@ int main(int argc, char *argv[])
         //   This test case exercises basic functionality but tests *nothing*.
         // --------------------------------------------------------------------
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         const int THREADS  = 10;
         const int QUEUE_CAPACITY  = 50;
         Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
@@ -1543,9 +1543,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTesting: 'testJobFunction1'" << endl
                                   << "\t===========================" << endl;
 
-            bdlqq::Mutex mutex;
-            bdlqq::Condition startCond;
-            bdlqq::Condition stopCond;
+            bslmt::Mutex mutex;
+            bslmt::Condition startCond;
+            bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1553,17 +1553,17 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NITERATIONS];
+            bslmt::ThreadAttributes attributes;
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                bdlqq::ThreadUtil::create(
+                bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bdlqq::ThreadUtil::ThreadFunction)&testJobFunction1,
+                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction1,
                           &args);
                 while( !args.d_startSig ) {
                     startCond.wait(&mutex);
@@ -1576,7 +1576,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
 
             for (int i=0; i<NITERATIONS; ++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
 
@@ -1585,9 +1585,9 @@ int main(int argc, char *argv[])
         {
             const int NITERATIONS=50;
 
-            bdlqq::Mutex mutex;
-            bdlqq::Condition startCond;
-            bdlqq::Condition stopCond;
+            bslmt::Mutex mutex;
+            bslmt::Condition startCond;
+            bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1595,17 +1595,17 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NITERATIONS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                bdlqq::ThreadUtil::create(
+                bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bdlqq::ThreadUtil::ThreadFunction)&testJobFunction2,
+                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction2,
                           &args);
                 while( !args.d_startSig ) {
                     startCond.wait(&mutex);
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
 
             for (int i=0; i<NITERATIONS; ++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
 
@@ -1625,22 +1625,22 @@ int main(int argc, char *argv[])
         {
             const int NITERATIONS=50;
 
-            bdlqq::Barrier startBarrier(NITERATIONS + 1);
-            bdlqq::Barrier stopBarrier(NITERATIONS + 1);
+            bslmt::Barrier startBarrier(NITERATIONS + 1);
+            bslmt::Barrier stopBarrier(NITERATIONS + 1);
             TestJobFunctionArgs1 args;
 
             args.d_startBarrier_p = &startBarrier;
             args.d_stopBarrier_p  = &stopBarrier;
             args.d_count = 0;
 
-            bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadUtil::Handle threadHandles[NITERATIONS];
+            bslmt::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
-                bdlqq::ThreadUtil::create(
+                bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bdlqq::ThreadUtil::ThreadFunction)&testJobFunction3,
+                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction3,
                           &args);
             }
             ASSERT(0 == args.d_count);
@@ -1650,7 +1650,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
 
             for (int i=0; i<NITERATIONS; ++i) {
-                bdlqq::ThreadUtil::join(threadHandles[i]);
+                bslmt::ThreadUtil::join(threadHandles[i]);
             }
         }
 
@@ -1694,7 +1694,7 @@ int main(int argc, char *argv[])
         for (int i = 1; i < MAX_NTHREADS; ++i)
         {
             cout << "\tUsing " << i << " threads.\n";
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             const int NTHREADS = i;
             const int NQUEUE_CAPACITY = 10000;
 

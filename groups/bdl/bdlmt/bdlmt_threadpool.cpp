@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 #include <bdlf_function.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -17,10 +17,10 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bsl_deque.h>
 
-#include <bdlqq_barrier.h>    // for testing only
-#include <bdlqq_lockguard.h>  // for testing only
-#include <bdlqq_threadattributes.h>     // for testing only
-#include <bdlqq_threadutil.h>     // for testing only
+#include <bslmt_barrier.h>    // for testing only
+#include <bslmt_lockguard.h>  // for testing only
+#include <bslmt_threadattributes.h>     // for testing only
+#include <bslmt_threadutil.h>     // for testing only
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
@@ -50,7 +50,7 @@ struct ThreadPoolWaitNode {
     // state value.  A thread that takes on a new job removes itself from the
     // wait list (not necessarily at the head of the list).
 
-    bdlqq::Condition             d_jobCond; // signaled when 'd_hasJob' is set
+    bslmt::Condition             d_jobCond; // signaled when 'd_hasJob' is set
 
     ThreadPoolWaitNode* volatile d_next;    // pointer to the next waiting
                                             // thread
@@ -137,7 +137,7 @@ namespace bdlmt {void ThreadPool::initBlockSet()
 namespace bdlmt {
 int ThreadPool::startNewThread()
 {
-    bdlqq::ThreadUtil::Handle handle;
+    bslmt::ThreadUtil::Handle handle;
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     // block all synchronous signals
@@ -147,7 +147,7 @@ int ThreadPool::startNewThread()
     pthread_sigmask(SIG_BLOCK, &d_blockSet, &oldset);
 #endif
 
-    int rc = bdlqq::ThreadUtil::create(&handle,
+    int rc = bslmt::ThreadUtil::create(&handle,
                                        d_threadAttributes,
                                        ThreadPoolEntry,
                                        this);
@@ -183,7 +183,7 @@ void ThreadPool::workerThread()
         }
 
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
             if (functorWasSetFlag) {
                 --d_numActiveThreads;
             }
@@ -296,7 +296,7 @@ void ThreadPool::workerThread()
 }
 
 // CREATORS
-ThreadPool::ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
+ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             minThreads,
                        int                             maxThreads,
                        int                             maxIdleTime,
@@ -317,7 +317,7 @@ ThreadPool::ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(
-                                   bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();
@@ -332,7 +332,7 @@ ThreadPool::~ThreadPool()
 // MANIPULATORS
 void ThreadPool::drain()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_enabled = 0;
 
     while ((d_threadCount && d_queue.size()) || d_numActiveThreads) {
@@ -351,7 +351,7 @@ int ThreadPool::enqueueJob(const Job& functor)
         bsl::abort();  // abort (for when 'assert' is removed by optimization)
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (!d_enabled) {
         return -1;                                                    // RETURN
     }
@@ -387,7 +387,7 @@ int ThreadPool::enqueueJob(const Job& functor)
 
 void ThreadPool::shutdown()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_enabled = 0;
 
     while (!d_queue.empty()) {
@@ -420,7 +420,7 @@ double ThreadPool::resetPercentBusy()
 
 int ThreadPool::start()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_enabled = 1;
 
     while (d_threadCount < d_minThreads) {
@@ -435,7 +435,7 @@ int ThreadPool::start()
 
 void ThreadPool::stop()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_enabled = 0;
 
     for (int i = 0; i < d_threadCount; ++i) {
@@ -449,19 +449,19 @@ void ThreadPool::stop()
 // ACCESSORS
 int ThreadPool::numActiveThreads() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     return d_numActiveThreads;
 }
 
 int ThreadPool::numWaitingThreads() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     return d_threadCount - d_numActiveThreads;
 }
 
 int ThreadPool::numPendingJobs() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     return d_queue.size();
 }
 

@@ -6,9 +6,9 @@
 
 #include <bdlf_bind.h>
 #include <bslmf_if.h>
-#include <bdlqq_semaphore.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bsls_atomic.h>
 
@@ -191,8 +191,8 @@ class UsageTestChecker {
     // DATA
     int                     d_timesCalled;
     int                     d_maxProcessors;
-    bdlqq::Mutex             d_mutex;
-    bdlqq::Semaphore        *d_semaphore;      // (held, not owned)
+    bslmt::Mutex             d_mutex;
+    bslmt::Semaphore        *d_semaphore;      // (held, not owned)
     bdlmt::ThreadMultiplexor *d_multiplexor;    // (held, not owned)
 
 public:
@@ -212,7 +212,7 @@ public:
    void reset();
        // Reset the counter variables of this object to 0.
 
-   void setSemaphore(bdlqq::Semaphore* semaphore);
+   void setSemaphore(bslmt::Semaphore* semaphore);
        // Specify the 'semaphore' which will control the start of the job.
 
    // ACCESSORS
@@ -258,7 +258,7 @@ void UsageTestChecker::reset() {
     d_timesCalled = d_maxProcessors = 0;
 }
 
-void UsageTestChecker::setSemaphore(bdlqq::Semaphore* semaphore) {
+void UsageTestChecker::setSemaphore(bslmt::Semaphore* semaphore) {
     d_semaphore = semaphore;
 }
 
@@ -276,7 +276,7 @@ int UsageTestChecker::maxProcessors() const {
 // ----------------------------------------------------------------------------
 namespace TEST_CASE_6 {
 
-void testCase6(bdlqq::Semaphore                 *startSemaphore,
+void testCase6(bslmt::Semaphore                 *startSemaphore,
                bdlmt::ThreadMultiplexor         *mX,
                int                               numJobs,
                const bdlf::Function<void(*)()>&  job)
@@ -457,9 +457,9 @@ int main(int argc, char *argv[])
             };
 
             bsls::AtomicInt timesCalled;
-            bdlqq::Semaphore startSemaphore;
+            bslmt::Semaphore startSemaphore;
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
-            bdlqq::ThreadGroup threads;
+            bslmt::ThreadGroup threads;
 
             bdlf::Function<void (*)()> addFunc =
                 bdlf::BindUtil::bind(&bsls::AtomicInt::add, &timesCalled, 1);
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
             UsageTestChecker oChecker(otherQueue.multiplexor());
             int iJobs = 0, uJobs = 0, oJobs = 0;
 
-            bdlqq::Semaphore startSemaphore;
+            bslmt::Semaphore startSemaphore;
             iChecker.setSemaphore(&startSemaphore);
             uChecker.setSemaphore(&startSemaphore);
             oChecker.setSemaphore(&startSemaphore);
@@ -637,7 +637,7 @@ int main(int argc, char *argv[])
             TestQueue theQueue(10, MAX_QUEUESIZE, &tp, &ta);
 
             UsageTestChecker checker(theQueue.multiplexor());
-            bdlqq::Semaphore startSemaphore;
+            bslmt::Semaphore startSemaphore;
             checker.setSemaphore(&startSemaphore);
 
             for (int i = 0; i < NUM_JOBS; ++i) {

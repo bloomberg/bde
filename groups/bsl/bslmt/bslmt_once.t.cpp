@@ -740,7 +740,9 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
                                << "\n=============" << bsl::endl;
 
+        /* TBD -- bind
         usageExample1();
+        */
 
       } break;
 

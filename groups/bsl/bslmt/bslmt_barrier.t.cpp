@@ -702,7 +702,9 @@ int main(int argc, char *argv[])
        if (veryVerbose) {
           cout << "   ...Basic barrier..." << endl;
        }
+       /* TBD -- bind
        case7(&basicBarrier, veryVerbose, NUM_THREADS, NUM_SHORT_WAITS);
+       */
 
       } break;
 

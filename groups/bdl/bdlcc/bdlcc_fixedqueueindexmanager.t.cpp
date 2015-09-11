@@ -5,8 +5,8 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
 
 #include <bdlb_random.h>
 #include <bdlf_function.h>
@@ -406,7 +406,7 @@ struct FixedQueueIndexManagerDataMembers {
     // PRIVATE CONSTANTS
     enum {
         e_PADDING =
-                   bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+                   bslmt::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
     // DATA
@@ -589,7 +589,7 @@ void dirtyGG(Obj          *result,
 // ----------------------------------------------------------------------------
 
 class TestThreadStateBarrier {
-     bdlqq::Barrier   d_barrier;
+     bslmt::Barrier   d_barrier;
      bsls::AtomicInt d_state;
 
   public:
@@ -696,7 +696,7 @@ void performDelay(int period)
     if (period) {
         int delay = delayPeriod.addRelaxed(1);
         if (0 == delay % period) {
-            bdlqq::ThreadUtil::microSleep(10, 0);
+            bslmt::ThreadUtil::microSleep(10, 0);
         }
     }
 }
@@ -1376,12 +1376,12 @@ int main(int argc, char *argv[])
                                     Obj::numRepresentableGenerations(CAPACITY);
                 unsigned MAX_GENERATION = NUM_GENERATIONS - 1;
 
-                bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+                bsl::vector<bslmt::ThreadUtil::Handle> handles;
                 handles.resize(NUM_THREADS);
                 int thread = 0;
 
                 for (int i = 0; i < NUM_WRITERS; ++i) {
-                    int rc = bdlqq::ThreadUtil::create(
+                    int rc = bslmt::ThreadUtil::create(
                         &handles[thread],
                         bdlf::BindUtil::bind(&writerThread,
                                              &x,
@@ -1391,14 +1391,14 @@ int main(int argc, char *argv[])
                     ++thread;
                 }
                 for (int i = 0; i < NUM_READERS; ++i) {
-                    int rc = bdlqq::ThreadUtil::create(
+                    int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&readerThread, &x, &state, DELAY));
                     BSLS_ASSERT_OPT(0 == rc); // test invariant
                     ++thread;
                 }
                 for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
-                    int rc = bdlqq::ThreadUtil::create(
+                    int rc = bslmt::ThreadUtil::create(
                         &handles[thread],
                         bdlf::BindUtil::bind(&exceptionThread,
                                              &x,
@@ -1417,7 +1417,7 @@ int main(int argc, char *argv[])
 
                     state.continueTest();
                     while (1) {
-                        bdlqq::ThreadUtil::yield();
+                        bslmt::ThreadUtil::yield();
                         unsigned int popGeneration =
                                      FixedQueueState(&x).popGeneration();
                         if (popGeneration > 10 &&
@@ -1431,7 +1431,7 @@ int main(int argc, char *argv[])
                 state.continueTest();
                 state.exitTest();
                 for (int i = 0; i < NUM_THREADS; ++i) {
-                    bdlqq::ThreadUtil::join(handles[i]);
+                    bslmt::ThreadUtil::join(handles[i]);
                 }
             }
         }
@@ -1528,26 +1528,26 @@ int main(int argc, char *argv[])
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);  const Obj& X = x;
 
-            bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+            bsl::vector<bslmt::ThreadUtil::Handle> handles;
             handles.resize(NUM_THREADS);
             int thread = 0;
 
             for (int i = 0; i < NUM_WRITERS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(
+                int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&writerThread, &x, &state, DELAY));
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
             for (int i = 0; i < NUM_READERS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(
+                int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&readerThread, &x, &state, DELAY));
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
             for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(
+                int rc = bslmt::ThreadUtil::create(
                      &handles[thread],
                      bdlf::BindUtil::bind(&exceptionThread,
                                           &x,
@@ -1561,7 +1561,7 @@ int main(int argc, char *argv[])
 
             double delayPerIter = ELAPSED_TIME_PER_TEST / NUM_PROBES;
             for (int i = 0; i < NUM_PROBES; ++i) {
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(delayPerIter));
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(delayPerIter));
                 state.suspendTest();
                 assertValidState(&x);
                 if (veryVeryVerbose) {
@@ -1572,7 +1572,7 @@ int main(int argc, char *argv[])
             state.exitTest();
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                bdlqq::ThreadUtil::join(handles[i]);
+                bslmt::ThreadUtil::join(handles[i]);
             }
         }
       } break;
@@ -3299,13 +3299,13 @@ int main(int argc, char *argv[])
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);
 
-            bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+            bsl::vector<bslmt::ThreadUtil::Handle> handles;
             handles.resize(NUM_THREADS);
             int thread = 0;
 
             bsls::AtomicInt64 writeCount, readCount;
             for (int i = 0; i < NUM_WRITERS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(
+                int rc = bslmt::ThreadUtil::create(
                   &handles[thread],
                   bdlf::BindUtil::bind(&writerThread,
                                        &x,
@@ -3315,7 +3315,7 @@ int main(int argc, char *argv[])
                 ++thread;
             }
             for (int i = 0; i < NUM_READERS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(
+                int rc = bslmt::ThreadUtil::create(
                   &handles[thread],
                   bdlf::BindUtil::bind(&readerThread, &x, &readCount, &state));
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
@@ -3326,14 +3326,14 @@ int main(int argc, char *argv[])
             bsls::Stopwatch s;
             s.start();
 
-            bdlqq::ThreadUtil::sleep(
+            bslmt::ThreadUtil::sleep(
                                     bsls::TimeInterval(ELAPSED_TIME_PER_TEST));
 
             s.stop();
             state.exitTest();
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                bdlqq::ThreadUtil::join(handles[i]);
+                bslmt::ThreadUtil::join(handles[i]);
             }
 
             double elapsed = s.elapsedTime();

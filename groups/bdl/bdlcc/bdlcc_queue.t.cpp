@@ -5,13 +5,13 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_semaphore.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_condition.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 #include <bsls_atomic.h>
 
 #include <bdlf_function.h>
@@ -93,11 +93,11 @@ using namespace bsl;  // automatically added by script
 
 // ACCESSORS
 // [ 4] int highWaterMark() const;
-// [ 6] bdlqq::Mutex& mutex();
-// [ 6] bdlqq::Condition& notEmptyCondition();
-// [ 6] bdlqq::Condition& notFullCondition();
-// [ 6] bdlqq::Condition& condition();
-// [ 6] bdlqq::Condition& insertCondition();
+// [ 6] bslmt::Mutex& mutex();
+// [ 6] bslmt::Condition& notEmptyCondition();
+// [ 6] bslmt::Condition& notFullCondition();
+// [ 6] bslmt::Condition& condition();
+// [ 6] bslmt::Condition& insertCondition();
 // [ 6] bdlc::Queue<T>& queue();
 // [10] blocking on queue empty
 // [11] blocking on queue full
@@ -204,8 +204,8 @@ class MyBarrier {
     // Since it can only coordinate two threads, it can use much simpler
     // primitives than the real Barrier component.
 
-    bdlqq::Semaphore d_entryGate;
-    bdlqq::Semaphore d_exitGate;
+    bslmt::Semaphore d_entryGate;
+    bslmt::Semaphore d_exitGate;
     bsls::AtomicInt  d_threadWaiting;
 
   public:
@@ -243,7 +243,7 @@ struct MyData
 
 bdlcc::Queue<MyData> myWorkQueue;
 bdlc::Queue<MyData>& rawQueue   = myWorkQueue.queue();
-bdlqq::Mutex&        queueMutex = myWorkQueue.mutex();
+bslmt::Mutex&        queueMutex = myWorkQueue.mutex();
 
 MyData data1;
 MyData data2;
@@ -347,12 +347,12 @@ int getWorkData(my_WorkData *)
         }
     }
 //..
-// The function below is a callback for 'bdlqq::ThreadUtil', which requires a
-// "C" signature.  'bdlqq::ThreadUtil::create()' expects a pointer to this
+// The function below is a callback for 'bslmt::ThreadUtil', which requires a
+// "C" signature.  'bslmt::ThreadUtil::create()' expects a pointer to this
 // function, and provides that function pointer to the newly created thread.
 // The new thread then executes this function.
 //
-// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
+// Since 'bslmt::ThreadUtil::create()' uses the familiar "C" convention of
 // passing a 'void' pointer, our function simply casts that pointer to our
 // required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to the
 // queue-specific function 'myConsumer', above.
@@ -375,7 +375,7 @@ int getWorkData(my_WorkData *)
 //
 // Finally, the 'myProducer' function "joins" each Consumer thread, which
 // ensures that the thread itself will terminate correctly; see the
-// 'bdlqq_threadutil' component for details.
+// 'bslmt_threadutil' component for details.
 //..
     void myProducer(int numThreads)
     {
@@ -385,10 +385,10 @@ int getWorkData(my_WorkData *)
         bdlcc::Queue<my_WorkRequest> queue;
 
         ASSERT(0 < numThreads && numThreads <= k_MAX_CONSUMER_THREADS);
-        bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
+        bslmt::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 
         for (int i = 0; i < numThreads; ++i) {
-            bdlqq::ThreadUtil::create(&consumerHandles[i],
+            bslmt::ThreadUtil::create(&consumerHandles[i],
                                       myConsumerThread,
                                       &queue);
         }
@@ -405,7 +405,7 @@ int getWorkData(my_WorkData *)
         }
 
         for (int i = 0; i < numThreads; ++i) {
-            bdlqq::ThreadUtil::join(consumerHandles[i]);
+            bslmt::ThreadUtil::join(consumerHandles[i]);
         }
     }
 //..
@@ -462,7 +462,7 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
         char      d_eventText[k_MAX_EVENT_TEXT];
     };
 //..
-// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
+// As noted in the previous example, 'bslmt::ThreadUtil::create()' spawns a new
 // thread, which invokes a simple "C" function taking a 'void' pointer.  In the
 // previous example, we simply converted that 'void' pointer into a pointer to
 // the parameterized 'bdlcc::Queue<TYPE>' object.
@@ -506,7 +506,7 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
         queue->pushBack(ev);
     }
 //..
-// The callback function invoked by 'bdlqq::ThreadUtil::create()' takes the
+// The callback function invoked by 'bslmt::ThreadUtil::create()' takes the
 // traditional 'void' pointer.  The expected data is the composite structure
 // 'my_WorkerData'.  The callback function casts the 'void' pointer to the
 // application-specific data type and then uses the referenced object to
@@ -537,13 +537,13 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
         bdlcc::Queue<my_Event> queue;
 
         ASSERT(NTHREADS > 0 && NTHREADS <= k_MAX_CONSUMER_THREADS);
-        bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
+        bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
         my_WorkerData workerData;
         workerData.d_queue_p = &queue;
         for (int i = 0; i < NTHREADS; ++i) {
             workerData.d_workerId = i;
-            bdlqq::ThreadUtil::create(&workerHandles[i],
+            bslmt::ThreadUtil::create(&workerHandles[i],
                                       myWorkerThread,
                                       &workerData);
         }
@@ -555,7 +555,7 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
                              << ev.d_eventText   << bsl::endl;
             if (my_Event::e_TASK_COMPLETE == ev.d_type) {
                 ++nStop;
-                bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
+                bslmt::ThreadUtil::join(workerHandles[ev.d_workerId]);
             }
         }
     }
@@ -592,7 +592,7 @@ class TestPopFront {
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
-                bdlqq::ThreadUtil::microSleep(100 * 1000);
+                bslmt::ThreadUtil::microSleep(100 * 1000);
             }
             int sts = d_mX->tryPopFront(&e);
             if (!sts) {
@@ -643,7 +643,7 @@ class TestPopBack {
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
-                bdlqq::ThreadUtil::microSleep(100 * 1000);
+                bslmt::ThreadUtil::microSleep(100 * 1000);
             }
             int sts = d_mX->tryPopBack(&e);
             if (!sts) {
@@ -688,7 +688,7 @@ void *const THREAD_EXIT_3 = &exitCode3;
 
 class TestClass13 {      // this class is a functor passed to thread::create
     Obj                *d_queue;
-    bdlqq::Barrier     *d_barrier;
+    bslmt::Barrier     *d_barrier;
     bsls::TimeInterval  d_timeout;
 
   public:
@@ -698,7 +698,7 @@ class TestClass13 {      // this class is a functor passed to thread::create
         k_INVALID_VAL = 46
     };
 
-    TestClass13(Obj *queue, bdlqq::Barrier *barrier)
+    TestClass13(Obj *queue, bslmt::Barrier *barrier)
         // c'tor
     {
         d_queue = queue;
@@ -733,17 +733,17 @@ class TestClass13 {      // this class is a functor passed to thread::create
                 ASSERT((sts = d_queue->timedPushFront(e, d_timeout), !sts));
             }
             if (sts) {
-                bdlqq::ThreadUtil::exit(THREAD_EXIT_1);
+                bslmt::ThreadUtil::exit(THREAD_EXIT_1);
             }
 
             ++s_pushCount;
 
             ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
             if (sts) {
-                bdlqq::ThreadUtil::exit(THREAD_EXIT_2);
+                bslmt::ThreadUtil::exit(THREAD_EXIT_2);
             }
         }
-        bdlqq::ThreadUtil::exit(THREAD_EXIT_3);
+        bslmt::ThreadUtil::exit(THREAD_EXIT_3);
     }
 };
 int TestClass13::s_pushCount;
@@ -758,7 +758,7 @@ namespace QUEUE_TEST_CASE_10 {
 
 class TestClass12 {      // this class is a functor passed to thread::create
     Obj              *d_queue;
-    bdlqq::Barrier    *d_barrier;
+    bslmt::Barrier    *d_barrier;
     bsls::TimeInterval d_timeout;
 
   public:
@@ -766,7 +766,7 @@ class TestClass12 {      // this class is a functor passed to thread::create
         k_VALID_VAL = 45,
         k_TERMINATE = 46
     };
-    TestClass12(Obj *queue, bdlqq::Barrier *barrier)
+    TestClass12(Obj *queue, bslmt::Barrier *barrier)
         // c'tor
     {
         d_queue = queue;
@@ -791,7 +791,7 @@ class TestClass12 {      // this class is a functor passed to thread::create
         for (bool back = false; true; back = !back) {
             ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
             if (sts) {
-                bdlqq::ThreadUtil::exit((void *) 2);
+                bslmt::ThreadUtil::exit((void *) 2);
             }
 
             if (back) {
@@ -801,11 +801,11 @@ class TestClass12 {      // this class is a functor passed to thread::create
                 ASSERT((sts = d_queue->timedPopFront(&e, d_timeout), !sts));
             }
             if (sts) {
-                bdlqq::ThreadUtil::exit((void *) 1);
+                bslmt::ThreadUtil::exit((void *) 1);
             }
 
             if (k_TERMINATE == e) {
-                bdlqq::ThreadUtil::exit((void *) 0);
+                bslmt::ThreadUtil::exit((void *) 0);
             }
 
             ASSERT(k_VALID_VAL == e);
@@ -813,7 +813,7 @@ class TestClass12 {      // this class is a functor passed to thread::create
             sts = d_barrier->timedWait(d_timeout);
             ASSERT(!sts);
             if (sts) {
-                bdlqq::ThreadUtil::exit((void *) 2);
+                bslmt::ThreadUtil::exit((void *) 2);
             }
         }
     }
@@ -1385,7 +1385,7 @@ void *test2front(void *arg)
 
 namespace QUEUE_TEST_CASE_MINUS_1 {
 
-bdlqq::Mutex outputMutex;
+bslmt::Mutex outputMutex;
 
 struct Producer {
     bdlcc::Queue<int>    *d_queue;
@@ -1399,7 +1399,7 @@ struct Producer {
         }
 
         if (verbose) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&outputMutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&outputMutex);
 
             cout << "Producer finishing\n";
         }
@@ -1424,7 +1424,7 @@ struct Consumer {
         } while (terminatorsFound < 2);
 
         if (verbose) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&outputMutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&outputMutex);
 
             cout << "Consumer finishing\n";
         }
@@ -1446,7 +1446,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
@@ -1511,7 +1511,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -1524,7 +1524,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -1543,7 +1543,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
@@ -1609,7 +1609,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -1622,7 +1622,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -1641,7 +1641,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
@@ -1707,7 +1707,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -1720,7 +1720,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -1737,7 +1737,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 namespace zerotst {
 
 struct Control {
-    bdlqq::Barrier       *d_barrier;
+    bslmt::Barrier       *d_barrier;
     bdlcc::Queue<void *> *d_queue;
     int                   d_numExpectedPushers;
     int                   d_iterations;
@@ -1780,7 +1780,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     bdlcc::Queue<void *> queue(k_QUEUE_SIZE);
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -1793,7 +1793,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -2035,13 +2035,13 @@ int main(int argc, char *argv[])
             bdlcc::Queue<my_Event> queue;
 
             ASSERT(0 < NTHREADS && NTHREADS <= k_MAX_CONSUMER_THREADS);
-            bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
+            bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
             my_WorkerData wdata[NTHREADS];
             for (int i=0; i < NTHREADS; ++i) {
                 wdata[i].d_workerId = i;
                 wdata[i].d_queue_p = &queue;
-                bdlqq::ThreadUtil::create(&workerHandles[i],
+                bslmt::ThreadUtil::create(&workerHandles[i],
                                          myWorkerThread,
                                          &wdata[i]);
             }
@@ -2055,7 +2055,7 @@ int main(int argc, char *argv[])
                 }
                 if (my_Event::e_TASK_COMPLETE == ev.d_type) {
                     ++n_Stop;
-                    bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
+                    bslmt::ThreadUtil::join(workerHandles[ev.d_workerId]);
                 }
             }
         }
@@ -2089,35 +2089,35 @@ int main(int argc, char *argv[])
         const Element *waitTableEnd   = waitTable + waitTableLength;
 
         Obj mX;
-        bdlqq::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::Handle handle;
 
         for (int run = 0; run < 4; ++run) {
-            bdlqq::ThreadUtil::create(&handle, TestPopFront(&mX));
-            bdlqq::ThreadUtil::microSleep(10 * 1000);
+            bslmt::ThreadUtil::create(&handle, TestPopFront(&mX));
+            bslmt::ThreadUtil::microSleep(10 * 1000);
             for (Element e = 0; e < 50; ++e) {
                 if (waitTableEnd != bsl::find(waitTableBegin, waitTableEnd,
                                                                           e)) {
                     if (veryVerbose) {
                         cout << "PopFront: wait at " << e << endl;
                     }
-                    bdlqq::ThreadUtil::microSleep(10 * 1000);
+                    bslmt::ThreadUtil::microSleep(10 * 1000);
                 }
                 mX.pushBack(e);
             }
-            bdlqq::ThreadUtil::join(handle);
+            bslmt::ThreadUtil::join(handle);
 
-            bdlqq::ThreadUtil::create(&handle, TestPopBack(&mX));
+            bslmt::ThreadUtil::create(&handle, TestPopBack(&mX));
             for (Element e = 0; e < 50; ++e) {
                 if (waitTableEnd != bsl::find(waitTableBegin, waitTableEnd,
                                                                           e)) {
                     if (veryVerbose) {
                         cout << "PopBack: wait at " << e << endl;
                     }
-                    bdlqq::ThreadUtil::microSleep(10 * 1000);
+                    bslmt::ThreadUtil::microSleep(10 * 1000);
                 }
                 mX.pushFront(e);
             }
-            bdlqq::ThreadUtil::join(handle);
+            bslmt::ThreadUtil::join(handle);
         }
       } break;
       case 12: {
@@ -2143,8 +2143,8 @@ int main(int argc, char *argv[])
 
         Obj mX(4, &ta);
         vector<Element> v;
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::Barrier barrier(2);
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::Barrier barrier(2);
         bsls::TimeInterval timeout =
                             bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
 
@@ -2154,30 +2154,30 @@ int main(int argc, char *argv[])
 
         TestClass13 tc13(&mX, &barrier);
 
-        bdlqq::ThreadUtil::create(&handle, tc13);
+        bslmt::ThreadUtil::create(&handle, tc13);
 
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
 
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(50*1000);        // 50 mSec
+        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(50*1000);        // 50 mSec
 
         ASSERT(4 == tc13.s_pushCount);
         ASSERT(4 == mX.length());  // 5th push is blocking on high watermark
 
         ASSERT(TestClass13::k_VALID_VAL == mX.popFront());
         ASSERT(!barrier.timedWait(timeout));
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(50*1000);        // 50 mSec
+        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(5 == tc13.s_pushCount);
         ASSERT(4 == mX.length());
 
         ASSERT(TestClass13::k_VALID_VAL == mX.popBack());
         ASSERT(!barrier.timedWait(timeout));
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(50*1000);        // 50 mSec
+        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(6 == tc13.s_pushCount);
         ASSERT(4 == mX.length());
 
@@ -2195,7 +2195,7 @@ int main(int argc, char *argv[])
 
         {
             void *sts = 0;
-            bdlqq::ThreadUtil::join(handle, &sts);
+            bslmt::ThreadUtil::join(handle, &sts);
             LOOP_ASSERT(sts, THREAD_EXIT_3 == sts);
         }
 
@@ -2224,8 +2224,8 @@ int main(int argc, char *argv[])
         Obj mX(&ta);
         Element e = TestClass12::k_VALID_VAL;
         vector<Element> v;
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::Barrier barrier(2);
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::Barrier barrier(2);
 
         // Note microSleeps on Solaris can arbitrarily take as long as 2 sec,
         // so have a pessimistic timeout time -- normally this will take MUCH
@@ -2240,7 +2240,7 @@ int main(int argc, char *argv[])
 
         TestClass12 tc12(&mX, &barrier);
 
-        bdlqq::ThreadUtil::create(&handle, tc12);
+        bslmt::ThreadUtil::create(&handle, tc12);
 
         mX.pushFront(e);
         mX.pushBack(e);
@@ -2258,8 +2258,8 @@ int main(int argc, char *argv[])
             enum { k_SLEEP_TIME = 10 * 1000 };        // 10 mSec
 
             ASSERT(!barrier.timedWait(timeout));
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
             ASSERT(0 == mX.length());
 
             mX.pushBack(e);
@@ -2275,7 +2275,7 @@ int main(int argc, char *argv[])
 
         {
             void *sts;
-            bdlqq::ThreadUtil::join(handle, &sts);
+            bslmt::ThreadUtil::join(handle, &sts);
             LOOP_ASSERT(sts, !sts);
         }
 
@@ -2543,9 +2543,9 @@ int main(int argc, char *argv[])
         //   that second thread is unblocked.
         //
         // Testing:
-        //   bdlqq::Mutex& mutex();
-        //   bdlqq::Condition& notEmptyCondition();
-        //   bdlqq::Condition& notFullCondition();
+        //   bslmt::Mutex& mutex();
+        //   bslmt::Condition& notEmptyCondition();
+        //   bslmt::Condition& notFullCondition();
         //   bdlc::Queue<T>& queue();
         // --------------------------------------------------------------------
 
@@ -2572,14 +2572,14 @@ int main(int argc, char *argv[])
             MyBarrier barrier;
             TestClass6 testObj(&x, &barrier, VA);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, test6, &testObj);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, test6, &testObj);
 
             ASSERT(0 == testObj.stage());
             {
-                bdlqq::LockGuard<bdlqq::Mutex> lock(&x.mutex());
+                bslmt::LockGuard<bslmt::Mutex> lock(&x.mutex());
                 barrier.wait();
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
 
                 // This is not bullet-proof because it does not ENSURE that
                 // testObj is blocking on the 'pushback', so we maximize our
@@ -2589,8 +2589,8 @@ int main(int argc, char *argv[])
 
                 int iter = 1000;
                 while (0 < --iter && testObj.stage() < 1) {
-                    bdlqq::ThreadUtil::yield();
-                    bdlqq::ThreadUtil::microSleep(10 * 1000);
+                    bslmt::ThreadUtil::yield();
+                    bslmt::ThreadUtil::microSleep(10 * 1000);
                 }
 
                 // either testObj.stage() has changed or we have waited 10 sec
@@ -2611,17 +2611,17 @@ int main(int argc, char *argv[])
 
             int iter = 10;
             while (0 < --iter) {
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(T);
             }
 
             {
-                bdlqq::LockGuard<bdlqq::Mutex> lock(&x.mutex());
+                bslmt::LockGuard<bslmt::Mutex> lock(&x.mutex());
                 x.queue().pushBack(VA);
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::microSleep(T);
                 ASSERT(2 == testObj.stage());
             }
-            bdlqq::ThreadUtil::microSleep(T);
+            bslmt::ThreadUtil::microSleep(T);
             ASSERT(2 == testObj.stage());
 
             // Make testObj stop waiting on 'popFront'.
@@ -2644,19 +2644,19 @@ int main(int argc, char *argv[])
 
             iter = 10;
             while (0 < --iter) {
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(T);
             }
 
             ASSERT(3 == testObj.stage());
             {
-                bdlqq::LockGuard<bdlqq::Mutex> lock(&x.mutex());
+                bslmt::LockGuard<bslmt::Mutex> lock(&x.mutex());
                 ASSERT(VC == x.queue().back());
                 x.queue().popFront();
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::microSleep(T);
                 ASSERT(3 == testObj.stage());
             }
-            bdlqq::ThreadUtil::microSleep(T);
+            bslmt::ThreadUtil::microSleep(T);
             ASSERT(3 == testObj.stage());
 
             // Make testObj stop waiting on 'pushBack'.
@@ -2667,7 +2667,7 @@ int main(int argc, char *argv[])
             ASSERT(VC == x.popFront());
             ASSERT(VA == x.popFront());
 
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::join(thread);
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -2742,12 +2742,12 @@ int main(int argc, char *argv[])
                     x.pushBack(VA); // non-blocking
                 }
 
-                bdlqq::ThreadUtil::Handle thread;
-                bdlqq::ThreadUtil::create(&thread, test5back, &testObj);
+                bslmt::ThreadUtil::Handle thread;
+                bslmt::ThreadUtil::create(&thread, test5back, &testObj);
 
                 barrier.wait();
                 while ( 0 != testObj.waitingFlag() ) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 if (-1 != HIGH_WATER_MARK) {
                     LOOP_ASSERT(i, 0 != testObj.timeOutFlag() );
@@ -2759,7 +2759,7 @@ int main(int argc, char *argv[])
                 if (-1 != HIGH_WATER_MARK) {
                     bsls::TimeInterval now = bdlt::CurrentTime::now();
                     barrier.wait();
-                    bdlqq::ThreadUtil::microSleep(T);
+                    bslmt::ThreadUtil::microSleep(T);
 
                     bsls::TimeInterval elapsed =
                                                 bdlt::CurrentTime::now() - now;
@@ -2768,7 +2768,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, VA == x.popBack() );
 
                         while ( 0 != testObj.waitingFlag() ) {
-                            bdlqq::ThreadUtil::yield();
+                            bslmt::ThreadUtil::yield();
                         }
 
                         LOOP_ASSERT(i, 0 == testObj.timeOutFlag() );
@@ -2790,12 +2790,12 @@ int main(int argc, char *argv[])
                     barrier.wait();
 
                     while (0 != testObj.waitingFlag()) {
-                        bdlqq::ThreadUtil::yield();
+                        bslmt::ThreadUtil::yield();
                     }
                     LOOP_ASSERT(i, 0 == testObj.timeOutFlag() );
                 }
 
-                bdlqq::ThreadUtil::join(thread);
+                bslmt::ThreadUtil::join(thread);
             }
             LOOP_ASSERT(i, 0 == da.numAllocations());
             LOOP_ASSERT(i, 0 == ta.numBytesInUse());
@@ -2820,12 +2820,12 @@ int main(int argc, char *argv[])
                     x.pushBack(VA); // non-blocking
                 }
 
-                bdlqq::ThreadUtil::Handle thread;
-                bdlqq::ThreadUtil::create(&thread, test5front, &testObj);
+                bslmt::ThreadUtil::Handle thread;
+                bslmt::ThreadUtil::create(&thread, test5front, &testObj);
 
                 barrier.wait();
                 while ( 0 != testObj.waitingFlag() ) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 if (-1 != HIGH_WATER_MARK) {
                     LOOP_ASSERT(i, 0 != testObj.timeOutFlag() );
@@ -2837,7 +2837,7 @@ int main(int argc, char *argv[])
                 if (-1 != HIGH_WATER_MARK) {
                     bsls::TimeInterval now = bdlt::CurrentTime::now();
                     barrier.wait();
-                    bdlqq::ThreadUtil::microSleep(T);
+                    bslmt::ThreadUtil::microSleep(T);
 
                     bsls::TimeInterval elapsed =
                                                 bdlt::CurrentTime::now() - now;
@@ -2846,7 +2846,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, VA == x.popFront() );
 
                         while ( 0 != testObj.waitingFlag() ) {
-                            bdlqq::ThreadUtil::yield();
+                            bslmt::ThreadUtil::yield();
                         }
                         LOOP_ASSERT(i, 0 == testObj.timeOutFlag() );
                         if (0 == testObj.timeOutFlag()) {
@@ -2865,12 +2865,12 @@ int main(int argc, char *argv[])
                     barrier.wait();
 
                     while (0 != testObj.waitingFlag()) {
-                        bdlqq::ThreadUtil::yield();
+                        bslmt::ThreadUtil::yield();
                     }
                     LOOP_ASSERT(i, 0 == testObj.timeOutFlag() );
                 }
 
-                bdlqq::ThreadUtil::join(thread);
+                bslmt::ThreadUtil::join(thread);
             }
             LOOP_ASSERT(i, 0 == da.numAllocations());
             LOOP_ASSERT(i, 0 == ta.numBytesInUse());
@@ -2954,8 +2954,8 @@ int main(int argc, char *argv[])
                     x.pushBack(VA); // non-blocking
                 }
 
-                bdlqq::ThreadUtil::Handle thread;
-                bdlqq::ThreadUtil::create(&thread, test4back, &testObj);
+                bslmt::ThreadUtil::Handle thread;
+                bslmt::ThreadUtil::create(&thread, test4back, &testObj);
 
                 if (0 < HIGH_WATER_MARK) {
                     // Yielding is not bullet-proof because it does not ENSURE
@@ -2967,8 +2967,8 @@ int main(int argc, char *argv[])
 
                     int iter = 100;
                     while (0 == testObj.waitingFlag() && 0 < --iter) {
-                        bdlqq::ThreadUtil::yield();
-                        bdlqq::ThreadUtil::microSleep(T);
+                        bslmt::ThreadUtil::yield();
+                        bslmt::ThreadUtil::microSleep(T);
                     }
 
                     LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
@@ -2976,13 +2976,13 @@ int main(int argc, char *argv[])
                 }
 
                 while ( 0 != testObj.waitingFlag()){
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 if (0 < HIGH_WATER_MARK) {
                     LOOP_ASSERT(i, VB == x.popBack() );
                 }
 
-                bdlqq::ThreadUtil::join(thread);
+                bslmt::ThreadUtil::join(thread);
             }
             LOOP_ASSERT(i, 0 == da.numAllocations());
             LOOP_ASSERT(i, 0 == ta.numBytesInUse());
@@ -3014,16 +3014,16 @@ int main(int argc, char *argv[])
                 x.forcePushFront(VB); // should block, but force it
                 LOOP_ASSERT(i, VB == x.popFront() );
 
-                bdlqq::ThreadUtil::Handle thread;
-                bdlqq::ThreadUtil::create(&thread, test4front, &testObj);
+                bslmt::ThreadUtil::Handle thread;
+                bslmt::ThreadUtil::create(&thread, test4front, &testObj);
 
                 if (0 < HIGH_WATER_MARK) {
                     // See comment above.
 
                     int iter = 100;
                     while (0 == testObj.waitingFlag() && 0 < --iter) {
-                        bdlqq::ThreadUtil::yield();
-                        bdlqq::ThreadUtil::microSleep(T);
+                        bslmt::ThreadUtil::yield();
+                        bslmt::ThreadUtil::microSleep(T);
                     }
 
                     LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
@@ -3031,13 +3031,13 @@ int main(int argc, char *argv[])
                 }
 
                 while ( 0 != testObj.waitingFlag() ) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 if (0 < HIGH_WATER_MARK) {
                     LOOP_ASSERT(i, VB == x.popFront() );
                 }
 
-                bdlqq::ThreadUtil::join(thread);
+                bslmt::ThreadUtil::join(thread);
             }
             LOOP_ASSERT(i, 0 == da.numAllocations());
             LOOP_ASSERT(i, 0 == ta.numBytesInUse());
@@ -3087,19 +3087,19 @@ int main(int argc, char *argv[])
             Element VA = 1.2;
             TestClass3back testObj(&x, &barrier, T10, VA);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, test3back, &testObj);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, test3back, &testObj);
 
             barrier.wait();
             while ( 0 != testObj.waitingFlag() ) {
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
             }
             ASSERT(0 != testObj.timeOutFlag());
 
             barrier.wait();
             bsls::TimeInterval now = bdlt::CurrentTime::now();
             barrier.wait();
-            bdlqq::ThreadUtil::microSleep(T);
+            bslmt::ThreadUtil::microSleep(T);
 
             // Already, microSleep could oversleep and prevent to push in time
             // for pop to unblock in the other thread, so we test for security.
@@ -3109,7 +3109,7 @@ int main(int argc, char *argv[])
             bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
             if (elapsed < T4) {
                 while ( 0 != testObj.waitingFlag() ) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 ASSERT(0 == testObj.timeOutFlag());
             } else {
@@ -3119,7 +3119,7 @@ int main(int argc, char *argv[])
                     << " case 3 to run properly ('timedPopBack')" << endl;
             }
 
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::join(thread);
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -3138,19 +3138,19 @@ int main(int argc, char *argv[])
             Element VA = 1.2;
             TestClass3front testObj(&x, &barrier, T10, VA);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, test3front, &testObj);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, test3front, &testObj);
 
             barrier.wait();
             while ( 0 != testObj.waitingFlag() ) {
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
             }
             ASSERT(0 != testObj.timeOutFlag());
 
             barrier.wait();
             bsls::TimeInterval now = bdlt::CurrentTime::now();
             barrier.wait();
-            bdlqq::ThreadUtil::microSleep(T);
+            bslmt::ThreadUtil::microSleep(T);
 
             // See comment above.
 
@@ -3159,7 +3159,7 @@ int main(int argc, char *argv[])
             bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
             if (elapsed < T4) {
                 while ( 0 != testObj.waitingFlag() ) {
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::yield();
                 }
                 ASSERT(0 == testObj.timeOutFlag());
             } else {
@@ -3169,7 +3169,7 @@ int main(int argc, char *argv[])
                     << " case 3 to run properly ('timedPopFront') " << endl;
             }
 
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::join(thread);
         }
         if (verbose) cout << "\tEnsure wait time on timeout" << endl;
         {
@@ -3182,9 +3182,9 @@ int main(int argc, char *argv[])
 
             x.pushBack(1.0);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, s3);
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, s3);
+            bslmt::ThreadUtil::join(thread);
 
             ASSERT(0 == x.length());    // make sure thread ran
         }
@@ -3227,8 +3227,8 @@ int main(int argc, char *argv[])
             Element VA = 1.2;
             TestClass2back testObj(&x, VA);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, test2back, &testObj);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, test2back, &testObj);
 
             // Yielding is not bullet-proof because it does not ENSURE that
             // 'testObj' is blocking on the 'popFront', so we make sure by
@@ -3238,15 +3238,15 @@ int main(int argc, char *argv[])
 
             int iter = 100;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(T);
             }
 
             ASSERT(0 != testObj.waitingFlag());
 
             x.pushBack( VA );
 
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::join(thread);
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -3261,22 +3261,22 @@ int main(int argc, char *argv[])
             Element VA = 1.2;
             TestClass2front testObj(&x, VA);
 
-            bdlqq::ThreadUtil::Handle thread;
-            bdlqq::ThreadUtil::create(&thread, test2front, &testObj);
+            bslmt::ThreadUtil::Handle thread;
+            bslmt::ThreadUtil::create(&thread, test2front, &testObj);
 
             // See note above.
 
             int iter = 100;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(T);
+                bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(T);
             }
 
             ASSERT(0 != testObj.waitingFlag());
 
             x.pushFront( VA );
 
-            bdlqq::ThreadUtil::join(thread);
+            bslmt::ThreadUtil::join(thread);
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -3746,22 +3746,22 @@ int main(int argc, char *argv[])
             // These two condition variable functions are DEPRECATED, but we
             // still test for their presence.
 
-            bdlqq::Condition *xc_deprecated = &x1.condition();
-            bdlqq::Condition *xi_deprecated = &x1.insertCondition();
+            bslmt::Condition *xc_deprecated = &x1.condition();
+            bslmt::Condition *xi_deprecated = &x1.insertCondition();
 
             // They should return the same as their replacements, so that it
             // will not be necessary to test the deprecated functions later in
             // [6].
 
-            bdlqq::Condition *xe = &x1.notEmptyCondition();
-            bdlqq::Condition *xf = &x1.notFullCondition();
+            bslmt::Condition *xe = &x1.notEmptyCondition();
+            bslmt::Condition *xf = &x1.notFullCondition();
 
             ASSERT(xe == xc_deprecated);
             ASSERT(xf == xi_deprecated);
             ASSERT(xe != xf);
 
             {   // atomic push of three values
-                bdlqq::LockGuard<bdlqq::Mutex> lock(&x1.mutex());
+                bslmt::LockGuard<bslmt::Mutex> lock(&x1.mutex());
 
                 x1.queue().pushBack(VA);
                 x1.queue().pushBack(VB);
@@ -3832,7 +3832,7 @@ int main(int argc, char *argv[])
 
             double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
 
-            bdlqq::ThreadGroup tgroup;
+            bslmt::ThreadGroup tgroup;
 
             tgroup.addThreads(cons, k_CONSUMER_COUNT);
             tgroup.addThreads(prod, k_PRODUCER_COUNT);

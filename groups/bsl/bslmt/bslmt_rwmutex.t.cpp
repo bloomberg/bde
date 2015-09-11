@@ -9,7 +9,9 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_platform.h>
+/* TBD -- bind
 #include <bdlf_bind.h>
+*/
 
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -791,6 +793,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: breathing test" << endl
                           << "=========================="
                           << endl;
+        /* TBD -- bind
         Obj mutex;
         bslmt::Barrier startBarrier(3), endBarrier(3);
 
@@ -814,7 +817,7 @@ int main(int argc, char *argv[])
            ASSERT(0 == bslmt::ThreadUtil::join(t1));
            ASSERT(0 == bslmt::ThreadUtil::join(t2));
         }
-
+        */
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

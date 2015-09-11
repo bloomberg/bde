@@ -8,8 +8,8 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_default.h>
 
@@ -210,7 +210,7 @@ void MultiQueueThreadPool::createQueueContextCb(void *memory)
 
 void MultiQueueThreadPool::deleteQueueCb(int                    id,
                                          const CleanupFunctor&  cleanupFunctor,
-                                         bdlqq::Barrier        *barrier)
+                                         bslmt::Barrier        *barrier)
 {
 
     d_registryLock.lockWrite();
@@ -310,7 +310,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int id, const Job &functor, int where)
 
 // CREATORS
 MultiQueueThreadPool::MultiQueueThreadPool(
-                              const bdlqq::ThreadAttributes&  threadAttributes,
+                              const bslmt::ThreadAttributes&  threadAttributes,
                               int                             minThreads,
                               int                             maxThreads,
                               int                             maxIdleTime,
@@ -378,14 +378,14 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
             bdlf::MemFnUtil::memFn(&MultiQueueThreadPool::deleteQueueCb, this),
             id,
             cleanupFunctor,
-            (bdlqq::Barrier *)0));
+            (bslmt::Barrier *)0));
 
     return enqueueJobImpl(id, job, e_ENQUEUE_FRONT);
 }
 
 int MultiQueueThreadPool::deleteQueue(int id)
 {
-    bdlqq::Barrier barrier(2);    // block in calling and execution threads
+    bslmt::Barrier barrier(2);    // block in calling and execution threads
 
     Job job(bdlf::BindUtil::bind(
             bdlf::MemFnUtil::memFn(&MultiQueueThreadPool::deleteQueueCb, this),
@@ -436,7 +436,7 @@ int MultiQueueThreadPool::drainQueue(int id)
     if (0 == rc) {
         // Wait until the queue is emptied.
         while (0 < context->d_queue.d_numPendingJobs) {
-            bdlqq::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
         }
     }
 
@@ -478,7 +478,7 @@ void MultiQueueThreadPool::drain()
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     if (d_threadPoolIsOwned) {
@@ -502,7 +502,7 @@ void MultiQueueThreadPool::stop()
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     if (d_threadPoolIsOwned) {
@@ -521,7 +521,7 @@ void MultiQueueThreadPool::shutdown()
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlqq::ThreadUtil::yield();                                     // SPIN
+        bslmt::ThreadUtil::yield();                                     // SPIN
     }
 
     // Delete all queues.  Since removing queues requires a write lock on the

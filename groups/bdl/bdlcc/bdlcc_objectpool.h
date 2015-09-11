@@ -146,17 +146,17 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      my_DatabaseConnection()
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+//          bslmt::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
 //      }
 //
 //      ~my_DatabaseConnection()
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+//          bslmt::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
 //      }
 //
 //      void executeQuery(Query *query)
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+//          bslmt::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
 //          (void)query;
 //      }
 //  };
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  bsls::AtomicInt numQueries(0);
-//  bdlqq::ThreadGroup tg;
+//  bslmt::ThreadGroup tg;
 //
 //  tg.addThreads(bdlf::BindUtil::bind(&serverThread,
 //                                     &numQueries,
@@ -266,10 +266,10 @@ BSLS_IDENT("$Id: $")
 //
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
 //      my_Query *query = getClientQuery();
-//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//      bslmt::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
 //  }
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
-//      bdlqq::ThreadUtil::join(threads[i]);
+//      bslmt::ThreadUtil::join(threads[i]);
 //  }
 //..
 ///Modified 'queryHandler'
@@ -309,16 +309,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_factory.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -770,7 +770,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     bslma::Allocator      *d_allocator_p;          // held, not owned
 
-    bdlqq::Mutex           d_mutex;                // pool replenishment
+    bslmt::Mutex           d_mutex;                // pool replenishment
                                                    // serializer
 
     // NOT IMPLEMENTED
@@ -1140,7 +1140,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             p = d_freeObjectsList;
             if (!p) {
                 replenish();
@@ -1225,7 +1225,7 @@ template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::increaseCapacity(int numObjects)
 {
     if (numObjects > 0) {
-       bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+       bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
        addObjects(numObjects);
     }
 }
@@ -1282,7 +1282,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *object)
 template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::reserveCapacity(int numObjects)
 {
-   bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+   bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
    numObjects -= d_numObjects;
    if (numObjects > 0) {
       addObjects(numObjects);

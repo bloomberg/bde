@@ -226,7 +226,7 @@ BSLS_IDENT("$Id: $")
 //          MAX_IDLE    = 100  // use a very short idle time since new jobs
 //                             // arrive only at startup
 //      };
-//      bdlqq::ThreadAttributes           defaultAttrs;
+//      bslmt::ThreadAttributes           defaultAttrs;
 //      bdlmt::MultiQueueThreadPool pool(defaultAttrs,
 //                                     MIN_THREADS, MAX_THREADS, MAX_IDLE,
 //                                     basicAllocator);
@@ -316,8 +316,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -346,7 +346,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlqq { class Barrier; }
+namespace bslmt { class Barrier; }
 
 namespace bdlmt {
                       // ================================
@@ -547,7 +547,7 @@ class MultiQueueThreadPool {
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
                       d_queueRegistry;      // registry of queue contexts
 
-    mutable bdlqq::RWMutex
+    mutable bslmt::RWMutex
                       d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
@@ -572,7 +572,7 @@ class MultiQueueThreadPool {
 
     void deleteQueueCb(int                    id,
                        const CleanupFunctor&  cleanupFunctor,
-                       bdlqq::Barrier        *barrier);
+                       bslmt::Barrier        *barrier);
         // Remove the queue associated with the specified 'id' from the queue
         // registry, execute the specified 'cleanupFunctor', wait on the
         // specified 'barrier', and then delete the referenced queue.
@@ -593,7 +593,7 @@ class MultiQueueThreadPool {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    MultiQueueThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
+    MultiQueueThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                          int                             minThreads,
                          int                             maxThreads,
                          int                             maxIdleTime,

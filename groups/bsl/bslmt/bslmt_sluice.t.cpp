@@ -9,7 +9,9 @@
 
 #include <bsls_atomic.h>
 
+/* TBD -- bind
 #include <bdlf_bind.h>
+*/
 #include <bsls_systemtime.h>
 
 #include <bslma_testallocator.h>
@@ -181,6 +183,7 @@ int main(int argc, char *argv[])
                           << "Stress / Allocator Test" << endl
                           << "=======================" << endl;
 
+        /* TBD -- bind
         enum {
             NUM_WAITING_THREADS = 20,
             NUM_TEST_SECONDS = 3
@@ -229,8 +232,9 @@ int main(int argc, char *argv[])
       }
       ASSERT(0 < ta.numAllocations());
       ASSERT(0 == ta.numBytesInUse());
+        */
 
-      break;
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // DELAYED WAIT TEST
@@ -247,6 +251,7 @@ int main(int argc, char *argv[])
                           << "Delayed Wait Test" << endl
                           << "=================" << endl;
 
+        /* TBD -- bind
         enum {
             NUM_SIGNALED_THREADS = 3,
             NUM_ITERATIONS = 2
@@ -279,6 +284,7 @@ int main(int argc, char *argv[])
             mX.signalAll();
             tg.joinAll();
         }
+        */
       } break; // success if we can reach the end of the test
       case 1: {
         // --------------------------------------------------------------------

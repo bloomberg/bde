@@ -96,8 +96,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -187,8 +187,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //    private:
@@ -284,24 +284,24 @@ BSLS_IDENT("$Id: $")
 //      bdlma::ConcurrentPoolAllocator poolAlloc;
 //      my1_WorkQueue queue(&poolAlloc);
 //
-//      bdlqq::ThreadAttributes attributes;
+//      bslmt::ThreadAttributes attributes;
 //
-//      bdlqq::ThreadUtil::Handle producerHandle;
-//      int status = bdlqq::ThreadUtil::create(&producerHandle,
+//      bslmt::ThreadUtil::Handle producerHandle;
+//      int status = bslmt::ThreadUtil::create(&producerHandle,
 //                                             attributes,
 //                                             &my1_producer,
 //                                             &queue);
 //      assert(0 == status);
 //
-//      bdlqq::ThreadUtil::Handle consumerHandle;
-//      status = bdlqq::ThreadUtil::create(&consumerHandle,
+//      bslmt::ThreadUtil::Handle consumerHandle;
+//      status = bslmt::ThreadUtil::create(&consumerHandle,
 //                                         attributes,
 //                                         &my1_consumer,
 //                                         &queue);
 //      assert(0 == status);
-//      status = bdlqq::ThreadUtil::join(consumerHandle);
+//      status = bslmt::ThreadUtil::join(consumerHandle);
 //      assert(0 == status);
-//      status = bdlqq::ThreadUtil::join(producerHandle);
+//      status = bslmt::ThreadUtil::join(producerHandle);
 //      assert(0 == status);
 //  }
 //..
@@ -343,8 +343,8 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -440,8 +440,8 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //    private:
@@ -538,24 +538,24 @@ BSLS_IDENT("$Id: $")
 //      bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //      my2_WorkQueue queue(&poolAlloc);
 //
-//      bdlqq::ThreadAttributes attributes;
+//      bslmt::ThreadAttributes attributes;
 //
-//      bdlqq::ThreadUtil::Handle producerHandle;
-//      int status = bdlqq::ThreadUtil::create(&producerHandle,
+//      bslmt::ThreadUtil::Handle producerHandle;
+//      int status = bslmt::ThreadUtil::create(&producerHandle,
 //                                            attributes,
 //                                            &my2_producer,
 //                                            &queue);
 //      assert(0 == status);
 //
-//      bdlqq::ThreadUtil::Handle consumerHandle;
-//      status = bdlqq::ThreadUtil::create(&consumerHandle,
+//      bslmt::ThreadUtil::Handle consumerHandle;
+//      status = bslmt::ThreadUtil::create(&consumerHandle,
 //                                        attributes,
 //                                        &my2_consumer,
 //                                        &queue);
 //      assert(0 == status);
-//      status = bdlqq::ThreadUtil::join(consumerHandle);
+//      status = bslmt::ThreadUtil::join(consumerHandle);
 //      assert(0 == status);
-//      status = bdlqq::ThreadUtil::join(producerHandle);
+//      status = bslmt::ThreadUtil::join(producerHandle);
 //      assert(0 == status);
 //  }
 //..

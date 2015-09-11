@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -210,7 +210,7 @@ void *ConcurrentPool::allocate()
         p = d_freeList.loadRelaxed();
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             p = d_freeList;
             if (!p) {
                 replenish();
@@ -338,7 +338,7 @@ void ConcurrentPool::reserveCapacity(int numBlocks)
 {
     BSLS_ASSERT(0 <= numBlocks);
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     Link *list = d_freeList.swap(0);
     Link *last = list;

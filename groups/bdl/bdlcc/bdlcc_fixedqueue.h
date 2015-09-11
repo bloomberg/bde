@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 //
-//      bdlqq::ThreadGroup consumerThreads;
+//      bslmt::ThreadGroup consumerThreads;
 //      consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
 //                                 numThreads);
 //
@@ -172,12 +172,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueueindexmanager.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_SEMAPHORE
-#include <bdlqq_semaphore.h>
+#ifndef INCLUDED_BSLMT_SEMAPHORE
+#include <bslmt_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -240,9 +240,9 @@ class FixedQueue {
 
     // PRIVATE CONSTANTS
     enum {
-        k_TYPE_PADDING = bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(TYPE *),
-        k_SEMA_PADDING = bdlqq::Platform::e_CACHE_LINE_SIZE -
-                                                       sizeof(bdlqq::Semaphore)
+        k_TYPE_PADDING = bslmt::Platform::e_CACHE_LINE_SIZE - sizeof(TYPE *),
+        k_SEMA_PADDING = bslmt::Platform::e_CACHE_LINE_SIZE -
+                                                       sizeof(bslmt::Semaphore)
     };
 
     // DATA
@@ -262,7 +262,7 @@ class FixedQueue {
                                            // 'd_popControlSema' to pop an
                                            // element
 
-    bdlqq::Semaphore   d_popControlSema;    // semaphore on which threads
+    bslmt::Semaphore   d_popControlSema;    // semaphore on which threads
                                            // waiting to pop 'wait'
 
     const char        d_popControlSemaPad[k_SEMA_PADDING];
@@ -272,7 +272,7 @@ class FixedQueue {
                                            // 'd_pushControlSema' to push an
                                            // element
 
-    bdlqq::Semaphore   d_pushControlSema;   // semaphore on which threads
+    bslmt::Semaphore   d_pushControlSema;   // semaphore on which threads
                                            // waiting to push 'wait'
 
     const char        d_pushControlSemaPad[k_SEMA_PADDING];

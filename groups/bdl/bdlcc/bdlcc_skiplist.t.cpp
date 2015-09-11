@@ -5,12 +5,12 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -78,7 +78,7 @@ void aSsErT(int c, const char *s, int i)
 
 #define V(X) { if (verbose) P(X) }            // Print in verbose mode
 
-bdlqq::Mutex coutMutex;
+bslmt::Mutex coutMutex;
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -119,7 +119,7 @@ void case18(bdlcc::SkipList<int, int>* list,
             int                        level,
             bool                       unique)
 {
-    int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
+    int id = static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()) + 2;
 
     if (0 <= level) {
         for (int i = 0; i < numIterations; ++i) {
@@ -186,7 +186,7 @@ bsls::AtomicInt CountedDelete::deleteCount(0);
 
 void case20(bdlcc::SkipList<int, CountedDelete>* list, int maxRefCount)
 {
-    unsigned seed = (unsigned)bdlqq::ThreadUtil::selfIdAsInt();
+    unsigned seed = (unsigned)bslmt::ThreadUtil::selfIdAsInt();
 
     // Increment the ref count up to maxRefCount, then decrease.  While
     // incrementing, 10% of the time throw in a decrement.
@@ -221,7 +221,7 @@ void case19(bdlcc::SkipList<int, int>* list,
             bool                       unique,
             bool                       getHandles)
 {
-    int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
+    int id = static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()) + 2;
 
     bdlcc::SkipListPairHandle<int,int> uniqueH;
 
@@ -295,10 +295,10 @@ class SimpleScheduler
     typedef bdlcc::SkipList<bdlt::Datetime, bdlf::Function<void(*)()> > List;
 
     List                                                    d_list;
-    bdlqq::ThreadUtil::Handle                                d_dispatcher;
-    bdlqq::Condition                                         d_notEmptyCond;
-    bdlqq::Barrier                                           d_startBarrier;
-    bdlqq::Mutex                                             d_condMutex;
+    bslmt::ThreadUtil::Handle                                d_dispatcher;
+    bslmt::Condition                                         d_notEmptyCond;
+    bslmt::Barrier                                           d_startBarrier;
+    bslmt::Mutex                                             d_condMutex;
     volatile int                                            d_doneFlag;
 
     // PRIVATE METHODS
@@ -356,7 +356,7 @@ class SimpleScheduler
     , d_startBarrier(2)
     , d_doneFlag(false)
     {
-        int rc = bdlqq::ThreadUtil::create(
+        int rc = bslmt::ThreadUtil::create(
                     &d_dispatcher,
                     bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
                                         this));
@@ -370,16 +370,16 @@ class SimpleScheduler
     }
 
     void stop() {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_condMutex);
-        if (bdlqq::ThreadUtil::invalidHandle() != d_dispatcher) {
-            bdlqq::ThreadUtil::Handle dispatcher = d_dispatcher;
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+        if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
+            bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
             d_doneFlag = true;
             d_notEmptyCond.signal();
             {
-                bdlqq::LockGuardUnlock<bdlqq::Mutex> g(&d_condMutex);
-                bdlqq::ThreadUtil::join(dispatcher);
+                bslmt::LockGuardUnlock<bslmt::Mutex> g(&d_condMutex);
+                bslmt::ThreadUtil::join(dispatcher);
             }
-            d_dispatcher = bdlqq::ThreadUtil::invalidHandle();
+            d_dispatcher = bslmt::ThreadUtil::invalidHandle();
         }
     }
 
@@ -425,7 +425,7 @@ void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
         }
         bdlcc::SkipList<int, int>::Pair *h;
         list->addRaw(&h, count, count);
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
         list->releaseReferenceRaw(h);
     }
 }
@@ -622,10 +622,10 @@ void run()
     List list;
     POPULATE_LIST_EX(&list, VALUES1);
 
-    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+    bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i],
+        bslmt::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &list,
                                                      (int)k_NUM_ITERATIONS,
@@ -633,7 +633,7 @@ void run()
     }
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     VERIFY_LIST_EX(list, VALUES2);
@@ -733,10 +733,10 @@ void run()
 
     TimeQ timeQueue;
 
-    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+    bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i],
+        bslmt::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &timeQueue,
                                                      (int)k_NUM_ITERATIONS,
@@ -746,7 +746,7 @@ void run()
     }
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
 }
@@ -1050,7 +1050,7 @@ int main(int argc, char *argv[])
 
         SkipList mX;
         SkipList::Pair *handle;
-        bdlqq::ThreadGroup tg;
+        bslmt::ThreadGroup tg;
 
         mX.addRaw(&handle, 1, CountedDelete());
 
@@ -1118,7 +1118,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta;
         {
             SkipList mX(&ta);
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
 
             if (verbose) {
                 cout << "Phase 1: no handles" << endl;
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
                 cout << "Phase 1: level 0" << endl;
             }
 
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
             tg.addThreads(bdlf::BindUtil::bind(&case18, &mX,
                                               numIterations, 0, false),
                           numThreads);
@@ -2113,7 +2113,7 @@ int main(int argc, char *argv[])
 
             scheduleTime.addMilliseconds(250);
             while (bdlt::CurrentTime::utc() < scheduleTime) {
-                bdlqq::ThreadUtil::microSleep(10000);
+                bslmt::ThreadUtil::microSleep(10000);
             }
             bsls::Stopwatch waitTimer;
             waitTimer.start();
@@ -2122,7 +2122,7 @@ int main(int argc, char *argv[])
             // nightly build environments, which are heavily overloaded, it's
             // hard to set precise time requirements)
             while (3 != values.size()  && 2.5 > waitTimer.elapsedTime()) {
-                bdlqq::ThreadUtil::microSleep(10000);
+                bslmt::ThreadUtil::microSleep(10000);
             }
             LOOP_ASSERT(waitTimer.elapsedTime(),
                         2.5 > waitTimer.elapsedTime());

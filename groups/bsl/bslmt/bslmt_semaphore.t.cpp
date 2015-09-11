@@ -5,7 +5,9 @@
 #include <bslmt_threadutil.h>           // for testing only
 
 #include <bsls_timeinterval.h>
+/* TBD -- bind
 #include <bdlf_bind.h>
+*/
 #include <bsls_atomic.h>
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
@@ -100,6 +102,7 @@ int main(int argc, char *argv[])
                  << "=============" << endl;
         }
         {
+            /* TBD -- bind
             Obj X;
             bslmt::ThreadUtil::Handle h;
             bsls::AtomicInt flag;
@@ -110,6 +113,7 @@ int main(int argc, char *argv[])
             X.post();
             bslmt::ThreadUtil::join(h);
             ASSERT(1 == flag);
+            */
         }
       } break;
       case 1: {

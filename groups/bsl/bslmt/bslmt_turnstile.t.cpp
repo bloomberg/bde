@@ -7,7 +7,9 @@
 #include <bslmt_threadutil.h>
 #include <bsls_atomic.h>
 
+/* TBD -- bind
 #include <bdlf_bind.h>
+*/
 
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -358,6 +360,7 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
+        /* TBD -- bind
         const bsls::TimeInterval OFFSET(1.0);        // turnstile start offset
         const double            RATE        = 50.0;
         const int               NUM_TURNS   = 50;
@@ -406,6 +409,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P_(sleepInterval); P_(NUM_TURNS); P(counter);
         }
+        */
       }  break;
       case 5: {
         // --------------------------------------------------------------------
@@ -433,6 +437,7 @@ int main(int argc, char *argv[])
                  << "=====================================" << endl;
         }
 
+        /* TBD -- bind
         const bsls::TimeInterval OFFSET(1.0);        // turnstile start offset
         const double            RATE        = 8;
         const int               NUM_TURNS   = 8;
@@ -470,6 +475,7 @@ int main(int argc, char *argv[])
         Int64 lt = X.lagTime();
         LOOP_ASSERT(lt, 0 == lt);
         LOOP_ASSERT(counter, NUM_TURNS <= counter);
+        */
       }  break;
       case 4: {
         // --------------------------------------------------------------------

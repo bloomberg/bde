@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -76,7 +76,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         // lock.
 
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&scheduler->d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&scheduler->d_mutex);
             if (!scheduler->d_running) {
                 return;                                               // RETURN
             }
@@ -219,12 +219,12 @@ namespace bdlmt {
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()
 {
-    if (d_running && !bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    if (d_running && !bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                                 d_dispatcherThread)) {
         const int it = d_iterations;
         while (it == d_iterations && d_running) {
             d_condition.signal();
-            bdlqq::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
         }
     }
 }
@@ -419,22 +419,22 @@ TimerEventScheduler::~TimerEventScheduler()
 // MANIPULATORS
 int TimerEventScheduler::start()
 {
-    bdlqq::ThreadAttributes attr;
+    bslmt::ThreadAttributes attr;
 
     return start(attr);
 }
 
-int TimerEventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
+int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running) {
         return 0;                                                     // RETURN
     }
 
-    bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
+    bslmt::ThreadAttributes modAttr(threadAttributes);
+    modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
 
-    if (bdlqq::ThreadUtil::create(&d_dispatcherThread,
+    if (bslmt::ThreadUtil::create(&d_dispatcherThread,
                                   modAttr,
                                   &TimerEventSchedulerDispatcherThread,
                                   this))
@@ -448,11 +448,11 @@ int TimerEventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
 
 void TimerEventScheduler::stop()
 {
-    BSLS_ASSERT(! bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                              d_dispatcherThread));
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         if (!d_running) {
             return;                                                   // RETURN
         }
@@ -461,7 +461,7 @@ void TimerEventScheduler::stop()
         d_condition.signal();
     }
 
-    bdlqq::ThreadUtil::join(d_dispatcherThread);
+    bslmt::ThreadUtil::join(d_dispatcherThread);
 }
 
 TimerEventScheduler::Handle
@@ -471,7 +471,7 @@ TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&        time,
 {
     Handle handle;
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         handle = d_eventTimeQueue.add(time, callback, key, &isNewTop);
 
@@ -496,7 +496,7 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
 {
     int status;
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         status = d_eventTimeQueue.update(handle, key, newTime, &isNewTop);
         if (isNewTop) {
@@ -532,7 +532,7 @@ int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
     // tries to cancel the event even if it has been put onto the pending list.
     // Note that there is no need for a lock here.
 
-    if (bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    if (bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                   d_dispatcherThread))
     {
         // If there are pending items, search among them, starting with the
@@ -600,7 +600,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
     ClockDataPtr p(pClockData, &d_clockDataAllocator, d_allocator_p);
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 

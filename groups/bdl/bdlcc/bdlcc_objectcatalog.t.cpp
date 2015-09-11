@@ -4,11 +4,11 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_condition.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -140,12 +140,12 @@ void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
-typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
-static bdlqq::Mutex printMutex;  // mutex to protect output macros
+typedef bslmt::LockGuard<bslmt::Mutex> LockGuard;
+static bslmt::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { LockGuard guard(&printMutex); P(X); }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
 
-static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert
+static bslmt::Mutex &assertMutex = printMutex; // mutex to protect assert
                                                // macros
 
 #define ASSERTT(X) {                                                          \
@@ -491,8 +491,8 @@ namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
 typedef bsl::queue<int> *RemoteAddress;
 static bsl::queue<int>   server;
-static bdlqq::Mutex      serverMutex;
-static bdlqq::Condition  serverNotEmptyCondition;
+static bslmt::Mutex      serverMutex;
+static bslmt::Condition  serverNotEmptyCondition;
 
 const int NUM_QUERIES_TO_PROCESS   = 128; // for testing purposes
 const int CALLBACK_PROCESSING_TIME = 10;  // in microseconds
@@ -503,7 +503,7 @@ void queryCallBack(const QueryResult& result)
     // For testing only, we simulate a callback that takes a given time to
     // process a query.
 {
-    bdlqq::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
+    bslmt::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
 }
 
 ///Usage
@@ -711,7 +711,7 @@ enum {
 bslma::TestAllocator ta(veryVeryVerbose);
 bdlcc::ObjectCatalog<int> catalog(&ta);
 
-bdlqq::Barrier barrier(k_NUM_THREADS + 3);
+bslmt::Barrier barrier(k_NUM_THREADS + 3);
 
 int getObjectFromPair(Iter &it)
 {
@@ -1190,26 +1190,26 @@ int main(int argc, char *argv[])
 
         using namespace OBJECTCATALOG_TEST_CASE_13;
 
-        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 3];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS + 3];
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::create(&threads[i],
+            bslmt::ThreadUtil::create(&threads[i],
                                       testAddFindReplaceRemove,
                                       (void*)(bsls::Types::IntPtr)i);
         }
 
-        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 0],
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS + 0],
                                   testLength,
                                   NULL);
-        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 1],
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS + 1],
                                   testIteration,
                                   NULL);
-        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 2],
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS + 2],
                                   verifyStateThread,
                                   NULL);
 
         for (int i = 0; i < k_NUM_THREADS + 3; ++i) {
-            bdlqq::ThreadUtil::join(threads[i]);
+            bslmt::ThreadUtil::join(threads[i]);
         }
 
       } break;
