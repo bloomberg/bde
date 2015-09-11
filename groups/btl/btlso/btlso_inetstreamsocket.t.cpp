@@ -8,7 +8,7 @@
 #include <btlso_ipv4address.h>
 #include <btlso_platform.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 
@@ -949,7 +949,7 @@ int main(int argc, char *argv[]) {
             ASSERT(resp == sizeof(buf1));
 
             // Latency
-            bdlqq::ThreadUtil::microSleep(500 * 1000);
+            bslmt::ThreadUtil::microSleep(500 * 1000);
 
             resp = streamSocketB->read(rcvbuf1, 1);
             ASSERT(resp == 1);
@@ -991,7 +991,7 @@ int main(int argc, char *argv[]) {
             int totalSent = resp;
 
             // Latency
-            bdlqq::ThreadUtil::microSleep(500 * 1000);
+            bslmt::ThreadUtil::microSleep(500 * 1000);
 
             btls::Iovec vec[2];
             vec[0].setBuffer(rcvbuf1, 1);
@@ -1086,7 +1086,7 @@ int main(int argc, char *argv[]) {
              resp = streamSocketA->write(buf2, sizeof(buf2));
              ASSERT(resp == sizeof(buf2));
 
-             bdlqq::ThreadUtil::microSleep(500 * 1000);
+             bslmt::ThreadUtil::microSleep(500 * 1000);
 
              resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
              ASSERT(resp == (sizeof(buf1) + sizeof(buf2)));
@@ -1132,7 +1132,7 @@ int main(int argc, char *argv[]) {
              ASSERT(resp == sizeof(buf3));
              if (veryVerbose) P(resp);
 
-             bdlqq::ThreadUtil::microSleep(500 * 1000);
+             bslmt::ThreadUtil::microSleep(500 * 1000);
 
              resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
              ASSERT(resp == (sizeof(buf1) + sizeof(buf2) + sizeof(buf3)));
@@ -1327,7 +1327,7 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-             bdlqq::ThreadUtil::microSleep(200 * 1000);
+             bslmt::ThreadUtil::microSleep(200 * 1000);
 
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
@@ -1369,7 +1369,7 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-             bdlqq::ThreadUtil::microSleep(200 * 1000);
+             bslmt::ThreadUtil::microSleep(200 * 1000);
 
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[]) {
                                  P_(iterations); P_(totalReceived);
                                  P(totalSent);
                              }
-                             bdlqq::ThreadUtil::microSleep(100 * 1000);
+                             bslmt::ThreadUtil::microSleep(100 * 1000);
                              iterations++;
                          }
                          else break;
@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-                 bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                 bslmt::ThreadUtil::microSleep(1000 * 1000);
 
                  // Write data and verify that it writes OK
 
@@ -1571,7 +1571,7 @@ int main(int argc, char *argv[]) {
                                  P_(iterations); P_(totalReceived);
                                  P(totalSent);
                              }
-                             bdlqq::ThreadUtil::microSleep(100 * 1000);
+                             bslmt::ThreadUtil::microSleep(100 * 1000);
                              iterations++;
                          }
                          else break;
@@ -1589,7 +1589,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-                 bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                 bslmt::ThreadUtil::microSleep(1000 * 1000);
 
                  // Write data and verify that it writes OK
 
@@ -1757,7 +1757,7 @@ int main(int argc, char *argv[]) {
                     totalSent += resp;
                 }
 
-                bdlqq::ThreadUtil::microSleep(50 * 1000);
+                bslmt::ThreadUtil::microSleep(50 * 1000);
                 bsls::TimeInterval interval =
                                              bdlt::CurrentTime::now() - before;
 
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose) {
                     P(DATA[ti].d_delay);
                 }
-                bdlqq::ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
+                bslmt::ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
             }
 
            // some platforms require latency between writes and reads
@@ -1816,7 +1816,7 @@ int main(int argc, char *argv[]) {
 #else
             const int sleepTime = 0;
 #endif
-            if (sleepTime) bdlqq::ThreadUtil::microSleep(sleepTime);
+            if (sleepTime) bslmt::ThreadUtil::microSleep(sleepTime);
 
             bsls::TimeInterval timeBefore = bdlt::CurrentTime::now();
 
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[]) {
 
             // Some implementations of sockets will delay the second
               // packet due to the Nagle algorithm
-            bdlqq::ThreadUtil::microSleep(2000 * 1000);
+            bslmt::ThreadUtil::microSleep(2000 * 1000);
 
             resp = serviceSocket->read(bufrcv, sizeof(bufrcv));
             ASSERT(resp == sizeof(buf1) + sizeof(buf2));
@@ -2191,7 +2191,7 @@ int main(int argc, char *argv[]) {
     defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
 // Some TCP driver implementations require some delay between write and
 // read (on the loopback service) in order to recognize I/O events correctly.
-            bdlqq::ThreadUtil::microSleep(20 * 1000);
+            bslmt::ThreadUtil::microSleep(20 * 1000);
 #endif
 
             resp = clientSocket->read(bufrcv, sizeof(bufrcv));
@@ -2211,7 +2211,7 @@ int main(int argc, char *argv[]) {
 
             // Some implementations of sockets will delay the second
             // packet due to the Nagle algorithm
-            bdlqq::ThreadUtil::microSleep(2000 * 1000);
+            bslmt::ThreadUtil::microSleep(2000 * 1000);
 
             resp = serviceSocket->read(bufrcv, sizeof(bufrcv));
             ASSERT(resp == sizeof(buf1) + sizeof(buf2));
@@ -2230,7 +2230,7 @@ int main(int argc, char *argv[]) {
     defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
 // Some TCP driver implementations require some delay between write and
 // read (on the loopback service) in order to recognize I/O events correctly.
-            bdlqq::ThreadUtil::microSleep(20 * 1000);
+            bslmt::ThreadUtil::microSleep(20 * 1000);
 #endif
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
@@ -2298,7 +2298,7 @@ int main(int argc, char *argv[]) {
                 testFactory.deallocate(streamSocketA);
 
                 // Wait for 2 seconds
-                bdlqq::ThreadUtil::microSleep(2000 * 1000);
+                bslmt::ThreadUtil::microSleep(2000 * 1000);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
                 ::signal(SIGALRM, sigalarm);

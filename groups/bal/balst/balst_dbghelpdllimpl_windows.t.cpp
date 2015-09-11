@@ -14,7 +14,7 @@
 #include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <bdlqq_qlock.h>
+#include <bslmt_qlock.h>
 
 #include <windows.h>
 #include <dbghelp.h>
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 
         balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 
         balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 
         balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST LOADING OF DLL\n"
                              "===================\n";
 
-        bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 
         balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES

@@ -14,13 +14,13 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <ball_userfieldsschema.h>
 #include <ball_testobserver.h>                // for testing only
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_once.h>
-#include <bdlqq_readlockguard.h>
-#include <bdlqq_qlock.h>
-#include <bdlqq_rwmutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_writelockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_once.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_qlock.h>
+#include <bslmt_rwmutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_writelockguard.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -151,7 +151,7 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
 }
 
 
-static bdlqq::QLock s_bslsLogLock = BDLQQ_QLOCK_INITIALIZER;
+static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
     // A lock used to protect the configuration of the 'bsl_Log' callback
     // handler.  This lock prevents the logger manager from being destroyed
     // concurrently to an attempt to log a record.
@@ -167,7 +167,7 @@ void bslsLogMessage(const char *fileName,
     static ball::Category *category               = 0;
     static const char    *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
 
-    bdlqq::QLockGuard qLockGuard(&s_bslsLogLock);
+    bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
 
     if (ball::LoggerManager::isInitialized()) {
         ball::Logger&  logger = ball::LoggerManager::singleton().getLogger();
@@ -311,7 +311,7 @@ void Logger::logMessage(const Category&            category,
     static int pid = bdls::ProcessUtil::getProcessId();
     record->fixedFields().setProcessID(pid);
 
-    record->fixedFields().setThreadID(bdlqq::ThreadUtil::selfIdAsUint64());
+    record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
 
     if (d_populator) {
         d_populator(&record->userFields(), *d_userFieldsSchema_p);
@@ -463,7 +463,7 @@ void Logger::removeAll()
     d_recordBuffer_p->removeAll();
 }
 
-char *Logger::obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize)
+char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
 {
     d_scratchBufferMutex.lock();
     *mutex = &d_scratchBufferMutex;
@@ -508,8 +508,8 @@ void LoggerManager::initSingletonImpl(
 {
     BSLS_ASSERT(observer);
 
-    static bdlqq::Once doOnceObj = BDLQQ_ONCE_INITIALIZER;
-    bdlqq::OnceGuard doOnceGuard(&doOnceObj);
+    static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
+    bslmt::OnceGuard doOnceGuard(&doOnceObj);
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
@@ -531,7 +531,7 @@ void LoggerManager::initSingletonImpl(
         // TBD: The bsls_log integration is being disabled for BDE 2.23 (see
         // 64382709).
         //
-        // bdlqq::QLockGuard qLockGuard(&s_bslsLogLock);
+        // bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
         // bsls::Log::setLogMessageHandler(&bslsLogMessage);
 
     }
@@ -589,7 +589,7 @@ void LoggerManager::shutDownSingleton()
 
             // TBD: The bsls_log integration is being disabled for BDE 2.23
             // (see 64382709).
-            // bdlqq::QLockGuard qLockGuard(&s_bslsLogLock);
+            // bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
             // bsls::Log::setLogMessageHandler(
             //                      &bsls::Log::platformDefaultMessageHandler);
         }
@@ -638,7 +638,7 @@ void LoggerManager::logMessage(int severity, Record *record)
                  "\n%s %d %llu %s %s %d %s ",
                  datetimeStream.str().c_str(),
                  pid,
-                 bdlqq::ThreadUtil::selfIdAsUint64(),
+                 bslmt::ThreadUtil::selfIdAsUint64(),
                  Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
@@ -657,20 +657,20 @@ void LoggerManager::logMessage(int severity, Record *record)
     Record::deleteObject(record);
 }
 
-char *LoggerManager::obtainMessageBuffer(bdlqq::Mutex **mutex,
+char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
                                          int           *bufferSize)
 {
     const int DEFAULT_LOGGER_BUFFER_SIZE = 8192;
     static char buffer[DEFAULT_LOGGER_BUFFER_SIZE];
 
-    static bsls::ObjectBuffer<bdlqq::Mutex> staticMutex;
-    BDLQQ_ONCE_DO {
+    static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
+    BSLMT_ONCE_DO {
         // This mutex must remain valid for the lifetime of the task, and is
         // intentionally never destroyed.  This function may be called on
         // program termination, e.g., if a statically initialized object
         // performs logging during its destruction.
 
-        new (staticMutex.buffer()) bdlqq::Mutex();
+        new (staticMutex.buffer()) bslmt::Mutex();
     }
 
     staticMutex.object().lock();
@@ -683,7 +683,7 @@ char *LoggerManager::obtainMessageBuffer(bdlqq::Mutex **mutex,
 // PRIVATE MANIPULATORS
 void LoggerManager::publishAllImp(Transmission::Cause cause)
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_loggersLock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
     bsl::set<Logger *>::iterator itr;
     for (itr = d_loggers.begin(); itr != d_loggers.end(); ++itr) {
         (*itr)->publish(cause);
@@ -800,7 +800,7 @@ LoggerManager::~LoggerManager()
 // MANIPULATORS
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                 buffer,
@@ -819,7 +819,7 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       int           scratchBufferSize)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                 buffer,
@@ -838,7 +838,7 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       Observer     *observer)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
@@ -858,7 +858,7 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       int           scratchBufferSize,
                                       Observer     *observer)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
@@ -903,16 +903,16 @@ Logger& LoggerManager::getLogger()
     // TBD: optimize it using thread local storage
     d_defaultLoggersLock.lockRead();
     bsl::map<void *, Logger *>::iterator itr =
-            d_defaultLoggers.find((void *)bdlqq::ThreadUtil::selfIdAsUint64());
+            d_defaultLoggers.find((void *)bslmt::ThreadUtil::selfIdAsUint64());
     d_defaultLoggersLock.unlock();
     return itr != d_defaultLoggers.end() ? *(itr->second) : *d_logger_p;
 }
 
 void LoggerManager::setLogger(Logger *logger)
 {
-    void *id = (void *)bdlqq::ThreadUtil::selfIdAsUint64();
+    void *id = (void *)bslmt::ThreadUtil::selfIdAsUint64();
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_defaultLoggersLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_defaultLoggersLock);
     if (0 == logger) {
         d_defaultLoggers.erase(id);
     }
@@ -994,7 +994,7 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
                                    (unsigned int) d_categoryManager.length()) {
         int recordLevel, passLevel, triggerLevel, triggerAllLevel;
         {
-            bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(
+            bslmt::ReadLockGuard<bslmt::RWMutex> guard(
                                                      &d_defaultThresholdsLock);
             if (d_defaultThresholds) {
                 d_defaultThresholds(&recordLevel,
@@ -1132,7 +1132,7 @@ void LoggerManager::setCategoryThresholdsToFactoryDefaults(
 void LoggerManager::setDefaultThresholdLevelsCallback(
                                       DefaultThresholdLevelsCallback *callback)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_defaultThresholdsLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_defaultThresholdsLock);
     if (callback) {
         d_defaultThresholds = *callback;
     } else {

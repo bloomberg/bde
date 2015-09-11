@@ -5,7 +5,7 @@
 #include <btlso_socketimputil.h>
 #include <btlso_ipv4address.h>
 
-#include <bdlqq_mutex.h>
+#include <bslmt_mutex.h>
 
 #include <bsls_platform.h>
 
@@ -124,7 +124,7 @@ static void aSsErT(int c, const char *s, int i)
                       aSsErT(1, #X, __LINE__); } }
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS

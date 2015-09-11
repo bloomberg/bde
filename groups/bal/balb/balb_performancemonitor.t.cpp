@@ -10,7 +10,7 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdls_processutil.h>
 
@@ -313,7 +313,7 @@ double wasteCpuTime()
 
     return x;
 #else
-    bdlqq::ThreadUtil::microSleep(0, 1);
+    bslmt::ThreadUtil::microSleep(0, 1);
     return 1.0;
 #endif
 }
@@ -411,7 +411,7 @@ int main(int argc, char *argv[])
             // At this point, the average CPU utilizations should be zero
 
             // Sleep for 1 second (without consuming too much CPU)
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
             perfmon.collect();
 
             // We called collect almost a second after restting statistics, so
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
             // seconds for one minute.  Note that the report interval may vary
             // from the collection interval.
             for (int i = 0; i < 6; ++i) {
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
                 for (balb::PerformanceMonitor::ConstIterator
                                                          it  = perfmon.begin();
                                                          it != perfmon.end();
@@ -617,7 +617,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
 
                 for (int i = 0; i < 6; ++i) {
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                     for (balb::PerformanceMonitor::ConstIterator
                                                         it  = perfmon.begin();
                                                         it != perfmon.end();

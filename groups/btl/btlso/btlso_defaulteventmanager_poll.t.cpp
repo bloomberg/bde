@@ -10,7 +10,7 @@
 #include <btlso_platform.h>
 #include <btlso_flag.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
@@ -878,7 +878,7 @@ int main(int argc, char *argv[]) {
                 // it takes awhile for the socket to wake up, i/o to it during
                 // that time is at least correct.
 
-                bdlqq::ThreadUtil::microSleep(40 * 1000);
+                bslmt::ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 for (int j = 0; j < NUM_PAIR; j++) {

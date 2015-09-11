@@ -15,7 +15,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
                 TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
 
                 bdlt::Datetime result1 = bdlt::CurrentTime::utc();
-                bdlqq::ThreadUtil::microSleep(0, 2); // two seconds
+                bslmt::ThreadUtil::microSleep(0, 2); // two seconds
                 bdlt::Datetime result2 = bdlt::CurrentTime::utc();
 
                 LOOP_ASSERT(i, utcDatetime == result1);
@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1178,7 +1178,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
 
@@ -1300,12 +1300,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test normal rotation" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1315,14 +1315,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test delayed logging" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 5);
+            bslmt::ThreadUtil::microSleep(0, 5);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
@@ -1333,14 +1333,14 @@ int main(int argc, char *argv[])
                            "Test rotation between scheduled rotations" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
 
             mX.forceRotation();
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
                        "Test disabling file logging between rotations" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
 
             mX.disableFileLogging();
 
@@ -1367,7 +1367,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
 
             mX.disableTimeIntervalRotation();
 
@@ -1620,7 +1620,7 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string> files(Z);
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 bsl::string logName;
                 ASSERT(X.isFileLoggingEnabled(&logName));
@@ -1661,7 +1661,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 mX.forceRotation();
                 ASSERT(1       == cb.numInvocations());
@@ -1707,7 +1707,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1728,7 +1728,7 @@ int main(int argc, char *argv[])
             buffer[1] = 0;  // Don't need to write much for time-based rotation
 
             for (int i = 0; i < 3; ++i) {
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1959,7 +1959,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, LOGNAME.c_str(),
                              1 == FileUtil::exists(LOGNAME.c_str()));
 
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
                 mX.forceRotation();
 
                 mX.disableFileLogging();
@@ -2271,7 +2271,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2316,7 +2316,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2363,7 +2363,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2479,7 +2479,7 @@ int main(int argc, char *argv[])
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                        X.rotationLifetime());
 
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -2505,7 +2505,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -2526,7 +2526,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 mX.forceRotation();
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -2555,7 +2555,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
@@ -2565,7 +2565,7 @@ int main(int argc, char *argv[])
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
 
-                    bdlqq::ThreadUtil::microSleep(200 * 1000);
+                    bslmt::ThreadUtil::microSleep(200 * 1000);
                 }
 
                 glob_t globbuf;
@@ -2589,7 +2589,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0 ; i < 15; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                    bdlqq::ThreadUtil::microSleep(50 * 1000);
+                    bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
                 // Verify that no rotation occurred.
@@ -2651,7 +2651,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                        X.rotationLifetime());
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -2677,7 +2677,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.

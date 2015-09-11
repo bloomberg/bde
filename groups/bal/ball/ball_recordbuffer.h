@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 //      // 'ball::RecordBuffer' protocol.  This implementation employs a
 //      // vector to hold an unlimited number of record handles.
 //
-//      mutable bdlqq::RecursiveMutex d_mutex; // thread safety provider (see
+//      mutable bslmt::RecursiveMutex d_mutex; // thread safety provider (see
                                 // the implementation notes for the
                                 // justification for using recursive mutex
                                 // rather a plain mutex)
@@ -121,14 +121,14 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void my_RecordBuffer::popBack()
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      d_buffer.pop_back();
 //  }
 //
 //  inline
 //  void my_RecordBuffer::popFront()
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      d_buffer.erase(d_buffer.begin());
 //  }
 //
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //  int my_RecordBuffer::pushBack(
 //                       const bsl::shared_ptr<ball::Record>& handle)
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      d_buffer.push_back(handle);
 //      return 0;
 //  }
@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 //  int my_RecordBuffer::pushFront(
 //                       const bsl::shared_ptr<ball::Record>& handle)
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      d_buffer.insert(d_buffer.begin(), handle);
 //      return 0;
 //  }
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void my_RecordBuffer::removeAll()
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      d_buffer.clear();
 //  }
 //
@@ -161,21 +161,21 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  const bsl::shared_ptr<ball::Record>& my_RecordBuffer::back() const
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      return d_buffer.back();
 //  }
 //
 //  inline
 //  const bsl::shared_ptr<ball::Record>& my_RecordBuffer::front() const
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      return d_buffer.front();
 //  }
 //
 //  inline
 //  int my_RecordBuffer::length() const
 //  {
-//      bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
+//      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 //      return d_buffer.size();
 //  }
 //..

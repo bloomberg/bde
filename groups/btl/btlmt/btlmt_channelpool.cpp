@@ -16,10 +16,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlb_blob.h>
 #include <btlb_pooledblobbufferfactory.h>
 #include <bdlma_deleter.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 #include <btlb_blobstreambuf.h>
 
 #include <bdlt_currenttime.h>
@@ -313,7 +313,7 @@ class Channel {
 
     int                             d_writeActiveDataCurrentOffset;
 
-    bdlqq::Mutex                    d_writeMutex;
+    bslmt::Mutex                    d_writeMutex;
                                             // synching access to the 'write'
                                             // data members (variables
                                             // 'd_write*', and
@@ -1097,7 +1097,7 @@ namespace btlmt {
 void Channel::invokeChannelDown(ChannelHandle              self,
                                 ChannelPool::ChannelEvents type)
 {
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
 
@@ -1132,7 +1132,7 @@ void Channel::invokeChannelDown(ChannelHandle              self,
 
 void Channel::invokeChannelUp(ChannelHandle)
 {
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
 
     d_channelStateCb(d_channelId, d_sourceId,
@@ -1150,8 +1150,8 @@ void Channel::notifyChannelDown(ChannelHandle             self,
     // registerWriteCb.
 
     // Note: It is *not* OK to compute serializedFlag as follows:
-    // bool serializedFlag = bdlqq::ThreadUtil::isEqual(
-    //                             bdlqq::ThreadUtil::self(),
+    // bool serializedFlag = bslmt::ThreadUtil::isEqual(
+    //                             bslmt::ThreadUtil::self(),
     //                             d_eventManager_p->dispatcherThreadHandle());
     // See the "Note that" in this function-level documentation as to why.
 
@@ -1240,7 +1240,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
             // Note that this lock must be held to ensure that updating the
             // adjustment to the metric totals, and removing the channel is
             // handled atomically.
-            bdlqq::LockGuard<bdlqq::Mutex> guard(
+            bslmt::LockGuard<bslmt::Mutex> guard(
                                    &d_channelPool_p->d_metricAdjustmentMutex);
             d_channelPool_p->d_totalBytesWrittenAdjustment+= d_numBytesWritten;
             d_channelPool_p->d_totalBytesReadAdjustment   += d_numBytesRead;
@@ -1272,7 +1272,7 @@ int Channel::protectAndCheckCallback(const ChannelHandle& self,
                                      ChannelDownMask      mask)
 {
     BSLS_ASSERT(this == self.get());
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(isChannelDown(mask))) {
@@ -1325,7 +1325,7 @@ void Channel::readCb(ChannelHandle self)
             ++skip;
         }
         else {
-            bdlqq::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
         }
     }
     bsls::PerformanceHint::prefetchForReading(d_userData);
@@ -1446,7 +1446,7 @@ int Channel::refillOutgoingMsg()
     BSLS_ASSERT(0 == d_writeActiveDataCurrentBuffer);
     BSLS_ASSERT(0 == d_writeActiveDataCurrentOffset);
 
-    bdlqq::LockGuard<bdlqq::Mutex> oGuard(&d_writeMutex);
+    bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
     BSLS_ASSERT(d_isWriteActive);
 
     if (0 == d_writeEnqueuedData->length()) {
@@ -1613,7 +1613,7 @@ void Channel::writeCb(ChannelHandle self)
         // Otherwise proceed with reporting.
 
         { // Lock, just for updating the stats.
-            bdlqq::LockGuard<bdlqq::Mutex> oGuard(&d_writeMutex);
+            bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
 
             d_numBytesWritten += writeRet;
             d_writeActiveCacheSize.addRelaxed(-writeRet);
@@ -1789,7 +1789,7 @@ Channel::~Channel()
 // MANIPULATORS
 void Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 {
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
 
@@ -1898,7 +1898,7 @@ int Channel::writeMessage(const MessageType&   msg,
     // retain the lock until this is completed to guarantee the integrity of
     // outgoing messages.
 
-    bdlqq::LockGuard<bdlqq::Mutex> oGuard(&d_writeMutex);
+    bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
 
     d_numBytesRequestedToBeWritten += dataLength;
 
@@ -2069,7 +2069,7 @@ int Channel::writeMessage(const MessageType&   msg,
 
 int Channel::setWriteCacheHiWatermark(int numBytes)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_writeMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
     if (d_writeCacheLowWat > numBytes) {
         return -1;                                                    // RETURN
@@ -2112,7 +2112,7 @@ void Channel::setWriteCacheHiWatermarkRaw(int numBytes)
 
 int Channel::setWriteCacheLowWatermark(int numBytes)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_writeMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
     if (numBytes > d_writeCacheHiWat) {
         return -1;                                                    // RETURN
@@ -2145,7 +2145,7 @@ void Channel::setWriteCacheLowWatermarkRaw(int numBytes)
 
 void Channel::setWriteCacheWatermarks(int lowWatermark, int hiWatermark)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_writeMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
     if (hiWatermark < d_writeCacheLowWat) {
         setWriteCacheLowWatermarkRaw(lowWatermark);
@@ -2247,7 +2247,7 @@ void ChannelPool::init()
                                            d_collectTimeMetrics,
                                            d_allocator_p);
         if (d_startFlag) {
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             attr.setStackSize(d_config.threadStackSize());
             manager->enable(attr);
         }
@@ -2287,8 +2287,8 @@ void ChannelPool::acceptCb(int                          serverId,
                            bsl::shared_ptr<ServerState> server)
 {
     // Always executed in the event manager's dispatcher thread.
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                               bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                               bslmt::ThreadUtil::self(),
                                server->d_manager_p->dispatcherThreadHandle()));
 
     if (server->d_isClosedFlag) {
@@ -2303,7 +2303,7 @@ void ChannelPool::acceptCb(int                          serverId,
             btlso::SocketHandle::e_ERROR_INTERRUPTED != status) {
             // Deregister the socket event to avoid spewing and spinning.
 
-            bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
+            bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
             if (server->d_isClosedFlag) {
                 d_poolStateCb(e_ERROR_ACCEPTING,
@@ -2454,8 +2454,8 @@ void ChannelPool::acceptRetryCb(int                          serverId,
                                 bsl::shared_ptr<ServerState> server)
 {
     // Always executed in the event manager's dispatcher thread.
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                               bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                               bslmt::ThreadUtil::self(),
                                server->d_manager_p->dispatcherThreadHandle()));
 
     if (server->d_isClosedFlag) {
@@ -2486,8 +2486,8 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
 {
     // Always executed in the event manager's dispatcher thread.
     BSLS_ASSERT(server->d_isTimedFlag);
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                               bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                               bslmt::ThreadUtil::self(),
                                server->d_manager_p->dispatcherThreadHandle()));
 
     if (server->d_isClosedFlag) {
@@ -2542,7 +2542,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         return AMBIGUOUS_REUSE_ADDRESS;                               // RETURN
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
     if (idx != d_acceptors.end()) {
@@ -2697,11 +2697,11 @@ void ChannelPool::connectCb(ConnectorMap::iterator idx)
 
     int clientId = idx->first;
     Connector& cs = idx->second;
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                                    bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                    bslmt::ThreadUtil::self(),
                                     cs.d_manager_p->dispatcherThreadHandle()));
 
-    bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
 
     bslma::ManagedPtr<StreamSocket> socket( cs.d_socket.managedPtr() );
 
@@ -2741,7 +2741,7 @@ void ChannelPool::connectEventCb(ConnectorMap::iterator idx)
     BSLS_ASSERT(manager);
     BSLS_ASSERT(cs.d_socket);
     BSLS_ASSERT(cs.d_timeoutTimerId);
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                           manager->dispatcherThreadHandle()));
 
     manager->deregisterSocket(cs.d_socket->handle());
@@ -2800,7 +2800,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     TcpTimerEventManager *manager = cs.d_manager_p;
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == cs.d_timeoutTimerId);
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                           manager->dispatcherThreadHandle()));
 
     // Decrease number of attempts, now reflecting number of calls to
@@ -2871,7 +2871,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 d_poolStateCb(e_ERROR_SETTING_OPTIONS,
                               clientId,
                               e_ALERT);
-                bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+                bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
                 return;                                               // RETURN
             }
@@ -2886,7 +2886,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 d_poolStateCb(e_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               e_ALERT);
-                bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+                bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
                 return;                                               // RETURN
             }
@@ -2967,8 +2967,8 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
     Connector& cs = idx->second;
     TcpTimerEventManager *manager = cs.d_manager_p;
     BSLS_ASSERT(manager);
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                                           bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                           bslmt::ThreadUtil::self(),
                                            manager->dispatcherThreadHandle()));
 
     if (cs.d_socket) {
@@ -2987,7 +2987,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
         // the client so if it picks the same "clientId", it does not get a
         // duplicate id error.
 
-        bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+        bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
         d_connectors.erase(idx);
     }
 
@@ -3034,8 +3034,8 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     }
 
     // Always executed in the source event manager's dispatcher thread.
-    BSLS_ASSERT(bdlqq::ThreadUtil::isEqual(
-                                        bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                        bslmt::ThreadUtil::self(),
                                         srcManager->dispatcherThreadHandle()));
 
     // Reserve location for new channel.
@@ -3101,7 +3101,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
                                   // *** Clock management ***
 
 void ChannelPool::timerCb(int clockId) {
-    bdlqq::LockGuard<bdlqq::Mutex> tGuard(&d_timersLock);
+    bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
 
     TimerStateMap::iterator tsit = d_timers.find(clockId);
     if (d_timers.end() == tsit) {
@@ -3272,7 +3272,7 @@ int ChannelPool::close(int serverId)
         ALREADY_CLOSED = -2
     };
 
-    bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
@@ -3481,7 +3481,7 @@ int ChannelPool::connectImp(
         return NOT_RUNNING;                                           // RETURN
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
@@ -3567,7 +3567,7 @@ int ChannelPool::connectImp(
         return NOT_RUNNING;                                           // RETURN
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> cGuard(&d_connectorsLock);
+    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
@@ -3624,8 +3624,8 @@ int ChannelPool::disableRead(int channelId)
 
     Channel *channel = channelHandle.get();
 
-    if (bdlqq::ThreadUtil::isEqual(
-                          bdlqq::ThreadUtil::self(),
+    if (bslmt::ThreadUtil::isEqual(
+                          bslmt::ThreadUtil::self(),
                           channel->eventManager()->dispatcherThreadHandle())) {
 
         channel->disableRead(channelHandle, true);
@@ -3770,7 +3770,7 @@ int ChannelPool::shutdown(int                      channelId,
 
 int ChannelPool::stopAndRemoveAllChannels()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> managersGuard(&d_managersStateChangeLock);
+    bslmt::LockGuard<bslmt::Mutex> managersGuard(&d_managersStateChangeLock);
 
     // Terminate all the worker threads ensuring that no socket event is being
     // monitored.  We keep 'd_managersStateChangeLock' locked during this
@@ -3781,7 +3781,7 @@ int ChannelPool::stopAndRemoveAllChannels()
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
-               bdlqq::ThreadAttributes attr;
+               bslmt::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
@@ -3796,14 +3796,14 @@ int ChannelPool::stopAndRemoveAllChannels()
     // closing the listening sockets.
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_acceptorsLock);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_acceptorsLock);
         d_acceptors.clear();
     }
 
     // Deallocate pending connecting sockets.
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_connectorsLock);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_connectorsLock);
         d_connectors.clear();
     }
 
@@ -3883,11 +3883,11 @@ int ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
 
 int ChannelPool::start()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_managersStateChangeLock);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         attr.setStackSize(d_config.threadStackSize());
         int ret = d_managers[i]->enable(attr);
         if (0 != ret) {
@@ -3904,13 +3904,13 @@ int ChannelPool::start()
 
 int ChannelPool::stop()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_managersStateChangeLock);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
-               bdlqq::ThreadAttributes attr;
+               bslmt::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
@@ -4030,7 +4030,7 @@ int ChannelPool::registerClock(const bdlf::Function<void (*)()>& command,
               , this
               , clockId));
 
-    bdlqq::LockGuard<bdlqq::Mutex> tGuard(&d_timersLock);
+    bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
         return DUPLICATE_ID;                                          // RETURN
     }
@@ -4074,7 +4074,7 @@ int ChannelPool::registerClock(const bdlf::Function<void (*)()>& command,
               , this
               , clockId));
 
-    bdlqq::LockGuard<bdlqq::Mutex> tGuard(&d_timersLock);
+    bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
         return DUPLICATE_ID;                                          // RETURN
     }
@@ -4093,7 +4093,7 @@ void ChannelPool::deregisterClock(int clockId)
     TcpTimerEventManager *manager = 0;
     void *timerId = 0;
     {
-        bdlqq::LockGuard<bdlqq::Mutex> tGuard1(&d_timersLock);
+        bslmt::LockGuard<bslmt::Mutex> tGuard1(&d_timersLock);
         TimerStateMap::iterator tsit = d_timers.find(clockId);
         if (d_timers.end() == tsit) {
             return;                                                   // RETURN
@@ -4108,7 +4108,7 @@ void ChannelPool::deregisterClock(int clockId)
     // 'deregisterTimer' returns.
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> tGuard2(&d_timersLock);
+        bslmt::LockGuard<bslmt::Mutex> tGuard2(&d_timersLock);
         TimerStateMap::iterator tsit = d_timers.find(clockId);
         if (d_timers.end() == tsit) {
             // We could be racing against another thread, and the previous
@@ -4143,7 +4143,7 @@ ChannelPool::getServerSocketOption(int *result,
 {
     enum { NOT_FOUND = 1 };
 
-    bdlqq::LockGuard<bdlqq::Mutex> dGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
@@ -4190,7 +4190,7 @@ int ChannelPool::setServerSocketOption(int option,
                                        int serverId)
 {
     enum  { NOT_FOUND = 1 };
-    bdlqq::LockGuard<bdlqq::Mutex> dGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
@@ -4248,7 +4248,7 @@ void ChannelPool::totalBytesReadReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
@@ -4265,7 +4265,7 @@ void ChannelPool::totalBytesWrittenReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
@@ -4283,7 +4283,7 @@ void ChannelPool::totalBytesRequestedToBeWrittenReset(
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
@@ -4366,7 +4366,7 @@ void ChannelPool::getHandleStatistics(
     {   // Item 1.  Oops: misses sockets after accept(&connection) but before
         // the d_channels.add(channelHandle).  OK.
 
-        bdlqq::LockGuard<bdlqq::Mutex> dGuard(&d_acceptorsLock);
+        bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
 
         ServerStateMap::const_iterator iter = d_acceptors.begin();
         ServerStateMap::const_iterator last = d_acceptors.end();
@@ -4392,7 +4392,7 @@ void ChannelPool::getHandleStatistics(
     {   // Item 2.  Oops: misses sockets after d_connectors.erase(idx) but
         // before the d_channels.add(channelHandle).  Might be OK.
 
-        bdlqq::LockGuard<bdlqq::Mutex> dGuard(&d_connectorsLock);
+        bslmt::LockGuard<bslmt::Mutex> dGuard(&d_connectorsLock);
 
         ConnectorMap::const_iterator iter = d_connectors.begin();
         ConnectorMap::const_iterator last = d_connectors.end();
@@ -4440,7 +4440,7 @@ int
 ChannelPool::getServerAddress(btlso::IPv4Address *result,
                               int                 serverId) const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
@@ -4517,7 +4517,7 @@ void ChannelPool::totalBytesWritten(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
     bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
@@ -4532,7 +4532,7 @@ void ChannelPool::totalBytesRead(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
     bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
@@ -4548,7 +4548,7 @@ void ChannelPool::totalBytesRequestedToBeWritten(
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_metricAdjustmentMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
     bsls::Types::Int64 total = 0;
     for ( ; it; ++it) {
@@ -4568,7 +4568,7 @@ int ChannelPool::numEvents(int index) const
 
 const btlso::IPv4Address *ChannelPool::serverAddress(int serverId) const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
+    bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {

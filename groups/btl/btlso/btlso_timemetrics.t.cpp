@@ -2,7 +2,7 @@
 
 #include <btlso_timemetrics.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 
         mX.switchTo(IO_CATEGORY);
         ASSERT(IO_CATEGORY == X.currentCategory());
-        bdlqq::ThreadUtil::microSleep(1000000); // 1 second
+        bslmt::ThreadUtil::microSleep(1000000); // 1 second
 
         mX.switchTo(CPU_CATEGORY);
 

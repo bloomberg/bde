@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  btlmt::TcpTimerEventManager: thread-enabled socket event/timer multiplexor
 //
-//@SEE_ALSO: btlmt_channelpool bdlmt_threadpool bdlqq_threadutil
+//@SEE_ALSO: btlmt_channelpool bdlmt_threadpool bslmt_threadutil
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann), Cheenu Srinivasan (csriniva)
 //
@@ -216,24 +216,24 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -393,7 +393,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                d_requestQueue;    // queue of requests to
                                                   // dispatcher thread
 
-    mutable bdlqq::ThreadUtil::Handle
+    mutable bslmt::ThreadUtil::Handle
                                d_dispatcher;      // dispatcher thread handle
 
     volatile State             d_state;           // the state of the
@@ -401,7 +401,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
 
     bsls::AtomicInt             d_terminateThread; // signals end of dispatcher
 
-    mutable bdlqq::RWMutex      d_stateLock;       // protects access to the
+    mutable bslmt::RWMutex      d_stateLock;       // protects access to the
                                                   // state changes via
                                                   // 'enable' and 'disable'
 
@@ -421,7 +421,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                                   // (pointer, to be swappable
                                                   // in dispatcher thread loop)
 
-    mutable bdlqq::Mutex        d_executeQueueLock;
+    mutable bslmt::Mutex        d_executeQueueLock;
                                                   // protects access to the
                                                   // execute queue
 
@@ -607,7 +607,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // through a callback, in the internal thread.
 
     int enable();
-    int enable(const bdlqq::ThreadAttributes& attribute);
+    int enable(const bslmt::ThreadAttributes& attribute);
         // Create the internal thread responsible for monitoring sockets and
         // dispatching timer and socket callbacks, optionally setting the
         // 'attribute' of the new thread to the specified 'attribute'.  Return
@@ -699,7 +699,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // object have unspecified values unless 'hasTimeMetrics' returns
         // 'true'.
 
-    bdlqq::ThreadUtil::Handle dispatcherThreadHandle() const;
+    bslmt::ThreadUtil::Handle dispatcherThreadHandle() const;
         // Return the thread handle of the dispatcher thread of this object.
 
     int isEnabled() const;
@@ -763,7 +763,7 @@ TcpTimerEventManager_ControlChannel::serverFd()
 inline
 int TcpTimerEventManager::enable()
 {
-    return enable(bdlqq::ThreadAttributes());
+    return enable(bslmt::ThreadAttributes());
 }
 
 // ACCESSORS
@@ -780,7 +780,7 @@ btlso::TimeMetrics *TcpTimerEventManager::timeMetrics() const
 }
 
 inline
-bdlqq::ThreadUtil::Handle
+bslmt::ThreadUtil::Handle
 TcpTimerEventManager::dispatcherThreadHandle() const
 {
     return d_dispatcher;

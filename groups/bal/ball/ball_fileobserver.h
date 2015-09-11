@@ -269,8 +269,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
@@ -345,7 +345,7 @@ class FileObserver : public Observer {
     bsl::string           d_stdoutShortFormat;  // short format records
                                                 // printed to 'stdout'
 
-    mutable bdlqq::Mutex  d_mutex;              // serialize operations
+    mutable bslmt::Mutex  d_mutex;              // serialize operations
 
     FileObserver2         d_fileObserver2;      // forward most operations
                                                 // this object

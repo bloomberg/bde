@@ -130,16 +130,16 @@ BSLS_IDENT("$Id: $")
 #include <ball_observer.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_READLOCKGUARD
-#include <bdlqq_readlockguard.h>
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_WRITELOCKGUARD
-#include <bdlqq_writelockguard.h>
+#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
+#include <bslmt_writelockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -180,7 +180,7 @@ class MultiplexObserver : public Observer {
     // DATA
     bsl::set<Observer *>    d_observerSet;  // observer registry
 
-    mutable bdlqq::RWMutex  d_rwMutex;      // protects concurrent access to
+    mutable bslmt::RWMutex  d_rwMutex;      // protects concurrent access to
                                             // 'd_observerSet'
 
     // NOT IMPLEMENTED
@@ -267,12 +267,11 @@ MultiplexObserver::MultiplexObserver(bslma::Allocator *basicAllocator)
 inline
 int MultiplexObserver::numRegisteredObservers() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return static_cast<int>(d_observerSet.size());
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

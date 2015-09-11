@@ -14,8 +14,8 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_testobserver.h>                // for testing only
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 
 #include <bsls_assert.h>
 
@@ -105,7 +105,7 @@ void Log::logMessage(const Category *category,
     }
 }
 
-char *Log::obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize)
+char *Log::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
 {
     if (LoggerManager::isInitialized()) {
         return LoggerManager::
@@ -119,7 +119,7 @@ char *Log::obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize)
     }
 }
 
-void Log::releaseMessageBuffer(bdlqq::Mutex *mutex)
+void Log::releaseMessageBuffer(bslmt::Mutex *mutex)
 {
     mutex->unlock();
 }
@@ -208,7 +208,7 @@ Log_Formatter::Log_Formatter(const Category *category,
 Log_Formatter::~Log_Formatter()
 {
     d_buffer_p[d_bufferLen - 1] = '\0';
-    bdlqq::LockGuard<bdlqq::Mutex> lockGuard(d_mutex_p, 1);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(d_mutex_p, 1);
     d_record_p->fixedFields().setMessage(d_buffer_p);
     Log::logMessage(d_category_p, d_severity, d_record_p);
 }

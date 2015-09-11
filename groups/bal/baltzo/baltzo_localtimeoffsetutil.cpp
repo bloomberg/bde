@@ -6,8 +6,8 @@
 #include <baltzo_zoneinfocache.h>         // for testing only
 #include <baltzo_zoneinfoutil.h>          // for testing only
 
-#include <bdlqq_readlockguard.h>
-#include <bdlqq_writelockguard.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_writelockguard.h>
 
 #include <bdlt_datetime.h>
 
@@ -52,9 +52,9 @@ baltzo::LocalTimePeriod *baltzo::LocalTimeOffsetUtil::privateLocalTimePeriod()
 }
 
 inline
-bdlqq::RWMutex *baltzo::LocalTimeOffsetUtil::privateLock()
+bslmt::RWMutex *baltzo::LocalTimeOffsetUtil::privateLock()
 {
-    static bdlqq::RWMutex lock;
+    static bslmt::RWMutex lock;
     return &lock;
 }
 
@@ -74,7 +74,7 @@ bsls::AtomicInt baltzo::LocalTimeOffsetUtil::s_updateCount(0);
 bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
                                              const bdlt::Datetime& utcDatetime)
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(privateLock());
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
 
     const LocalTimePeriod *localTimePeriod = privateLocalTimePeriod();
 
@@ -86,7 +86,7 @@ bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
         readLockGuard.release()->unlock();
 
         {
-            bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(
+            bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(
                                                                 privateLock());
 
             if (utcDatetime <  localTimePeriod->utcStartTime()
@@ -115,7 +115,7 @@ int baltzo::LocalTimeOffsetUtil::configure()
         return -1;                                                    // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(privateLock());
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
@@ -123,7 +123,7 @@ int baltzo::LocalTimeOffsetUtil::configure(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(privateLock());
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
@@ -132,7 +132,7 @@ int baltzo::LocalTimeOffsetUtil::configure(const char            *timezone,
 {
     BSLS_ASSERT_SAFE(timezone);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(privateLock());
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, utcDatetime);
 }
 
@@ -143,7 +143,7 @@ void baltzo::LocalTimeOffsetUtil::loadLocalTimePeriod(
 {
     BSLS_ASSERT(localTimePeriod);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(privateLock());
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
     *localTimePeriod = *privateLocalTimePeriod();
 }
 
@@ -152,7 +152,7 @@ void baltzo::LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
 {
     BSLS_ASSERT(timezone);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(privateLock());
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
     *timezone = *privateTimezone();
 }
 

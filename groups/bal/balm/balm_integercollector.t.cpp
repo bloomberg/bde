@@ -2,7 +2,7 @@
 #include <balm_integercollector.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
@@ -109,7 +109,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
-    bdlqq::Barrier          d_barrier;
+    bslmt::Barrier          d_barrier;
     balm::IntegerCollector *d_collector_p;
     bslma::Allocator       *d_allocator_p;
 

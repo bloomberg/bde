@@ -19,9 +19,9 @@
 
 #include <bslma_testallocator.h>
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_timeinterval.h>
 #include <bsls_platform.h>
@@ -125,7 +125,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -161,7 +161,7 @@ enum {
 
 struct ConnectionInfo {
      // Use this struct to pass information to the helper thread.
-     bdlqq::ThreadUtil::Handle d_tid;        // the id of the thread to
+     bslmt::ThreadUtil::Handle d_tid;        // the id of the thread to
                                             // which a signal's delivered
 
      btlso::StreamSocket<btlso::IPv4Address>              *d_serverSocket_p;
@@ -235,10 +235,10 @@ void* threadAsServer(void *arg)
     int signals = info.d_signals;    // This flag also indicates the number of
                                      // signals to be generated.
     while (signals-- > 0) {
-        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
         pthread_kill(info.d_tid, SIGSYS);
         if (verbose) {
-            P_T(bdlqq::ThreadUtil::self());
+            P_T(bslmt::ThreadUtil::self());
             QT(" generated a SIGSYS signal to the thread:");
             PT(info.d_tid);
         }
@@ -393,7 +393,7 @@ static int testExecutionHelper(btlsos::TcpTimedConnector     *connector,
 static
 int processTest(
         btlsos::TcpTimedConnector                              *connector,
-        bdlqq::ThreadUtil::ThreadFunction                       threadFunction,
+        bslmt::ThreadUtil::ThreadFunction                       threadFunction,
         btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
         bsl::vector<btlsc::Channel*>                           *channels,
         bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
@@ -412,10 +412,10 @@ int processTest(
     // test will be compared against those expected which are also specified in
     // the 'commands'.  Return 0 on success, and a non-zero value otherwise.
 {
-    bdlqq::ThreadUtil::Handle threadHandle;
+    bslmt::ThreadUtil::Handle threadHandle;
 
     // Create a thread to be a client.
-    bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+    bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
     ConnectionInfo connectInfo = { tid,
                                    serverSocket,
@@ -425,8 +425,8 @@ int processTest(
                                    queueSize
                                  };
 
-    bdlqq::ThreadAttributes attributes;
-    int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
+    bslmt::ThreadAttributes attributes;
+    int ret = bslmt::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);
     if (ret) {
@@ -436,7 +436,7 @@ int processTest(
         }
     }
     if (!signals) {
-        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
     }
 
     for (int i = 0; i < numCommands; i++) { // different test data
@@ -476,9 +476,9 @@ int processTest(
             P_(commands[i].d_expNumChannels);
             P(connector->numChannels());
         }
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
     }
-    bdlqq::ThreadUtil::join(threadHandle);
+    bslmt::ThreadUtil::join(threadHandle);
     return ret;
 }
 

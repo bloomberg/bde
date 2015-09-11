@@ -14,9 +14,9 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bdlqq_barrier.h>       // case -1
-#include <bdlqq_configuration.h> // case -1
-#include <bdlqq_threadutil.h>    // case -1
+#include <bslmt_barrier.h>       // case -1
+#include <bslmt_configuration.h> // case -1
+#include <bslmt_threadutil.h>    // case -1
 #include <bdlt_epochutil.h>
 #include <bdlt_iso8601util.h>                // case 5
 #include <bslma_default.h>
@@ -1087,7 +1087,7 @@ struct LogVerbosityGuard {
 struct ThreadArg {
     int            d_offset;
     bdlt::Datetime  d_utcDatetime;
-    bdlqq::Barrier *d_barrier_p;
+    bslmt::Barrier *d_barrier_p;
 };
 
 typedef bsl::vector<struct ThreadArg> ThreadArgs;
@@ -1103,7 +1103,7 @@ extern "C" void *workerThread(void *arg)
     return 0;
 }
 
-typedef bsl::vector<bdlqq::ThreadUtil::Handle> Handles;
+typedef bsl::vector<bslmt::ThreadUtil::Handle> Handles;
 
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
     // Return the interval in seconds from UNIX epoch time of the specified
@@ -2082,8 +2082,8 @@ int main(int argc, char *argv[])
         P(numThreads)
         P(numIterations)
 
-        bdlqq::Configuration::setDefaultThreadStackSize(
-                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
+        bslmt::Configuration::setDefaultThreadStackSize(
+                    bslmt::Configuration::recommendedDefaultThreadStackSize());
 
         const bdlt::Datetime newYearsDay(2013, 1,  1);
         const bdlt::Datetime  startOfDst(2013, 3, 10, 7);
@@ -2107,7 +2107,7 @@ int main(int argc, char *argv[])
             Handles       handles(numThreads);
             ThreadArgs threadArgs(numThreads);
 
-            bdlqq::Barrier   barrier(numThreads);
+            bslmt::Barrier   barrier(numThreads);
 
             // Setup and launch threads.
 
@@ -2116,7 +2116,7 @@ int main(int argc, char *argv[])
                 threadArgs[j].d_utcDatetime = startOfDst;
                 threadArgs[j].d_barrier_p   = &barrier;
 
-                int status = bdlqq::ThreadUtil::create(&handles[j],
+                int status = bslmt::ThreadUtil::create(&handles[j],
                                                       workerThread,
                                                       &threadArgs[j]);
                 ASSERT(0 == status);
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
             for (Handles::iterator itr  = handles.begin(),
                                    end  = handles.end();
                                    end != itr; ++itr) {
-                bdlqq::ThreadUtil::join(*itr);
+                bslmt::ThreadUtil::join(*itr);
             }
 
 

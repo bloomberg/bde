@@ -4,8 +4,8 @@
 #include <balst_stacktrace.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bdls_filesystemutil.h>
@@ -768,8 +768,8 @@ struct Functor {
     static const unsigned int  s_freeSomeIdx = 6;
 
     static bsls::AtomicInt  s_threadRand;
-    static bdlqq::Barrier    s_startBarrier;
-    static bdlqq::Barrier    s_underwayBarrier;
+    static bslmt::Barrier    s_startBarrier;
+    static bslmt::Barrier    s_underwayBarrier;
 
     bsl::vector<int *>      d_alloced;
     int                     d_randNum;
@@ -858,8 +858,8 @@ struct Functor {
 };
 Functor::FuncPtr Functor::s_funcPtrs[10];
 bsls::AtomicInt  Functor::s_threadRand(0);
-bdlqq::Barrier    Functor::s_startBarrier(NUM_THREADS);
-bdlqq::Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
+bslmt::Barrier    Functor::s_startBarrier(NUM_THREADS);
+bslmt::Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
 
 void Functor::allocOne()
 {
@@ -2536,7 +2536,7 @@ int main(int argc, char *argv[])
 
         namespace TC = MultiThreadedTest;
 
-        typedef bdlqq::ThreadUtil Util;
+        typedef bslmt::ThreadUtil Util;
 
         bslma::TestAllocator bslta("bsl_ta");
         TC::TouchyAllocator  touchy(&bslta);

@@ -27,7 +27,7 @@ bsl::ostream& MetricDescription::printDescription(
                                                     bsl::ostream& stream) const
 {
     stream << "[ " << d_category_p->name() << "." << d_name_p << " ";
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     stream << d_preferredPublicationType;
     if (d_format) {
         stream << " format: " << *d_format;

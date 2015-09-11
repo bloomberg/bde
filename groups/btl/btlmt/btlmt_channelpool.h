@@ -285,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == pool.start());
 //      btlso::IPv4Address peer("127.0.0.1", 7); // echo server
 //      assert(0 == pool.connect(peer, 1, bsls::TimeInterval(10.0), 5));
-//      bdlqq::ThreadUtil::sleep(15000000); // Give enough time to connect.
+//      bslmt::ThreadUtil::sleep(15000000); // Give enough time to connect.
 //      return 0;
 //  }
 //..
@@ -316,7 +316,7 @@ BSLS_IDENT("$Id: $")
 //      btlmt::ChannelPoolConfiguration d_config;        // pool's config
 //      btlmt::ChannelPool             *d_channelPool_p; // managed pool
 //      bslma::Allocator              *d_allocator_p;    // memory manager
-//      bdlqq::Mutex                   *d_coutLock_p;   // synchronize 'cout'
+//      bslmt::Mutex                   *d_coutLock_p;   // synchronize 'cout'
 //
 //    private:
 //      // Callback functions:
@@ -363,7 +363,7 @@ BSLS_IDENT("$Id: $")
 //      my_EchoServer& operator=(const my_EchoServer&);
 //
 //    public:
-//      my_EchoServer(bdlqq::Mutex      *coutLock,
+//      my_EchoServer(bslmt::Mutex      *coutLock,
 //                    int               portNumber,
 //                    int               numConnections,
 //                    bslma::Allocator *basicAllocator = 0);
@@ -387,7 +387,7 @@ BSLS_IDENT("$Id: $")
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-//  my_EchoServer::my_EchoServer(bdlqq::Mutex      *coutLock,
+//  my_EchoServer::my_EchoServer(bslmt::Mutex      *coutLock,
 //                               int               portNumber,
 //                               int               numConnections,
 //                               bslma::Allocator *basicAllocator)
@@ -501,7 +501,7 @@ BSLS_IDENT("$Id: $")
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-//  static void monitorPool(bdlqq::Mutex              *coutLock,
+//  static void monitorPool(bslmt::Mutex              *coutLock,
 //                          const btlmt::ChannelPool&  pool,
 //                          int                       numTimes)
 //      // Every 10 seconds, output the percent busy of the specified channel
@@ -515,7 +515,7 @@ BSLS_IDENT("$Id: $")
 //          cout << "The pool is " << pool.busyMetrics() << "% busy ("
 //              << pool.numThreads() << " threads)." << endl;
 //          coutLock->unlock();
-//          bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 secs
+//          bslmt::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 secs
 //      }
 //  }
 //..
@@ -527,7 +527,7 @@ BSLS_IDENT("$Id: $")
 //         , MAX_CONNECTIONS = 1000
 //         , NUM_MONITOR     = 50
 //       };
-//       bdlqq::Mutex coutLock;
+//       bslmt::Mutex coutLock;
 //       my_EchoServer echoServer(&coutLock, PORT_NUMBER, MAX_CONNECTIONS);
 //       monitorPool(&coutLock, echoServer.pool(), NUM_MONITOR);
 //       return 0;
@@ -579,12 +579,12 @@ BSLS_IDENT("$Id: $")
 #include <btlb_pooledblobbufferfactory.h>
 #endif
 
-#ifndef INCLUDED_bdlqq_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_bslmt_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_bdlqq_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_bslmt_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -942,7 +942,7 @@ class ChannelPool {
         bsls::TimeInterval          d_creationTime; // when was this channel
                                                     // created
 
-        bdlqq::ThreadUtil::Handle   d_threadHandle; // manager's dispatcher
+        bslmt::ThreadUtil::Handle   d_threadHandle; // manager's dispatcher
                                                     // thread
 
         int                         d_userId;       // 'serverId' or 'sourceId'
@@ -959,16 +959,16 @@ class ChannelPool {
 
     bsl::vector<TcpTimerEventManager *> d_managers;
 
-    mutable bdlqq::Mutex                d_managersStateChangeLock;
+    mutable bslmt::Mutex                d_managersStateChangeLock;
                                                     // mutex to synchronize
                                                     // changing the state of
                                                     // the event managers
 
     bsl::map<int, Connector>            d_connectors;
-    mutable bdlqq::Mutex                d_connectorsLock;
+    mutable bslmt::Mutex                d_connectorsLock;
 
     bsl::map<int, ServerHandle>         d_acceptors;
-    mutable bdlqq::Mutex                d_acceptorsLock;
+    mutable bslmt::Mutex                d_acceptorsLock;
 
     bdlma::ConcurrentPoolAllocator      d_sharedPtrRepAllocator;
     bslma::ManagedPtr<btlb::BlobBufferFactory>
@@ -976,7 +976,7 @@ class ChannelPool {
     bslma::ManagedPtr<btlb::BlobBufferFactory>
                                         d_readBlobFactory;
 
-    bdlqq::Mutex                        d_timersLock;
+    bslmt::Mutex                        d_timersLock;
     bsl::map<int, TimerState>           d_timers;
 
                                         // *** Parameters ***
@@ -1025,7 +1025,7 @@ class ChannelPool {
                                                // channels and calls to
                                                // reset
 
-    mutable bdlqq::Mutex                d_metricAdjustmentMutex;
+    mutable bslmt::Mutex                d_metricAdjustmentMutex;
                                                // synchronize operations on
                                                // two metric adjustment values
 

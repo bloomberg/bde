@@ -19,11 +19,11 @@
 
 // #include <bsls_atomic.h>
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_once.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_once.h>
+#include <bslmt_barrier.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsls_asserttest.h>
@@ -77,7 +77,7 @@ using namespace bsl;
 //
 // ACCESSORS
 // [ 4] DataPtr data();
-// [ 5] bdlqq::Mutex& updatingLock();
+// [ 5] bslmt::Mutex& updatingLock();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
@@ -204,7 +204,7 @@ typedef bsl::vector<btlso::IPv4Address>         Vec;
 typedef btlso::IpResolutionCache_Entry::DataPtr DataPtr;
 
 struct ThreadInfo {
-    bdlqq::Mutex    *d_lock;
+    bslmt::Mutex    *d_lock;
     bsls::AtomicInt  d_retval;
     bsls::AtomicInt  d_retvalSet;
 };
@@ -238,7 +238,7 @@ enum {
     btlso::IpResolutionCache *ipCacheInstance()
     {
         static btlso::IpResolutionCache *singletonCachePtr = 0;
-        BDLQQ_ONCE_DO {
+        BSLMT_ONCE_DO {
             if (0 == singletonCachePtr) {
                 bslma::Allocator *allocator =
                                              bslma::Default::globalAllocator();
@@ -414,7 +414,7 @@ void TestResolver::setNumAddresses(int value)
 //                     GLOBAL FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 static
-void performanceTest(bdlqq::Mutex   *updateMutex,
+void performanceTest(bslmt::Mutex   *updateMutex,
                      double         *totalSystemTime,
                      double         *totalUserTime,
                      double         *totalWallTime,
@@ -449,7 +449,7 @@ void performanceTest(bdlqq::Mutex   *updateMutex,
     }
     timer.stop();
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(updateMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(updateMutex);
 
     *totalSystemTime += timer.accumulatedSystemTime();
     *totalUserTime   += timer.accumulatedUserTime();
@@ -474,22 +474,22 @@ extern "C" void* MyThread(void* arg_p)
 //-----------------------------------------------------------------------------
 
 void executeInParallel(int                                numThreads,
-                       bdlqq::ThreadUtil::ThreadFunction  func,
+                       bslmt::ThreadUtil::ThreadFunction  func,
                        void                              *threadArgs)
    // Create the specified 'numThreads', each executing the specified 'func'
    // on the specified 'threadArgs'.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                                     new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                                     new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     int rc;
     for (int i = 0; i < numThreads; ++i) {
-        rc = bdlqq::ThreadUtil::create(&threads[i], func, threadArgs);
+        rc = bslmt::ThreadUtil::create(&threads[i], func, threadArgs);
         LOOP_ASSERT(i, !rc);
     }
     for (int i = 0; i < numThreads; ++i) {
-        rc = bdlqq::ThreadUtil::join(threads[i]);
+        rc = bslmt::ThreadUtil::join(threads[i]);
         LOOP_ASSERT(i, !rc);
     }
 
@@ -526,7 +526,7 @@ const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
 struct ThreadData {
     Obj            *d_cache_p;    // cache under test
-    bdlqq::Barrier *d_barrier_p;  // testing barrier
+    bslmt::Barrier *d_barrier_p;  // testing barrier
 };
 
 int testConcurrencyCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
@@ -562,7 +562,7 @@ int testConcurrencyCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
 extern "C" void *workerThread(void *arg)
 {
     ThreadData *p = (ThreadData*)arg;
-    bdlqq::Barrier& barrier = *p->d_barrier_p;
+    bslmt::Barrier& barrier = *p->d_barrier_p;
 
     Obj &mX = *p->d_cache_p;
 
@@ -583,7 +583,7 @@ extern "C" void *workerThread(void *arg)
         }
     }
 
-    bdlqq::ThreadUtil::microSleep(100000);
+    bslmt::ThreadUtil::microSleep(100000);
 
     for (int testRun = 0; testRun < 50; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
 #endif
         };
 
-        bdlqq::Barrier barrier(NUM_THREADS);
+        bslmt::Barrier barrier(NUM_THREADS);
         Obj mX(&testConcurrencyCallback, &testAllocator);
         mX.setTimeToLive(bdlt::DatetimeInterval(0, 0, 0, 0, 100));
 
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == TestResolver::count());
             ASSERT(IPv4("0.0.0.1", 0) == mV[0]);
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             ASSERT(0 == X.resolveAddress(&mV, "A", 1));
             ASSERT(2 == TestResolver::count());
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
             ASSERT(IPv4("0.0.0.2", 0) == mV[0]);
 
             X.setTimeToLive(bdlt::DatetimeInterval(0, 0, 0, 0));
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             ASSERT(0 == X.resolveAddress(&mV, "A", 1));
             ASSERT(2 == TestResolver::count());
@@ -1464,7 +1464,7 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   bdlqq::Mutex& updatingLock() const;
+        //   bslmt::Mutex& updatingLock() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1486,16 +1486,16 @@ int main(int argc, char *argv[])
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
-            bdlqq::ThreadAttributes attr;
+            bslmt::ThreadAttributes attr;
             attr.setDetachedState(
-                                bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-            bdlqq::ThreadUtil::Handle dum;
-            bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
+                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
+            bslmt::ThreadUtil::Handle dum;
+            bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
             for (int i = 0;
                  0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {
-                bdlqq::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 != args.d_retval); // should fail
@@ -1507,11 +1507,11 @@ int main(int argc, char *argv[])
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
-            bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
+            bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
             for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {
-                bdlqq::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 == args.d_retval); // should succeed
@@ -1911,7 +1911,7 @@ int main(int argc, char *argv[])
         int numCalls = argc > 3 ? atoi(argv[3]) : 20;  // default number of
                                                        // calls to 20
 
-        bdlqq::Mutex updateMutex;
+        bslmt::Mutex updateMutex;
 
         const int THREAD_CNT[] = {5};
         const int NUM_THREAD_CNT = sizeof THREAD_CNT / sizeof *THREAD_CNT;

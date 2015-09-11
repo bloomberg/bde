@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_timemetrics_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 #include <bdlt_currenttime.h>
 #include <bsls_assert.h>
 
@@ -43,7 +43,7 @@ TimeMetrics::~TimeMetrics()
 // MANIPULATORS
 void TimeMetrics::switchTo(int category)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_dataLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
     bsls::TimeInterval now   = bdlt::CurrentTime::now();
     bsls::TimeInterval delta = now - d_categoryStartTimes[d_currentCategory];
@@ -60,7 +60,7 @@ void TimeMetrics::switchTo(int category)
 
 void TimeMetrics::resetAll()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_dataLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
     int numCategories = d_categoryTimes.size();
     for (int i = 0; i < numCategories; ++i) {
@@ -71,7 +71,7 @@ void TimeMetrics::resetAll()
 
 void TimeMetrics::resetStartTimes()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_dataLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
     int                numCategories = d_categoryStartTimes.size();
     bsls::TimeInterval now           = bdlt::CurrentTime::now();
@@ -83,7 +83,7 @@ void TimeMetrics::resetStartTimes()
 
 int TimeMetrics::percentage(int category)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_dataLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
     int result = 0;
 
@@ -116,7 +116,7 @@ int TimeMetrics::percentage(int category)
 // ACCESSORS
 int TimeMetrics::currentCategory() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_dataLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
     return d_currentCategory;
 }

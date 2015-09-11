@@ -426,7 +426,7 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 : d_callback(callback, bslma::Default::allocator(basicAllocator))
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
-, d_thread(bdlqq::ThreadUtil::invalidHandle())
+, d_thread(bslmt::ThreadUtil::invalidHandle())
 , d_isRunningFlag(false)
 , d_isPipeOpen(false)
 {
@@ -489,7 +489,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
     d_pipeName      = pipeName;
     d_isRunningFlag = d_isPipeOpen = true;
 
-    int rc = bdlqq::ThreadUtil::create(
+    int rc = bslmt::ThreadUtil::create(
          &d_thread,
          bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
@@ -510,7 +510,7 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
-    if (bdlqq::ThreadUtil::self() == d_thread) {
+    if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
         d_isRunningFlag = false;
@@ -552,9 +552,9 @@ void PipeControlChannel::dispatchMessageUpTo(
 
 void PipeControlChannel::stop()
 {
-    if (bdlqq::ThreadUtil::invalidHandle() != d_thread) {
-        bdlqq::ThreadUtil::join(d_thread);
-        d_thread = bdlqq::ThreadUtil::invalidHandle();
+    if (bslmt::ThreadUtil::invalidHandle() != d_thread) {
+        bslmt::ThreadUtil::join(d_thread);
+        d_thread = bslmt::ThreadUtil::invalidHandle();
     }
 
     d_isRunningFlag = false;

@@ -141,8 +141,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -190,7 +190,7 @@ class PipeControlChannel {
     ControlCallback          d_callback;      // Callback for control messages
     bsl::string              d_pipeName;      // full path name of pipe
     bsl::vector<char>        d_buffer;        // message buffer
-    bdlqq::ThreadUtil::Handle d_thread;        // background processing thread
+    bslmt::ThreadUtil::Handle d_thread;        // background processing thread
     bool                     d_isRunningFlag; // true if the channel is running
     bool                     d_isPipeOpen;    // true if the pipe is still open
 

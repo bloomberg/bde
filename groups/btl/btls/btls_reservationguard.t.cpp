@@ -4,7 +4,7 @@
 
 #include <btls_leakybucket.h>  // for testing only
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 
@@ -344,7 +344,7 @@ int main(int argc, char *argv[]) {
                                              bucket.calculateTimeToSubmit(now);
             bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                    (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-            bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
+            bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
         }
     }
 //..
