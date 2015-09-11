@@ -383,8 +383,8 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricregistry.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -497,10 +497,10 @@ class MetricsManager {
     LastResetTimes           d_prevResetTimes;  // time of a category's
                                                 // previous reset
 
-    bdlqq::Mutex             d_publishLock;     // lock for 'publish',
+    bslmt::Mutex             d_publishLock;     // lock for 'publish',
                                                 // acquired before 'd_rwLock'
 
-    mutable bdlqq::RWMutex   d_rwLock;          // lock for the data maps
+    mutable bslmt::RWMutex   d_rwLock;          // lock for the data maps
 
     bslma::Allocator        *d_allocator_p;     // allocator (held not owned)
 

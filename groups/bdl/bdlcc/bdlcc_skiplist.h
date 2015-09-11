@@ -157,9 +157,9 @@ BSLS_IDENT("$Id: $")
 //    typedef bdlcc::SkipList<bdlt::Datetime, bdlf::Function<void(*)()> > List;
 //
 //    List                     d_list;
-//    bdlqq::ThreadUtil::Handle d_dispatcher;
-//    bdlqq::Condition          d_notEmptyCond;
-//    bdlqq::Mutex              d_condMutex;
+//    bslmt::ThreadUtil::Handle d_dispatcher;
+//    bslmt::Condition          d_notEmptyCond;
+//    bslmt::Mutex              d_condMutex;
 //    volatile bool            d_doneFlag;
 //
 //    // PRIVATE METHODS
@@ -217,7 +217,7 @@ BSLS_IDENT("$Id: $")
 //    : d_list(basicAllocator)
 //    , d_doneFlag(false)
 //    {
-//        int rc = bdlqq::ThreadUtil::create(
+//        int rc = bslmt::ThreadUtil::create(
 //                    &d_dispatcher,
 //                    bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
 //                                        this));
@@ -233,16 +233,16 @@ BSLS_IDENT("$Id: $")
 //    void stop()
 //    {
 //        // NOTE: this method will deadlock if invoked from an event callback
-//        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_condMutex);
-//        if (bdlqq::ThreadUtil::invalidHandle() != d_dispatcher) {
-//            bdlqq::ThreadUtil::Handle dispatcher = d_dispatcher;
+//        bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+//        if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
+//            bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
 //            d_doneFlag = true;
 //            d_notEmptyCond.signal();
 //            {
-//                bdlqq::UnLockGuard<bdlqq::Mutex> g(&d_condMutex);
-//                bdlqq::ThreadUtil::join(dispatcher);
+//                bslmt::UnLockGuard<bslmt::Mutex> g(&d_condMutex);
+//                bslmt::ThreadUtil::join(dispatcher);
 //            }
-//            d_dispatcher = bdlqq::ThreadUtil::invalidHandle();
+//            d_dispatcher = bslmt::ThreadUtil::invalidHandle();
 //        }
 //    }
 //
@@ -305,7 +305,7 @@ BSLS_IDENT("$Id: $")
 // assert(values.isEmpty());
 // scheduleTime.addMilliseconds(250);
 // while (bdlt::CurrentTime::utc() < scheduleTime) {
-//     bdlqq::ThreadUtil::microSleep(10000);
+//     bslmt::ThreadUtil::microSleep(10000);
 // }
 // scheduler.stop();
 // assert(3 == values.size());
@@ -318,20 +318,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -763,8 +763,8 @@ class SkipList {
     typedef SkipList_NodeCreationHelper<KEY, DATA>
                                                NodeGuard;
 
-    typedef bdlqq::Mutex                        Lock;
-    typedef bdlqq::LockGuard<bdlqq::Mutex>       LockGuard;
+    typedef bslmt::Mutex                        Lock;
+    typedef bslmt::LockGuard<bslmt::Mutex>       LockGuard;
 
     // DATA
     SkipList_RandomLevelGenerator         d_rand;
@@ -3006,8 +3006,8 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return true;                                                  // RETURN
     }
-    bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
-    bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lhsGuard(&lhs.d_lock);
+    bslmt::LockGuard<bslmt::Mutex> rhsGuard(&rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
@@ -3048,8 +3048,8 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return false;                                                 // RETURN
     }
-    bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
-    bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lhsGuard(&lhs.d_lock);
+    bslmt::LockGuard<bslmt::Mutex> rhsGuard(&rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and

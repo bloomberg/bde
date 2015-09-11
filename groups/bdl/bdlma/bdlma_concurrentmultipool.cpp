@@ -8,9 +8,9 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
-#include <bdlqq_barrier.h>                  // for testing only
-#include <bdlqq_lockguard.h>
-#include <bdlqq_condition.h>
+#include <bslmt_barrier.h>                  // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_condition.h>
 
 #include <bslma_deallocatorproctor.h>
 #include <bslma_autodestructor.h>
@@ -305,7 +305,7 @@ void *ConcurrentMultipool::allocate(int size)
 
     // The requested size is large and will not be pooled.
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     Header *p = static_cast<Header *>(
                 d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
     p->d_header.d_poolIdx = -1;
@@ -319,7 +319,7 @@ void ConcurrentMultipool::deallocate(void *address)
     const int pool = h->d_header.d_poolIdx;
 
     if (-1 == pool) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
         d_blockList.deallocate(h);
     }
     else {
@@ -332,7 +332,7 @@ void ConcurrentMultipool::release()
     for (int i = 0; i < d_numPools; ++i) {
         d_pools_p[i].release();
     }
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_blockList.release();
 }
 

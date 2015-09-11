@@ -53,7 +53,7 @@
 //
 //    private:
 //      // DATA
-//      bdlqq::Mutex                d_lock;
+//      bslmt::Mutex                d_lock;
 //      bsl::deque<Job *>           d_queue;
 //      bdlma::ConcurrentFixedPool  d_pool;
 //      bslma::Allocator           *d_allocator_p;
@@ -122,8 +122,8 @@
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -207,7 +207,7 @@ class ConcurrentFixedPool {
     const int            d_nodeSize;        // size of blocks pooled by
                                             // 'd_nodePool'
 
-    bdlqq::Mutex         d_nodePoolMutex;   // mutex for access to 'd_nodePool'
+    bslmt::Mutex         d_nodePoolMutex;   // mutex for access to 'd_nodePool'
 
     bdlma::Pool          d_nodePool;        // underlying memory pool
 

@@ -13,10 +13,10 @@
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bdlqq_condition.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_condition.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -287,20 +287,20 @@ const unsigned char FACTORY_PASS       = 64;
 const unsigned char FACTORY_TRIGGER    =  0;
 const unsigned char FACTORY_TRIGGERALL =  0;
 
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
     // Create the specified 'numThreads', each executing the specified 'func'.
     // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
     // to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
+        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -1066,7 +1066,7 @@ struct ThreadData {
     int index;  // index of current thread
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 
 extern "C" {
     void *workerThread29(void *arg)
@@ -1094,7 +1094,7 @@ struct ThreadData {
     ball::LoggerManager   *manager;  // the instance observed by current thread
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 
 extern "C" {
     void *workerThread28(void *arg)
@@ -1148,7 +1148,7 @@ enum { MAX_LIMIT = 32 * 1024 };
 
 ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 extern "C" {
     void *workerThread26(void *arg)
     {
@@ -1216,7 +1216,7 @@ class my_publishCountingObserver : public ball::Observer {
 ball::Category *cat;
 ball::LoggerManager *manager;
 enum { MAX_LIMIT = 32 * 1024 };
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 extern "C" {
     void *workerThread25(void *)
     {
@@ -1248,8 +1248,8 @@ enum {
 };
 ball::LoggerManager *manager;
 bdlf::Function<void (*)(int *, int *, int *, int *, const char *)> function;
-bdlqq::Barrier barrier(NUM_THREADS + 1);
-bdlqq::Condition condition;
+bslmt::Barrier barrier(NUM_THREADS + 1);
+bslmt::Condition condition;
 
 void callback(int *r, int *p, int *t, int *a, const char *c)
     // Wait for all the setting threads to be ready to set the callback, invoke
@@ -1259,8 +1259,8 @@ void callback(int *r, int *p, int *t, int *a, const char *c)
 {
     barrier.wait();
     inheritThresholdLevels(r, p, t, a, c);
-    bdlqq::Mutex m;
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&m);
+    bslmt::Mutex m;
+    bslmt::LockGuard<bslmt::Mutex> guard(&m);
     ASSERT(-1 == condition.timedWait(&m, bdlt::CurrentTime::now() + 3));
 }
 
@@ -1571,10 +1571,10 @@ int main(int argc, char *argv[])
         manager = &Obj::singleton();
         function = &callback;
         manager->setDefaultThresholdLevelsCallback(&function);
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::ThreadUtil::create(&handle, setCategory, 0);
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::create(&handle, setCategory, 0);
         executeInParallel(NUM_THREADS, workerThread30);
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::join(handle);
       } break;
 
       case 23: {
@@ -2377,16 +2377,16 @@ int main(int argc, char *argv[])
             data[ti].index = ti;
         }
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
 
         for (ti = 0; ti < NUM_THREADS; ++ti) {
-            bdlqq::ThreadUtil::create(&threads[ti],
+            bslmt::ThreadUtil::create(&threads[ti],
                                      workerThread29,
                                      (void*)&data[ti]);
         }
 
         for (ti = 0; ti < NUM_THREADS; ++ti) {
-            bdlqq::ThreadUtil::join(threads[ti]);
+            bslmt::ThreadUtil::join(threads[ti]);
         }
 
       } break;
@@ -2426,16 +2426,16 @@ int main(int argc, char *argv[])
             data[i].observer = new ball::DefaultObserver(&bsl::cout);
         }
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
 
         for (i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::create(&threads[i],
+            bslmt::ThreadUtil::create(&threads[i],
                                      workerThread28,
                                      (void*)&data[i]);
         }
 
         for (i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::join(threads[i]);
+            bslmt::ThreadUtil::join(threads[i]);
         }
 
         Obj& mLM = Obj::singleton();

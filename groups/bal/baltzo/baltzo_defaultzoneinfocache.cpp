@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlqq_once.h>
+#include <bslmt_once.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -70,7 +70,7 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()
         return userSingletonCachePtr;                                 // RETURN
     }
 
-    BDLQQ_ONCE_DO {
+    BSLMT_ONCE_DO {
         if (0 == systemSingletonCachePtr) {
             systemSingletonCachePtr = initSystemDefaultCache();
         }

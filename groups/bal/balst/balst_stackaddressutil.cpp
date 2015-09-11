@@ -388,7 +388,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 {
     BSLS_ASSERT(0 <= maxFrames);
 
-    bdlqq::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
+    bslmt::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
 
     DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                           | SYMOPT_LOAD_LINES

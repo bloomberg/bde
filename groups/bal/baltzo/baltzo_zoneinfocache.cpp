@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 #include <baltzo_zoneinfocache.h>
 #include <baltzo_zoneinfoutil.h>
 
-#include <bdlqq_readlockguard.h>
-#include <bdlqq_writelockguard.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_writelockguard.h>
 
 #include <bslma_allocator.h>
 #include <bslma_rawdeleterproctor.h>
@@ -64,7 +64,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
         return result;                                                // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     // We use 'lower_bound' to return the position where the 'timeZoneId'
     // should be (even if it is not in the map), so that it can be used as an
@@ -138,7 +138,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::lookupZoneinfo(
 {
     BSLS_ASSERT(0 != timeZoneId);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     ZoneinfoMap::const_iterator it = d_cache.find(timeZoneId);
     if (d_cache.end() != it) {

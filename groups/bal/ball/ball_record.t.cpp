@@ -11,7 +11,7 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 // Then, we set the fixed fields of the record to contain a simple message:
 //..
     int                 processId = bdls::ProcessUtil::getProcessId();
-    bsls::Types::Uint64 threadId  = bdlqq::ThreadUtil::selfIdAsUint64();
+    bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
 
     ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
                                       processId,                // process id

@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 //              btlso::StreamSocket< btlso::IPv4Address>       *socket,
 //              btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
 //              const btls5::DetailedStatus&                    detailedStatus,
-//              bdlqq::Mutex                                   *stateLock,
-//              bdlqq::Condition                               *stateChanged,
+//              bslmt::Mutex                                   *stateLock,
+//              bslmt::Condition                               *stateChanged,
 //              volatile int                                   *state)
 //  {
 //      if (0 == status) {
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //          cout << "Connect failed " << status << ": " << detailedStatus
 //               << endl;
 //      }
-//      bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
+//      bslmt::LockGuard<bslmt::Mutex> lock(stateLock);
 //      *state = status ? -1 : 1; // 1 for success, -1 for failure
 //      stateChanged->signal();
 //  }
@@ -109,8 +109,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      const bsls::TimeInterval proxyTimeout(5.0);
 //      const bsls::TimeInterval totalTimeout(30.0);
-//      bdlqq::Mutex     stateLock;
-//      bdlqq::Condition stateChanged;
+//      bslmt::Mutex     stateLock;
+//      bslmt::Condition stateChanged;
 //      volatile int     state = 0; // value > 0 is success and < 0 is error
 //      using namespace bdlf::PlaceHolders;
 //      btls5::NetworkConnector::ConnectionAttemptHandle attempt =
@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //                                                   "destination.example.com",
 //                                                   8194));
 //      connector.startConnectionAttempt(attempt);
-//      bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
+//      bslmt::LockGuard<bslmt::Mutex> lock(&stateLock);
 //      while (!state) {
 //          stateChanged.wait(&stateLock);
 //      }

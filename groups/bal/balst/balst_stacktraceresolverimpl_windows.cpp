@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <balst_dbghelpdllimpl_windows.h>
 
-#include <bdlqq_qlock.h>
+#include <bslmt_qlock.h>
 
 #include <bdlma_heapbypassallocator.h>
 
@@ -92,7 +92,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
 
     bdlma::HeapBypassAllocator hbpAlloc;
 
-    bdlqq::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
+    bslmt::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
 
     DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                           | SYMOPT_LOAD_LINES

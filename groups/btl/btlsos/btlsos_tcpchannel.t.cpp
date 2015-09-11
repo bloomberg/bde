@@ -16,9 +16,9 @@
 
 #include <bslma_testallocator.h>                // allocate memory
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 
@@ -118,7 +118,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -227,7 +227,7 @@ enum {
 
 struct ConnectInfo {
      // Use this struct to pass information to the helper thread.
-     bdlqq::ThreadUtil::Handle    d_tid;         // the id of the thread to
+     bslmt::ThreadUtil::Handle    d_tid;         // the id of the thread to
                                                 // which a signal's delivered
 
      btlso::SocketHandle::Handle  d_socketHandle;
@@ -388,7 +388,7 @@ static void* threadSignalGenerator(void *arg)
         PT(threadInfo->d_signalIoFlag);
     }
 
-    bdlqq::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
                                     // The thread waits to make sure the main
                                     // thread is hanging in the dispatch()
                                     // call.
@@ -396,16 +396,16 @@ static void* threadSignalGenerator(void *arg)
     for (int i = 0; i < threadInfo->d_signals; ++i) {
         pthread_kill(threadInfo->d_tid, SIGSYS);
         if (verbose) {
-            P_T(bdlqq::ThreadUtil::self());
+            P_T(bslmt::ThreadUtil::self());
             QT(" generated a SIGSYS signal.");
         }
-        bdlqq::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
     }
     if (verbose) {
         PT(threadInfo->d_signalIoFlag);
     }
     if (threadInfo->d_signalIoFlag) {  // non-interruptible mode
-        bdlqq::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
         if (e_WRITE_OP == threadInfo->d_signalIoFlag) {
             char buf[k_HELPER_WRITE];
             memset(buf, 'x', k_HELPER_WRITE);    // to keep purify happy
@@ -415,13 +415,13 @@ static void* threadSignalGenerator(void *arg)
                                                  sizeof buf);
 
             if (veryVerbose) {
-                PT(bdlqq::ThreadUtil::self());
+                PT(bslmt::ThreadUtil::self());
                 QT(" writes to socket: ");
                 P_T(len);  PT(threadInfo->d_socketHandle);
             }
             if (k_HELPER_WRITE != len) {
                 if (veryVerbose) {
-                    P_T(bdlqq::ThreadUtil::self());
+                    P_T(bslmt::ThreadUtil::self());
                     QT("Error: Failed in writing right number of bytes"
                        " to the socket:");
                     PT(threadInfo->d_socketHandle);
@@ -443,14 +443,14 @@ static void* threadSignalGenerator(void *arg)
             }
 #endif
             if (veryVerbose) {
-                P_T(bdlqq::ThreadUtil::self());
+                P_T(bslmt::ThreadUtil::self());
                 QT(" reads from socket: ");
                 P_T(len);  PT(threadInfo->d_socketHandle);
             }
 #ifndef BSLS_PLATFORM_OS_LINUX
             if (HELPER_READ != len) {
                 if (veryVerbose) {
-                    PT(bdlqq::ThreadUtil::self());
+                    PT(bslmt::ThreadUtil::self());
                     QT("Error: Failed in reading right number of bytes"
                        " from the socket:");
                     PT(threadInfo->d_socketHandle);
@@ -461,7 +461,7 @@ static void* threadSignalGenerator(void *arg)
         }
     }
 
-    bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
     if (veryVerbose) {
         QT("Signal generator thread exits now.");
     }
@@ -479,9 +479,9 @@ static void* threadToCloseSocket(void *arg)
         PT(threadInfo->d_socketHandle);
     }
 #ifdef BSLS_PLATFORM_OS_LINUX
-    //bdlqq::ThreadUtil::microSleep(1 * SLEEP_TIME);
+    //bslmt::ThreadUtil::microSleep(1 * SLEEP_TIME);
 #else
-    bdlqq::ThreadUtil::microSleep(7 * SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(7 * SLEEP_TIME);
 #endif
 
     int ret = btlso::SocketImpUtil::close(threadInfo->d_socketHandle);
@@ -582,7 +582,7 @@ void fillBuffers(VECBUFFER *vectorBuffers, int numBuffers, char ch)
 static int testExecutionHelper(btlsos::TcpChannel          *channel,
                                TestCommand                 *command,
                                btlso::SocketHandle::Handle *socketPair,
-                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               bslmt::ThreadUtil::Handle   *threadHandle,
                                char                        *buffer,
                                const btls::Iovec           *ioBuffer,
                                const btls::Ovec            *oBuffer,
@@ -808,14 +808,14 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         rCode = 0;
     } break;
     case e_SLEEP: {    //
-        bdlqq::ThreadUtil::microSleep(command->numToProcess.d_milliseconds);
+        bslmt::ThreadUtil::microSleep(command->numToProcess.d_milliseconds);
         rCode = 0;
     } break;
 
     #ifdef BSLS_PLATFORM_OS_UNIX
     case e_SIGNAL: {
         // Create a thread to generate signals.
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
         if (verbose) {
             PT(command->flag.d_signalIoFlag);
         }
@@ -828,8 +828,8 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_signalIoFlag;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadSignalGenerator,
                                            info);
@@ -843,14 +843,14 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the signaling thread
-        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
 #endif
     } break;
     #endif
 
     case e_CLOSE_CONTROL: {
         // Create a thread to close the control socket (the peer socket).
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
         ConnectInfo *info = 0;
         info = new(testAllocator) ConnectInfo;
@@ -859,8 +859,8 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_interruptFlags;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
                                            info);
@@ -874,7 +874,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
-        bdlqq::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
 #endif
     } break;
     case e_CLOSE_OBSERVE: {
@@ -884,7 +884,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         //  ASSERT(0 == rv);
         //..
 
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
         ConnectInfo *info = 0;
         info = new(testAllocator) ConnectInfo;
@@ -893,8 +893,8 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_interruptFlags;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
                                            info);
@@ -908,9 +908,9 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
-        bdlqq::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
 #endif
-        //bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        //bslmt::ThreadUtil::microSleep(SLEEP_TIME);
 
     } break;
     default:
@@ -942,15 +942,15 @@ int processTest(btlsos::TcpChannel          *channel,
     // corresponding to the request.  Return 0 on success, and a non-zero value
     // otherwise.
 {
-    bdlqq::ThreadUtil::Handle threadHandle[k_MAX_CMD];
+    bslmt::ThreadUtil::Handle threadHandle[k_MAX_CMD];
     int ret = 0, idx = 0, numErrors = 0;
 
     for (int i = 0; i < k_MAX_CMD; i++) { // different test data
         if (commands[i].d_command < 1) {
             for (int j=0; j < idx; ++j) {
-                bdlqq::ThreadUtil::join(threadHandle[j]);
+                bslmt::ThreadUtil::join(threadHandle[j]);
             }
-            // bdlqq::ThreadUtil::microSleep(20 * SLEEP_TIME);
+            // bslmt::ThreadUtil::microSleep(20 * SLEEP_TIME);
             break;
         }
         ret = testExecutionHelper(channel,
@@ -995,9 +995,9 @@ int processTest(btlsos::TcpChannel          *channel,
             P_T(ret);
             PT(commands[i].d_expReturnValue);
         }
-        // bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        // bslmt::ThreadUtil::microSleep(SLEEP_TIME);
     }
-    // bdlqq::ThreadUtil::join(threadHandle);
+    // bslmt::ThreadUtil::join(threadHandle);
 
     return numErrors;
 }

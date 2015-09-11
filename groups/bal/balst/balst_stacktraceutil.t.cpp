@@ -5,7 +5,7 @@
 #include <balst_stackaddressutil.h>
 #include <balst_stacktrace.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlf_function.h>
 #include <bdlma_sequentialallocator.h>
@@ -1678,13 +1678,13 @@ int main(int argc, char *argv[])
         namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
 
         bdlf::Function<void (*)()> func = &TC::loopForFourSeconds;
-        bdlqq::ThreadUtil::Handle handles[2];
+        bslmt::ThreadUtil::Handle handles[2];
         for (int i = 0; i < 2; ++i) {
-            int rc = bdlqq::ThreadUtil::create(&handles[i], func);
+            int rc = bslmt::ThreadUtil::create(&handles[i], func);
             ASSERT(0 == rc);
         }
         for (int i = 0; i < 2; ++i) {
-            int rc = bdlqq::ThreadUtil::join(handles[i]);
+            int rc = bslmt::ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
       } break;

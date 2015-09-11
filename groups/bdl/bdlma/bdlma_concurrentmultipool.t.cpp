@@ -12,8 +12,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bdlqq_barrier.h>                      // for testing only
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>                      // for testing only
+#include <bslmt_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_stopwatch.h>
@@ -231,7 +231,7 @@ struct WorkerArgs {
 
 };
 
-bdlqq::Barrier g_barrier(k_NUM_THREADS);
+bslmt::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, un-protect, and deallocate
     // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
@@ -268,7 +268,7 @@ extern "C" void *workerThread(void *arg) {
 
     // perform a second set of allocations
     unsigned char threadId =
-                  static_cast<unsigned char>(bdlqq::ThreadUtil::selfIdAsInt());
+                  static_cast<unsigned char>(bslmt::ThreadUtil::selfIdAsInt());
     for (int i = 0; i < numAllocs; ++i) {
         blocks[i] = (char *)allocator->allocate(allocSizes[i]);
         memset(blocks[i], threadId, allocSizes[i]);
@@ -1787,7 +1787,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator ta;
         Obj                  mX(4, &ta);
@@ -1804,12 +1804,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
+                bslmt::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlqq::ThreadUtil::join(threads[i]);
+                bslmt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
         mX.release();

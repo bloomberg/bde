@@ -132,12 +132,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_record.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -196,7 +196,7 @@ class TestObserver : public Observer {
 
     int                  d_numRecords;   // total number of published records
 
-    mutable bdlqq::Mutex d_mutex;        // serializes concurrent calls to
+    mutable bslmt::Mutex d_mutex;        // serializes concurrent calls to
                                          // 'publish' and protects concurrent
                                          // access to other class members
 
@@ -297,7 +297,7 @@ TestObserver::TestObserver(bsl::ostream&     stream,
 inline
 void TestObserver::setVerbose(int flagValue)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_verboseFlag = flagValue;
 }
 
@@ -305,28 +305,28 @@ void TestObserver::setVerbose(int flagValue)
 inline
 int TestObserver::id() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_count;
 }
 
 inline
 int TestObserver::numPublishedRecords() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_numRecords;
 }
 
 inline
 const Record& TestObserver::lastPublishedRecord() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_record;
 }
 
 inline
 const Context& TestObserver::lastPublishedContext() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_context;
 }
 

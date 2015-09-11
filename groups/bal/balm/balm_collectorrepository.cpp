@@ -6,8 +6,8 @@ BSLS_IDENT_RCSID(balm_collectorrepository_cpp,"$Id$ $CSID$")
 
 #include <balm_metricid.h>
 
-#include <bdlqq_readlockguard.h>
-#include <bdlqq_writelockguard.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_writelockguard.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -441,7 +441,7 @@ CollectorRepository::getMetricCollectors(const MetricId& metricId)
 void CollectorRepository::collectAndReset(bsl::vector<MetricRecord> *records,
                                           const Category            *category)
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
     CategorizedCollectors::iterator catIt = d_categories.find(category);
     if (catIt != d_categories.end()) {
@@ -465,7 +465,7 @@ void CollectorRepository::collect(bsl::vector<MetricRecord> *records,
                                   const Category            *category)
 {
     // PRIVATE TYPES
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
     CategorizedCollectors::iterator catIt = d_categories.find(category);
     if (catIt != d_categories.end()) {
@@ -490,7 +490,7 @@ Collector *CollectorRepository::getDefaultCollector(const MetricId& metricId)
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
     {
-        bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+        bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
             return it->second->collectors().defaultCollector();       // RETURN
@@ -499,7 +499,7 @@ Collector *CollectorRepository::getDefaultCollector(const MetricId& metricId)
 
     // Use 'getMetricCollectors' to create the metrics collectors object (if
     // one has not been created since the read-lock was released).
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).collectors().defaultCollector();
 }
 
@@ -509,7 +509,7 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
     {
-        bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+        bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
             return it->second->intCollectors().defaultCollector();    // RETURN
@@ -518,21 +518,21 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
 
     // Use 'getMetricCollectors' to create the metrics collectors object (if
     // one has not been created since the read-lock was released).
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).intCollectors().defaultCollector();
 }
 
 bsl::shared_ptr<Collector> CollectorRepository::addCollector(
                                                       const MetricId& metricId)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).collectors().addCollector();
 }
 
 bsl::shared_ptr<IntegerCollector>
 CollectorRepository::addIntegerCollector(const MetricId& metricId)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).intCollectors().addCollector();
 }
 
@@ -542,7 +542,7 @@ int CollectorRepository::getAddedCollectors(
                const MetricId&                                   metricId)
 {
     int numFound = 0;
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     Collectors::iterator cIt = d_collectors.find(metricId);
     if (cIt != d_collectors.end()) {
         numFound += cIt->second->collectors().getAddedCollectors(collectors);

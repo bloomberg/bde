@@ -6,9 +6,9 @@ BSLS_IDENT_RCSID(balm_metricregistry_cpp,"$Id$ $CSID$")
 
 #include <balm_metricformat.h>
 
-#include <bdlqq_readlockguard.h>
-#include <bdlqq_rwmutex.h>
-#include <bdlqq_writelockguard.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_rwmutex.h>
+#include <bslmt_writelockguard.h>
 #include <bdlb_print.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -175,7 +175,7 @@ MetricRegistry::~MetricRegistry()
 MetricId MetricRegistry::addId(const char *category,
                                const char *name)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     bsl::pair<MetricId, bool> ret = insertId(category, name);
     return ret.second ? ret.first : MetricId();                       // RETURN
@@ -196,14 +196,14 @@ MetricId MetricRegistry::getId(const char *category,
     // was added between the return of 'findId' and the acquisition of the
     // write lock on 'd_lock'.
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     return insertId(category, name).first;
 }
 
 const Category *MetricRegistry::addCategory(const char *category)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     // Insert the string for 'category' into the unique strings table
     // 'd_uniqueStrings' (if it is already in the table, this simply looks it
@@ -239,7 +239,7 @@ const Category *MetricRegistry::getCategory(const char *category)
     // was added between the return of 'findCategory' and the acquisition of
     // the write lock on 'd_lock'.
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     // Insert the string for 'category' into the unique strings table
     // 'd_uniqueStrings' (if it is already in the table, this simply looks it
@@ -264,14 +264,14 @@ const Category *MetricRegistry::getCategory(const char *category)
 void MetricRegistry::setCategoryEnabled(const Category* category,
                                         bool            value)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     const_cast<Category *>(category)->setEnabled(value);
 }
 
 void MetricRegistry::setAllCategoriesEnabled(bool value)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     if (d_defaultEnabled == value) {
         return;                                                       // RETURN
@@ -296,7 +296,7 @@ void MetricRegistry::setPreferredPublicationType(const MetricId&        metric,
 void MetricRegistry::registerCategoryHolder(const Category *category,
                                             CategoryHolder *holder)
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     // We *must* obtain a write lock on 'd_lock' to prevent
     // 'setCategoryEnabled' walking the linked list of category holders while
@@ -315,7 +315,7 @@ void MetricRegistry::setFormat(const MetricId&     metricId,
     MetricDescription *desc =
                        const_cast<MetricDescription *>(metricId.description());
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     // Note that we need to use a non-'const' pointer to the format in order to
     // initialize it.
@@ -359,7 +359,7 @@ void MetricRegistry::setUserData(const char                     *categoryName,
 {
     BSLS_ASSERT(0 <= key && key < d_nextKey);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     const char *category = d_uniqueStrings.insert(categoryName).first->c_str();
     if (!prefixFlag) {
@@ -395,19 +395,19 @@ MetricDescription::UserDataKey MetricRegistry::createUserDataKey()
 // ACCESSORS
 bsl::size_t MetricRegistry::numMetrics() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
     return d_metrics.size();
 }
 
 bsl::size_t MetricRegistry::numCategories() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
     return d_categories.size();
 }
 
 const Category *MetricRegistry::findCategory(const char *category) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
     CategoryRegistry::const_iterator it = d_categories.find(category);
     return it == d_categories.end() ? 0 : it->second.get();
 }
@@ -415,7 +415,7 @@ const Category *MetricRegistry::findCategory(const char *category) const
 MetricId MetricRegistry::findId(const char *category,
                                 const char *name) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
     MetricMap::const_iterator it =
                                 d_metrics.find(bsl::make_pair(category, name));
     return it == d_metrics.end() ? MetricId() : MetricId(it->second.get());
@@ -424,7 +424,7 @@ MetricId MetricRegistry::findId(const char *category,
 void MetricRegistry::getAllCategories(
                                bsl::vector<const Category *> *categories) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
     categories->reserve(categories->size() + d_categories.size());
     CategoryRegistry::const_iterator it = d_categories.begin();
     for (; it != d_categories.end(); ++it) {
@@ -436,7 +436,7 @@ bsl::ostream& MetricRegistry::print(bsl::ostream& stream,
                                     int           level,
                                     int           spacesPerLevel) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
 
     char SEP = level <= 0 ? ' ' : '\n';
     bdlb::Print::indent(stream, level, spacesPerLevel);

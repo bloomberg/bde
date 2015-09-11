@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 //  // Print a formatted report of the performance statistics collected for
 //  // each pid every 10 seconds for one minute.
 //  for (int i = 0; i < 6; ++i) {
-//      bdlqq::ThreadUtil::microSleep(0, 10);
+//      bslmt::ThreadUtil::microSleep(0, 10);
 //
 //      for (balb::PerformanceMonitor::ConstIterator it  = perfmon.begin();
 //                                                  it != perfmon.end();
@@ -121,12 +121,12 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_READLOCKGUARD
-#include <bdlqq_readlockguard.h>
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
@@ -267,7 +267,7 @@ typedef bsls::Platform::OsHpUx OsType;
     bdlmt::TimerEventScheduler::Handle  d_clock;        // handle to collection
                                                         // timer
 
-    mutable bdlqq::RWMutex              d_mapGuard;     // serializes write
+    mutable bslmt::RWMutex              d_mapGuard;     // serializes write
                                                         // access to 'd_pidMap'
 
     bslma::Allocator                   *d_allocator_p;  // supplies memory
@@ -353,7 +353,7 @@ typedef bsls::Platform::OsHpUx OsType;
         double             d_maxData[e_NUM_MEASURES];  // max
         double             d_totData[e_NUM_MEASURES];  // cumulative
 
-        mutable bdlqq::RWMutex d_guard;  // serialize write access
+        mutable bslmt::RWMutex d_guard;  // serialize write access
 
     private:
         // NOT IMPLEMENTED
@@ -431,11 +431,11 @@ typedef bsls::Platform::OsHpUx OsType;
         // INSTANCE DATA
 
         PidMap::const_iterator  d_it;          // wrapped iterator
-        bdlqq::RWMutex         *d_mapGuard_p;  // serialize access to the map
+        bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
         explicit ConstIterator(PidMap::const_iterator  it,
-                               bdlqq::RWMutex         *mapGuard);
+                               bslmt::RWMutex         *mapGuard);
             // Create an instance of this class that wraps the specified 'it'
             // iterator protected by the specified 'mapGuard'.
 
@@ -600,7 +600,7 @@ balb::PerformanceMonitor::ConstIterator::ConstIterator()
 inline
 balb::PerformanceMonitor::ConstIterator::ConstIterator(
                balb::PerformanceMonitor::PidMap::const_iterator  it,
-               bdlqq::RWMutex                                   *mapGuard)
+               bslmt::RWMutex                                   *mapGuard)
 : d_it(it)
 , d_mapGuard_p(mapGuard)
 {
@@ -626,7 +626,7 @@ inline
 balb::PerformanceMonitor::ConstIterator&
 balb::PerformanceMonitor::ConstIterator::operator++()
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(d_mapGuard_p);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     ++d_it;
     return *this;
 }
@@ -665,7 +665,7 @@ double balb::PerformanceMonitor::Statistics::latestValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_lstData[measure];
 }
 
@@ -674,7 +674,7 @@ double balb::PerformanceMonitor::Statistics::minValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_minData[measure];
 }
 
@@ -683,7 +683,7 @@ double balb::PerformanceMonitor::Statistics::maxValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_maxData[measure];
 }
 
@@ -692,7 +692,7 @@ double balb::PerformanceMonitor::Statistics::avgValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_totData[measure] / d_numSamples;
 }
 
@@ -730,7 +730,7 @@ inline
 PerformanceMonitor::ConstIterator
 PerformanceMonitor::begin() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return ConstIterator(d_pidMap.begin(), &d_mapGuard);
 }
 
@@ -738,7 +738,7 @@ inline
 PerformanceMonitor::ConstIterator
 PerformanceMonitor::end() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return ConstIterator(d_pidMap.end(), &d_mapGuard);
 }
 
@@ -746,7 +746,7 @@ inline
 PerformanceMonitor::ConstIterator
 PerformanceMonitor::find(int pid) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return ConstIterator(d_pidMap.find(pid), &d_mapGuard);
 }
 
@@ -754,7 +754,7 @@ inline
 int
 PerformanceMonitor::numRegisteredPids() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return static_cast<int>(d_pidMap.size());
 }
 }  // close package namespace

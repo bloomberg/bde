@@ -78,8 +78,8 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -118,7 +118,7 @@ class TimeMetrics {
     int                             d_currentCategory;
     int                             d_currentTotal;
 
-    mutable bdlqq::Mutex            d_dataLock;
+    mutable bslmt::Mutex            d_dataLock;
 
   private:
     // NOT IMPLEMENTED

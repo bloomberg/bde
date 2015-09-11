@@ -10,12 +10,14 @@
 #include <bsls_alignment.h>
 #include <bsls_platform.h>
 
-#include <bdlf_bind.h>
 #include <bdlb_random.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadgroup.h>
-#include <bdlqq_qlock.h>
+#include <bdlf_bind.h>
+#include <bdlf_function.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_qlock.h>
 
 #include <bsls_types.h>
 
@@ -135,7 +137,7 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
       private:
         // DATA
-        bdlqq::Mutex                d_lock;
+        bslmt::Mutex                d_lock;
         bsl::deque<Job *>           d_queue;
         bdlma::ConcurrentFixedPool  d_pool;
         bslma::Allocator           *d_allocator_p;
@@ -274,7 +276,7 @@ enum {
     k_NUM_THREADS = 4
 };
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 extern "C"
 void *workerThread(void *arg) {
     Obj *mX = (Obj *) arg;
@@ -285,7 +287,7 @@ void *workerThread(void *arg) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n",
-                   static_cast<int>(bdlqq::ThreadUtil::self()),
+                   static_cast<int>(bslmt::ThreadUtil::selfIdAsUint64()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
@@ -310,7 +312,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
     bdlma::ConcurrentFixedPool       *d_fixedpool;
     int                    d_iterations;
     int                    d_numObjects;
@@ -327,7 +329,7 @@ void hardwork(Item *item, int load)
 
 void bench(Control *control)
 {
-    int threadId = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt());
+    int threadId = static_cast<int>(bslmt::ThreadUtil::selfIdAsInt());
 
     bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     int numObjects = control->d_numObjects;
@@ -370,7 +372,7 @@ void runtest(int numIterations,
 
     ASSERT(backoff == pool.backoffLevel());
 
-    bdlqq::Barrier barrier(numThreads);
+    bslmt::Barrier barrier(numThreads);
 
     Control control;
 
@@ -380,7 +382,7 @@ void runtest(int numIterations,
     control.d_numObjects = numObjects;
     control.d_load = load;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&bench,&control), numThreads);
 
     tg.joinAll();
@@ -398,7 +400,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
     bdlma::ConcurrentFixedPool       *d_fixedpool;
     int                    d_iterations;
     bsls::AtomicInt         d_allocationCount;
@@ -440,7 +442,7 @@ void bench(Control *control)
             pool->release();
             allocationCount = 0;
         }
-        bdlqq::ThreadUtil::yield(); // exhaust time slice
+        bslmt::ThreadUtil::yield(); // exhaust time slice
         control->d_barrier->wait();
     }
 }
@@ -449,7 +451,7 @@ void runtest(int numIterations, int numObjects, int numThreads)
 {
     bdlma::ConcurrentFixedPool pool(sizeof(Item), numObjects);
 
-    bdlqq::Barrier barrier(numThreads);
+    bslmt::Barrier barrier(numThreads);
 
     Control control;
 
@@ -458,7 +460,7 @@ void runtest(int numIterations, int numObjects, int numThreads)
     control.d_iterations = numIterations;
     control.d_allocationCount = 0;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&bench,&control), numThreads);
 
     tg.joinAll();
@@ -638,16 +640,16 @@ int main(int argc, char *argv[]) {
         // Testing:
         //     Thread-safety of allocate/deallocate methods.
         // --------------------------------------------------------------------
-        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
         Obj mX(k_OBJECT_SIZE, k_NUM_THREADS);
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlqq::ThreadUtil::create(&threads[i], workerThread, &mX);
+                bslmt::ThreadUtil::create(&threads[i], workerThread, &mX);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlqq::ThreadUtil::join(threads[i]);
+                bslmt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
       } break;

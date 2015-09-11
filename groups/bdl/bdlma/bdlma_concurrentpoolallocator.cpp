@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>    // for testing only
@@ -157,7 +157,7 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
             int res = d_initialized.testAndSwap(k_UNINITIALIZED,
                                                 k_INITIALIZING);
             if (k_INITIALIZING == res) {
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
                 continue; // initialization in progress
             }
             else if (k_UNINITIALIZED != res) {

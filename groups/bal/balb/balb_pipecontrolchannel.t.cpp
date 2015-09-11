@@ -12,8 +12,8 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadgroup.h>
 
 #include <bdls_pipeutil.h>
 
@@ -213,7 +213,7 @@ void noop(const bslstl::StringRef&)
 
 void verifyPayload(const bsl::string&        expected,
                    const bslstl::StringRef&  found,
-                   bdlqq::Barrier           *barrier)
+                   bslmt::Barrier           *barrier)
 {
     // Verify that the specified 'found' payload has the same value as the
     // specified 'expected' payload.
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
         }
         unlink(argv[3]);
 
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
         balb::PipeControlChannel channel(bdlf::BindUtil::bind(
                                                         &verifyPayload,
                                                         bsl::string(argv[4]),
@@ -427,9 +427,9 @@ int main(int argc, char *argv[])
             cout << "Child pid: " << childPid << endl;
         }
 
-        bdlqq::ThreadUtil::microSleep(10000);
+        bslmt::ThreadUtil::microSleep(10000);
         kill(childPid, SIGINT);
-        bdlqq::ThreadUtil::microSleep(100000);
+        bslmt::ThreadUtil::microSleep(100000);
 
         if (verbose) {
             cout << "Sending QUICKBROWNFOX_CASE10 to " << pipeName
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
 
         const char MESSAGE[]
              = "Hello, world! The sick cat couldn't jump over even a lazy dog";
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
 
         bsl::string message(MESSAGE);
         balb::PipeControlChannel channel(bdlf::BindUtil::bind(
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
         }
         cout << "A\n" << flush;
 
-        bdlqq::ThreadGroup threadGroup;
+        bslmt::ThreadGroup threadGroup;
         threadGroup.addThreads(bdlf::BindUtil::bind(&threadSend,
                                                     bsl::string(argv[3]),
                                                     message + "\n",
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
             cerr << "\tCase 9 client: sleeping..." << endl;
         }
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(2.0));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(2.0));
 
         if (verbose) {
             cerr << "\tCase 9 client: sending B and shutting down..." << endl;
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         channel.shutdown();
         channel.stop();
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1.0));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(1.0));
 
         break;
       }
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 5; ++i) {
             rc = server.start(pipeName);
             LOOP_ASSERT(i, 0 != rc);
-            bdlqq::ThreadUtil::microSleep(100);
+            bslmt::ThreadUtil::microSleep(100);
         }
 
         do {
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
             cout << "...(received \"" << buffer << "\"" << endl;
             exit(9);
         }
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1.0));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(1.0));
 
         ControlServer server;
 
@@ -785,7 +785,7 @@ int main(int argc, char *argv[])
                 bsl::string message;
                 loadData(&message, messageLength);
 
-                bdlqq::Barrier  barrier(2);
+                bslmt::Barrier  barrier(2);
                 bsls::AtomicInt numWrites(0);
 
                 balb::PipeControlChannel channel(bdlf::BindUtil::bind(
@@ -798,7 +798,7 @@ int main(int argc, char *argv[])
                 int rc = channel.start(pipeName);
                 ASSERT(0 == rc);
 
-                bdlqq::ThreadGroup threadGroup;
+                bslmt::ThreadGroup threadGroup;
                 threadGroup.addThreads(bdlf::BindUtil::bind(
                                                          &threadSend,
                                                          bsl::string(pipeName),
@@ -861,7 +861,7 @@ int main(int argc, char *argv[])
 
             const char MESSAGE[]  = "Hello, world!";
 
-            bdlqq::Barrier barrier(2);
+            bslmt::Barrier barrier(2);
 
             balb::PipeControlChannel channel(bdlf::BindUtil::bind(
                                                         &verifyPayload,

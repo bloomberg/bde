@@ -5,8 +5,8 @@
 
 #include <bslma_testallocator.h>
 #include <bsls_atomic.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadgroup.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -95,7 +95,7 @@ using bsl::flush;
 // MANIPULATORS
 // [09] int start();
 //
-// [16] int start(const bdlqq::ThreadAttributes& threadAttributes);
+// [16] int start(const bslmt::ThreadAttributes& threadAttributes);
 //
 // [09] void stop();
 //
@@ -174,13 +174,13 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
-static bdlqq::Mutex printMutex;  // mutex to protect output macros
+static bslmt::Mutex printMutex;  // mutex to protect output macros
 #define ET(X) { printMutex.lock(); E(X); printMutex.unlock(); }
 #define ET_(X) { printMutex.lock(); E_(X); printMutex.unlock(); }
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlqq::Mutex &assertMutex = printMutex;// mutex to protect assert macros
+static bslmt::Mutex &assertMutex = printMutex;// mutex to protect assert macros
 
 #define ASSERTT(X) { assertMutex.lock(); aSsErT(!(X), #X, __LINE__); \
                                              assertMutex.unlock();}
@@ -227,7 +227,7 @@ void sleepUntilMs(int ms)
     bsls::Stopwatch timer;
     timer.start();
     while (timer.elapsedTime() * 1000 < ms) {
-        bdlqq::ThreadUtil::microSleep(sleepIncrement);
+        bslmt::ThreadUtil::microSleep(sleepIncrement);
     }
 }
 
@@ -273,7 +273,7 @@ static inline bool isApproxGreaterThan(const bsls::TimeInterval& t1,
 void myMicroSleep(int microSeconds, int seconds)
     // Sleep for *at* *least* the specified 'seconds' and 'microseconds'.  This
     // function is used for testing only.  It uses the function
-    // 'bdlqq::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
+    // 'bslmt::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
     // a chance to the event scheduler to process its dispatching thread.
     // Without this, there have been a large number of unpredictable
     // intermittent failures by this test driver, especially on AIX with
@@ -299,7 +299,7 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
             return;                                                   // RETURN
         }
         sleepUntilMs(microSeconds / 1000);
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 }
 
@@ -315,20 +315,20 @@ static inline double dnow()
                          // ==========================
 
 static void executeInParallel(int                               numThreads,
-                              bdlqq::ThreadUtil::ThreadFunction func)
+                              bslmt::ThreadUtil::ThreadFunction func)
     // Create the specified 'numThreads', each executing the specified 'func'.
     // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
     // to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
+        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -1005,7 +1005,7 @@ void countInvoked(bsls::AtomicInt *numInvoked)
 void scheduleEvent(Obj             *scheduler,
                    bsls::AtomicInt *numAdded,
                    bsls::AtomicInt *numInvoked,
-                   bdlqq::Barrier  *barrier)
+                   bslmt::Barrier  *barrier)
 {
     barrier->wait();
 
@@ -1024,7 +1024,7 @@ void scheduleEvent(Obj             *scheduler,
 void startClock(Obj             *scheduler,
                 bsls::AtomicInt *numAdded,
                 bsls::AtomicInt *numInvoked,
-                bdlqq::Barrier  *barrier)
+                bslmt::Barrier  *barrier)
 {
     barrier->wait();
 
@@ -1079,7 +1079,7 @@ enum {
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 bslma::TestAllocator ta;
 Obj x(&ta);
 
@@ -1156,7 +1156,7 @@ enum {
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 bslma::TestAllocator ta;
 Obj x(&ta);
 
@@ -2491,7 +2491,7 @@ void test1_i()
     elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T5) {
         LOOP_ASSERT(nExec, 0 == nExec);
-        ASSERT(2 == x.numEvents());
+        ASSERT(2 - testObj1.numExecuted() == x.numEvents());
         ASSERT(0 == x.numClocks());
     }
 
@@ -2987,9 +2987,9 @@ int main(int argc, char *argv[])
         mX.start();
 
         // make sure the events all get pending
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
         sleepUntilMs(10 * 1000 / 1000);
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
         sleepUntilMs(10 * 1000 / 1000);
 
         mX.stop();
@@ -3031,7 +3031,7 @@ int main(int argc, char *argv[])
             mX.scheduleEvent(now, Func());
         }
         mX.start();
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
         sleepUntilMs(100 * 1000 / 1000);
         mX.cancelAllEvents();
 
@@ -3058,7 +3058,7 @@ int main(int argc, char *argv[])
         //   which will join with the dispatcher thread.
         //
         // Testing:
-        //   int start(const bdlqq::ThreadAttributes& threadAttributes);
+        //   int start(const bslmt::ThreadAttributes& threadAttributes);
         // -----------------------------------------------------------------
 
         if (verbose) {
@@ -3067,12 +3067,12 @@ int main(int argc, char *argv[])
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16;
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
 
         if (!veryVeryVerbose) {
             attr.setStackSize(80 * 1000 * 1000);
         }
-        attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+        attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
         if (verbose) {
             cout << "StackSize: " << attr.stackSize() << endl;
@@ -3211,7 +3211,7 @@ int main(int argc, char *argv[])
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
             // Testing of that routine has been moved to
-            // 'bdlqq_threadutil.t.cpp'.
+            // 'bslmt_threadutil.t.cpp'.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -3270,7 +3270,7 @@ int main(int argc, char *argv[])
         //   accumulated lag.
         //
         //   <<NOTE>> -- due to unreliability of
-        //   'bdlqq::Condition::timedWait', this test is going to fail a
+        //   'bslmt::Condition::timedWait', this test is going to fail a
         //   certain percentage of the time.
         // -----------------------------------------------------------------
 
@@ -3350,7 +3350,7 @@ int main(int argc, char *argv[])
         // be testing the accuracy of the 'microSleep' method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
-        // routine has been moved to 'bdlqq_threadutil.t.cpp'.
+        // routine has been moved to 'bslmt_threadutil.t.cpp'.
 
         // go through odd elements - they should be SLEEP_SECONDS later
         it = sf.timeList().begin();
@@ -3408,8 +3408,8 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 2; ++i) {
                 bsls::AtomicInt    numAdded(0);
-                bdlqq::Barrier     barrier(NUM_THREADS + 1);
-                bdlqq::ThreadGroup threadGroup;
+                bslmt::Barrier     barrier(NUM_THREADS + 1);
+                bslmt::ThreadGroup threadGroup;
 
                 threadGroup.addThreads(
                                      bdlf::BindUtil::bind(&scheduleEvent,
@@ -4023,14 +4023,14 @@ int main(int argc, char *argv[])
                                   &test7_e, &test7_f };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
       } break;
       case 6: {
@@ -4093,14 +4093,14 @@ int main(int argc, char *argv[])
         const Func funcPtrs[] = { &test6_a, &test6_b, &test6_c };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
       } break;
       case 5: {
@@ -4612,14 +4612,14 @@ int main(int argc, char *argv[])
                                   &test3_e, &test3_f, &test3_g };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
       } break;
       case 2: {
@@ -4902,14 +4902,14 @@ int main(int argc, char *argv[])
                                   &test1_i, &test1_j, &test1_k };
         enum { NUM_THREADS = sizeof funcPtrs / sizeof funcPtrs[0] };
 
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i], funcPtrs[i]));
+            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i], funcPtrs[i]));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
       } break;
       case -1: {

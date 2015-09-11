@@ -283,20 +283,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_skiplist.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -391,19 +391,19 @@ class EventScheduler {
 
     Dispatcher            d_dispatcherFunctor;  // dispatch events
 
-    bdlqq::ThreadUtil::Handle
+    bslmt::ThreadUtil::Handle
                           d_dispatcherThread;   // dispatcher thread handle
 
-    bdlqq::Mutex          d_mutex;              // synchronizes access to
+    bslmt::Mutex          d_mutex;              // synchronizes access to
                                                 // condition variables
 
-    bdlqq::Condition      d_queueCondition;     // condition variable used to
+    bslmt::Condition      d_queueCondition;     // condition variable used to
                                                 // signal when the queues need
                                                 // to be checked again (when
                                                 // they become non-empty or get
                                                 // a new front member)
 
-    bdlqq::Condition      d_iterationCondition; // condition variable used to
+    bslmt::Condition      d_iterationCondition; // condition variable used to
                                                 // signal when the dispatcher
                                                 // is ready to enter next
                                                 // iteration (synchronizes
@@ -656,7 +656,7 @@ class EventScheduler {
         // before it is destroyed.  Note that any events scheduled in the past
         // will be dispatched immediately upon starting.
 
-    int start(const bdlqq::ThreadAttributes& threadAttributes);
+    int start(const bslmt::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler, using the specified
         // 'threadAttributes' for the dispatcher thread, except the DETACHED
         // attribute will always be overridden to be joinable.  Return 0 on

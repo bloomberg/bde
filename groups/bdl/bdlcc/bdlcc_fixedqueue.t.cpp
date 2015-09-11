@@ -7,19 +7,19 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_configuration.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_qlock.h>
-#include <bdlqq_recursivemutex.h>
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_configuration.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_qlock.h>
+#include <bslmt_recursivemutex.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_timedsemaphore.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadgroup.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_turnstile.h>
+#include <bslmt_timedsemaphore.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_turnstile.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -89,8 +89,8 @@ void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
-typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
-bdlqq::Mutex coutMutex;
+typedef bslmt::LockGuard<bslmt::Mutex> LockGuard;
+bslmt::Mutex coutMutex;
 
 #define PT(X)  { LockGuard guard(&printMutex); P(X);  }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
@@ -154,7 +154,7 @@ void hardwork(int* item, int spin)
 }
 
 void pushpopThread(bdlcc::FixedQueue<int> *queue,
-                   bdlqq::Barrier         *barrier,
+                   bslmt::Barrier         *barrier,
                    int                     numIterations,
                    int                     workSpin)
 {
@@ -180,7 +180,7 @@ void pushpopThread(bdlcc::FixedQueue<int> *queue,
 
 void rolloverPusher(bdlcc::FixedQueue<int> *queue,
                     bsls::AtomicInt        *doneFlag,
-                    bdlqq::Turnstile       *turnstile,
+                    bslmt::Turnstile       *turnstile,
                     int                     threadId)
 {
     enum {
@@ -208,14 +208,14 @@ void rolloverLengthChecker(bdlcc::FixedQueue<int> *queue,
 
         LOOP_ASSERTT(length, minLength <= length && maxLength >= length);
         if (0 == i % 10) {
-            bdlqq::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
         }
     }
 }
 
 void rolloverPopper(bdlcc::FixedQueue<int> *queue,
                     bsls::AtomicInt        *doneFlag,
-                    bdlqq::Turnstile       *turnstile)
+                    bslmt::Turnstile       *turnstile)
 {
     const int minLength = queue->size() / 2;
 
@@ -268,7 +268,7 @@ public:
 
     ExceptionTester(const ExceptionTester&) {
         if (s_throwFrom &&
-            bdlqq::ThreadUtil::selfIdAsUint64() ==
+            bslmt::ThreadUtil::selfIdAsUint64() ==
             static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
             throw 1;
         }
@@ -276,7 +276,7 @@ public:
 
     ExceptionTester& operator=(const ExceptionTester&) {
         if (s_throwFrom &&
-            bdlqq::ThreadUtil::selfIdAsUint64() ==
+            bslmt::ThreadUtil::selfIdAsUint64() ==
             static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
 
             throw 1;
@@ -288,7 +288,7 @@ public:
 bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
-                       bdlqq::TimedSemaphore              *semaphore,
+                       bslmt::TimedSemaphore              *semaphore,
                        bsls::AtomicInt                    *numCaught) {
     enum { k_NUM_ITERATIONS = 3 };
 
@@ -331,9 +331,9 @@ public:
 };
 
 struct ThreadArgs {
-    bdlqq::Condition  d_startCond;
-    bdlqq::Condition  d_goCond;
-    bdlqq::Mutex      d_mutex;
+    bslmt::Condition  d_startCond;
+    bslmt::Condition  d_goCond;
+    bslmt::Mutex      d_mutex;
     Obj              d_queue;
     volatile int     d_iterations;
     volatile int     d_count;
@@ -369,7 +369,7 @@ void* pushBackTestThread(void *ptr)
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&args->d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&args->d_mutex);
         ++args->d_count;
         args->d_startCond.signal();
         while ( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
@@ -379,7 +379,7 @@ void* pushBackTestThread(void *ptr)
     for (int i=1; i<args->d_iterations+1; ++i) {
         if (veryVerbose && i%10000 == 0) {
             LockGuard guard(&coutMutex);
-            cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
+            cout << "Thread " << bslmt::ThreadUtil::selfIdAsInt()
                  << " pushing i=" << i << endl;
         }
 
@@ -388,7 +388,7 @@ void* pushBackTestThread(void *ptr)
 
     if (veryVerbose) {
         LockGuard guard(&coutMutex);
-        cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
+        cout << "Thread " << bslmt::ThreadUtil::selfIdAsInt()
              << "done, pushing sentinel value..." << endl;
     }
 
@@ -405,7 +405,7 @@ void* popFrontTestThread(void *ptr)
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&args->d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&args->d_mutex);
         ++args->d_count;
         args->d_startCond.signal();
         while ( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
@@ -422,12 +422,12 @@ void* popFrontTestThread(void *ptr)
 void case9pusher(bdlcc::FixedQueue<int> *queue, volatile bool *done)
 {
     while (!*done) {
-        queue->pushBack(static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()));
+        queue->pushBack(static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()));
     }
 }
 
 void case9drainer(bdlcc::FixedQueue<int> *queue,
-                  bdlqq::Barrier         *drainDoneBarrier)
+                  bslmt::Barrier         *drainDoneBarrier)
 {
     int result;
     while (0 == queue->tryPopFront(&result)) ;
@@ -437,8 +437,8 @@ void case9drainer(bdlcc::FixedQueue<int> *queue,
 }
 
 void case9disabler(bdlcc::FixedQueue<int> *queue,
-                   bdlqq::Barrier         *drainDoneBarrier,
-                   bdlqq::Barrier         *reEnableBarrier)
+                   bslmt::Barrier         *drainDoneBarrier,
+                   bslmt::Barrier         *reEnableBarrier)
 {
     queue->disable();
 
@@ -465,7 +465,7 @@ struct StressNode {
 };
 
 struct StressData {
-    bdlqq::ThreadUtil::Handle            handle;
+    bslmt::ThreadUtil::Handle            handle;
     bdlcc::FixedQueue<StressNode>        *queue;
     int                                *counts;
     int                                *checksums;
@@ -533,7 +533,7 @@ extern "C" void* stressProducer2(void* arg) {
 }
 
 struct BenchData {
-    bdlqq::ThreadUtil::Handle    handle;
+    bslmt::ThreadUtil::Handle    handle;
     bdlcc::FixedQueue<void*>     *queue;
     int                         count;
     bool                        stop;
@@ -578,13 +578,13 @@ void test9PushBack(bdlcc::FixedQueue<int> *queue,
                    int                     threshold,
                    bool                   *stop,
                    bool                   *thresholdExceeded,
-                   bdlqq::Condition       *thresholdExceededCondition)
+                   bslmt::Condition       *thresholdExceededCondition)
 {
-    bdlqq::Turnstile turnstile(rate);
+    bslmt::Turnstile turnstile(rate);
 
     while (!*stop) {
         turnstile.waitTurn();
-        bdlqq::ThreadUtil::microSleep(10 * 1000);
+        bslmt::ThreadUtil::microSleep(10 * 1000);
         queue->pushBack(0);
 
         if (queue->length() >= threshold) {
@@ -594,16 +594,16 @@ void test9PushBack(bdlcc::FixedQueue<int> *queue,
     }
 }
 
-void sleepAndWait(int numMicroseconds, bdlqq::Barrier *barrier)
+void sleepAndWait(int numMicroseconds, bslmt::Barrier *barrier)
 {
-    bdlqq::ThreadUtil::microSleep(numMicroseconds);
+    bslmt::ThreadUtil::microSleep(numMicroseconds);
     barrier->wait();
 }
 
 void abaThread(char                     *firstValue,
                char                     *lastValue,
                bdlcc::FixedQueue<char*> *queue,
-               bdlqq::Barrier           *barrier,
+               bslmt::Barrier           *barrier,
                bool                      sendSentinel)
 {
     barrier->wait();
@@ -613,7 +613,7 @@ void abaThread(char                     *firstValue,
     if (sendSentinel) {
         if (veryVerbose) {
             LockGuard guard(&coutMutex);
-            cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
+            cout << "Thread " << bslmt::ThreadUtil::selfIdAsInt()
                  << " done, pushing sentinel value" << endl;
         }
         queue->pushBack((char*)0xffffffff);
@@ -629,7 +629,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
 
     bdlcc::FixedQueue<Item> *d_queue;
 
@@ -699,7 +699,7 @@ void runtest(int numIterations, int numThreads, int queueSize, int pushCount)
 
     ASSERT(queue.isEnabled());
 
-    bdlqq::Barrier barrier(numThreads);
+    bslmt::Barrier barrier(numThreads);
 
     Control control;
 
@@ -715,7 +715,7 @@ void runtest(int numIterations, int numThreads, int queueSize, int pushCount)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&workerThread,&control),
             numThreads);
 
@@ -729,7 +729,7 @@ void runtest(int numIterations, int numThreads, int queueSize, int pushCount)
 namespace disabletst {
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
     bdlcc::FixedQueue<int>  *d_queue;
 };
 
@@ -748,19 +748,19 @@ void runtest(int numPushers, int queueSize, bool doDrain, bool doSleep = false)
     ASSERT(queueSize == queue.size());
     ASSERT(queue.isEnabled());
 
-    bdlqq::Barrier barrier(numPushers);
+    bslmt::Barrier barrier(numPushers);
 
     Control control;
 
     control.d_queue = &queue;
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
 
     while (!queue.isFull()) {
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     ASSERT(queue.isEnabled());
@@ -770,7 +770,7 @@ void runtest(int numPushers, int queueSize, bool doDrain, bool doSleep = false)
         // Sleep for 5ms to allow other threads to block on the
         // implementation's semaphore.
 
-        bdlqq::ThreadUtil::microSleep(5000);
+        bslmt::ThreadUtil::microSleep(5000);
     }
 
     queue.disable();
@@ -803,7 +803,7 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
+    bslmt::Barrier         *d_barrier;
 
     bdlcc::FixedQueue<Item> *d_queue;
 
@@ -871,7 +871,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     ASSERT(k_QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -884,7 +884,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -898,7 +898,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 namespace zerotst {
 
 struct Control {
-    bdlqq::Barrier           *d_barrier;
+    bslmt::Barrier           *d_barrier;
 
     bdlcc::FixedQueue<void *> *d_queue;
 
@@ -948,7 +948,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     ASSERT(k_QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
 
-    bdlqq::Barrier barrier(numPushers + numPoppers);
+    bslmt::Barrier barrier(numPushers + numPoppers);
 
     Control control;
 
@@ -961,7 +961,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     control.d_barrier = &barrier;
 
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
     tg.addThreads(bdlf::BindUtil::bind(&pusherThread,&control),
             numPushers);
     tg.addThreads(bdlf::BindUtil::bind(&popperThread,&control),
@@ -1050,7 +1050,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
         bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 
-        bdlqq::ThreadGroup consumerThreads;
+        bslmt::ThreadGroup consumerThreads;
         consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
                                    numThreads);
 
@@ -1082,8 +1082,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bdlqq::Configuration::setDefaultThreadStackSize(
-                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
+    bslmt::Configuration::setDefaultThreadStackSize(
+                    bslmt::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
             bdlcc::FixedQueue<ExceptionTester> queue(1, &ta);
 
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
-                                          bdlqq::ThreadUtil::selfIdAsUint64());
+                                          bslmt::ThreadUtil::selfIdAsUint64());
 
             bool caught = false;
             try {
@@ -1156,11 +1156,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 != queue.tryPushBack(ExceptionTester()));
 
-            bdlqq::TimedSemaphore sema;
+            bslmt::TimedSemaphore sema;
             bsls::AtomicInt numCaught(0);
 
-            bdlqq::ThreadUtil::Handle producer;
-            int rc = bdlqq::ThreadUtil::create(&producer,
+            bslmt::ThreadUtil::Handle producer;
+            int rc = bslmt::ThreadUtil::create(&producer,
                                               bdlf::BindUtil::bind(
                                                          &exceptionProducer,
                                                          &queue, &sema,
@@ -1168,7 +1168,7 @@ int main(int argc, char *argv[])
             BSLS_ASSERT_OPT(0 == rc); // test invariant
 
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
-                                          bdlqq::ThreadUtil::selfIdAsUint64());
+                                          bslmt::ThreadUtil::selfIdAsUint64());
 
             if (veryVerbose) {
                 cout << endl
@@ -1217,8 +1217,8 @@ int main(int argc, char *argv[])
             }
 
             // b. pushing into a queue with exception empties the queue.
-            ExceptionTester::s_throwFrom = bdlqq::ThreadUtil::idAsUint64(
-                                      bdlqq::ThreadUtil::handleToId(producer));
+            ExceptionTester::s_throwFrom = bslmt::ThreadUtil::idAsUint64(
+                                      bslmt::ThreadUtil::handleToId(producer));
 
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == queue.tryPopFront(&test));
             ASSERT(queue.isEmpty());
 
-            bdlqq::ThreadUtil::join(producer);
+            bslmt::ThreadUtil::join(producer);
         }
         ASSERT(0 == ta.numBytesInUse());
 #endif //  BDE_BUILD_TARGET_EXC
@@ -1306,7 +1306,7 @@ int main(int argc, char *argv[])
 
         bsls::AtomicInt stop(0);
 
-        bdlqq::ThreadGroup tg;
+        bslmt::ThreadGroup tg;
         tg.addThreads(bdlf::BindUtil::bind(&pushpopThread,
                                           &queue,
                                           &stop),
@@ -1569,9 +1569,9 @@ int main(int argc, char *argv[])
                 cout << "filled." << endl;
             }
 
-            bdlqq::Barrier drainDoneBarrier(3);
-            bdlqq::Barrier reEnableBarrier(2);
-            bdlqq::ThreadGroup tg;
+            bslmt::Barrier drainDoneBarrier(3);
+            bslmt::Barrier reEnableBarrier(2);
+            bslmt::ThreadGroup tg;
             tg.addThreads(bdlf::BindUtil::bind(&case9disabler,
                                               &mtQueue,
                                               &drainDoneBarrier,
@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Disable-while-pushing test" << endl;
         {
             volatile bool done = false;
-            bdlqq::ThreadGroup pusherGroup;
+            bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &mtQueue,
                                                        &done),
@@ -1621,7 +1621,7 @@ int main(int argc, char *argv[])
             volatile bool done = false;
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
-            bdlqq::ThreadGroup pusherGroup;
+            bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
@@ -1667,14 +1667,14 @@ int main(int argc, char *argv[])
             volatile bool done = false;
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
-            bdlqq::ThreadGroup pusherGroup;
+            bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
                                    k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue
-            bdlqq::ThreadUtil::microSleep(rand() % 2000);
+            bslmt::ThreadUtil::microSleep(rand() % 2000);
             queue.disable();
             if (veryVerbose) {
                 cout << "     (after disabling, queue has " << queue.length()
@@ -1742,11 +1742,11 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        bdlqq::Barrier barrier(k_NUM_PUSHER_THREADS+1);
+        bslmt::Barrier barrier(k_NUM_PUSHER_THREADS+1);
 
         {
             bdlcc::FixedQueue<char*> mX(3, &ta);
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
 
             char* nextValue[k_NUM_PUSHER_THREADS];
             char* lastValue[k_NUM_PUSHER_THREADS];
@@ -1818,10 +1818,10 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
 
         for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
-            bdlqq::Barrier barrier(k_NUM_PUSHER_THREADS+1);
+            bslmt::Barrier barrier(k_NUM_PUSHER_THREADS+1);
 
             bdlcc::FixedQueue<char*> mX(k_NUM_ENTRIES+1, &ta);
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
 
             char* nextValue[k_NUM_PUSHER_THREADS];
             char* lastValue[k_NUM_PUSHER_THREADS];
@@ -1930,10 +1930,10 @@ int main(int argc, char *argv[])
             bool stop = false;
 
             bool            thresholdExceeded = false;
-            bdlqq::Condition thresholdExceededCondition;
-            bdlqq::Mutex     thresholdExceededMutex;
+            bslmt::Condition thresholdExceededCondition;
+            bslmt::Mutex     thresholdExceededMutex;
 
-            bdlqq::ThreadGroup tg;
+            bslmt::ThreadGroup tg;
 
             tg.addThread(bdlf::BindUtil::bind(&test9PushBack,
                                              &mX,
@@ -1944,7 +1944,7 @@ int main(int argc, char *argv[])
                                              &thresholdExceededCondition));
 
             while (!thresholdExceeded) {
-                bdlqq::LockGuard<bdlqq::Mutex> guard(&thresholdExceededMutex);
+                bslmt::LockGuard<bslmt::Mutex> guard(&thresholdExceededMutex);
                 thresholdExceededCondition.wait(&thresholdExceededMutex);
             }
 
@@ -2007,7 +2007,7 @@ int main(int argc, char *argv[])
             producerData[i].maxCount = maxCount;
             producerData[i].thread = i;
             producerData[i].stopProd = &stopProducers;
-            bdlqq::ThreadUtil::create(&producerData[i].handle,
+            bslmt::ThreadUtil::create(&producerData[i].handle,
                     ((i%2) ? stressProducer2 : stressProducer1),
                     (void*)(producerData+i));
         }
@@ -2021,12 +2021,12 @@ int main(int argc, char *argv[])
             consumerData[i].queue = &queue;
             producerData[i].maxCount = maxCount;
             consumerData[i].thread = i;
-            bdlqq::ThreadUtil::create(&consumerData[i].handle,
+            bslmt::ThreadUtil::create(&consumerData[i].handle,
                     ((i%2) ? stressConsumer2 : stressConsumer1),
                     (void*)(consumerData+i));
         }
         for (int i=0; i<seconds; i++) {
-            bdlqq::ThreadUtil::microSleep(1000000);
+            bslmt::ThreadUtil::microSleep(1000000);
             if (verbose) cout << "." << flush;
         }
         if (verbose) cout << endl;
@@ -2034,7 +2034,7 @@ int main(int argc, char *argv[])
         // the producers must be looping continuously.
         if (seconds) stopProducers = true;
         for (int i=0; i<numProducers; i++) {
-            bdlqq::ThreadUtil::join(producerData[i].handle);
+            bslmt::ThreadUtil::join(producerData[i].handle);
         }
         if (verbose) cout << "Producers stopped." << flush;
         // push messages to the queue to stop consumers
@@ -2045,7 +2045,7 @@ int main(int argc, char *argv[])
         }
         // then join consumers
         for (int i=0; i<numConsumers;i++) {
-            bdlqq::ThreadUtil::join(consumerData[i].handle);
+            bslmt::ThreadUtil::join(consumerData[i].handle);
         }
         if (verbose) cout << "Consumers stopped." << flush;
         // now, verify the results
@@ -2084,15 +2084,15 @@ int main(int argc, char *argv[])
           const int NTHREADS    = 5;
 
           ThreadArgs args(NITERATIONS);
-          bdlqq::ThreadAttributes attr;
+          bslmt::ThreadAttributes attr;
 
-          bdlqq::ThreadUtil::Handle handles[NTHREADS*2];
+          bslmt::ThreadUtil::Handle handles[NTHREADS*2];
 
           args.d_mutex.lock();
           args.d_iterations = NITERATIONS;
 
           for (int i=0; i<NTHREADS; ++i) {
-              bdlqq::ThreadUtil::create(&handles[i], attr,
+              bslmt::ThreadUtil::create(&handles[i], attr,
                       popFrontTestThread, &args );
               while (args.d_count != (i+1) )
                   args.d_startCond.wait(&args.d_mutex);
@@ -2103,7 +2103,7 @@ int main(int argc, char *argv[])
           }
 
           for (int i=0; i<NTHREADS; ++i) {
-              bdlqq::ThreadUtil::create(&handles[i+NTHREADS], attr,
+              bslmt::ThreadUtil::create(&handles[i+NTHREADS], attr,
                       pushBackTestThread, &args );
               while (args.d_count != (NTHREADS+i+1) )
                   args.d_startCond.wait(&args.d_mutex);
@@ -2118,7 +2118,7 @@ int main(int argc, char *argv[])
           args.d_mutex.unlock();
 
           for (int i=0; i<(NTHREADS*2); ++i) {
-              bdlqq::ThreadUtil::join(handles[i]);
+              bslmt::ThreadUtil::join(handles[i]);
           }
           //ASSERT(0 == args.d_queue.length());
           //P(args.d_queue.length());
@@ -2134,15 +2134,15 @@ int main(int argc, char *argv[])
           const int NTHREADS    = 10;
 
           ThreadArgs args(NITERATIONS);
-          bdlqq::ThreadAttributes attr;
+          bslmt::ThreadAttributes attr;
 
-          bdlqq::ThreadUtil::Handle handles[NTHREADS*2];
+          bslmt::ThreadUtil::Handle handles[NTHREADS*2];
 
           args.d_mutex.lock();
           args.d_iterations = NITERATIONS;
 
           for (int i=0; i<NTHREADS; ++i) {
-              bdlqq::ThreadUtil::create(&handles[i], attr,
+              bslmt::ThreadUtil::create(&handles[i], attr,
                       popFrontTestThread, &args );
               while (args.d_count != (i+1) )
                   args.d_startCond.wait(&args.d_mutex);
@@ -2165,7 +2165,7 @@ int main(int argc, char *argv[])
 #endif
 
           for (int i=0; i<NITERATIONS; ++i) {
-              //bdlqq::LockGuard<bdlqq::Mutex> lock(&args.d_mutex);
+              //bslmt::LockGuard<bslmt::Mutex> lock(&args.d_mutex);
               //        while ( args.d_queue.length() < 1 ) {
               //        args.d_startCond.wait(&args.d_mutex);
               //        }
@@ -2176,7 +2176,7 @@ int main(int argc, char *argv[])
               args.d_queue.pushBack((Element*)(0xffffffff));
 
           for (int i=0; i<NTHREADS; ++i) {
-              bdlqq::ThreadUtil::join(handles[i]);
+              bslmt::ThreadUtil::join(handles[i]);
           }
           //    ASSERT(0 == args.d_queue.length());
           //P(args.d_queue.length());
@@ -2233,7 +2233,7 @@ int main(int argc, char *argv[])
             consumerData[i].queue = &queue;
             consumerData[i].count = 0;
             consumerData[i].stop = false;
-            bdlqq::ThreadUtil::create(&consumerData[i].handle,
+            bslmt::ThreadUtil::create(&consumerData[i].handle,
                                      benchConsumer,
                                      (void*)(consumerData+i));
         }
@@ -2241,7 +2241,7 @@ int main(int argc, char *argv[])
             producerData[i].queue = &queue;
             producerData[i].stop = false;
             producerData[i].count = 0;
-            bdlqq::ThreadUtil::create(&producerData[i].handle,
+            bslmt::ThreadUtil::create(&producerData[i].handle,
                                      benchProducer,
                                      (void*)(producerData+i));
         }
@@ -2255,7 +2255,7 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 throughput;
             bsls::Types::Int64 throughputCPU;
             for (int i=0; i<seconds; i++) {
-                bdlqq::ThreadUtil::microSleep(1000000);
+                bslmt::ThreadUtil::microSleep(1000000);
                 bsls::Types::Int64 totalMessages = 0;
                 for (int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
@@ -2284,7 +2284,7 @@ int main(int argc, char *argv[])
             producerData[i].stop = true;
         }
         for (int i=0; i<numProducers; i++) {
-            bdlqq::ThreadUtil::join(producerData[i].handle);
+            bslmt::ThreadUtil::join(producerData[i].handle);
             cout << 'p' << flush;
         }
         for (int i=0; i<numConsumers; i++) {
@@ -2294,7 +2294,7 @@ int main(int argc, char *argv[])
             queue.pushBack((void*)0xBAADF00D);
         }
         for (int i=0; i<numConsumers;i++) {
-            bdlqq::ThreadUtil::join(consumerData[i].handle);
+            bslmt::ThreadUtil::join(consumerData[i].handle);
             cout << 'c' << flush;
         }
         cout << endl;
@@ -2316,14 +2316,14 @@ int main(int argc, char *argv[])
             volatile bool done = false;
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
-            bdlqq::ThreadGroup pusherGroup;
+            bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
                                    k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue
-            bdlqq::ThreadUtil::microSleep(rand() % 2000);
+            bslmt::ThreadUtil::microSleep(rand() % 2000);
             queue.disable();
             if (veryVerbose) {
                 cout << "     (after disabling, queue has " << queue.length()
@@ -2480,7 +2480,7 @@ int main(int argc, char *argv[])
 
         // First, run our tests on a non-rolled-over queue
         bsl::cout << "Testing newly created queue..." << bsl::endl;
-        bdlqq::ThreadGroup workThreads;
+        bslmt::ThreadGroup workThreads;
         bsls::AtomicInt doneFlag(0);
         bdlcc::FixedQueue<int> youngQueue(k_QUEUE_SIZE);
         // Fill the queue up halfway.
@@ -2493,7 +2493,7 @@ int main(int argc, char *argv[])
                                                    &doneFlag),
                                2);
 
-        bdlqq::Turnstile pushTurnstile(6000.0);
+        bslmt::Turnstile pushTurnstile(6000.0);
         workThreads.addThread(bdlf::BindUtil::bind(&rolloverPusher,
                                                   &youngQueue,
                                                   &doneFlag,
@@ -2506,7 +2506,7 @@ int main(int argc, char *argv[])
                                                   &pushTurnstile,
                                                   2));
 
-        bdlqq::Turnstile popTurnstile(3000.0);
+        bslmt::Turnstile popTurnstile(3000.0);
         workThreads.addThreads(bdlf::BindUtil::bind(&rolloverPopper,
                                                    &youngQueue,
                                                    &doneFlag,

@@ -20,10 +20,10 @@
 
 #include <bsls_timeinterval.h>
 
-#include <bdlqq_barrier.h>                  // Barrier
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>                  // Barrier
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
 
@@ -127,7 +127,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -163,7 +163,7 @@ enum {
 
 struct ConnectionInfo {
      // Use this struct to pass information to the helper thread.
-     bdlqq::ThreadUtil::Handle d_tid;        // the id of the thread to
+     bslmt::ThreadUtil::Handle d_tid;        // the id of the thread to
                                             // which a signal's delivered
      btlso::IPv4Address *d_server;
      int                d_numConnections;   // the maximum number of
@@ -171,7 +171,7 @@ struct ConnectionInfo {
      const struct TestCommand * d_commands; // commands executed by the main
                                             // thread
      int                d_numCommands;     // nb of commands executed
-     bdlqq::Barrier      * d_barrier; // barrier to sync the two threads
+     bslmt::Barrier      * d_barrier; // barrier to sync the two threads
 };
 
 struct TestCommand {
@@ -286,26 +286,26 @@ void* threadAsClient(void *arg)
         // XXX This is still slightly racy .. we'd like to be sure that the
         // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
 
         if (info.d_commands[i].d_signal) {
 #ifdef BSLS_PLATFORM_OS_UNIX
             pthread_kill(info.d_tid, SIGSYS);
             if (verbose) {
-                P_T(bdlqq::ThreadUtil::self());
+                P_T(bslmt::ThreadUtil::self());
                 QT(" generated a SIGSYS signal to ");
                 PT(info.d_tid);
             }
             // reasonable spinning
             while (syncWithSigHandler == 0)
-                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+                bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
             ASSERT(syncWithSigHandler == 1);
             syncWithSigHandler = 0;
 #endif
             // XXX RACE AGAIN, but we do not have any choice
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
@@ -366,7 +366,7 @@ static void* threadToCloseServer(void *arg)
         }
         return 0;                                                     // RETURN
     }
-    bdlqq::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
 
     int ret = btlso::SocketImpUtil::close(serverSocket->handle());
 
@@ -398,7 +398,7 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
                                const TestCommand             *command,
                                bsl::vector<btlsc::Channel*>  *channels,
                                btlsc::Channel               **newChannel,
-                               bdlqq::Barrier                *syncBarrier)
+                               bslmt::Barrier                *syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
@@ -480,7 +480,7 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
 
 static
 int processTest(btlsos::TcpTimedAcceptor          *acceptor,
-                bdlqq::ThreadUtil::ThreadFunction  threadFunction,
+                bslmt::ThreadUtil::ThreadFunction  threadFunction,
                 bsl::vector<btlsc::Channel*>      *channels,
                 const TestCommand                 *commands,
                 int                                numCommands,
@@ -497,12 +497,12 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
-    bdlqq::ThreadUtil::Handle threadHandle;
+    bslmt::ThreadUtil::Handle threadHandle;
 
     // Create a thread to be a client.
-    bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+    bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
-    bdlqq::Barrier syncBarrier(2);
+    bslmt::Barrier syncBarrier(2);
     ConnectionInfo connectInfo = { tid,
                                    &serverAddr,
                                    expNumChannels,
@@ -511,8 +511,8 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
                                    &syncBarrier
                                  };
 
-    bdlqq::ThreadAttributes attributes;
-    int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
+    bslmt::ThreadAttributes attributes;
+    int ret = bslmt::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);
     if (ret) {
@@ -558,7 +558,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
             PT(acceptor->numChannels());
         }
     }
-    bdlqq::ThreadUtil::join(threadHandle);
+    bslmt::ThreadUtil::join(threadHandle);
     return ret;
 }
 
@@ -1401,9 +1401,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -1766,9 +1766,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -2188,9 +2188,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -2615,9 +2615,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);

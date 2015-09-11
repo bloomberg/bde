@@ -27,7 +27,7 @@ MultiplexObserver::~MultiplexObserver()
 // MANIPULATORS
 void MultiplexObserver::publish(const Record& record, const Context& context)
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
     // Print warning once that this publish method is deprecated.
 
@@ -49,7 +49,7 @@ void MultiplexObserver::publish(
                             const bsl::shared_ptr<const Record>&  record,
                             const Context&                        context)
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
     bsl::set<Observer *>::const_iterator it = d_observerSet.begin();
     for (; it != d_observerSet.end(); ++it) {
@@ -59,7 +59,7 @@ void MultiplexObserver::publish(
 
 void MultiplexObserver::releaseRecords()
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
     bsl::set<Observer *>::const_iterator it = d_observerSet.begin();
 
@@ -84,7 +84,7 @@ int MultiplexObserver::registerObserver(Observer *observer)
         return 1;                                                     // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     return !d_observerSet.insert(observer).second;
 }
 
@@ -94,7 +94,7 @@ int MultiplexObserver::deregisterObserver(Observer *observer)
         return 1;                                                     // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
     const bool isRegistered =
                            d_observerSet.find(observer) != d_observerSet.end();
 

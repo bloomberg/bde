@@ -68,8 +68,8 @@
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -124,7 +124,7 @@ class ControlManager {
     // INSTANCE DATA
     bslma::Allocator       *d_allocator_p;    // memory allocator (held)
     Registry                d_registry;       // registry
-    mutable bdlqq::RWMutex  d_registryMutex;  // registry mutex
+    mutable bslmt::RWMutex  d_registryMutex;  // registry mutex
 
     // NOT IMPLEMENTED
     ControlManager(const ControlManager&);             // = deleted

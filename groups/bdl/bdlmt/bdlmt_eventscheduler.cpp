@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 #include <bsls_atomic.h>  // for testing only
 
 #include <bdlf_bind.h>
@@ -77,7 +77,7 @@ void EventScheduler::dispatchEvents()
                         bsls::SystemTime::now(d_clockType).totalMicroseconds();
 
     while (1) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         // Get ready for the next iteration.
 
@@ -157,7 +157,7 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(&defaultDispatcherFunction)
-, d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(false)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
@@ -171,7 +171,7 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(&defaultDispatcherFunction)
-, d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_queueCondition(clockType)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -187,7 +187,7 @@ EventScheduler::EventScheduler(
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(dispatcherFunctor)
-, d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(false)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
@@ -203,7 +203,7 @@ EventScheduler::EventScheduler(
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(dispatcherFunctor)
-, d_dispatcherThread(bdlqq::ThreadUtil::invalidHandle())
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_queueCondition(clockType)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -214,29 +214,29 @@ EventScheduler::EventScheduler(
 
 EventScheduler::~EventScheduler()
 {
-    BSLS_ASSERT(bdlqq::ThreadUtil::invalidHandle() == d_dispatcherThread);
+    BSLS_ASSERT(bslmt::ThreadUtil::invalidHandle() == d_dispatcherThread);
 }
 
 // MANIPULATORS
 int EventScheduler::start()
 {
-    bdlqq::ThreadAttributes attr;
+    bslmt::ThreadAttributes attr;
 
     return start(attr);
 }
 
-int EventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
+int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running ||
-        bdlqq::ThreadUtil::invalidHandle() != d_dispatcherThread) {
+        bslmt::ThreadUtil::invalidHandle() != d_dispatcherThread) {
         return 0;                                                     // RETURN
     }
 
-    bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
+    bslmt::ThreadAttributes modAttr(threadAttributes);
+    modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
 
-    if (bdlqq::ThreadUtil::create(
+    if (bslmt::ThreadUtil::create(
                 &d_dispatcherThread,
                 modAttr,
                 bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this))) {
@@ -249,10 +249,10 @@ int EventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
 
 void EventScheduler::stop()
 {
-    BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                            d_dispatcherThread));
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (!d_running) {
         return;                                                       // RETURN
     }
@@ -262,8 +262,8 @@ void EventScheduler::stop()
 
     lock.release()->unlock();
 
-    bdlqq::ThreadUtil::join(d_dispatcherThread);
-    d_dispatcherThread = bdlqq::ThreadUtil::invalidHandle();
+    bslmt::ThreadUtil::join(d_dispatcherThread);
+    d_dispatcherThread = bslmt::ThreadUtil::invalidHandle();
 }
 
 void
@@ -279,7 +279,7 @@ EventScheduler::scheduleEvent(EventHandle                       *event,
                       &newTop);
 
     if (newTop) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         d_queueCondition.signal();
     }
 }
@@ -297,7 +297,7 @@ void EventScheduler::scheduleEventRaw(
                          &newTop);
 
     if (newTop) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         d_queueCondition.signal();
     }
 }
@@ -327,7 +327,7 @@ EventScheduler::scheduleRecurringEvent(
                           &newTop);
 
     if (newTop) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         d_queueCondition.signal();
     }
 }
@@ -356,7 +356,7 @@ EventScheduler::scheduleRecurringEventRaw(
                              &newTop);
 
     if (newTop) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         d_queueCondition.signal();
     }
 }
@@ -385,7 +385,7 @@ int EventScheduler::cancelEvent(RecurringEventHandle *handle)
 
 int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 {
-    BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                            d_dispatcherThread));
 
     const RecurringEventQueue::Pair *itemPtr =
@@ -405,7 +405,7 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 
     // Wait until the next iteration if currently executing the event.
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     while (1) {
         if (0 == d_currentRecurringEvent
          || d_currentRecurringEvent->key() != eventTime) {
@@ -422,7 +422,7 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 
 int EventScheduler::cancelEventAndWait(const Event *handle)
 {
-    BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                            d_dispatcherThread));
 
     const EventQueue::Pair *itemPtr =
@@ -438,7 +438,7 @@ int EventScheduler::cancelEventAndWait(const Event *handle)
     // in the list.  Check whether the currently executing event is the one we
     // wanted to cancel; if it is, wait until the next iteration.
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     while (1) {
         if (d_currentEvent != itemPtr) {
             break;
@@ -481,7 +481,7 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
                                        reinterpret_cast<const void *>(handle));
 
     bool isNewTop;
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     int ret = d_eventQueue.updateR(h, newTime.totalMicroseconds(), &isNewTop);
 
@@ -494,7 +494,7 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
 int EventScheduler::rescheduleEventAndWait(const Event               *handle,
                                            const bsls::TimeInterval&  newTime)
 {
-    BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                             d_dispatcherThread));
 
     const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
@@ -503,7 +503,7 @@ int EventScheduler::rescheduleEventAndWait(const Event               *handle,
 
     {
         bool isNewTop;
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         ret = d_eventQueue.updateR(h, newTime.totalMicroseconds(), &isNewTop);
 
         if (0 == ret) {
@@ -518,7 +518,7 @@ int EventScheduler::rescheduleEventAndWait(const Event               *handle,
 
     // Wait until event is rescheduled or dispatched.
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     while (1) {
         if (d_currentEvent!=h) {
             break;
@@ -540,13 +540,13 @@ void EventScheduler::cancelAllEvents()
 
 void EventScheduler::cancelAllEventsAndWait()
 {
-    BSLS_ASSERT(!bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                            d_dispatcherThread));
 
     d_eventQueue.removeAll();
     d_recurringQueue.removeAll();
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     while (1) {
         if (0 == d_currentEvent && 0 == d_currentRecurringEvent) {
             break;

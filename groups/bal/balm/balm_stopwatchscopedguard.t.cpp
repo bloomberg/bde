@@ -5,7 +5,7 @@
 #include <balm_publisher.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
             stopwatch.start();
 
             Obj mX(collector);
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * ms));
+            bslmt::ThreadUtil::sleep(bsls::TimeInterval(50 * ms));
 
             stopwatch.stop();
             expectedTotal += stopwatch.elapsedTime();
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
                 balm::StopwatchScopedGuard gD_Ns("D", "Ns",
                                                  Obj::k_NANOSECONDS);
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
                 sw.stop();
             }
@@ -756,7 +756,7 @@ int main(int argc, char *argv[])
                 ASSERT(MY.isActive());
                 ASSERT(MZ.isActive());
 
-                bdlqq::ThreadUtil::microSleep(5, 0);
+                bslmt::ThreadUtil::microSleep(5, 0);
             }
 
             balm::MetricRecord recordA = recordValue(cA);
@@ -801,7 +801,7 @@ int main(int argc, char *argv[])
                 ASSERT(MY.isActive());
                 ASSERT(MZ.isActive());
 
-                bdlqq::ThreadUtil::microSleep(5, 0);
+                bslmt::ThreadUtil::microSleep(5, 0);
             }
             balm::MetricRecord recordA = recordValue(cA);
             ASSERT(1 == recordA.count());
@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
                 ASSERT(balm::MetricRecord(collector->metricId()) ==
                        recordValue(collector));
 
-                bdlqq::ThreadUtil::microSleep(5, 0);
+                bslmt::ThreadUtil::microSleep(5, 0);
             }
 
             balm::MetricRecord record = recordValue(collector);

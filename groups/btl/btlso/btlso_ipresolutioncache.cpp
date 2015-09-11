@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID("btlso_ipresolutioncache.cpp","$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 #include <bsls_assert.h>
 
@@ -159,18 +159,18 @@ int IpResolutionCache::getCacheData(
     const bdlt::Datetime now = bdlt::CurrentTime::utc();
 
     {
-        bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(&d_rwLock);
+        bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(&d_rwLock);
 
         AddressMap::iterator it = d_cache.find(hostname);
         if (d_cache.end() == it) {
             // The IP addresses of 'hostname' has never been cached.
 
-            bdlqq::ReadLockGuardUnlock<bdlqq::RWMutex>
+            bslmt::ReadLockGuardUnlock<bslmt::RWMutex>
                                                     readUnlockGuard(&d_rwLock);
 
             // Acquire write lock to create entry for the map.
 
-            bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(&d_rwLock);
+            bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(&d_rwLock);
 
             entry = &d_cache[hostname];
 
@@ -200,7 +200,7 @@ int IpResolutionCache::getCacheData(
             // Data has never been loaded.
 
             {
-                bdlqq::ReadLockGuardUnlock<bdlqq::RWMutex>
+                bslmt::ReadLockGuardUnlock<bslmt::RWMutex>
                                                     readUnlockGuard(&d_rwLock);
 
                 // Lock the entry's 'updatingLock' to indicate the data is
@@ -226,7 +226,7 @@ int IpResolutionCache::getCacheData(
     // acquired the 'updatingLock' for the entry (indicating this thread
     // should update the entry).
 
-    bdlqq::LockGuard<bdlqq::Mutex> updatingLockGuard(&entry->updatingLock(),
+    bslmt::LockGuard<bslmt::Mutex> updatingLockGuard(&entry->updatingLock(),
                                                      true);
     dataPtr = entry->data();
 
@@ -241,7 +241,7 @@ int IpResolutionCache::getCacheData(
         return rc;                                                    // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(&d_rwLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(&d_rwLock);
 
     entry->setData(dataPtr);
     *result = dataPtr;
@@ -281,7 +281,7 @@ int IpResolutionCache::resolveAddress(
 
 void IpResolutionCache::removeAll()
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(&d_rwLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(&d_rwLock);
 
     for (AddressMap::iterator it = d_cache.begin();
                               it != d_cache.end();
@@ -310,7 +310,7 @@ int IpResolutionCache::lookupAddressRaw(
     IpResolutionCache_Entry::DataPtr dataPtr;
 
     {
-        bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(&d_rwLock);
+        bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(&d_rwLock);
         AddressMap::const_iterator           it = d_cache.find(hostname);
         if (d_cache.end() == it) {
             return FAILURE;                                           // RETURN

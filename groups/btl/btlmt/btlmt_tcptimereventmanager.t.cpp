@@ -11,8 +11,8 @@
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bdlmt_threadpool.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadattributes.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadattributes.h>
 #include <bsls_atomic.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -60,7 +60,7 @@ static int verbose = 0,
            veryVerbose = 0,
            veryVeryVerbose = 0;
 
-bdlqq::Mutex         coutMutex;
+bslmt::Mutex         coutMutex;
 bslma::TestAllocator defaultAllocator;
 
 static void aSsErT(int c, const char *s, int i)
@@ -130,7 +130,7 @@ namespace TEST_CASE_COLLECT_TIME_METRICS {
 void waitForASec()
     // Delay for 1 second
 {
-    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1, 0));
+    bslmt::ThreadUtil::sleep(bsls::TimeInterval(1, 0));
 }
 
 }  // close namespace TEST_CASE_COLLECT_TIME_METRICS
@@ -326,7 +326,7 @@ static void dummyFunction(void) {
 
 enum { NUM_REGISTER_PAIRS = 10 };
 
-bdlqq::Barrier *globalBarrier;
+bslmt::Barrier *globalBarrier;
 
 extern "C"
 void *registerThread(void *arg)
@@ -354,7 +354,7 @@ void *registerThread(void *arg)
         const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
         if (veryVerbose) {
             printf("Thread %d: Iteration (O) %d\n",
-                   bdlqq::ThreadUtil::self(),
+                   bslmt::ThreadUtil::self(),
                    i);
         }
         mX->registerSocketEvent(fd,
@@ -375,7 +375,7 @@ void *registerThread(void *arg)
                                 btlso::EventType::e_READ, callback);
         if (veryVerbose) {
             printf("Thread %d: Iteration (C)%d\n",
-                   bdlqq::ThreadUtil::self(),
+                   bslmt::ThreadUtil::self(),
                    i);
         }
         LOOP_ASSERT(i, mX->isRegistered(fd,
@@ -530,7 +530,7 @@ extern "C" void *testTimersThread(void *arg) {
 
     if (X.isEnabled()) {
         bsls::TimeInterval delta(0.5);  // 500ms
-        bdlqq::ThreadUtil::sleep(delta);
+        bslmt::ThreadUtil::sleep(delta);
         mX->disable();
         int numNotInvoked = 0;
         for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -570,15 +570,15 @@ static void executeInParallel(bcemt_ThreadFunction  func,
     // threads and wait until all threads complete.  The concurrency level
     // adjusted automatically.
 {
-    vector<bdlqq::ThreadUtil::Handle> threads(numThreads,
-                                             bdlqq::ThreadUtil::Handle());
+    vector<bslmt::ThreadUtil::Handle> threads(numThreads,
+                                             bslmt::ThreadUtil::Handle());
 
     for (int i = 0; i < numThreads; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i], bdlqq::ThreadAttributes(),
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[i], bslmt::ThreadAttributes(),
                                              func, arg));
     }
     for (int i = 0; i < numThreads; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+        ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
     }
 
 }
@@ -592,7 +592,7 @@ struct my_Event {
 static void recordCb(void *context,
                      bsl::vector<my_Event> *result) {
     my_Event event;
-    event.d_thread = bdlqq::ThreadUtil::selfIdAsInt();
+    event.d_thread = bslmt::ThreadUtil::selfIdAsInt();
     event.d_timestamp = bdlt::CurrentTime::utc().time();
     event.d_context = context;
     result->push_back(event);
@@ -612,7 +612,7 @@ extern "C" void *executeTest(void *arg) {
     }
 
     while(results.size() != NUM_EXECUTES) {
-        bdlqq::ThreadUtil::microSleep(1000, 0);
+        bslmt::ThreadUtil::microSleep(1000, 0);
     }
 
     int objHandle = results[0].d_thread;
@@ -622,8 +622,8 @@ extern "C" void *executeTest(void *arg) {
     }
 
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&coutMutex);
-        P_(bdlqq::ThreadUtil::selfIdAsInt());
+        bslmt::LockGuard<bslmt::Mutex> lock(&coutMutex);
+        P_(bslmt::ThreadUtil::selfIdAsInt());
         P_(results[0].d_timestamp);
         P(results[NUM_EXECUTES - 1].d_timestamp);
     }
@@ -670,7 +670,7 @@ void readData(ReadDataType *readDataArgs)
         ++(*readDataArgs->d_numConnsDone_p);
         cout << "Conns Done: " << *readDataArgs->d_numConnsDone_p << endl;
     }
-    bdlqq::ThreadUtil::microSleep(800, 0);
+    bslmt::ThreadUtil::microSleep(800, 0);
 }
 
 void writeData(WriteDataType *writeDataArgs)
@@ -696,7 +696,7 @@ void writeData(WriteDataType *writeDataArgs)
     writeDataArgs->d_numBytesWritten += rc;
 //    if (0 == (writeDataArgs->d_numBytesWritten % (1024 * 1024)))
 //        cout << "Written Data: " << writeDataArgs->d_numBytesWritten << endl;
-    bdlqq::ThreadUtil::microSleep(800, 0);
+    bslmt::ThreadUtil::microSleep(800, 0);
 }
 
 }  // close namespace CASE15
@@ -887,7 +887,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(1000, 0);
+                bslmt::ThreadUtil::microSleep(1000, 0);
             }
 
             if (veryVerbose) {
@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
 
                 rc = btlso::SocketImpUtil::close(handle, &errorCode);
                 if (rc < 0) {
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                     continue;
                 }
                 LOOP2_ASSERT(rc, errorCode, 0 == rc);
@@ -924,7 +924,7 @@ int main(int argc, char *argv[])
                 cout << "Completed first set of kills, numKills: "
                      << numKills << endl;
             }
-            //bdlqq::ThreadUtil::microSleep(0, 3);
+            //bslmt::ThreadUtil::microSleep(0, 3);
 
             for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
                 btlso::SocketHandle::Handle fds[2];
@@ -967,7 +967,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(1000, 0);
+                bslmt::ThreadUtil::microSleep(1000, 0);
             }
 
             if (veryVerbose) {
@@ -987,12 +987,12 @@ int main(int argc, char *argv[])
 
                 rc = btlso::SocketImpUtil::close(handle, &errorCode);
                 if (rc < 0) {
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                     continue;
                 }
                 LOOP2_ASSERT(rc, errorCode, 0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(0, 3);
+                bslmt::ThreadUtil::microSleep(0, 3);
                 ++numKills;
             }
 
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     cout << "Waiting for conns to be done: "
                          << numConnsDone << endl;
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                 }
             }
             ASSERT(0 == mX.disable());
@@ -1135,7 +1135,7 @@ int main(int argc, char *argv[])
                 cout << "\t\tRescheduled " << NUM_TIMERS << " timers." << endl;
             }
 
-            bdlqq::ThreadUtil::sleep(delta);
+            bslmt::ThreadUtil::sleep(delta);
 
             ASSERT(0 == mX.disable());
             for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
                                                  callback));
               ASSERT(0 == mX.enable());
 
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+              bslmt::ThreadUtil::microSleep(10000); // 10 ms
               ASSERT(0 == mX.disable());
               int percent = mX.timeMetrics()->percentage(
                                            btlso::TimeMetrics::e_CPU_BOUND);
@@ -1284,7 +1284,7 @@ int main(int argc, char *argv[])
                                                  callback));
               ASSERT(0 == mX.enable());
 
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+              bslmt::ThreadUtil::microSleep(10000); // 10 ms
               ASSERT(0 == mX.disable());
               int percent = mX.timeMetrics()->percentage(
                                            btlso::TimeMetrics::e_CPU_BOUND);
@@ -1428,7 +1428,7 @@ int main(int argc, char *argv[])
                 mX.registerSocketEvent(testPair.observedFd(),
                                        btlso::EventType::e_WRITE, callback);
 
-                bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+                bslmt::ThreadUtil::microSleep(10000); // 10 ms
             }
         }
       } break;
@@ -1457,21 +1457,21 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1493,21 +1493,21 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1546,8 +1546,8 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
             if (veryVerbose) {
                 Q(before deregisterThread);
@@ -1558,13 +1558,13 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1587,8 +1587,8 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             if (veryVerbose) {
@@ -1600,13 +1600,13 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1646,22 +1646,22 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1682,22 +1682,22 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1773,7 +1773,7 @@ int main(int argc, char *argv[])
 
                     LOOP_ASSERT(i, 0 == da.numBytesInUse());
                 }
-                bdlqq::ThreadUtil::sleep(
+                bslmt::ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdlt::CurrentTime::now() + delta);
 
                 ASSERT(0 == mX.disable());
@@ -1827,14 +1827,14 @@ int main(int argc, char *argv[])
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
-                bdlqq::ThreadUtil::sleep(delta);
+                bslmt::ThreadUtil::sleep(delta);
 
                 ASSERT(0 == mX.disable());
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(5));
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(5));
                 ASSERT(0 == X.numTimers());
                 ASSERT(0 == X.numEvents());
             }
@@ -1867,23 +1867,23 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
 
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &testTimersThread,
                                                   &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1907,24 +1907,24 @@ int main(int argc, char *argv[])
             Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
             const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &testTimersThread,
                                                   &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -2085,7 +2085,7 @@ int main(int argc, char *argv[])
             P(X.numEvents());
         }
 #ifdef BSLS_PLATFORM_OS_UNIX
-        ASSERT((bdlqq::ThreadUtil::Handle) -1 == X.dispatcherThreadHandle());
+        ASSERT((bslmt::ThreadUtil::Handle) -1 == X.dispatcherThreadHandle());
 #endif
 
         ASSERT(0 == X.numTotalSocketEvents());
@@ -2094,7 +2094,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.enable());
         ASSERT(1 == mX.isEnabled());
 #ifdef BSLS_PLATFORM_OS_UNIX
-        ASSERT((bdlqq::ThreadUtil::Handle) -1 != X.dispatcherThreadHandle());
+        ASSERT((bslmt::ThreadUtil::Handle) -1 != X.dispatcherThreadHandle());
 #endif
         ASSERT(0 == mX.disable());
 
@@ -2121,7 +2121,7 @@ int main(int argc, char *argv[])
             MAX_IDLE_TIME = 100
         };
 
-        bdlmt::ThreadPool threadPool(bdlqq::ThreadAttributes(),
+        bdlmt::ThreadPool threadPool(bslmt::ThreadAttributes(),
                                    MIN_THREADS,
                                    MAX_THREADS,
                                    MAX_IDLE_TIME);
@@ -2155,7 +2155,7 @@ int main(int argc, char *argv[])
 
             metrics->resetAll();
             metrics->resetStartTimes();
-            bdlqq::ThreadUtil::microSleep(0, 5);  // 5 seconds
+            bslmt::ThreadUtil::microSleep(0, 5);  // 5 seconds
         }
 
         if (verbose)

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlb_blobutil.h>
 #include <btlb_pooledblobbufferfactory.h>
 #include <bdlma_concurrentpoolallocator.h>
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -103,7 +103,7 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 
     d_readQueue.pop_front();
 
-    bdlqq::LockGuardUnlock<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
 
     d_channelPool_p->deregisterClock(timerId);
 
@@ -159,7 +159,7 @@ ChannelPoolChannel::~ChannelPoolChannel()
 int ChannelPoolChannel::read(int                          numBytes,
                              const BlobBasedReadCallback& callback)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     return addReadQueueEntry(numBytes, callback, bsls::TimeInterval(0));
 }
@@ -168,7 +168,7 @@ int ChannelPoolChannel::timedRead(int                          numBytes,
                                   const bsls::TimeInterval&    timeOut,
                                   const BlobBasedReadCallback& callback)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
@@ -181,7 +181,7 @@ int ChannelPoolChannel::write(const btlb::Blob& blob,
 
 void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     // TBD FIX ME
     // It seems that at this point, 'd_callbackInProgress' must be false.  We
@@ -202,7 +202,7 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
         BlobBasedReadCallback callback = entryIter->d_readCallback;
         d_readQueue.erase(entryIter);
         {
-            bdlqq::LockGuardUnlock<bdlqq::Mutex> unlockGuard(&d_mutex);
+            bslmt::LockGuardUnlock<bslmt::Mutex> unlockGuard(&d_mutex);
 
             int          dummy = 0;
             btlb::Blob emptyBlob;
@@ -219,7 +219,7 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
     *numNeeded            = 1;
     int numBytesAvailable = msg->length();
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_callbackInProgress = true;
 
     while (!d_closed
@@ -243,7 +243,7 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
         numBytesAvailable = msg->length();
 
         {
-            bdlqq::LockGuardUnlock<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
             callback(e_SUCCESS, &nNeeded, msg, d_channelId);
             numConsumed = numBytesAvailable - msg->length();
         }
@@ -283,7 +283,7 @@ void ChannelPoolChannel::cancelRead()
     ReadQueue cancelQueue(&bufferAllocator);
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         if (!d_readQueue.size()) {
             return;                                                   // RETURN
@@ -352,7 +352,7 @@ void ChannelPoolChannel::cancelRead()
 
 void ChannelPoolChannel::close()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     if (!d_closed) {
         d_closed = true;

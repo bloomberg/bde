@@ -9,9 +9,9 @@
 #include <btlb_blob.h>
 #include <btlb_blobutil.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
 
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
@@ -124,10 +124,10 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex  coutMutex;
+static bslmt::Mutex  coutMutex;
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                        << bdlqq::ThreadUtil::selfIdAsInt()   \
+                                        << bslmt::ThreadUtil::selfIdAsInt()   \
                                         << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -186,7 +186,7 @@ class DataReader {
     int                  d_msgId;           // message id
     int                  d_msgLength;       // message length
     bsl::string          d_data;            // actual data
-    mutable bdlqq::Mutex d_mutex;           // mutex for data
+    mutable bslmt::Mutex d_mutex;           // mutex for data
 
   public:
     // CREATORS
@@ -232,9 +232,9 @@ class my_Server {
     btlmt::ChannelPoolConfiguration  d_config;             // pool
                                                            // configuration
 
-    bdlqq::Mutex                     d_mapMutex;           // map lock
+    bslmt::Mutex                     d_mapMutex;           // map lock
 
-    mutable bdlqq::Mutex             d_idxMutex;           // idx lock
+    mutable bslmt::Mutex             d_idxMutex;           // idx lock
 
     ChannelMap                       d_channelMap;         // channel map
 
@@ -369,7 +369,7 @@ void DataReader::blobBasedReadCb(int         state,
                << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     const int INT_SIZE = static_cast<int>(sizeof(int));
     if (-1 == d_msgId) {
@@ -445,25 +445,25 @@ void DataReader::blobBasedReadCb(int         state,
 // ACCESSORS
 const bsl::string& DataReader::data() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_data;
 }
 
 int DataReader::msgId() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_msgId;
 }
 
 int DataReader::msgLength() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_msgLength;
 }
 
 bool DataReader::done() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return (int) d_data.size() == d_msgLength;
 }
 
@@ -484,7 +484,7 @@ void my_Server::channelStateCb(int   channelId,
                << " State: " << state << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
 
     switch (state) {
@@ -539,7 +539,7 @@ void my_Server::blobBasedReadCb(int        *numNeeded,
                                 int         channelId,
                                 void       *userData)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter == d_channelMap.end()) {
         if (veryVerbose) {
@@ -608,14 +608,14 @@ my_Server::~my_Server()
 // ACCESSORS
 Obj *my_Server::channel(int index)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard1(&d_idxMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard1(&d_idxMutex);
     if (index >= (int) d_channelIdxMap.size()) {
         return 0;                                                     // RETURN
     }
     int channelId = d_channelIdxMap[index];
     guard1.release()->unlock();
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard2(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard2(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter != d_channelMap.end()) {
         return iter->second;                                          // RETURN
@@ -643,7 +643,7 @@ void TestData::run()
     Obj *channel = 0;
     while (!channel) {
         channel = d_server_p->channel(d_threadId);
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     btlmt::AsyncChannel::BlobBasedReadCallback blobBasedCb =
@@ -658,7 +658,7 @@ void TestData::run()
     }
 
     while (!d_reader.done()) {
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 }
 
@@ -932,7 +932,7 @@ int main(int argc, char *argv[])
 
         IPv4Factory              factory(&ta);
         bsl::vector<TestData>    tests(NUM_DATA);
-        bdlqq::ThreadUtil::Handle  handles[NUM_DATA];
+        bslmt::ThreadUtil::Handle  handles[NUM_DATA];
         bsl::vector<bsl::string> expData(NUM_DATA);
         bsl::vector<Socket *>    sockets(NUM_DATA);
 
@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
             test.d_server_p  = &server;
             test.d_numCbs    = NUM_CBS;
             test.d_callbacks = DATA[i].d_cbDetails;
-            bdlqq::ThreadUtil::create(&handles[i],  threadFunction, &test);
+            bslmt::ThreadUtil::create(&handles[i],  threadFunction, &test);
 
             sockets[i] = socket;
             expData[i] = EXP_DATA;
@@ -986,12 +986,12 @@ int main(int argc, char *argv[])
                 else {
                     ++incr;
                 }
-                bdlqq::ThreadUtil::microSleep(100);
+                bslmt::ThreadUtil::microSleep(100);
             }
         }
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
         for (int i = 0; i < NUM_DATA; ++i) {

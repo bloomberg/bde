@@ -106,7 +106,7 @@ BSLS_IDENT("$Id: $")
 //  A->update(1.0);
 //  B->update(2.0);
 //  C->update(3.0);
-//  bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.11));
+//  bslmt::ThreadUtil::sleep(bsls::TimeInterval(.11));
 //..
 // The output of the publication should look similar to:
 //..
@@ -133,8 +133,8 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricsmanager.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
@@ -236,7 +236,7 @@ class PublicationScheduler {
     bsls::TimeInterval         d_defaultInterval;
                                               // default publication interval
 
-    mutable bdlqq::Mutex       d_mutex;        // synchronize access to data
+    mutable bslmt::Mutex       d_mutex;        // synchronize access to data
                                               // ('d_categories', 'd_clocks',
                                               // and 'd_defaultInterval')
 

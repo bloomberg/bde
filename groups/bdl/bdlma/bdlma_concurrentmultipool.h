@@ -466,8 +466,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_deleterhelper.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -529,7 +529,7 @@ class ConcurrentMultipool {
     bdlma::BlockList  d_blockList;     // memory manager for "large" memory
                                       // blocks.
 
-    bdlqq::Mutex      d_mutex;         // synchronize data access
+    bslmt::Mutex      d_mutex;         // synchronize data access
 
     ConcurrentAllocatorAdapter
                      d_allocAdapter;  // thread-safe adapter

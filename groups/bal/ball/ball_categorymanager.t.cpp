@@ -2,8 +2,8 @@
 
 #include <ball_categorymanager.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
 
 #include <bdlb_bitutil.h>
 
@@ -81,7 +81,7 @@ using namespace bsl;  // automatically added by script
 // [ 8] int removeRule(const ball::Rule& rule);
 // [ 9] int removeRules(const ball::RuleSet& ruleSet);
 // [ 8] void removeAllRules();
-// [13] bdlqq::Mutex& rulesetMutex();
+// [13] bslmt::Mutex& rulesetMutex();
 // [ 8] const ball::Category& operator[](int index) const
 // [ 3] const ball::Category *lookupCategory(const char *name) const;
 // [ 3] int length() const;
@@ -175,11 +175,11 @@ void aSsErT(int c, const char *s, int i)
 // The following variable and macros provide a thread-safe framework
 // for using bsl::cout.
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
 #define MTCOUT coutMutex.lock(); { \
                    bsl::cout << bsl::setw(3) \
-                             << bdlqq::ThreadUtil::selfId() \
+                             << bslmt::ThreadUtil::selfId() \
                              << ": "
 #define MTENDL  bsl::endl;  } coutMutex.unlock()
 #define MTFLUSH bsl::flush; } coutMutex.unlock()
@@ -294,7 +294,7 @@ struct my_ThreadParameters {
     // barrier object to coordinate thread activity, and a container to store
     // the results of any computations.
 
-    bdlqq::Barrier *d_barrier_p;  // coordinates activity between threads (held)
+    bslmt::Barrier *d_barrier_p;  // coordinates activity between threads (held)
     my_ListType   *d_results_p;  // container to store results (held)
     Obj           *d_cm_p;       // a category manager (held)
     bsl::string   *d_names_p;    // a list of category names (held)
@@ -430,13 +430,13 @@ void *case9ThreadQ(void *arg)
 
 struct RuleThreadTestArgs {
     Obj           *d_mx;
-    bdlqq::Barrier *d_barrier;
+    bslmt::Barrier *d_barrier;
 };
 
 extern "C" void *ruleThreadTest(void *args)
 {
     Obj&            mX      = *((RuleThreadTestArgs *)args)->d_mx;
-    bdlqq::Barrier&  barrier = *((RuleThreadTestArgs *)args)->d_barrier;
+    bslmt::Barrier&  barrier = *((RuleThreadTestArgs *)args)->d_barrier;
     const Obj&      MX      = mX;
 
 
@@ -452,7 +452,7 @@ extern "C" void *ruleThreadTest(void *args)
 
         // Create a unique string for this thread and this iteration.
         bsl::ostringstream uniqueStream;
-        uniqueStream << "ID" << i <<  bdlqq::ThreadUtil::selfIdAsInt();
+        uniqueStream << "ID" << i <<  bslmt::ThreadUtil::selfIdAsInt();
         bsl::string uniqueString(uniqueStream.str());
         const char *US = uniqueString.c_str();
 
@@ -467,7 +467,7 @@ extern "C" void *ruleThreadTest(void *args)
         ball::Rule rule3(NAMES[i], 255, 255, 255, 255);
         rule3.addPredicate(ball::Predicate(
                         "thread",
-                        (bsls::Types::Int64) bdlqq::ThreadUtil::selfIdAsInt()));
+                        (bsls::Types::Int64) bslmt::ThreadUtil::selfIdAsInt()));
         ball::Rule rule4(US, 255, 255, 255, 255);
 
         mX.addRule(rule1);
@@ -514,13 +514,13 @@ extern "C" void *ruleThreadTest(void *args)
         const Entry *entry = mX.lookupCategory(US);
         ASSERT(bdlb::BitUtil::isBitSet(entry->relevantRuleMask(), ruleId4));
         {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&mX.rulesetMutex());
+            bslmt::LockGuard<bslmt::Mutex> guard(&mX.rulesetMutex());
             int seqNumber = MX.ruleSequenceNumber();
             const ball::RuleSet& rules = MX.ruleSet();
             int numRules      = rules.numRules();
             int numPredicates = rules.numPredicates();
 
-            bdlqq::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
 
             int count = 0;
             for (int i = 0; i < ball::RuleSet::maxNumRules(); ++i) {
@@ -672,22 +672,22 @@ int main(int argc, char *argv[])
             NUM_THREADS = 5
         };
 
-        bsl::vector<bdlqq::ThreadUtil::Handle> handles;
+        bsl::vector<bslmt::ThreadUtil::Handle> handles;
         handles.resize(NUM_THREADS);
 
         bslma::TestAllocator ta(veryVeryVerbose);
         Obj                 mX(&ta);
-        bdlqq::Barrier       barrier(NUM_THREADS);
+        bslmt::Barrier       barrier(NUM_THREADS);
         RuleThreadTestArgs  args = { &mX, &barrier };
 
         // Create threads.
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i],
+            ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
                                                  &ruleThreadTest,
                                                  &args));
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
       } break;
@@ -1502,10 +1502,10 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVerbose);
         Obj                 mX(&ta);
-        bdlqq::Barrier       barrier(NUM_THREADS);
+        bslmt::Barrier       barrier(NUM_THREADS);
 
         struct {
-            bdlqq::ThreadUtil::Handle d_handle;    // thread handle
+            bslmt::ThreadUtil::Handle d_handle;    // thread handle
             my_ListType              d_results;   // container for results
             my_ThreadParameters      d_params;    // bundled thread parameters
         } threads[NUM_THREADS];
@@ -1518,16 +1518,16 @@ int main(int argc, char *argv[])
             threads[i].d_params.d_names_p = categoryNames;
             threads[i].d_params.d_size = NUM_CATEGORIES;
             threads[i].d_params.d_barrier_p = &barrier;
-            bdlqq::ThreadUtil::ThreadFunction action = (i < NUM_W_THREADS)
+            bslmt::ThreadUtil::ThreadFunction action = (i < NUM_W_THREADS)
                                                       ? case9ThreadW
                                                       : case9ThreadQ;
-            ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i].d_handle,
+            ASSERT(0 == bslmt::ThreadUtil::create(&threads[i].d_handle,
                                                  action,
                                                  &threads[i].d_params));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i].d_handle));
+            ASSERT(0 == bslmt::ThreadUtil::join(threads[i].d_handle));
         }
 
         // Verify the number of categories added to the category manager.

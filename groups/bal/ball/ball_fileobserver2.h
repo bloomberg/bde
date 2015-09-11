@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -337,7 +337,7 @@ class FileObserver2 : public Observer {
                                                        // in local time (UTC
                                                        // otherwise)
 
-    mutable bdlqq::Mutex   d_mutex;                    // serialize operations
+    mutable bslmt::Mutex   d_mutex;                    // serialize operations
 
     int                    d_rotationSize;             // maximum log file size
                                                        // before rotation
@@ -358,7 +358,7 @@ class FileObserver2 : public Observer {
     OnFileRotationCallback d_onRotationCb;             // user-callback for
                                                        // file rotation
 
-    mutable bdlqq::Mutex   d_rotationCbMutex;          // serialize access to
+    mutable bslmt::Mutex   d_rotationCbMutex;          // serialize access to
                                                        // 'd_onRotationCb';
                                                        // required because
                                                        // callback must be
