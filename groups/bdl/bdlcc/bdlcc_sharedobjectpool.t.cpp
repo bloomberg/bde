@@ -26,6 +26,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
 #include <bsl_string.h>
@@ -836,12 +837,14 @@ int main(int argc, char *argv[])
          }
 
          bdlcc::SharedObjectPool<ConstructorTestHelp3,
-            ConstructorTestHelp3Creator,
-            bdlf::Function<void(*)(ConstructorTestHelp3*)> >
-               pool3(ConstructorTestHelp3Creator(400),
-                     bdlf::BindUtil::bind(
-                              &ConstructorTestHelp3::resetWithCount, _1, 300),
-                     1, &ta);
+                                 ConstructorTestHelp3Creator,
+                                 bsl::function<void(ConstructorTestHelp3 *)> >
+             pool3(ConstructorTestHelp3Creator(400),
+                   bdlf::BindUtil::bind(&ConstructorTestHelp3::resetWithCount,
+                                        _1,
+                                        300),
+                   1,
+                   &ta);
 
          ConstructorTestHelp3* ptr3;
          {
@@ -859,24 +862,27 @@ int main(int argc, char *argv[])
  "\t"
  "bdlcc::SharedObjectPool(\n"
  "\t"
- "                    const bdlf::Function<void(*)(void *)>& objectCreator\n"
+ "                    const bsl::function<void(void *)>&  objectCreator\n"
  "\t"
- "                    const RESETTER&                       objectResetter,\n"
+ "                    const RESETTER&                     objectResetter,\n"
  "\t"
- "                    int                                   numObjects = -1,\n"
+ "                    int                                 numObjects = -1,\n"
  "\t"
- "                    bslma::Allocator                     *basicAllocator=0)"
+ "                    bslma::Allocator                   *basicAllocator = 0)"
                  << endl;
          }
 
-         typedef bdlcc::SharedObjectPool<ConstructorTestHelp3,
-             bdlcc::ObjectPoolFunctors::DefaultCreator,
-            bdlf::Function<void(*)(ConstructorTestHelp3*)> > Pool4;
-         Pool4 pool4
-            (bdlf::BindUtil::bind(&constructor4, 600, _1),
-             bdlf::BindUtil::bind(&ConstructorTestHelp3::resetWithCount,
-                                 _1, 500),
-             1, &ta);
+         typedef bdlcc::SharedObjectPool<
+                           ConstructorTestHelp3,
+                           bdlcc::ObjectPoolFunctors::DefaultCreator,
+                           bsl::function<void(ConstructorTestHelp3 *)> > Pool4;
+         Pool4 pool4(bdlf::BindUtil::bind(&constructor4, 600, _1),
+                     bdlf::BindUtil::bind(
+                                         &ConstructorTestHelp3::resetWithCount,
+                                         _1,
+                                         500),
+                     1,
+                     &ta);
 
          ConstructorTestHelp3* ptr4;
          {

@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval     d_readTimeout;
 //      bsls::TimeInterval     d_writeTimeout;
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-//                                                           d_allocateFunctor;
+//      bsl::function<void(btlsc::TimedCbChannel*, int)>
+//                             d_allocateFunctor;
 //                                         // Cached callback functor.
 //
 //      bslma::Allocator      *d_allocator_p;
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //      assert(factory);
 //      assert(manager);
 //      d_allocateFunctor
-//          = bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(
+//          = bsl::function<void(btlsc::TimedCbChannel*, int)>(
 //                    bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this),
 //                    basicAllocator);
 //  }
@@ -214,7 +214,7 @@ BSLS_IDENT("$Id: $")
 //                                 int                    status) {
 //      if (channel) {
 //          // Accepted a connection.  Issue a read raw request.
-//          bdlf::Function<void (*)(int, int)> callback(bdlf::BindUtil::bindA(
+//          bsl::function<void(int, int)> callback(bdlf::BindUtil::bindA(
 //                        d_allocator_p,
 //                        bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
 //                        _1,
@@ -260,7 +260,7 @@ BSLS_IDENT("$Id: $")
 //           << " read " << status << " bytes." << endl;
 //      assert(channel);
 //      if (0 < status) {
-//          bdlf::Function<void (*)(int, int)> callback(bdlf::BindUtil::bindA(
+//          bsl::function<void(int, int)> callback(bdlf::BindUtil::bindA(
 //                       d_allocator_p,
 //                       bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
 //                       _1,
@@ -277,7 +277,7 @@ BSLS_IDENT("$Id: $")
 //              return;                                               // RETURN
 //          }
 //          // Re-register read request
-//          bdlf::Function<void (*)(const char *, int, int)> readCallback(
+//          bsl::function<void(const char *, int, int)> readCallback(
 //              bdlf::BindUtil::bindA(
 //                       d_allocator_p,
 //                       bdlf::MemFnUtil::memFn(&my_EchoServer::bufferedReadCb,
@@ -317,7 +317,7 @@ BSLS_IDENT("$Id: $")
 //           << " read " << status << " bytes." << endl;
 //      assert(channel);
 //      if (0 < status) {
-//          bdlf::Function<void (*)(int, int)> callback(
+//          bsl::function<void(int, int)> callback(
 //              bdlf::BindUtil::bindA(
 //                       d_allocator_p,
 //                       bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
@@ -336,7 +336,7 @@ BSLS_IDENT("$Id: $")
 //                  return;                                           // RETURN
 //              }
 //          // Re-register read request
-//          bdlf::Function<void (*)(int, int)> readCallback(
+//          bsl::function<void(int, int)> readCallback(
 //                bdlf::BindUtil::bindA(
 //                        d_allocator_p,
 //                        bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
@@ -428,16 +428,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_pool.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -468,35 +468,34 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
     // socket to be closed (and opened again) with no effect on the state of
     // any other channel currently managed by this acceptor.
 
-    bdlma::Pool          d_callbackPool;    // memory pool for registrations
-    bdlma::Pool          d_channelPool;     // memory pool for channels
+    bdlma::Pool          d_callbackPool;     // memory pool for registrations
+    bdlma::Pool          d_channelPool;      // memory pool for channels
 
     bsl::deque<TcpCbAcceptor_Reg *>
-                        d_callbacks;       // registered callbacks
+                         d_callbacks;        // registered callbacks
 
     bsl::vector<btlsc::CbChannel*>
-                        d_channels;        // managed channels
+                         d_channels;         // managed channels
 
     btlso::TimerEventManager
-                       *d_manager_p;
+                        *d_manager_p;
 
     btlso::StreamSocketFactory<btlso::IPv4Address>
-                       *d_factory_p;       // factory used to supply sockets
+                        *d_factory_p;        // factory used to supply sockets
 
     btlso::StreamSocket<btlso::IPv4Address>
-                       *d_serverSocket_p;  // listening socket
+                        *d_serverSocket_p;   // listening socket
 
-    btlso::IPv4Address   d_serverAddress;   // address of listening socket
+    btlso::IPv4Address   d_serverAddress;    // address of listening socket
 
-    int                 d_isInvalidFlag;   // set if acceptor is invalid
+    int                  d_isInvalidFlag;    // set if acceptor is invalid
 
-    bdlf::Function<void (*)()>
-                        d_acceptFunctor;   // cached callbacks
+    bsl::function<void()>
+                         d_acceptFunctor;    // cached callbacks
 
-    TcpCbAcceptor_Reg
-                       *d_currentRequest_p;// address of the current request
+    TcpCbAcceptor_Reg   *d_currentRequest_p; // address of the current request
 
-    bslma::Allocator   *d_allocator_p;
+    bslma::Allocator    *d_allocator_p;
 
   private:
     // Callbacks for socket event manager

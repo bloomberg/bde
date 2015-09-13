@@ -13,7 +13,6 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 #include <bslmt_threadattributes.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdls_processutil.h>
@@ -22,7 +21,9 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 // IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
 // the implementation.  To guarantee that a thread sees the
@@ -177,12 +178,11 @@ void AsyncFileObserver::construct()
     d_shuttingDownFlag = 0;
     d_dropCount        = 0;
 
-    d_publishThreadEntryPoint
-        = bdlf::Function<void (*)()>(
-              bdlf::MemFnUtil::memFn(
-                      &AsyncFileObserver::publishThreadEntryPoint,
-                      this),
-              d_allocator_p);
+    d_publishThreadEntryPoint = bsl::function<void()>(
+            bsl::allocator_arg_t(),
+            bsl::allocator<bsl::function<void()> >(d_allocator_p),
+            bdlf::MemFnUtil::memFn(&AsyncFileObserver::publishThreadEntryPoint,
+                                   this));
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
     d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
     d_droppedRecordWarning.fixedFields().setSeverity(

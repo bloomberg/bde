@@ -7,7 +7,6 @@
 #include <bslmt_threadutil.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -16,7 +15,9 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
 
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
 
@@ -139,7 +140,7 @@ class my_CommandMediator {
     btlso::SocketHandle::Handle  d_server;   // socket handle to monitor
     btlso::TcpTimerEventManager *d_manager_p;// targeted event manager
     const char                   d_byte;     // control byte
-    bdlf::Function<void (*)()>   d_command;  // user command.
+    bsl::function<void()>        d_command;  // user command.
 
   private:
     void readCb();
@@ -149,7 +150,7 @@ class my_CommandMediator {
   public:
     // CREATORS
     my_CommandMediator(btlso::TcpTimerEventManager *manager,
-                       bdlf::Function<void (*)()>   command,
+                       bsl::function<void()>        command,
                        bslma::Allocator            *basicAllocator = 0);
         // Create a mediator attached to the specified 'manager' and the
         // specified 'command', which will be invoked from 'manager''s
@@ -181,7 +182,7 @@ void my_CommandMediator::readCb()
 inline
 my_CommandMediator::my_CommandMediator(
                                    btlso::TcpTimerEventManager *manager,
-                                   bdlf::Function<void (*)()>   command,
+                                   bsl::function<void()>        command,
                                    bslma::Allocator            *basicAllocator)
 : d_manager_p(manager)
 , d_byte(0xAF)
@@ -194,9 +195,10 @@ my_CommandMediator::my_CommandMediator(
     d_client = handles[0];
     d_server = handles[1];
 
-    bdlf::Function<void (*)()> functor(
-                     bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this),
-                     basicAllocator);
+    bsl::function<void()> functor(
+                    bsl::allocator_arg_t(),
+                    bsl::allocator<bsl::function<void()> >(basicAllocator),
+                    bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this));
     d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
                                      functor);
 }
@@ -275,7 +277,7 @@ TestSocketPair::TestSocketPair(btlso::TcpTimerEventManager *manager)
     d_client = handles[0];
     d_server = handles[1];
 
-    bdlf::Function<void (*)()> functor(
+    bsl::function<void()> functor(
             bdlf::MemFnUtil::memFn(&TestSocketPair::timerCb, this));
     d_timerId = d_manager_p->registerTimer(bdlt::CurrentTime::now() + 0.01,
                                            functor);
@@ -394,7 +396,7 @@ int main(int argc, char *argv[])
             const btlso::TcpTimerEventManager& X = mX;
 
             char isInvokedFlag = 0;
-            bdlf::Function<void (*)()> command(
+            bsl::function<void()> command(
                         bdlf::BindUtil::bind(&set, &isInvokedFlag));
 
             my_CommandMediator mediator(&mX, command, &testAllocator);
@@ -489,7 +491,7 @@ int main(int argc, char *argv[])
             bsls::TimeInterval now = bdlt::CurrentTime::now();
             bsls::TimeInterval offset = now +
                 bsls::TimeInterval(DATA[i].d_offset);
-            bdlf::Function<void (*)()> functor(
+            bsl::function<void()> functor(
                     bdlf::BindUtil::bind(&timerCallback, &offset, &isInvoked));
             mX.registerTimer(offset, functor);
 
@@ -588,7 +590,7 @@ int main(int argc, char *argv[])
                 invocationFlags[j] = 0;
                 timeValues[j] = now +
                     bsls::TimeInterval(DATA[i].d_offsets[j]);
-                bdlf::Function<void (*)()> functor(
+                bsl::function<void()> functor(
                        bdlf::BindUtil::bind( &timerCallback
                                           , &timeValues[j]
                                           , &invocationFlags[j]));
@@ -743,7 +745,7 @@ int main(int argc, char *argv[])
                 invocationFlags[j] = 0;
                 timeValues[j] = now +
                     bsls::TimeInterval(DATA[i].d_offsets[j]);
-                bdlf::Function<void (*)()> functor(
+                bsl::function<void()> functor(
                         bdlf::BindUtil::bind( &timerCallback
                                            , &timeValues[j]
                                            , &invocationFlags[j]));
@@ -831,7 +833,7 @@ int main(int argc, char *argv[])
                     timerIds[NUM_OFFSETS * i + j] =
                         mX.registerTimer(now +
                             bsls::TimeInterval(OFFSETS[j], 0),
-                                         bdlf::Function<void (*)()>());
+                                         bsl::function<void()>());
                     LOOP2_ASSERT(i, j, timerIds[NUM_OFFSETS * i + j]);
                     LOOP2_ASSERT(i, j, NUM_OFFSETS * i + j + 1 ==
                                  X.numTimers());
@@ -859,7 +861,7 @@ int main(int argc, char *argv[])
                         timerIds[idx] =
                             mX.registerTimer(now +
                                 bsls::TimeInterval(OFFSETS[k], 0),
-                                             bdlf::Function<void (*)()>());
+                                             bsl::function<void()>());
                         LOOP3_ASSERT(i, j, k, timerIds[idx]);
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numTimers());
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numEvents());
@@ -900,7 +902,7 @@ int main(int argc, char *argv[])
                         timerIds[idx] =
                             mX.registerTimer(now +
                                 bsls::TimeInterval(OFFSETS[k], 0),
-                                             bdlf::Function<void (*)()>());
+                                             bsl::function<void()>());
                         LOOP3_ASSERT(i, j, k, timerIds[idx]);
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numTimers());
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numEvents());
@@ -931,7 +933,7 @@ int main(int argc, char *argv[])
                         timerIds[idx] =
                             mX.registerTimer(now +
                                 bsls::TimeInterval(OFFSETS[k], 0),
-                                             bdlf::Function<void (*)()>());
+                                             bsl::function<void()>());
                         LOOP3_ASSERT(i, j, k, timerIds[idx]);
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numTimers());
                         LOOP3_ASSERT(i, j, k, idx + 1 == X.numEvents());
@@ -1256,7 +1258,7 @@ int main(int argc, char *argv[])
 
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         int isInvoked = 0;
-        bdlf::Function<void (*)()> timer(
+        bsl::function<void()> timer(
                 bdlf::BindUtil::bind(&timerCallback, &now, &isInvoked));
         void *timerId = mX.registerTimer(now, timer);
         if (veryVerbose) {

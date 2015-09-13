@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbchannel_cpp,"$Id$ $CSID$")
 #include <btlsc_flag.h>
 #include <btls_iovecutil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bslalg_scalardestructionprimitives.h>
@@ -21,7 +20,9 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbchannel_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>    // bsl::memcpy
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_memory.h>
 #include <bsl_ostream.h>    // bsl::flush
 #include <bsl_vector.h>     // bsl::vector
 
@@ -319,16 +320,16 @@ TcpTimedCbChannel_RReg::TcpTimedCbChannel_RReg(
 inline
 TcpTimedCbChannel_RReg::~TcpTimedCbChannel_RReg() {
     if (d_callbackType == e_VFUNC3) {
-        bdlf::Function<void (*)(const char *, int, int)> *cb =
-                (bdlf::Function<void (*)(const char *, int, int)> *)
+        bsl::function<void(const char *, int, int)> *cb =
+                (bsl::function<void(const char *, int, int)> *)
                         (void *) d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == e_VFUNC2);
-        bdlf::Function<void (*)(int, int)> *cb =
-                (bdlf::Function<void (*)(int, int)> *)(void *)d_cb.d_arena;
+        bsl::function<void(int, int)> *cb =
+                (bsl::function<void(int, int)> *)(void *)d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
@@ -339,8 +340,8 @@ TcpTimedCbChannel_RReg::~TcpTimedCbChannel_RReg() {
 inline
 void TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
-    bdlf::Function<void (*)(int, int)> *cb =
-        (bdlf::Function<void (*)(int, int)> *)
+    bsl::function<void(int, int)> *cb =
+        (bsl::function<void(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(status, asyncStatus);
 }
@@ -405,7 +406,7 @@ public:
 
     // PUBLIC DATA MEMBERS
     bsls::TimeInterval     d_timeout;
-    bdlf::Function<void (*)(int, int)> d_callback;
+    bsl::function<void(int, int)> d_callback;
 
     union {
         struct {
@@ -2140,46 +2141,52 @@ TcpTimedCbChannel::TcpTimedCbChannel(
 
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedReadCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedWriteCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
@@ -2213,46 +2220,52 @@ TcpTimedCbChannel::TcpTimedCbChannel(
 
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedReadCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedWriteCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }

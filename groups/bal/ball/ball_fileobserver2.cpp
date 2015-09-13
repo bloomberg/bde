@@ -45,6 +45,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 
 #include <bsl_c_errno.h>
@@ -529,8 +530,9 @@ FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
 , d_logFileFunctor(
-            bdlf::MemFnUtil::memFn(&FileObserver2::logRecordDefault, this),
-            basicAllocator)
+            bsl::allocator_arg_t(),
+            bsl::allocator<LogRecordFunctor>(basicAllocator),
+            bdlf::MemFnUtil::memFn(&FileObserver2::logRecordDefault, this))
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationInterval(0)

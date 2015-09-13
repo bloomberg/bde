@@ -149,6 +149,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 #endif
 
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -278,7 +282,9 @@ ListParser<TYPE>::ListParser(ParseElementCallback  parseElementCallback,
                              bslma::Allocator     *basicAllocator)
 : d_characters(basicAllocator)
 , d_object_p(0)
-, d_parseElementCallback(parseElementCallback, basicAllocator)
+, d_parseElementCallback(bsl::allocator_arg_t(),
+                         bsl::allocator<ParseElementCallback>(basicAllocator),
+                         parseElementCallback)
 {
 }
 

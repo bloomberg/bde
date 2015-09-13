@@ -20,10 +20,10 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             SocketPair pair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             int failures = 0;  // due to time going backward on some systems
             const int NUM_ATTEMPTS = 5000;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {

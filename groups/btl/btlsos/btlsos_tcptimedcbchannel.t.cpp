@@ -13,7 +13,6 @@
 
 #include <btls_iovec.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
@@ -31,6 +30,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -1033,7 +1033,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
       case 'r': {
           int readLen, optFlag = 0, milliSec = 0, nanoSec = 0,
               expStatus, expAugStatus;
-          bdlf::Function<void (*)(int, int)> callback;
+          bsl::function<void(int, int)> callback;
 
           switch (*(script+1)) {
             case 'b': {
@@ -1784,7 +1784,7 @@ int main(int argc, char *argv[])
       case 26: {
 // TBD FIX ME
           { // to avoid compiler warning until this is fixed:
-              bdlf::Function<void (*)(int, int, int, int)> callback1(
+              bsl::function<void(int, int, int, int)> callback1(
                             bdlf::BindUtil::bind(&myReadCallback, 0, 0, 0, 0));
           }
 #if 0
@@ -1886,7 +1886,7 @@ int main(int argc, char *argv[])
             int optFlag1 = 0;
             char readBuf1[20] = "\0";
 
-            bdlf::Function<void (*)(int, int)> callback1(
+            bsl::function<void(int, int)> callback1(
                     bdlf::BindUtil::bind(&myReadCallback, readLen1, 0));
             // We also want to set a timeout value which is relative to the
             // current system time.
@@ -1909,7 +1909,7 @@ int main(int argc, char *argv[])
             int readLen2 = 9;
             int optFlag2 = 0;
             char readBuf2[20] = "\0";
-            bdlf::Function<void (*)(int, int)> callback2(
+            bsl::function<void(int, int)> callback2(
                     bdlf::BindUtil::bind(&myReadCallback, readLen2, 0));
             // We also want to set a timeout value which is relative to the
             // current system time.

@@ -330,10 +330,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
 #endif
@@ -348,6 +344,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -405,7 +405,7 @@ class AsyncFileObserver : public Observer {
                                                      // records, reset when
                                                      // published
 
-    bdlf::Function<void (*)()>     d_publishThreadEntryPoint;
+    bsl::function<void()>          d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
                                                      // function

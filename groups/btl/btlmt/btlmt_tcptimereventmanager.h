@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 //
 //      bsls::TimeInterval nextNextTime(nextTime);
 //      nextNextTime.addSeconds(TIME_OFFSET);
-//      bdlf::Function<void (*)()> callback(
-//           bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
+//      bsl::function<void()> callback(
+//          bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
 //
 //      void *timerId = manager->registerTimer(nextTime, callback);
 //      assert(timerId);
@@ -149,8 +149,8 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval nextTime(now);
 //      nextTime.addSeconds(TIME_OFFSET);
 //
-//      bdlf::Function<void (*)()> callback(
-//         bdlf::BindUtil::bind(&producer, &workQueue, &manager, nextNextTime));
+//      bsl::function<void()> callback(
+//        bdlf::BindUtil::bind(&producer, &workQueue, &manager, nextNextTime));
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);
@@ -240,10 +240,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -258,6 +254,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -399,33 +399,33 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     volatile State             d_state;           // the state of the
                                                   // dispatcher thread
 
-    bsls::AtomicInt             d_terminateThread; // signals end of dispatcher
+    bsls::AtomicInt            d_terminateThread; // signals end of dispatcher
 
-    mutable bslmt::RWMutex      d_stateLock;       // protects access to the
+    mutable bslmt::RWMutex     d_stateLock;       // protects access to the
                                                   // state changes via
                                                   // 'enable' and 'disable'
 
-    bdlf::Function<void (*)()>  d_dispatchThreadEntryPoint;
+    bsl::function<void()>      d_dispatchThreadEntryPoint;
                                                   // functor containing the
                                                   // dispatch thread's entry
                                                   // point
 
-    btlso::EventManager        *d_manager_p;       // socket event manager
+    btlso::EventManager       *d_manager_p;       // socket event manager
 
     int                        d_isManagedFlag;   // whether or not event
                                                   // manager is internal or
                                                   // external
 
-    bsl::vector<bdlf::Function<void (*)()> >
+    bsl::vector<bsl::function<void()> >
                               *d_executeQueue_p;  // queue of executed timers
                                                   // (pointer, to be swappable
                                                   // in dispatcher thread loop)
 
-    mutable bslmt::Mutex        d_executeQueueLock;
+    mutable bslmt::Mutex       d_executeQueueLock;
                                                   // protects access to the
                                                   // execute queue
 
-    bdlcc::TimeQueue<bdlf::Function<void (*)()> >
+    bdlcc::TimeQueue<bsl::function<void()> >
                                d_timerQueue;      // queue of registered timers
 
     mutable bslma::ManagedPtr<ControlChannel>
@@ -616,7 +616,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // returns immediately with 0.  Otherwise, it will block until the
         // internal thread is started or failure occurs.
 
-    void execute(const bdlf::Function<void (*)()>& functor);
+    void execute(const bsl::function<void()>& functor);
         // Execute the specified 'functor' in the internal thread, if it is
         // started.
 

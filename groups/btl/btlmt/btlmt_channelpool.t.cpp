@@ -30,7 +30,6 @@
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bdlb_hashutil.h>
@@ -58,8 +57,8 @@
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
-#include <bsl_memory.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
@@ -286,7 +285,8 @@ static int          veryVerbose = 0;
 static int          veryVeryVerbose = 0;
 static int          ARGC = 0;
 static char       **ARGV = 0;
-static bdlf::Function<void (*)()> NULL_CB(&assertCb);
+
+static bsl::function<void()> NULL_CB(&assertCb);
 
 //=============================================================================
 //                       TESTING FUNCTIONS/CLASSES HELPER
@@ -303,24 +303,30 @@ struct NullFn4 {
 };
 
 template <class A1, class A2, class A3>
-void makeNull(bdlf::Function<void (*)(A1, A2, A3)> * f) {
+void makeNull(bsl::function<void(A1, A2, A3)> *f) {
     *f = NullFn3<A1, A2, A3>();
 }
 
 template <class A1, class A2, class A3>
-void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3)> * f) {
-    *f = bdlf::Function<void (*)(A1, A2, A3)>(NullFn3<A1, A2, A3>(), a);
+void makeNull(bslma::Allocator *a, bsl::function<void(A1, A2, A3)> *f) {
+    *f = bsl::function<void(A1, A2, A3)>(
+                           bsl::allocator_arg_t(),
+                           bsl::allocator<bsl::function<void(A1, A2, A3)> >(a),
+                           NullFn3<A1, A2, A3>());
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeNull(bdlf::Function<void (*)(A1, A2, A3, A4)> * f) {
+void makeNull(bsl::function<void(A1, A2, A3, A4)> *f) {
     *f = NullFn4<A1, A2, A3, A4>();
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3, A4)> *f)
+void makeNull(bslma::Allocator *a, bsl::function<void(A1, A2, A3, A4)> *f)
 {
-    *f = bdlf::Function<void (*)(A1, A2, A3, A4)>(NullFn4<A1, A2, A3, A4>(),a);
+    *f = bsl::function<void(A1, A2, A3, A4)>(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<bsl::function<void(A1, A2, A3, A4)> >(a),
+                       NullFn4<A1, A2, A3, A4>());
 }
 
 struct ChannelState {
@@ -564,9 +570,10 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-               bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb
-                                    , this)
-             , ma);
+            bsl::allocator_arg_t(),
+            bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(ma),
+            bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb,
+                                   this));
 
         btlmt::ChannelPool::BlobBasedReadCallback    dataCb;
         btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
@@ -597,9 +604,10 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-              bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb
-                                     , this)
-             , ma);
+            bsl::allocator_arg_t(),
+            bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(ma),
+            bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb,
+                                   this));
 
         d_channelPool_p.load(
            new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
@@ -840,14 +848,16 @@ ReadServer::ReadServer(
     cpc.setIncomingMessageSizes(1, 5, 10);
 
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                bdlf::MemFnUtil::memFn( &ReadServer::poolCB
-                                     , this)
-              , d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+        bdlf::MemFnUtil::memFn(&ReadServer::poolCB, this));
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                bdlf::MemFnUtil::memFn( &ReadServer::chanCB
-                                     , this)
-              , d_allocator_p);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+                bdlf::MemFnUtil::memFn(&ReadServer::chanCB, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
@@ -2322,18 +2332,19 @@ ReadServer::ReadServer(
 , d_coutMutex(coutMutex)
 {
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                    bdlf::MemFnUtil::memFn(&ReadServer::poolCB,
-                                                           this),
-                                     d_allocator_p);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+                   bdlf::MemFnUtil::memFn(&ReadServer::poolCB, this));
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                                    bdlf::MemFnUtil::memFn(&ReadServer::chanCB,
-                                                           this),
-                                     d_allocator_p);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+                bdlf::MemFnUtil::memFn(&ReadServer::chanCB, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
-                           bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
-                                                  this);
+                    bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb, this);
 
     d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
                                                     dataFunctor,
@@ -2584,14 +2595,16 @@ ReadServer::ReadServer(
     cpc.setIncomingMessageSizes(1, 5, 10);
 
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                bdlf::MemFnUtil::memFn( &ReadServer::poolCB
-                                     , this)
-              , d_allocator_p);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+                   bdlf::MemFnUtil::memFn(&ReadServer::poolCB, this));
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                bdlf::MemFnUtil::memFn( &ReadServer::chanCB
-                                     , this)
-              , d_allocator_p);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+                bdlf::MemFnUtil::memFn(&ReadServer::chanCB, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
@@ -3401,9 +3414,9 @@ void TestCase25ConcurrencyTest::run()
 
     int numBytesRead = 0;
     d_threadPool.start();
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bind(
-                                    &TestCase25ConcurrencyTest::executeTest,
-                                    this);
+    bsl::function<void()> job = bdlf::BindUtil::bind(
+                                       &TestCase25ConcurrencyTest::executeTest,
+                                       this);
     for (int i = 0; i < d_numThreads; ++i) {
         d_threadPool.enqueueJob(job);
     }
@@ -4117,8 +4130,10 @@ void runTestCase22(char                                           *,
                                 , _1, _2, _3, _4
                                 , &info));
 
-    btlmt::ChannelPool::PoolStateChangeCallback poolCb(&case22PoolStateCallback
-                                                     , allocator);
+    btlmt::ChannelPool::PoolStateChangeCallback poolCb(
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(allocator),
+        &case22PoolStateCallback);
 
     btlmt::ChannelPoolConfiguration cpc;
     cpc.setMaxConnections(4 * NUM_ITERS / 10);
@@ -7100,11 +7115,13 @@ int usageExample1(bslma::Allocator *allocator) {
     config.setMetricsInterval(10.0);
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::MemFnUtil::memFn(&my_LocalCallback::connectCb, &testCb)
-          , allocator);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                    allocator),
+                bdlf::MemFnUtil::memFn(&my_LocalCallback::connectCb, &testCb));
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-    btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
+    btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
     testCb.d_id = 5;
     testCb.d_status = btlmt::ChannelPool::e_CHANNEL_UP;
@@ -7145,10 +7162,11 @@ class my_Clock {
       : d_numInvocations(0)
       , d_totalNumber(numCbs)
       , d_pool(pool) {
-            bdlf::Function<void (*)()> functor(
-                    bdlf::MemFnUtil::memFn(&my_Clock::clockCb, this));
+            bsl::function<void()> functor(
+                             bdlf::MemFnUtil::memFn(&my_Clock::clockCb, this));
 
-            d_regId = d_pool->registerClock(functor, bdlt::CurrentTime::now(),
+            d_regId = d_pool->registerClock(functor,
+                                            bdlt::CurrentTime::now(),
                                             bsls::TimeInterval(0, 50000),
                                             Id);
             ASSERT(0 <= d_regId);
@@ -7228,16 +7246,22 @@ vlm_EchoServer::vlm_EchoServer(int port, bslma::Allocator *allocator)
     enum { BUFSIZE = 1 << 10 };    // 1K buffers
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-            bdlf::MemFnUtil::memFn(&vlm_EchoServer::poolCB, this)
-          , d_allocator_p);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+                   bdlf::MemFnUtil::memFn(&vlm_EchoServer::poolCB, this));
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::MemFnUtil::memFn(&vlm_EchoServer::chanCB, this)
-          , d_allocator_p);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+                bdlf::MemFnUtil::memFn(&vlm_EchoServer::chanCB, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
-            bdlf::MemFnUtil::memFn(&vlm_EchoServer::blobCB, this)
-          , d_allocator_p);
+                     bsl::allocator_arg_t(),
+                     bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(
+                                                                d_allocator_p),
+                     bdlf::MemFnUtil::memFn(&vlm_EchoServer::blobCB, this));
 
     btlmt::ChannelPoolConfiguration    cpc;
     cpc.setMaxConnections(5);
@@ -7449,16 +7473,22 @@ my_QueueProcessor::my_QueueProcessor(
     }
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::MemFnUtil::memFn(&my_QueueProcessor::channelStateCb, this)
-          , basicAllocator);
+             bsl::allocator_arg_t(),
+             bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                               basicAllocator),
+             bdlf::MemFnUtil::memFn(&my_QueueProcessor::channelStateCb, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
-            bdlf::MemFnUtil::memFn(&my_QueueProcessor::blobCB, this)
-          , basicAllocator);
+                     bsl::allocator_arg_t(),
+                     bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(
+                                                               basicAllocator),
+                     bdlf::MemFnUtil::memFn(&my_QueueProcessor::blobCB, this));
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-            bdlf::MemFnUtil::memFn(&my_QueueProcessor::poolCb, this)
-          , basicAllocator);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                               basicAllocator),
+                   bdlf::MemFnUtil::memFn(&my_QueueProcessor::poolCb, this));
 
     d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
                                                               dataCb,
@@ -7700,16 +7730,22 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         d_config.setIncomingMessageSizes(1, 100, 1024);
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-                bdlf::MemFnUtil::memFn(&my_EchoServer::channelStateCb, this)
-              , basicAllocator);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                               basicAllocator),
+                bdlf::MemFnUtil::memFn(&my_EchoServer::channelStateCb, this));
 
         btlmt::ChannelPool::PoolStateChangeCallback    poolStateFunctor(
-                bdlf::MemFnUtil::memFn(&my_EchoServer::poolStateCb, this)
-              , basicAllocator);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                               basicAllocator),
+                   bdlf::MemFnUtil::memFn(&my_EchoServer::poolStateCb, this));
 
         btlmt::ChannelPool::BlobBasedReadCallback      dataFunctor(
-            bdlf::MemFnUtil::memFn(&my_EchoServer::blobCB, this)
-          , basicAllocator);
+                     bsl::allocator_arg_t(),
+                     bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(
+                                                               basicAllocator),
+                     bdlf::MemFnUtil::memFn(&my_EchoServer::blobCB, this));
 
         d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(
                                                            channelStateFunctor,
@@ -7917,7 +7953,7 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
                                const char                   *hostname,
                                int                           portNumber,
                                int                           numConnections,
-                               const btlb::Blob&           initialMessage,
+                               const btlb::Blob&             initialMessage,
                                bslma::Allocator             *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
@@ -7940,16 +7976,22 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
     }
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::MemFnUtil::memFn(&my_QueueClient::channelStateCb, this)
-          , basicAllocator);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                               basicAllocator),
+                bdlf::MemFnUtil::memFn(&my_QueueClient::channelStateCb, this));
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-            bdlf::MemFnUtil::memFn(&my_QueueClient::poolStateCb, this)
-          , basicAllocator);
+                   bsl::allocator_arg_t(),
+                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                               basicAllocator),
+                   bdlf::MemFnUtil::memFn(&my_QueueClient::poolStateCb, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
-            bdlf::MemFnUtil::memFn(&my_QueueClient::blobCB, this)
-          , basicAllocator);
+                     bsl::allocator_arg_t(),
+                     bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(
+                                                               basicAllocator),
+                     bdlf::MemFnUtil::memFn(&my_QueueClient::blobCB, this));
 
     d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
                                                               dataCb,
@@ -12486,8 +12528,9 @@ void TestDriver::testCase20()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb2;
             btlmt::ChannelPool::BlobBasedReadCallback      dataCb2(
-                                                           &case20DataCallback,
-                                                           &ta);
+                bsl::allocator_arg_t(),
+                bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(&ta),
+                &case20DataCallback);
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb2;
 
@@ -14480,7 +14523,7 @@ void TestDriver::testCase10()
                     clockState[i].d_timeout = i % 2 ? noPeriod : period;
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = 0;  // do not check
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
                                                 , &case10MyClockCallback
                                                 , &clockState[i]
@@ -14651,7 +14694,7 @@ void TestDriver::testCase10()
                     clockState[i].d_timeout   = period;
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = 0;  // do not check
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
                                                 , &case10MyClockCallback
                                                 , &clockState[i]
@@ -14722,7 +14765,7 @@ void TestDriver::testCase10()
                     clockState[i].d_timeout = period;
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = NUM_INVOCATIONS;
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
                                                 , &case10MyClockCallback
                                                 , &clockState[i]

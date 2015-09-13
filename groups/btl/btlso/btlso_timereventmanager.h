@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The 'btlso::TimerEventManager' class provides the interface
 // for an event manager that supports the registration of both timers and
-// socket events, each along with an associated 'bdlf::Function' callback
+// socket events, each along with an associated 'bsl::function' callback
 // functor, which is invoked when the corresponding timer expires or the socket
 // event occurs.
 //
@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 //     // This class implements a subset of a socket event multiplexer that
 //     // supports the registration of timed socket events and associated
 //     // callbacks.  Specifically, this class allows a user specified
-//     // 'bdlf::Function<void (*)(my_TimedSocketMultiplexer::CallbackCode)>'
+//     // 'bsl::function<void(my_TimedSocketMultiplexer::CallbackCode)>'
 //     // functor to be registered via the 'registerTimedSocketEvent' method.
 //     // This functor is invoked with an argument of
 //     // 'my_TimedSocketMultiplexer::e_SOCKET_EVENT' if the socket event
@@ -217,9 +217,9 @@ BSLS_IDENT("$Id: $")
 //     // Private methods 'eventCb' and 'timerCb' are internal callback member
 //     // functions registered with 'btlso::TimerEventManager'.
 //
-//     void eventCb(const btlso::Event&                           socketEvent,
-//                  const bdlf::Function<void (*)(CallbackCode)>& userCb,
-//                  const btlso::TimerEventManager::Callback&     internalCb);
+//     void eventCb(const btlso::Event&                       socketEvent,
+//                  const bsl::function<void(CallbackCode)>&  userCb,
+//                  const btlso::TimerEventManager::Callback& internalCb);
 //         // Cancel the current timer and register a new timer to expire
 //         // after the specified period from the current time along with the
 //         // internal timer callback functor 'internalCb' to be invoked when
@@ -229,9 +229,9 @@ BSLS_IDENT("$Id: $")
 //         // 'btlso::TimerEventManager' and is invoked to indicate the
 //         // occurrence of the specified socket event 'socketEvent'.
 //
-//     void timerCb(const btlso::Event&                           socketEvent,
-//                  const bdlf::Function<void (*)(CallbackCode)>& userCb,
-//                  const btlso::TimerEventManager::Callback&     internalCb);
+//     void timerCb(const btlso::Event&                       socketEvent,
+//                  const bsl::function<void(CallbackCode)>&  userCb,
+//                  const btlso::TimerEventManager::Callback& internalCb);
 //         // Register a new timer to expire after the specified time period
 //         // measured from the previous timer's expiry time along with
 //         // the internal timer callback functor 'internalCb' to be
@@ -249,10 +249,10 @@ BSLS_IDENT("$Id: $")
 //
 //     // MANIPULATORS
 //     int registerTimedSocketEvent(
-//                       const btlso::SocketHandle::Handle&            handle,
-//                       btlso::EventType::Type                        event,
-//                       const bsls::TimeInterval&                     period,
-//                       const bdlf::Function<void (*)(CallbackCode)>& userCb);
+//                       const btlso::SocketHandle::Handle&       handle,
+//                       btlso::EventType::Type                   event,
+//                       const bsls::TimeInterval&                period,
+//                       const bsl::function<void(CallbackCode)>& userCb);
 //         // Register the specified 'userCb' functor to be invoked whenever
 //         // the specified 'event' occurs on the specified 'handle' or when
 //         // 'event' has not occurred within the specified 'period' of time.
@@ -267,9 +267,9 @@ BSLS_IDENT("$Id: $")
 // };
 //
 // void my_TimedSocketMultiplexer::eventCb(
-//                   const btlso::Event&                           socketEvent,
-//                   const bdlf::Function<void (*)(CallbackCode)>& userCb,
-//                   const btlso::TimerEventManager::Callback&     internalCb)
+//                   const btlso::Event&                       socketEvent,
+//                   const bsl::function<void(CallbackCode)>&  userCb,
+//                   const btlso::TimerEventManager::Callback& internalCb)
 // {
 //     // Retrieve the timer information associated with 'socketEvent'.
 //
@@ -298,9 +298,9 @@ BSLS_IDENT("$Id: $")
 // }
 //
 // void my_TimedSocketMultiplexer::timerCb(
-//                   const btlso::Event&                           socketEvent,
-//                   const bdlf::Function<void (*)(CallbackCode)>& userCb,
-//                   const btlso::TimerEventManager::Callback&     internalCb)
+//                   const btlso::Event&                       socketEvent,
+//                   const bsl::function<void(CallbackCode)>&  userCb,
+//                   const btlso::TimerEventManager::Callback& internalCb)
 // {
 //     // Retrieve the timer information associated with 'socketEvent' and set
 //     // the new expiry time.
@@ -329,10 +329,10 @@ BSLS_IDENT("$Id: $")
 // }
 //
 // int my_TimedSocketMultiplexer::registerTimedSocketEvent(
-//                        const btlso::SocketHandle::Handle&            handle,
-//                        btlso::EventType::Type                        event,
-//                        const bsls::TimeInterval&                     period,
-//                        const bdlf::Function<void (*)(CallbackCode)>& userCb)
+//                        const btlso::SocketHandle::Handle&       handle,
+//                        btlso::EventType::Type                   event,
+//                        const bsls::TimeInterval&                period,
+//                        const bsl::function<void(CallbackCode)>& userCb)
 // {
 //     btlso::Event socketEvent(handle, event);
 //     bsls::TimeInterval expiryTime = bdlt::CurrentTime::now() + period;
@@ -411,8 +411,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_eventtype.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -431,7 +431,7 @@ class TimerEventManager {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)()> Callback;
+    typedef bsl::function<void()> Callback;
 
     // CREATORS
     virtual ~TimerEventManager();

@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TYPES
-//      typedef bdlf::Function<void (*)()> Callback;
+//      typedef bsl::function<void()> Callback;
 //
 //    private:
 //      typedef bsl::unordered_map<btlso::Event,

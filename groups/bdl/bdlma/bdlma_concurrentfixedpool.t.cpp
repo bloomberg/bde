@@ -25,6 +25,7 @@
 #include <bsl_deque.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -175,7 +176,9 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
     void my_JobQueue::enqueueJob(const Job& job)
     {
-        Job *jobPtr = new (d_pool) Job(job, d_allocator_p);
+        Job *jobPtr = new (d_pool) Job(bsl::allocator_arg_t(),
+                                       bsl::allocator<Job>(d_allocator_p),
+                                       job);
         d_lock.lock();
         d_queue.push_back(jobPtr);
         d_lock.unlock();

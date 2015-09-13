@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bsls_alignmentutil.h>
@@ -24,7 +23,9 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 #include <bslalg_scalardestructionprimitives.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_memory.h>
 
 #ifdef TEST
 // These dependencies will cause the test driver to recompile when the concrete
@@ -114,11 +115,11 @@ private:
 public:
     // CREATORS
     TcpCbConnector_Reg(
-              const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor ,
-              int                                                     flags);
+                    const bsl::function<void(btlsc::CbChannel*, int)>& functor,
+                    int                                                flags);
     TcpCbConnector_Reg(
-         const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor ,
-         int                                                          flags);
+               const bsl::function<void(btlsc::TimedCbChannel*, int)>& functor,
+               int                                                     flags);
 
     ~TcpCbConnector_Reg();
 
@@ -132,43 +133,44 @@ public:
 
     int flags() const;
     int isTimedResult() const;
-    const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& callback() const;
-    const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>&
+    const bsl::function<void(btlsc::CbChannel*, int)>& callback() const;
+    const bsl::function<void(btlsc::TimedCbChannel*, int)>&
                                                          timedCallback() const;
 };
 
 // CREATORS
 TcpCbConnector_Reg::TcpCbConnector_Reg(
-          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int                                                          flags)
+               const bsl::function<void(btlsc::TimedCbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(1)
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(functor);
+                bsl::function<void(btlsc::TimedCbChannel*, int)>(functor);
 }
 
 TcpCbConnector_Reg::TcpCbConnector_Reg(
-    const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor, int flags)
+                    const bsl::function<void(btlsc::CbChannel*, int)>& functor,
+                    int                                                flags)
 : d_isTimedChannel(0)
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                     bdlf::Function<void (*)(btlsc::CbChannel*, int)>(functor);
+                     bsl::function<void(btlsc::CbChannel*, int)>(functor);
 }
 
 TcpCbConnector_Reg::~TcpCbConnector_Reg()
 {
     if (d_isTimedChannel) {
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
-            (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
+        bsl::function<void(btlsc::TimedCbChannel*, int)> *cb =
+            (bsl::function<void(btlsc::TimedCbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
-        bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
-             (bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
+        bsl::function<void(btlsc::CbChannel*, int)> *cb =
+             (bsl::function<void(btlsc::CbChannel*, int)> *)
                  (void *) d_cb.d_callbackArena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
@@ -191,8 +193,8 @@ inline
 void TcpCbConnector_Reg::invoke(btlsc::CbChannel *channel, int status)
 {
     BSLS_ASSERT(0 == d_isTimedChannel);
-    bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
-             (bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
+    bsl::function<void(btlsc::CbChannel*, int)> *cb =
+             (bsl::function<void(btlsc::CbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
     (*cb)(channel, status);
 }
@@ -201,8 +203,8 @@ inline
 void TcpCbConnector_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
                                      int                    status)
 {
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
-        (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
+    bsl::function<void(btlsc::TimedCbChannel*, int)> *cb =
+        (bsl::function<void(btlsc::TimedCbChannel*, int)> *)
             (void *) d_cb.d_callbackArena;
     (*cb)(channel, status);
 }
@@ -219,20 +221,20 @@ inline int TcpCbConnector_Reg::flags() const
 }
 
 inline
-const bdlf::Function<void (*)(btlsc::CbChannel*, int)>&
+const bsl::function<void(btlsc::CbChannel*, int)>&
 TcpCbConnector_Reg::callback() const
 {
     BSLS_ASSERT(0 == d_isTimedChannel);
-    return *(bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
+    return *(bsl::function<void(btlsc::CbChannel*, int)> *)
                 (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
 inline
-const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>&
+const bsl::function<void(btlsc::TimedCbChannel*, int)>&
 TcpCbConnector_Reg::timedCallback() const
 {
     BSLS_ASSERT(1 == d_isTimedChannel);
-    return *(bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>*)
+    return *(bsl::function<void(btlsc::TimedCbChannel*, int)>*)
                             (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
@@ -433,9 +435,10 @@ TcpCbConnector::TcpCbConnector(
 , d_allocator_p(basicAllocator)
 {
     d_connectFunctor
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(&TcpCbConnector::connectCb, this)
-              , d_allocator_p);
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
+                bdlf::MemFnUtil::memFn(&TcpCbConnector::connectCb, this));
 }
 
 TcpCbConnector::TcpCbConnector(
@@ -454,9 +457,10 @@ TcpCbConnector::TcpCbConnector(
 , d_allocator_p(basicAllocator)
 {
     d_connectFunctor
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(&TcpCbConnector::connectCb, this)
-              , d_allocator_p);
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
+                bdlf::MemFnUtil::memFn(&TcpCbConnector::connectCb, this));
 
     d_channelPool.reserveCapacity(numChannels);
 }

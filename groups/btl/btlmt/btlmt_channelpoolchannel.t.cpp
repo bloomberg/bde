@@ -31,6 +31,7 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -567,12 +568,16 @@ my_Server::my_Server(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     btlmt::ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-            bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this)
-          , d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+        bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this));
 
     btlmt::ChannelPool::PoolStateChangeCallback poolStateFunctor(
-            bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this)
-          , d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+        bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
             bdlf::MemFnUtil::memFn(&my_Server::blobBasedReadCb,

@@ -17,7 +17,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -25,6 +24,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+
+#include <bsl_functional.h>
 
 namespace BloombergLP {
 
@@ -80,7 +81,7 @@ void ChannelPoolChannel::registerTimeoutAndUpdateClockId(
 
     ReadQueue::iterator entryIter = d_readQueue.end();
     --entryIter;
-    bdlf::Function<void (*)()> timeoutCallback(
+    bsl::function<void()> timeoutCallback(
            bdlf::BindUtil::bind(
                   bdlf::MemFnUtil::memFn(&ChannelPoolChannel::timeoutCb, this),
                   entryIter));
@@ -321,7 +322,7 @@ void ChannelPoolChannel::cancelRead()
         btlb::Blob dummyBlob;
         for (ReadQueue::iterator it = cancelQueue.begin();
              it != cancelQueue.end(); ++it) {
-            bdlf::Function<void (*)()> cancelNotifyCallback(
+            bsl::function<void()> cancelNotifyCallback(
                         bdlf::BindUtil::bind(it->d_readCallback,
                                              AsyncChannel::e_CANCELED,
                                              &dummy,

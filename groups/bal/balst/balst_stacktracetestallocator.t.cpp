@@ -2563,8 +2563,17 @@ int main(int argc, char *argv[])
             rc = Util::create(&handles[i], TC::Functor(pta));
             ASSERT(0 == rc);
 
-            static
-            bool isInplace = bsl::functionUtil::IsInplace<TC::Functor>::VALUE;
+            // TBD: In the switch away from bdlf::Function, we lose this
+            // in-place information.  Pablo Halpern has written our
+            // bsl::function to use the small-object optimization for functors
+            // of the size of six pointers or less.
+            static bool isInplace =
+#if 0
+                bdlf::FunctionUtil::IsInplace<TC::Functor>::VALUE
+#else
+                sizeof(TC::Functor) <= 6 * sizeof(void *)
+#endif
+                ;
             expectedDefaultAllocations += 0 == isInplace;
 
             static bool firstTime = true;

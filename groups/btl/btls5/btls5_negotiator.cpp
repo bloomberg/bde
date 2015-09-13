@@ -19,6 +19,7 @@ BSLS_IDENT_RCSID(btls5_negotiator_cpp,"$Id$ $CSID$")
 #include <btlso_eventtype.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -179,7 +180,10 @@ Negotiator_Negotiation::Negotiator_Negotiation(
 , d_destination(destination, basicAllocator)
 , d_socket_p(socket)
 , d_handle(socket->handle())
-, d_callback(callback, basicAllocator)
+, d_callback(
+          bsl::allocator_arg_t(),
+          bsl::allocator<Negotiator::NegotiationStateCallback>(basicAllocator),
+          callback)
 , d_eventManager_p(eventManager)
 , d_timeout(timeout)
 , d_timer(0)

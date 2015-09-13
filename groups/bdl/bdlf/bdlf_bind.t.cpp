@@ -1491,7 +1491,7 @@ using namespace bdlf::PlaceHolders;
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound object (using
-// 'FUNC::ResultType'), the binder needs an explicitly specification.  This is
+// 'FUNC::result_type'), the binder needs an explicitly specification.  This is
 // done by using the 'bdlf::BindUtil::bindR' function template as exemplified
 // below:
 //..

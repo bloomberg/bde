@@ -47,6 +47,7 @@
 #include <bsl_functional.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_sstream.h>
@@ -510,12 +511,12 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
           static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //..
 // and the following wraps the 'inheritThresholdLevels' function within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::DefaultThresholdLevelsCallback
                                    thresholdsCallback(&inheritThresholdLevels);
@@ -3938,11 +3939,15 @@ int main(int argc, char *argv[])
             ball::TestObserver testObserver(bsl::cout, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Cnf nameFilter(&toLower, OA);
+            Cnf nameFilter(bsl::allocator_arg_t(),
+                           bsl::allocator<Cnf>(OA),
+                           &toLower);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Obj::DefaultThresholdLevelsCallback
-                thresholdsCallback(&simpleThresholdLevels, OA);
+            Obj::DefaultThresholdLevelsCallback thresholdsCallback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<Obj::DefaultThresholdLevelsCallback>(OA),
+                       &simpleThresholdLevels);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::UserFieldsSchema descriptors(OA);
@@ -3951,7 +3956,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::Logger::UserFieldsPopulatorCallback populator(
-                                                       &simplePopulator, OA);
+                 bsl::allocator_arg_t(),
+                 bsl::allocator<ball::Logger::UserFieldsPopulatorCallback>(OA),
+                 &simplePopulator);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::LoggerManagerDefaults mLMD;

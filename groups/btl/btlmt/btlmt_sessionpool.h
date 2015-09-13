@@ -492,10 +492,6 @@ BSLS_IDENT("$Id: $")
 #include <btlb_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
@@ -510,6 +506,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -675,16 +675,15 @@ class SessionPool {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    typedef bdlf::Function<void (*)(int            state,
-                                   int            handle,
-                                   Session *session,
-                                   void          *userData)>
-                                                          SessionStateCallback;
+    typedef bsl::function<void(int      state,
+                               int      handle,
+                               Session *session,
+                               void    *userData)> SessionStateCallback;
         // Session callback.
 
-    typedef bdlf::Function<void (*)(int   state,
-                                   int   source,
-                                   void *userData)> SessionPoolStateCallback;
+    typedef bsl::function<void(int   state,
+                               int   source,
+                               void *userData)> SessionPoolStateCallback;
         // Pool callback.
 
   private:

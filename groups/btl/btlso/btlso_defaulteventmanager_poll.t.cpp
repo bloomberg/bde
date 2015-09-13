@@ -14,7 +14,6 @@
 
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -24,6 +23,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -500,7 +500,7 @@ int main(int argc, char *argv[]) {
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],

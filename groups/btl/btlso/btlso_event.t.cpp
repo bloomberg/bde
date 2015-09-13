@@ -2,7 +2,6 @@
 
 #include <btlso_event.h>
 
-#include <bdlf_function.h>                      // for testing only
 #include <bdlf_bind.h>                          // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
@@ -12,6 +11,7 @@
 #include <bsl_unordered_map.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 using namespace bsl;  // automatically added by script
@@ -121,7 +121,7 @@ const btlso::EventType::Type READ    = btlso::EventType::e_READ;
 //
       public:
         // TYPES
-        typedef bdlf::Function<void (*)()> Callback;
+        typedef bsl::function<void()> Callback;
 //
       private:
         typedef bsl::unordered_map<btlso::Event,

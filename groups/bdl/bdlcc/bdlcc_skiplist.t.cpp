@@ -16,7 +16,6 @@
 #include <bsls_types.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_intervalconversionutil.h>
@@ -29,6 +28,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_c_stdlib.h>  // 'rand_r'
 #include <bsl_cmath.h>     // 'floor', 'ceil'
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -292,7 +292,7 @@ void case19(bdlcc::SkipList<int, int>* list,
 class SimpleScheduler
 {
     // DATA
-    typedef bdlcc::SkipList<bdlt::Datetime, bdlf::Function<void(*)()> > List;
+    typedef bdlcc::SkipList<bdlt::Datetime, bsl::function<void()> > List;
 
     List                                                    d_list;
     bslmt::ThreadUtil::Handle                                d_dispatcher;
@@ -383,8 +383,8 @@ class SimpleScheduler
         }
     }
 
-    void scheduleEvent(const bdlf::Function<void(*)()>& event,
-                       const bdlt::Datetime&            when)
+    void scheduleEvent(const bsl::function<void()>& event,
+                       const bdlt::Datetime&        when)
     {
         // Use 'addR' since this event will probably be placed near the end of
         // the list.
@@ -1703,12 +1703,12 @@ int main(int argc, char *argv[])
                           << "timer test" << endl
                           << "==========" << endl;
 
-        typedef bdlcc::SkipList<bsls::TimeInterval, bdlf::Function<void(*)()> >
+        typedef bdlcc::SkipList<bsls::TimeInterval, bsl::function<void()> >
                                                                EventTimeQueue;
         typedef EventTimeQueue::PairHandle                     EventHandle;
 
-        bsls::TimeInterval         timer;
-        bdlf::Function<void(*)()> callback;
+        bsls::TimeInterval    timer;
+        bsl::function<void()> callback;
 
         EventTimeQueue eventTimeQueue;
         EventHandle h;

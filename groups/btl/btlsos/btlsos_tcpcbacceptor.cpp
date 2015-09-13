@@ -12,7 +12,6 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 #include <btlsc_flag.h>
 
 #include <bdlt_currenttime.h>
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bslalg_scalardestructionprimitives.h>
@@ -29,7 +28,9 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 // ============================================================================
@@ -108,19 +109,19 @@ class TcpCbAcceptor_Reg {
   public:
     // CREATORS
     TcpCbAcceptor_Reg(
-          const bsls::TimeInterval&                                    timeout,
-          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int                                                          flags);
-    TcpCbAcceptor_Reg(
-               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-               int                                                     flags);
-    TcpCbAcceptor_Reg(
-          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int                                                          flags);
-    TcpCbAcceptor_Reg(
                const bsls::TimeInterval&                               timeout,
-               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               const bsl::function<void(btlsc::TimedCbChannel*, int)>& functor,
                int                                                     flags);
+    TcpCbAcceptor_Reg(
+                    const bsl::function<void(btlsc::CbChannel*, int)>& functor,
+                    int                                                flags);
+    TcpCbAcceptor_Reg(
+               const bsl::function<void(btlsc::TimedCbChannel*, int)>& functor,
+               int                                                     flags);
+    TcpCbAcceptor_Reg(
+                    const bsls::TimeInterval&                          timeout,
+                    const bsl::function<void(btlsc::CbChannel*, int)>& functor,
+                    int                                                flags);
         // Create a callback from a specified 'functor' with specified 'flags',
         // and an optionally specified 'timeout' for the callback execution.
 
@@ -146,37 +147,37 @@ class TcpCbAcceptor_Reg {
 
 // CREATORS
 TcpCbAcceptor_Reg::TcpCbAcceptor_Reg(
-          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int                                                          flags)
+               const bsl::function<void(btlsc::TimedCbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(1)
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(functor);
+                bsl::function<void(btlsc::TimedCbChannel*, int)>(functor);
 }
 
 TcpCbAcceptor_Reg::TcpCbAcceptor_Reg(
-               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-               int                                                     flags)
+                    const bsl::function<void(btlsc::CbChannel*, int)>& functor,
+                    int                                                flags)
 : d_isTimedChannel(0)
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                     bdlf::Function<void (*)(btlsc::CbChannel*, int)>(functor);
+                     bsl::function<void(btlsc::CbChannel*, int)>(functor);
 }
 
 TcpCbAcceptor_Reg::~TcpCbAcceptor_Reg()
 {
     if (d_isTimedChannel) {
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
-            (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
+        bsl::function<void(btlsc::TimedCbChannel*, int)> *cb =
+            (bsl::function<void(btlsc::TimedCbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
-        bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
-            (bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
+        bsl::function<void(btlsc::CbChannel*, int)> *cb =
+            (bsl::function<void(btlsc::CbChannel*, int)> *)
                 (void *) d_cb.d_callbackArena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
@@ -199,8 +200,8 @@ inline
 void TcpCbAcceptor_Reg::invoke(btlsc::CbChannel *channel, int status)
 {
     BSLS_ASSERT(0 == d_isTimedChannel);
-    bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
-        (bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
+    bsl::function<void(btlsc::CbChannel*, int)> *cb =
+        (bsl::function<void(btlsc::CbChannel*, int)> *)
             (void *) d_cb.d_callbackArena;
     (*cb)(channel, status);
 }
@@ -209,8 +210,8 @@ inline
 void TcpCbAcceptor_Reg::invokeTimed(btlsc::TimedCbChannel *channel, int status)
 {
     BSLS_ASSERT(1 == d_isTimedChannel);
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
-        (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
+    bsl::function<void(btlsc::TimedCbChannel*, int)> *cb =
+        (bsl::function<void(btlsc::TimedCbChannel*, int)> *)
             (void *) d_cb.d_callbackArena;
     (*cb)(channel, status);
 }
@@ -358,9 +359,10 @@ TcpCbAcceptor::TcpCbAcceptor(
 , d_allocator_p(basicAllocator)
 {
     d_acceptFunctor
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(&TcpCbAcceptor::acceptCb, this),
-                d_allocator_p);
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
+                bdlf::MemFnUtil::memFn(&TcpCbAcceptor::acceptCb, this));
 }
 
 TcpCbAcceptor::TcpCbAcceptor(
@@ -384,9 +386,10 @@ TcpCbAcceptor::TcpCbAcceptor(
 {
     BSLS_ASSERT(0 < numElements);
     d_acceptFunctor
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(&TcpCbAcceptor::acceptCb, this),
-                d_allocator_p);
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
+                bdlf::MemFnUtil::memFn(&TcpCbAcceptor::acceptCb, this));
 }
 
 TcpCbAcceptor::~TcpCbAcceptor()
