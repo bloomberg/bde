@@ -292,7 +292,7 @@ bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // same value, and 'false' otherwise.  Two nullable objects have the same
     // value if both are null, or if both are non-null and the values of their
     // underlying objects compare equal.  Note that this function will fail to
-    // compile if 'LHS_TYPE' and 'RHS_TYPE' are incompatible.
+    // compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
@@ -302,7 +302,7 @@ bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
     // have the same value if one is null and the other is non-null, or if both
     // are non-null and the values of their underlying objects do not compare
     // equal.  Note that this function will fail to compile if 'LHS_TYPE' and
-    // 'RHS_TYPE' are incompatible.
+    // 'RHS_TYPE' are not compatible.
 
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&                       stream,
