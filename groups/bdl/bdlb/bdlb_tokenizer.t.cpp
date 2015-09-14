@@ -410,7 +410,7 @@ int main(int argc, char **argv)
                           << "=============" << endl;
         if (verbose) cout << "TODO" << endl;
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TEST CASE TEMPLATE
         //
@@ -428,10 +428,222 @@ int main(int argc, char **argv)
                           << "TEST CASE TEMPLATE" << endl
                           << "==================" << endl;
         if (verbose) cout << "TODO" << endl;
-        } break;
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // 'TokenizerIterator' OPERATORS
+        //
+        // Concerns:
+        //: 1
+        //
+        // Plan:
+        //: 1
+        //
+        // Testing:
+        //   TokenizerIterrator::operator=()
+        //   TokenizerIterrator::operator==()
+        //   TokenizerIterrator::operator!=()
+        //   TokenizerIterrator::operator++(int)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+                    cout << endl
+                         << "'TokenizerIterator' OPERATORS" << endl
+                         << "=============================" << endl;
+
+        if (verbose) cout << "\nTesting TokenizerIterator operators." << endl;
+        const int  NUM_ITERATIONS = 5;
+        static const struct {
+            int         d_line;                    // line number
+            const char *d_input_p;                 // input
+            const char *d_tokens[NUM_ITERATIONS];  // values array
+        } DATA[] = {
+            //LINE  INPUT           PREV
+            //                      DELIM
+            //----  -------------   ------
+            { L_,   "",            {      }},
+            { L_,   "s",           {      }},
+            { L_,   "H",           {""    }},
+            { L_,   "0",           {"0"   }},
+
+            { L_,   "0s1H2tI3Ju",  {"0",
+                                    "1",
+                                    "2",
+                                    "3"   }},
+
+            { L_,   "s0H1tI2Ju3",  {"0",
+                                    "1",
+                                    "2",
+                                    "3"   }},
+
+            { L_,   "s0tH12Iu3J",  {"0",
+                                    "12",
+                                    "3"   }},
+        };
+        enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\tTesting 'operator='." << endl;
+        {
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_input_p;
+
+                if (veryVeryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                ObjIt        mIt = mT.begin();
+                const ObjIt& It  = mIt;
+
+                int i = 0;
+                do {
+                    ObjIt        eMIt;  // experimental iterator
+                    const ObjIt& eIt  = eMIt;
+                    eMIt = It;
+
+                    // We need to test 'operator=' even with invalid iterator
+                    // passed as a parameter, because it is allowed by
+                    // component contract.  But we can't call accessor for such
+                    // iterators, so we need to stop current iteration in that
+                    // case.
+                    if (!DATA[ti].d_tokens[i]) {
+                        break;
+                    }
+
+                    const StringRef TOKEN    = DATA[ti].d_tokens[i];
+                    const StringRef MODEL_TOKEN = *It;
+                    const StringRef EXPERIMENTAL_TOKEN = *eIt;
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(i) P_(MODEL_TOKEN) P(EXPERIMENTAL_TOKEN)
+                    }
+
+                    ASSERTV(LINE,
+                            i,
+                            TOKEN,
+                            MODEL_TOKEN,
+                            TOKEN == MODEL_TOKEN);
+                    ASSERTV(LINE,
+                            i,
+                            MODEL_TOKEN,
+                            EXPERIMENTAL_TOKEN,
+                            MODEL_TOKEN == EXPERIMENTAL_TOKEN);
+
+                    ++mIt;
+                    ++i;
+                } while (true);
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'operator==' and 'operator!='."
+                          << endl;
+        {
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_input_p;
+
+                if (veryVeryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                ObjIt        mIt = mT.begin();
+                const ObjIt& It  = mIt;
+                ObjIt        eMIt(It);  // experimental iterator
+                const ObjIt& eIt  = eMIt;
+
+                int i = 0;
+                do {
+                    bool areEqual    = (It == eIt);
+                    bool areNotEqual = (It != eIt);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(i) P_(areEqual) P(areNotEqual)
+                    }
+                    ASSERTV(LINE, i, true  == areEqual);
+                    ASSERTV(LINE, i, false == areNotEqual);
+
+                    // We need to test 'operator==' and 'operator!=' even with
+                    // invalid iterators passed as a parameter, because it is
+                    // allowed by component contract.  But we can't move
+                    // forward such iterators, so we need to stop current
+                    // iteration in that case.
+                    if (!DATA[ti].d_tokens[i]) {
+                        break;
+                    }
+
+                    ++mIt;
+
+                    areEqual    = (It == eIt);
+                    areNotEqual = (It != eIt);
+
+                    ASSERTV(LINE, i, false == areEqual);
+                    ASSERTV(LINE, i, true  == areNotEqual);
+
+                    ++eMIt;
+                    ++i;
+                } while (true);
+            }
+        }
+
+        if (verbose) cout << "\tTesting post-increment operator" << endl;
+        {
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const char  *INPUT    = DATA[ti].d_input_p;
+
+                if (veryVeryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                ObjIt        mIt = mT.begin();
+                const ObjIt& It  = mIt;
+                ObjIt        eMIt(It);  // experimental iterator
+                const ObjIt& eIt  = eMIt;
+
+                int i = 0;
+                do {
+                   // Skip invalid iterators.
+                    if (!DATA[ti].d_tokens[i]) {
+                        break;
+                    }
+
+                    ++mIt;
+                    eMIt++;
+
+                    bool areEqual = (It == eIt);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(i) P(areEqual)
+                    }
+
+                    ASSERTV(LINE, i, true == areEqual);
+
+                    ++i;
+                } while (true);
+            }
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
-        // 'TokenizerIterator' PRIMARY ACCESSORS
+        // 'TokenizerIterator' BASIC ACCESSORS
         //
         // Concerns:
         //: 1
@@ -445,8 +657,8 @@ int main(int argc, char **argv)
 
         if (verbose)
                     cout << endl
-                         << "'TokenizerIterator' PRIMARY ACCESSORS" << endl
-                         << "=====================================" << endl;
+                         << "'TokenizerIterator' BASIC ACCESSORS" << endl
+                         << "===================================" << endl;
 
         if (verbose) cout << "\nTesting 'TokenizerIterator::operator*'."
                           << endl;
@@ -656,6 +868,7 @@ int main(int argc, char **argv)
                 if (veryVeryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
+
                 // Validate the input string and tokenizer parameters.
                 bool VALID = isValid(INPUT,
                                      SOFT_DELIM_CHARS,

@@ -152,6 +152,20 @@ TokenizerIterator::TokenizerIterator(const TokenizerIterator& origin)
 }
 
 // MANIPULATORS
+TokenizerIterator& TokenizerIterator::operator=(const TokenizerIterator& rhs)
+{
+    if (this != &rhs)
+    {
+        d_sharedData_p = rhs.d_sharedData_p;
+        d_cursor_p = rhs.d_cursor_p;
+        d_token_p = rhs.d_token_p;
+        d_postDelim_p = rhs.d_postDelim_p;
+        d_end_p = rhs.d_end_p;
+        d_endFlag = rhs.d_endFlag;
+    }
+    return *this;
+}
+
 TokenizerIterator& TokenizerIterator::operator++()
 {
     // Operator++ called on invalid iterator
