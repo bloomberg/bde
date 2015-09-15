@@ -282,8 +282,8 @@ class ThreadAttributes {
         e_CREATE_DETACHED = 1   // create a non-joinable thread
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , e_CREATE_JOINABLE = e_CREATE_JOINABLE
-      , e_CREATE_DETACHED = e_CREATE_DETACHED
+      , BCEMT_CREATE_JOINABLE = e_CREATE_JOINABLE
+      , BCEMT_CREATE_DETACHED = e_CREATE_DETACHED
       , CREATE_JOINABLE = e_CREATE_JOINABLE
       , CREATE_DETACHED = e_CREATE_DETACHED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -303,10 +303,10 @@ class ThreadAttributes {
         e_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
                                   // equivalent to 'e_SCHED_OTHER'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , e_SCHED_OTHER = e_SCHED_OTHER
-      , e_SCHED_FIFO = e_SCHED_FIFO
-      , e_SCHED_RR = e_SCHED_RR
-      , e_SCHED_DEFAULT = e_SCHED_DEFAULT
+      , BCEMT_SCHED_OTHER = e_SCHED_OTHER
+      , BCEMT_SCHED_FIFO = e_SCHED_FIFO
+      , BCEMT_SCHED_RR = e_SCHED_RR
+      , BCEMT_SCHED_DEFAULT = e_SCHED_DEFAULT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -324,11 +324,11 @@ class ThreadAttributes {
         e_SCHED_MIN        = e_SCHED_OTHER,
         e_SCHED_MAX        = e_SCHED_DEFAULT
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , e_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
-      , e_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
-      , e_UNSET_PRIORITY = e_UNSET_PRIORITY
-      , e_SCHED_MIN = e_SCHED_MIN
-      , e_SCHED_MAX = e_SCHED_MAX
+      , BCEMT_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
+      , BCEMT_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
+      , BCEMT_UNSET_PRIORITY = e_UNSET_PRIORITY
+      , BCEMT_SCHED_MIN = e_SCHED_MIN
+      , BCEMT_SCHED_MAX = e_SCHED_MAX
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
