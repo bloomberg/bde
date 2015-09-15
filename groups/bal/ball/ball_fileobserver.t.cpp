@@ -13,7 +13,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_tokenizer.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -26,6 +26,8 @@
 #include <bdls_processutil.h>
 
 #include <bslmt_threadutil.h>
+
+#include <bslstl_stringref.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -509,9 +511,11 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result)
     ASSERT(ascii)
 
-    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-        if (itr().length() > 0) {
-            result->push_back(itr());
+    for (bdlb::Tokenizer itr(bslstl::StringRef(ascii),
+                             bslstl::StringRef(""),
+                             bslstl::StringRef("\n")); itr.isValid(); ++itr) {
+        if (itr.token().length() > 0) {
+            result->push_back(itr.token());
         }
     }
 }

@@ -19,6 +19,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
+
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -32,12 +33,14 @@
 #include <bdlt_currenttime.h>
 #include <bslim_testutil.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_tokenizer.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -610,9 +613,11 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result);
     ASSERT(ascii);
 
-    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-        if (itr().length() > 0) {
-            result->push_back(itr());
+    for (bdlb::Tokenizer itr(bslstl::StringRef(ascii),
+                             bslstl::StringRef(""),
+                             bslstl::StringRef("\n")); itr.isValid(); ++itr) {
+        if (itr.token().length() > 0) {
+            result->push_back(itr.token());
         }
     }
 }

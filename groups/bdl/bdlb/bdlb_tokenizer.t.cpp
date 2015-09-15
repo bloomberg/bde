@@ -5,8 +5,6 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bdlb_strtokenrefiter.h>         // for performance compare only
-
 #include <bsl_string.h>
 
 #include <bsl_cstdlib.h>                  // 'bsl::atoi()'
@@ -2881,30 +2879,6 @@ int main(int argc, char **argv)
             }
         }
       } break;
-      case -4: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PERFORMANCE TEST" << endl
-                          << "================" << endl;
-
-
-        if (verbose) cout << "\n'bdlb::StrTokenRefIter' test." << endl;
-        {
-            for (int i = 0; i < 1000000; ++i) {
-                for (bdlb::StrTokenRefIter it(StringRef(INPUT), " ");
-                                   it;
-                                   ++it) {
-                     it();
-                }
-            }
-        }
-      } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
