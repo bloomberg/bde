@@ -91,14 +91,14 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate basic use of this component.
 // First we create a default-constructed 'bslmt::ThreadAttributes' object and
 // assert that its detached state does indeed have the default value (i.e.,
-// 'bslmt::ThreadAttributes::BCEMT_CREATE_JOINABLE'):
+// 'bslmt::ThreadAttributes::e_CREATE_JOINABLE'):
 //..
     bslmt::ThreadAttributes attributes;
     ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
                                                    attributes.detachedState());
 //..
 // Next we modify the detached state of 'attributes' to have the non-default
-// value 'bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED':
+// value 'bslmt::ThreadAttributes::e_CREATE_DETACHED':
 //..
     attributes.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);

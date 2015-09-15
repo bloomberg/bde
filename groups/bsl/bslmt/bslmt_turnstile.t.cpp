@@ -127,7 +127,7 @@ static bslmt::Mutex coutMutex;
 typedef bslmt::Turnstile    Obj;
 typedef bsls::Types::Int64 Int64;
 
-enum { USPS = 1000000 };  // microseconds per second
+enum { k_USPS = 1000000 };  // microseconds per second
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -510,9 +510,9 @@ int main(int argc, char *argv[])
 
         const double WT   = 1.0 / RATE;    // max wait time for each turn
         const Int64  WTUB =
-           static_cast<Int64>(USPS * (WT + EPSILON));  // upper bound wait time
+         static_cast<Int64>(k_USPS * (WT + EPSILON));  // upper bound wait time
         const Int64  WTLB =
-           static_cast<Int64>(USPS * (WT - EPSILON));  // lower bound wait time
+         static_cast<Int64>(k_USPS * (WT - EPSILON));  // lower bound wait time
 
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
         ASSERT(0 ==  X.lagTime());   // not lagging
 
-        bslmt::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * k_USPS);
         ASSERT(0 == mX.waitTurn());
         ASSERT(0 <   X.lagTime());   // lagging after sleep
 
@@ -641,10 +641,10 @@ int main(int argc, char *argv[])
 
         // Turns are taken at or above the specified rate
 
-        const double RATE    = 5.0;
-        const double WT      = 1.0 / RATE;  // max wait time for each turn
-        const Int64  WTUB    = USPS * (WT + EPSILON);  // upper bound wait time
-        const Int64  WTLB    = USPS * (WT - EPSILON);  // lower bound wait time
+        const double RATE = 5.0;
+        const double WT   = 1.0 / RATE;  // max wait time for each turn
+        const Int64  WTUB = k_USPS * (WT + EPSILON);  // upper bound wait time
+        const Int64  WTLB = k_USPS * (WT - EPSILON);  // lower bound wait time
 
         if (verbose) {
             P_(RATE)   P_(WT)  P_(WTUB)  P(WTLB);
@@ -677,20 +677,20 @@ int main(int argc, char *argv[])
 
         // 'X.lagTime()' does not report negative values, but suppose it did.
         // Call 'epsA' the amount of time we've spent doing stuff since the
-        // last 'waitTurn'.  Then 'X.lagTime() == - USPS * WT + epsA' at this
+        // last 'waitTurn'.  Then 'X.lagTime() == - k_USPS * WT + epsA' at this
         // point.
 
         // Wait 2.25 times the period time
 
-        int sleepTime = (int) (2.5 * USPS * WT);
+        int sleepTime = (int) (2.5 * k_USPS * WT);
         bslmt::ThreadUtil::microSleep(sleepTime);
 
-        // At this point.  'X.lagTime() == 1.5 * USPS * WT + epsA'.  Take one
+        // At this point.  'X.lagTime() == 1.5 * k_USPS * WT + epsA'.  Take one
         // turn.
 
         ASSERT(0 == mX.waitTurn());
 
-        // Now, 'X.lagTime() == 0.5 * USPS * WT + epsA'.  Note that we can't
+        // Now, 'X.lagTime() == 0.5 * k_USPS * WT + epsA'.  Note that we can't
         // rely on system clocks having a small enough resolution to notice
         // 'epsA'.  Verify that lagTime is positive.
 
@@ -785,7 +785,7 @@ int main(int argc, char *argv[])
             { L_,   1000,        4, },
             { L_,   1000,        8, },
         };
-        enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+        const int DATA_SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int i = 0; i < DATA_SIZE; ++i) {
             int    LINE     = DATA[i].d_line;
@@ -841,7 +841,7 @@ int main(int argc, char *argv[])
              << endl << "message."
              << endl;
 
-        bslmt::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * k_USPS);
 
         bslmt::Turnstile turnstile(1.0);
         unsigned count = 0;

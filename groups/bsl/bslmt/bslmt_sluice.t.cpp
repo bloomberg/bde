@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
 
         /* TBD -- bind
         enum {
-            NUM_WAITING_THREADS = 20,
-            NUM_TEST_SECONDS = 3
+            k_NUM_WAITING_THREADS = 20,
+            k_NUM_TEST_SECONDS    =  3
         };
 
         Obj mX(&ta);
@@ -196,16 +196,16 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadGroup tg;
 
-        ASSERT(NUM_WAITING_THREADS ==
+        ASSERT(k_NUM_WAITING_THREADS ==
                tg.addThreads(bdlf::BindUtil::bind(&enterAndWaitUntilDone,
                                                  &mX,
                                                  &done,
                                                  &lock,
                                                  &iterations),
-                             NUM_WAITING_THREADS));
+                             k_NUM_WAITING_THREADS));
         bsls::Stopwatch timer;
         timer.start();
-        while (timer.elapsedTime() < NUM_TEST_SECONDS) {
+        while (timer.elapsedTime() < k_NUM_TEST_SECONDS) {
             mX.signalOne();
             mX.signalOne();
             mX.signalOne();
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         // we should ALWAYS be able to make WAY MORE THAN 100 iterations per
         // thread per second
         LOOP_ASSERT(iterations,
-                    100 * NUM_WAITING_THREADS * NUM_TEST_SECONDS < iterations);
+                100 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS < iterations);
       }
       if (verbose) {
           P(ta.numAllocations());
@@ -253,13 +253,13 @@ int main(int argc, char *argv[])
 
         /* TBD -- bind
         enum {
-            NUM_SIGNALED_THREADS = 3,
-            NUM_ITERATIONS = 2
+            k_NUM_SIGNALED_THREADS = 3,
+            k_NUM_ITERATIONS       = 2
         };
 
         Obj mX;
 
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
             bslmt::Semaphore readySem;
 
             bslmt::ThreadUtil::Handle h;
@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadGroup tg;
             rc = tg.addThreads(bdlf::BindUtil::bind(&enterPostSleepAndWait,
                                                    &mX, &readySem),
-                               NUM_SIGNALED_THREADS);
-            BSLS_ASSERT(NUM_SIGNALED_THREADS == rc); // test invariant
+                               k_NUM_SIGNALED_THREADS);
+            BSLS_ASSERT(k_NUM_SIGNALED_THREADS == rc); // test invariant
 
-            for (int i = 0; i < NUM_SIGNALED_THREADS; ++i) {
+            for (int i = 0; i < k_NUM_SIGNALED_THREADS; ++i) {
                 readySem.wait();
             }
             mX.signalAll();

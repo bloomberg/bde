@@ -265,23 +265,23 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
     // topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
     // pthread_setschedparam.htm"
 
-    enum { MAX_AIX_NON_ROOT_PRIORITY = 60,
-           MAX_AIX_PRIORITY          = 80 };
+    enum { k_MAX_AIX_NON_ROOT_PRIORITY = 60,
+           k_MAX_AIX_PRIORITY          = 80 };
 
     if (0 == geteuid()) {
         // privileged user
 
         // On AIX 5.3 and above, all priorities above 80 are equivalent to 80.
 
-        if (priority > MAX_AIX_PRIORITY) {
-            priority = MAX_AIX_PRIORITY;
+        if (priority > k_MAX_AIX_PRIORITY) {
+            priority = k_MAX_AIX_PRIORITY;
         }
     }
     else {
         // non-privileged user
 
-        if (priority > MAX_AIX_NON_ROOT_PRIORITY) {
-            priority = MAX_AIX_NON_ROOT_PRIORITY;
+        if (priority > k_MAX_AIX_NON_ROOT_PRIORITY) {
+            priority = k_MAX_AIX_NON_ROOT_PRIORITY;
         }
     }
 #elif defined (BSLS_PLATFORM_OS_SOLARIS)
@@ -308,7 +308,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
     }
 
     if (cacheIsPost_5_10) {
-        enum { MAX_SOLARIS_5_11_PRIORITY = 0 };
+        enum { k_MAX_SOLARIS_5_11_PRIORITY = 0 };
 
         // On Solaris 5.11, privileged clients can set threads to high
         // priorities that will make them real-time priority threads.  If done
@@ -319,7 +319,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
         // Note that thread creation will fail for priorities above 0 for
         // non-privileged clients on 5.11.
 
-        priority = MAX_SOLARIS_5_11_PRIORITY;
+        priority = k_MAX_SOLARIS_5_11_PRIORITY;
     }
 #endif
     return priority;
@@ -357,10 +357,10 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
     // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
     // pthread_setschedparam.htm"
 
-    enum { MIN_AIX_PRIORITY = 40 };
+    enum { k_MIN_AIX_PRIORITY = 40 };
 
-    if (priority < MIN_AIX_PRIORITY) {
-        priority = MIN_AIX_PRIORITY;
+    if (priority < k_MIN_AIX_PRIORITY) {
+        priority = k_MIN_AIX_PRIORITY;
     }
 
 # endif
@@ -388,10 +388,10 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
                                                int                 seconds,
                                                bsls::TimeInterval *unsleptTime)
 {
-    enum { MILLION = 1000 * 1000 };
+    enum { k_MILLION = 1000 * 1000 };
 
-    bsls::TimeInterval sleepTime((microsecs / MILLION) + seconds,
-                                (microsecs % MILLION) * 1000);
+    bsls::TimeInterval sleepTime((microsecs / k_MILLION) + seconds,
+                                (microsecs % k_MILLION) * 1000);
     timespec naptime;
     timespec unslept;
     SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleepTime);

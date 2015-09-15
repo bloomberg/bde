@@ -22,25 +22,25 @@ BSLS_IDENT("$Id: $")
 // 'bslmt::ThreadAttributes' are listed in the following two tables:
 //..
 //  Name                Type                   Default
-//  ------------------  ---------------------  -------------------------------
-//  detachedState       enum DetachedState     BCEMT_CREATE_JOINABLE
-//  stackSize           int                    BCEMT_UNSET_STACK_SIZE
-//  guardSize           int                    BCEMT_UNSET_GUARD_SIZE
+//  ------------------  ---------------------  ----------------------
+//  detachedState       enum DetachedState     e_CREATE_JOINABLE
+//  stackSize           int                    e_UNSET_STACK_SIZE
+//  guardSize           int                    e_UNSET_GUARD_SIZE
 //  inheritSchedule     bool                   'true'
-//  schedulingPolicy    enum SchedulingPolicy  BCEMT_SCHED_DEFAULT
-//  schedulingPriority  int                    BCEMT_UNSET_PRIORITY
+//  schedulingPolicy    enum SchedulingPolicy  e_SCHED_DEFAULT
+//  schedulingPriority  int                    e_UNSET_PRIORITY
 //
 //  Name          Constraint
-//  ---------     -------------------------------------------------------
-//  stackSize     'BCEMT_UNSET_STACK_SIZE == stackSize || 0 <= stackSize'
-//  guardSize     'BCEMT_UNSET_GUARD_SIZE == guardSize || 0 <= guardSize'
+//  ---------     ---------------------------------------------------
+//  stackSize     'e_UNSET_STACK_SIZE == stackSize || 0 <= stackSize'
+//  guardSize     'e_UNSET_GUARD_SIZE == guardSize || 0 <= guardSize'
 //..
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
 // The 'detachedState' attribute indicates whether an associated thread should
 // be created in a joinable or detached state, through the enum values
-// 'BCEMT_CREATE_JOINABLE' and 'BCEMT_CREATE_DETACHED', respectively.  A thread
-// in the joinable state will have its exit status maintained after thread
+// 'e_CREATE_JOINABLE' and 'e_CREATE_DETACHED', respectively.  A thread in the
+// joinable state will have its exit status maintained after thread
 // termination.  Any thread can join with a joinable thread (see
 // 'bslmt_threadutil'), in which case the joining thread will block, waiting
 // for the joined thread's execution to complete, after which the joined
@@ -54,8 +54,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - -
 // The 'stackSize' attribute indicates the size, in bytes, of the stack that
 // should be provided to a newly created thread.  If the stack size is
-// 'BCEMT_UNSET_STACK_SIZE' then a created thread will be provided a default
-// stack size (see 'bslmt_configuration').  The 'stackSize' attribute should be
+// 'e_UNSET_STACK_SIZE' then a created thread will be provided a default stack
+// size (see 'bslmt_configuration').  The 'stackSize' attribute should be
 // interpreted to mean that a created thread can safely define an automatic
 // variable of the configured 'stackSize' bytes in its thread-entry function.
 // Note that, on some platforms, an adjusted value derived from the 'stackSize'
@@ -69,12 +69,12 @@ BSLS_IDENT("$Id: $")
 // The 'guardSize' attribute indicates the size of the memory region to provide
 // past the end of a created thread's stack to protect against stack overflows.
 // If a thread's stack pointer overflows into a guard area, the task will
-// receive an error (e.g., a signal).  If 'guardSize' is
-// 'BCEMT_UNSET_GUARD_SIZE', then a created thread will be provided with a
-// default native guard size (see 'bslmt_configuration').  Note that the
-// interpretation of 'guardSize' may vary among platforms, and the value may be
-// adjusted up (e.g., by rounding up to a multiple of page size) or ignored
-// entirely (e.g., the Windows platform does not support this attribute).
+// receive an error (e.g., a signal).  If 'guardSize' is 'e_UNSET_GUARD_SIZE',
+// then a created thread will be provided with a default native guard size (see
+// 'bslmt_configuration').  Note that the interpretation of 'guardSize' may
+// vary among platforms, and the value may be adjusted up (e.g., by rounding up
+// to a multiple of page size) or ignored entirely (e.g., the Windows platform
+// does not support this attribute).
 //
 ///'inheritSchedule' Attribute
 ///- - - - - - - - - - - - - -
@@ -91,15 +91,15 @@ BSLS_IDENT("$Id: $")
 // The 'schedulingPolicy' attribute indicates the policy that should be used to
 // schedule the created thread for execution.  Typically clients should use the
 // default platform supplied scheduling policy, which is indicated by the
-// 'BCEMT_SCHED_DEFAULT' value.  The alternative scheduling policies,
-// 'BCEMT_THREAD_FIFO' and 'BCEMT_SCHED_RR', are "real-time" scheduling
-// policies, and may not be available unless the task is run with the
-// appropriate privileges.  'BCEMT_SCHED_FIFO' indicates a thread should run
-// until it either yields or is interrupted by a thread of higher priority.
-// 'BCEMT_SCHED_RR' is the same as 'BCEMT_SCHED_FIFO', except that the created
-// thread may be interrupted by a ready thread of equal priority after a finite
-// time-slice.  This attribute is ignored unless 'inheritSchedule' is 'false'.
-// See 'bslmt_threadutil' for information about support for this attribute.
+// 'e_SCHED_DEFAULT' value.  The alternative scheduling policies,
+// 'e_THREAD_FIFO' and 'e_SCHED_RR', are "real-time" scheduling policies, and
+// may not be available unless the task is run with the appropriate privileges.
+// 'e_SCHED_FIFO' indicates a thread should run until it either yields or is
+// interrupted by a thread of higher priority.  'e_SCHED_RR' is the same as
+// 'e_SCHED_FIFO', except that the created thread may be interrupted by a ready
+// thread of equal priority after a finite time-slice.  This attribute is
+// ignored unless 'inheritSchedule' is 'false'.  See 'bslmt_threadutil' for
+// information about support for this attribute.
 //
 ///'schedulingPriority' Attribute
 /// - - - - - - - - - - - - - - -
@@ -170,12 +170,12 @@ BSLS_IDENT("$Id: $")
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setStackSize(BUFFER_SIZE);
 //..
-// Then, we set the 'detachedState' property to 'BCEMT_CREATE_DETACHED',
-// indicating that the thread will not be joinable, and its resources will be
-// reclaimed upon termination.
+// Then, we set the 'detachedState' property to 'e_CREATE_DETACHED', indicating
+// that the thread will not be joinable, and its resources will be reclaimed
+// upon termination.
 //..
 //      attributes.setDetachedState(
-//                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
 //..
 // Now, we create a thread, using the attributes configured above:
 //..
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //      // referring to the spawned thread to the specified '*threadHandle'.
 //  {
 //      int stackSize = attributes.stackSize();
-//      if (BCEMT_UNSET_STACK_SIZE == stackSize) {
+//      if (e_UNSET_STACK_SIZE == stackSize) {
 //          stackSize = bslmt::Configuration::defaultThreadStackSize();
 //      }
 //      // Add a "fudge factor" to 'stackSize' to ensure that the client
@@ -213,13 +213,13 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //
 //      int guardSize = attributes.guardSize();
-//      if (BCEMT_UNSET_GUARD_SIZE == guardSize) {
+//      if (e_UNSET_GUARD_SIZE == guardSize) {
 //          guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
 //      }
 //
 //      int policy = attributes.schedulingPolicy();
 //      int priority = attributes.schedulingPriority();
-//      if (BCEMT_UNSET_PRIORITY == priority) {
+//      if (e_UNSET_PRIORITY == priority) {
 //          priority = operatingSystemDefaultPriority(policy);
 //      }
 //
@@ -282,8 +282,8 @@ class ThreadAttributes {
         e_CREATE_DETACHED = 1   // create a non-joinable thread
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEMT_CREATE_JOINABLE = e_CREATE_JOINABLE
-      , BCEMT_CREATE_DETACHED = e_CREATE_DETACHED
+      , e_CREATE_JOINABLE = e_CREATE_JOINABLE
+      , e_CREATE_DETACHED = e_CREATE_DETACHED
       , CREATE_JOINABLE = e_CREATE_JOINABLE
       , CREATE_DETACHED = e_CREATE_DETACHED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -301,12 +301,12 @@ class ThreadAttributes {
         e_SCHED_RR      = 2,  // round-robin scheduling policy
 
         e_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
-                                  // equivalent to 'BCEMT_SCHED_OTHER'
+                                  // equivalent to 'e_SCHED_OTHER'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEMT_SCHED_OTHER = e_SCHED_OTHER
-      , BCEMT_SCHED_FIFO = e_SCHED_FIFO
-      , BCEMT_SCHED_RR = e_SCHED_RR
-      , BCEMT_SCHED_DEFAULT = e_SCHED_DEFAULT
+      , e_SCHED_OTHER = e_SCHED_OTHER
+      , e_SCHED_FIFO = e_SCHED_FIFO
+      , e_SCHED_RR = e_SCHED_RR
+      , e_SCHED_DEFAULT = e_SCHED_DEFAULT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -324,11 +324,11 @@ class ThreadAttributes {
         e_SCHED_MIN        = e_SCHED_OTHER,
         e_SCHED_MAX        = e_SCHED_DEFAULT
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEMT_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
-      , BCEMT_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
-      , BCEMT_UNSET_PRIORITY = e_UNSET_PRIORITY
-      , BCEMT_SCHED_MIN = e_SCHED_MIN
-      , BCEMT_SCHED_MAX = e_SCHED_MAX
+      , e_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
+      , e_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
+      , e_UNSET_PRIORITY = e_UNSET_PRIORITY
+      , e_SCHED_MIN = e_SCHED_MIN
+      , e_SCHED_MAX = e_SCHED_MAX
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -379,12 +379,12 @@ class ThreadAttributes {
     ThreadAttributes();
         // Create a 'ThreadAttributes' object having the (default) attribute
         // values:
-        //: o 'detachedState()      == BCEMT_CREATE_JOINABLE'
-        //: o 'guardSize()          == BCEMT_UNSET_GUARD_SIZE'
+        //: o 'detachedState()      == e_CREATE_JOINABLE'
+        //: o 'guardSize()          == e_UNSET_GUARD_SIZE'
         //: o 'inheritSchedule()    == true'
-        //: o 'schedulingPolicy()   == BCEMT_SCHED_DEFAULT'
-        //: o 'schedulingPriority() == BCEMT_UNSET_PRIORITY'
-        //: o 'stackSize()          == BCEMT_UNSET_STACK_SIZE'
+        //: o 'schedulingPolicy()   == e_SCHED_DEFAULT'
+        //: o 'schedulingPriority() == e_UNSET_PRIORITY'
+        //: o 'stackSize()          == e_UNSET_STACK_SIZE'
 
     ThreadAttributes(const ThreadAttributes& original);
         // Create a 'ThreadAttributes' object having the same value as the
@@ -398,20 +398,19 @@ class ThreadAttributes {
     // MANIPULATORS
     void setDetachedState(DetachedState value);
         // Set the 'detachedState' attribute of this object to the specified
-        // 'value'.  A value of 'BCEMT_CREATE_JOINABLE' (the default) indicates
+        // 'value'.  A value of 'e_CREATE_JOINABLE' (the default) indicates
         // that a thread must be joined to clean up its resources after it
-        // terminates; a value of 'BCEMT_CREATE_DETACHED' (the only other legal
+        // terminates; a value of 'e_CREATE_DETACHED' (the only other legal
         // value) indicates that the resources will be cleaned up automatically
         // upon thread termination, and that the thread must not be joined.
 
     void setGuardSize(int value);
         // Set the 'guardSize' attribute of this object to the specified
-        // 'value' (in bytes).  'BCEMT_UNSET_GUARD_SIZE == guardSize' is
-        // intended to indicate that the default value as defined by the
-        // platform is to be used.  This default value is typically the size of
-        // one or two pages (see 'bslmt_configuration').  The behavior is
-        // undefined unless 'BCEMT_UNSET_GUARD_SIZE == guardSize' or
-        // 'guardSize >= 0'.
+        // 'value' (in bytes).  'e_UNSET_GUARD_SIZE == guardSize' is intended
+        // to indicate that the default value as defined by the platform is to
+        // be used.  This default value is typically the size of one or two
+        // pages (see 'bslmt_configuration').  The behavior is undefined unless
+        // 'e_UNSET_GUARD_SIZE == guardSize' or 'guardSize >= 0'.
 
     void setInheritSchedule(bool value);
         // Set the 'inheritSchedule' attribute of this object to the specified
@@ -441,25 +440,25 @@ class ThreadAttributes {
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
-        // 'value'.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread
-        // creation should use the default stack size value provided by
+        // 'value'.  If 'stackSize' is 'e_UNSET_STACK_SIZE', thread creation
+        // should use the default stack size value provided by
         // 'bslmt_configuration'.  The behavior is undefined unless
-        // 'BCEMT_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
+        // 'e_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 
     // ACCESSORS
     DetachedState detachedState() const;
         // Return the value of the 'detachedState' attribute of this object.  A
-        // value of 'BCEMT_CREATE_JOINABLE' indicates that a thread must be
-        // joined after it terminates to clean up its resources; a value of
-        // 'BCEMT_CREATE_DETACHED' (the only other legal value) indicates that
-        // the resources will be cleaned up automatically upon thread
-        // termination, and that the thread must not be joined.
+        // value of 'e_CREATE_JOINABLE' indicates that a thread must be joined
+        // after it terminates to clean up its resources; a value of
+        // 'e_CREATE_DETACHED' (the only other legal value) indicates that the
+        // resources will be cleaned up automatically upon thread termination,
+        // and that the thread must not be joined.
 
     int guardSize() const;
         // Return the value of the 'guardSize' attribute of this object.  The
-        // value 'BCEMT_UNSET_GUARD_SIZE == guardSize' is intended to indicate
-        // that the default value as defined by the platform (which is
-        // typically the size of one or two pages) should be obtained from
+        // value 'e_UNSET_GUARD_SIZE == guardSize' is intended to indicate that
+        // the default value as defined by the platform (which is typically the
+        // size of one or two pages) should be obtained from
         // 'bslmt_configuration' and used.
 
     bool inheritSchedule() const;
@@ -488,8 +487,8 @@ class ThreadAttributes {
 
     int stackSize() const;
         // Return the value of the 'stackSize' attribute of this object.  If
-        // 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation should use
-        // the default stack size value provided by 'bslmt_configuration'.
+        // 'stackSize' is 'e_UNSET_STACK_SIZE', thread creation should use the
+        // default stack size value provided by 'bslmt_configuration'.
 };
 
 // FREE OPERATORS

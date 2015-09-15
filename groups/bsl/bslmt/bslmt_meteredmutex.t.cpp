@@ -9,7 +9,7 @@
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>       // atoi()
+#include <bsl_cstdlib.h>       // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

@@ -13,7 +13,7 @@ BSLS_IDENT_RCSID(bslmt_turnstile_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-enum { MICROSECS_PER_SECOND = 1000 * 1000 };
+enum { k_MICROSECS_PER_SECOND = 1000 * 1000 };
 
 }  // close unnamed namespace
 
@@ -30,14 +30,14 @@ bslmt::Turnstile::Turnstile(double rate, const bsls::TimeInterval& startTime)
 // MANIPULATORS
 void bslmt::Turnstile::reset(double rate, const bsls::TimeInterval& startTime)
 {
-    d_interval  = static_cast<Int64>(MICROSECS_PER_SECOND / rate);
+    d_interval  = static_cast<Int64>(k_MICROSECS_PER_SECOND / rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 }
 
 bsls::Types::Int64 bslmt::Turnstile::waitTurn()
 {
-    enum { MIN_TIMER_RESOLUTION = 10 * 1000 };
+    enum { k_MIN_TIMER_RESOLUTION = 10 * 1000 };
         // Assume that minimum timer resolution applicable to "sleep" on all
         // supported platforms is 10 milliseconds.
 
@@ -53,8 +53,8 @@ bsls::Types::Int64 bslmt::Turnstile::waitTurn()
 
         waitTime = nextTurn - nowUSec;
 
-        if (waitTime >= MIN_TIMER_RESOLUTION) {
-          int waitInt = static_cast<int>(waitTime);
+        if (waitTime >= k_MIN_TIMER_RESOLUTION) {
+            int waitInt = static_cast<int>(waitTime);
             if (waitInt == waitTime) {
                 // This is only good up to 'waitTime == ~35 minutes'
 
@@ -64,9 +64,9 @@ bsls::Types::Int64 bslmt::Turnstile::waitTurn()
                 // This will work so long as 'waitTime < ~68 years'
 
                 int waitSecs  = static_cast<int>((waitTime
-                                                  / MICROSECS_PER_SECOND));
+                                                  / k_MICROSECS_PER_SECOND));
                 int waitUSecs = static_cast<int>((waitTime
-                                                  % MICROSECS_PER_SECOND));
+                                                  % k_MICROSECS_PER_SECOND));
                 ThreadUtil::microSleep(waitUSecs, waitSecs);
             }
         }
