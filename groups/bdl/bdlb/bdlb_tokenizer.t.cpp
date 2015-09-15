@@ -2296,25 +2296,177 @@ int main(int argc, char **argv)
         if (verbose) cout <<
                    "\nAd hoc testing of various character properties." << endl;
         {
-            // 3. Repeated characters behaves the same as above.
-            // 4. The null character behave the same as any other character.
-            // 5. Non-ASCII characters behave the same as ASCII ones.
+            // 1. Repeated characters behaves the same as above.
+            // 2. The null character behave the same as any other character.
+            // 3. Non-ASCII characters behave the same as ASCII ones.
+
+            {
+                char      softDelim[3] = {"ss"};
+                char      token[3]     = {"00"};
+                char      hardDelim[2] = {"H"};
+                char      input[11]    = {"ss00H00ss"};
+
+                Obj        mT(input,
+                              StringRef(softDelim),
+                              StringRef(hardDelim));
+                const Obj& T = mT;
+
+                ASSERT(softDelim == T.previousDelimiter());
+                ASSERT(token     == T.token());
+                ASSERT(hardDelim == T.trailingDelimiter());
+
+                ++mT;
+
+                ASSERT(hardDelim == T.previousDelimiter());
+                ASSERT(token     == T.token());
+                ASSERT(softDelim == T.trailingDelimiter());
+            }
+
+            {
+                const char      INPUT_DATA[] = {'\0', '0', '\0'};
+                const StringRef INPUT(INPUT_DATA, 3);
+                const StringRef NULL_STRING_REF("\0", 1);
+                {
+                    // soft delimiter with embedded null
+
+                    Obj        mT(INPUT, NULL_STRING_REF, "");
+                    const Obj& T = mT;
+                    ASSERT(NULL_STRING_REF == T.previousDelimiter());
+                    ASSERT("0"             == T.token());
+                    ASSERT(NULL_STRING_REF == T.trailingDelimiter());
+                }
+
+                {
+                    // hard delimiter with embedded null
+
+                    Obj        mT(INPUT, "", NULL_STRING_REF);
+                    const Obj& T = mT;
+                    ASSERT(""              == T.previousDelimiter());
+                    ASSERT(""              == T.token());
+                    ASSERT(NULL_STRING_REF == T.trailingDelimiter());
+                }
+
+                {
+                    // token with embedded null
+
+                    Obj        mT(INPUT, "", "");
+                    const Obj& T = mT;
+                    ASSERT(""              == T.previousDelimiter());
+                    ASSERT(INPUT           == T.token());
+                    ASSERT(""              == T.trailingDelimiter());
+                }
+            }
         }
 
         if (verbose) cout <<
                   "\nAd hoc 'stress' testing for iterations and size." << endl;
         {
-            // 6. Inputs requiring many iterations work as expected.
-            // 7. Inputs having large tokens/delimeters work as expected.
+
+            // 4. Inputs requiring many iterations work as expected.
+            // 5. Inputs having large tokens/delimeters work as expected.
+
+            {
+                const int   INPUT_SIZE = 1000;
+                char        softInput[INPUT_SIZE+1];
+                char        hardInput[INPUT_SIZE+1];
+
+                // softInput string: "s0t1u2v3s0t1u ... 2v3s0t1u2"
+                // hardInput string: "0H1I2J3K0H1I2 ... J3K0H1I2J"
+
+                for (int i = 0; i+2 < INPUT_SIZE; i+=2) {
+                    const int INDEX = (i/2)%4;
+                    softInput[i]   = SOFT_DELIM_CHARS[INDEX];
+                    softInput[i+1] =      TOKEN_CHARS[INDEX];
+                    hardInput[i]   =      TOKEN_CHARS[INDEX];
+                    hardInput[i+1] = HARD_DELIM_CHARS[INDEX];
+                }
+                softInput[INPUT_SIZE] = 0;
+                hardInput[INPUT_SIZE] = 0;
+
+                Obj        softMT(softInput,
+                                  StringRef(SOFT_DELIM_CHARS),
+                                  StringRef(""));
+                const Obj& softT = softMT;
+
+                Obj        hardMT(hardInput,
+                                  StringRef(""),
+                                  StringRef(HARD_DELIM_CHARS));
+                const Obj& hardT = hardMT;
+
+                for (int i = 0; i+2 < INPUT_SIZE; i+=2) {
+                    const int       INDEX      = (i/2)%4;
+                    const StringRef SOFT_PREV  = softT.previousDelimiter();
+                    const StringRef SOFT_TOKEN = softT.token();
+                    const StringRef HARD_DELIM = hardT.trailingDelimiter();
+                    const StringRef HARD_TOKEN = hardT.token();
+
+                    const StringRef SOFT_PREV_EXP  =
+                                        StringRef(SOFT_DELIM_CHARS + INDEX, 1);
+                    const StringRef SOFT_TOKEN_EXP =
+                                        StringRef(     TOKEN_CHARS + INDEX, 1);
+                    const StringRef HARD_DELIM_EXP =
+                                        StringRef(HARD_DELIM_CHARS + INDEX, 1);
+                    const StringRef HARD_TOKEN_EXP =
+                                        StringRef(     TOKEN_CHARS + INDEX, 1);
+
+                    ASSERTV(i, INDEX, SOFT_PREV_EXP  == SOFT_PREV);
+                    ASSERTV(i, INDEX, SOFT_TOKEN_EXP == SOFT_TOKEN);
+                    ASSERTV(i, INDEX, HARD_DELIM_EXP == HARD_DELIM);
+                    ASSERTV(i, INDEX, HARD_TOKEN_EXP == HARD_TOKEN);
+
+                    ++softMT;
+                    ++hardMT;
+                }
+            }
+
+            {
+                const int BUF_SIZE = 1000;
+                char      softDelim[BUF_SIZE+1];  // "sss...sss"
+                char      token[BUF_SIZE+1];      // "000...000"
+                char      hardDelim[2];           // "H"
+                char      input[(4*BUF_SIZE)+2];  // "s...s0...0H0...0s...s
+
+                for (int i = 0; i < BUF_SIZE; ++i) {
+                    softDelim[i]            = 's';
+                    token[i]                = '0';
+
+                    input[i]                    = 's';
+                    input[BUF_SIZE + i]         = '0';
+                    input[(2*BUF_SIZE) + i + 1] = '0';
+                    input[(3*BUF_SIZE) + i + 1] = 's';
+                }
+                softDelim[BUF_SIZE]   = 0;
+                token[BUF_SIZE]       = 0;
+                hardDelim[0]          = 'H';
+                hardDelim[1]          = 0;
+                input[(2*BUF_SIZE)]   = 'H';
+                input[(4*BUF_SIZE)+1] = 0;
+
+                Obj        mT(input,
+                              StringRef(softDelim),
+                              StringRef(hardDelim));
+                const Obj& T = mT;
+
+                ASSERT(softDelim == T.previousDelimiter());
+                ASSERT(token     == T.token());
+                ASSERT(hardDelim == T.trailingDelimiter());
+
+                ++mT;
+
+                ASSERT(hardDelim == T.previousDelimiter());
+                ASSERT(token     == T.token());
+                ASSERT(softDelim == T.trailingDelimiter());
+            }
         }
 
         if (verbose) cout << "\nNegative tests: null input, iterating in "
                           << "invalid state."
                           << endl;
         {
-            //  8. Supplying a null input is detected (DEBUG).
-            //  9. Non-unique delimiter characters are detected (DEBUG).
-            // 10. Iterating from an invalid state (DEBUG).
+
+            // 6. Supplying a null input is detected).
+            // 7. Iterating from an invalid state.
+
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
@@ -2323,6 +2475,9 @@ int main(int argc, char **argv)
             ASSERT_SAFE_PASS(Obj("", "", ""));
             ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef()));
             ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef(), StringRef()));
+
+            ASSERT_SAFE_FAIL(++Obj("", "", ""));
+            ASSERT_SAFE_PASS(++Obj("0", "", ""));
         }
       } break;
       case 3: {
@@ -2653,11 +2808,14 @@ int main(int argc, char **argv)
         if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&)."
                           << endl;
         {
-            if (veryVerbose) cout << "\tEmpty soft delimiter test." << endl;
+            if (veryVerbose) cout <<
+                      "\tTesting default constructed StringRef as a delimiter."
+                                  << endl;
             {
                 StringRef  nS;
                 // Constructing with Obj mD(StringRef()); fails due to vexing
                 // parse issue.
+//                Obj        mD(const StringRef());
                 Obj        mD(nS);
                 const Obj& D = mD;
 
@@ -2666,6 +2824,10 @@ int main(int argc, char **argv)
                     ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
+
+            if (veryVerbose) cout <<
+                                    "\tTesting empty StringRef as a delimiter."
+                                  << endl;
             {
                 Obj        mD(StringRef(""));
                 const Obj& D = mD;
@@ -2676,7 +2838,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tSingle delimiter test." << endl;
+            if (veryVerbose) cout <<
+                                   "\tTesting single character as a delimiter."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[1];
@@ -2695,7 +2859,9 @@ int main(int argc, char **argv)
                     }
                 }
             }
-            if (veryVerbose) cout <<"\tDuplicate delimiter test." << endl;
+            if (veryVerbose) cout <<
+                                  "\tTesting duplicates in a delimiter string."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[2];
@@ -2716,7 +2882,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tMultiple delimiter test." << endl;
+            if (veryVerbose) cout <<
+                                "\tTesting multiple characters as a delimiter."
+                                  << endl;
             {
                 char delim[256];
                 for (int i = 0; i < 256; ++i) {
@@ -2743,7 +2911,9 @@ int main(int argc, char **argv)
                           << "const StringRef&)."
                           << endl;
         {
-            if (veryVerbose) cout << "\tEmpty delimiter test." << endl;
+            if (veryVerbose) cout <<
+                       "\tTesting default constructed StringRef as delimiters."
+                                  << endl;
             {
                 StringRef  nS;
                 Obj        mD(nS, nS);
@@ -2754,6 +2924,9 @@ int main(int argc, char **argv)
                     ASSERTV(i, TOK == D.inputType(ch));
                 }
             }
+
+            if (veryVerbose) cout << "\tTesting empty StringRef as delimiters."
+                                  << endl;
             {
                 Obj        mD(StringRef(""), StringRef(""));
                 const Obj& D = mD;
@@ -2764,7 +2937,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tSingle delimiter test." << endl;
+            if (veryVerbose) cout <<
+                              "\tTesting single character as a soft delimiter."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[1];
@@ -2783,6 +2958,10 @@ int main(int argc, char **argv)
                     }
                 }
             }
+
+            if (veryVerbose) cout <<
+                              "\tTesting single character as a hard delimiter."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[1];
@@ -2802,7 +2981,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tDuplicate delimiter test." << endl;
+            if (veryVerbose) cout <<
+                             "\tTesting duplicates in a hard delimiter string."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[2];
@@ -2823,7 +3004,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tMultiple delimiter test." << endl;
+            if (veryVerbose) cout <<
+                           "\tTesting multiple characters as   hard delimiter."
+                                  << endl;
             {
                 char delim[256];
                 for (int i = 0; i < 256; ++i) {
@@ -2845,8 +3028,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout
-                << "\tHard delimiter precedence test." << endl;
+            if (veryVerbose) cout <<
+                   "\tTesting hard delimiter precedence for single character."
+                                  << endl;
             {
                 for (int i = 0; i < 256; ++i) {
                     char delim[1];
@@ -2865,6 +3049,10 @@ int main(int argc, char **argv)
                     }
                 }
             }
+
+            if (veryVerbose) cout <<
+                 "\tTesting hard delimiter precedence for multiple characters."
+                                  << endl;
             {
                 char delim[256];
                 for (int i = 0; i < 256; ++i) {
@@ -2913,6 +3101,7 @@ int main(int argc, char **argv)
             Obj tokenizer("Hello, world,,,", " ,");
 
             while (tokenizer.isValid()) {
+               if (veryVeryVerbose)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -2933,6 +3122,7 @@ int main(int argc, char **argv)
                           StringRef(","));
 
             while (tokenizer.isValid()) {
+                if (veryVeryVerbose)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -2953,6 +3143,7 @@ int main(int argc, char **argv)
                           StringRef(":/"));
 
             for (; tokenizer.isValid(); ++tokenizer) {
+                if (veryVeryVerbose)
                 cout << "|\t"
                      << '"' << tokenizer.token() << '"'
                      << "\t"
@@ -2974,9 +3165,9 @@ int main(int argc, char **argv)
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
                                ++it) {
-                cout << "|\t"
-                     << '"' << *it << '"'
-                     << endl;
+                if (veryVeryVerbose) cout << "|\t"
+                                          << '"' << *it << '"'
+                                          << endl;
 
             }
             ++tokenizer;
@@ -2985,9 +3176,9 @@ int main(int argc, char **argv)
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
                                ++it) {
-                cout << "|\t"
-                     << '"' << *it << '"'
-                     << endl;
+                if (veryVeryVerbose) cout << "|\t"
+                                          << '"' << *it << '"'
+                                          << endl;
 
             }
         }
@@ -3001,10 +3192,9 @@ int main(int argc, char **argv)
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
                                ++it) {
-                cout << "|\t"
-                     << '"' << *it << '"'
-                     << endl;
-
+                if (veryVeryVerbose) cout << "|\t"
+                                          << '"' << *it << '"'
+                                          << endl;
             }
 
             Obj::iterator t1=tokenizer.begin();
