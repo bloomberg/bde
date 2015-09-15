@@ -11,6 +11,8 @@
 #include <bdlf_bind.h>
 */
 
+#include <bslim_testutil.h>
+
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
@@ -62,45 +64,48 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-const double EPSILON = 0.035;          // 35 milliseconds
+}  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                       SEMI-STANDARD TEST OUTPUT MACROS
@@ -114,18 +119,13 @@ static bslmt::Mutex coutMutex;
 #define ENDL  bsl::endl;  } coutMutex.unlock()
 #define FLUSH bsl::flush; } coutMutex.unlock()
 
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
-
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 typedef bslmt::Turnstile    Obj;
 typedef bsls::Types::Int64 Int64;
+
+const double EPSILON = 0.035;          // 35 milliseconds
 
 enum { k_USPS = 1000000 };  // microseconds per second
 
