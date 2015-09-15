@@ -242,28 +242,44 @@ void processorWithSleep(
 // ============================================================================
 //                   FUNCTIONS FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
-static
-void heartbeat(
-        bsl::ostream&       stream,
-        const bsl::string&  message,
-        double              rate,
-        double              duration)
-{
-    // Write the specified 'message' to the specified 'stream' at the specified
-    // 'rate' (given in messages per second) for the specified 'duration'.
 
-    bsls::Stopwatch timer;
-    timer.start();
-    bslmt::Turnstile turnstile(rate);
+///Usage
+///-----
+// The following example illustrates the use of 'bslmt::Turnstile' to control
+// the rate of output being written to a specified output stream.  The example
+// function, 'heartbeat', prints a specified message at a specified rate for a
+// specified duration.  An instance of 'bsls::Stopwatch' is used to measure
+// time against the specified duration.
+//..
+    static void heartbeat(bsl::ostream&       stream,
+                          const bsl::string&  message,
+                          double              rate,
+                          double              duration)
+    {
+        // Write the specified 'message' to the specified 'stream' at the
+        // specified 'rate' (given in messages per second) for the specified
+        // 'duration'.
 
-    while (true) {
-        turnstile.waitTurn();
-        if (timer.elapsedTime() >= duration) {
-            break;
+        bsls::Stopwatch  timer;
+        timer.start();
+        bslmt::Turnstile turnstile(rate);
+
+        while (true) {
+            turnstile.waitTurn();
+            if (timer.elapsedTime() >= duration) {
+                break;
+            }
+            stream << message;
         }
-        stream << message;
     }
-}
+//..
+// The benefits of using 'bslmt::Turnstile' in the above example, as opposed to
+// simply calling 'sleep' in a loop, are twofold.  Firstly, 'bslmt::Turnstile'
+// automatically accounts for drift caused by additional processing, so the
+// loop is allowed to execute immediately if the program fails to execute the
+// loop at the specified 'rate'.  Secondly, computing the sleep time and
+// executing the sleep call, are encapsulated in the turnstile component, which
+// improves the overall readability of the program.
 
 // ============================================================================
 //                               MAIN PROGRAM

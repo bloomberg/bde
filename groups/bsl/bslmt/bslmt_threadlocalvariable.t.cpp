@@ -665,7 +665,7 @@ extern "C" void *typesTest(void *voidArgs)
 
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Service Request Processor with Thread Local Context
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -675,9 +675,9 @@ extern "C" void *typesTest(void *voidArgs)
 // First, we define a trivial structure for a request context.
 //..
     // requestprocessor.h
-//
+
     struct RequestContext {
-//
+
         // DATA
         int d_userId;       // BB user id
         int d_workstation;  // BB LUW
@@ -689,11 +689,11 @@ extern "C" void *typesTest(void *voidArgs)
 //..
     class RequestProcessor {
         // This class implements an "example" request processor.
-//
+
         // NOT IMPLEMENTED
         RequestProcessor(const RequestProcessor&);
         RequestProcessor& operator=(const RequestProcessor&);
-//
+
         // PRIVATE CLASS METHODS
         static const RequestContext *&contextReference();
             // Return a reference to a *modifiable* thread-local pointer to the
@@ -702,29 +702,29 @@ extern "C" void *typesTest(void *voidArgs)
             // 'RequestContext' object) to be modified by the caller to allow
             // other methods to assign the thread-local context pointer to a
             // new address.
-//
+
       public:
-//
+
         // CLASS METHODS
         static const RequestContext *requestContext();
             // Return the address of the non-modifiable, request context
             // for this thread, or 0 if none has been set.
-//
+
         // CREATORS
         RequestProcessor() {}
             // Create a 'RequestProcessor'.
-//
+
         ~RequestProcessor() {}
             // Destroy this request processor.
-//
+
         // MANIPULATORS
         void processRequest(int userId, int workstation, const char *request);
             // Process (in the caller's thread) the specified 'request' for
             // the specified 'userId' and 'workstation'.
     };
-//
+
     // requestprocessor.cpp
-//
+
     // PRIVATE CLASS METHODS
 //..
 // Now, we define the 'contextReference' method, which defines a thread-local
@@ -736,13 +736,13 @@ extern "C" void *typesTest(void *voidArgs)
         BCES_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
         return context;
     }
-//
+
     // CLASS METHODS
     const RequestContext *RequestProcessor::requestContext()
     {
         return contextReference();
     }
-//
+
     // MANIPULATORS
 //..
 // Then, we define the 'processRequest' method, which first sets the
@@ -754,11 +754,11 @@ extern "C" void *typesTest(void *voidArgs)
                                           const char *request)
     {
         RequestContext currentContext = {userId, workstation};
-//
+
         contextReference() = &currentContext;
-//
+
         // Process the request.
-//
+
         contextReference() = 0;
     }
 //..
@@ -769,12 +769,11 @@ extern "C" void *typesTest(void *voidArgs)
     void myFunction()
     {
         const RequestContext *context = RequestProcessor::requestContext();
-//
+
         // Perform some task that makes use of this threads 'requestContext'.
         // ...
     }
 //..
-
 struct UsageTestArgs {
     my_Barrier       *d_barrier;
     RequestProcessor *d_processor;

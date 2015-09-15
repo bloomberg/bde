@@ -129,61 +129,84 @@ struct my_Object {
     void defaultUpgradeMethod() {};
 };
 
-// USAGE EXAMPLE
-
-static void errorProneFunc(my_Object *obj, my_RWLock *rwlock)
-{
-    rwlock->lockWrite();
-    if (someUpgradeCondition) {
-        obj->someUpgradeMethod();
-        rwlock->unlock();
-        return;                                                       // RETURN
-    } else if (someOtherUpgradeCondition) {
-        obj->someOtherUpgradeMethod();
-        return;                             // MISTAKE! forgot to unlock rwlock
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultUpgradeMethod();
-    rwlock->unlock();
-    return;
-}
-
-static void safeFunc(my_Object *obj, my_RWLock *rwlock)
-{
-    bslmt::WriteLockGuard<my_RWLock> guard(rwlock);
-    if (someUpgradeCondition) {
-        obj->someUpgradeMethod();
-        return;                                                       // RETURN
-    } else if (someOtherUpgradeCondition) {
-        obj->someOtherUpgradeMethod();
-        return;                         // OK, rwlock is automatically unlocked
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultUpgradeMethod();
-    return;
-}
-
-static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
-    // Perform task and return positive value if locking succeeds.  Return 0 if
-    // locking fails.
-{
-    const int RETRIES = 1; // use higher values for higher success rate
-    bslmt::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
-    if (guard.ptr()) { // rwlock is locked
+///Usage
+///-----
+// Use this component to ensure that in the event of an exception or exit from
+// any point in a given scope, the synchronization object will be properly
+// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// exception safe, and contains a bug.
+//..
+    static void errorProneFunc(my_Object *obj, my_RWLock *rwlock)
+    {
+        rwlock->lockWrite();
         if (someUpgradeCondition) {
             obj->someUpgradeMethod();
-            return 2;                                                 // RETURN
+            rwlock->unlock();
+            return;                                                   // RETURN
         } else if (someOtherUpgradeCondition) {
             obj->someOtherUpgradeMethod();
-            return 3;                                                 // RETURN
+            // MISTAKE! forgot to unlock rwlock
+            return;                                                   // RETURN
         }
         obj->defaultUpgradeMethod();
-        return 1;                                                     // RETURN
+        rwlock->unlock();
+        return;
     }
-    return 0;
-}
+//..
+// The function can be rewritten with a cleaner and safer implementation using
+// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// is exception safe, and avoids the multiple calls to unlock that can be a
+// source of errors.
+//..
+    static void safeFunc(my_Object *obj, my_RWLock *rwlock)
+    {
+        bslmt::WriteLockGuard<my_RWLock> guard(rwlock);
+        if (someUpgradeCondition) {
+            obj->someUpgradeMethod();
+            return;                                                   // RETURN
+        } else if (someOtherUpgradeCondition) {
+            obj->someOtherUpgradeMethod();
+            // OK, rwlock is automatically unlocked
+            return;                                                   // RETURN
+        }
+        obj->defaultUpgradeMethod();
+        return;
+    }
+//..
+// When blocking while acquiring the lock is not desirable, one may instead use
+// a 'bslmt::WriteLockGuardTryLock' in the typical following fashion:
+//..
+    static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
+        // Perform upgrade and return positive value if locking succeeds.
+        // Return 0 if locking fails.
+    {
+        const int RETRIES = 1; // use higher values for higher success rate
+        bslmt::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
+        if (guard.ptr()) { // rwlock is locked
+            if (someUpgradeCondition) {
+                obj->someUpgradeMethod();
+                return 2;                                             // RETURN
+            } else if (someOtherUpgradeCondition) {
+                obj->someOtherUpgradeMethod();
+                return 3;                                             // RETURN
+            }
+            obj->defaultUpgradeMethod();
+            return 1;                                                 // RETURN
+        }
+        return 0;
+    }
+//..
+// If the underlying lock object provides an upgrade from a lock for read to a
+// lock for write (as does 'bslmt::ReaderWriterLock' with the
+// 'upgradeToWriteLock' function, for example), and the lock is already guarded
+// by a 'bslmt::LockReadGuard', then it is not necessary to transfer the guard
+// to a 'bslmt::WriteLockGuard'.  In fact, a combination of
+// 'bslmt::LockReadGuard' and 'bslmt::WriteLockGuard' guarding a common lock
+// object should probably never be needed.
+//
+// Care must be taken so as not to interleave guard objects in such a way as to
+// cause an illegal sequence of calls on a lock (two sequential lock calls or
+// two sequential unlock calls on a non-recursive read/write lock).
 
 // ============================================================================
 //                               MAIN PROGRAM

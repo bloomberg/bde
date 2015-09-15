@@ -96,10 +96,11 @@ BSLS_IDENT("$Id: $")
 //      if (someUpgradeCondition) {
 //          obj->someUpgradeMethod();
 //          rwlock->unlock();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherUpgradeCondition) {
 //          obj->someOtherUpgradeMethod();
-//          return;                      // MISTAKE! forgot to unlock rwlock
+//          // MISTAKE! forgot to unlock rwlock
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultUpgradeMethod();
 //      rwlock->unlock();
@@ -114,12 +115,13 @@ BSLS_IDENT("$Id: $")
 //  static void safeFunc(my_Object *obj, my_RWLock *rwlock)
 //  {
 //      bslmt::WriteLockGuard<my_RWLock> guard(rwlock);
-//      if (someCondition) {
+//      if (someUpgradeCondition) {
 //          obj->someUpgradeMethod();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherUpgradeCondition) {
 //          obj->someOtherUpgradeMethod();
-//          return;                  // OK, rwlock is automatically unlocked
+//          // OK, rwlock is automatically unlocked
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultUpgradeMethod();
 //      return;
@@ -137,13 +139,13 @@ BSLS_IDENT("$Id: $")
 //      if (guard.ptr()) { // rwlock is locked
 //          if (someUpgradeCondition) {
 //              obj->someUpgradeMethod();
-//              return 2;
+//              return 2;                                             // RETURN
 //          } else if (someOtherUpgradeCondition) {
 //              obj->someOtherUpgradeMethod();
-//              return 3;
+//              return 3;                                             // RETURN
 //          }
 //          obj->defaultUpgradeMethod();
-//          return 1;
+//          return 1;                                                 // RETURN
 //      }
 //      return 0;
 //  }
