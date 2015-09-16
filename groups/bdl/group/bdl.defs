@@ -16,6 +16,10 @@
 windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 !! windows              shr     STL_DEFINES     = /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 
+# This library provides CryptAcquireContext and CryptGenRandom which are used
+# by bdlb.
+-- windows-             _       BDE_ENDLDFLAGS  =  Advapi32.lib
+
 # this are redundant with definitions in bsl.defs
 # # enable/disable STLport debug
 # !! unix-*-*-*-* 	_       STL_DBGDEFS     =
