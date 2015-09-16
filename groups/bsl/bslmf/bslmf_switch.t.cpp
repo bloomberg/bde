@@ -162,7 +162,7 @@ void aSsErT(bool condition, const char *message, int line)
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
         // 'LEN' is 0 or 3.
         typedef typename
-          bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
+           bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 
         transferType x = 0;
         server->retrieve(&x);
@@ -176,7 +176,7 @@ void aSsErT(bool condition, const char *message, int line)
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
         // 'LEN' is 0 or 3.
         typedef typename
-          bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
+           bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 
         transferType x = 0;
         memcpy(&x, d_buffer, LEN);
