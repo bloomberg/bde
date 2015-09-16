@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 // We would like to store our short strings in the data server, but the data
 // server only handles 'char', 'short' and 'int' types.  Since our strings fit
 // into these simple types, we can transform 'ShortString' into these integral
-// types when calling 'store' and 'retrieve', using 'bslmf::Switch5' to choose
+// types when calling 'store' and 'retrieve', using 'bslmf::Switch' to choose
 // which integral type to use for each 'ShortString' type:
 //..
 //  template <int LEN>
@@ -137,7 +137,7 @@ BSLS_IDENT("$Id: $")
 //      // 'LEN' is 0 or 3.
 //
 //      typedef typename
-//        bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
+//         bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 //
 //      transferType x = 0;
 //      server->retrieve(&x);
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 //      // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
 //      // 'LEN' is 0 or 3.
 //      typedef typename
-//        bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
+//         bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 //
 //      transferType x = 0;
 //      std::memcpy(&x, d_buffer, LEN);
