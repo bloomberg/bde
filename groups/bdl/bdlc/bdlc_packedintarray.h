@@ -2063,10 +2063,12 @@ PackedIntArrayConstIterator<TYPE>
     return PackedIntArrayConstIterator<TYPE>(d_array_p, d_index - offset);
 }
 
+}  // close package namespace
+
 // FREE FUNCTIONS
 template <class TYPE>
 inline
-PackedIntArrayConstIterator<TYPE> operator++(
+bdlc::PackedIntArrayConstIterator<TYPE> bdlc::operator++(
                                        PackedIntArrayConstIterator<TYPE>& iter,
                                        int)
 {
@@ -2080,7 +2082,7 @@ PackedIntArrayConstIterator<TYPE> operator++(
 
 template <class TYPE>
 inline
-PackedIntArrayConstIterator<TYPE> operator--(
+bdlc::PackedIntArrayConstIterator<TYPE> bdlc::operator--(
                                        PackedIntArrayConstIterator<TYPE>& iter,
                                        int)
 {
@@ -2094,24 +2096,24 @@ PackedIntArrayConstIterator<TYPE> operator--(
 
 template <class TYPE>
 inline
-bool operator==(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator==(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p == rhs.d_array_p && lhs.d_index == rhs.d_index;
 }
 
 template <class TYPE>
 inline
-bool operator!=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator!=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p != rhs.d_array_p || lhs.d_index != rhs.d_index;
 }
 
 template <class TYPE>
 inline
-bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
-                         const PackedIntArrayConstIterator<TYPE>& rhs)
+bsl::ptrdiff_t bdlc::operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
+                               const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2127,8 +2129,8 @@ bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
-               const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
+                     const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2137,8 +2139,8 @@ bool operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2147,8 +2149,8 @@ bool operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
-               const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
+                     const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2157,17 +2159,19 @@ bool operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index >= rhs.d_index;
 }
 
-                            // --------------------
-                            // class PackedIntArray
-                            // --------------------
+namespace bdlc {
+
+                    // --------------------
+                    // class PackedIntArray
+                    // --------------------
 
 // CLASS METHODS
 template <class TYPE>
@@ -2535,27 +2539,29 @@ bsl::ostream& PackedIntArray<TYPE>::print(bsl::ostream& stream,
     return d_imp.print(stream, level, spacesPerLevel);
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 template <class TYPE>
 inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const PackedIntArray<TYPE>& array)
+bsl::ostream& bdlc::operator<<(bsl::ostream&               stream,
+                               const PackedIntArray<TYPE>& array)
 {
     return array.print(stream);
 }
 
 template <class TYPE>
 inline
-bool operator==(const PackedIntArray<TYPE>& lhs,
-                const PackedIntArray<TYPE>& rhs)
+bool bdlc::operator==(const PackedIntArray<TYPE>& lhs,
+                      const PackedIntArray<TYPE>& rhs)
 {
     return lhs.isEqual(rhs);
 }
 
 template <class TYPE>
 inline
-bool operator!=(const PackedIntArray<TYPE>& lhs,
-                const PackedIntArray<TYPE>& rhs)
+bool bdlc::operator!=(const PackedIntArray<TYPE>& lhs,
+                      const PackedIntArray<TYPE>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -2563,14 +2569,13 @@ bool operator!=(const PackedIntArray<TYPE>& lhs,
 // FREE FUNCTIONS
 template <class TYPE>
 inline
-void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
+void bdlc::swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
 {
     BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
 
     a.swap(b);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // TRAITS

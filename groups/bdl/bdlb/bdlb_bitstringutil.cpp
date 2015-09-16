@@ -55,14 +55,14 @@ BSLMF_ASSERT(0 == (k_BITS_PER_UINT64 & (k_BITS_PER_UINT64 - 1))); // power of 2
 
     // This table shows two bit strings made of arrays of 'uint64_t', showing
     // the bit index of the low-order bit of consecutive bytes.  As you see, in
-    // the case of Little-Endian, the index always increases by 8 with every
+    // the case of little-endian, the index always increases by 8 with every
     // byte.  In the case of big-endian, it's much more complicated, with the
-    // index *decreasing* by 8 in most cases, yet *increasing* by a lot on word
-    // boundaries.
+    // index *decreasing* by 8 in most cases, yet *increasing* by a lot on
+    // 64-bit word boundaries.
     //
     // The bit strings consist of two 'uint64_t' words, or 16 bytes, or 128
     // bits, where bytes 0-7 index into the first word of the bit string, and
-    // bits 8-15 index the second word of the bit string.
+    // bytes 8-15 index the second word of the bit string.
     //
     // ----------------------------------+-------------------------------------
     //           Little-Endian           |             Big-Endian
@@ -89,9 +89,9 @@ BSLMF_ASSERT(0 == (k_BITS_PER_UINT64 & (k_BITS_PER_UINT64 - 1))); // power of 2
     // ----------------------------------+-------------------------------------
     //
     // Our 'BitPtrDiff' class below can represent a distance, in bits, between
-    // any two ('pointer, index') pairs.  Due to the above, if the pointers are
+    // any two '(pointer, index)' pairs.  Due to the above, if the pointers are
     // not 64-bit word-aligned on a big-endian machine, this becomes
-    // problematic -- one needs to know to where the bit arrays begin to know
+    // problematic -- one needs to know where the bit arrays begin to know
     // where the 64-bit word boundaries are, and a subtraction between two
     // 'BitPtr's (defined below) becomes problematic unless it is known that
     // the difference between the addresses of both of the bit strings they
@@ -343,7 +343,7 @@ BitPtr::BitPtr(const uint64_t *ptr, size_t index)
         k_PTR_MASK = (1 << k_NUM_BYTE_PTR_BITS) - 1,
             // Mask for removing the low-order bits from the pointer part.
         k_SHIFT_UP = k_NUM_LO_BITS - k_NUM_BYTE_PTR_BITS
-            // The low-order bits of the get added to the high-order
+            // The low-order bits of 'ptrPart' get added to the high-order
             // significant bits of 'd_lo', so they have to be shifted up by
             // this amount.
     };
@@ -434,7 +434,7 @@ class Mover {
     // 'numBits' bits in 'dstWord' and the low-order 'numBits' of 'srcValue',
     // assigning the result to the corresponding bits of 'dstWord'.  The
     // behavior is undefined unless 'dstIndex + numBits <= k_BITS_PER_UINT64',
-    // so the operation never affects more than a single word.
+    // so the operation never affects more than a single 64-bit word.
     //
     // And:
     //..
@@ -460,7 +460,7 @@ class Mover {
         // unaffected.  The behavior is undefined unless
         // '0 <= dstIndex < k_BITS_PER_UINT64', and
         // '0 <= numBits < k_BITS_PER_UINT64'.  Note that this operation may
-        // affect up to two words of 'dstBitString'.
+        // affect up to two 64-bit words of 'dstBitString'.
 
     static void doFullNonAlignedWord(uint64_t *dstBitString,
                                      int       dstIndex,

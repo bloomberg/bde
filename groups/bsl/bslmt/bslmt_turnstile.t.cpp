@@ -11,6 +11,8 @@
 #include <bdlf_bind.h>
 */
 
+#include <bslim_testutil.h>
+
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
@@ -62,45 +64,48 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-const double EPSILON = 0.035;          // 35 milliseconds
+}  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                       SEMI-STANDARD TEST OUTPUT MACROS
@@ -114,20 +119,15 @@ static bslmt::Mutex coutMutex;
 #define ENDL  bsl::endl;  } coutMutex.unlock()
 #define FLUSH bsl::flush; } coutMutex.unlock()
 
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
-
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 typedef bslmt::Turnstile    Obj;
 typedef bsls::Types::Int64 Int64;
 
-enum { USPS = 1000000 };  // microseconds per second
+const double EPSILON = 0.035;          // 35 milliseconds
+
+enum { k_USPS = 1000000 };  // microseconds per second
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -242,28 +242,44 @@ void processorWithSleep(
 // ============================================================================
 //                   FUNCTIONS FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
-static
-void heartbeat(
-        bsl::ostream&       stream,
-        const bsl::string&  message,
-        double              rate,
-        double              duration)
-{
-    // Write the specified 'message' to the specified 'stream' at the specified
-    // 'rate' (given in messages per second) for the specified 'duration'.
 
-    bsls::Stopwatch timer;
-    timer.start();
-    bslmt::Turnstile turnstile(rate);
+///Usage
+///-----
+// The following example illustrates the use of 'bslmt::Turnstile' to control
+// the rate of output being written to a specified output stream.  The example
+// function, 'heartbeat', prints a specified message at a specified rate for a
+// specified duration.  An instance of 'bsls::Stopwatch' is used to measure
+// time against the specified duration.
+//..
+    static void heartbeat(bsl::ostream&       stream,
+                          const bsl::string&  message,
+                          double              rate,
+                          double              duration)
+    {
+        // Write the specified 'message' to the specified 'stream' at the
+        // specified 'rate' (given in messages per second) for the specified
+        // 'duration'.
 
-    while (true) {
-        turnstile.waitTurn();
-        if (timer.elapsedTime() >= duration) {
-            break;
+        bsls::Stopwatch  timer;
+        timer.start();
+        bslmt::Turnstile turnstile(rate);
+
+        while (true) {
+            turnstile.waitTurn();
+            if (timer.elapsedTime() >= duration) {
+                break;
+            }
+            stream << message;
         }
-        stream << message;
     }
-}
+//..
+// The benefits of using 'bslmt::Turnstile' in the above example, as opposed to
+// simply calling 'sleep' in a loop, are twofold.  Firstly, 'bslmt::Turnstile'
+// automatically accounts for drift caused by additional processing, so the
+// loop is allowed to execute immediately if the program fails to execute the
+// loop at the specified 'rate'.  Secondly, computing the sleep time and
+// executing the sleep call, are encapsulated in the turnstile component, which
+// improves the overall readability of the program.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -510,9 +526,9 @@ int main(int argc, char *argv[])
 
         const double WT   = 1.0 / RATE;    // max wait time for each turn
         const Int64  WTUB =
-           static_cast<Int64>(USPS * (WT + EPSILON));  // upper bound wait time
+         static_cast<Int64>(k_USPS * (WT + EPSILON));  // upper bound wait time
         const Int64  WTLB =
-           static_cast<Int64>(USPS * (WT - EPSILON));  // lower bound wait time
+         static_cast<Int64>(k_USPS * (WT - EPSILON));  // lower bound wait time
 
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
@@ -585,7 +601,7 @@ int main(int argc, char *argv[])
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
         ASSERT(0 ==  X.lagTime());   // not lagging
 
-        bslmt::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * k_USPS);
         ASSERT(0 == mX.waitTurn());
         ASSERT(0 <   X.lagTime());   // lagging after sleep
 
@@ -641,10 +657,10 @@ int main(int argc, char *argv[])
 
         // Turns are taken at or above the specified rate
 
-        const double RATE    = 5.0;
-        const double WT      = 1.0 / RATE;  // max wait time for each turn
-        const Int64  WTUB    = USPS * (WT + EPSILON);  // upper bound wait time
-        const Int64  WTLB    = USPS * (WT - EPSILON);  // lower bound wait time
+        const double RATE = 5.0;
+        const double WT   = 1.0 / RATE;  // max wait time for each turn
+        const Int64  WTUB = k_USPS * (WT + EPSILON);  // upper bound wait time
+        const Int64  WTLB = k_USPS * (WT - EPSILON);  // lower bound wait time
 
         if (verbose) {
             P_(RATE)   P_(WT)  P_(WTUB)  P(WTLB);
@@ -677,20 +693,20 @@ int main(int argc, char *argv[])
 
         // 'X.lagTime()' does not report negative values, but suppose it did.
         // Call 'epsA' the amount of time we've spent doing stuff since the
-        // last 'waitTurn'.  Then 'X.lagTime() == - USPS * WT + epsA' at this
+        // last 'waitTurn'.  Then 'X.lagTime() == - k_USPS * WT + epsA' at this
         // point.
 
         // Wait 2.25 times the period time
 
-        int sleepTime = (int) (2.5 * USPS * WT);
+        int sleepTime = (int) (2.5 * k_USPS * WT);
         bslmt::ThreadUtil::microSleep(sleepTime);
 
-        // At this point.  'X.lagTime() == 1.5 * USPS * WT + epsA'.  Take one
+        // At this point.  'X.lagTime() == 1.5 * k_USPS * WT + epsA'.  Take one
         // turn.
 
         ASSERT(0 == mX.waitTurn());
 
-        // Now, 'X.lagTime() == 0.5 * USPS * WT + epsA'.  Note that we can't
+        // Now, 'X.lagTime() == 0.5 * k_USPS * WT + epsA'.  Note that we can't
         // rely on system clocks having a small enough resolution to notice
         // 'epsA'.  Verify that lagTime is positive.
 
@@ -785,7 +801,7 @@ int main(int argc, char *argv[])
             { L_,   1000,        4, },
             { L_,   1000,        8, },
         };
-        enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+        const int DATA_SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int i = 0; i < DATA_SIZE; ++i) {
             int    LINE     = DATA[i].d_line;
@@ -841,7 +857,7 @@ int main(int argc, char *argv[])
              << endl << "message."
              << endl;
 
-        bslmt::ThreadUtil::microSleep(3 * USPS);
+        bslmt::ThreadUtil::microSleep(3 * k_USPS);
 
         bslmt::Turnstile turnstile(1.0);
         unsigned count = 0;

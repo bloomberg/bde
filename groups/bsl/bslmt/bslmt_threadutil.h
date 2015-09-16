@@ -208,11 +208,11 @@ BSLS_IDENT("$Id: $")
 //      // Create a detached thread with a small stack size and perform some
 //      // work.
 //  {
-//      enum { STACK_SIZE = 16384 };
+//      enum { k_STACK_SIZE = 16384 };
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setDetachedState(
 //                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
-//      attributes.setStackSize(STACK_SIZE);
+//      attributes.setStackSize(k_STACK_SIZE);
 //
 //      char initValue = 1;
 //      bslmt::ThreadUtil::Handle handle;
@@ -235,14 +235,14 @@ BSLS_IDENT("$Id: $")
 //      // Create 3 threads with different priorities and then wait for them
 //      // all to finish.
 //  {
-//      enum { NUM_THREADS = 3 };
+//      enum { k_NUM_THREADS = 3 };
 //
-//      bslmt::ThreadUtil::Handle handles[NUM_THREADS];
-//      bcemt_ThreadFunction functions[NUM_THREADS] = {
+//      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
+//      bcemt_ThreadFunction functions[k_NUM_THREADS] = {
 //                                                MostUrgentThreadFunction,
 //                                                FairlyUrgentThreadFunction,
 //                                                LeastUrgentThreadFunction };
-//      double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
+//      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
 //
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setInheritSchedule(false);
@@ -250,7 +250,7 @@ BSLS_IDENT("$Id: $")
 //                                  bslmt::ThreadAttributes::BCEMT_SCHED_OTHER;
 //      attributes.setSchedulingPolicy(policy);
 //
-//      for (int i = 0; i < NUM_THREADS; ++i) {
+//      for (int i = 0; i < k_NUM_THREADS; ++i) {
 //          attributes.setSchedulingPriority(
 //               bslmt::ThreadUtil::convertToSchedulingPriority(policy,
 //                                                             priorities[i]));
@@ -260,7 +260,7 @@ BSLS_IDENT("$Id: $")
 //          assert(0 == rc);
 //      }
 //
-//      for (int i = 0; i < NUM_THREADS; ++i) {
+//      for (int i = 0; i < k_NUM_THREADS; ++i) {
 //          int rc = bslmt::ThreadUtil::join(handles[i]);
 //          assert(0 == rc);
 //      }

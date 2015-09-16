@@ -4,11 +4,10 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlt_date.h>
-
 #include <bslma_testallocator.h>
 
 #include <bsls_objectbuffer.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
@@ -547,7 +546,7 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash1((const char*)&key, sizeof key);
             // Use types:
-            //     int, double, bdlt::Date
+            //     int, double, bsls::TimeInterval
 
             typedef bdlc::HashTableDefaultHash1 Functor;
 
@@ -636,9 +635,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bdlt::Date'\n";
+            if (veryVerbose) cout << "\tUsing 'bsls::TimeInterval'\n";
             {
-                typedef bdlt::Date Key;
+                typedef bsls::TimeInterval Key;
 
                 static const struct {
                     int d_lineNum;
@@ -646,9 +645,9 @@ int main(int argc, char *argv[])
                 } DATA[] = {
                     //line     key
                     //----     ---
-                    { L_,      bdlt::Date(2000, 1,  1),    },
-                    { L_,      bdlt::Date(1928, 12, 24),   },
-                    { L_,      bdlt::Date(1847, 8,  17),   },
+                    { L_,      bsls::TimeInterval(  5000,       3) },
+                    { L_,      bsls::TimeInterval( 12702,    1274) },
+                    { L_,      bsls::TimeInterval(167912, 1400074) },
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -766,7 +765,7 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash2((const char*)&key, sizeof key);
             // Use types:
-            //     int, double, bdlt::Date
+            //     int, double, bsls::TimeInterval
 
             typedef bdlc::HashTableDefaultHash2 Functor;
 
@@ -855,9 +854,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bdlt::Date'\n";
+            if (veryVerbose) cout << "\tUsing 'bsls::TimeInterval'\n";
             {
-                typedef bdlt::Date Key;
+                typedef bsls::TimeInterval Key;
 
                 static const struct {
                     int d_lineNum;
@@ -865,9 +864,9 @@ int main(int argc, char *argv[])
                 } DATA[] = {
                     //line     key
                     //----     ---
-                    { L_,      bdlt::Date(2011, 2,  4),    },
-                    { L_,      bdlt::Date(1958, 10, 24),   },
-                    { L_,      bdlt::Date(1827, 9,  27),   },
+                    { L_,      bsls::TimeInterval(  5000,       3) },
+                    { L_,      bsls::TimeInterval( 12702,    1274) },
+                    { L_,      bsls::TimeInterval(167912, 1400074) },
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

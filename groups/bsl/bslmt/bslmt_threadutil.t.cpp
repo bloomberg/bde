@@ -110,6 +110,156 @@ int veryVeryVerbose;
     const int MIN_GUARD_SIZE = 1;
 #endif
 
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
+///Example 1: Creating a Simple Thread with Default Attributes
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we create a thread using the default attribute settings.
+// Upon creation, the thread executes the user-supplied C-linkage function
+// 'myThreadFunction' that counts 5 seconds before terminating:
+//
+// First, we create a function that will run in the spawned thread:
+//..
+//  extern "C" void *myThreadFunction(void *)
+//      // Print to standard output "Another second has passed" every second
+//      // for five seconds, and return 0.
+//  {
+//      for (int i = 0; i < 3; ++i) {
+//          bslmt::ThreadUtil::microSleep(0, 1);
+//          bsl::cout << "Another second has passed." << bsl::endl;
+//      }
+//      return 0;
+//  }
+//..
+// Now, we show how to create and join the thread.
+//
+// After creating the thread, the 'main' routine *joins* the thread, which, in
+// effect, causes 'main' to wait for execution of 'myThreadFunction' to
+// complete, and guarantees that the output from 'main' will follow the last
+// output from the user-supplied function:
+//..
+//  int main()
+//  {
+//      bslmt::Configuration::setDefaultThreadStackSize(
+//                  bslmt::Configuration::recommendedDefaultThreadStackSize());
+//
+//      bslmt::ThreadUtil::Handle handle;
+//
+//      bslmt::ThreadAttributes attr;
+//      attr.setStackSize(1024 * 1024);
+//
+//      int rc = bslmt::ThreadUtil::create(&handle, attr, myThreadFunction, 0);
+//      ASSERT(0 == rc);
+//
+//      bslmt::ThreadUtil::yield();
+//
+//      rc = bslmt::ThreadUtil::join(handle);
+//      ASSERT(0 == rc);
+//
+//      bsl::cout << "A three second interval has elapsed\n";
+//
+//      return 0;
+//  }
+//..
+// Finally, the output of this program is:
+//..
+//  Another second has passed.
+//  Another second has passed.
+//  Another second has passed.
+//  A three second interval has elapsed.
+//..
+///Example 2: Creating a Simple Thread with User-Specified Attributes
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will choose to override the default thread attribute
+// values.
+//
+// The attributes of a thread can be specified explicitly by supplying a
+// 'bslmt::ThreadAttributes' object to the 'create' method.  For instance, we
+// could specify a smaller stack size for a thread to conserve system resources
+// if we know that we will require not require the platform's default stack
+// size.
+//
+// First, we define our thread function, noting that it doesn't need much stack
+// space:
+//..
+//  extern "C" void *mySmallStackThreadFunction(void *threadArg)
+//      // Initialize a small object on the stack and do some work.
+//  {
+//      char *initValue = (char *)threadArg;
+//      char Small[8];
+//      bsl::memset(&Small[0], *initValue, 8);
+//      // do some work ...
+//      return 0;
+//  }
+//..
+// Finally, we show how to create a detached thread running the function just
+// created with a small stack size:
+//..
+//  void createSmallStackSizeThread()
+//      // Create a detached thread with a small stack size and perform some
+//      // work.
+//  {
+//      enum { k_STACK_SIZE = 16384 };
+//      bslmt::ThreadAttributes attributes;
+//      attributes.setDetachedState(
+//                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//      attributes.setStackSize(k_STACK_SIZE);
+//
+//      char initValue = 1;
+//      bslmt::ThreadUtil::Handle handle;
+//      int status = bslmt::ThreadUtil::create(&handle,
+//                                            attributes,
+//                                            mySmallStackThreadFunction,
+//                                            &initValue);
+//  }
+//..
+//
+///Example 3: Setting Thread Priorities
+/// - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate creating 3 threads with different priorities.
+// We use the 'convertToSchedulingPriority' function to translate a normalized,
+// floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority
+// in the range '[ getMinSchedulingPriority, getMaxSchedulingPriority ]' to set
+// the 'schedulingPriority' attribute.
+//..
+//  void runSeveralThreads()
+//      // Create 3 threads with different priorities and then wait for them
+//      // all to finish.
+//  {
+//      enum { k_NUM_THREADS = 3 };
+//
+//      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
+//      bcemt_ThreadFunction functions[k_NUM_THREADS] = {
+//                                                MostUrgentThreadFunction,
+//                                                FairlyUrgentThreadFunction,
+//                                                LeastUrgentThreadFunction };
+//      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
+//
+//      bslmt::ThreadAttributes attributes;
+//      attributes.setInheritSchedule(false);
+//      const bslmt::ThreadAttributes::SchedulingPolicy policy =
+//                                  bslmt::ThreadAttributes::BCEMT_SCHED_OTHER;
+//      attributes.setSchedulingPolicy(policy);
+//
+//      for (int i = 0; i < k_NUM_THREADS; ++i) {
+//          attributes.setSchedulingPriority(
+//               bslmt::ThreadUtil::convertToSchedulingPriority(policy,
+//                                                             priorities[i]));
+//          int rc = bslmt::ThreadUtil::create(&handles[i],
+//                                             attributes,
+//                                             functions[i], 0);
+//          ASSERT(0 == rc);
+//      }
+//
+//      for (int i = 0; i < k_NUM_THREADS; ++i) {
+//          int rc = bslmt::ThreadUtil::join(handles[i]);
+//          ASSERT(0 == rc);
+//      }
+//  }
+//..
+
 // ============================================================================
 //                       GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -235,11 +385,11 @@ static
 void createSmallStackSizeThread()
     // Create a detached thread with the small stack size and perform some work
 {
-    enum { STACK_SIZE = 16384 };
+    enum { k_STACK_SIZE = 16384 };
     bslmt::ThreadAttributes attributes;
     attributes.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
-    attributes.setStackSize(STACK_SIZE);
+    attributes.setStackSize(k_STACK_SIZE);
 
     char initValue = 1;
     bslmt::ThreadUtil::Handle handle;
@@ -343,10 +493,10 @@ class MyMutex {
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
         // 5*8 = 40 bytes
-        CRITICAL_SECTION_BUFFER_SIZE = 5
+        k_CRITICAL_SECTION_BUFFER_SIZE = 5
 #else
         // 6*4 = 24 bytes
-        CRITICAL_SECTION_BUFFER_SIZE = 6
+        k_CRITICAL_SECTION_BUFFER_SIZE = 6
 #endif
     };
 
@@ -356,11 +506,11 @@ class MyMutex {
         // operation spins this many iterations (on, presumably, some atomic
         // integer) before sleeping on the underlying primitive.
 
-        BCEMT_SPIN_COUNT = 30
+        k_SPIN_COUNT = 30
     };
 
     // DATA
-    void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];
+    void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
 
   private:
     // NOT IMPLEMENTED
@@ -373,7 +523,7 @@ class MyMutex {
         // Create a mutex initialized to an unlocked state.
     {
         InitializeCriticalSectionAndSpinCount(
-          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), BCEMT_SPIN_COUNT);
+          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), k_SPIN_COUNT);
     }
 
     ~MyMutex()
@@ -433,9 +583,9 @@ class MyMutex {
 
 #endif
 
-enum { NUM_NOT_URGENT_THREADS = 128,
-       NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1,
-       URGENT_THREAD          = NUM_THREADS / 2 };
+enum { k_NUM_NOT_URGENT_THREADS = 128,
+       k_NUM_THREADS            = k_NUM_NOT_URGENT_THREADS + 1,
+       k_URGENT_THREAD          = k_NUM_THREADS / 2 };
 
 struct Functor {
     bool                  d_urgent;
@@ -461,21 +611,21 @@ MyMutex        Functor::s_mutex;
 
 void Functor::operator()()
 {
-    enum {  LIMIT = 512,
+    enum {  k_LIMIT = 512,
 
             // 'TIMER'_MASK controls how often threads wait for other threads
-            // to pile up against the mutex.  A lower value of 'TIMER_MASK'
+            // to pile up against the mutex.  A lower value of 'k_TIMER_MASK'
             // means more frequent sleeps.  Solaris is more sloppy about
             // priroities and sleeps are needed more frequently.
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-            TIMER_MASK =  4 * LIMIT - 1
+            k_TIMER_MASK =  4 * k_LIMIT - 1
 #else
-            TIMER_MASK = 64 * LIMIT - 1
+            k_TIMER_MASK = 64 * k_LIMIT - 1
 #endif
     };
 
-    for (int i = 0; i < LIMIT; ++i) {
+    for (int i = 0; i < k_LIMIT; ++i) {
         ++s_lockCount;
         s_mutex.lock();
         if (s_firstThread) {
@@ -486,7 +636,7 @@ void Functor::operator()()
             //
             // Careful!  This could take 2 seconds to wake up!
 
-            while (s_lockCount < NUM_THREADS) {
+            while (s_lockCount < k_NUM_THREADS) {
                 bslmt::ThreadUtil::yield();
                 bslmt::ThreadUtil::microSleep(200 * 1000);
             }
@@ -494,11 +644,12 @@ void Functor::operator()()
         bslmt::ThreadUtil::yield();
 
         // Infrequently have the thread that's holding the lock sleep a little
-        // to wait for the other threads to block, controlled by 'TIMER_MASK'.
+        // to wait for the other threads to block, controlled by
+        // 'k_TIMER_MASK'.
 
-        if ((++s_timerCounter & TIMER_MASK) == 0) {
+        if ((++s_timerCounter & k_TIMER_MASK) == 0) {
             int lastLockCount;
-            if ((lastLockCount = s_lockCount) < NUM_THREADS) {
+            if ((lastLockCount = s_lockCount) < k_NUM_THREADS) {
                 bslmt::ThreadUtil::microSleep(10 * 1000);
                 if (s_lockCount == lastLockCount) {
                     bslmt::ThreadUtil::yield();
@@ -522,7 +673,7 @@ void Functor::operator()()
 //                      Thread Policy Creation Test Case
 // ----------------------------------------------------------------------------
 
-namespace BCEMT_THREAD_POLICY_CREATION_TEST {
+namespace BSLMT_THREAD_POLICY_CREATION_TEST {
 
 struct Touch {
     // functor
@@ -538,7 +689,7 @@ struct Touch {
     }
 };
 
-}  // close namespace BCEMT_THREAD_POLICY_CREATION_TEST
+}  // close namespace BSLMT_THREAD_POLICY_CREATION_TEST
 
 // ----------------------------------------------------------------------------
 //                       Multipriority Usage Test Case
@@ -577,7 +728,7 @@ void *LeastUrgentThreadFunctor(void* arg) {
 //                          CONFIGURATION TEST CASE
 // ----------------------------------------------------------------------------
 
-namespace BCEMT_CONFIGURATION_TEST_NAMESPACE {
+namespace BSLMT_CONFIGURATION_TEST_NAMESPACE {
 
 struct Func {
     int         d_stackToUse;
@@ -623,12 +774,12 @@ void Func::operator()()
     s_success = true;
 }
 
-}  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
+}  // close namespace BSLMT_CONFIGURATION_TEST_NAMESPACE
 
 extern "C"
 void *configurationTestFunction(void *stackToUse)
 {
-    BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+    BSLMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
     func.d_stackToUse = (int) (bsls::Types::IntPtr) stackToUse;
     func.s_success   = false;
@@ -684,16 +835,16 @@ void testStackSize()
     // in 32 & 64 bit.  All other unix platforms were running past the end of
     // the stack without crashing.
 
-    enum { FUDGE_FACTOR = 8192 };
+    enum { k_FUDGE_FACTOR = 8192 };
 #else
     // In test case -4, the crash on 32 bit was further than 12K away from the
     // end of the stack stack, on 64 bit it was further than 16k away.
 
-    enum { FUDGE_FACTOR = 8192 + 2048 * sizeof(void *) };
+    enum { k_FUDGE_FACTOR = 8192 + 2048 * sizeof(void *) };
 #endif
 
     bslmt::ThreadAttributes attr;
-    attr.setStackSize(BUFFER_SIZE + FUDGE_FACTOR);
+    attr.setStackSize(BUFFER_SIZE + k_FUDGE_FACTOR);
     attr.setGuardSize(MIN_GUARD_SIZE);
 
     Obj::Handle handle;
@@ -743,7 +894,7 @@ void TlsDestructor6_2(void *);
 
 }  // extern "C"
 
-namespace BCEMT_THREADUTIL_TLSKEY_TEST6 {
+namespace BSLMT_THREADUTIL_TLSKEY_TEST6 {
 
 Obj::Key parentKey1;
 Obj::Key parentKey2;
@@ -763,7 +914,7 @@ struct TlsKeyTestFunctor {
 
 void TlsKeyTestFunctor::operator()() const
 {
-    namespace TC = BCEMT_THREADUTIL_TLSKEY_TEST6;
+    namespace TC = BSLMT_THREADUTIL_TLSKEY_TEST6;
 
     int rc;
 
@@ -784,14 +935,14 @@ void TlsKeyTestFunctor::operator()() const
     return;
 }
 
-}  // close namespace BCEMT_THREADUTIL_TLSKEY_TEST6
+}  // close namespace BSLMT_THREADUTIL_TLSKEY_TEST6
 
 extern "C" {
 
 static
 void TlsDestructor6_1(void *)
 {
-    namespace TC = BCEMT_THREADUTIL_TLSKEY_TEST6;
+    namespace TC = BSLMT_THREADUTIL_TLSKEY_TEST6;
 
     ++ TC::terminations1;
 }
@@ -799,7 +950,7 @@ void TlsDestructor6_1(void *)
 static
 void TlsDestructor6_2(void *)
 {
-    namespace TC = BCEMT_THREADUTIL_TLSKEY_TEST6;
+    namespace TC = BSLMT_THREADUTIL_TLSKEY_TEST6;
 
     ++ TC::terminations2;
 }
@@ -817,7 +968,7 @@ void createKeyTestDestructor5(void *);
 
 }  // extern "C"
 
-namespace BCEMT_THREADUTIL_CREATEKEY_TEST5 {
+namespace BSLMT_THREADUTIL_CREATEKEY_TEST5 {
 
 Obj::Id childId;
 Obj::Key parentKey;
@@ -838,7 +989,7 @@ struct CreateKeyTestFunctor {
 
 void CreateKeyTestFunctor::operator()() const
 {
-    namespace TC = BCEMT_THREADUTIL_CREATEKEY_TEST5;
+    namespace TC = BSLMT_THREADUTIL_CREATEKEY_TEST5;
 
     TC::childId = Obj::selfId();
 
@@ -868,14 +1019,14 @@ void CreateKeyTestFunctor::operator()() const
     return;
 }
 
-}  // close namespace BCEMT_THREADUTIL_CREATEKEY_TEST5
+}  // close namespace BSLMT_THREADUTIL_CREATEKEY_TEST5
 
 extern "C" {
 
 static
 void createKeyTestDestructor5(void *data)
 {
-    namespace TC = BCEMT_THREADUTIL_CREATEKEY_TEST5;
+    namespace TC = BSLMT_THREADUTIL_CREATEKEY_TEST5;
 
     ASSERT(Obj::selfId() == TC::childId);
 
@@ -921,14 +1072,14 @@ long myAbs(long a)
 
 void testCaseMinus1Recurser(const char *start)
 {
-    enum { BUF_LEN = 1024 };
-    char buffer[BUF_LEN];
+    enum { k_BUF_LEN = 1024 };
+    char buffer[k_BUF_LEN];
     static double lastDistance = 1;
 
-    double distance = (double) mymax(myAbs(&buffer[0]           - start),
-                                     myAbs(&buffer[BUF_LEN - 1] - start));
+    double distance = (double) mymax(myAbs(&buffer[0]             - start),
+                                     myAbs(&buffer[k_BUF_LEN - 1] - start));
     if (distance / lastDistance > 1.02) {
-        cout << (int) distance << endl << flush;
+        cout << static_cast<int>(distance) << endl << flush;
         lastDistance = distance;
     }
 
@@ -949,9 +1100,9 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 
-enum { CLEARANCE_TEST_START  = 0,
-       CLEARANCE_TEST_DONE   = 1234,
-       CLEARANCE_BUFFER_SIZE = 64 * 1024 - 600 };
+enum { k_CLEARANCE_TEST_START  = 0,
+       k_CLEARANCE_TEST_DONE   = 1234,
+       k_CLEARANCE_BUFFER_SIZE = 64 * 1024 - 600 };
 
 static int clearanceTestState;
 static int clearanceTestAllocaSize;
@@ -968,7 +1119,7 @@ extern "C" void *clearanceTest(void *)
         ++pc[clearanceTestAllocaSize - 1];
     }
 
-    clearanceTestState = CLEARANCE_TEST_DONE;
+    clearanceTestState = k_CLEARANCE_TEST_DONE;
 
     return 0;
 }
@@ -1177,7 +1328,7 @@ int main(int argc, char *argv[])
             { L_, Attr::e_SCHED_FIFO    },
             { L_, Attr::e_SCHED_RR      },
         };
-        enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
+        const int DATA_LEN = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
 
         bsl::multiset<int> urgentPlaces[DATA_LEN];
 
@@ -1257,18 +1408,18 @@ int main(int argc, char *argv[])
             const int numTrials = 5;
 
             for (int j = 0; j < numTrials; ++j) {
-                TC::Functor::s_urgentPlace = -1;
-                TC::Functor::s_finished    = 0;
+                TC::Functor::s_urgentPlace =   -1;
+                TC::Functor::s_finished    =    0;
                 TC::Functor::s_firstThread = true;
-                TC::Functor::s_lockCount   = 0;
+                TC::Functor::s_lockCount   =    0;
 
-                TC::Functor fs[TC::NUM_THREADS];
-                fs[TC::URGENT_THREAD].d_urgent = true;
+                TC::Functor fs[TC::k_NUM_THREADS];
+                fs[TC::k_URGENT_THREAD].d_urgent = true;
 
-                Obj::Handle handles[TC::NUM_THREADS];
+                Obj::Handle handles[TC::k_NUM_THREADS];
                 int rc;
                 int numThreads = 0;
-                for ( ; numThreads < TC::NUM_THREADS; ++numThreads) {
+                for ( ; numThreads < TC::k_NUM_THREADS; ++numThreads) {
                     errno = 0;
                     const Attr& attr = fs[numThreads].d_urgent
                                      ? urgentAttr
@@ -1291,10 +1442,10 @@ int main(int argc, char *argv[])
                 }
 
                 ASSERT(TC::Functor::s_urgentPlace >= 0);
-                ASSERT(TC::Functor::s_urgentPlace < TC::NUM_THREADS);
+                ASSERT(TC::Functor::s_urgentPlace < TC::k_NUM_THREADS);
                 ASSERT(! TC::Functor::s_firstThread);
                 ASSERT(0 == TC::Functor::s_lockCount);
-                ASSERT(TC::NUM_THREADS == TC::Functor::s_finished);
+                ASSERT(TC::k_NUM_THREADS == TC::Functor::s_finished);
 
                 urgentPlaces[i].insert(TC::Functor::s_urgentPlace);  // P-2
 
@@ -1317,8 +1468,9 @@ int main(int argc, char *argv[])
             // be coming near last and '*it', the best performing of the
             // several trials, will have come within 5 of last.  (P-3)
 
-            LOOP2_ASSERT(*it, TC::NUM_THREADS,
-                                       !(failed = *it >= TC::NUM_THREADS - 5));
+            LOOP2_ASSERT(*it,
+                         TC::k_NUM_THREADS,
+                         !(failed = *it >= TC::k_NUM_THREADS - 5));
 
             // Examine the multiset (P-4)
 
@@ -1399,13 +1551,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Thread Policy and Priority Creation Test\n"
                              "========================================\n";
 
-        namespace TC = BCEMT_THREAD_POLICY_CREATION_TEST;
+        namespace TC = BSLMT_THREAD_POLICY_CREATION_TEST;
 
         Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
                                               Attr::e_SCHED_FIFO,
                                               Attr::e_SCHED_RR,
                                               Attr::e_SCHED_DEFAULT };
-        enum { NUM_POLICIES = sizeof policies / sizeof *policies };
+        const int NUM_POLICIES = static_cast<int>(sizeof policies
+                                                / sizeof *policies);
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
             const Attr::SchedulingPolicy policy = policies[i];
@@ -1632,14 +1785,14 @@ int main(int argc, char *argv[])
 #else
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
 
-        enum { NUM_THREADS = 3 };
+        enum { k_NUM_THREADS = 3 };
 
-        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
-        bcemt_ThreadFunction functions[NUM_THREADS] = {
+        bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
+        bcemt_ThreadFunction functions[k_NUM_THREADS] = {
                                                   MostUrgentThreadFunctor,
                                                   FairlyUrgentThreadFunctor,
                                                   LeastUrgentThreadFunctor };
-        double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
+        double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
 
         bslmt::ThreadAttributes attributes;
         attributes.setInheritSchedule(false);
@@ -1647,7 +1800,7 @@ int main(int argc, char *argv[])
                                     bslmt::ThreadAttributes::e_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             attributes.setSchedulingPriority(
                  bslmt::ThreadUtil::convertToSchedulingPriority(policy,
                                                                priorities[i]));
@@ -1657,7 +1810,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
         }
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
@@ -1665,7 +1818,7 @@ int main(int argc, char *argv[])
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // BCEMT_CONFIGURATION TEST
+        // BSLMT_CONFIGURATION TEST
         //
         // Concern:
         //   That bslmt::Configuration can really affect stack size.
@@ -1686,7 +1839,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Test functor with no attributes);
         {
-            BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+            BSLMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
             func.d_stackToUse = stackToUse;
             func.s_success    = false;
@@ -1706,7 +1859,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Test functor with default attributes);
         {
-            BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+            BSLMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
             func.d_stackToUse = stackToUse;
             func.s_success    = false;
@@ -1766,7 +1919,8 @@ int main(int argc, char *argv[])
                                               Attr::e_SCHED_FIFO,
                                               Attr::e_SCHED_RR,
                                               Attr::e_SCHED_DEFAULT };
-        enum { NUM_POLICIES = sizeof policies / sizeof *policies };
+        const int NUM_POLICIES = static_cast<int>(sizeof policies
+                                                / sizeof *policies);
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
             const Attr::SchedulingPolicy POLICY = policies[i];
@@ -1839,7 +1993,7 @@ int main(int argc, char *argv[])
 
         namespace TC = STACKSIZE_TEST_CASE_NAMESPACE;
 
-        enum { K = 1024 };
+        enum { k_K = 1024 };
 
         if (verbose) {
 #ifdef PTHREAD_STACK_MIN
@@ -1849,78 +2003,78 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        TC::testStackSize<    0    >();
-        TC::testStackSize<    1 * K>();
-        TC::testStackSize<    2 * K>();
-        TC::testStackSize<    3 * K>();
-        TC::testStackSize<    4 * K>();
-        TC::testStackSize<    7 * K>();
-        TC::testStackSize<    8 * K>();
-        TC::testStackSize<    9 * K>();
-        TC::testStackSize<   10 * K>();
-        TC::testStackSize<   12 * K>();
-        TC::testStackSize<   14 * K>();
-        TC::testStackSize<   15 * K>();
-        TC::testStackSize<   16 * K>();
-        TC::testStackSize<   17 * K>();
-        TC::testStackSize<   18 * K>();
-        TC::testStackSize<   20 * K>();
-        TC::testStackSize<   24 * K>();
-        TC::testStackSize<   28 * K>();
-        TC::testStackSize<   31 * K>();
-        TC::testStackSize<   32 * K>();
-        TC::testStackSize<   33 * K>();
-        TC::testStackSize<   36 * K>();
-        TC::testStackSize<   40 * K>();
-        TC::testStackSize<   44 * K>();
-        TC::testStackSize<   48 * K>();
-        TC::testStackSize<   52 * K>();
-        TC::testStackSize<   56 * K>();
-        TC::testStackSize<   58 * K>();
-        TC::testStackSize<   60 * K>();
-        TC::testStackSize<   62 * K>();
-        TC::testStackSize<   63 * K>();
-        TC::testStackSize<   64 * K>();
-        TC::testStackSize<   65 * K>();
-        TC::testStackSize<   68 * K>();
-        TC::testStackSize<   72 * K>();
-        TC::testStackSize<   76 * K>();
-        TC::testStackSize<   80 * K>();
-        TC::testStackSize<   84 * K>();
-        TC::testStackSize<   88 * K>();
-        TC::testStackSize<   92 * K>();
-        TC::testStackSize<   96 * K>();
-        TC::testStackSize<  100 * K>();
-        TC::testStackSize<  104 * K>();
-        TC::testStackSize<  108 * K>();
-        TC::testStackSize<  112 * K>();
-        TC::testStackSize<  116 * K>();
-        TC::testStackSize<  120 * K>();
-        TC::testStackSize<  124 * K>();
-        TC::testStackSize<  127 * K>();
-        TC::testStackSize<  128 * K>();
-        TC::testStackSize<  129 * K>();
-        TC::testStackSize<  255 * K>();
-        TC::testStackSize<  256 * K>();
-        TC::testStackSize<  257 * K>();
-        TC::testStackSize<  511 * K>();
-        TC::testStackSize<  512 * K>();
-        TC::testStackSize<  513 * K>();
-        TC::testStackSize< 1023 * K>();
-        TC::testStackSize< 1024 * K>();
-        TC::testStackSize< 1025 * K>();
-        TC::testStackSize< 2047 * K>();
-        TC::testStackSize< 2048 * K>();
-        TC::testStackSize< 2049 * K>();
-        TC::testStackSize< 4095 * K>();
-        TC::testStackSize< 4096 * K>();
-        TC::testStackSize< 4097 * K>();
-        TC::testStackSize< 8191 * K>();
-        TC::testStackSize< 8192 * K>();
-        TC::testStackSize< 8193 * K>();
-        TC::testStackSize<16383 * K>();
-        TC::testStackSize<16384 * K>();
-        TC::testStackSize<16385 * K>();
+        TC::testStackSize<    0      >();
+        TC::testStackSize<    1 * k_K>();
+        TC::testStackSize<    2 * k_K>();
+        TC::testStackSize<    3 * k_K>();
+        TC::testStackSize<    4 * k_K>();
+        TC::testStackSize<    7 * k_K>();
+        TC::testStackSize<    8 * k_K>();
+        TC::testStackSize<    9 * k_K>();
+        TC::testStackSize<   10 * k_K>();
+        TC::testStackSize<   12 * k_K>();
+        TC::testStackSize<   14 * k_K>();
+        TC::testStackSize<   15 * k_K>();
+        TC::testStackSize<   16 * k_K>();
+        TC::testStackSize<   17 * k_K>();
+        TC::testStackSize<   18 * k_K>();
+        TC::testStackSize<   20 * k_K>();
+        TC::testStackSize<   24 * k_K>();
+        TC::testStackSize<   28 * k_K>();
+        TC::testStackSize<   31 * k_K>();
+        TC::testStackSize<   32 * k_K>();
+        TC::testStackSize<   33 * k_K>();
+        TC::testStackSize<   36 * k_K>();
+        TC::testStackSize<   40 * k_K>();
+        TC::testStackSize<   44 * k_K>();
+        TC::testStackSize<   48 * k_K>();
+        TC::testStackSize<   52 * k_K>();
+        TC::testStackSize<   56 * k_K>();
+        TC::testStackSize<   58 * k_K>();
+        TC::testStackSize<   60 * k_K>();
+        TC::testStackSize<   62 * k_K>();
+        TC::testStackSize<   63 * k_K>();
+        TC::testStackSize<   64 * k_K>();
+        TC::testStackSize<   65 * k_K>();
+        TC::testStackSize<   68 * k_K>();
+        TC::testStackSize<   72 * k_K>();
+        TC::testStackSize<   76 * k_K>();
+        TC::testStackSize<   80 * k_K>();
+        TC::testStackSize<   84 * k_K>();
+        TC::testStackSize<   88 * k_K>();
+        TC::testStackSize<   92 * k_K>();
+        TC::testStackSize<   96 * k_K>();
+        TC::testStackSize<  100 * k_K>();
+        TC::testStackSize<  104 * k_K>();
+        TC::testStackSize<  108 * k_K>();
+        TC::testStackSize<  112 * k_K>();
+        TC::testStackSize<  116 * k_K>();
+        TC::testStackSize<  120 * k_K>();
+        TC::testStackSize<  124 * k_K>();
+        TC::testStackSize<  127 * k_K>();
+        TC::testStackSize<  128 * k_K>();
+        TC::testStackSize<  129 * k_K>();
+        TC::testStackSize<  255 * k_K>();
+        TC::testStackSize<  256 * k_K>();
+        TC::testStackSize<  257 * k_K>();
+        TC::testStackSize<  511 * k_K>();
+        TC::testStackSize<  512 * k_K>();
+        TC::testStackSize<  513 * k_K>();
+        TC::testStackSize< 1023 * k_K>();
+        TC::testStackSize< 1024 * k_K>();
+        TC::testStackSize< 1025 * k_K>();
+        TC::testStackSize< 2047 * k_K>();
+        TC::testStackSize< 2048 * k_K>();
+        TC::testStackSize< 2049 * k_K>();
+        TC::testStackSize< 4095 * k_K>();
+        TC::testStackSize< 4096 * k_K>();
+        TC::testStackSize< 4097 * k_K>();
+        TC::testStackSize< 8191 * k_K>();
+        TC::testStackSize< 8192 * k_K>();
+        TC::testStackSize< 8193 * k_K>();
+        TC::testStackSize<16383 * k_K>();
+        TC::testStackSize<16384 * k_K>();
+        TC::testStackSize<16385 * k_K>();
       }  break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1940,7 +2094,7 @@ int main(int argc, char *argv[])
                        "'deleteKey', THREAD SPECIFICITY OF DATA IN TLS TEST\n"
                        "===================================================\n";
 
-        namespace TC = BCEMT_THREADUTIL_TLSKEY_TEST6;
+        namespace TC = BSLMT_THREADUTIL_TLSKEY_TEST6;
 
         Obj::createKey(&TC::parentKey1, &TlsDestructor6_1);
         Obj::createKey(&TC::parentKey2, &TlsDestructor6_2);
@@ -1999,7 +2153,7 @@ int main(int argc, char *argv[])
         //   being called again.
         // --------------------------------------------------------------------
 
-        namespace TC = BCEMT_THREADUTIL_CREATEKEY_TEST5;
+        namespace TC = BSLMT_THREADUTIL_CREATEKEY_TEST5;
 
         Obj::Key parentKey;
         int rc = Obj::createKey(&parentKey, 0);
@@ -2059,8 +2213,8 @@ int main(int argc, char *argv[])
         //   has passed and verify that it is within acceptable boundaries.
         // --------------------------------------------------------------------
 
-        enum { SLEEP_MICROSECONDS = 300 * 1000 };
-        const double SLEEP_SECONDS = SLEEP_MICROSECONDS * 1e-6;
+        enum { k_SLEEP_MICROSECONDS = 300 * 1000 };
+        const double SLEEP_SECONDS = k_SLEEP_MICROSECONDS * 1e-6;
         const double OVERSHOOT_MIN = -1e-5;
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
             const double TOLERANCE = 2;   // microSleep is obscenely imprecise
@@ -2073,7 +2227,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 8; ++i) {
             double start   =
                    bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
-            bslmt::ThreadUtil::microSleep(SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_MICROSECONDS);
             double elapsed =
                     bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble()
                                                                        - start;
@@ -2167,7 +2321,7 @@ int main(int argc, char *argv[])
           cout << "\nInvokable functor test" << endl;
        }
 
-       enum { THREAD_COUNT = 10 }; // Actually twice this many
+       enum { k_THREAD_COUNT = 10 }; // Actually twice this many
 
        bslmt::ThreadAttributes detached;
        detached.setDetachedState(
@@ -2175,8 +2329,8 @@ int main(int argc, char *argv[])
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;
-       bslmt::ThreadUtil::Handle handles[THREAD_COUNT], dummy;
-       for (int i = 0; i < THREAD_COUNT; ++i) {
+       bslmt::ThreadUtil::Handle handles[k_THREAD_COUNT], dummy;
+       for (int i = 0; i < k_THREAD_COUNT; ++i) {
           ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
                                                joinableChecker.getFunctor()));
           ASSERT(0 == bslmt::ThreadUtil::create(&dummy,
@@ -2185,21 +2339,21 @@ int main(int argc, char *argv[])
        }
 
        // Join the joinable threads
-       for (int i = 0; i < THREAD_COUNT; ++i) {
+       for (int i = 0; i < k_THREAD_COUNT; ++i) {
           ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
        }
 
        int iterations = 100;
-       while ((THREAD_COUNT != joinableChecker.count() ||
-               THREAD_COUNT != detachedChecker.count()) &&
+       while ((k_THREAD_COUNT != joinableChecker.count() ||
+               k_THREAD_COUNT != detachedChecker.count()) &&
               0 < --iterations)
        {
            bslmt::ThreadUtil::microSleep(100 * 1000);  // 100 msec
            bslmt::ThreadUtil::yield();
        }
 
-       ASSERT(THREAD_COUNT == joinableChecker.count());
-       ASSERT(THREAD_COUNT == detachedChecker.count());
+       ASSERT(k_THREAD_COUNT == joinableChecker.count());
+       ASSERT(k_THREAD_COUNT == detachedChecker.count());
       }  break;
       case -1: {
         // --------------------------------------------------------------------
@@ -2330,13 +2484,13 @@ int main(int argc, char *argv[])
         attr.setGuardSize(MIN_GUARD_SIZE);
 
         clearanceTestAllocaSize = 0;
-        clearanceTestState = CLEARANCE_TEST_START;
+        clearanceTestState = k_CLEARANCE_TEST_START;
         bslmt::ThreadUtil::Handle handle;
         int rc = bslmt::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
         ASSERT(0 == rc);
         rc = bslmt::ThreadUtil::join(handle);
         ASSERT(0 == rc);
-        ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
+        ASSERT(k_CLEARANCE_TEST_DONE == clearanceTestState);
 
         Q(Test 0 Completed);
 
@@ -2345,13 +2499,13 @@ int main(int argc, char *argv[])
             int diff = clearanceTestStackSize - clearanceTestAllocaSize;
             P(diff);
 
-            clearanceTestState = CLEARANCE_TEST_START;
+            clearanceTestState = k_CLEARANCE_TEST_START;
             rc = bslmt::ThreadUtil::create(&handle, attr, &clearanceTest, 0);
             ASSERT(0 == rc);
             rc = bslmt::ThreadUtil::join(handle);
             ASSERT(0 == rc);
 
-            ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
+            ASSERT(k_CLEARANCE_TEST_DONE == clearanceTestState);
         }
 
         Q(Alloca Test Completed);

@@ -34,7 +34,7 @@
 #include <bdlf_memfn.h>
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_tokenizer.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -2986,8 +2986,11 @@ int createData(bsl::vector<bsl::vector<char> > *data,
 {
     int length = 0;
     bsl::vector<int> lengths;
-    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
-        lengths.push_back(atoi(it().data()));
+    for (bdlb::Tokenizer it(bslstl::StringRef(description),
+                            bslstl::StringRef(" "));
+         it.isValid();
+         ++it) {
+        lengths.push_back(atoi(it.token().data()));
         length += lengths.back();
     }
     data->resize(lengths.size());
@@ -3132,8 +3135,11 @@ int loadTestVector(bsl::vector<IOVEC>  *vector,
     // [0, 'srcData.size()').
 {
     int length = 0;
-    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
-        int index = atoi(it().data());
+    for (bdlb::Tokenizer it(bslstl::StringRef(description),
+                            bslstl::StringRef(" "));
+         it.isValid();
+         ++it) {
+        int index = atoi(it.token().data());
         vector->push_back(srcData[index]);
         length += srcData[index].length();
     }

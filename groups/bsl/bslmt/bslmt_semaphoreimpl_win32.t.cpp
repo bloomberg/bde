@@ -634,22 +634,22 @@ int main(int argc, char *argv[]) {
         // waiting.
         // --------------------------------------------------------------------
         enum {
-            NUM_POST = 1048704,
-            NUM_WAIT_THREADS = 8
+            k_NUM_POST         = 1048704,
+            k_NUM_WAIT_THREADS =       8
         };
 
-        BSLMF_ASSERT(0 == NUM_POST % NUM_WAIT_THREADS);
+        BSLMF_ASSERT(0 == k_NUM_POST % k_NUM_WAIT_THREADS);
 
         Obj sem(0);
 
-        bslmt::ThreadUtil::Handle threads[NUM_WAIT_THREADS];
-        MyBarrier barrier(NUM_WAIT_THREADS+1);
+        bslmt::ThreadUtil::Handle threads[k_NUM_WAIT_THREADS];
+        MyBarrier barrier(k_NUM_WAIT_THREADS+1);
 
         struct ThreadInfo4 info;
-        info.d_numIterations = NUM_POST / NUM_WAIT_THREADS;
+        info.d_numIterations = k_NUM_POST / k_NUM_WAIT_THREADS;
         info.d_barrier = &barrier;
         info.d_sem = &sem;
-        for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_WAIT_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::create(&threads[i],
                                               thread6wait,
                                               &info);
@@ -665,15 +665,15 @@ int main(int argc, char *argv[]) {
 
         barrier.wait();
         bslmt::ThreadUtil::microSleep(10000); // 10 ms
-        sem.post(NUM_POST);
-        for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
+        sem.post(k_NUM_POST);
+        for (int i = 0; i < k_NUM_WAIT_THREADS; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
         // if we reach here, we woke up all the threads the correct number of
         // times
 
-        for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_WAIT_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::create(&threads[i],
                                               thread6wait,
                                               &info);
@@ -687,9 +687,9 @@ int main(int argc, char *argv[]) {
 
         // MODE 2: NO THREADS WAITING
 
-        sem.post(NUM_POST);
+        sem.post(k_NUM_POST);
         barrier.wait();
-        for (int i = 0; i < NUM_WAIT_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_WAIT_THREADS; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
         }
 
@@ -824,15 +824,15 @@ int main(int argc, char *argv[]) {
                           << "=========================" << endl;
 
         enum {
-            NUM_POSTERS = 5,
-            NUM_WAITERS = 5
+            k_NUM_POSTERS = 5,
+            k_NUM_WAITERS = 5
         };
 
         for (int n = 0; n < 5; ++n) {
             if (veryVerbose) cout << "\tPosting " << n << " first." << endl;
 
-            bslmt::ThreadUtil::Handle threads[NUM_POSTERS + NUM_WAITERS];
-            MyBarrier barrier(NUM_POSTERS+ 1);
+            bslmt::ThreadUtil::Handle threads[k_NUM_POSTERS + k_NUM_WAITERS];
+            MyBarrier barrier(k_NUM_POSTERS+ 1);
             bsls::AtomicInt posts(n);
             bsls::AtomicInt past (0);
             Obj sem(0);
@@ -845,15 +845,17 @@ int main(int argc, char *argv[]) {
             info.d_numInitialPosts = &posts;
             info.d_verbose = veryVeryVerbose;
 
-            for (int i = 0; i < NUM_POSTERS; ++i) {
+            for (int i = 0; i < k_NUM_POSTERS; ++i) {
                 ASSERT(0 == bslmt::ThreadUtil::create(&threads[i],
-                                                     thread2Post,
-                                                     &info));
+                                                      thread2Post,
+                                                      &info));
             }
 
-            for (int i = 0; i < NUM_WAITERS; ++i) {
+            for (int i = 0; i < k_NUM_WAITERS; ++i) {
                 ASSERT(0 == bslmt::ThreadUtil::create(
-                               &threads[i + NUM_POSTERS], thread2Wait, &info));
+                                                   &threads[i + k_NUM_POSTERS],
+                                                   thread2Wait,
+                                                   &info));
             }
             bslmt::ThreadUtil::microSleep(1000 * 100);
             ASSERT(0 == past);

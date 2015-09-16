@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 //      // This class implements an "example" request processor.
 //
 //      // NOT IMPLEMENTED
-//      RequestProcessor(const RequestProcessor& );
-//      RequestProcessor& operator=(const RequestProcessor& );
+//      RequestProcessor(const RequestProcessor&);
+//      RequestProcessor& operator=(const RequestProcessor&);
 //
 //      // PRIVATE CLASS METHODS
 //      static const RequestContext *&contextReference();
@@ -134,9 +134,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this request processor.
 //
 //      // MANIPULATORS
-//      void processRequest(int         userId,
-//                          int         workstation,
-//                          const char *request);
+//      void processRequest(int userId, int workstation, const char *request);
 //          // Process (in the caller's thread) the specified 'request' for
 //          // the specified 'userId' and 'workstation'.
 //  };

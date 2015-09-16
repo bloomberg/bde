@@ -12,9 +12,13 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
-#include <bdlb_strtokenrefiter.h>
+
+#include <bdlb_tokenizer.h>
 
 #include <bslmf_assert.h>
+
+#include <bslstl_stringref.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -47,8 +51,11 @@ void concatenatePath(bsl::string *result,
     BSLS_ASSERT(timeZoneId);
 
     *result = rootPath;
-    for (bdlb::StrTokenRefIter it(timeZoneId, "/"); it; ++it) {
-        bdls::PathUtil::appendIfValid(result, it());
+    for (bdlb::Tokenizer it(bslstl::StringRef(timeZoneId),
+                            bslstl::StringRef("/"));
+         it.isValid();
+         ++it) {
+        bdls::PathUtil::appendIfValid(result, it.token());
     }
 }
 

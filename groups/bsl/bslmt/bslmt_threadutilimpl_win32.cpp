@@ -109,17 +109,17 @@ struct Win32Initializer {
 };
 
 enum InitializationState {
-    INITIALIZED   =  0  // threading environment has been initialized
-  , UNINITIALIZED =  1  // threading environment has not been initialized
-  , INITIALIZING  =  2  // threading environment is currently initializing
-  , DEINITIALIZED = -1  // threading environment has been de-initialized
+    e_INITIALIZED   =  0  // threading environment has been initialized
+  , e_UNINITIALIZED =  1  // threading environment has not been initialized
+  , e_INITIALIZING  =  2  // threading environment is currently initializing
+  , e_DEINITIALIZED = -1  // threading environment has been de-initialized
 };
 
 static void *volatile            s_startupInfoCache = 0;
 static DWORD                     s_threadInfoTLSIndex = 0;
 static ThreadSpecificDestructor *s_destructors = 0;
 static CRITICAL_SECTION          s_threadSpecificDestructorsListLock;
-static volatile long             s_initializationState = UNINITIALIZED;
+static volatile long             s_initializationState = e_UNINITIALIZED;
 
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
 static CRITICAL_SECTION          s_returnValueMapLock;
@@ -145,16 +145,16 @@ int bcemt_threadutil_win32_Initialize()
     // from some other thread, then it waits until the environment is
     // initialized and returns.
 {
-    if (INITIALIZED == s_initializationState) {
+    if (e_INITIALIZED == s_initializationState) {
         return 0;                                                     // RETURN
     }
     else {
         long result;
         do {
             result = InterlockedCompareExchange(&s_initializationState,
-                                                INITIALIZING,
-                                                UNINITIALIZED);
-            if (INITIALIZING == result) {
+                                                e_INITIALIZING,
+                                                e_UNINITIALIZED);
+            if (e_INITIALIZING == result) {
                 ::Sleep(0);
             }
             else {
@@ -162,16 +162,16 @@ int bcemt_threadutil_win32_Initialize()
             }
         } while (1);
 
-        if (UNINITIALIZED == result) {
+        if (e_UNINITIALIZED == result) {
             s_threadInfoTLSIndex = TlsAlloc();
             InitializeCriticalSection(&s_threadSpecificDestructorsListLock);
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
             InitializeCriticalSection(&s_returnValueMapLock);
             s_returnValueMapValid = true;
 #endif
-            InterlockedExchange(&s_initializationState, INITIALIZED);
+            InterlockedExchange(&s_initializationState, e_INITIALIZED);
         }
-        return INITIALIZED == s_initializationState ? 0 : 1;          // RETURN
+        return e_INITIALIZED == s_initializationState ? 0 : 1;        // RETURN
     }
 }
 
@@ -182,8 +182,8 @@ static void bcemt_threadutil_win32_Deinitialize()
     // prevents static objects from inadvertently re-initializing
     // re-initializing the environment when they are destroyed.
 {
-    if (InterlockedExchange(&s_initializationState, DEINITIALIZED)
-                                                              != INITIALIZED) {
+    if (InterlockedExchange(&s_initializationState, DEe_INITIALIZED)
+                                                            != e_INITIALIZED) {
         return;                                                       // RETURN
     }
 
@@ -281,7 +281,7 @@ static void invokeDestructors()
     // iterates through all registered destructor functions and invokes each
     // destructor that has a non-zero key value.
 {
-    if (s_initializationState != INITIALIZED) {
+    if (s_initializationState != e_INITIALIZED) {
         return;                                                       // RETURN
     }
 
@@ -563,8 +563,9 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
         // needed to convert between the two epochs:
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
 
-        enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
-        clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
+        enum { k_HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
+        clockTime.QuadPart = absoluteTime.seconds()
+                                                   * k_HUNDRED_NANOSECS_PER_SEC
                            + absoluteTime.nanoseconds() / 100
                            + 116444736000000000LL;
 

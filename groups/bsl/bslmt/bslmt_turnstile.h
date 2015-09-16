@@ -68,10 +68,10 @@ BSLS_IDENT("$Id: $")
 // specified duration.  An instance of 'bsls::Stopwatch' is used to measure
 // time against the specified duration.
 //..
-//  void heartbeat(bsl::ostream&      stream,
-//                 const bsl::string& message,
-//                 double             rate,
-//                 double             duration)
+//  static void heartbeat(bsl::ostream&       stream,
+//                        const bsl::string&  message,
+//                        double              rate,
+//                        double              duration)
 //  {
 //      // Write the specified 'message' to the specified 'stream' at the
 //      // specified 'rate' (given in messages per second) for the specified

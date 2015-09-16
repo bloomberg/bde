@@ -484,6 +484,12 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
+///Usage
+///-----
+// This component is an implementation detail of 'bslmt' and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
         // USAGE EXAMPLE
         IntQueue testQueue;
 

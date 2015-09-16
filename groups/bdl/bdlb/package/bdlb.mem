@@ -22,5 +22,5 @@ bdlb_printmethods
 bdlb_random
 bdlb_randomdevice
 bdlb_string
-bdlb_strtokenrefiter
+bdlb_tokenizer
 bdlb_variant

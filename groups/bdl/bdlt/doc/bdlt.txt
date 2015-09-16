@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 18 components having 7 levels of physical
+ The 'bdlt' package currently has 24 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -28,24 +28,30 @@
   7. bdlt_currenttime
 
   6. bdlt_datetimetz
+     bdlt_defaultcalendarcache
      bdlt_localtimeoffset
 
-  5. bdlt_datetimeutil
+  5. bdlt_calendarcache
+     bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
 
-  4. bdlt_datetime
+  4. bdlt_calendar
+     bdlt_calendarloader
+     bdlt_datetime
      bdlt_timetz
 
   3. bdlt_dateutil
      bdlt_intervalconversionutil
+     bdlt_packedcalendar
      bdlt_time
 
   2. bdlt_date
      bdlt_datetimeinterval
      bdlt_dayofweekset
 
-  1. bdlt_dayofweek
+  1. bdlt_calendarreverseiteratoradapter
+     bdlt_dayofweek
      bdlt_monthofyear
      bdlt_serialdateimputil
      bdlt_timeunitratio
@@ -53,6 +59,18 @@
 
 /Component Synopsis
 /------------------
+: 'bdlt_calendar':
+:      Provide fast repository for accessing weekend/holiday information.
+:
+: 'bdlt_calendarcache':
+:      Provide an efficient cache for read-only 'bdlt::Calendar' objects.
+:
+: 'bdlt_calendarloader':
+:      Provide a protocol (or pure interface) for loading calendars.
+:
+: 'bdlt_calendarreverseiteratoradapter':
+:      Provide reverse iterator adapter for calendar iterators.
+:
 : 'bdlt_currenttime':
 :      Provide utilities to retrieve the current time.
 :
@@ -83,6 +101,9 @@
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
 :
+: 'bdlt_defaultcalendarcache':
+:      Provide a process-wide default 'bdlt::CalendarCache' object.
+:
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
 :
@@ -94,6 +115,9 @@
 :
 : 'bdlt_monthofyear':
 :      Enumerate the set of month-of-year values.
+:
+: 'bdlt_packedcalendar':
+:      Provide a compact repository for weekend/holiday information.
 :
 : 'bdlt_serialdateimputil':
 :      Provide low-level support functions for date-value manipulation.
