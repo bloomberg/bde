@@ -1,7 +1,10 @@
 // bslmt_threadattributes.t.cpp                                       -*-C++-*-
 #include <bslmt_threadattributes.h>
 
+#include <bslmt_configuration.h>
 #include <bslmt_platform.h>
+
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -13,37 +16,176 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";   \
-                aSsErT(1, #X, __LINE__); } }
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J <<         \
-                        "\t" << #K << ": " << K << "\n";                      \
-                aSsErT(1, #X, __LINE__); } }
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating and modifying thread attributes objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we will demonstrate creating and configuring a
+// 'bslmt::ThreadAttributes' object, then using it with a hypothetical
+// thread-creation function.  Finally we show how a thread creation function
+// might interpret those attributes for the underlying operating system.
+//
+// First we forward declare a routine that we will use to create a thread:
+//..
+    void myThreadCreate(int                            *threadHandle,
+                        const bslmt::ThreadAttributes&  attributes,
+                        void                            (*function)());
+        // Spawn a thread having properties described by the specified
+        // 'attributes' and that runs the specified 'function', and assign a
+        // handle referring to the spawned thread to the specified
+        // '*threadHandle'.
+//..
+// Then, we declare two routines that will return the minimum and maximum
+// thread priority given a scheduling policy.  Note that similar methods exist
+// in 'bslmt_threadutil'.
+//..
+    int myMinPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
+    int myMaxPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
+//..
+// Next we define a function that we will use as our thread entry point.  This
+// function declares a single variable on the stack of predetermined size.
+//..
+    enum { k_BUFFER_SIZE = 128 * 1024 };
+
+    void myThreadFunction()
+    {
+        int bufferLocal[k_BUFFER_SIZE];
+
+        // Perform some calculation that involves no subroutine calls or
+        // additional automatic variables.
+    }
+//..
+// Then, we define our main function, in which we demonstrate configuring a
+// 'bslmt::ThreadAttributes' object describing the properties a thread we will
+// create.
+//..
+    int testMain()
+    {
+//..
+// Next, we create a thread attributes object, 'attributes', and set its
+// 'stackSize' attribute to a value large enough to accommodate the
+// 'BUFFER_SIZE' buffer used by 'myThreadFunction'.  Note that we use
+// 'BUFFER_SIZE' as an illustration; in practice, it is difficult or impossible
+// to gauge the exact amount of stack size required for a typical thread, and
+// the value supplied should be a reasonable *upper* bound on the anticipated
+// requirement.
+//..
+        bslmt::ThreadAttributes attributes;
+        attributes.setStackSize(k_BUFFER_SIZE);
+//..
+// Then, we set the 'detachedState' property to 'e_CREATE_DETACHED', indicating
+// that the thread will not be joinable, and its resources will be reclaimed
+// upon termination.
+//..
+        attributes.setDetachedState(
+                               bslmt::ThreadAttributes::e_CREATE_DETACHED);
+//..
+// Now, we create a thread, using the attributes configured above:
+//..
+        int handle;
+        myThreadCreate(&handle, attributes, &myThreadFunction);
+    }
+//..
+// Finally, we define the thread creation function, and show how a thread
+// attributes object might be interpreted by it:
+//..
+    void myThreadCreate(int                            *threadHandle,
+                        const bslmt::ThreadAttributes&  attributes,
+                        void                            (*function)())
+        // Spawn a thread with properties described by the specified
+        // 'attributes', running the specified 'function', and assign a handle
+        // referring to the spawned thread to the specified '*threadHandle'.
+    {
+        int stackSize = attributes.stackSize();
+        if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
+            stackSize = bslmt::Configuration::defaultThreadStackSize();
+        }
+        // Add a "fudge factor" to 'stackSize' to ensure that the client
+        // can declare an object of 'stackSize' bytes on the stack safely.
+
+        stackSize += 8192;
+
+    #ifdef BSLS_PLATFORM_OS_HPUX
+        // The Itanium divides the stack into two sections: a variable stack
+        // and a control stack.  To make 'stackSize' have the same meaning
+        // across platforms, we must double it on this platform.
+
+        stackSize *= 2;
+    #endif
+
+        int guardSize = attributes.guardSize();
+        if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
+            guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
+        }
+
+        int policy = attributes.schedulingPolicy();
+        int priority = attributes.schedulingPriority();
+
+        // the following is pseudo-code for actually creating the thread
+        /*
+        if (bslmt::ThreadAttributes::e_UNSET_PRIORITY == priority) {
+            priority = operatingSystemDefaultPriority(policy);
+        }
+
+        operatingSystemThreadCreate(threadHandle,
+                                    stackSize,
+                                    guardSize,
+                                    attributes.inheritSchedule(),
+                                    policy,
+                                    priority,
+                                    attributes.detachedState()
+                                    function);
+        */
+    }
+//..
+// Notice that a new value derived from the 'stackSize' attribute is used so
+// that the meaning of the attribute is platform neutral.
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -85,6 +227,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
                                   << "==================" << endl;
+
+        testMain();
 
 ///Usage
 ///-----

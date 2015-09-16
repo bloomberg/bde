@@ -1,8 +1,10 @@
 // bslmt_threadgroup.t.cpp                                            -*-C++-*-
-
 #include <bslmt_threadgroup.h>
+
 #include <bslmt_semaphore.h>
 #include <bslmt_lockguard.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
@@ -48,52 +50,48 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -154,25 +152,37 @@ class ThreadChecker {
     }
 };
 
-class MutexTestJob {
-   int           d_numIterations;
-   int          *d_value_p;
-   bslmt::Mutex *d_mutex_p;
+///Usage
+///-----
+// The following usage example illustrates how 'bslmt::ThreadGroup' might be
+// used in a typical test driver to simplify the execution of a common function
+// in multiple threads.  Suppose that we are interested in creating a
+// stress-test for the 'bslmt::Mutex' class.  The test is controlled by two
+// parameters: the number of executions (defined by subsequent calls to 'lock'
+// and 'unlock', and the amount of contention, defined by the number of threads
+// accessing the mutex.  The test can be expressed as two functions.  The first
+// is executed in each thread via a functor object:
+//..
+    class MutexTestJob {
+        int           d_numIterations;
+        int          *d_value_p;
+        bslmt::Mutex *d_mutex_p;
 
- public:
-   MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
-   : d_numIterations(numIterations)
-   , d_value_p(value)
-   , d_mutex_p(mutex)
-   {}
+      public:
+        MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
+        : d_numIterations(numIterations)
+        , d_value_p(value)
+        , d_mutex_p(mutex)
+        {}
 
-   void operator()() {
-      for (int i = 0; i < d_numIterations; ++i) {
-         bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
-         ++*d_value_p;
-      }
-   }
-};
+        void operator()() {
+            for (int i = 0; i < d_numIterations; ++i) {
+                bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
+                ++*d_value_p;
+            }
+        }
+    };
+//..
 
 class MutexTestSyncJob : private MutexTestJob {
     bslmt::Semaphore *d_startSemaphore_p;
@@ -281,25 +291,28 @@ int main(int argc, char *argv[])
                  << "=====================" << endl;
         }
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
-        {
-            const int NUM_ITERATIONS = 10000;
-            const int NUM_THREADS    = 8;
+// The second executes the main body of the test:
+//..
+    bslma::TestAllocator ta;
+    {
+        const int NUM_ITERATIONS = 10000;
+        const int NUM_THREADS    = 8;
 
-            bslmt::Mutex   mutex;                     // object under test
-            int            value = 0;
+        bslmt::Mutex   mutex;                     // object under test
+        int            value = 0;
 
-            MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
+        MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 
-            bslmt::ThreadGroup tg(&ta);
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                ASSERT(0 == tg.addThread(testJob));
-            }
-            tg.joinAll();
-            ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
+        bslmt::ThreadGroup tg(&ta);
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == tg.addThread(testJob));
         }
-        ASSERT(0 <  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+        tg.joinAll();
+        ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
+    }
+    ASSERT(0 <  ta.numAllocations());
+    ASSERT(0 == ta.numBytesInUse());
+//..
       }  break;
       case 4: {
         // --------------------------------------------------------------------

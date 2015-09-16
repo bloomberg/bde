@@ -124,9 +124,9 @@ BSLS_IDENT("$Id: $")
 //
 // First we forward declare a routine that we will use to create a thread:
 //..
-//  void myThreadCreate(int                           *threadHandle,
+//  void myThreadCreate(int                            *threadHandle,
 //                      const bslmt::ThreadAttributes&  attributes,
-//                      void (*)()                     function);
+//                      void                            (*function)());
 //      // Spawn a thread having properties described by the specified
 //      // 'attributes' and that runs the specified 'function', and assign a
 //      // handle referring to the spawned thread to the specified
@@ -142,11 +142,11 @@ BSLS_IDENT("$Id: $")
 // Next we define a function that we will use as our thread entry point.  This
 // function declares a single variable on the stack of predetermined size.
 //..
-//  enum { BUFFER_SIZE = 128 * 1024 };
+//  enum { k_BUFFER_SIZE = 128 * 1024 };
 //
 //  void myThreadFunction()
 //  {
-//      int bufferLocal[BUFFER_SIZE];
+//      int bufferLocal[k_BUFFER_SIZE];
 //
 //      // Perform some calculation that involves no subroutine calls or
 //      // additional automatic variables.
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 // requirement.
 //..
 //      bslmt::ThreadAttributes attributes;
-//      attributes.setStackSize(BUFFER_SIZE);
+//      attributes.setStackSize(k_BUFFER_SIZE);
 //..
 // Then, we set the 'detachedState' property to 'e_CREATE_DETACHED', indicating
 // that the thread will not be joinable, and its resources will be reclaimed
@@ -181,22 +181,20 @@ BSLS_IDENT("$Id: $")
 //..
 //      int handle;
 //      myThreadCreate(&handle, attributes, &myThreadFunction);
-//
-//      ...
 //  }
 //..
 // Finally, we define the thread creation function, and show how a thread
 // attributes object might be interpreted by it:
 //..
-//  void myThreadCreate(int                           *threadHandle,
+//  void myThreadCreate(int                            *threadHandle,
 //                      const bslmt::ThreadAttributes&  attributes,
-//                      void (*)()                     function)
+//                      void                            (*function)())
 //      // Spawn a thread with properties described by the specified
 //      // 'attributes', running the specified 'function', and assign a handle
 //      // referring to the spawned thread to the specified '*threadHandle'.
 //  {
 //      int stackSize = attributes.stackSize();
-//      if (e_UNSET_STACK_SIZE == stackSize) {
+//      if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
 //          stackSize = bslmt::Configuration::defaultThreadStackSize();
 //      }
 //      // Add a "fudge factor" to 'stackSize' to ensure that the client
@@ -213,13 +211,16 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //
 //      int guardSize = attributes.guardSize();
-//      if (e_UNSET_GUARD_SIZE == guardSize) {
+//      if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
 //          guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
 //      }
 //
 //      int policy = attributes.schedulingPolicy();
 //      int priority = attributes.schedulingPriority();
-//      if (e_UNSET_PRIORITY == priority) {
+//
+//      // the following is pseudo-code for actually creating the thread
+//      /*
+//      if (bslmt::ThreadAttributes::e_UNSET_PRIORITY == priority) {
 //          priority = operatingSystemDefaultPriority(policy);
 //      }
 //
@@ -231,6 +232,7 @@ BSLS_IDENT("$Id: $")
 //                                  priority,
 //                                  attributes.detachedState()
 //                                  function);
+//      */
 //  }
 //..
 // Notice that a new value derived from the 'stackSize' attribute is used so

@@ -126,8 +126,8 @@ struct Configuration {
         // minimum, the stack size will be that minimum.  The behavior is
         // undefined unless '0 <= numBytes'.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

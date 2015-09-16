@@ -42,23 +42,23 @@ BSLS_IDENT("$Id: $")
 // is executed in each thread via a functor object:
 //..
 //  class MutexTestJob {
-//     int           d_numIterations;
-//     int          *d_value_p;
-//     bslmt::Mutex *d_mutex_p;
+//      int           d_numIterations;
+//      int          *d_value_p;
+//      bslmt::Mutex *d_mutex_p;
 //
-//   public:
-//     MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
-//     : d_numIterations(numIterations)
-//     , d_value_p(value)
-//     , d_mutex_p(mutex)
-//     {}
+//    public:
+//      MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
+//      : d_numIterations(numIterations)
+//      , d_value_p(value)
+//      , d_mutex_p(mutex)
+//      {}
 //
-//     void operator()() {
-//        for (int i = 0; i < d_numIterations; ++i) {
-//           bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
-//           ++*d_value_p;
-//        }
-//     }
+//      void operator()() {
+//          for (int i = 0; i < d_numIterations; ++i) {
+//              bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
+//              ++*d_value_p;
+//          }
+//      }
 //  };
 //..
 // The second executes the main body of the test:
@@ -75,13 +75,13 @@ BSLS_IDENT("$Id: $")
 //
 //      bslmt::ThreadGroup tg(&ta);
 //      for (int i = 0; i < NUM_THREADS; ++i) {
-//          ASSERT(0 == tg.addThread(testJob));
+//          assert(0 == tg.addThread(testJob));
 //      }
 //      tg.joinAll();
-//      ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
+//      assert(NUM_ITERATIONS * NUM_THREADS == value);
 //  }
-//  ASSERT(0 <  ta.numAllocations());
-//  ASSERT(0 == ta.numBytesInUse());
+//  assert(0 <  ta.numAllocations());
+//  assert(0 == ta.numBytesInUse());
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
