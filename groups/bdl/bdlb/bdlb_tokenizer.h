@@ -426,7 +426,7 @@ class Tokenizer_Data {
     // This component-private class is used to hold delimiter information.
     // Each 'Tokenizer' object will have, as a private data member, an object
     // of this class,  and will pass the address of that member to the
-    // (private) constructor of each 'TockenIterator' object it issues:
+    // (private) constructor of each 'TockenizerIterator' object it issues:
     //..
     //  +--------------------------------------+
     //  |   ,--------------.                   |
@@ -604,7 +604,7 @@ class Tokenizer {
     // PRIVATE MANIPULATORS
     void resetImpl(const char *input, const char *endOfInput);
         // Rebind this object to refer to the specified sequence of 'input'
-        // characters ending at the specified "endOfInput" pointer.
+        // characters ending at the specified 'endOfInput' pointer.
         // The state of the tokenizer following this call is *as* *if* it had
         // been constructed with 'input' and its current sets of *soft* and
         // *hard* delimiter characters.  Note that the behavior is also
@@ -687,30 +687,28 @@ class Tokenizer {
     bool hasPreviousSoft() const;
         // Return 'true' if the previous delimiter (or *leader*) contains a
         // *soft* delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the underlying input has been modified or
+        // undefined if the underlying input itself has been modified or
         // destroyed since this object was most recently reset (or created).
 
     bool hasTrailingSoft() const;
         // Return 'true' if the current (trailing) delimiter contains a *soft*
         // delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the iteration state of this object is initially
-        // valid, or if the underlying input has been modified or destroyed
-        // since this object was most recently reset (or created).
+        // undefined if the iteration state of this object is initially
+        // invalid, or if the underlying input itself has been modified or
+        // destroyed since this object was most recently reset (or created).
 
     bool isPreviousHard() const;
         // Return 'true' if the previous delimiter contains a *hard-delimiter*
-        // character, and 'false' otherwise.  Note that this method will always
-        // return 'false' on a newly constructed (or reset) object.  The
-        // returned reference remains valid so long as the underlying input
-        // string is not modified or destroyed -- irrespective of the state (or
-        // existence) of this object.
+        // character, and 'false' otherwise.  The behavior is undefined if the
+        // underlying input itself has been modified or destroyed since this
+        // object was most recently reset (or created).
 
     bool isTrailingHard() const;
         // Return 'true' if the current (trailing) delimiter contains a *hard*
         // delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the iteration state of this object is initially
-        // valid, or if the underlying input has been modified or destroyed
-        // since this object was most recently reset (or created).
+        // undefined if the iteration state of this object is initially
+        // invalid, or if the underlying input itself has been modified or
+        // destroyed since this object was most recently reset (or created).
 
     bool isValid() const;
         // Return 'true' if the iteration state of this object is valid, and

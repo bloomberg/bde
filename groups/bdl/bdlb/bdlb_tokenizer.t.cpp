@@ -24,7 +24,7 @@ using namespace bsl;
 //                                 --------
 // This component consists of a top-level mechanism, 'Tokenizer', that
 // dispenses in-core value-semantic (standard) input iterators, of type
-// 'InputIterator', which in turn can be used to sequence over tokens
+// 'TokenizerIterator', which in turn can be used to sequence over tokens
 // characterized by "soft" and "hard" delimiter characters maintained in a
 // shared private class, 'Tokenizer_Data'.  The 'Tokenizer' mechanism, though
 // not value-semantic, can also be used to sequence of the tokens a given
@@ -95,7 +95,7 @@ using namespace bsl;
 //                      // ----------------------------
 //                      // private class Tokenizer_Data
 //                      // ----------------------------
-// CREATERS
+// CREATORS
 //*[ 3] Tokenizer_Data(const StringRef& softD);
 //*[ 2] Tokenizer_Data(const bslstl::StringRef& softD, const StringRef& hardD);
 //*[ 2] ~Tokenizer_Data()
@@ -300,29 +300,31 @@ bool isValid(const StringRef input,
     // Check for duplicates in input.  We need to test for duplicates
     // separately for the cases when soft, hard and token character sets are
     // empty.
+
     for (int i = 0; i < inputLength; ++i) {
         for (int j = i+1; j < inputLength; ++j) {
             if (input[i] == input[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
     }
 
     // Check for duplicates in and across soft, hard and token character sets.
+
     for (int i = 0; i < softLength; ++i) {
         for (int j = i+1; j < softLength; ++j) {
             if (soft[i] == soft[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
         for (int j = 0; j < hardLength; ++j) {
             if (soft[i] == hard[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
         for (int j = 0; j < tokenLength; ++j) {
             if (soft[i] == token[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
     }
@@ -330,12 +332,12 @@ bool isValid(const StringRef input,
     for (int i = 0; i < hardLength; ++i) {
         for (int j = i+1; j < hardLength; ++j) {
             if (hard[i] == hard[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
         for (int j = 0; j < tokenLength; ++j) {
             if (hard[i] == token[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
     }
@@ -343,7 +345,7 @@ bool isValid(const StringRef input,
     for (int i = 0; i < tokenLength; ++i) {
         for (int j = i+1; j < tokenLength; ++j) {
             if (token[i] == token[j]) {
-                return false;                                          //RETURN
+                return false;                                         // RETURN
             }
         }
     }
@@ -351,6 +353,7 @@ bool isValid(const StringRef input,
     // Check that all characters in the input string occur in the same relative
     // order as they do in each of the respective character sets and that they
     // do NOT skip over any characters in those respective sets.
+
     int softIndex  = 0;
     int hardIndex  = 0;
     int tokenIndex = 0;
@@ -388,7 +391,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -410,26 +413,7 @@ int main(int argc, char **argv)
                           << "=============" << endl;
         if (verbose) cout << "TODO" << endl;
       } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TEST CASE TEMPLATE
-        //
-        // Concerns:
-        //: 1
-        //
-        // Plan:
-        //: 1
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TEST CASE TEMPLATE" << endl
-                          << "==================" << endl;
-        if (verbose) cout << "TODO" << endl;
-      } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // 'TokenizerIterator' OPERATORS
         //
@@ -452,7 +436,9 @@ int main(int argc, char **argv)
                          << "=============================" << endl;
 
         if (verbose) cout << "\nTesting TokenizerIterator operators." << endl;
-        const int  NUM_ITERATIONS = 5;
+
+        const int NUM_ITERATIONS = 5;
+
         static const struct {
             int         d_line;                    // line number
             const char *d_input_p;                 // input
@@ -488,7 +474,7 @@ int main(int argc, char **argv)
                 const int    LINE     = DATA[ti].d_line;
                 const char  *INPUT    = DATA[ti].d_input_p;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
@@ -512,6 +498,7 @@ int main(int argc, char **argv)
                     // component contract.  But we can't call accessor for such
                     // iterators, so we need to stop current iteration in that
                     // case.
+
                     if (!DATA[ti].d_tokens[i]) {
                         break;
                     }
@@ -520,7 +507,7 @@ int main(int argc, char **argv)
                     const StringRef MODEL_TOKEN = *It;
                     const StringRef EXPERIMENTAL_TOKEN = *eIt;
 
-                    if (veryVeryVerbose) {
+                    if (veryVerbose) {
                         T_ T_ P_(i) P_(MODEL_TOKEN) P(EXPERIMENTAL_TOKEN)
                     }
 
@@ -548,7 +535,7 @@ int main(int argc, char **argv)
                 const int    LINE     = DATA[ti].d_line;
                 const char  *INPUT    = DATA[ti].d_input_p;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
@@ -568,7 +555,7 @@ int main(int argc, char **argv)
                     bool areEqual    = (It == eIt);
                     bool areNotEqual = (It != eIt);
 
-                    if (veryVeryVerbose) {
+                    if (veryVerbose) {
                         T_ T_ P_(i) P_(areEqual) P(areNotEqual)
                     }
                     ASSERTV(LINE, i, true  == areEqual);
@@ -579,6 +566,7 @@ int main(int argc, char **argv)
                     // allowed by component contract.  But we can't move
                     // forward such iterators, so we need to stop current
                     // iteration in that case.
+
                     if (!DATA[ti].d_tokens[i]) {
                         break;
                     }
@@ -603,7 +591,7 @@ int main(int argc, char **argv)
                 const int    LINE     = DATA[ti].d_line;
                 const char  *INPUT    = DATA[ti].d_input_p;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
@@ -620,7 +608,6 @@ int main(int argc, char **argv)
 
                 int i = 0;
                 do {
-                   // Skip invalid iterators.
                     if (!DATA[ti].d_tokens[i]) {
                         break;
                     }
@@ -630,7 +617,7 @@ int main(int argc, char **argv)
 
                     bool areEqual = (It == eIt);
 
-                    if (veryVeryVerbose) {
+                    if (veryVerbose) {
                         T_ T_ P_(i) P(areEqual)
                     }
 
@@ -641,281 +628,9 @@ int main(int argc, char **argv)
             }
         }
       } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // 'TokenizerIterator' BASIC ACCESSORS
-        //
-        // Concerns:
-        //: 1
-        //
-        // Plan:
-        //: 1
-        //
-        // Testing:
-        //   TokenizerIterrator::operator*()
-        // --------------------------------------------------------------------
-
-        if (verbose)
-                    cout << endl
-                         << "'TokenizerIterator' BASIC ACCESSORS" << endl
-                         << "===================================" << endl;
-
-        if (verbose) cout << "\nTesting 'TokenizerIterator::operator*'."
-                          << endl;
-        {
-            enum { MAX_ITER = 4 };  // Maximum iterations
-
-            static const struct {
-                int         d_line;                       // line number
-                const char *d_stringData_p[3 + MAX_ITER]; // input + expected
-            } DATA[] = {
-                //________________Expected Parse of INPUT__________________
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-                {L_, {"",                              } }, // Depth 0
-
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-                {L_, {"s",                             } }, // Depth 1
-                {L_, {"H",    "",                      } },
-                {L_, {"0",    "0",                     } },
-
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-                {L_, {"st",                            } }, // Depth 2
-                {L_, {"sH",   "",                      } },
-                {L_, {"s0",   "0",                     } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"Hs",   "",                      } },
-                {L_, {"HI",   "",     "",              } },
-                {L_, {"H0",   "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0s",   "0",                     } },
-                {L_, {"0H",   "0",                     } },
-                {L_, {"01",   "01",                    } },
-
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-                {L_, {"stu",                           } }, // Depth 3
-                {L_, {"stH",  "",                      } },
-                {L_, {"st0",  "0",                     } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"sHt",  "",                      } },
-                {L_, {"sHI",  "",     "",              } },
-                {L_, {"sH0",  "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"s0t",  "0",                     } },
-                {L_, {"s0H",  "0",                     } },
-                {L_, {"s01",  "01",                    } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"Hst",  "",                      } },
-                {L_, {"HsI",  "",     "",              } },
-                {L_, {"Hs0",  "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"HIs",  "",     "",              } },
-                {L_, {"HIJ",  "",     "",    "",       } },
-                {L_, {"HI0",  "",     "",    "0",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"H0s",  "",     "0",             } },
-                {L_, {"H0I",  "",     "0",             } },
-                {L_, {"H01",  "",     "01",            } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0st",  "0",                     } },
-                {L_, {"0sH",  "0",                     } },
-                {L_, {"0s1",  "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0Hs",  "0",                     } },
-                {L_, {"0HI",  "0",    "",              } },
-                {L_, {"0H1",  "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"01s",  "01",                    } },
-                {L_, {"01H",  "01",                    } },
-                {L_, {"012",  "012",                   } },
-
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //-- -------- ------  ------ ----- ----
-                {L_, {"stuv",                          } }, // Depth 4
-                {L_, {"stuH", "",                      } },
-                {L_, {"stu0", "0",                     } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"stHu", "",                      } },
-                {L_, {"stHI", "",     "",              } },
-                {L_, {"stH0", "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"st0u", "0",                     } },
-                {L_, {"st0H", "0",                     } },
-                {L_, {"st01", "01",                    } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"sHtu", "",                      } },
-                {L_, {"sHtI", "",     "",              } },
-                {L_, {"sHt0", "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"sHIt", "",     "",              } },
-                {L_, {"sHIJ", "",     "",    "",       } },
-                {L_, {"sHI0", "",     "",    "0",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"sH0t", "",     "0",             } },
-                {L_, {"sH0I", "",     "0",             } },
-                {L_, {"sH01", "",     "01",            } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"s0tu", "0",                     } },
-                {L_, {"s0tH", "0",                     } },
-                {L_, {"s0t1", "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"s0Ht", "0",                     } },
-                {L_, {"s0HI", "0",    "",              } },
-                {L_, {"s0H1", "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"s01t", "01",                    } },
-                {L_, {"s01H", "01",                    } },
-                {L_, {"s012", "012",                   } },
-
-                // Depth 4-H: TOK0    TOK1   TOK2  TOK3
-                //-- -------- ------  ------ ----- ----
-                {L_, {"Hstu", "",                      } },
-                {L_, {"HstI", "",     "",              } },
-                {L_, {"Hst0", "",     "0",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"HsIt", "",     "",              } },
-                {L_, {"HsIJ", "",     "",    "",       } },
-                {L_, {"HsI0", "",     "",    "0",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"Hs0t", "",     "0",             } },
-                {L_, {"Hs0I", "",     "0",             } },
-                {L_, {"Hs01", "",     "01",            } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"HIst", "",     "",              } },
-                {L_, {"HIsJ", "",     "",    "",       } },
-                {L_, {"HIs0", "",     "",    "0",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"HIJs", "",     "",    "",       } },
-                {L_, {"HIJK", "",     "",    "",   "", } },
-                {L_, {"HIJ0", "",     "",    "",   "0",} },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"HI0s", "",     "",    "0",      } },
-                {L_, {"HI0J", "",     "",    "0",      } },
-                {L_, {"HI01", "",     "",    "01",     } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"H0st", "",     "0",             } },
-                {L_, {"H0sI", "",     "0",             } },
-                {L_, {"H0s1", "",     "0",   "1",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"H0Is", "",     "0",             } },
-                {L_, {"H0IJ", "",     "0",   "",       } },
-                {L_, {"H0I1", "",     "0",   "1",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"H01s", "",     "01",            } },
-                {L_, {"H01I", "",     "01",            } },
-                {L_, {"H012", "",     "012",           } },
-
-                // Depth 4-0: TOK0    TOK1   TOK2  TOK3
-                //-- -------- ------  ------ ----- ----
-                {L_, {"0stu", "0",                     } },
-                {L_, {"0stH", "0",                     } },
-                {L_, {"0st1", "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0sHt", "0",                     } },
-                {L_, {"0sHI", "0",    "",              } },
-                {L_, {"0sH1", "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0s1t", "0",    "1",             } },
-                {L_, {"0s1H", "0",    "1",             } },
-                {L_, {"0s12", "0",    "12",            } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0Hst", "0",                     } },
-                {L_, {"0HsI", "0",    "",              } },
-                {L_, {"0Hs1", "0",    "1",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0HIs", "0",    "",              } },
-                {L_, {"0HIJ", "0",    "",    "",       } },
-                {L_, {"0HI1", "0",    "",    "1",      } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"0Hst", "0",                     } },
-                {L_, {"0HsI", "0",    "",              } },
-                {L_, {"0Hs1", "0",    "1",             } },
-
-                //--  ------  ------  ------ ----- ----
-                {L_, {"01st", "01",                    } },
-                {L_, {"01sH", "01",                    } },
-                {L_, {"01s2", "01",   "2",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"01Hs", "01",                    } },
-                {L_, {"01HI", "01",   "",              } },
-                {L_, {"01H2", "01",   "2",             } },
-                //--  ------  ------  ------ ----- ----
-                {L_, {"012s", "012",                   } },
-                {L_, {"012H", "012",                   } },
-                {L_, {"0123", "0123",                  } },
-            };  // DATA
-
-            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
-
-            for (int ti = 0; ti < DATA_LEN; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const char        *INPUT    = DATA[ti].d_stringData_p[0];
-                const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
-
-                if (veryVeryVerbose) {
-                    T_ P_(LINE) P(INPUT)
-                }
-
-                // Validate the input string and tokenizer parameters.
-                bool VALID = isValid(INPUT,
-                                     SOFT_DELIM_CHARS,
-                                     HARD_DELIM_CHARS,
-                                     TOKEN_CHARS);
-                ASSERTV(LINE, INPUT, true == VALID);
-
-                Obj        mT(INPUT,
-                              StringRef(SOFT_DELIM_CHARS),
-                              StringRef(HARD_DELIM_CHARS));
-
-                ObjIt        mIt = mT.begin();
-                const ObjIt& It  = mIt;
-
-                // Initially 'cursor' is the address of the first token string.
-                for (const char * const *cursor = EXPECTED;
-                                        *cursor;
-                                        ++cursor) {
-
-                    // Extract iteration number, N; used in error reporting.
-                    const long int N = cursor - EXPECTED;  // Nth token
-
-                    // Expected token at this iteration, N, of
-                    // TokenizerIterator op++:
-                    const char *EXP_TOKEN = *cursor;  // current token
-
-                    const StringRef RET_TOKEN = *It;
-
-                    if (veryVeryVerbose) {
-                        T_ T_ P_(N) P_(EXP_TOKEN) P(RET_TOKEN)
-                    }
-
-                    ASSERTV(LINE,
-                            N,
-                            EXP_TOKEN,
-                            RET_TOKEN,
-                            EXP_TOKEN == RET_TOKEN);
-
-                    ++mIt;
-
-                }  // for current token in input row
-            }  // for each row in table
-        }
-      } break;
       case 8: {
         // --------------------------------------------------------------------
-        // 'TokenizerIterator' PRIMARY MANIPULATORS
+        // 'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR
         //   Bring the object to every state relevant for thorough testing.
         //
         // Concerns:
@@ -941,13 +656,14 @@ int main(int argc, char **argv)
         // Testing:
         //   Tokenizer::begin()
         //   TokenizerIterator(const TokenizerIterator& other);
-        //   TokenizerIterrator::operator++()
+        //   TokenizerIterator::operator++()
+        //   TokenizerIterator::operator*()
         // --------------------------------------------------------------------
 
         if (verbose)
-                    cout << endl
-                         << "'TokenizerIterator' PRIMARY MANIPULATORS" << endl
-                         << "========================================" << endl;
+ cout << endl
+      << "'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR" << endl
+      << "===========================================================" << endl;
 
         if (verbose) cout <<
                   "\nTesting TokenizerIterator ctor, copy ctor and operator++."
@@ -1155,10 +871,12 @@ int main(int argc, char **argv)
                 const char        *INPUT    = DATA[ti].d_stringData_p[0];
                 const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
+
                 // Validate the input string and tokenizer parameters.
+
                 bool VALID = isValid(INPUT,
                                      SOFT_DELIM_CHARS,
                                      HARD_DELIM_CHARS,
@@ -1173,15 +891,18 @@ int main(int argc, char **argv)
                 const ObjIt& It  = mIt;
 
                 // Initially 'cursor' is the address of the first token string.
+
                 for (const char * const *cursor = EXPECTED;
                                         *cursor;
                                         ++cursor) {
 
                     // Extract iteration number, N; used in error reporting.
+
                     const long int N = cursor - EXPECTED;  // Nth token
 
                     // Expected token at this iteration, N, of
                     // TokenizerIterator op++:
+
                     const char *EXP_TOKEN = *cursor;  // current token
 
                     ObjIt        mCopyIt(mIt);  // copy of initial object
@@ -1190,7 +911,7 @@ int main(int argc, char **argv)
                     const StringRef RET_TOKEN = *It;
                     const StringRef RET_COPY_TOKEN = *CopyIt;
 
-                    if (veryVeryVerbose) {
+                    if (veryVerbose) {
                         T_ T_ P_(N) P_(EXP_TOKEN) P(RET_TOKEN)
                     }
 
@@ -1278,6 +999,10 @@ int main(int argc, char **argv)
                 const char *RESET_TOKEN  = DATA[i].d_resetValues[1];
                 const char *RESET_DELIM  = DATA[i].d_resetValues[2];
 
+                if (veryVerbose) {
+                    T_ T_ P_(LINE) P_(CTOR_INPUT) P(RESET_INPUT)
+                }
+
                 bool CTOR_INPUT_VALID = isValid(CTOR_INPUT,
                                                 SOFT_DELIM_CHARS,
                                                 HARD_DELIM_CHARS,
@@ -1328,9 +1053,9 @@ int main(int argc, char **argv)
                 resetInput[256-i-1] = static_cast<char>(i);
             }
 
-            Obj        mTSoft(ctorInput, StringRef(&delim, 1), StringRef());
+            Obj        mTSoft(ctorInput, StringRef(&delim, 1), (StringRef()));
             const Obj& TSoft = mTSoft;
-            Obj        mTHard(ctorInput, StringRef(), StringRef(&delim, 1));
+            Obj        mTHard(ctorInput, (StringRef()), StringRef(&delim, 1));
             const Obj& THard = mTHard;
 
             ASSERT(ctorInput == TSoft.token());
@@ -1342,6 +1067,21 @@ int main(int argc, char **argv)
             ASSERT(resetInput == TSoft.token());
             ASSERT(resetInput == THard.token());
         }
+
+        if (verbose) cout << "\tNegative Testing."<< endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj        mT("", "", "");
+            const Obj& T = mT;
+
+            ASSERT_SAFE_FAIL(mT.reset(static_cast<const char*>(0)));
+            ASSERT_SAFE_FAIL(mT.reset((StringRef())));
+            ASSERT_SAFE_PASS(mT.reset(""));
+            ASSERT_SAFE_PASS(mT.reset(StringRef("")));
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1419,10 +1159,14 @@ int main(int argc, char **argv)
             const char *TOKEN  = DATA[i].d_values[1];  // trailing token
             const char *DELIM  = DATA[i].d_values[2];  // trailing delimiter
 
-            // Make sure that the characters in the input string occur in
-            // the same relative order as they do in each of the respective
-            // character sets defined above, and that they do NOT skip over
-            // any characters in those respective sets.
+            // Make sure that the characters in the input string occur in the
+            // same relative order as they do in each of the respective
+            // character sets defined above, and that they do NOT skip over any
+            // characters in those respective sets.
+
+            if (veryVerbose) {
+                T_ T_ P_(LINE) P(INPUT)
+            }
 
             bool VALID = isValid(INPUT,
                                  SOFT_DELIM_CHARS,
@@ -1458,7 +1202,7 @@ int main(int argc, char **argv)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS
+        // OTHER ACCESSORS
         //   Verify the basic accessors functionality.
         //
         // Concerns:
@@ -1470,9 +1214,6 @@ int main(int argc, char **argv)
         //
         // Testing:
         //   bool Tokenizer::isValid();
-        //   StringRef Tokenizer::trailingDelimiter();
-        //   StringRef Tokenizer::previousDelimiter();
-        //   StringRef Tokenizer::token();
         //   bool Tokenizer::hasTrailingSoft();
         //   bool Tokenizer::hasPreviousSoft();
         //   bool Tokenizer::isTrailingHard();
@@ -1480,7 +1221,7 @@ int main(int argc, char **argv)
         //
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "BASIC ACCESSORS" << endl
+                          << "OTHER ACCESSORS" << endl
                           << "===============" << endl;
 
         if (verbose) cout << "\nTesting accessors." << endl;
@@ -1498,280 +1239,14 @@ int main(int argc, char **argv)
             ASSERT(true  == validT.isValid());
         }
 
-        if (verbose) cout <<
-              "\tTesting 'previousDelimiter', 'token' and 'trailingDelimiter'."
-                          << endl;
-        {
-            enum { MAX_ITER = 4 };  // Maximum iterations
-
-            static const struct {
-                int         d_line;                         // line number
-                const char *d_stringData_p[3 + 2*MAX_ITER]; // input + expected
-            } DATA[] = {
- //           ________________Expected Parse of INPUT__________________
-  //L#  INPUT   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-
-  // Depth 0:   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"",     ""                                                         } },
-
-  // Depth 1:   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"s",    "s"                                                        } },
-  {L_, {"H",    "",     "",     "H"                                        } },
-  {L_, {"0",    "",     "0",    ""                                         } },
-
-  // Depth 2:   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"st",   "st"                                                       } },
-  {L_, {"sH",   "s",    "",     "H"                                        } },
-  {L_, {"s0",   "s",    "0",    ""                                         } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"Hs",   "",     "",     "Hs"                                       } },
-  {L_, {"HI",   "",     "",     "H",   "",    "I"                          } },
-  {L_, {"H0",   "",     "",     "H",   "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0s",   "",     "0",    "s"                                        } },
-  {L_, {"0H",   "",     "0",    "H"                                        } },
-  {L_, {"01",   "",     "01",   ""                                         } },
-
-  // Depth 3:   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"stu",  "stu"                                                      } },
-  {L_, {"stH",  "st",   "",     "H"                                        } },
-  {L_, {"st0",  "st",   "0",    ""                                         } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"sHt",  "s",    "",     "Ht"                                       } },
-  {L_, {"sHI",  "s",    "",     "H",   "",    "I"                          } },
-  {L_, {"sH0",  "s",    "",     "H",   "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"s0t",  "s",    "0",    "t"                                        } },
-  {L_, {"s0H",  "s",    "0",    "H"                                        } },
-  {L_, {"s01",  "s",    "01",   ""                                         } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"Hst",  "",     "",     "Hst"                                      } },
-  {L_, {"HsI",  "",     "",     "Hs",  "",    "I"                          } },
-  {L_, {"Hs0",  "",     "",     "Hs",  "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"HIs",  "",     "",     "H",   "",    "Is"                         } },
-  {L_, {"HIJ",  "",     "",     "H",   "",    "I",   "",   "J"             } },
-  {L_, {"HI0",  "",     "",     "H",   "",    "I",   "0",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"H0s",  "",     "",     "H",   "0",   "s"                          } },
-  {L_, {"H0I",  "",     "",     "H",   "0",   "I"                          } },
-  {L_, {"H01",  "",     "",     "H",   "01",  ""                           } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0st",  "",     "0",    "st"                                       } },
-  {L_, {"0sH",  "",     "0",    "sH"                                       } },
-  {L_, {"0s1",  "",     "0",    "s",   "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0Hs",  "",     "0",    "Hs"                                       } },
-  {L_, {"0HI",  "",     "0",    "H",   "",    "I"                          } },
-  {L_, {"0H1",  "",     "0",    "H",   "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"01s",  "",     "01",   "s"                                        } },
-  {L_, {"01H",  "",     "01",   "H"                                        } },
-  {L_, {"012",  "",     "012",  ""                                         } },
-
-  // Depth 4-s: LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //-- -------- ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"stuv", "stuv"                                                     } },
-  {L_, {"stuH", "stu",  "",     "H"                                        } },
-  {L_, {"stu0", "stu",  "0",    ""                                         } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"stHu", "st",   "",     "Hu"                                       } },
-  {L_, {"stHI", "st",   "",     "H",   "",    "I"                          } },
-  {L_, {"stH0", "st",   "",     "H",   "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"st0u", "st",   "0",    "u"                                        } },
-  {L_, {"st0H", "st",   "0",    "H"                                        } },
-  {L_, {"st01", "st",   "01",   ""                                         } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"sHtu", "s",    "",     "Htu"                                      } },
-  {L_, {"sHtI", "s",    "",     "Ht",  "",    "I"                          } },
-  {L_, {"sHt0", "s",    "",     "Ht",  "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"sHIt", "s",    "",     "H",   "",    "It"                         } },
-  {L_, {"sHIJ", "s",    "",     "H",   "",    "I",   "",   "J"             } },
-  {L_, {"sHI0", "s",    "",     "H",   "",    "I",   "0",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"sH0t", "s",    "",     "H",   "0",   "t"                          } },
-  {L_, {"sH0I", "s",    "",     "H",   "0",   "I"                          } },
-  {L_, {"sH01", "s",    "",     "H",   "01",  ""                           } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"s0tu", "s",    "0",    "tu"                                       } },
-  {L_, {"s0tH", "s",    "0",    "tH"                                       } },
-  {L_, {"s0t1", "s",    "0",    "t",   "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"s0Ht", "s",    "0",    "Ht"                                       } },
-  {L_, {"s0HI", "s",    "0",    "H",   "",    "I"                          } },
-  {L_, {"s0H1", "s",    "0",    "H",   "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"s01t", "s",    "01",   "t"                                        } },
-  {L_, {"s01H", "s",    "01",   "H"                                        } },
-  {L_, {"s012", "s",    "012",  ""                                         } },
-
-  // Depth 4-H: LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //-- -------- ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"Hstu", "",     "",     "Hstu"                                     } },
-  {L_, {"HstI", "",     "",     "Hst", "",    "I"                          } },
-  {L_, {"Hst0", "",     "",     "Hst", "0",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"HsIt", "",     "",     "Hs",  "",    "It"                         } },
-  {L_, {"HsIJ", "",     "",     "Hs",  "",    "I",   "",   "J"             } },
-  {L_, {"HsI0", "",     "",     "Hs",  "",    "I",   "0",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"Hs0t", "",     "",     "Hs",  "0",   "t"                          } },
-  {L_, {"Hs0I", "",     "",     "Hs",  "0",   "I"                          } },
-  {L_, {"Hs01", "",     "",     "Hs",  "01",  ""                           } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"HIst", "",     "",     "H",   "",    "Ist"                        } },
-  {L_, {"HIsJ", "",     "",     "H",   "",    "Is",  "",   "J"             } },
-  {L_, {"HIs0", "",     "",     "H",   "",    "Is",  "0",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"HIJs", "",     "",     "H",   "",    "I",   "",   "Js",           } },
-  {L_, {"HIJK", "",     "",     "H",   "",    "I",   "",   "J",  "",   "K" } },
-  {L_, {"HIJ0", "",     "",     "H",   "",    "I",   "",   "J",  "0",  ""  } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"HI0s", "",     "",     "H",   "",    "I",   "0",  "s"             } },
-  {L_, {"HI0J", "",     "",     "H",   "",    "I",   "0",  "J"             } },
-  {L_, {"HI01", "",     "",     "H",   "",    "I",   "01", ""              } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"H0st", "",     "",     "H",   "0",   "st"                         } },
-  {L_, {"H0sI", "",     "",     "H",   "0",   "sI"                         } },
-  {L_, {"H0s1", "",     "",     "H",   "0",   "s",   "1",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"H0Is", "",     "",     "H",   "0",   "Is"                         } },
-  {L_, {"H0IJ", "",     "",     "H",   "0",   "I",   "",   "J"             } },
-  {L_, {"H0I1", "",     "",     "H",   "0",   "I",   "1",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"H01s", "",     "",     "H",   "01",  "s"                          } },
-  {L_, {"H01I", "",     "",     "H",   "01",  "I"                          } },
-  {L_, {"H012", "",     "",     "H",   "012", ""                           } },
-
-  // Depth 4-0: LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
-  //-- -------- ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0stu", "",     "0",    "stu"                                      } },
-  {L_, {"0stH", "",     "0",    "stH"                                      } },
-  {L_, {"0st1", "",     "0",    "st",  "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0sHt", "",     "0",    "sHt"                                      } },
-  {L_, {"0sHI", "",     "0",    "sH",  "",    "I"                          } },
-  {L_, {"0sH1", "",     "0",    "sH",  "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0s1t", "",     "0",    "s",   "1",   "t"                          } },
-  {L_, {"0s1H", "",     "0",    "s",   "1",   "H"                          } },
-  {L_, {"0s12", "",     "0",    "s",   "12",  ""                           } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0Hst", "",     "0",    "Hst"                                      } },
-  {L_, {"0HsI", "",     "0",    "Hs",  "",    "I"                          } },
-  {L_, {"0Hs1", "",     "0",    "Hs",  "1",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0HIs", "",     "0",    "H",   "",    "Is"                         } },
-  {L_, {"0HIJ", "",     "0",    "H",   "",    "I",   "",   "J"             } },
-  {L_, {"0HI1", "",     "0",    "H",   "",    "I",   "1",  ""              } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"0Hst", "",     "0",    "Hst"                                      } },
-  {L_, {"0HsI", "",     "0",    "Hs",  "",    "I"                          } },
-  {L_, {"0Hs1", "",     "0",    "Hs",  "1",   ""                           } },
-
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"01st", "",     "01",   "st"                                       } },
-  {L_, {"01sH", "",     "01",   "sH"                                       } },
-  {L_, {"01s2", "",     "01",   "s",   "2",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"01Hs", "",     "01",   "Hs"                                       } },
-  {L_, {"01HI", "",     "01",   "H",   "",    "I"                          } },
-  {L_, {"01H2", "",     "01",   "H",   "2",   ""                           } },
-  //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
-  {L_, {"012s", "",     "012",  "s"                                        } },
-  {L_, {"012H", "",     "012",  "H"                                        } },
-  {L_, {"0123", "",     "0123", ""                                         } },
-            };  // DATA
-
-            enum { DATA_LEN = sizeof DATA / sizeof *DATA };
-
-            for (int ti = 0; ti < DATA_LEN; ++ti) {
-                const int    LINE     = DATA[ti].d_line;
-                const char  *INPUT    = DATA[ti].d_stringData_p[0];
-                const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
-
-                if (veryVeryVerbose) {
-                    T_ P_(LINE) P(INPUT)
-                }
-
-                // Validate the input string and tokenizer parameters.
-                bool VALID = isValid(INPUT,
-                                     SOFT_DELIM_CHARS,
-                                     HARD_DELIM_CHARS,
-                                     TOKEN_CHARS);
-                ASSERTV(LINE, INPUT, true == VALID);
-
-                Obj        mT(INPUT,
-                              StringRef(SOFT_DELIM_CHARS),
-                              StringRef(HARD_DELIM_CHARS));
-                const Obj& T = mT;
-
-                // Initially 'cursor' is the address of the first token string.
-                for (const char * const *cursor = EXPECTED+1;
-                                        *cursor;
-                                        cursor += 2) {
-                    // Extract iteration number, N; use in error reporting.
-                    const long int N = (cursor - EXPECTED) / 2;  // Nth token
-
-                    // Expected values of Tokenizer's op++ at (this) iteration:
-                    const char *EXP_PREV  = cursor[-1];  // previos delimiter
-                    const char *EXP_TOKEN = cursor[ 0];  // current token
-                    const char *EXP_POST  = cursor[+1];  // trailing delimiter
-
-                    // Shorten for better error messages.
-                    const StringRef RET_PREV  = T.previousDelimiter();
-                    const StringRef RET_TOKEN = T.token();
-                    const StringRef RET_POST  = T.trailingDelimiter();
-
-                    if (veryVeryVerbose) {
-                        T_ T_ P_(N) T_ P_(EXP_PREV)  P(RET_PREV)
-                        T_ T_       T_ P_(EXP_TOKEN) P(RET_TOKEN)
-                        T_ T_       T_ P_(EXP_POST)  P(RET_POST)
-                    }
-
-                    ASSERTV(LINE,
-                            N,
-                            EXP_PREV,
-                            RET_PREV,
-                            EXP_PREV  == RET_PREV);
-                    ASSERTV(LINE,
-                            N,
-                            EXP_TOKEN,
-                            RET_TOKEN,
-                            EXP_TOKEN == RET_TOKEN);
-                    ASSERTV(LINE,
-                            N,
-                            EXP_POST,
-                            RET_POST,
-                            EXP_POST  == RET_POST);
-
-                    ++mT;
-
-                }  // for current token in input row
-            }  // for each row in table
-        }
-
         if (verbose) cout << "\tTesting 'hasPreviousSoft'/'isPreviousHard'."
                           << endl;
         {
             const int  NUM_ITERATIONS = 6;
+
             static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input
+                int         d_line;                    // line number
+                const char *d_input;                   // input
                 const struct {
                     const char *d_delim;    // previous delimiter
                     const bool  d_hasSoft;  // has soft character
@@ -1822,10 +1297,10 @@ int main(int argc, char **argv)
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < DATA_LEN; ++ti) {
-                const int    LINE     = DATA[ti].d_line;
-                const char  *INPUT    = DATA[ti].d_input;
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
@@ -1853,14 +1328,13 @@ int main(int argc, char **argv)
             }
         }
 
-
         if (verbose) cout << "\tTesting 'hasTrailingSoft'/'isTrailingHard'."
                           << endl;
         {
             const int  NUM_ITERATIONS = 6;
             static const struct {
-                int         d_line;         // line number
-                const char *d_input;        // input
+                int         d_line;                    // line number
+                const char *d_input;                   // input
                 const struct {
                     const char *d_delim;    // trailing delimiter
                     const bool  d_hasSoft;  // has soft character
@@ -1906,7 +1380,7 @@ int main(int argc, char **argv)
                 const int   LINE  = DATA[ti].d_line;
                 const char *INPUT = DATA[ti].d_input;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
@@ -1932,7 +1406,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\tTesting accessors with embedded nulls."
+        if (verbose) cout << "\tTesting inputs having embedded null character."
                           << endl;
         {
             const char      INPUT_DATA[] = {'\0', '0', '\0'};
@@ -1940,6 +1414,7 @@ int main(int argc, char **argv)
             const StringRef NULL_STRING_REF("\0", 1);
             {
                 // soft delimiter with embedded null
+
                 Obj        mT(INPUT, NULL_STRING_REF, "");
                 const Obj& T = mT;
                 ASSERT(NULL_STRING_REF == T.previousDelimiter());
@@ -1953,6 +1428,7 @@ int main(int argc, char **argv)
 
             {
                 // hard delimiter with embedded null
+
                 Obj        mT(INPUT, "", NULL_STRING_REF);
                 const Obj& T = mT;
                 ASSERT(""              == T.previousDelimiter());
@@ -1966,6 +1442,7 @@ int main(int argc, char **argv)
 
             {
                 // token with embedded null
+
                 Obj        mT(INPUT, "", "");
                 const Obj& T = mT;
                 ASSERT(""              == T.previousDelimiter());
@@ -1980,7 +1457,7 @@ int main(int argc, char **argv)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS
+        // PRIMARY MANIPULATORS AND BASIC ACCESSORS
         //   Bring the object to every state relevant for thorough testing.
         //
         // Concerns:
@@ -2016,11 +1493,17 @@ int main(int argc, char **argv)
         //   Tokenizer(const char *i, const StringRef& sd, const StringRef& hd)
         //   Tokenizer(const StringRef&, const StringRef&, const StringRef&)
         //   Tokenizer::operator++()
+        //   StringRef Tokenizer::trailingDelimiter();
+        //   StringRef Tokenizer::previousDelimiter();
+        //   StringRef Tokenizer::token();
+
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "PRIMARY MANIPULATORS" << endl
-                          << "====================" << endl;
+        if (verbose) cout
+                         << endl
+                         << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
+                         << "========================================" << endl;
+
         if (verbose) cout <<
                 "\nTesting all input combinations to a depth of four." << endl;
         {
@@ -2030,7 +1513,7 @@ int main(int argc, char **argv)
                 int         d_line;                         // line number
                 const char *d_stringData_p[3 + 2*MAX_ITER]; // input + expected
             } DATA[] = {
- //           ________________Expected Parse of INPUT__________________
+  //            _________________Expected Parse of INPUT___________________
   //L#  INPUT   LEADER  TOK0    DEL0   TOK1   DEL1   TOK2  DEL2  TOK3  DEL3
   //--  ------  ------  ------  ------ ------ ------ ----- ----- ----  ----
 
@@ -2222,15 +1705,16 @@ int main(int argc, char **argv)
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < DATA_LEN; ++ti) {
-                const int    LINE     = DATA[ti].d_line;
-                const char  *INPUT    = DATA[ti].d_stringData_p[0];
+                const int          LINE     = DATA[ti].d_line;
+                const char        *INPUT    = DATA[ti].d_stringData_p[0];
                 const char *const *EXPECTED = DATA[ti].d_stringData_p + 1;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P(INPUT)
                 }
 
                 // Validate the input string and tokenizer parameters.
+
                 bool VALID = isValid(INPUT,
                                      SOFT_DELIM_CHARS,
                                      HARD_DELIM_CHARS,
@@ -2243,6 +1727,7 @@ int main(int argc, char **argv)
                 const Obj& T = mT;
 
                 // Initially 'cursor' is the address of the first token string.
+
                 for (const char * const *cursor = EXPECTED+1;
                                         *cursor;
                                         cursor += 2) {
@@ -2250,19 +1735,22 @@ int main(int argc, char **argv)
                     ASSERTV(LINE, T.isValid());  // Table: tokanizer's valid!
 
                     // Extract iteration number, N; used in error reporting.
+
                     const long int N = (cursor - EXPECTED) / 2;  // Nth token
 
                     // Expected values of Tokenizer's op++ at (this) iteration:
-                    const char *EXP_PREV  = cursor[-1];  // previos delimiter
+
+                    const char *EXP_PREV  = cursor[-1];  // previous delimiter
                     const char *EXP_TOKEN = cursor[ 0];  // current token
                     const char *EXP_POST  = cursor[+1];  // trailing delimiter
 
                     // Shorten for better error messages.
+
                     const StringRef RET_PREV  = T.previousDelimiter();
                     const StringRef RET_TOKEN = T.token();
                     const StringRef RET_POST  = T.trailingDelimiter();
 
-                    if (veryVeryVerbose) {
+                    if (veryVerbose) {
                         T_ T_ P_(N) T_ P_(EXP_PREV)  P(RET_PREV)
                         T_ T_       T_ P_(EXP_TOKEN) P(RET_TOKEN)
                         T_ T_       T_ P_(EXP_POST)  P(RET_POST)
@@ -2294,12 +1782,10 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-                   "\nAd hoc testing of various character properties." << endl;
+                            "\nAd hoc testing of various character properties."
+                          << endl;
         {
-            // 1. Repeated characters behaves the same as above.
-            // 2. The null character behave the same as any other character.
-            // 3. Non-ASCII characters behave the same as ASCII ones.
-
+            if (verbose) cout << "\tTesting repeated characters." << endl;
             {
                 char      softDelim[3] = {"ss"};
                 char      token[3]     = {"00"};
@@ -2322,6 +1808,7 @@ int main(int argc, char **argv)
                 ASSERT(softDelim == T.trailingDelimiter());
             }
 
+            if (verbose) cout << "\tTesting embedded null character." << endl;
             {
                 const char      INPUT_DATA[] = {'\0', '0', '\0'};
                 const StringRef INPUT(INPUT_DATA, 3);
@@ -2356,15 +1843,17 @@ int main(int argc, char **argv)
                     ASSERT(""              == T.trailingDelimiter());
                 }
             }
+
+            if (verbose) cout << "\tTesting Non-ASCII characters." << endl;
+            {
+            }
         }
 
         if (verbose) cout <<
                   "\nAd hoc 'stress' testing for iterations and size." << endl;
         {
-
-            // 4. Inputs requiring many iterations work as expected.
-            // 5. Inputs having large tokens/delimeters work as expected.
-
+            if (verbose) cout << "\tTesting inputs requiring many iterations."
+                              << endl;
             {
                 const int   INPUT_SIZE = 1000;
                 char        softInput[INPUT_SIZE+1];
@@ -2409,6 +1898,15 @@ int main(int argc, char **argv)
                     const StringRef HARD_TOKEN_EXP =
                                         StringRef(     TOKEN_CHARS + INDEX, 1);
 
+                    if (veryVerbose) {
+                        T_ P_(i) P_(INDEX) P(INDEX)
+                        T_ T_ P_(SOFT_PREV_EXP)  P(SOFT_PREV_EXP)
+                        T_ T_ P_(SOFT_TOKEN_EXP) P(SOFT_TOKEN)
+                        T_ T_ P_(HARD_DELIM_EXP) P(HARD_DELIM)
+                        T_ T_ P_(HARD_TOKEN_EXP) P(HARD_TOKEN)
+                    }
+
+
                     ASSERTV(i, INDEX, SOFT_PREV_EXP  == SOFT_PREV);
                     ASSERTV(i, INDEX, SOFT_TOKEN_EXP == SOFT_TOKEN);
                     ASSERTV(i, INDEX, HARD_DELIM_EXP == HARD_DELIM);
@@ -2419,6 +1917,9 @@ int main(int argc, char **argv)
                 }
             }
 
+            if (verbose) cout <<
+                             "\tTesting inputs having large tokens/delimeters."
+                              << endl;
             {
                 const int BUF_SIZE = 1000;
                 char      softDelim[BUF_SIZE+1];  // "sss...sss"
@@ -2459,22 +1960,21 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nNegative tests: null input, iterating in "
-                          << "invalid state."
-                          << endl;
+        if (verbose) cout << "\nNegative Testing."<< endl;
         {
-
-            // 6. Supplying a null input is detected).
-            // 7. Iterating from an invalid state.
-
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
+            if (verbose) cout << "\tTesting null input." << endl;
+
             ASSERT_SAFE_FAIL(Obj(static_cast<const char*>(0), "", ""));
-            ASSERT_SAFE_FAIL(Obj(StringRef(), "", ""));
+            ASSERT_SAFE_FAIL(Obj((StringRef()), "", ""));
             ASSERT_SAFE_PASS(Obj("", "", ""));
-            ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef()));
-            ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef(), StringRef()));
+            ASSERT_SAFE_PASS(Obj(StringRef(""), (StringRef())));
+            ASSERT_SAFE_PASS(Obj(StringRef(""), (StringRef()), (StringRef())));
+
+            if (verbose) cout << "\tTesting iterating from an invalid state"
+                              << endl;
 
             ASSERT_SAFE_FAIL(++Obj("", "", ""));
             ASSERT_SAFE_PASS(++Obj("0", "", ""));
@@ -2517,21 +2017,20 @@ int main(int argc, char **argv)
         {
 
             static const struct {
-                    int         d_line;         // line number
-                    const char *d_soft;         // list of soft delimiters
-                    const char *d_hard;         // list of hard delimiters
-                    const char *d_token;        // list of tokens
-                    const char *d_input;        // input string
-                    bool        d_isValid;      // expected tokenizer validity
+                int         d_line;         // line number
+                const char *d_soft;         // list of soft delimiters
+                const char *d_hard;         // list of hard delimiters
+                const char *d_token;        // list of tokens
+                const char *d_input;        // input string
+                bool        d_isValid;      // expected tokenizer validity
             } DATA[] = {
                 //LINE  SOFT    HARD    TOKEN   INPUT   VALID
                 //----  ------  ------  ------  ------  -----
-
-                // Alternative testing patterns. The test table uses previous
+                // Alternative testing patterns.  The test table uses previous
                 // patterns to elide already tested combinations.
                 // Uses white-box testing strategy ( known implementation ).
-                //L_,   "stuv", "HIJK", "0123", "sH0a", false }, // template
-                // Validity of the soft delimiter character set up to depth 4
+
+                // Testing soft delimiter validity
                 { L_,   "s",    "",     "",     "",     true  },
                 { L_,   "ss",   "",     "",     "",     false },
                 { L_,   "st",   "",     "",     "",     true  },
@@ -2539,7 +2038,8 @@ int main(int argc, char **argv)
                 { L_,   "stu",  "",     "",     "",     true  },
                 { L_,   "stus", "",     "",     "",     false },
                 { L_,   "stuv", "",     "",     "",     true  },
-                // Validity of the hard delimiter character set up to depth 4
+
+                //Testing hard delimiter validity
                 { L_,   "",     "H",    "",     "",     true  },
                 { L_,   "",     "HH",   "",     "",     false },
                 { L_,   "",     "HI",   "",     "",     true  },
@@ -2547,7 +2047,8 @@ int main(int argc, char **argv)
                 { L_,   "",     "HIJ",  "",     "",     true  },
                 { L_,   "",     "HIJH", "",     "",     false },
                 { L_,   "",     "HIJK", "",     "",     true  },
-                // Validity of the token character set up to depth 4
+
+                // Testing token set validity
                 { L_,   "",     "",     "0",    "",     true  },
                 { L_,   "",     "",     "00",   "",     false },
                 { L_,   "",     "",     "01",   "",     true  },
@@ -2555,13 +2056,14 @@ int main(int argc, char **argv)
                 { L_,   "",     "",     "012",  "",     true  },
                 { L_,   "",     "",     "0120", "",     false },
                 { L_,   "",     "",     "0123", "",     true  },
-                // Validity of the input (duplicates only) up to depth 4
+
+                // Testing input (duplicates only) validity
                 { L_,   "",     "",     "",     "aa",   false },
                 { L_,   "",     "",     "",     "aba",  false },
                 { L_,   "",     "",     "",     "abca", false },
                 { L_,   "",     "",     "",     "abcb", false },
 
-                // Soft/hard and token character sets have duplicates
+                // Testing duplicates in delimiters and token sets
                 { L_,   "s",    "s",    "",     "",     false },
                 { L_,   "s",    "",     "s",    "",     false },
                 { L_,   "",     "s",    "s",    "",     false },
@@ -2582,19 +2084,15 @@ int main(int argc, char **argv)
                 { L_,   "0",    "HI",   "01",   "",     false },
                 { L_,   "1",    "HI",   "01",   "",     false },
 
-                // Our primary test sets for the test driver
-                { L_,   "stuv", "HIJK", "0123", "",     true  },
-
-                // Validity of the input up to depth 4.
-                // Self-testing pattern roll up. The short pattern that returns
-                // 'false' is eliminated from patterns of longer depth.  For
-                // example, 't' is first shortest 'false' pattern that tests
-                // that symbol 't' from the soft delimiter set cannot appear as
-                // a first soft delimiter. All longer patterns that have first
-                // soft delimiter 't' are eliminated.  Some elided patterns are
-                // left in the table for illustration purposes and marked with
-                // "* (pattern)"
-                //L_,   "stuv", "HIJK", "0123", "sH0a", false }, // template
+                // Testing validity of the input up to depth 4.
+                // Self-testing pattern roll up.  The short pattern that
+                // returns 'false' is eliminated from patterns of longer depth.
+                // For example, 't' is first shortest 'false' pattern that
+                // tests that symbol 't' from the soft delimiter set cannot
+                // appear as a first soft delimiter. All longer patterns that
+                // have first soft delimiter 't' are eliminated.  Some elided
+                // patterns are left in the table for illustration purposes and
+                // marked with "* (pattern)".
                 { L_,   "",     "",     "",     "",     true  }, // Depth 0
                 { L_,   "stuv", "HIJK", "0123", "",     true  },
                 { L_,   "stuv", "HIJK", "0123", "s",    true  }, // Depth 1
@@ -2736,7 +2234,7 @@ int main(int argc, char **argv)
                 const StringRef TOKEN     = StringRef(DATA[i].d_token);
                 const bool      EXP_VALID = DATA[i].d_isValid;
 
-                if (veryVeryVerbose) {
+                if (veryVerbose) {
                     T_ P_(LINE) P_(INPUT) P_(SOFT) P_(HARD) P_(TOKEN)
                 }
 
@@ -2747,7 +2245,7 @@ int main(int argc, char **argv)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Tokenizer_Data test
+        // TESTING Tokenizer_Data
         //   Ensure that types of characters are specified correctly by
         //   'Tokenizer_Data' constructors and accessor returns them properly.
         //
@@ -2793,17 +2291,18 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing Tokenizer_Data" << endl
+                          << "TESTING Tokenizer_Data" << endl
                           << "======================" << endl;
 
         // Copy of the input character to input type mapping.
+
         enum InputType {
             TOK = 0,  // token character
             SFT = 1,  // soft delimiter character
             HRD = 2,  // hard delimiter character
         };
 
-        typedef bdlb::Tokenizer_Data Obj;
+        typedef bdlb::Tokenizer_Data ObjData;
 
         if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&)."
                           << endl;
@@ -2812,16 +2311,18 @@ int main(int argc, char **argv)
                       "\tTesting default constructed StringRef as a delimiter."
                                   << endl;
             {
-                StringRef  nS;
-                // Constructing with Obj mD(StringRef()); fails due to vexing
-                // parse issue.
-//                Obj        mD(const StringRef());
-                Obj        mD(nS);
-                const Obj& D = mD;
+                ObjData        mD((StringRef()));
+                const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    char ch = static_cast<char>(i);
-                    ASSERTV(i, TOK == D.inputType(ch));
+                    const char CH = static_cast<char>(i);
+                    const int  INPUT_TYPE = D.inputType(CH);
+
+                    if (veryVerbose) {
+                        T_ P_(i) P(INPUT_TYPE)
+                    }
+
+                    ASSERTV(i, TOK == INPUT_TYPE);
                 }
             }
 
@@ -2829,12 +2330,18 @@ int main(int argc, char **argv)
                                     "\tTesting empty StringRef as a delimiter."
                                   << endl;
             {
-                Obj        mD(StringRef(""));
-                const Obj& D = mD;
+                ObjData        mD(StringRef(""));
+                const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    char ch = static_cast<char>(i);
-                    ASSERTV(i, TOK == D.inputType(ch));
+                    const char CH = static_cast<char>(i);
+                    const int  INPUT_TYPE = D.inputType(CH);
+
+                    if (veryVerbose) {
+                        T_ P_(i) P(INPUT_TYPE)
+                    }
+
+                    ASSERTV(i, TOK == INPUT_TYPE);
                 }
             }
 
@@ -2846,19 +2353,26 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(delim, 1));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, 1));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(ch));
+                            ASSERTV(i, j, SFT == INPUT_TYPE);
                         }
                     }
                 }
             }
+
             if (veryVerbose) cout <<
                                   "\tTesting duplicates in a delimiter string."
                                   << endl;
@@ -2868,15 +2382,21 @@ int main(int argc, char **argv)
                     delim[0] = static_cast<char>(i);
                     delim[1] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(delim, 2));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, 2));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(ch));
+                            ASSERTV(i, j, SFT == INPUT_TYPE);
                         }
                     }
                 }
@@ -2892,15 +2412,21 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    Obj        mD(StringRef(delim, i));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, i));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (j >= i) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(ch));
+                            ASSERTV(i, j, SFT == INPUT_TYPE);
                         }
                     }
                 }
@@ -2915,25 +2441,36 @@ int main(int argc, char **argv)
                        "\tTesting default constructed StringRef as delimiters."
                                   << endl;
             {
-                StringRef  nS;
-                Obj        mD(nS, nS);
-                const Obj& D = mD;
+                ObjData        mD((StringRef()), (StringRef()));
+                const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    char ch = static_cast<char>(i);
-                    ASSERTV(i, TOK == D.inputType(ch));
+                    const char CH = static_cast<char>(i);
+                    const int  INPUT_TYPE = D.inputType(CH);
+
+                    if (veryVerbose) {
+                        T_ P_(i) P(INPUT_TYPE)
+                    }
+
+                    ASSERTV(i, TOK == INPUT_TYPE);
                 }
             }
 
             if (veryVerbose) cout << "\tTesting empty StringRef as delimiters."
                                   << endl;
             {
-                Obj        mD(StringRef(""), StringRef(""));
-                const Obj& D = mD;
+                ObjData        mD(StringRef(""), StringRef(""));
+                const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
-                    char ch = static_cast<char>(i);
-                    ASSERTV(i, TOK == D.inputType(ch));
+                    const char CH = static_cast<char>(i);
+                    const int  INPUT_TYPE = D.inputType(CH);
+
+                    if (veryVerbose) {
+                        T_ P_(i) P(INPUT_TYPE)
+                    }
+
+                    ASSERTV(i, TOK == INPUT_TYPE);
                 }
             }
 
@@ -2945,15 +2482,21 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(delim, 1), StringRef());
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, 1), (StringRef()));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, SFT == D.inputType(ch));
+                            ASSERTV(i, j, SFT == INPUT_TYPE);
                         }
                     }
                 }
@@ -2967,15 +2510,21 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(""), StringRef(delim, 1));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(""), StringRef(delim, 1));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(ch));
+                            ASSERTV(i, j, HRD == INPUT_TYPE);
                         }
                     }
                 }
@@ -2990,22 +2539,28 @@ int main(int argc, char **argv)
                     delim[0] = static_cast<char>(i);
                     delim[1] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(""), StringRef(delim, 2));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(""), StringRef(delim, 2));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(ch));
+                            ASSERTV(i, j, HRD == INPUT_TYPE);
                         }
                     }
                 }
             }
 
             if (veryVerbose) cout <<
-                           "\tTesting multiple characters as   hard delimiter."
+                           "\tTesting multiple characters as hard delimiter."
                                   << endl;
             {
                 char delim[256];
@@ -3014,15 +2569,21 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    Obj        mD(StringRef(""), StringRef(delim, i));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(""), StringRef(delim, i));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (j >= i) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(ch));
+                            ASSERTV(i, j, HRD == INPUT_TYPE);
                         }
                     }
                 }
@@ -3036,15 +2597,22 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    Obj        mD(StringRef(delim, 1), StringRef(delim, 1));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, 1),
+                                      StringRef(delim, 1));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (i != j) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(ch));
+                            ASSERTV(i, j, HRD == INPUT_TYPE);
                         }
                     }
                 }
@@ -3060,15 +2628,22 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    Obj        mD(StringRef(delim, i), StringRef(delim, i));
-                    const Obj& D = mD;
+                    ObjData        mD(StringRef(delim, i),
+                                      StringRef(delim, i));
+                    const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
-                        char ch = static_cast<char>(j);
+                        const char CH = static_cast<char>(j);
+                        const int  INPUT_TYPE = D.inputType(CH);
+
+                        if (veryVerbose) {
+                            T_ P_(i) P(INPUT_TYPE)
+                        }
+
                         if (j >= i) {
-                            ASSERTV(i, j, TOK == D.inputType(ch));
+                            ASSERTV(i, j, TOK == INPUT_TYPE);
                         } else {
-                            ASSERTV(i, j, HRD == D.inputType(ch));
+                            ASSERTV(i, j, HRD == INPUT_TYPE);
                         }
                     }
                 }
@@ -3218,6 +2793,7 @@ int main(int argc, char **argv)
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
+        //
         // Testing:
         //   PERFORMANCE TEST
         // --------------------------------------------------------------------
@@ -3243,6 +2819,7 @@ int main(int argc, char **argv)
       case -2: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
+        //
         // Testing:
         //   PERFORMANCE TEST
         // --------------------------------------------------------------------
@@ -3264,6 +2841,7 @@ int main(int argc, char **argv)
       case -3: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
+        //
         // Testing:
         //   PERFORMANCE TEST
         // --------------------------------------------------------------------
@@ -3287,6 +2865,7 @@ int main(int argc, char **argv)
       case -4: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
+        //
         // Testing:
         //   PERFORMANCE TEST
         // --------------------------------------------------------------------
