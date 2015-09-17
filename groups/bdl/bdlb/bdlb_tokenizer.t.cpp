@@ -424,10 +424,10 @@ int main(int argc, char **argv)
         //: 1
         //
         // Testing:
-        //   TokenizerIterrator::operator=()
-        //   TokenizerIterrator::operator==()
-        //   TokenizerIterrator::operator!=()
-        //   TokenizerIterrator::operator++(int)
+        //   TokenizerIterator::operator=()
+        //   TokenizerIterator::operator==()
+        //   TokenizerIterator::operator!=()
+        //   TokenizerIterator::operator++(int)
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -937,10 +937,29 @@ int main(int argc, char **argv)
         // TESTING 'reset' METHOD
         //
         // Concerns:
-        //: 1
+        //: 1 'reset' method re-directs 'Tokenizer' object to new input.
+        //:
+        //: 2 'reset' method place 'Tokenizer' object to just-constructed state.
+        //:
+        //: 3 'reset' method preserve delimiter sets, supplied at construction.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1
+        //: 1 Using the table-driven technique, specify a sets of input for
+        //:   construction and resetting.
+        //:
+        //: 2 For each row 'R' in the table of P-1 verify that after resetting
+        //:   underlying input sequence has been changed and state of the
+        //:   object is as if it has been just constructed with new input.
+        //:   (C-1..2)
+        //:
+        //: 3 Set single character as a delimiter and all other characters as
+        //:   an input string for object construction.  Reset obtained object
+        //:   with the same character set, arranged in the opposite order.
+        //:   Verify that delimiter hasn't been changed.  (C-3)
+        //:
+        //: 4 Verify that defensive checks are addressed.  (C-4)
         //
         // Testing:
         //   Tokenizer::reset(const char *);
@@ -1202,15 +1221,21 @@ int main(int argc, char **argv)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // OTHER ACCESSORS
-        //   Verify the basic accessors functionality.
+        // NON-BASIC ACCESSORS
+        //   Verify the other than basic accessors functionality.
         //
         // Concerns:
-        //: 1
+        //: 1 Accessors correctly reflect current state of 'Tokenizer' object.
         //:
+        //: 2 Embedded null character is correctly handled by accessors.
         //
         // Plan:
-        //: 1
+        //: 1 To take 'Tokenizer' object through different states and verify
+        //:   accessors responses.  (C-1)
+        //:
+        //: 2 To add embedded null character to soft delimiter, hard delimiter
+        //:   and token sets consecutively and verify accessors responses.
+        //:   (C-2)
         //
         // Testing:
         //   bool Tokenizer::isValid();
@@ -1221,8 +1246,8 @@ int main(int argc, char **argv)
         //
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "OTHER ACCESSORS" << endl
-                          << "===============" << endl;
+                          << "NON-BASIC ACCESSORS" << endl
+                          << "===================" << endl;
 
         if (verbose) cout << "\nTesting accessors." << endl;
 
@@ -1458,36 +1483,50 @@ int main(int argc, char **argv)
       case 4: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS AND BASIC ACCESSORS
-        //   Bring the object to every state relevant for thorough testing.
+        //   This test will verify that the primary manipulators are working as
+        //   expected.  As basic accessors should be tested exactly the same
+        //   way, these two tests have been united.  So we test that the basic
+        //   accessors are working as expected also.
         //
         // Concerns:
-        //:  1 We cover all (including internal) relevant states.
-        //:  2 Multiple distinct characters of the same type work.
-        //:  3 Repeated characters behave the same as above.
-        //:  4 The null character behave the same as any other character.
-        //:  5 Non-ASCII characters behave the same as ASCII ones.
+        //:  1 All (including internal) relevant states can be reached with
+        //:    primary manipulators.
+        //:
+        //:  2 Multiple distinct characters of the same type are handled
+        //:    correctly.
+        //:
+        //:  3 Repeated characters are handled correctly.
+        //:
+        //:  4 The null character is handled the same way as any other
+        //:    character.
+        //:
+        //:  5 Non-ASCII characters are handled the same way as ASCII ones.
+        //:
         //:  6 Inputs requiring many iterations succeed.
+        //:
         //:  7 Inputs having large tokens/delimiters succeed.
-        //:  8 Supplying a null input is detected (DEBUG).
-        //: 10 Iterating from an invalid state fails (DEBUG).
+        //:
+        //:  8 QoI: asserted precondition violations are detected when enabled.           //:
+        //:  9 Accessors return references to expected character sequences.
         //
         // Plan:
         //: 1 Using the table-driven technique, apply depth-ordered enumeration
         //:   on the length of the input string to parse all unique inputs (in
-        //:   lexicographic order) up to a "depth" of 4 (note that for this
-        //:   first test, we have hard-coded "stuv" to be set of soft delimiter
-        //:   characters, and "HIJK" to be the set of hard ones, leaving the
-        //:   digit characters "0123" to be used as unique token characters).
-        //:   The input string as well as the sequence of expected "parsed"
-        //:   strings will be provided -- each on a single row of the table.
-        //:   Failing to supply a token (followed by its trailing delimiter)
-        //:   implies that the iterator has become invalid (which is tested)
-        //:   after the internal iteration loop exits. (C-1..2)
+        //:   lexicographic order) up to a "depth" of 4 (note that we have
+        //:   hard-coded "stuv" to be set of soft delimiter characters, and
+        //:   "HIJK" to be the set of hard ones, leaving the digit characters
+        //:   "0123" to be used as unique token characters).  The input string
+        //:   as well as the sequence of expected "parsed" strings will be
+        //:   provided -- each on a single row of the table.  Failing to supply
+        //:   a token (followed by its trailing delimiter) implies that the
+        //:   iterator has become invalid (which is tested) after the internal
+        //:   iteration loop exits.  Verify each state of 'Tokenizer' object with
+        //:   basic accessors.  (C-1..2, 9)
         //:
         //: 2 Additional add-hoc tests are provided to address remaining
-        //:   concerns. (C-3..7)
+        //:   concerns.  (C-3..7)
         //:
-        //: 3 Finally defensive checks are addressed. (C-8..10)
+        //: 3 Verify that defensive checks are addressed.  (C-8)
         //
         // Testing:
         //   Tokenizer(const char *i, const StringRef& sd, const StringRef& hd)
@@ -2004,7 +2043,7 @@ int main(int argc, char **argv)
         // Plan:
         //: 1 Using the table-driven technique, test function on various input
         //:   strings containing both valid and invalid character sequences.
-        //:   (C-1..2)
+        //:   (C-1..4)
         //
         // Testing:
         //   bool isValid(const StrRef,const StrRef,const StrRef,const StrRef);

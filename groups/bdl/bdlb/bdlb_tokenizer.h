@@ -676,7 +676,7 @@ class Tokenizer {
     void reset(const char *input);
     void reset(const bslstl::StringRef& input);
         // Rebind this object to refer to the specified sequence of 'input'
-        // characters.  The state of the iterator following this call is *as*
+        // characters.  The state of the tokenizer following this call is *as*
         // *if* it had been constructed with 'input' and its current sets of
         // *soft* and *hard* delimiter characters.  Note that the behavior is
         // also undefined if this object is used in any way (other than to
