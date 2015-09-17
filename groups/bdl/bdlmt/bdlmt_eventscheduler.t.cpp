@@ -2731,7 +2731,7 @@ int main(int argc, char *argv[])
         // really be done in 'bslmt_threadutil.t.cpp'.  Also, we have been
         // having really annoying problems with this part of the test failing
         // in the nightly build but not reproducibly failing on test machines
-        // during the day.  Perhaps testing the 'microSleep' method in bcemt
+        // during the day.  Perhaps testing the 'microSleep' method in bslmt
         // rather than bcep (while all the thread pools are testing with many
         // threads) will have better results.
 

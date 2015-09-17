@@ -563,7 +563,7 @@ extern "C" void *testTimersThread(void *arg) {
     return arg;
 }
 
-static void executeInParallel(bcemt_ThreadFunction  func,
+static void executeInParallel(bslmt_ThreadFunction  func,
                               void                 *arg,
                               int                   numThreads)
     // Execute the specified 'func' with the specified 'arg' in 'numThreads'

@@ -47,7 +47,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 //                              OVERVIEW
 //
-// [3 ] bdlmt::ThreadPool(const bcemt::Attributes&,int , int , int );
+// [3 ] bdlmt::ThreadPool(const bslmt::Attributes&,int , int , int );
 // [3 ] ~bdlmt::ThreadPool();
 // [  ] int enqueueJob(bdlf::Function<void (*)()>);
 // [4 ] int enqueueJob(ThreadPoolJobFunc , void *);
@@ -1611,7 +1611,7 @@ int main(int argc, char *argv[])
         //   int minThreads() const;
         //   int maxThreads() const;
         //   int maxIdleTime() const;
-        //   bdlmt::ThreadPool(const bcemt::Attributes&,int , int , int );
+        //   bdlmt::ThreadPool(const bslmt::Attributes&,int , int , int );
         //   ~bdlmt::ThreadPool();
         // --------------------------------------------------------------------
 

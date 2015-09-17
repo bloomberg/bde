@@ -563,7 +563,7 @@ class MultipriorityThreadPool {
         // that the queue was in the disabled state).  The behavior is
         // undefined unless '0 <= priority < numPriorities()'.
 
-    int enqueueJob(bcemt_ThreadFunction  jobFunction,
+    int enqueueJob(bslmt_ThreadFunction  jobFunction,
                    void                 *jobData,
                    int                   priority);
         // Add a job to the queue of this multi-priority thread pool indicated

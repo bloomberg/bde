@@ -265,7 +265,7 @@ BSLS_IDENT("$Id: $")
 //      bdlf::Function<void (*)(int, int, int)>
 //                                          pcb;    // pool state callback
 //
-//      bcemt::ChannelPool *poolAddr;
+//      bslmt::ChannelPool *poolAddr;
 //      ccb = bdlf::BindUtil::bind( &my_LocalCallback::channelStateCb
 //                               , &local)
 //                               , _1, _2, _3, _4

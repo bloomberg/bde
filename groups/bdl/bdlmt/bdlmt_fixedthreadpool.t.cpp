@@ -53,7 +53,7 @@ using namespace bsl;  // automatically added by script
 // In addition to positive test cases (run in the nightly builds), a negative
 // test case -1 can be run manually to measure performance of enqueuing jobs.
 //
-// [ 3] bdlmt::FixedThreadPool(const bcemt::Attributes&, int, int, int);
+// [ 3] bdlmt::FixedThreadPool(const bslmt::Attributes&, int, int, int);
 // [ 3] ~bdlmt::FixedThreadPool();
 // [ 3] int enqueueJob(const bdlf::Function<void (*)()>& );
 // [ 3] int numThreads() const;
@@ -1432,7 +1432,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int numThreads() const;
         //   int queueCapacity() const;
-        //   bdlmt::FixedThreadPool(const bcemt::Attributes&,int , int);
+        //   bdlmt::FixedThreadPool(const bslmt::Attributes&,int , int);
         //   ~bdlmt::FixedThreadPool();
         // --------------------------------------------------------------------
 

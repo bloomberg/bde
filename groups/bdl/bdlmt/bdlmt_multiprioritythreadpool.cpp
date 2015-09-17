@@ -203,7 +203,7 @@ int MultipriorityThreadPool::enqueueJob(const ThreadFunctor& job,
     return d_queue.pushBack(job, priority);
 }
 
-int MultipriorityThreadPool::enqueueJob(bcemt_ThreadFunction  jobFunction,
+int MultipriorityThreadPool::enqueueJob(bslmt_ThreadFunction  jobFunction,
                                         void                 *jobData,
                                         int                   priority)
 {
