@@ -1,6 +1,8 @@
 // bslmt_readlockguard.t.cpp                                          -*-C++-*-
 #include <bslmt_readlockguard.h>
 
+#include <bslim_testutil.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>  // 'strcmp'
 #include <bsl_cstdlib.h>  // 'atoi'
@@ -46,48 +48,50 @@ using namespace bsl;  // automatically added by script
 // [5] INTERACTION BET. 'bslmt::ReadLockGuard' AND 'bslmt::ReadLockGuardUnlock'
 // [6] DEPRECATED 'bslmt::LockReadGuard'
 // [7] USAGE EXAMPLES
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
-                                              // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
-                                              // PA(X, L) without '\n'
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -133,113 +137,150 @@ struct my_Object {
     void defaultMethod() const {};
 };
 
-// USAGE EXAMPLE
-
-static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
-{
-    rwlock->lockRead();
-    if (someCondition) {
-        obj->someMethod();
-        rwlock->unlock();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        obj->someOtherMethod();
-        return;                             // MISTAKE! forgot to unlock rwlock
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultMethod();
-    rwlock->unlock();
-    return;
-}
-
-static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
-{
-    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
-    if (someCondition) {
-        obj->someMethod();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        obj->someOtherMethod();
-        return;                         // OK, rwlock is automatically unlocked
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultMethod();
-    return;
-}
-
-static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
-    // Perform task and return positive value if locking succeeds.  Return 0 if
-    // locking fails.
-{
-    const int RETRIES = 1; // use higher values for higher success rate
-    bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
-    if (guard.ptr()) { // rwlock is locked
+///Usage
+///-----
+// Use this component to ensure that in the event of an exception or exit from
+// any point in a given scope, the synchronization object will be properly
+// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// exception safe, and contains a bug.
+//..
+    static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
+    {
+        rwlock->lockRead();
         if (someCondition) {
             obj->someMethod();
-            return 2;                                                 // RETURN
+            rwlock->unlock();
+            return;                                                   // RETURN
         } else if (someOtherCondition) {
             obj->someOtherMethod();
-            return 3;                                                 // RETURN
+            // MISTAKE! forgot to unlock rwlock
+            return;                                                   // RETURN
         }
         obj->defaultMethod();
-        return 1;                                                     // RETURN
+        rwlock->unlock();
+        return;
     }
-    return 0;
-}
-
-static void safeUpgradeFunc(my_Object *obj, my_RWLock *rwlock)
-{
-    const my_Object *constObj = obj;
-    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
-    if (someUpgradeCondition) {
-        obj->someUpgradeMethod();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        constObj->someOtherMethod();
-        return;                         // OK, rwlock is automatically unlocked
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    constObj->defaultMethod();
-    return;
-}
-
-static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
-{
-    const my_Object *constObj = obj;
-    rwlock->lockReadReserveWrite();
-    const int PRELOCKED = 1;
-    bslmt::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
-    if (someUpgradeCondition) {
-        rwlock->upgradeToWriteLock();
-        obj->someUpgradeMethod();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        constObj->someOtherMethod();
-        return;                                                       // RETURN
-    }
-    constObj->defaultMethod();
-    return;
-}
-
-void f(my_RWLock *rwlock)
-{
-    bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
-
-    // critical section here
-
+//..
+// The function can be rewritten with a cleaner and safer implementation using
+// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// is exception safe, and avoids the multiple calls to unlock that can be a
+// source of errors.
+//..
+    static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
     {
-        bslmt::ReadLockGuardUnlock<my_RWLock> guard(rwlock);
+        bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
+        if (someCondition) {
+            obj->someMethod();
+            return;                                                   // RETURN
+        } else if (someOtherCondition) {
+            obj->someOtherMethod();
+            // OK, rwlock is automatically unlocked
+            return;                                                   // RETURN
+        }
+        obj->defaultMethod();
+        return;
+    }
+//..
+// When blocking while acquiring the lock is not desirable, one may instead use
+// a 'bslmt::ReadLockGuardTryLock' in the typical following fashion:
+//..
+    static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
+        // Perform task and return positive value if locking succeeds.  Return
+        // 0 if locking fails.
+    {
+        const int RETRIES = 1; // use higher values for higher success rate
+        bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
+        if (guard.ptr()) { // rwlock is locked
+            if (someCondition) {
+                obj->someMethod();
+                return 2;                                             // RETURN
+            } else if (someOtherCondition) {
+                obj->someOtherMethod();
+                return 3;                                             // RETURN
+            }
+            obj->defaultMethod();
+            return 1;                                                 // RETURN
+        }
+        return 0;
+    }
+//..
+// If the underlying lock object provides an upgrade to a lock for write (as
+// does 'bslmt::ReaderWriterLock' with the 'upgradeToWriteLock' function, for
+// example), this can be safely used in conjunction with
+// 'bslmt::ReadLockGuard', as long as the same 'unlock' method is used to
+// release both kinds of locks.  The following method illustrates this usage:
+//..
+    static void safeUpdateFunc(my_Object *obj, my_RWLock *rwlock)
+    {
+        const my_Object *constObj = obj;
+        bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
+        if (someUpgradeCondition) {
+            rwlock->upgradeToWriteLock();
+            obj->someUpgradeMethod();
+            return;                                                   // RETURN
+        } else if (someOtherCondition) {
+            constObj->someOtherMethod();
+            // OK, rwlock is automatically unlocked
+            return;                                                   // RETURN
+        }
+        constObj->defaultMethod();
+        return;
+    }
+//..
+// In the above code, the call to 'upgradeToWriteLock' is not necessarily
+// atomic, as the upgrade may release the lock for read and be interrupted
+// before getting a lock for write.  It is possible to guarantee atomicity (as
+// does 'bslmt::ReaderWriterLock' if the 'lockReadReserveWrite' function is
+// used instead of 'lockRead', for example), but the standard constructor
+// should not be used.  Instead, the 'lockReadReserveWrite' lock function
+// should be used explicitly, and the guard constructed with an object which is
+// already locked.  The following method illustrates this usage:
+//..
+    static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
+    {
+        const my_Object *constObj = obj;
+        rwlock->lockReadReserveWrite();
+        const int PRELOCKED = 1;
+        bslmt::ReadLockGuard<my_RWLock> guard(rwlock, PRELOCKED);
+        if (someUpgradeCondition) {
+            rwlock->upgradeToWriteLock();
+            obj->someUpgradeMethod();
+            return;                                                   // RETURN
+        } else if (someOtherCondition) {
+            constObj->someOtherMethod();
+            return;                                                   // RETURN
+        }
+        constObj->defaultMethod();
+        return;
+    }
+//..
+// Note that in the code above, the function 'rwlock->lockRead()' is never
+// called, but is nevertheless required for the code to compile.
+//
+// Instantiations of 'bslmt::ReadLockGuardUnlock' can be interleaved with
+// instantiations of 'bslmt::ReadLockGuard' to create both critical sections
+// and regions where the lock is released.
+//..
+    void f(my_RWLock *rwlock)
+    {
+        bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 
-        // rwlock is unlocked here
+        // critical section here
 
-    } // rwlock is locked again here
+        {
+            bslmt::ReadLockGuardUnlock<my_RWLock> guard(rwlock);
 
-    // critical section here
+            // rwlock is unlocked here
 
-} // rwlock is unlocked here
+        } // rwlock is locked again here
+
+        // critical section here
+
+    } // rwlock is unlocked here
+//..
+// Care must be taken so as not to interleave guard objects in such a way as to
+// cause an illegal sequence of calls on a lock (two sequential lock calls or
+// two sequential unlock calls on a non-recursive read/write lock).
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -317,7 +358,7 @@ int main(int argc, char *argv[])
             for (someOtherCondition = 0; someOtherCondition < 2;
                     ++someOtherCondition) {
                 my_RWLock rwlock;
-                safeUpgradeFunc(&obj, &rwlock);
+                safeUpdateFunc(&obj, &rwlock);
                 ASSERT( 0 == rwlock.lockCount() );
             }
         }

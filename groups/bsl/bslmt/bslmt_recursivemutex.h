@@ -36,30 +36,27 @@ BSLS_IDENT("$Id: $")
 // guarantee exclusive access to some object.  The following sketches the
 // "recursive" nature of 'bslmt::RecursiveMutex':
 //..
-//  void foo(bslmt::RecursiveMutex *recMutex)
-//  {
+//  bslmt::RecursiveMutex recMutex;
 //..
-// Assume that we do not have exclusive access upon entry to 'foo'.
+// Assume that we do not have exclusive access to the object.
 //..
-//      recMutex->lock();    // first level of locking
+//  recMutex.lock();    // first level of locking
 //..
 // We have exclusive access here.
 //..
-//      recMutex->lock();    // second level of locking
+//  recMutex.lock();    // second level of locking
 //..
 // We still have exclusive access.
 //..
-//      recMutex->unlock();  // release second level lock -- mutex stays locked
+//  recMutex.unlock();  // release second level lock -- mutex stays locked
 //..
 // We *still* have exclusive access.
 //..
-//      recMutex->unlock();  // release first level lock -- mutex is unlocked
+//  recMutex.unlock();  // release first level lock -- mutex is unlocked
 //..
 // The two calls to 'unlock' have balanced the two earlier calls to 'lock'.
 // Consequently, we no longer have exclusive access.
-//..
-//  }
-//..
+//
 // Note that 'bslmt::RecursiveMutex' has substantially more overhead than does
 // 'bslmt::Mutex'.  Consequently, the latter should be used unless recursive
 // locking is truly warranted.

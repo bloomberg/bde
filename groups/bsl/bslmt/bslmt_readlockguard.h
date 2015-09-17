@@ -96,10 +96,11 @@ BSLS_IDENT("$Id: $")
 //      if (someCondition) {
 //          obj->someMethod();
 //          rwlock->unlock();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          obj->someOtherMethod();
-//          return;                      // MISTAKE! forgot to unlock rwlock
+//          // MISTAKE! forgot to unlock rwlock
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultMethod();
 //      rwlock->unlock();
@@ -116,10 +117,11 @@ BSLS_IDENT("$Id: $")
 //      bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 //      if (someCondition) {
 //          obj->someMethod();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          obj->someOtherMethod();
-//          return;                  // OK, rwlock is automatically unlocked
+//          // OK, rwlock is automatically unlocked
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultMethod();
 //      return;
@@ -129,21 +131,21 @@ BSLS_IDENT("$Id: $")
 // a 'bslmt::ReadLockGuardTryLock' in the typical following fashion:
 //..
 //  static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
-//      // Perform task and return positive value if locking succeeds.
-//      // Return 0 if locking fails.
+//      // Perform task and return positive value if locking succeeds.  Return
+//      // 0 if locking fails.
 //  {
 //      const int RETRIES = 1; // use higher values for higher success rate
 //      bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
 //      if (guard.ptr()) { // rwlock is locked
 //          if (someCondition) {
 //              obj->someMethod();
-//              return 2;
+//              return 2;                                             // RETURN
 //          } else if (someOtherCondition) {
 //              obj->someOtherMethod();
-//              return 3;
+//              return 3;                                             // RETURN
 //          }
 //          obj->defaultMethod();
-//          return 1;
+//          return 1;                                                 // RETURN
 //      }
 //      return 0;
 //  }
@@ -161,10 +163,11 @@ BSLS_IDENT("$Id: $")
 //      if (someUpgradeCondition) {
 //          rwlock->upgradeToWriteLock();
 //          obj->someUpgradeMethod();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          constObj->someOtherMethod();
-//          return;
+//          // OK, rwlock is automatically unlocked
+//          return;                                                   // RETURN
 //      }
 //      constObj->defaultMethod();
 //      return;
@@ -188,10 +191,10 @@ BSLS_IDENT("$Id: $")
 //      if (someUpgradeCondition) {
 //          rwlock->upgradeToWriteLock();
 //          obj->someUpgradeMethod();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          constObj->someOtherMethod();
-//          return;
+//          return;                                                   // RETURN
 //      }
 //      constObj->defaultMethod();
 //      return;
@@ -204,22 +207,22 @@ BSLS_IDENT("$Id: $")
 // instantiations of 'bslmt::ReadLockGuard' to create both critical sections
 // and regions where the lock is released.
 //..
-//  void f(my_RWLock *lock)
+//  void f(my_RWLock *rwlock)
 //  {
-//      bslmt::ReadLockGuard<my_RWLock> guard(lock);
+//      bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
 //
 //      // critical section here
 //
 //      {
-//           bslmt::ReadLockGuardUnlock<my_RWLock> guard(lock);
+//          bslmt::ReadLockGuardUnlock<my_RWLock> guard(rwlock);
 //
-//          // mutex is unlocked here
+//          // rwlock is unlocked here
 //
-//      } // lock reacquired upon destruction
+//      } // rwlock is locked again here
 //
 //      // critical section here
 //
-//  } // lock is unlocked here
+//  } // rwlock is unlocked here
 //..
 // Care must be taken so as not to interleave guard objects in such a way as to
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
