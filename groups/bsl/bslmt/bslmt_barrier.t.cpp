@@ -421,42 +421,47 @@ extern "C" void * testThread3(void *arg)
 //
 // The implementation of these functions is left incomplete for our example.
 //..
-    int validateTrade(Trade &)
+    int validateTrade(Trade &trade)
     {
+        (void)trade;
         int result = 0;
         // Do some checking here...
 
         return result;
     }
 
-    int insertToDatabase(Trade &)
+    int insertToDatabase(Trade &trade)
     {
+        (void)trade;
         int result = 0;
         // Insert the record here...
 
         return result;
     }
 
-    int submitToExchange(Trade &)
+    int submitToExchange(Trade &trade)
     {
+        (void)trade;
         int result = 0;
         // Do submission here...
 
         return result;
     }
 
-    int deleteFromDatabase(Trade &)
+    int deleteFromDatabase(Trade &trade)
     {
+        (void)trade;
         int result = 0;
-        // delete record here...
+        // Delete record here...
 
         return result;
     }
 
-    int cancelAtExchange(Trade &)
+    int cancelAtExchange(Trade &trade)
     {
+        (void)trade;
         int result = 0;
-        // cancel trade here...
+        // Cancel trade here...
 
         return result;
     }
@@ -471,7 +476,7 @@ extern "C" void * testThread3(void *arg)
 //..
     struct TradeThreadArgument {
         bsl::vector<Trade> *d_trades_p;
-        bslmt::Barrier      *d_barrier_p;
+        bslmt::Barrier     *d_barrier_p;
         volatile bool      *d_errorFlag_p;
         int                 d_tradeNum;
     };
@@ -500,8 +505,10 @@ extern "C" void * testThread3(void *arg)
         if (retval) *args->d_errorFlag_p = true;
         args->d_barrier_p->wait();
 //..
-// The final synchronization point is at the exchange.  As before, if there is
-// an error in the basket, we may need to cancel the individual trade.
+// As before, if an error occurs on this thread, we must still block on the
+// barrier object.  This time, if an error has occurred, we need to check to
+// see whether this trade had an error.  If not, then the trade has been
+// inserted into the database, so we need to remove it before we exit.
 //..
         if (*args->d_errorFlag_p) {
             if (!retval) deleteFromDatabase(trade);
@@ -547,10 +554,10 @@ extern "C" void * testThread3(void *arg)
 // basket, supplying the function 'tradeProcessingThread' to be executed on
 // each thread.
 //..
-    bool processBasketTrade(BasketTrade &trade)
-        // Return 'true' if the specified basket 'trade' was processed
-        // successfully, 'false' otherwise.  The trade is processed atomically,
-        // i.e., all the trades succeed, or none of the trades are executed.
+    bool processBasketTrade(BasketTrade& trade)
+        // Return 'true' if the basket trade was processed successfully,
+        // 'false' otherwise.  The trade is processed atomically, i.e.,
+        // all the trades succeed, or none of the trades are executed.
     {
         TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
         bslmt::ThreadAttributes attributes;
@@ -569,25 +576,28 @@ extern "C" void * testThread3(void *arg)
 //..
 // Create a thread to process each trade.
 //..
-
-        for (int i = 0; i<numTrades; ++i) {
+        for (int i = 0; i < numTrades; ++i) {
             arguments[i].d_trades_p    = &trade.d_trades;
             arguments[i].d_barrier_p   = &barrier;
             arguments[i].d_errorFlag_p = &errorFlag;
             arguments[i].d_tradeNum    = i;
-            bslmt::ThreadUtil::create(&threadHandles[i], attributes,
+            bslmt::ThreadUtil::create(&threadHandles[i],
+                                      attributes,
                                       tradeProcessingThread,
                                       &arguments[i]);
         }
 //..
 // Wait for all threads to complete.
 //..
-        for (int i = 0; i<numTrades;++i) {
+        for (int i = 0; i < numTrades; ++i) {
             bslmt::ThreadUtil::join(threadHandles[i]);
         }
-
-        return errorFlag == false;
+//..
+// Check if any error occurred.
+//..
+        return false == errorFlag;
     }
+//..
 
 class Case8_Driver
 {

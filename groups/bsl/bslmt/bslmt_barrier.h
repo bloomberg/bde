@@ -99,45 +99,50 @@ BSLS_IDENT("$Id: $")
 //
 // The implementation of these functions is left incomplete for our example.
 //..
-// int validateTrade(Trade &trade)
-// {
-//     int result = 0;
-//     // Do some checking here...
+//  int validateTrade(Trade &trade)
+//  {
+//      (void)trade;
+//      int result = 0;
+//      // Do some checking here...
 //
-//     return result;
-// }
+//      return result;
+//  }
 //
-// int insertToDatabase(Trade &trade)
-// {
-//     int result = 0;
-//     // Insert the record here...
+//  int insertToDatabase(Trade &trade)
+//  {
+//      (void)trade;
+//      int result = 0;
+//      // Insert the record here...
 //
-//     return result;
-// }
+//      return result;
+//  }
 //
-// int submitToExchange(Trade &trade)
-// {
-//     int result = 0;
-//     // Do submission here...
+//  int submitToExchange(Trade &trade)
+//  {
+//      (void)trade;
+//      int result = 0;
+//      // Do submission here...
 //
-//     return result;
-// }
+//      return result;
+//  }
 //
-// int deleteFromDatabase(Trade &trade)
-// {
-//     int result = 0;
-//     // Delete record here...
+//  int deleteFromDatabase(Trade &trade)
+//  {
+//      (void)trade;
+//      int result = 0;
+//      // Delete record here...
 //
-//     return result;
-// }
+//      return result;
+//  }
 //
-// int cancelAtExchange(Trade &trade)
-// {
-//     int result = 0;
-//     // Cancel trade here...
+//  int cancelAtExchange(Trade &trade)
+//  {
+//      (void)trade;
+//      int result = 0;
+//      // Cancel trade here...
 //
-//     return result;
-// }
+//      return result;
+//  }
 //..
 // The 'processTrade' function handles a single trade within a Trade Basket.
 // Because this function is called within a 'bslmt::Thread' callback (see the
@@ -147,64 +152,64 @@ BSLS_IDENT("$Id: $")
 // step, the 'processTrade' function synchronizes with other trades in the
 // Trade Basket.
 //..
-// struct TradeThreadArgument {
-//     bsl::vector<Trade> *d_trades_p;
-//     bslmt::Barrier     *d_barrier_p;
-//     volatile bool      *d_errorFlag_p;
-//     int                 d_tradeNum;
-// };
+//  struct TradeThreadArgument {
+//      bsl::vector<Trade> *d_trades_p;
+//      bslmt::Barrier     *d_barrier_p;
+//      volatile bool      *d_errorFlag_p;
+//      int                 d_tradeNum;
+//  };
 //
-// TradeThreadArgument *processTrade(TradeThreadArgument *args)
-// {
-//     int retval;
-//     Trade &trade = (*args->d_trades_p)[args->d_tradeNum];
+//  TradeThreadArgument *processTrade(TradeThreadArgument *args)
+//  {
+//      int retval;
+//      Trade &trade = (*args->d_trades_p)[args->d_tradeNum];
 //
-//     retval = validateTrade(trade);
+//      retval = validateTrade(trade);
 //..
 // If this trade failed validation, then indicate that an error has occurred.
 // Note that, even when an error occurs, we must still block on the barrier
 // object; otherwise, other threads which did not fail would remain blocked
 // indefinitely.
 //..
-//     if (retval) *args->d_errorFlag_p = true;
-//     args->d_barrier_p->wait();
+//      if (retval) *args->d_errorFlag_p = true;
+//      args->d_barrier_p->wait();
 //..
 // Once all threads have completed the validation phase, check to see if any
 // errors occurred; if so, exit.  Otherwise continue to the next step.
 //..
-//     if (*args->d_errorFlag_p) return args;
+//      if (*args->d_errorFlag_p) return args;                        // RETURN
 //
-//     retval = insertToDatabase(trade);
-//     if (retval) *args->d_errorFlag_p = true;
-//     args->d_barrier_p->wait();
+//      retval = insertToDatabase(trade);
+//      if (retval) *args->d_errorFlag_p = true;
+//      args->d_barrier_p->wait();
 //..
 // As before, if an error occurs on this thread, we must still block on the
 // barrier object.  This time, if an error has occurred, we need to check to
 // see whether this trade had an error.  If not, then the trade has been
 // inserted into the database, so we need to remove it before we exit.
 //..
-//     if (*args->d_errorFlag_p) {
-//        if (!retval) deleteFromDatabase(trade);
-//        return args;
-//     }
+//      if (*args->d_errorFlag_p) {
+//          if (!retval) deleteFromDatabase(trade);
+//          return args;                                              // RETURN
+//      }
 //..
 // The final synchronization point is at the exchange.  As before, if there is
 // an error in the basket, we may need to cancel the individual trade.
 //..
-//     retval = submitToExchange(trade);
-//     if (retval) *args->d_errorFlag_p = true;
-//     args->d_barrier_p->wait();
-//     if (*args->d_errorFlag_p) {
-//        if (!retval) cancelAtExchange(trade);
-//        deleteFromDatabase(trade);
-//        return args;
-//     }
+//      retval = submitToExchange(trade);
+//      if (retval) *args->d_errorFlag_p = true;
+//      args->d_barrier_p->wait();
+//      if (*args->d_errorFlag_p) {
+//          if (!retval) cancelAtExchange(trade);
+//          deleteFromDatabase(trade);
+//          return args;                                              // RETURN
+//      }
 //..
 // All synchronized steps have completed for all trades in this basket.  The
 // basket trade is placed.
 //..
-//     return args;
-// }
+//      return args;
+//  }
 //..
 // Function 'tradeProcessingThread' is a callback for 'bslmt::ThreadUtil',
 // which requires 'void' pointers for argument and return type and 'extern "C"'
@@ -217,57 +222,59 @@ BSLS_IDENT("$Id: $")
 // type-specific function, 'processTrade'.  On return, the specific type is
 // cast back to 'void*'.
 //..
-// extern "C" void* tradeProcessingThread(void *argsIn)
-// {
-//     return (void *) processTrade ((TradeThreadArgument *)argsIn);
-// }
+//  extern "C" void *tradeProcessingThread(void *argsIn)
+//  {
+//      return (void *) processTrade ((TradeThreadArgument *)argsIn);
+//  }
 //..
 // Function 'processBasketTrade' drives the example.  Given a 'BasketTrade',
 // the function spawns a separate thread for each individual trade in the
 // basket, supplying the function 'tradeProcessingThread' to be executed on
 // each thread.
 //..
-// void processBasketTrade(BasketTrade &trade)
-//     // Return 'true' if the basket trade was processed successfully,
-//     // 'false' otherwise.  The trade is processed atomically, i.e.,
-//     // all the trades succeed, or none of the trades are executed.
-// {
-//     TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
-//     bslmt::ThreadAttributes attributes;
-//     bslmt::ThreadUtil::Handle threadHandles[k_MAX_BASKET_TRADES];
+//  bool processBasketTrade(BasketTrade& trade)
+//      // Return 'true' if the basket trade was processed successfully,
+//      // 'false' otherwise.  The trade is processed atomically, i.e.,
+//      // all the trades succeed, or none of the trades are executed.
+//  {
+//      TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
+//      bslmt::ThreadAttributes attributes;
+//      bslmt::ThreadUtil::Handle threadHandles[k_MAX_BASKET_TRADES];
 //
-//     int numTrades = trade.d_trades.length();
-//     assert(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
+//      int numTrades = trade.d_trades.size();
+//      assert(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
 // thread will be created for each trade in the basket, use the number of
 // trades as the barrier count.  When 'bslmt::Barrier::wait()' is called, the
 // barrier will require 'numTrades' objects to wait before all are released.
 //..
-//     bslmt::Barrier barrier(numTrades);
-//     bool errorFlag = 0;
+//      bslmt::Barrier barrier(numTrades);
+//      bool errorFlag = false;
 //..
 // Create a thread to process each trade.
 //..
-//     for (int i = 0; i < numTrades; ++i) {
-//         arguments[i].d_trades_p    = &trade.d_trades;
-//         arguments[i].d_barrier_p   = &barrier;
-//         arguments[i].d_errorFlag_p = &errorFlag;
-//         arguments[i].d_tradeNum    = i;
-//         bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-//                                  tradeProcessingThread, &arguments[i]);
-//     }
+//      for (int i = 0; i < numTrades; ++i) {
+//          arguments[i].d_trades_p    = &trade.d_trades;
+//          arguments[i].d_barrier_p   = &barrier;
+//          arguments[i].d_errorFlag_p = &errorFlag;
+//          arguments[i].d_tradeNum    = i;
+//          bslmt::ThreadUtil::create(&threadHandles[i],
+//                                    attributes,
+//                                    tradeProcessingThread,
+//                                    &arguments[i]);
+//      }
 //..
 // Wait for all threads to complete.
 //..
-//     for (int i = 0; i < numTrades; ++i) {
-//         bslmt::ThreadUtil::join(threadHandles[i]);
-//     }
+//      for (int i = 0; i < numTrades; ++i) {
+//          bslmt::ThreadUtil::join(threadHandles[i]);
+//      }
 //..
 // Check if any error occurred.
 //..
-//     return (false == errorFlag);
-// }
+//      return false == errorFlag;
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
