@@ -146,12 +146,13 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
-    int loadSymbols();
+    int loadSymbols(int matched);
         // Read the symbols from the symbol table of the current segment and
         // update the 'mangledSymbolName', 'symbolName', 'offsetFromSymbol',
         // and sometimes the 'SourceFileName' fields of stack frames constain
-        // addresses within the code section of the current segment.  Return 0
-        // on success and a non-zero value otherwise.
+        // addresses within the code section of the current segment, where the
+        // specified 'matched' is the number of addresses in the current
+        // segment.  Return 0 on success and a non-zero value otherwise.
 
     int resolveSegment(void       *segmentBaseAddress,
                        void       *segmentPtr,
@@ -200,6 +201,11 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // success and a non-zero value otherwise.  Note that this method is
         // not to be called by external users of this component, it is only
         // public so a static routine in the implementation file can call it.
+
+    // ACCESSOR
+    int numUnmatchedFrames() const;
+        // Return the number of frames in the stack trace that are still
+        // unmatched.
 };
 
 }  // close package namespace

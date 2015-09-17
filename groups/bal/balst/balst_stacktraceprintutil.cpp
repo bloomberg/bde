@@ -42,7 +42,7 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
 
     enum {
         k_DEFAULT_MAX_FRAMES = 1024,
-        k_IGNORE_FRAMES      = StackAddressUtil::k_IGNORE_FRAMES
+        k_IGNORE_FRAMES      = StackAddressUtil::k_IGNORE_FRAMES + 1
     };
 
     if (maxFrames < 0) {
@@ -55,7 +55,7 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
 
     maxFrames += k_IGNORE_FRAMES;
 
-    StackTrace st;
+    StackTrace st;    // defaults to using its own heap bypass allocator
 
     void **addresses = static_cast<void **>(st.allocator()->allocate(
                                                   maxFrames * sizeof(void *)));

@@ -494,6 +494,77 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
                                            // symbol table.
 #undef SPLICE
 
+                                    // --------
+                                    // FrameRec
+                                    // --------
+
+class FrameRec {
+    // A struct consisting of the things we want stored associated with a given
+    // frame.  We put these into a vector and sort them for fast lookup by
+    // address.
+
+    // DATA
+    const void             *d_address;
+    balst::StackTraceFrame *d_frame_p;
+    bool                    d_isResolved;
+
+  public:
+    // CREATORS
+    explicit
+    FrameRec(const void             *address,
+             balst::StackTraceFrame *framePtr = 0)
+    : d_address(address)
+    , d_frame_p(framePtr)
+    , d_isResolved(false)
+        // Create a 'FrameRec' referring to the specified 'address' and the
+        // specified 'framePtr'.
+    {
+    }
+
+    // FrameRec(const FrameRec&) = default;
+
+    // ~FrameRec() = default;
+
+    // MANIPULATORS
+    // inline operator=(const FrameRec&) = default;
+
+    void setResolved()
+    {
+        d_isResolved = true;
+    }
+
+    // ACCESSORS
+    bool operator<(const FrameRec& rhs) const
+        // Return 'true' if the address field of this object is less than the
+        // address field of 'rhs'.
+    {
+        return d_address < rhs.d_address;
+    }
+
+    const void *address() const
+        // Return the 'address' field from this object.
+    {
+        return d_address;
+    }
+
+    balst::StackTraceFrame& frame() const
+        // Return a reference to the modifiable 'frame' referenced by this
+        // object.  Note that though this is a 'const' method, modifiable
+        // access to the frame is provided.
+    {
+        return *d_frame_p;
+    }
+
+    bool isResolved() const
+    {
+        return d_isResolved;
+    }
+};
+
+typedef bsl::vector<local::FrameRec> FrameRecVec;     // Vector of 'FrameRec's.
+typedef FrameRecVec::iterator        FrameRecVecIt;   // Iterator of
+                                                      // 'FrameRecVec'.
+
 }  // close namespace local
 
 typedef bsl::size_t size_t;
@@ -553,21 +624,16 @@ struct local::StackTraceResolver::CurrentSegment {
                   *d_helper_p;          // file helper associated with current
                                         // segment
 
-    balst::StackTraceFrame
-                 **d_framePtrs_p;       // array of pointers into
-                                        // 'd_stackTrace_p' referring only to
-                                        // those frames whose 'address' fields
-                                        // point into the current segment
+    local::FrameRecVec
+                   d_frameRecs;         // Vector of address frame pairs for
+                                        // fast lookup of addresses.  Not local
+                                        // to current segment -- initialized
+                                        // once per resolve.
 
-    const void   **d_addresses_p;       // array of the 'address' fields from
-                                        // 'd_framePtrs', put into a separate
-                                        // array as a performance optimization
-
-    int            d_numAddresses;      // length of both 'd_framePtrs' and
-                                        // 'd_addresses', note both arrays are
-                                        // allocated to have
-                                        // 'd_numOutAllFrames' (worst case)
-                                        // length
+    local::FrameRecVecIt                // This begin, end pair indicates the
+                   d_frameRecsBegin;    // range of frame records that pertain
+    local::FrameRecVecIt                // to the current segment.
+                   d_frameRecsEnd;
 
     UintPtr        d_adjustment;        // adjustment between addresses
                                         // expressed in object file and actual
@@ -591,10 +657,6 @@ struct local::StackTraceResolver::CurrentSegment {
                                         // segment, as opposed to a shared
                                         // library
 
-    const int      d_numFrames;         // not really local to the segment,
-                                        // number of stack frames in
-                                        // '*resolver.d_stackTrace_p'
-
   private:
     // NOT IMPLEMENTED
     CurrentSegment(const CurrentSegment&);
@@ -602,69 +664,54 @@ struct local::StackTraceResolver::CurrentSegment {
 
   public:
     // CREATORS
-    CurrentSegment(int numFrames, bslma::Allocator *basicAllocator);
-        // Create this 'Seg' object, using the specified 'basicAllocator' to
-        // allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to have the
-        // specified 'numFrames' elements, initialize 'd_numFrames' to
-        // 'numFrames', and initialize all other fields to 0.
+    CurrentSegment(balst::StackTrace *stackTrace,
+                   bslma::Allocator  *basicAllocator);
+        // Create this 'Seg' object, initialize 'd_numFrames' to 'numFrames',
+        // and initialize all other fields to 0.
 
     // MANIPULATORS
     void reset();
-        // Zero the contents of the arrays 'd_framePtrs_p' and 'd_addresses_p'
-        // and all fields of this 'Seg' object other than 'd_isMainExecutable'
-        // and the pointers to those two arrays.  Note that this action is not
-        // necessary, it's just conceptually clean to be starting out with a
-        // fairly blank slate.
+        // Zero numerous fields.  Note that this action is not necessary, it's
+        // just conceptually clean to be starting out with a fairly blank
+        // slate.
 };
 
 // CREATORS
 local::StackTraceResolver::CurrentSegment::CurrentSegment(
-                                              int               numFrames,
-                                              bslma::Allocator *basicAllocator)
+                                             balst::StackTrace *stackTrace,
+                                             bslma::Allocator  *basicAllocator)
 : d_helper_p(0)
-, d_framePtrs_p(0)
-, d_addresses_p(0)
-, d_numAddresses(0)
+, d_frameRecs(basicAllocator)
 , d_adjustment(0)
 , d_symTableOffset(0)
 , d_symTableSize(0)
 , d_stringTableOffset(0)
 , d_stringTableSize(0)
 , d_isMainExecutable(0)
-, d_numFrames(numFrames)
 {
-    // Initially we allocate 'd_seg.d_addresses_p' and 'd_seg.d_framePtrs_p' to
-    // the maximum possible length.  At the beginning of each pass through
-    // 'resolveSegment', the contents of both of these arrays are zeroed, and
-    // only first N elements will be populated, where 'N <= d_numFrames.
-
-    const int bytesToAllocate = numFrames * static_cast<int>(sizeof(void *));
-    d_framePtrs_p = static_cast<balst::StackTraceFrame **>(
-                                    basicAllocator->allocate(bytesToAllocate));
-    d_addresses_p =
-         static_cast<const void **>(basicAllocator->allocate(bytesToAllocate));
+    d_frameRecs.reserve(stackTrace->length());
+    for (int ii = 0; ii < stackTrace->length(); ++ii) {
+        balst::StackTraceFrame& frame = (*stackTrace)[ii];
+        d_frameRecs.push_back(local::FrameRec(frame.address(), &frame));
+    }
+    bsl::sort(d_frameRecs.begin(), d_frameRecs.end());
 }
 
 // MANIPULATORS
 void local::StackTraceResolver::CurrentSegment::reset()
 {
-    d_helper_p          = 0;
-    d_numAddresses      = 0;
-    d_adjustment        = 0;
-    d_symTableOffset    = 0;
-    d_symTableSize      = 0;
-    d_stringTableOffset = 0;
-    d_stringTableSize   = 0;
-
-    const int bytesToZero = d_numFrames * static_cast<int>(sizeof(void *));
-    bsl::memset(d_framePtrs_p, 0, bytesToZero);
-    bsl::memset(d_addresses_p, 0, bytesToZero);
+    d_helper_p           = 0;
+    d_adjustment         = 0;
+    d_symTableOffset     = 0;
+    d_symTableSize       = 0;
+    d_stringTableOffset  = 0;
+    d_stringTableSize    = 0;
 }
 
-      // ---------------------------------------------------------------
-      // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-      //                 == class U::StackTraceResolver
-      // ---------------------------------------------------------------
+     // -----------------------------------------------------------------
+     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
+     //                 == class U::StackTraceResolver
+     // -----------------------------------------------------------------
 
 // PRIVATE CREATORS
 local::StackTraceResolver::StackTraceResolverImpl(
@@ -680,7 +727,7 @@ local::StackTraceResolver::StackTraceResolverImpl(
                                 d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN));
     d_symbolBuf_p  = static_cast<char *>(
                                  d_hbpAlloc.allocate(local::k_SYMBOL_BUF_LEN));
-    d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace->length(),
+    d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace,
                                                      &d_hbpAlloc);
 }
 
@@ -696,42 +743,43 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 {
     int rc;
 
-    zprintf("ResolveSegment lfn=%s\nba=%p sp=%p se=0x%lx\n",
-            libraryFileName,
-            segmentBaseAddress,
-            segmentPtr,
-            static_cast<char *>(segmentPtr) + segmentSize);
+    const char *sp = static_cast<char *>(segmentPtr);
+    const char *se = sp + segmentSize;
 
-    int numSegEntries = 0;
-    for (int i = 0; i < static_cast<int>(d_stackTrace_p->length()); ++i) {
-        const void *address = (*d_stackTrace_p)[i].address();
+    d_seg_p->d_frameRecsBegin = bsl::lower_bound(d_seg_p->d_frameRecs.begin(),
+                                                 d_seg_p->d_frameRecs.end(),
+                                                 local::FrameRec(sp));
+    d_seg_p->d_frameRecsEnd   = bsl::lower_bound(d_seg_p->d_frameRecs.begin(),
+                                                 d_seg_p->d_frameRecs.end(),
+                                                 local::FrameRec(se));
 
-        if (segmentPtr <= address && address <
-                               static_cast<char *>(segmentPtr) + segmentSize) {
-            zprintf("address %p MATCH\n", address);
-            d_seg_p->d_framePtrs_p[numSegEntries] = &(*d_stackTrace_p)[i];
-            d_seg_p->d_addresses_p[numSegEntries] = address;
-            d_seg_p->d_framePtrs_p[numSegEntries]->setLibraryFileName(
-                                                              libraryFileName);
-            ++numSegEntries;
-        }
-        else {
-            zprintf("address %p NO MATCH\n", address);
-        }
-    }
-    if (0 == numSegEntries) {
+    int matched = static_cast<int>(
+                          d_seg_p->d_frameRecsEnd - d_seg_p->d_frameRecsBegin);
+    BSLS_ASSERT(0 <= matched);
+    BSLS_ASSERT(matched <= d_stackTrace_p->length());
+
+    zprintf("ResolveSegment lfn=%s\nba=%p sp=%p se=%p matched=%d\n",
+            libraryFileName, segmentBaseAddress, sp, se, matched);
+
+    if (0 == matched) {
+        zprintf("0 addresses match in library %s\n", libraryFileName);
+
         return 0;                                                     // RETURN
     }
-    BSLS_ASSERT(numSegEntries <= (int) d_stackTrace_p->length());
 
-    d_seg_p->d_numAddresses = numSegEntries;
+    local::FrameRecVecIt it, end  = d_seg_p->d_frameRecsEnd;
+    for (it = d_seg_p->d_frameRecsBegin; it < end; ++it) {
+        zprintf("address %p MATCH\n", it->address());
+        it->frame().setLibraryFileName(libraryFileName);
+    }
 
     // read the elf header
 
     local::ElfHeader elfHeader;
-    if (0 != d_seg_p->d_helper_p->readExact(&elfHeader,
-                                            sizeof(local::ElfHeader),
-                                            0)) {
+    rc = d_seg_p->d_helper_p->readExact(&elfHeader,
+                                        sizeof(local::ElfHeader),
+                                        0);
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -789,12 +837,9 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             return -1;                                                // RETURN
         }
 
+        zprintf("Other section: type:%d name:%s\n", sec->sh_type, sectionName);
+
         switch (sec->sh_type) {
-          case SHT_SYMTAB: {
-            if      (!bsl::strcmp(sectionName, ".symtab")) {
-                symTabHdr = *sec;
-            }
-          }  break;
           case SHT_STRTAB: {
             if      (!bsl::strcmp(sectionName, ".strtab")) {
                 strTabHdr = *sec;
@@ -802,14 +847,26 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             else if (!bsl::strcmp(sectionName, ".dynstr")) {
                 dynStrHdr = *sec;
             }
-          }  break;
+          } break;
+          case SHT_SYMTAB: {
+            if      (!bsl::strcmp(sectionName, ".symtab")) {
+                symTabHdr = *sec;
+            }
+          } break;
           case SHT_DYNSYM: {
             if      (!bsl::strcmp(sectionName, ".dynsym")) {
                 dynSymHdr = *sec;
             }
-          }  break;
+          } break;
         }
     }
+
+    zprintf("symtab:(0x%lx, %lu), strtab:(0x%lx, %lu)\n",
+            symTabHdr.sh_offset, symTabHdr.sh_size, strTabHdr.sh_offset,
+            strTabHdr.sh_size);
+    zprintf("dynsym:(0x%lx, %lu), dynstr:(0x%lx, %lu)\n",
+            dynSymHdr.sh_offset, dynSymHdr.sh_size, dynStrHdr.sh_offset,
+            dynStrHdr.sh_size);
 
     if (0 != strTabHdr.sh_size && 0 != symTabHdr.sh_size) {
         // use the full symbol table if it is available
@@ -833,21 +890,25 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
         return -1;                                                    // RETURN
     }
 
-    zprintf("Sym table offset: %lu size: %lu string offset: %lu size: %lu\n",
+    zprintf("Sym table:(0x%lx, %lu) string table:(0x%lx %lu)\n",
             d_seg_p->d_symTableOffset,
             d_seg_p->d_symTableSize,
             d_seg_p->d_stringTableOffset,
             d_seg_p->d_stringTableSize);
 
-    rc = loadSymbols();
-    if (rc) {
-        return rc;                                                    // RETURN
+    rc = loadSymbols(matched);
+    // we return 'rc' at the end.
+
+    d_seg_p->d_frameRecs.erase(d_seg_p->d_frameRecsBegin,
+                               d_seg_p->d_frameRecsEnd);
+    if (d_seg_p->d_frameRecs.empty()) {
+        zprintf("Last address matched\n");
     }
 
-    return 0;
+    return rc;
 }
 
-int local::StackTraceResolver::loadSymbols()
+int local::StackTraceResolver::loadSymbols(int matched)
 {
     const int     symSize = static_cast<int>(sizeof(local::ElfSymbol));
     const UintPtr maxSymbolsPerPass = local::k_SYMBOL_BUF_LEN / symSize;
@@ -883,46 +944,72 @@ int local::StackTraceResolver::loadSymbols()
               } break;
               case STT_FUNC: {
                 if (SHN_UNDEF != sym->st_shndx) {
-                    const void *symbolAddress = reinterpret_cast<void *>(
+                    const void *symbolAddress = reinterpret_cast<const void *>(
                                         sym->st_value + d_seg_p->d_adjustment);
                     const void *endSymbolAddress =
                                      static_cast<const char *>(symbolAddress) +
                                                                   sym->st_size;
-                    for (int i = 0; i < d_seg_p->d_numAddresses; ++i) {
-                        const void *address = d_seg_p->d_addresses_p[i];
-                        if (symbolAddress <= address
-                           && address < endSymbolAddress) {
-                            balst::StackTraceFrame& frame =
-                                                    *d_seg_p->d_framePtrs_p[i];
+                    const local::FrameRecVecIt begin =
+                              bsl::lower_bound(d_seg_p->d_frameRecsBegin,
+                                               d_seg_p->d_frameRecsEnd,
+                                               local::FrameRec(symbolAddress));
+                    const local::FrameRecVecIt end =
+                           bsl::lower_bound(d_seg_p->d_frameRecsBegin,
+                                            d_seg_p->d_frameRecsEnd,
+                                            local::FrameRec(endSymbolAddress));
+                    for (local::FrameRecVecIt it = begin; it < end; ++it) {
+                        if (it->isResolved()) {
+                            continue;
+                        }
 
-                            frame.setOffsetFromSymbol(
-                                  static_cast<const char *>(address)
+                        balst::StackTraceFrame& frame = it->frame();
+
+                        frame.setOffsetFromSymbol(
+                                  static_cast<const char *>(it->address())
                                    - static_cast<const char *>(symbolAddress));
 
-                            frame.setMangledSymbolName(
-                                  d_seg_p->d_helper_p->loadString(
-                                            d_seg_p->d_stringTableOffset +
-                                                                  sym->st_name,
-                                            d_scratchBuf_p,
-                                            local::k_SCRATCH_BUF_LEN,
-                                            &d_hbpAlloc));
-                            if (frame.isMangledSymbolNameKnown()) {
-                                setFrameSymbolName(&frame);
-                            }
+                        // in ELF, filename information is only accurate
+                        // for statics in the main executable
 
-                            // in ELF, filename information is only accurate
-                            // for statics in the main executable
-
-                            if (d_seg_p->d_isMainExecutable
-                               && STB_LOCAL == ELF32_ST_BIND(sym->st_info)) {
-                                frame.setSourceFileName(
+                        if (d_seg_p->d_isMainExecutable
+                           && STB_LOCAL == ELF32_ST_BIND(sym->st_info)) {
+                            frame.setSourceFileName(
                                       d_seg_p->d_helper_p->loadString(
                                             d_seg_p->d_stringTableOffset +
                                                           sourceFileNameOffset,
                                             d_scratchBuf_p,
                                             local::k_SCRATCH_BUF_LEN,
                                             &d_hbpAlloc));
+                        }
+
+                        frame.setMangledSymbolName(
+                                  d_seg_p->d_helper_p->loadString(
+                                            d_seg_p->d_stringTableOffset +
+                                                                  sym->st_name,
+                                            d_scratchBuf_p,
+                                            local::k_SCRATCH_BUF_LEN,
+                                            &d_hbpAlloc));
+                        if (frame.isMangledSymbolNameKnown()) {
+                            setFrameSymbolName(&frame);
+
+                            it->setResolved();
+
+                            zprintf("Resolved symbol %s, frame %d, [%p, %p)\n",
+                                    frame.symbolName().c_str(),
+                                    static_cast<int>(&frame -
+                                                       &(*d_stackTrace_p)[0]),
+                                    symbolAddress,
+                                    endSymbolAddress);
+
+                            if (0 == --matched) {
+                                zprintf("Last symbol in segment loaded\n");
+
+                                return 0;                             // RETURN
                             }
+                        }
+                        else {
+                            zprintf("Null symbol found for %p\n",
+                                                                it->address());
                         }
                     }
                 }
@@ -966,11 +1053,13 @@ int local::StackTraceResolver::processLoadedImage(
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        bsl::memset(d_scratchBuf_p, 0, local::k_SCRATCH_BUF_LEN);
-        if (0 < readlink("/proc/self/exe",
-                         d_scratchBuf_p,
-                         local::k_SCRATCH_BUF_LEN)) {
-            d_scratchBuf_p[local::k_SCRATCH_BUF_LEN - 1] = 0;
+        const int numChars = static_cast<int>(
+                                           readlink("/proc/self/exe",
+                                                    d_scratchBuf_p,
+                                                    local::k_SCRATCH_BUF_LEN));
+        if (numChars > 0) {
+            BSLS_ASSERT(numChars < local::k_SCRATCH_BUF_LEN);
+            d_scratchBuf_p[numChars] = 0;
             name = d_scratchBuf_p;
         }
         else {
@@ -980,9 +1069,11 @@ int local::StackTraceResolver::processLoadedImage(
 #endif
     name = bdlb::String::copy(name, &d_hbpAlloc);
 
-    zprintf("processing loaded image: fn:\"%s\", name:\"%s\" main:%d\n",
+    zprintf("processing loaded image: fn:\"%s\", name:\"%s\" main:%d"
+                                                 " numHdrs:%d unmatched:%ld\n",
                         fileName ? fileName : "(null)", name ? name : "(null)",
-                                static_cast<int>(d_seg_p->d_isMainExecutable));
+                                 static_cast<int>(d_seg_p->d_isMainExecutable),
+                               numProgramHeaders, d_seg_p->d_frameRecs.size());
 
     balst::StackTraceResolver_FileHelper helper(name);
     d_seg_p->d_helper_p = &helper;
@@ -1094,6 +1185,15 @@ int linkmapCallback(struct dl_phdr_info *info,
     local::StackTraceResolver *resolver =
                            reinterpret_cast<local::StackTraceResolver *>(data);
 
+    // If we have completed resolving, there is no way to signal the caller to
+    // stop iterating through the shared libs, but we aren't allowed to throw
+    // and the caller ignores and propagates the return value we pass to it.
+    // So just return without doing any work once resolving is done.
+
+    if (0 == resolver->numUnmatchedFrames()) {
+        return 0;                                                     // RETURN
+    }
+
     // here the base address is known and text segment loading address is
     // unknown
 
@@ -1150,7 +1250,9 @@ int local::StackTraceResolver::resolve(
     int maxNumProgramHeaders = 0;
 
     local::ElfHeader elfHeader;
-    for (int i = -1; -1 != shl_get_r(i, &desc); ++i) {
+    for (int i = -1;
+                0 < resolver.numUnmatchedFrames() && -1 != shl_get_r(i, &desc);
+                                                                         ++i) {
         int numProgramHeaders = 0;
 
         {
@@ -1261,7 +1363,8 @@ int local::StackTraceResolver::resolve(
         }
     }
 
-    for (int i = 0; linkMap; ++i, linkMap = linkMap->l_next) {
+    for (int i = 0; 0 < resolver.numUnmatchedFrames() && linkMap;
+                                              ++i, linkMap = linkMap->l_next) {
         local::ElfHeader *elfHeader = reinterpret_cast<local::ElfHeader *>(
                                                               linkMap->l_addr);
 
@@ -1295,6 +1398,12 @@ int local::StackTraceResolver::resolve(
 #endif
 
     return 0;
+}
+
+// PUBLIC ACCESSOR
+int local::StackTraceResolver::numUnmatchedFrames() const
+{
+    return static_cast<int>(d_seg_p->d_frameRecs.size());
 }
 
 }  // close enterprise namespace
