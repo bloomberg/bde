@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(bslmt_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 
-// #define BCEMT_WIN64_DEBUG
+// #define BSLMT_WIN64_DEBUG
 
 namespace BloombergLP {
 

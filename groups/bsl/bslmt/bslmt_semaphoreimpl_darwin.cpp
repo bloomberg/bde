@@ -28,7 +28,7 @@ namespace BloombergLP {
 
 const char *
 bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::s_semaphorePrefix
-    = "bcemt_semaphore_";
+    = "bslmt_semaphore_";
 
 namespace {
 

@@ -97,14 +97,14 @@ enum { NTHREADS = 5 };
 
 class my_Condition {
     // This class implements a condition variable object which compensates for
-    // spurious returns from the wait functions in bcemt_Condition.  The
+    // spurious returns from the wait functions in bslmt_Condition.  The
     // versions of the 'wait' and 'timedWait' functions provided here only
     // return when the condition was actually signaled.  The class is used to
     // simplify testing.
-    bslmt::Condition       d_cond;
-    bslmt::Mutex           d_mutex;
-    volatile int          d_sigState;
-    volatile int          d_bcastCount;
+    bslmt::Condition d_cond;
+    bslmt::Mutex     d_mutex;
+    volatile int     d_sigState;
+    volatile int     d_bcastCount;
   public:
     my_Condition();
         // Construct a my_Condition object.

@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // The caller must lock the mutex before invoking these functions.  The
 // 'bslmt::Condition' atomically releases the lock and waits, thereby
 // preventing other threads from changing the predicate after the lock is
-// released, but before the thread begins to wait.  The 'bcemt' package
+// released, but before the thread begins to wait.  The 'bslmt' package
 // guarantees that this lock will be reacquired before returning from a call to
 // the 'wait' and 'timedWait' methods, unless an error occurs.
 //

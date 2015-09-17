@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bcemt' and is *not* intended
+// This component is an implementation detail of 'bslmt' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -53,11 +53,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef BCEMT_SEMAPHOREIMPL_PTHREAD
+#ifndef BSLMT_SEMAPHOREIMPL_PTHREAD
 #include <bslmt_semaphoreimpl_pthread.h>
 #endif
 
-#ifndef BCEMT_SEMAPHOREIMPL_DARWIN
+#ifndef BSLMT_SEMAPHOREIMPL_DARWIN
 #include <bslmt_semaphoreimpl_darwin.h>
 #endif
 

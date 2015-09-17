@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bcemt' and is *not* intended
+// This component is an implementation detail of 'bslmt' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -126,7 +126,7 @@ class MutexImpl<Platform::Win32Threads> {
   public:
     // PUBLIC TYPES
     typedef _RTL_CRITICAL_SECTION NativeType;
-       // The underlying OS-level type.  Exposed so that other bcemt components
+       // The underlying OS-level type.  Exposed so that other bslmt components
        // can operate directly on this mutex.
 
     // CREATORS
@@ -146,7 +146,7 @@ class MutexImpl<Platform::Win32Threads> {
 
     NativeType& nativeMutex();
         // Return a reference to the modifiable OS-level mutex underlying this
-        // object.  This method is intended only to support other bcemt
+        // object.  This method is intended only to support other bslmt
         // components that must operate directly on this mutex.
 
     int tryLock();

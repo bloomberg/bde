@@ -348,16 +348,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BCEMT_ONCE_UNIQNUM __COUNTER__
+#   define BSLMT_ONCE_UNIQNUM __COUNTER__
         // MSVC: The '__LINE__' macro breaks when '/ZI' is used (see Q199057 or
         // KB199057).  Fortunately the '__COUNTER__' extension provided by MSVC
         // is even better.
 #else
-#   define BCEMT_ONCE_UNIQNUM __LINE__
+#   define BSLMT_ONCE_UNIQNUM __LINE__
 #endif
 
 #define BSLMT_ONCE_DO \
-    BSLMT_ONCE_DO_IMP(BSLMT_ONCE_CAT(bcemt_doOnceObj, BCEMT_ONCE_UNIQNUM))
+    BSLMT_ONCE_DO_IMP(BSLMT_ONCE_CAT(bslmt_doOnceObj, BSLMT_ONCE_UNIQNUM))
     // This macro provides a simple control construct to bracket a piece of
     // code that should only be executed once during the course of a
     // multithreaded program.  Usage:
@@ -375,7 +375,7 @@ namespace BloombergLP {
     // one call to 'BSLMT_ONCE_DO' may appear on a single source-code line in
     // any code block.
 
-#define BSLMT_ONCE_CANCEL() bcemt_doOnceGuard.cancel()
+#define BSLMT_ONCE_CANCEL() bslmt_doOnceGuard.cancel()
     // This macro provides a way to cancel once processing within a
     // 'BSLMT_ONCE_DO' construct.  It will not compile outside of a
     // 'BSLMT_ONCE_DO' construct.  Executing this function-like macro will set
@@ -400,7 +400,7 @@ namespace bslmt {
 class Once {
     // Gate-keeper class for code that should only execute once per process.
     // This class is a POD-type and can be statically initialized to the value
-    // of the 'BCEMT_ONCE_INITIALIZE' macro.  For this reason, it does not have
+    // of the 'BSLMT_ONCE_INITIALIZE' macro.  For this reason, it does not have
     // any explicitly-declared constructors or destructor.
 
     // PRIVATE TYPES
@@ -570,8 +570,8 @@ class OnceGuard {
 // macro within a source file supplies a different 'doOnceObj' name.
 #define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
     static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
-    for (BloombergLP::bslmt::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
-         bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
+    for (BloombergLP::bslmt::OnceGuard bslmt_doOnceGuard(&doOnceObj);         \
+         bslmt_doOnceGuard.enter(); bslmt_doOnceGuard.leave())
 
                              // ---------------
                              // class OnceGuard

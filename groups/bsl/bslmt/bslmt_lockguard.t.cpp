@@ -530,7 +530,7 @@ int main(int argc, char *argv[])
         // TESTING CLASS 'bslmt::LockGuardUnlock'
         //
         // Concern:
-        //   That the basic functionality of the 'bcemt::LockUnGuard' class
+        //   That the basic functionality of the 'bslmt::LockUnGuard' class
         //   template is correct.
         //
         // Plan:

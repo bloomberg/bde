@@ -210,7 +210,7 @@ int veryVeryVerbose;
 //      enum { k_STACK_SIZE = 16384 };
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setDetachedState(
-//                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
 //      attributes.setStackSize(k_STACK_SIZE);
 //
 //      char initValue = 1;
@@ -237,7 +237,7 @@ int veryVeryVerbose;
 //      enum { k_NUM_THREADS = 3 };
 //
 //      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
-//      bcemt_ThreadFunction functions[k_NUM_THREADS] = {
+//      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
 //                                                MostUrgentThreadFunction,
 //                                                FairlyUrgentThreadFunction,
 //                                                LeastUrgentThreadFunction };
@@ -246,7 +246,7 @@ int veryVeryVerbose;
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setInheritSchedule(false);
 //      const bslmt::ThreadAttributes::SchedulingPolicy policy =
-//                                  bslmt::ThreadAttributes::BCEMT_SCHED_OTHER;
+//                                  bslmt::ThreadAttributes::e_SCHED_OTHER;
 //      attributes.setSchedulingPolicy(policy);
 //
 //      for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -1794,7 +1794,7 @@ int main(int argc, char *argv[])
         enum { k_NUM_THREADS = 3 };
 
         bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
-        bcemt_ThreadFunction functions[k_NUM_THREADS] = {
+        bslmt_ThreadFunction functions[k_NUM_THREADS] = {
                                                   MostUrgentThreadFunctor,
                                                   FairlyUrgentThreadFunctor,
                                                   LeastUrgentThreadFunctor };

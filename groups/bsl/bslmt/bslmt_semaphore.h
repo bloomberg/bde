@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //  void IntQueue::pushInt(int value)
 //  {
 //      d_mutexSem.wait();
-//      d_queue.pushFront(value);
+//      d_queue.push_front(value);
 //      d_mutexSem.post();
 //
 //      d_resourceSem.post();  // Signal we have resources available.

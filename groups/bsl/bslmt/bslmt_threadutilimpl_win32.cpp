@@ -27,7 +27,7 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
     // intermediate map to store the actual 'void *' return or exit values, so
     // they can be retrieved by join.
 
-    #define BCEMT_USE_RETURN_VALUE_MAP
+    #define BSLMT_USE_RETURN_VALUE_MAP
     #include <bsl_unordered_map.h>
 
     #include <bslma_default.h>
@@ -81,7 +81,7 @@ struct ThreadStartupInfo {
     // function.
 
     bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle  d_handle;
-    bcemt_ThreadFunction                                          d_function;
+    ThreadFunction                                          d_function;
     void                                                         *d_threadArg;
     ThreadStartupInfo                                            *d_next;
 };
@@ -91,15 +91,15 @@ struct ThreadSpecificDestructor {
     // thread-specific key.
 
     bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Key  d_key;
-    bcemt_KeyDestructorFunction                                d_destructor;
+    KeyDestructorFunction                                d_destructor;
     ThreadSpecificDestructor                                  *d_next;
 };
 
 struct Win32Initializer {
     // This structure is used to initialize and de-initialize the BCE threading
-    // environment.  At creation, 'bcemt_threadutil_win32_Initialize' is called
+    // environment.  At creation, 'bslmt_threadutil_win32_Initialize' is called
     // to initialize the environment.  When the object is destroyed, it calls
-    // 'bcemt_threadutil_win32_Deinitialize' to cleanup the environment.
+    // 'bslmt_threadutil_win32_Deinitialize' to cleanup the environment.
 
     Win32Initializer();
         // Initialize the BCE threading environment.
@@ -121,7 +121,7 @@ static ThreadSpecificDestructor *s_destructors = 0;
 static CRITICAL_SECTION          s_threadSpecificDestructorsListLock;
 static volatile long             s_initializationState = e_UNINITIALIZED;
 
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
 static CRITICAL_SECTION          s_returnValueMapLock;
 
 // Access to this map will be serialized with 's_returnValueMapLock'.  It must
@@ -138,7 +138,7 @@ static TReturnValueMap                    s_returnValueMap(
 static Win32Initializer   s_initializer;
 
 static inline
-int bcemt_threadutil_win32_Initialize()
+int bslmt_threadutil_win32_Initialize()
     // This function is used to initialize the BCE threading environment If the
     // environment has already been initialized, it returns immediately with a
     // 0 result.  Otherwise if the environment is currently being initialized
@@ -165,7 +165,7 @@ int bcemt_threadutil_win32_Initialize()
         if (e_UNINITIALIZED == result) {
             s_threadInfoTLSIndex = TlsAlloc();
             InitializeCriticalSection(&s_threadSpecificDestructorsListLock);
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
             InitializeCriticalSection(&s_returnValueMapLock);
             s_returnValueMapValid = true;
 #endif
@@ -175,7 +175,7 @@ int bcemt_threadutil_win32_Initialize()
     }
 }
 
-static void bcemt_threadutil_win32_Deinitialize()
+static void bslmt_threadutil_win32_Deinitialize()
     // This function de-initializes the BCE threading environment and releases
     // all resources allocated by the environment.  Note that once the
     // environment has been de-initialized, it cannot be re-initialized.  This
@@ -195,7 +195,7 @@ static void bcemt_threadutil_win32_Deinitialize()
     LeaveCriticalSection(&s_threadSpecificDestructorsListLock);
     DeleteCriticalSection(&s_threadSpecificDestructorsListLock);
 
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
     EnterCriticalSection(&s_returnValueMapLock);
     s_returnValueMap.erase(s_returnValueMap.begin(), s_returnValueMap.end());
     s_returnValueMapValid = false;
@@ -222,12 +222,12 @@ static void bcemt_threadutil_win32_Deinitialize()
 
 Win32Initializer::Win32Initializer()
 {
-    bcemt_threadutil_win32_Initialize();
+    bslmt_threadutil_win32_Initialize();
 }
 
 Win32Initializer::~Win32Initializer()
 {
-    bcemt_threadutil_win32_Deinitialize();
+    bslmt_threadutil_win32_Deinitialize();
 }
 
 static ThreadStartupInfo *allocStartupInfo()
@@ -308,7 +308,7 @@ static unsigned _stdcall ThreadEntry(void *arg)
     TlsSetValue(s_threadInfoTLSIndex, &startInfo.d_handle);
     void *ret = startInfo.d_function(startInfo.d_threadArg);
     invokeDestructors();
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
     EnterCriticalSection(&s_returnValueMapLock);
     if (s_returnValueMapValid) {
         s_returnValueMap[startInfo.d_handle.d_id] = ret;
@@ -326,9 +326,9 @@ static unsigned _stdcall ThreadEntry(void *arg)
 
 // CLASS METHODS
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
-                                                Handle               *thread,
-                                                bcemt_ThreadFunction  function,
-                                                void                 *userData)
+                                                      Handle         *thread,
+                                                      ThreadFunction  function,
+                                                      void           *userData)
 {
     ThreadAttributes attribute;
     return create(thread, attribute, function, userData);
@@ -337,10 +337,10 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                             Handle                  *handle,
                                             const ThreadAttributes&  attribute,
-                                            bcemt_ThreadFunction     function,
+                                            ThreadFunction           function,
                                             void                    *userData)
 {
-    if (bcemt_threadutil_win32_Initialize()) {
+    if (bslmt_threadutil_win32_Initialize()) {
         return 1;                                                     // RETURN
     }
 
@@ -404,7 +404,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::join(
     DWORD exitStatus;
     DWORD result = GetExitCodeThread(handle.d_handle,&exitStatus);
 
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
     // In this case, we ignore 'exitStatus', but we're still fetching it in to
     // get the 'result' value
 
@@ -419,7 +419,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::join(
     if (status) {
         *status = (void *)exitStatus;
     }
-#endif // def BCEMT_USE_RETURN_VALUE_MAP
+#endif // def BSLMT_USE_RETURN_VALUE_MAP
     CloseHandle(handle.d_handle);
     handle.d_handle = 0;
 
@@ -454,7 +454,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::detach(
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::exit(void *status)
 {
     invokeDestructors();
-#ifdef BCEMT_USE_RETURN_VALUE_MAP
+#ifdef BSLMT_USE_RETURN_VALUE_MAP
     EnterCriticalSection(&s_returnValueMapLock);
     if (s_returnValueMapValid) {
         s_returnValueMap[GetCurrentThreadId()] = status;
@@ -465,15 +465,15 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::exit(void *status)
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::createKey(
-                                       Key                         *key,
-                                       bcemt_KeyDestructorFunction  destructor)
+                                             Key                   *key,
+                                             KeyDestructorFunction  destructor)
 {
     // It is not uncommon for applications to have global objects that make
     // calls to create thread-specific keys.  It is possible that those objects
     // are initialized before the BCE threading environment, so make sure to do
     // so first.
 
-    if (bcemt_threadutil_win32_Initialize()) {
+    if (bslmt_threadutil_win32_Initialize()) {
         return 1;                                                     // RETURN
     }
 

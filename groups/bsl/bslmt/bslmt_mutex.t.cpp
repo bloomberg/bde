@@ -126,7 +126,7 @@ extern "C" void* MyThread(void* arg_p)
                                  // case -1
                                  // -------
 
-namespace BCEMT_MUTEX_CASE_MINUS_1 {
+namespace BSLMT_MUTEX_CASE_MINUS_1 {
 
     enum { NUM_NOT_URGENT_THREADS = 128,
            NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
@@ -187,7 +187,7 @@ void F::operator()()
     ++s_finished;
 }
 
-}  // close namespace BCEMT_MUTEX_CASE_MINUS_1
+}  // close namespace BSLMT_MUTEX_CASE_MINUS_1
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
         // Testing prioirities on heavily mutexed tasks
         // ------------------------------------------------------------------
 
-        namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
+        namespace TC = BSLMT_MUTEX_CASE_MINUS_1;
 
         typedef bslmt::ThreadAttributes::SchedulingPolicy Policy;
         const Policy DF = bslmt::ThreadAttributes::e_SCHED_DEFAULT;

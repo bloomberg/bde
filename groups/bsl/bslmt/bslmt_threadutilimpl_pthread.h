@@ -84,17 +84,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 extern "C" {
-    typedef void *(*bcemt_ThreadFunction)(void *);
-        // 'bcemt_ThreadFunction' is an alias for a function type taking a
-        // single 'void' pointer argument and returning 'void *'.  Such
-        // functions are suitable to be specified as thread entry point
-        // functions to 'bslmt::ThreadUtil::create'.
+    typedef void *(*ThreadFunction)(void *);
+        // 'ThreadFunction' is an alias for a function type taking a single
+        // 'void' pointer argument and returning 'void *'.  Such functions are
+        // suitable to be specified as thread entry point functions to
+        // 'bslmt::ThreadUtil::create'.
 
-    typedef void (*bcemt_KeyDestructorFunction)(void *);
-        // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
-        // a single 'void' pointer argument and returning 'void'.  Such
-        // functions are suitable to be specified as thread-specific key
-        // destructor functions to 'bslmt::ThreadUtil::createKey'.
+    typedef void (*KeyDestructorFunction)(void *);
+        // 'KeyDestructorFunction' is an alias for a function type taking a
+        // single 'void' pointer argument and returning 'void'.  Such functions
+        // are suitable to be specified as thread-specific key destructor
+        // functions to 'bslmt::ThreadUtil::createKey'.
 }
 
 namespace bslmt {
@@ -125,7 +125,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
     static int create(Handle                  *thread,
                       const ThreadAttributes&  attributes,
-                      bcemt_ThreadFunction     function,
+                      ThreadFunction     function,
                       void                    *userData);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' with a single
@@ -135,13 +135,13 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // non-zero value otherwise.  The behavior is undefined if 'thread' is
         // 0 or if 'attributes.stackSize()' has been set to a negative value
         // other than the unset value.  Note that unless explicitly "detached"
-        // (by 'detach'), or unless the 'BCEMT_CREATE_DETACHED' attribute is
+        // (by 'detach'), or unless the 'BSLMT_CREATE_DETACHED' attribute is
         // specified, a call to 'join' must be made once the thread terminates
         // to reclaim any system resources associated with the newly created
         // identifier.
 
     static int create(Handle               *thread,
-                      bcemt_ThreadFunction  function,
+                      ThreadFunction  function,
                       void                 *userData);
         // Create a new thread of program control having platform specific
         // default attributes (i.e., "stack size", "scheduling priority"), that
@@ -172,7 +172,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // 'ThreadAttributes::BSLMT_UNSET_PRIORITY' if the maximum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
@@ -181,7 +181,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // 'ThreadAttributes::BSLMT_UNSET_PRIORITY' if the minimum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
@@ -321,7 +321,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
-    static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
+    static int createKey(Key *key, KeyDestructorFunction destructor);
         // Load, into the specified 'key', an identifier that can be used to
         // store ('setSpecific') and retrieve ('getSpecific') a single
         // thread-specific pointer value.  Associate with the identifier, the
@@ -360,9 +360,9 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
                           // *** Thread Management ***
 inline
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
-                                                Handle               *handle,
-                                                bcemt_ThreadFunction  function,
-                                                void                 *userData)
+                                                      Handle         *handle,
+                                                      ThreadFunction  function,
+                                                      void           *userData)
 {
     ThreadAttributes attr;
     return create(handle, attr, function, userData);
@@ -492,8 +492,8 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
 
 inline
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::createKey(
-                                       Key                         *key,
-                                       bcemt_KeyDestructorFunction  destructor)
+                                             Key                   *key,
+                                             KeyDestructorFunction  destructor)
 {
     return pthread_key_create(key,destructor);
 }

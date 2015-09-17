@@ -7,6 +7,8 @@
 #include <bslmt_mutex.h>       // for testing only
 #include <bslmt_threadutil.h>  // for testing only
 
+#include <bslim_testutil.h>
+
 #include <bsls_atomic.h>
 #include <bslmt_platform.h>
 
@@ -42,46 +44,50 @@ using namespace bsl;  // automatically added by script
 // [3] post(int number)
 // [4] tryWait()
 // [5] USAGE Example
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define NL()  cout << endl;                   // Print newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 static bslmt::Mutex coutMutex;
 
@@ -98,7 +104,7 @@ typedef bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
-    // bcemt Condition would create a dependency cycle.
+    // bslmt Condition would create a dependency cycle.
     // DATA
     pthread_cond_t d_cond;
 
@@ -132,8 +138,8 @@ class MyCondition {
 };
 
 class MyBarrier {
-    // This class defines a thread barrier.  This is a cut-and-paste of bcemt
-    // Barrier, but depending on bcemt Barrier itself here would cause a
+    // This class defines a thread barrier.  This is a cut-and-paste of bslmt
+    // Barrier, but depending on bslmt Barrier itself here would cause a
     // dependency cycle.
 
     bslmt::Mutex     d_mutex;      // mutex used to control access to this
@@ -649,6 +655,12 @@ int main(int argc, char *argv[])
       } break;
 
       case 5: {
+///Usage
+///-----
+// This component is an implementation detail of 'bslmt' and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
         // USAGE EXAMPLE
         IntQueue testQueue;
 

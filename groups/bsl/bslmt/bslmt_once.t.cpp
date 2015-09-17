@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING BCEMT_ONCEGUARD::SETONCE
+        // TESTING BSLMT_ONCEGUARD::SETONCE
         //
         // Concerns:
         //    - After calling 'leave' on a 'bslmt::OnceGuard', it can be
@@ -1078,7 +1078,7 @@ int main(int argc, char *argv[])
         //      void bslmt::OnceGuard::setOnce(bslmt::Once *once);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING BCEMT_ONCEGUARD::SETONCE"
+        if (verbose) bsl::cout << "\nTESTING BSLMT_ONCEGUARD::SETONCE"
                                << "\n================================"
                                << bsl::endl;
 
@@ -1110,7 +1110,7 @@ int main(int argc, char *argv[])
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING BCEMT_ONCEGUARD::LEAVE
+        // TESTING BSLMT_ONCEGUARD::LEAVE
         //
         // Concerns:
         //    - Calling 'leave' on a 'bslmt::OnceGuard' will put the
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[])
         //      void bslmt::OnceGuard::leave();
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING BCEMT_ONCEGUARD::LEAVE"
+        if (verbose) bsl::cout << "\nTESTING BSLMT_ONCEGUARD::LEAVE"
                                << "\n=============================="
                                << bsl::endl;
 
@@ -1159,7 +1159,7 @@ int main(int argc, char *argv[])
 
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING BCEMT_ONCEGUARD::CANCEL
+        // TESTING BSLMT_ONCEGUARD::CANCEL
         //
         // Concerns:
         //   - Calling 'cancel' on a 'bslmt::OnceGuard' object will leave the
@@ -1195,7 +1195,7 @@ int main(int argc, char *argv[])
         //      void bslmt::OnceGuard::cancel();
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING BCEMT_ONCEGUARD::CANCEL"
+        if (verbose) bsl::cout << "\nTESTING BSLMT_ONCEGUARD::CANCEL"
                                << "\n==============================="
                                << bsl::endl;
 
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING BCEMT_ONCEGUARD
+        // TESTING BSLMT_ONCEGUARD
         //
         // Concerns: That the 'bslmt::OnceGuard' can automate the 'leave'
         //   some of the functionality of 'bslmt::Once'.  In particular,
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
         //      bool bslmt::OnceGuard::isInProgress() const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING BCEMT_ONCEGUARD"
+        if (verbose) bsl::cout << "\nTESTING BSLMT_ONCEGUARD"
                                << "\n=======================" << bsl::endl;
 
         static const int MAX_THREADS = 5;

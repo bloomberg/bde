@@ -43,13 +43,13 @@ using namespace bsl;  // automatically added by script
 // thread.
 //-----------------------------------------------------------------------------
 // CLASS bslmt::QLock CLASS bslmt::QLockGuard
-// [ 5] Contention test: many threads - many bcemt::QLocks
+// [ 5] Contention test: many threads - many bslmt::QLocks
 // [ 4] Test of internal QLock core primitives:
 //      setFlag and waitOnFlag
 // [ 3] Aggressive contention test: many threads - one bslmt::QLock
 // [ 2] USAGE EXAMPLE:  MT-Safe Singleton.
 //      Design is based on combination of bsls::AtomicInt
-//      and bcemt_QLocks.
+//      and bslmt_QLocks.
 // [ 1] BREATHING TEST
 
 // ============================================================================

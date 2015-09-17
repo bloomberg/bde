@@ -272,8 +272,8 @@ int veryVerbose;
 // and aborts:
 //..
 //  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
-//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
-//  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
+//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bslmt/unix-Linux-x86_6
+//  4-2.6.18-gcc-4.6.1/bslmt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
 //..
 // Finally, note that the message printed above and the subsequent aborting of
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
         // TESTING ON LOCK HELD BY ANOTHER THREAD
         //
         // Concerns:
-        //: 1 That 'BCEMT__ASSERTMUTEX_IS_LOCKED*' is never calling
+        //: 1 That 'BSLMT__ASSERTMUTEX_IS_LOCKED*' is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
         //:   thread.
         //

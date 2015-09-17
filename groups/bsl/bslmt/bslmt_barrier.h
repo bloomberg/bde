@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 // The 'processTrade' function handles a single trade within a Trade Basket.
-// Because this function is called within a 'bcemt::Thread' callback (see the
+// Because this function is called within a 'bslmt::Thread' callback (see the
 // 'tradeProcessingThread' function, below), its arguments are passed in a
 // single structure.  The 'processTrade' function validates a trade, stores the
 // trade into a database, and registers that trade with an exchange.  At each

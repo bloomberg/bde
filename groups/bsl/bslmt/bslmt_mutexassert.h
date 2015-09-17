@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a mutex.  The
-// 'BCEMT__ASSERTMUTEX_IS_LOCKED*' family of assertions allows the programmers
+// 'BSLMT__ASSERTMUTEX_IS_LOCKED*' family of assertions allows the programmers
 // to verify, using defensive programming techniques, that the mutex in
 // question is indeed locked.
 //
@@ -235,8 +235,8 @@ BSLS_IDENT("$Id: $")
 // and aborts:
 //..
 //  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
-//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
-//  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
+//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bslmt/unix-Linux-x86_6
+//  4-2.6.18-gcc-4.6.1/bslmt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
 //..
 // Finally, note that the message printed above and the subsequent aborting of

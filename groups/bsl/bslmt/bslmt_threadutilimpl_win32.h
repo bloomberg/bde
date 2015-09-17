@@ -116,17 +116,17 @@ extern "C" {
 namespace BloombergLP {
 
 extern "C" {
-    typedef void *(*bcemt_ThreadFunction)(void *);
-        // 'bcemt_ThreadFunction' is an alias for a function type taking a
-        // single 'void' pointer argument and returning 'void *'.  Such
-        // functions are suitable to be specified as thread entry point
-        // functions to 'bslmt::ThreadUtil::create'.
+    typedef void *(*ThreadFunction)(void *);
+        // 'ThreadFunction' is an alias for a function type taking a single
+        // 'void' pointer argument and returning 'void *'.  Such functions are
+        // suitable to be specified as thread entry point functions to
+        // 'bslmt::ThreadUtil::create'.
 
-    typedef void (*bcemt_KeyDestructorFunction)(void *);
-        // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
-        // a single 'void' pointer argument and returning 'void'.  Such
-        // functions are suitable to be specified as thread-specific key
-        // destructor functions to 'bslmt::ThreadUtil::createKey'.
+    typedef void (*KeyDestructorFunction)(void *);
+        // 'KeyDestructorFunction' is an alias for a function type taking a
+        // single 'void' pointer argument and returning 'void'.  Such functions
+        // are suitable to be specified as thread-specific key destructor
+        // functions to 'bslmt::ThreadUtil::createKey'.
 }
 
 namespace bslmt {
@@ -169,7 +169,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
 
     static int create(Handle                  *thread,
                       const ThreadAttributes&  attribute,
-                      bcemt_ThreadFunction     function,
+                      ThreadFunction           function,
                       void                    *userData);
         // Create a new thread of program control having the attributes
         // specified by 'attribute', that invokes the specified 'function' with
@@ -178,13 +178,13 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // the thread in future calls to this utility.  Return 0 on success,
         // and a non-zero value otherwise.  The behavior is undefined if
         // 'thread' is 0.  Note that unless explicitly "detached"('detach'), or
-        // unless the 'BCEMT_CREATE_DETACHED' attribute is specified, a call to
+        // unless the 'BSLMT_CREATE_DETACHED' attribute is specified, a call to
         // 'join' must be made once the thread terminates to reclaim any system
         // resources associated with the newly created identifier.
 
-    static int create(Handle               *thread,
-                      bcemt_ThreadFunction  function,
-                      void                 *userData);
+    static int create(Handle         *thread,
+                      ThreadFunction  function,
+                      void           *userData);
         // Create a new thread of program control having platform specific
         // default attributes(i.e., "stack size", "scheduling priority"), that
         // invokes the specified 'function' with a single argument specified by
@@ -200,7 +200,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // 'ThreadAttributes::BSLMT_UNSET_PRIORITY' if the minimum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
@@ -209,7 +209,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // 'ThreadAttributes::BSLMT_UNSET_PRIORITY' if the maximum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
@@ -330,7 +330,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // Return 'true' if the specified 'a' and 'b' thread id identify the
         // same thread and 'false' otherwise.
 
-    static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
+    static int createKey(Key *key, KeyDestructorFunction destructor);
         // Store into the specified 'key', an identifier that can be used to
         // associate('setSpecific') and retrieve('getSpecific') a single
         // thread-specific pointer value.  Associated with the identifier,the

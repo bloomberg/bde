@@ -98,7 +98,7 @@ typedef bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
-    // bcemt Condition would create a dependency cycle.
+    // bslmt Condition would create a dependency cycle.
 private:
     HANDLE           d_semBlockLock;       // gate Semaphore
 
@@ -260,8 +260,8 @@ private:
 };
 
 class MyBarrier {
-    // This class defines a thread barrier.  This is a cut-and-paste of bcemt
-    // Barrier, but depending on bcemt Barrier itself here would cause a
+    // This class defines a thread barrier.  This is a cut-and-paste of bslmt
+    // Barrier, but depending on bslmt Barrier itself here would cause a
     // dependency cycle.
 
     bslmt::Mutex     d_mutex;      // mutex used to control access to this

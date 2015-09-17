@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // methods to access and modify the BCE library's default stack size, as well
 // as functions that access the platform's native default stack size and guard
 // size.  The BCE default stack size is initially configured to
-// 'bslmt::ThreadAttributes::BCEMT_UNSET_STACK_SIZE', in which case thread
+// 'bslmt::ThreadAttributes::BSLMT_UNSET_STACK_SIZE', in which case thread
 // creation is to use the native default thread stack size.
 //
 ///Usage
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we verify that 'defaultThreadStackSize' is unset.
 //..
-//  assert(bslmt::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+//  assert(bslmt::ThreadAttributes::BSLMT_UNSET_STACK_SIZE ==
 //                             bslmt::Configuration::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
@@ -94,7 +94,7 @@ struct Configuration {
     static int defaultThreadStackSize();
         // Return the value set by the last call to
         // 'setDefaultThreadStackSize'; if 'setDefaultThreadStackSize' has
-        // never been called, return 'ThreadAttributes::BCEMT_UNSET_STACK_SIZE'
+        // never been called, return 'ThreadAttributes::BSLMT_UNSET_STACK_SIZE'
         // which will signal thread creation to use the thread stack size
         // native to the platform.
 

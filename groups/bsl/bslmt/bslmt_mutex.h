@@ -251,7 +251,7 @@ class Mutex {
     // PUBLIC TYPES
     typedef MutexImpl<Platform::ThreadPolicy>::NativeType NativeType;
         // 'NativeType' is an alias for the underlying OS-level mutex type.  It
-        // is exposed so that other 'bcemt' components can operate directly on
+        // is exposed so that other 'bslmt' components can operate directly on
         // this mutex.
 
     // CREATORS
@@ -272,7 +272,7 @@ class Mutex {
 
     NativeType& nativeMutex();
         // Return a reference to the modifiable OS-level mutex underlying this
-        // object.  This method is intended only to support other 'bcemt'
+        // object.  This method is intended only to support other 'bslmt'
         // components that must operate directly on this mutex.
 
     int tryLock();

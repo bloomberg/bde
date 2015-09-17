@@ -74,18 +74,18 @@ BSLS_IDENT("$Id: $")
 // Solaris 5.10  None.
 //
 // Solaris 5.11  Spawning of threads fails if 'schedulingPolicy' is
-//               'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.  Note also that
+//               'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.  Note also that
 //               'getMinSchedulingPriority' and 'getMaxSchedulingPriority'
 //               return different values than on Solaris 5.10.  Thread
 //               priorities have so little effect on 5.11 that it is barely
 //               detectable.
 //
 // AIX           For non-privileged clients, spawning of threads fails if
-//               'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
+//               'schedulingPolicy' is 'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.
 //
 // Linux         Non-privileged clients *can* *not* make effective use of
 //               thread priorities -- spawning of threads fails if
-//               'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR',
+//               'schedulingPolicy' is 'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR',
 //               and 'getMinSchedulingPriority == getMaxSchedulingPriority' if
 //               the policy has any other value.
 //
@@ -211,7 +211,7 @@ BSLS_IDENT("$Id: $")
 //      enum { k_STACK_SIZE = 16384 };
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setDetachedState(
-//                             bslmt::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
 //      attributes.setStackSize(k_STACK_SIZE);
 //
 //      char initValue = 1;
@@ -238,7 +238,7 @@ BSLS_IDENT("$Id: $")
 //      enum { k_NUM_THREADS = 3 };
 //
 //      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
-//      bcemt_ThreadFunction functions[k_NUM_THREADS] = {
+//      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
 //                                                MostUrgentThreadFunction,
 //                                                FairlyUrgentThreadFunction,
 //                                                LeastUrgentThreadFunction };
@@ -247,7 +247,7 @@ BSLS_IDENT("$Id: $")
 //      bslmt::ThreadAttributes attributes;
 //      attributes.setInheritSchedule(false);
 //      const bslmt::ThreadAttributes::SchedulingPolicy policy =
-//                                  bslmt::ThreadAttributes::BCEMT_SCHED_OTHER;
+//                                  bslmt::ThreadAttributes::e_SCHED_OTHER;
 //      attributes.setSchedulingPolicy(policy);
 //
 //      for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -314,15 +314,15 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 extern "C" {
-    typedef void *(*bcemt_ThreadFunction)(void *);
-        // 'bcemt_ThreadFunction' is an alias for a function type taking a
+    typedef void *(*bslmt_ThreadFunction)(void *);
+        // 'bslmt_ThreadFunction' is an alias for a function type taking a
         // single 'void' pointer argument and returning 'void *'.  Such
         // functions are suitable to be specified as thread entry-point
         // functions to 'bslmt::ThreadUtil::create'.  Note that 'create' also
         // accepts any invokable C++ "functor" object.
 
-    typedef void (*bcemt_KeyDestructorFunction)(void *);
-        // 'bcemt_KeyDestructorFunction' is an alias for a function type taking
+    typedef void (*bslmt_KeyDestructorFunction)(void *);
+        // 'bslmt_KeyDestructorFunction' is an alias for a function type taking
         // a single 'void' pointer argument and returning 'void'.  Such
         // functions are suitable to be specified as thread-specific key
         // destructor functions to 'bslmt::ThreadUtil::createKey'.
@@ -357,13 +357,13 @@ struct ThreadUtil {
         // does not have any resources associated with it, whereas 'Handle'
         // may, depending on platform.
 
-    typedef bcemt_ThreadFunction                   ThreadFunction;
+    typedef bslmt_ThreadFunction                   ThreadFunction;
         // Prototype for thread entry-point functions.
 
     typedef Imp::Key                               Key;
         // Thread-specific key type, used to refer to thread-specific storage.
 
-    typedef bcemt_KeyDestructorFunction            Destructor;
+    typedef bslmt_KeyDestructorFunction            Destructor;
         // Prototype for thread-specific key destructors.
 
 public:
@@ -376,7 +376,7 @@ public:
         // Return an integer scheduling priority appropriate for the specified
         // 'normalizedSchedulingPriority' and the specified 'policy'.  If
         // either the minimum or maximum priority for this platform cannot be
-        // determined, return 'ThreadAttributes::BCEMT_UNSET_PRIORITY'.  Higher
+        // determined, return 'ThreadAttributes::e_UNSET_PRIORITY'.  Higher
         // values of 'normalizedSchedulingPriority' are considered to represent
         // more urgent priorities.  The behavior is undefined unless 'policy'
         // is a valid 'ThreadAttributes::SchedulingPolicy' and
@@ -395,7 +395,7 @@ public:
         // 'handle != 0' and unless 'attributes.stackSize' is either greater
         // than 0 or unset.  Note that unless explicitly "detached" (by
         // invoking the 'detach' class method with 'handle') or the
-        // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
+        // 'BSLMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made to reclaim any system resources associated with the
         // newly-created thread.  Also note that the platform-specific values
         // of default thread stack size vary wildly between platforms; failure
@@ -437,7 +437,7 @@ public:
         // than 0 or unset.  'INVOKABLE' shall be a copy-constructible type
         // having the equivalent of 'void operator()()'.  Note that unless
         // explicitly "detached" (by invoking 'detach(*handle)') or the
-        // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
+        // 'BSLMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made to reclaim any system resources associated with the
         // newly-created thread.  Also note that the lifetime of 'allocator',
         // if specified, must exceed the lifetime of the thread.  Also note
@@ -490,7 +490,7 @@ public:
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the minimum scheduling
+        // 'ThreadAttributes::e_UNSET_PRIORITY' if the minimum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
@@ -499,7 +499,7 @@ public:
                                     ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the maximum scheduling
+        // 'ThreadAttributes::e_UNSET_PRIORITY' if the maximum scheduling
         // priority cannot be determined.  Note that, for some platform /
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.

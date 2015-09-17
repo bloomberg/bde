@@ -101,7 +101,7 @@ typedef bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
-    // bcemt Condition would create a dependency cycle.
+    // bslmt Condition would create a dependency cycle.
     // DATA
     pthread_cond_t d_cond;
 
@@ -134,13 +134,13 @@ class MyCondition {
 };
 
 class MyBarrier {
-    // This class defines a thread barrier.  This is a cut-and-paste of bcemt
-    // Barrier, but depending on bcemt Barrier itself here would cause a
+    // This class defines a thread barrier.  This is a cut-and-paste of bslmt
+    // Barrier, but depending on bslmt Barrier itself here would cause a
     // dependency cycle.
 
-    bslmt::Mutex     d_mutex;      // mutex used to control access to this
+    bslmt::Mutex    d_mutex;      // mutex used to control access to this
                                   // barrier.
-    MyCondition d_cond;       // condition variable used for signaling
+    MyCondition     d_cond;       // condition variable used for signaling
                                   // blocked threads.
     const int       d_numThreads; // number of threads required to be waiting
                                   // before this barrier can be signaled.

@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      void wait(bslmt::Mutex *mutex)
 //      {
-//          void *token = d_waitSluice.enter();
+//          const void *token = d_waitSluice.enter();
 //          mutex->unlock();
 //          d_waitSluice.wait(token);
 //          mutex->lock();
