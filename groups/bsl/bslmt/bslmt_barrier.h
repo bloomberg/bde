@@ -74,17 +74,18 @@ BSLS_IDENT("$Id: $")
 //
 // To begin, we define the fundamental structures 'Trade' and 'BasketTrade'.
 //..
-// enum {
-//     k_MAX_BASKET_TRADES = 10
-// };
+//  enum {
+//      k_MAX_BASKET_TRADES = 10
+//  };
 //
-// struct Trade {
-//     // Trade stuff...
-// };
+//  struct Trade {
+//      // Trade stuff...
+//  };
 //
-// struct BasketTrade {
-//     bsl::vector<Trade> d_trades; // array of trades that comprise the basket
-// };
+//  struct BasketTrade {
+//      bsl::vector<Trade> d_trades;  // array of trade that comprise the
+//                                    // basket
+//  };
 //..
 // Functions 'validateTrade', 'insertToDatabase', and 'submitToExchange' define
 // functionality for the three stages of trade processing.  Again, the
@@ -186,7 +187,6 @@ BSLS_IDENT("$Id: $")
 //        if (!retval) deleteFromDatabase(trade);
 //        return args;
 //     }
-//
 //..
 // The final synchronization point is at the exchange.  As before, if there is
 // an error in the basket, we may need to cancel the individual trade.
@@ -238,7 +238,6 @@ BSLS_IDENT("$Id: $")
 //
 //     int numTrades = trade.d_trades.length();
 //     assert(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
-//
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
 // thread will be created for each trade in the basket, use the number of
@@ -247,7 +246,6 @@ BSLS_IDENT("$Id: $")
 //..
 //     bslmt::Barrier barrier(numTrades);
 //     bool errorFlag = 0;
-//
 //..
 // Create a thread to process each trade.
 //..
