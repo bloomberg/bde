@@ -10,8 +10,8 @@ namespace BloombergLP {
 
 // PRIVATE CONSTANTS
 enum {
-    NANOSEC_PER_MILLISEC = 1000000,
-    MILLISEC_PER_SEC     = 1000
+    k_NANOSEC_PER_MILLISEC = 1000000,
+    k_MILLISEC_PER_SEC     = 1000
 };
 
 // PRIVATE CLASS METHODS
@@ -116,7 +116,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
 {
     BSLS_ASSERT(dst);
 
-    enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
+    enum { k_MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
 
     // In the test driver, in the test case "ASSERTS ABOUT 'TimeSpec' and
     // 'mach_timespec_t'" we verify that 'TimeSpec' can contain negative
@@ -125,9 +125,9 @@ void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
     toTimeTImp(&dst->tv_sec, src.seconds());
 
     dst->tv_nsec = src.seconds() > (bsls::Types::Int64) dst->tv_sec
-                 ? MAX_NANOSECONDS
+                 ? k_MAX_NANOSECONDS
                  : src.seconds() < (bsls::Types::Int64) dst->tv_sec
-                 ? -MAX_NANOSECONDS
+                 ? -k_MAX_NANOSECONDS
                  : src.nanoseconds();
 }
 
@@ -139,7 +139,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
 {
     BSLS_ASSERT(dst);
 
-    enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
+    enum { k_MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
 
     // 'dst->tv_sec' is unsigned, which is verified in the test driver in test
     // case "ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'.".
@@ -147,7 +147,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toTimeSpec(
     toTimeTImp(&dst->tv_sec, src.seconds());
 
     dst->tv_nsec = src.seconds() > (bsls::Types::Int64) dst->tv_sec
-                 ? MAX_NANOSECONDS
+                 ? k_MAX_NANOSECONDS
                  : src.nanoseconds() < 0
                  ? 0
                  : src.nanoseconds();
@@ -169,7 +169,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 {
     BSLS_ASSERT(dst);
 
-    const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
+    const int nanoMilliSeconds = src.nanoseconds() / k_NANOSEC_PER_MILLISEC;
 
     if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
         *dst = 0;
@@ -211,7 +211,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 
     typedef bsls::Types::Uint64 Uint64;
 
-    const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
+    const int nanoMilliSeconds = src.nanoseconds() / k_NANOSEC_PER_MILLISEC;
     const Uint64 MAX_UINT64 = maxOf(*dst);
     const Uint64 MAX_SEC    = MAX_UINT64 / 1000;
     const Uint64 MAX_MILLI_FOR_MAX_SEC =

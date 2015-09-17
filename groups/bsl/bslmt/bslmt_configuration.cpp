@@ -33,8 +33,8 @@ static int nativeDefaultThreadStackSizeImp()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit
 
-    enum { SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
-    return SOLARIS_DEFAULT_STACK_SIZE;
+    enum { k_SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
+    return k_SOLARIS_DEFAULT_STACK_SIZE;
 }
 # else // POSIX_THREADS && !Solaris
 static int nativeDefaultThreadStackSizeImp()
@@ -79,9 +79,9 @@ static int nativeDefaultThreadStackSizeImp()
 static int nativeDefaultThreadStackSizeImp()
     // Return the native thread stack size for Windows.
 {
-    enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte
+    enum { k_WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte
 
-    bsl::size_t threadStackSize = WINDOWS_DEFAULT_STACK_SIZE;
+    bsl::size_t threadStackSize = k_WINDOWS_DEFAULT_STACK_SIZE;
 
     // obtain default stack reserve size from the PE header
 
@@ -165,16 +165,16 @@ int bslmt::Configuration::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
-    enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
+    enum { k_RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
 
 #ifdef PTHREAD_STACK_MIN
     // Note -- this cannot be a BSLMF_ASSERT -- 'PTHREAD_STACK_MIN' is a
     // function call on some platforms.
 
-    BSLS_ASSERT(RECOMMENDED_DEFAULT_STACKSIZE >= PTHREAD_STACK_MIN);
+    BSLS_ASSERT(k_RECOMMENDED_DEFAULT_STACKSIZE >= PTHREAD_STACK_MIN);
 #endif
 
-    return RECOMMENDED_DEFAULT_STACKSIZE;
+    return k_RECOMMENDED_DEFAULT_STACKSIZE;
 }
 
 void bslmt::Configuration::setDefaultThreadStackSize(int numBytes)

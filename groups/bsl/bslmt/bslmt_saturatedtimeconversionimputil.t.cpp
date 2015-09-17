@@ -1,6 +1,7 @@
 // bslmt_saturatedtimeconversionimputil.t.cpp                         -*-C++-*-
-
 #include <bslmt_saturatedtimeconversionimputil.h>
+
+#include <bslim_testutil.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -38,53 +39,48 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\t" << #L << ": " << L <<  "\n";     \
-              aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\t" << #L << ": " << L << "\t" <<    \
-              #M << ": " << M <<  "\n";                                   \
-              aSsErT(1, #X, __LINE__); } }
-
-#define LOOP0_ASSERT    ASSERT
-#define LOOP1_ASSERT    LOOP_ASSERT
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //           BSLS_BSLTESTUTIL -- LIKE MACROS
@@ -191,8 +187,8 @@ void testSignedTimespec(const char *timeSpecName)
     // Check if the specified 'TIMESPEC' type is signed, and if so, test it
     // accordingly.
 {
-    enum { MILLION = 1000 * 1000,
-           BILLION = MILLION * 1000 };
+    enum { k_MILLION = 1000 * 1000,
+           k_BILLION = k_MILLION * 1000 };
 
     TIMESPEC tm;
 
@@ -221,7 +217,7 @@ void testSignedTimespec(const char *timeSpecName)
 
     if (sizeof(tm.tv_sec) == 4) {
         if (veryVerbose) Q(Vary secondss across non-saturating range);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = intMin; i <= intMax; i += i16, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -237,7 +233,7 @@ void testSignedTimespec(const char *timeSpecName)
             ASSERT(tm.tv_nsec == 0);
         }
         ASSERT(ct > 65000);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = intMax; i >= intMin; i -= i16, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -262,18 +258,18 @@ void testSignedTimespec(const char *timeSpecName)
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec == intMax);
-            ASSERT(tm.tv_nsec == (i == intMax ? ns : BILLION - 1));
+            ASSERT(tm.tv_nsec == (i == intMax ? ns : k_BILLION - 1));
 
             ti.setInterval(i, 0);
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec == intMax);
-            ASSERT(tm.tv_nsec == (i == intMax ? 0 : BILLION - 1));
+            ASSERT(tm.tv_nsec == (i == intMax ? 0 : k_BILLION - 1));
         }
         ASSERT(ct > 32000);
 
         if (veryVerbose) Q(Vary seconds across negative saturating range);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = intMin; i > int64Min + i48; i -= i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -281,14 +277,14 @@ void testSignedTimespec(const char *timeSpecName)
 
             ASSERT(tm.tv_sec == intMin);
             ASSERT(tm.tv_nsec == (i == intMin ? ns * sign(i)
-                                              : -(BILLION - 1)));
+                                              : -(k_BILLION - 1)));
 
             ti.setInterval(i, 0);
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec == intMin);
             ASSERT(tm.tv_nsec == (i == intMin ? 0
-                                              : -(BILLION - 1)));
+                                              : -(k_BILLION - 1)));
         }
         ASSERT(ct > 32000);
 
@@ -296,25 +292,25 @@ void testSignedTimespec(const char *timeSpecName)
         {
             bsls::TimeInterval ti;
 
-            ns = 500 * MILLION;;
+            ns = 500 * k_MILLION;;
             ti.setInterval(int64Max, ns);
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec  == intMax);
-            ASSERT(tm.tv_nsec == BILLION - 1);
+            ASSERT(tm.tv_nsec == k_BILLION - 1);
 
             ti.setInterval(int64Min, -ns);
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec  == intMin);
-            ASSERT(tm.tv_nsec == -(BILLION - 1));
+            ASSERT(tm.tv_nsec == -(k_BILLION - 1));
         }
     }
     else {
         ASSERTV(sizeof(tm.tv_sec), sizeof(tm.tv_sec) == 8);
 
         if (veryVerbose) Q(Vary seconds across full range with no saturation);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -324,7 +320,7 @@ void testSignedTimespec(const char *timeSpecName)
             ASSERT(tm.tv_nsec == ns * sign(i));
         }
         ASSERT(ct > 65000);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -363,8 +359,8 @@ void testUnsignedTimespec(const char *timeSpecName)
     // Check if the specified 'TIMESPEC' type is unsigned, and if so, test it
     // accordingly.
 {
-    enum { MILLION = 1000 * 1000,
-           BILLION = 1000 * MILLION };
+    enum { k_MILLION = 1000 * 1000,
+           k_BILLION = 1000 * k_MILLION };
 
     TIMESPEC tm;
 
@@ -393,7 +389,7 @@ void testUnsignedTimespec(const char *timeSpecName)
 
     if (sizeof(tm.tv_sec) == 4) {
         if (veryVerbose) Q(Vary across full non-saturating range);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = 0; i <= uintMax; i += i16, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -403,7 +399,7 @@ void testUnsignedTimespec(const char *timeSpecName)
             ASSERT(tm.tv_nsec == ns * sign(i));
         }
         ASSERT(ct > 65000);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = uintMax; i >= 0; i -= i16, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -415,7 +411,7 @@ void testUnsignedTimespec(const char *timeSpecName)
         ASSERT(ct > 65000);
 
         if (veryVerbose) Q(Vary across positive saturating range);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = (Int64) uintMax + 1; i < int64Max - i48;
                                                         i += i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
@@ -423,12 +419,12 @@ void testUnsignedTimespec(const char *timeSpecName)
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec  == uintMax);
-            ASSERT(tm.tv_nsec == BILLION - 1);
+            ASSERT(tm.tv_nsec == k_BILLION - 1);
         }
         ASSERT(ct > 32000);
 
         if (veryVerbose) Q(Vary across negative saturating range);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = -1; i > int64Min + i48; i -= i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -447,7 +443,7 @@ void testUnsignedTimespec(const char *timeSpecName)
             Obj::toTimeSpec(&tm, ti);
 
             ASSERT(tm.tv_sec  == uintMax);
-            ASSERT(tm.tv_nsec == BILLION - 1);
+            ASSERT(tm.tv_nsec == k_BILLION - 1);
 
             ti.setInterval(int64Min, -237);
             Obj::toTimeSpec(&tm, ti);
@@ -463,7 +459,7 @@ void testUnsignedTimespec(const char *timeSpecName)
             Q(Test across full range:);
             Q(... saturates on negative and no saturatiion on positive);
         }
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -479,7 +475,7 @@ void testUnsignedTimespec(const char *timeSpecName)
             }
         }
         ASSERT(ct > 65000);
-        ns = 500 * MILLION, ct = 0;
+        ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = int64Max; i > int64Min + i48; i -= i48, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
 
@@ -546,63 +542,64 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        // Suppose we need to assign a value held in a 'bsls::TimeInterval' to
-        // an 'unsigned int', where the 'unsigned int' is to contain an
-        // equilavent time interval expressed in milliseconds.  A
-        // 'bsls::TimeInterval' is able to represent intervals that are outside
-        // the range of intervals that can be represented by an 'unsigned int'
-        // number of milliseconds (e.g., any negative time interval).
-        // 'bslmt::SaturatedTimeConversionImpUtil' handles values outside the
-        // representable range of the destination type by "saturating", that is
-        // values outside the representable range of the destination type will
-        // be assigned the maximum or minimum representable value of the
-        // destination type (whichever is closer to the source value).
-
-        // First, we define variables of our source ('bsls::TimeInterval') and
-        // destination ('unsigned int') types:
-
-        unsigned int destinationInterval;
-        bsls::TimeInterval sourceInterval;
-
-        // Then, we try a value that does not require saturation and observe
-        // that 'toMillisec' converts it without modification (beyond loss of
-        // precision:
-
-        sourceInterval.setInterval(4, 321000000);
-        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+///Usage
+///-----
+// Suppose we need to assign a value held in a 'bsls::TimeInterval' to an
+// 'unsigned int', where the 'unsigned int' is to contain an equivalent time
+// interval expressed in milliseconds.  A 'bsls::TimeInterval' is able to
+// represent intervals that are outside the range of intervals that can be
+// represented by an 'unsigned int' number of milliseconds (e.g., any negative
+// time interval).  'bslmt::SaturatedTimeConversionImpUtil' handles values
+// outside the representable range of the destination type by "saturating",
+// that is values outside the representable range of the destination type will
+// be assigned the maximum or minimum representable value of the destination
+// type (whichever is closer to the source value).
+//
+// First, we define variables of our source ('bsls::TimeInterval') and
+// destination ('unsigned int') types:
+//..
+    unsigned int destinationInterval;
+    bsls::TimeInterval sourceInterval;
+//..
+// Then, we try a value that does not require saturation and observe that
+// 'toMillisec' converts it without modification (beyond loss of precision):
+//..
+    sourceInterval.setInterval(4, 321000000);
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                          &destinationInterval, sourceInterval);
-        ASSERT(4321 == destinationInterval);
-
-        // Next, we calculate the maximum value that can be represented in an
-        // 'usngined int' number of milliseconds, and verify that converting an
-        // equivalent 'bsls::TimeInterval' does not modify the value:
-
-        const unsigned int maxDestinationInterval =
+    ASSERT(4321 == destinationInterval);
+//..
+// Next, we calculate the maximum value that can be represented in an
+// 'unsigned int' number of milliseconds, and verify that converting an
+// equivalent 'bsls::TimeInterval' does not modify the value:
+//..
+    const unsigned int maxDestinationInterval =
                                       bsl::numeric_limits<unsigned int>::max();
-        bsls::TimeInterval maximumTimeInterval(
+    bsls::TimeInterval maximumTimeInterval(
                                 maxDestinationInterval / 1000,
                                 (maxDestinationInterval % 1000) * 1000 * 1000);
-        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, maximumTimeInterval);
-        ASSERT(maxDestinationInterval == destinationInterval);
-
-        // Now, we attempt to convert a value higher than the maximum
-        // representable in an 'unsigned int' milliseconds and verify that the
-        // resulting value is the maximum representable 'unsigned int' value:
-
-        bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
+    ASSERT(maxDestinationInterval == destinationInterval);
+//..
+// Now, we attempt to convert a value greater than the maximum representable in
+// an 'unsigned int' milliseconds and verify that the resulting value is the
+// maximum representable 'unsigned int' value:
+//..
+    bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
                                             bsls::TimeInterval(0, 1000 * 1000);
-        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                        &destinationInterval, aboveMaxInterval);
-        ASSERT(maxDestinationInterval == destinationInterval);
-
-        // Finally, we try a value less than 0 and observe the result of the
-        // saturated conversion is 0 (the minimum representable value):
-
-        bsls::TimeInterval belowMinimumInterval(-1, 0);
-        bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+    ASSERT(maxDestinationInterval == destinationInterval);
+//..
+// Finally, we try a value less than 0 and observe the result of the saturated
+// conversion is 0 (the minimum representable value):
+//..
+    bsls::TimeInterval belowMinimumInterval(-1, 0);
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, belowMinimumInterval);
-        ASSERT(0 == destinationInterval);
+    ASSERT(0 == destinationInterval);
+//..
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -624,7 +621,7 @@ int main(int argc, char *argv[])
                             "ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'\n"
                             "==============================================\n";
 
-        enum { BILLION = 1000 * 1000 * 1000 };
+        enum { k_BILLION = 1000 * 1000 * 1000 };
 
         Obj::TimeSpec ts;
 
@@ -633,10 +630,10 @@ int main(int argc, char *argv[])
         ts.tv_nsec = -1;
         ASSERT(ts.tv_nsec < 0);
 
-        ts.tv_nsec = -BILLION;
-        ASSERT(-BILLION == (Int64) ts.tv_nsec)
-        ts.tv_nsec =  BILLION;
-        ASSERT( BILLION == (Int64) ts.tv_nsec)
+        ts.tv_nsec = -k_BILLION;
+        ASSERT(-k_BILLION == (Int64) ts.tv_nsec)
+        ts.tv_nsec =  k_BILLION;
+        ASSERT( k_BILLION == (Int64) ts.tv_nsec)
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
         mach_timespec_t mts;
@@ -644,8 +641,8 @@ int main(int argc, char *argv[])
         mts.tv_sec = -1;
         ASSERT(mts.tv_sec > 0);
 
-        mts.tv_nsec = BILLION;
-        ASSERT(BILLION == (Int64) mts.tv_nsec)
+        mts.tv_nsec = k_BILLION;
+        ASSERT(k_BILLION == (Int64) mts.tv_nsec)
 #endif
       } break;
       case 5: {
@@ -689,7 +686,7 @@ int main(int argc, char *argv[])
         //:   setting seconds to 'maxSec' and incrementing it by '(1 << 48)'
         //:   and observe that saturation always occurs.
         //: o Set seconds to 0 and vary nanoseconds over the range
-        //:   '( -BILLION, BILLION )' by increments of a million, observing
+        //:   '( -k_BILLION, k_BILLION )' by increments of a million, observing
         //:   that negative values are saturated and positive values are not.
         //: o Set seconds to the max and min possible values, varying
         //:   nanoseconds over the full possible range by increments of a
@@ -711,25 +708,25 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(sizeof(DWORD) == sizeof(unsigned int));
 
-        enum { MILLION = 1000 * 1000,
-               BILLION = 1000 * MILLION };
+        enum { k_MILLION = 1000 * 1000,
+               k_BILLION = 1000 * k_MILLION };
 
         DWORD dst;
 
         const Int64 maxSec  = uintMax / 1000;
-        const int   maxNSec = (uintMax % 1000) * MILLION;
+        const int   maxNSec = (uintMax % 1000) * k_MILLION;
 
-        ASSERT(uintMax == maxSec * 1000 + maxNSec / MILLION);
+        ASSERT(uintMax == maxSec * 1000 + maxNSec / k_MILLION);
 
         if (veryVeryVerbose) {
             Q(Vary nsec values of input around the top saturating range);
         }
-        for (int ns = BILLION - 1; ns >= 0; ns -= MILLION) {
+        for (int ns = k_BILLION - 1; ns >= 0; ns -= k_MILLION) {
             bsls::TimeInterval ti(maxSec, ns);
             Obj::toMillisec(&dst, ti);
 
             Int64 expected = ns > maxNSec ? uintMax
-                                          : 1000 * maxSec + ns / MILLION;
+                                          : 1000 * maxSec + ns / k_MILLION;
             ASSERTV(uintMax, maxNSec, ns, dst, expected,
                                                       (Int64) dst == expected);
         }
@@ -748,10 +745,10 @@ int main(int argc, char *argv[])
             Q(Vary sec values of input around the top saturating range);
             Q(... with nanoseconds above exactly saturating level);
         }
-        Int64 nsDiv = maxNSec / MILLION + 1;
+        Int64 nsDiv = maxNSec / k_MILLION + 1;
         ASSERT(nsDiv < 1000);
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
-            bsls::TimeInterval ti(i, maxNSec + MILLION);
+            bsls::TimeInterval ti(i, maxNSec + k_MILLION);
             Obj::toMillisec(&dst, ti);
 
             ASSERT((Int64) dst == (i >= maxSec ? uintMax : i * 1000 + nsDiv));
@@ -760,13 +757,13 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) {
             Q(Vary sec values from 0 to above saturating by 1000s);
         }
-        Int64 stopAt = maxSec + 2 * MILLION;
+        Int64 stopAt = maxSec + 2 * k_MILLION;
         int ns = 0;
         for (Int64 i = 0; i < stopAt; i += 1000, ++ns) {
             bsls::TimeInterval ti(i, ns);
             Obj::toMillisec(&dst, ti);
 
-            Int64 expected = i * 1000 + ns / MILLION;
+            Int64 expected = i * 1000 + ns / k_MILLION;
             if (i > maxSec || (i == maxSec && ns > maxNSec)) {
                 expected = uintMax;
             }
@@ -780,7 +777,7 @@ int main(int argc, char *argv[])
             Q(... with nsecs at exactly saturating level);
         }
         ns = maxNSec;
-        nsDiv = ns / MILLION;
+        nsDiv = ns / k_MILLION;
         for (Int64 i = maxSec; i >= 0; i -= 1000) {
             bsls::TimeInterval ti(i, ns);
             Obj::toMillisec(&dst, ti);
@@ -791,7 +788,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) {
             Q(Vary sec values from 0 down to large negative values);
         }
-        ns = -MILLION;
+        ns = -k_MILLION;
         for (Int64 i = 0; i > -i48; i -= i32, --ns) {
             bsls::TimeInterval ti(i, ns);
             Obj::toMillisec(&dst, ti);
@@ -813,7 +810,9 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) {
             Q(Hold sec at Zero and vary nsec across full range);
         }
-        for (ns = -BILLION + MILLION; ns < BILLION; ns += MILLION / 4) {
+        for (ns = -k_BILLION + k_MILLION;
+             ns < k_BILLION;
+             ns += k_MILLION / 4) {
             bsls::TimeInterval ti(0, ns);
             ASSERT(ti.nanoseconds() == ns);
 
@@ -823,8 +822,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == dst);
             }
             else {
-                ASSERT(ns / MILLION >= 0);
-                ASSERT((DWORD) (ns / MILLION) == dst);
+                ASSERT(ns / k_MILLION >= 0);
+                ASSERT((DWORD) (ns / k_MILLION) == dst);
             }
         }
 
@@ -832,7 +831,7 @@ int main(int argc, char *argv[])
             Q(Hold sec at max and vary nsec over full range);
         }
         ns = 0;
-        for (ns = 0; ns < BILLION; ns += MILLION) {
+        for (ns = 0; ns < k_BILLION; ns += k_MILLION) {
             bsls::TimeInterval ti(int64Max, ns);
             Obj::toMillisec(&dst, ti);
 
@@ -843,7 +842,7 @@ int main(int argc, char *argv[])
             Q(Hold sec at min and vary nsec over full range);
         }
         ns = 0;
-        for (ns = 0; ns > -BILLION; ns -= MILLION) {
+        for (ns = 0; ns > -k_BILLION; ns -= k_MILLION) {
             bsls::TimeInterval ti(int64Min, ns);
             Obj::toMillisec(&dst, ti);
 
@@ -862,20 +861,20 @@ int main(int argc, char *argv[])
             const Uint64 MAX_UINT64 = bsl::numeric_limits<Uint64>::max();
 
             enum {
-                MILLISECS_PER_SEC     = 1000,        // one thousand
-                MICROSECS_PER_SEC     = 1000000,     // one million
-                NANOSECS_PER_MICROSEC = 1000,        // one thousand
-                NANOSECS_PER_MILLISEC = 1000000,     // one million
-                NANOSECS_PER_SEC      = 1000000000   // one billion
+                k_MILLISECS_PER_SEC     = 1000,        // one thousand
+                k_MICROSECS_PER_SEC     = 1000000,     // one million
+                k_NANOSECS_PER_MICROSEC = 1000,        // one thousand
+                k_NANOSECS_PER_MILLISEC = 1000000,     // one million
+                k_NANOSECS_PER_SEC      = 1000000000   // one billion
             };
 
             // Compute the threshold for saturating a Uint64 representation of
             // milliseconds.  I.e.,
             // 'bsls::TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)' should be the
             // maxmimum representable Uint64 number of milliseconds.
-            const Int64    SEC_LIMIT = MAX_UINT64 / MILLISECS_PER_SEC;
+            const Int64    SEC_LIMIT = MAX_UINT64 / k_MILLISECS_PER_SEC;
             const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
-                                                    * NANOSECS_PER_MILLISEC;
+                                                    * k_NANOSECS_PER_MILLISEC;
 
             struct {
                 int    d_line;
@@ -1235,7 +1234,7 @@ int main(int argc, char *argv[])
         typedef bsls::Types::Int64  Int64;
         typedef bsls::Types::Uint64 Uint64;
 
-        enum { MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
+        enum { k_MAX_NANOSECONDS = 1000 * 1000 * 1000 - 1 };
 
         Obj::TimeSpec ts;
 
@@ -1265,7 +1264,7 @@ int main(int argc, char *argv[])
                 Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) 1 << 48,
                                                        987654321));
                 ASSERT(matcher         == (unsigned int) ts.tv_sec);
-                ASSERT(MAX_NANOSECONDS == ts.tv_nsec);
+                ASSERT(k_MAX_NANOSECONDS == ts.tv_nsec);
 
                 Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) -1 << 48,
                                                        -987654321));
@@ -1278,7 +1277,7 @@ int main(int argc, char *argv[])
                 Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) 1 << 48,
                                                        987654321));
                 ASSERT(bsl::numeric_limits<int>::max() == ts.tv_sec);
-                ASSERT(MAX_NANOSECONDS                 == ts.tv_nsec);
+                ASSERT(k_MAX_NANOSECONDS                 == ts.tv_nsec);
 
                 int matcher = bsl::numeric_limits<int>::max();
                 matcher = -matcher - 1;    // numeric_limites::min
@@ -1286,7 +1285,7 @@ int main(int argc, char *argv[])
                 Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) -1 << 48,
                                                        -987654321));
                 ASSERT(matcher          == (int) ts.tv_sec);
-                ASSERT(-MAX_NANOSECONDS == ts.tv_nsec);
+                ASSERT(-k_MAX_NANOSECONDS == ts.tv_nsec);
             }
         }
         else {

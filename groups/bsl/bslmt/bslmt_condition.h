@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    // ...
 //
-//    enum { TIMED_OUT = -1 };
+//    enum { e_TIMED_OUT = -1 };
 //    bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
 //
 //    // Advance 'timeout' to some delta into the future here.
@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //    mutex.lock();
 //    while (false == predicate()) {
 //        const int status = condition.timedWait(&mutex, timeout);
-//        if (TIMED_OUT == status) {
+//        if (e_TIMED_OUT == status) {
 //            break;
 //        }
 //    }

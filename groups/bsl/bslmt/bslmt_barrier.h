@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // To begin, we define the fundamental structures 'Trade' and 'BasketTrade'.
 //..
 // enum {
-//     MAX_BASKET_TRADES = 10
+//     k_MAX_BASKET_TRADES = 10
 // };
 //
 // struct Trade {
@@ -232,12 +232,12 @@ BSLS_IDENT("$Id: $")
 //     // 'false' otherwise.  The trade is processed atomically, i.e.,
 //     // all the trades succeed, or none of the trades are executed.
 // {
-//     TradeThreadArgument arguments[MAX_BASKET_TRADES];
+//     TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
 //     bslmt::ThreadAttributes attributes;
-//     bslmt::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
+//     bslmt::ThreadUtil::Handle threadHandles[k_MAX_BASKET_TRADES];
 //
 //     int numTrades = trade.d_trades.length();
-//     assert(0 < numTrades && MAX_BASKET_TRADES >= numTrades);
+//     assert(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
 //
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
