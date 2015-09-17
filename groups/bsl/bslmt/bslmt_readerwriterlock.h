@@ -73,43 +73,44 @@ BSLS_IDENT("$Id: $")
 // We expect that the information is read very frequently, but only modified
 // when a user "badges" in or out, which should be relatively infrequent.
 //..
-// struct UserInfo{
-//     long               d_UserId;
-//     char               d_UserName[MAX_USER_NAME];
-//     char               d_badge_location[MAX_BADGE_LOCATION];
-//     int                d_inOutStatus;
-//     bsls::TimeInterval d_badgeTime;
-// };
+//  struct UserInfo{
+//      long               d_UserId;
+//      char               d_UserName[MAX_USER_NAME];
+//      char               d_badge_location[MAX_BADGE_LOCATION];
+//      int                d_inOutStatus;
+//      bsls::TimeInterval d_badgeTime;
+//  };
 //
-// class UserInfoCache {
-//     typedef bsl::map<int, UserInfo> InfoMap;
+//  class UserInfoCache {
+//      typedef bsl::map<int, UserInfo> InfoMap;
 //
-//     bslmt::ReaderWriterLock d_lock;
-//     InfoMap                 d_infoMap;
-//   public:
-//     UserInfoCache();
-//     ~UserInfoCache();
+//      bslmt::ReaderWriterLock d_lock;
+//      InfoMap                 d_infoMap;
 //
-//     int getUserInfo(int userId, UserInfo *userInfo);
-//     int updateUserInfo(int userId,UserInfo *userInfo);
-//     int addUserInfo(int userId, UserInfo *userInfo);
-//     void removeUser(int userId);
-// };
+//    public:
+//      UserInfoCache();
+//      ~UserInfoCache();
 //
-// inline
-// UserInfoCache::UserInfoCache()
-// {
-// }
+//      int getUserInfo(int userId, UserInfo *userInfo);
+//      int updateUserInfo(int userId, UserInfo *userInfo);
+//      int addUserInfo(int userId, UserInfo *userInfo);
+//      void removeUser(int userId);
+//  };
 //
-// inline
-// UserInfoCache::~UserInfoCache()
-// {
-// }
+//  inline
+//  UserInfoCache::UserInfoCache()
+//  {
+//  }
 //
-// inline
-// int UserInfoCache::getUserInfo(int userId, UserInfo *userInfo)
-// {
-//     int ret = 1;
+//  inline
+//  UserInfoCache::~UserInfoCache()
+//  {
+//  }
+//
+//  inline
+//  int UserInfoCache::getUserInfo(int userId, UserInfo *userInfo)
+//  {
+//      int ret = 1;
 //..
 // Getting the user info does not require any write access.  We do, however,
 // need read access to 'd_infoMap', which is controlled by 'd_lock'.  (Note
@@ -117,20 +118,20 @@ BSLS_IDENT("$Id: $")
 // concurrent reads are allowed.)  The user info is copied into the
 // caller-owned location 'userInfo'.
 //..
-//     d_lock.lockRead();
-//     InfoMap::iterator it = d_infoMap.find(userId);
-//     if (d_infoMap.end() != it) {
-//         *userInfo = it->second;
-//         ret = 0;
-//     }
-//     d_lock.unlock();
-//     return ret;
-// }
+//      d_lock.lockRead();
+//      InfoMap::iterator it = d_infoMap.find(userId);
+//      if (d_infoMap.end() != it) {
+//          *userInfo = it->second;
+//          ret = 0;
+//      }
+//      d_lock.unlock();
+//      return ret;
+//  }
 //
-// inline
-// int UserInfoCache::updateUserInfo(int userId, UserInfo *newInfo)
-// {
-//     int ret = 1;
+//  inline
+//  int UserInfoCache::updateUserInfo(int userId, UserInfo *newInfo)
+//  {
+//      int ret = 1;
 //..
 // Although we intend to update the information, we first acquire a *read*
 // *lock* to locate the item.  This allows other threads to read the list while
@@ -139,18 +140,18 @@ BSLS_IDENT("$Id: $")
 // to block.  (Again, other writers *will* block until this *read* *lock* is
 // released.)
 //..
-//     d_lock.lockRead();
-//     InfoMap::iterator it = d_infoMap.find(userId);
-//     if (d_infoMap.end() != it) {
+//      d_lock.lockRead();
+//      InfoMap::iterator it = d_infoMap.find(userId);
+//      if (d_infoMap.end() != it) {
 //..
 // Since 'it != end()', we found the item.  Now we need to upgrade to a *write*
 // *lock*.  If we can't do this atomically, then we need to locate the item
 // again.  This is because another thread may have changed 'd_infoMap' during
 // the time between our *read* and *write* locks.
 //..
-//         if (d_lock.upgradeToWriteLock()) {
-//             it = d_infoMap.find(userId);
-//         }
+//          if (d_lock.upgradeToWriteLock()) {
+//              it = d_infoMap.find(userId);
+//          }
 //..
 // This is a little more costly, but since we don't expect many concurrent
 // writes, it should not happen often.  In the (likely) event that we do
@@ -159,70 +160,45 @@ BSLS_IDENT("$Id: $")
 // lock, since we already have a pointer to the item and we know that the list
 // could not have been changed by anyone else.
 //..
-//         if (d_infoMap.end() != it) {
-//             it->second = *newInfo;
-//             ret = 0;
-//         }
-//         d_lock.unlock();
-//     }
-//     else {
-//         d_lock.unlock();
-//     }
-//     return ret;
-// }
-//..
-// Let us repeat that function without interruption for the reader's
-// convenience.
-//..
-// inline
-// int UserInfoCache::updateUserInfo(int userId, UserInfo *newInfo)
-// {
-//     int ret = 1;
-//     d_lock.lockRead();
-//     InfoMap::iterator it = d_infoMap.find(userId);
-//     if (d_infoMap.end() != it) {
-//         if (d_lock.upgradeToWriteLock()) {
-//             it = d_infoMap.find(userId);
-//         }
-//         if (d_infoMap.end() != it) {
-//             it->second = *newInfo;
-//             ret = 0;
-//         }
-//         d_lock.unlock();
-//     }
-//     else {
-//         d_lock.unlock();
-//     }
-//     return ret;
-// }
+//          if (d_infoMap.end() != it) {
+//              it->second = *newInfo;
+//              ret = 0;
+//          }
+//          d_lock.unlock();
+//      }
+//      else {
+//          d_lock.unlock();
+//      }
+//      return ret;
+//  }
 //
-// inline
-// int UserInfoCache::addUserInfo(int userId, UserInfo *userInfo)
-// {
-//     d_lock.lockRead();
-//     bool found = !! d_infoMap.count(userId);
-//     if (! found) {
-//         if (d_lock.upgradeToWriteLock()) {
-//             found = !! d_infoMap.count(userId);
-//         }
-//         if (! found) {
-//             d_infoMap[userId] = *userInfo;
-//         }
-//         d_lock.unlock();
-//     }
-//     else {
-//         d_lock.unlock();
-//     }
-//     return found ? 1 : 0;
-// }
+//  inline
+//  int UserInfoCache::addUserInfo(int userId, UserInfo *userInfo)
+//  {
+//      d_lock.lockRead();
+//      bool found = !! d_infoMap.count(userId);
+//      if (! found) {
+//          if (d_lock.upgradeToWriteLock()) {
+//              found = !! d_infoMap.count(userId);
+//          }
+//          if (! found) {
+//              d_infoMap[userId] = *userInfo;
+//          }
+//          d_lock.unlock();
+//      }
+//      else {
+//          d_lock.unlock();
+//      }
+//      return found ? 1 : 0;
+//  }
 //
-// inline
-// void UserInfoCache::removeUser(int userId)
-// {
-//     d_lock.lockWrite();
-//     d_infoMap.erase(userId);
-//     d_lock.unlock();
-// }
+//  inline
+//  void UserInfoCache::removeUser(int userId)
+//  {
+//      d_lock.lockWrite();
+//      d_infoMap.erase(userId);
+//      d_lock.unlock();
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -256,7 +232,7 @@ class ReaderWriterLock {
     // This class provides a multi-reader/single-writer lock mechanism.
 
     // PRIVATE TYPES
-    enum SignalState{
+    enum SignalState {
         e_NOT_SIGNALED     = 0,
         e_WRITE_SIGNALED   = 1,
         e_UPGRADE_SIGNALED = 2

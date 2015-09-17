@@ -9,6 +9,9 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_platform.h>
+
+#include <bslim_testutil.h>
+
 /* TBD -- bind
 #include <bdlf_bind.h>
 */
@@ -27,27 +30,52 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+///Usage
+///-----
+// TBD
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -183,7 +211,7 @@ struct PingPongWriter
    {}
 
    void operator() () {
-      enum {MICROSECS_PER_SEC     = 1000000};
+      enum {  k_MICROSECS_PER_SEC     = 1000000  };
       static const double SCORE_SCALE = 0.011;
       int numCycles = 0;
       d_locks[0].lockWrite();
@@ -211,7 +239,7 @@ struct PingPongWriter
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
-         MICROSECS_PER_SEC * SCORE_SCALE;
+         k_MICROSECS_PER_SEC * SCORE_SCALE;
 
       d_locks[0].unlock();
       d_locks[2].unlock();
@@ -238,7 +266,7 @@ struct PingPongReader
    {}
 
    void operator() () {
-      enum {MICROSECS_PER_SEC     = 1000000};
+      enum {  k_MICROSECS_PER_SEC     = 1000000  };
       static const double SCORE_SCALE = 0.011;
       int numCycles = 0;
       d_locks[1].lockRead();
@@ -266,7 +294,7 @@ struct PingPongReader
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
-         MICROSECS_PER_SEC * SCORE_SCALE;
+         k_MICROSECS_PER_SEC * SCORE_SCALE;
 
       d_locks[1].unlock();
       d_locks[3].unlock();
@@ -290,7 +318,7 @@ struct ContentionWriter
    {}
 
    void operator() () {
-      enum {MICROSECS_PER_SEC     = 1000000};
+      enum {  k_MICROSECS_PER_SEC     = 1000000  };
       static const double SCORE_SCALE = 2;
       int numCycles = 0;
       d_locks[0].lockWrite();
@@ -310,7 +338,7 @@ struct ContentionWriter
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
-         MICROSECS_PER_SEC * SCORE_SCALE;
+         k_MICROSECS_PER_SEC * SCORE_SCALE;
 
       d_locks[0].unlock();
    }
@@ -334,7 +362,7 @@ struct ContentionReader
    {}
 
    void operator() () {
-      enum {MICROSECS_PER_SEC     = 1000000};
+      enum {  k_MICROSECS_PER_SEC     = 1000000  };
       static const double SCORE_SCALE = 1;
       int numCycles = 0;
       d_locks[1].lockRead();
@@ -358,7 +386,7 @@ struct ContentionReader
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
-         MICROSECS_PER_SEC * SCORE_SCALE;
+         k_MICROSECS_PER_SEC * SCORE_SCALE;
 
       d_locks[1].unlock();
    }
@@ -380,11 +408,11 @@ int benchmarkSpeed (LOCK*       lock,
    // seconds.  This is the "individual overhead" score.
    double score, overallScore = 0;
    {
-      enum {NUM_MUTEXES=750, MICROSECS_PER_SEC = 1000000};
+      enum {  k_NUM_MUTEXES = 750, k_MICROSECS_PER_SEC = 1000000  };
       static const double SCORE_SCALE = 1.33;
       bsls::TimeInterval start, stop;
-      LOCK lockArray[NUM_MUTEXES];
-      LOCK *lockEnd = lockArray + NUM_MUTEXES;
+      LOCK lockArray[k_NUM_MUTEXES];
+      LOCK *lockEnd = lockArray + k_NUM_MUTEXES;
       start = bsls::SystemTime::nowRealtimeClock();
       int numCycles = 0;
       while (true) {
@@ -402,7 +430,8 @@ int benchmarkSpeed (LOCK*       lock,
       }
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
-      score = ((double)numCycles / elapsed) * MICROSECS_PER_SEC * SCORE_SCALE;
+      score = ((double)numCycles / elapsed)
+            * k_MICROSECS_PER_SEC * SCORE_SCALE;
 
       cout << "Lock \"" << lockName << "\": individual-overhead score="
            << score << endl;

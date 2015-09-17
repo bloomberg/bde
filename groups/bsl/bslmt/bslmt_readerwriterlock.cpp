@@ -353,7 +353,7 @@ int bslmt::ReaderWriterLock::tryUpgradeToWriteLock()
 
 void bslmt::ReaderWriterLock::unlock()
 {
-    enum {SIG_NONE = 0, SIG_READ = 1, SIG_WRITE=2, SIG_UPGRADE=3 };
+    enum {  e_SIG_NONE = 0, e_SIG_READ = 1, e_SIG_WRITE=2, e_SIG_UPGRADE=3  };
 
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
@@ -364,7 +364,7 @@ void bslmt::ReaderWriterLock::unlock()
     if (mine) d_owned = 0;
 
     do {
-        sigType=SIG_NONE;
+        sigType=e_SIG_NONE;
         rwcount = newrwcount;
 
         if (newrwcount & READER_MASK) {
@@ -377,7 +377,7 @@ void bslmt::ReaderWriterLock::unlock()
 
             if (!(newrwcount & READER_MASK) && (newrwcount & WRITER_MASK)) {
                 sigType = (newrwcount & UPGRADE_PENDING) ?
-                          SIG_UPGRADE : SIG_WRITE;
+                          e_SIG_UPGRADE : e_SIG_WRITE;
                 newrwcount &= ~(UPGRADE_PENDING|READ_OK);
             }
         }
@@ -388,10 +388,10 @@ void bslmt::ReaderWriterLock::unlock()
                     ((newrwcount | READ_OK) & ~BLOCKED_READER_MASK);
                 if (newrwcount & READER_MASK) {
                     newrwcount += READ_BCAST_INC;
-                    sigType = SIG_READ;
+                    sigType = e_SIG_READ;
                 }
             }
-            else sigType = SIG_WRITE;
+            else sigType = e_SIG_WRITE;
         }
         else break;
     } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
@@ -402,14 +402,14 @@ void bslmt::ReaderWriterLock::unlock()
     if (sigType) {
         d_mutex.lock();
         switch(sigType) {
-          case SIG_WRITE: {
+          case e_SIG_WRITE: {
             d_signalState = e_WRITE_SIGNALED;
             d_writeCond.signal();
           } break;
-          case SIG_READ: {
+          case e_SIG_READ: {
             d_readCond.broadcast();
           } break;
-          case SIG_UPGRADE: {
+          case e_SIG_UPGRADE: {
             d_signalState = e_UPGRADE_SIGNALED;
             d_upgradeCond.signal();
           } break;

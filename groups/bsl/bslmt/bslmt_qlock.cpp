@@ -254,7 +254,7 @@ void bslmt::QLock_EventFlag::waitUntilSet(int spinRetryCount)
 // MANIPULATORS
 void bslmt::QLockGuard::unlockRaw()
 {
-    enum { SPIN = 1000 };
+    enum { k_SPIN = 1000 };
 
     BSLS_ASSERT(this != 0);
 
@@ -268,7 +268,7 @@ void bslmt::QLockGuard::unlockRaw()
     }
 
     // Wait for successor to set the 'd_next' pointer.
-    d_nextFlag.waitUntilSet(SPIN);
+    d_nextFlag.waitUntilSet(k_SPIN);
 
     BSLS_ASSERT(d_next != 0);
 
@@ -278,7 +278,7 @@ void bslmt::QLockGuard::unlockRaw()
 
 void bslmt::QLockGuard::lock()
 {
-    enum { SPIN = 100 };
+    enum { k_SPIN = 100 };
 
     BSLS_ASSERT(d_qlock_p);
     BSLS_ASSERT(!d_locked);
@@ -294,7 +294,7 @@ void bslmt::QLockGuard::lock()
         // Notify predecessor that 'd_next' is set
         pred->d_nextFlag.set();
 
-        d_readyFlag.waitUntilSet(SPIN);
+        d_readyFlag.waitUntilSet(k_SPIN);
     }
 
     d_locked = true;
