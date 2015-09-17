@@ -131,8 +131,8 @@ Obj oddMutex;
 Obj evenMutex;
 Obj globalMutex;
 
-enum { NUM_THREADS5 = 4, SLEEP_TIME5 = 1 };
-bslmt::Barrier barrier5(NUM_THREADS5);
+enum { k_NUM_THREADS5 = 4, k_SLEEP_TIME5 = 1 };
+bslmt::Barrier barrier5(k_NUM_THREADS5);
 
 extern "C" {
   void *strategy1(void *arg)
@@ -142,13 +142,13 @@ extern "C" {
         if (remainder == 1) {
             oddMutex.lock();
             ++oddCount;
-            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
             oddMutex.unlock();
         }
         else {
             evenMutex.lock();
             ++evenCount;
-            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
             evenMutex.unlock();
         }
         return NULL;
@@ -163,13 +163,13 @@ extern "C" {
         if (remainder == 1) {
             globalMutex.lock();
             ++oddCount;
-            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
             globalMutex.unlock();
         }
         else {
             globalMutex.lock();
             ++evenCount;
-            bslmt::ThreadUtil::microSleep(SLEEP_TIME5);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
             globalMutex.unlock();
         }
         return NULL;
@@ -180,8 +180,9 @@ extern "C" {
 //                          CASE 4 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-enum { NUM_THREADS4 = 4, NUM_ITERATION = 10000000 };
-bslmt::Barrier barrier4(NUM_THREADS4);
+enum { k_NUM_THREADS4 = 4, k_NUM_ITERATION = 10000000 };
+
+bslmt::Barrier barrier4(k_NUM_THREADS4);
 Obj mutex4;
 extern "C" {
   void *resetTest(void *arg)
@@ -191,7 +192,7 @@ extern "C" {
         barrier4.wait();
 
         previous = mutex4.lastResetTime();
-        for(int i = 0; i < NUM_ITERATION; ++i) {
+        for(int i = 0; i < k_NUM_ITERATION; ++i) {
             mutex4.resetMetrics();
             current = mutex4.lastResetTime();
             ASSERT(current >= previous);
@@ -212,21 +213,21 @@ extern "C" {
 // ----------------------------------------------------------------------------
 
 enum {
-    NUM_THREADS3 = 2,   // number of threads to be created
-    SLEEP_TIME3  = 100000,
-    NUM_ACQUIRE  = 2    // number of times, each thread acquire the lock
+    k_NUM_THREADS3 = 2,   // number of threads to be created
+    k_SLEEP_TIME3  = 100000,
+    k_NUM_ACQUIRE  = 2    // number of times, each thread acquire the lock
 };
 Obj mutex3;
-bslmt::Barrier barrier3(NUM_THREADS3);
+bslmt::Barrier barrier3(k_NUM_THREADS3);
 
 extern "C" {
     void *timesTest(void *arg)
     {
-        for (int i = 0; i < NUM_ACQUIRE; ++i) {
+        for (int i = 0; i < k_NUM_ACQUIRE; ++i) {
             barrier3.wait();
 
             mutex3.lock();
-            bslmt::ThreadUtil::microSleep(SLEEP_TIME3);
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME3);
             mutex3.unlock();
         }
         return NULL;
@@ -237,9 +238,9 @@ extern "C" {
 //                          CASE 2 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-enum { NUM_THREADS2 = 4, SLEEP_TIME2 = 5 };
-enum { VALID, INVALID };
-int state = VALID;
+enum { k_NUM_THREADS2 = 4, k_SLEEP_TIME2 = 5 };
+enum { e_VALID, e_INVALID };
+int state = e_VALID;
 Obj mutex2;
 
 extern "C" {
@@ -253,10 +254,10 @@ extern "C" {
             while(mutex2.tryLock() != 0) {
             }
         }
-        ASSERT(state == VALID);
-        state = INVALID;
-        bslmt::ThreadUtil::microSleep(SLEEP_TIME2);
-        state = VALID;
+        ASSERT(state == e_VALID);
+        state = e_INVALID;
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME2);
+        state = e_VALID;
         mutex2.unlock();
         return NULL;
     }
@@ -301,11 +302,11 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-        executeInParallel(NUM_THREADS5, strategy1);
+        executeInParallel(k_NUM_THREADS5, strategy1);
         bsls::Types::Int64 waitTimeForStrategy1 = oddMutex.waitTime()
                                                       + evenMutex.waitTime();
 
-        executeInParallel(NUM_THREADS5, strategy2);
+        executeInParallel(k_NUM_THREADS5, strategy2);
         bsls::Types::Int64 waitTimeForStrategy2 =
                                  globalMutex.waitTime();
 
@@ -325,7 +326,7 @@ int main(int argc, char *argv[])
         //   presence of multiple threads.
         //
         // Plan:
-        //   main thread spans 'NUM_THREADS4' threads, each of which calls
+        //   main thread spans 'k_NUM_THREADS4' threads, each of which calls
         //   'resetMetrics' and 'lastResetTime' in a loop.  Verify that for
         //   each thread, values returned by 'lastResetTime' are in
         //   increasing order.
@@ -343,7 +344,7 @@ int main(int argc, char *argv[])
 
         // TBD:
         // Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this test
-        // case will not work on hp. executeInParallel(NUM_THREADS4,
+        // case will not work on hp. executeInParallel(k_NUM_THREADS4,
         // resetTest);
 
       } break;
@@ -360,8 +361,8 @@ int main(int argc, char *argv[])
         //   a single thread holds the lock over multiple time intervals.
         //
         // Plan:
-        //   main thread spans NUM_THREADS3, each of which (in a loop, that
-        //   runs 'NUM_ACQUIRE3' times) acquires the lock, sleeps for a while
+        //   main thread spans k_NUM_THREADS3, each of which (in a loop, that
+        //   runs 'k_NUM_ACQUIRE3' times) acquires the lock, sleeps for a while
         //   releases the lock.  Finally main thread joins all these threads
         //   and verifies that the 'holdTime' and 'waitTime' give the
         //   expected results.
@@ -377,30 +378,31 @@ int main(int argc, char *argv[])
                           << "Testing 'holdTime' and 'waitTime'" << endl
                           << "=================================" << endl;
 
-        executeInParallel(NUM_THREADS3, timesTest);
+        executeInParallel(k_NUM_THREADS3, timesTest);
 
-        // we have 'NUM_THREADS3' threads, each of which holds the lock for
-        // 'SLEEP_TIME3' time in one iteration of loop (and we have
-        // 'NUM_ACQUIRE3' iterations in the loop).
-        bsls::Types::Int64 holdTime =  NUM_ACQUIRE
-                                       *  NUM_THREADS3
-                                       *  SLEEP_TIME3
+        // we have 'k_NUM_THREADS3' threads, each of which holds the lock for
+        // 'k_SLEEP_TIME3' time in one iteration of loop (and we have
+        // 'k_NUM_ACQUIRE3' iterations in the loop).
+        bsls::Types::Int64 holdTime =  k_NUM_ACQUIRE
+                                       *  k_NUM_THREADS3
+                                       *  k_SLEEP_TIME3
                                        *  NANOSECONDS_IN_ONE_MICRO_SECOND;
         ASSERT(mutex3.holdTime() >= (bsls::Types::Int64)(holdTime * 50.0/100));
                                                          // error margin = 50%
         // In an iteration, after the barrier, the first thread to acquire the
         //  lock waits for no time, the second thread to acquire the lock waits
-        // for 'SLEEP_TIME3' time, the third thread to acquire the lock waits
-        // for '2 * SLEEP_TIME3' and so on.  Thus the wait time accumulated
-        // during one iteration = 0*SLEEP_TIME3 + 1*SLEEP_TIME3 + 2*SLEEP_TIME3
-        //  ..........+ (NUM_THREADS3-1)*SLEEP_TIME3
-        // =  ((NUM_THREADS3-1)*NUM_THREADS3)/2.0 * SLEEP_TIME3.
-        // We have NUM_ACQUIRE such iteration.
+        // for 'k_SLEEP_TIME3' time, the third thread to acquire the lock waits
+        // for '2 * k_SLEEP_TIME3' and so on.  Thus the wait time accumulated
+        // during one iteration = 0*k_SLEEP_TIME3 + 1*k_SLEEP_TIME3 +
+        // 2*k_SLEEP_TIME3
+        //  ..........+ (k_NUM_THREADS3-1)*k_SLEEP_TIME3
+        // =  ((k_NUM_THREADS3-1)*k_NUM_THREADS3)/2.0 * k_SLEEP_TIME3.
+        // We have k_NUM_ACQUIRE such iteration.
 
         bsls::Types::Int64 waitTime =
-              (bsls::Types::Int64) (NUM_ACQUIRE
-                                    * ((NUM_THREADS3-1) * NUM_THREADS3)/2.0
-                                    * SLEEP_TIME3
+              (bsls::Types::Int64) (k_NUM_ACQUIRE
+                                    * ((k_NUM_THREADS3-1) * k_NUM_THREADS3)/2.0
+                                    * k_SLEEP_TIME3
                                     * NANOSECONDS_IN_ONE_MICRO_SECOND
                                     * 50.0/100);      // error margin = 50%
         ASSERT(mutex3.waitTime() > waitTime);
@@ -427,17 +429,17 @@ int main(int argc, char *argv[])
         //   acquire the lock.
         //
         // Plan:
-        //   Initialize a global variable 'state' with 'VALID'.  Create
-        //   'NUM_THREADS' (sequentially numbered from 0 to NUM_THREADS)
+        //   Initialize a global variable 'state' with 'e_VALID'.  Create
+        //   'k_NUM_THREADS' (sequentially numbered from 0 to k_NUM_THREADS)
         //   threads.  Each thread attempts to acquire the lock (such that
         //   odd numbered threads acquires the lock using 'lock' and even
         //   numbered threads acquires the lock using repetitive calls to
         //   'tryLock', until they succeed), verifies
-        //   that the invariant 'state == VALID' is true, makes the invariant
-        //   false by setting the 'state' to 'INVALID', sleeps for a while (to
-        //   allow other threads to run), sets the 'state' to 'VALID', unlocks
-        //   the mutex and returns.  Finally, join all the threads and verity
-        //   that the invariant 'state == VALID' is still true.
+        //   that the invariant 'state == e_VALID' is true, makes the invariant
+        //   false by setting the 'state' to 'e_INVALID', sleeps for a while
+        //   (to allow other threads to run), sets the 'state' to 'e_VALID',
+        //   unlocks the mutex and returns.  Finally, join all the threads and
+        //   verity that the invariant 'state == e_VALID' is still true.
         //
         // Tactics:
         //
@@ -450,8 +452,8 @@ int main(int argc, char *argv[])
                           << "Testing mutex properties" << endl
                           << "========================" << endl;
 
-        executeInParallel(NUM_THREADS2, mutexTest);
-        ASSERT(state == VALID);
+        executeInParallel(k_NUM_THREADS2, mutexTest);
+        ASSERT(state == e_VALID);
 
       } break;
 
@@ -499,15 +501,15 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            SLEEP_TIME   = 100000 // in microseconds
+            k_SLEEP_TIME   = 100000 // in microseconds
         };
 
         const float ERROR_MARGIN = .6;      // 40 % error margin
         mutex.lock();
-        bslmt::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
-                                            SLEEP_TIME * 1000 * ERROR_MARGIN));
+                                          k_SLEEP_TIME * 1000 * ERROR_MARGIN));
         // 'holdTime()' reports in nanoseconds
         if (veryVerbose) {
             P(mutex.holdTime());
@@ -528,10 +530,10 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(mutex.tryLock() == 0);
-        bslmt::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
-                                           SLEEP_TIME * 1000  * ERROR_MARGIN));
+                                         k_SLEEP_TIME * 1000  * ERROR_MARGIN));
         // 'holdTime()' reports in nanoseconds
         if (veryVerbose) {
             P(mutex.holdTime());

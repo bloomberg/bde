@@ -195,9 +195,9 @@ BSLS_IDENT("$Id: $")
 // Next, we populate the queue using 'pushRange':
 //..
 //      const int rawData[] = { 17, 3, 21, -19, 4, 87, 29, 3, 101, 31, 36 };
-//      enum { RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
+//      enum { k_RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
 //
-//      queue.pushRange(rawData + 0, rawData + RAW_DATA_LENGTH);
+//      queue.pushRange(rawData + 0, rawData + k_RAW_DATA_LENGTH);
 //..
 // Then, we pop a few items off the front of the queue and verify their values:
 //..

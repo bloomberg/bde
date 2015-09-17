@@ -128,8 +128,8 @@ extern "C" void* MyThread(void* arg_p)
 
 namespace BSLMT_MUTEX_CASE_MINUS_1 {
 
-    enum { NUM_NOT_URGENT_THREADS = 128,
-           NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
+    enum { k_NUM_NOT_URGENT_THREADS = 128,
+           k_NUM_THREADS            = k_NUM_NOT_URGENT_THREADS + 1 };
 
 int translatePriority(bslmt::ThreadAttributes::SchedulingPolicy policy,
                       bool                                      low)
@@ -164,9 +164,9 @@ bslmt::Mutex    F::s_mutex;
 
 void F::operator()()
 {
-    enum { LIMIT = 10 * 1024 };
+    enum { k_LIMIT = 10 * 1024 };
 
-    for (int i = 0; i < LIMIT; ++i) {
+    for (int i = 0; i < k_LIMIT; ++i) {
         ++s_lockCount;
         s_mutex.lock();
         if (s_firstThread) {
@@ -175,7 +175,7 @@ void F::operator()()
             // Careful!  This could take 2 seconds to wake up!
 
             bslmt::ThreadUtil::microSleep(200 * 1000);
-            ASSERT(NUM_THREADS == s_lockCount);
+            ASSERT(k_NUM_THREADS == s_lockCount);
         }
         s_mutex.unlock();
         --s_lockCount;
@@ -214,8 +214,8 @@ int main(int argc, char *argv[])
             cout << "==============" << endl;
         }
         enum {
-            MAX_SLEEP_CYCLES = 1000,
-            SLEEP_MS = 100
+            k_MAX_SLEEP_CYCLES = 1000,
+            k_SLEEP_MS = 100
         };
 
         {
@@ -233,9 +233,9 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::Handle dum;
             bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
-            for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+            for (int i = 0; 0 == args.d_retvalSet && i < k_MAX_SLEEP_CYCLES;
                  ++i) {
-                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * k_SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 != args.d_retval); // should fail
@@ -249,9 +249,9 @@ int main(int argc, char *argv[])
             args.d_retvalSet = 0;
             bslmt::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
-            for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+            for (int i = 0; 0 == args.d_retvalSet && i < k_MAX_SLEEP_CYCLES;
                  ++i) {
-                bslmt::ThreadUtil::microSleep(1000 * SLEEP_MS);
+                bslmt::ThreadUtil::microSleep(1000 * k_SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 == args.d_retval); // should succeed
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
             { L_, SR, 1, 1 },
         };
 
-        enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
+        const int DATA_LEN = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
 
         for (int i = 0; i < DATA_LEN; ++i) {
             const int    LINE       = DATA[i].d_line;
@@ -334,8 +334,8 @@ int main(int argc, char *argv[])
             TC::F::s_finished = 0;
             TC::F::s_firstThread = true;
 
-            TC::F fs[TC::NUM_THREADS];
-            bslmt::ThreadUtil::Handle handles[TC::NUM_THREADS];
+            TC::F fs[TC::k_NUM_THREADS];
+            bslmt::ThreadUtil::Handle handles[TC::k_NUM_THREADS];
 
             bslmt::ThreadAttributes notUrgentAttr;
             notUrgentAttr.setStackSize(1024 * 1024);
@@ -357,15 +357,15 @@ int main(int argc, char *argv[])
                 urgentAttr.   setSchedulingPriority(    URGENT_PRIORITY);
             }
 
-            fs[TC::NUM_THREADS - 1].d_urgent = true;
+            fs[TC::k_NUM_THREADS - 1].d_urgent = true;
 
             int rc;
             int numThreads = 0;
-            for ( ; numThreads < TC::NUM_THREADS; ++numThreads) {
+            for ( ; numThreads < TC::k_NUM_THREADS; ++numThreads) {
                 bslmt::ThreadAttributes *attr
-                                      = numThreads < TC::NUM_NOT_URGENT_THREADS
-                                      ? &notUrgentAttr
-                                      : &urgentAttr;
+                                    = numThreads < TC::k_NUM_NOT_URGENT_THREADS
+                                    ? &notUrgentAttr
+                                    : &urgentAttr;
                 rc = bslmt::ThreadUtil::create(&handles[numThreads],
                                               *attr,
                                               fs[numThreads]);
@@ -384,9 +384,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(TC::F::s_urgentPlace >= 0);
-            ASSERT(TC::F::s_urgentPlace < TC::NUM_THREADS);
+            ASSERT(TC::F::s_urgentPlace < TC::k_NUM_THREADS);
             ASSERT(!TC::F::s_firstThread);
-            ASSERT(TC::NUM_THREADS == TC::F::s_finished);
+            ASSERT(TC::k_NUM_THREADS == TC::F::s_finished);
 
             urgentPlaces[URGENT_LOW][LINE] = TC::F::s_urgentPlace;
         }

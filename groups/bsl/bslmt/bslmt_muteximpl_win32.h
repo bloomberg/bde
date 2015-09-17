@@ -100,10 +100,10 @@ class MutexImpl<Platform::Win32Threads> {
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
         // 5*8 = 40 bytes
-        CRITICAL_SECTION_BUFFER_SIZE = 5
+        k_CRITICAL_SECTION_BUFFER_SIZE = 5
 #else
         // 6*4 = 24 bytes
-        CRITICAL_SECTION_BUFFER_SIZE = 6
+        k_CRITICAL_SECTION_BUFFER_SIZE = 6
 #endif
     };
 
@@ -117,7 +117,7 @@ class MutexImpl<Platform::Win32Threads> {
     };
 
     // DATA
-    void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];
+    void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
 
     // NOT IMPLEMENTED
     MutexImpl(const MutexImpl&);

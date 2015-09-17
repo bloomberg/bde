@@ -8,6 +8,8 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_semaphore.h>
 
+#include <bslim_testutil.h>
+
 #include <bsls_atomicoperations.h>
 
 #include <bsls_stopwatch.h>
@@ -53,31 +55,48 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-//=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -96,12 +115,12 @@ class MyTask {
     typedef void* (*TestFunc)(int threadNum, const MyTask& task);
 
   private:
-    enum {MAX_THREADS = 100};
+    enum {  k_MAX_THREADS = 100  };
 
     bslmt::ThreadAttributes    d_attr;
-    TestFunc                  d_f;
-    void                     *d_arg;
-    bslmt::ThreadUtil::Handle  d_handles[MAX_THREADS];
+    TestFunc                   d_f;
+    void                      *d_arg;
+    bslmt::ThreadUtil::Handle  d_handles[k_MAX_THREADS];
     bslmt::Mutex               d_logMutex;
 
     bsls::AtomicInt            d_numThreadsStarted;
@@ -180,7 +199,7 @@ MyTask::MyTask(TestFunc f, void *arg)
     d_attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
     d_attr.setStackSize (1024*128);
 
-    for (int i=0; i < MAX_THREADS; ++i) {
+    for (int i=0; i < k_MAX_THREADS; ++i) {
         d_handles[i] = bslmt::ThreadUtil::invalidHandle();
     }
 
@@ -214,7 +233,7 @@ int MyTask::start(int numThreads)
     ASSERT(d_barrier == 0);
     d_barrier = new  bslmt::Barrier(numThreads);
 
-    for (int i=0; i < MAX_THREADS && numThreads > 0; ++i)
+    for (int i=0; i < k_MAX_THREADS && numThreads > 0; ++i)
     {
         if (bslmt::ThreadUtil::isEqual(d_handles[i],
                                       bslmt::ThreadUtil::invalidHandle())) {
@@ -237,7 +256,7 @@ int MyTask::start(int numThreads)
 
 int MyTask::stop()
 {
-    for (int i=0; i < MAX_THREADS; ++i) {
+    for (int i=0; i < k_MAX_THREADS; ++i) {
 
         if (!bslmt::ThreadUtil::isEqual(d_handles[i],
                                        bslmt::ThreadUtil::invalidHandle())) {
@@ -863,10 +882,12 @@ void *testCase3a(int threadNum, const MyTask& task)
     return 0;
 }
 
-// ----------------------------------------------------------------------------
-//                               USAGE EXAMPLE
-// ----------------------------------------------------------------------------
-
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using 'bslmt::QLock' to Implement a Thread-Safe Singleton
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For this example, assume that we have the need to use the string "Hello"
 // repeatedly in the form of an 'bsl::string' object.  Rather than construct
 // the string each time we use it, it would be nice to have only one copy so
@@ -1156,9 +1177,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         enum {
-            MAX_SLOTS   = 1000,
-            MAX_ITER    = 100000,
-            MAX_THREADS = 20
+            k_MAX_SLOTS   = 1000,
+            k_MAX_ITER    = 100000,
+            k_MAX_THREADS = 20
         };
 
         {
@@ -1168,16 +1189,16 @@ int main(int argc, char *argv[])
             CaseData5 data;
             MyTask task51(testCase5_fn1, &data);
 
-            for (int i=0; i < MAX_THREADS; ++i) {
+            for (int i=0; i < k_MAX_THREADS; ++i) {
 
-                data.d_numIter = MAX_ITER;
-                data.d_numElements = MAX_SLOTS;
+                data.d_numIter = k_MAX_ITER;
+                data.d_numElements = k_MAX_SLOTS;
 
                 data.d_mutexes = 0;
-                data.d_qlocks = new bslmt::QLock [MAX_SLOTS];
-                data.d_slots = new int [MAX_SLOTS];
+                data.d_qlocks = new bslmt::QLock [k_MAX_SLOTS];
+                data.d_slots = new int [k_MAX_SLOTS];
 
-                for (int j=0; j < MAX_SLOTS; ++j) {
+                for (int j=0; j < k_MAX_SLOTS; ++j) {
                     data.d_slots[j] = 0;
                     data.d_qlocks[j].initialize();
                 }
@@ -1193,7 +1214,7 @@ int main(int argc, char *argv[])
             }
 
             sw.stop();
-            if (verbose) printMetrics(bsl::cout, "QLock", MAX_THREADS, sw);
+            if (verbose) printMetrics(bsl::cout, "QLock", k_MAX_THREADS, sw);
        }
 
        {
@@ -1203,16 +1224,16 @@ int main(int argc, char *argv[])
             CaseData5 data;
             MyTask task52(testCase5_fn2, &data);
 
-            for (int i=0; i < MAX_THREADS; ++i) {
+            for (int i=0; i < k_MAX_THREADS; ++i) {
 
-                data.d_numIter = MAX_ITER;
-                data.d_numElements = MAX_SLOTS;
+                data.d_numIter = k_MAX_ITER;
+                data.d_numElements = k_MAX_SLOTS;
 
                 data.d_qlocks = 0;
-                data.d_mutexes = new bslmt::Mutex [MAX_SLOTS];
-                data.d_slots = new int [MAX_SLOTS];
+                data.d_mutexes = new bslmt::Mutex [k_MAX_SLOTS];
+                data.d_slots = new int [k_MAX_SLOTS];
 
-                for (int j=0; j < MAX_SLOTS; ++j) {
+                for (int j=0; j < k_MAX_SLOTS; ++j) {
                     data.d_slots[j] = 0;
                 }
 
@@ -1224,7 +1245,7 @@ int main(int argc, char *argv[])
             }
 
             sw.stop();
-            if (verbose) printMetrics(bsl::cout, "Mutex", MAX_THREADS, sw);
+            if (verbose) printMetrics(bsl::cout, "Mutex", k_MAX_THREADS, sw);
         }
 
       } break;

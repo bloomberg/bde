@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 //    Obj evenMutex;
 //    Obj globalMutex;
 //
-//    enum { NUM_THREADS = 4, SLEEP_TIME = 4 };
-//    bslmt::Barrier barrier(NUM_THREADS);
+//    enum { k_NUM_THREADS = 4, k_SLEEP_TIME = 4 };
+//    bslmt::Barrier barrier(k_NUM_THREADS);
 //
 //    void executeInParallel(int numThreads,
 //                           bslmt::ThreadUtil::ThreadFunction func)
@@ -101,13 +101,13 @@ BSLS_IDENT("$Id: $")
 //            if (remainder == 1) {
 //                oddMutex.lock();
 //                ++oddCount;
-//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
 //                oddMutex.unlock();
 //            }
 //            else {
 //                evenMutex.lock();
 //                ++evenCount;
-//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
 //                evenMutex.unlock();
 //            }
 //            return NULL;
@@ -122,13 +122,13 @@ BSLS_IDENT("$Id: $")
 //            if (remainder == 1) {
 //                globalMutex.lock();
 //                ++oddCount;
-//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
 //                globalMutex.unlock();
 //            }
 //            else {
 //                globalMutex.lock();
 //                ++evenCount;
-//                bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
 //                globalMutex.unlock();
 //            }
 //            return NULL;
@@ -137,11 +137,11 @@ BSLS_IDENT("$Id: $")
 //
 //    int main()
 //    {
-//        executeInParallel(NUM_THREADS, strategy1);
+//        executeInParallel(k_NUM_THREADS, strategy1);
 //        bsls::Types::Int64 waitTimeForStrategy1 =
 //                oddMutex.waitTime() + evenMutex.waitTime();
 //
-//        executeInParallel(NUM_THREADS, strategy2);
+//        executeInParallel(k_NUM_THREADS, strategy2);
 //        bsls::Types::Int64 waitTimeForStrategy2 =
 //                                 globalMutex.waitTime();
 //

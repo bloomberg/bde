@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
         // operations on it and checking the state of the Mutex object.
         // ------------------------------------------------------------------
         enum {
-            MAX_SLEEP_CYCLES = 1000,
-            SLEEP_MS = 100
+            k_MAX_SLEEP_CYCLES = 1000,
+            k_SLEEP_MS = 100
         };
 
         if (verbose) {
@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
         args.d_retval = 0;
         args.d_retvalSet = 0;
         My_CreateDetachedThread(MyThread, &args);
-        for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+        for (int i = 0; 0 == args.d_retvalSet && i < k_MAX_SLEEP_CYCLES;
              ++i) {
-            My_Sleep(SLEEP_MS);
+            My_Sleep(k_SLEEP_MS);
         }
         ASSERT(args.d_retvalSet);
         ASSERT(0 != args.d_retval); // should fail
@@ -166,8 +166,8 @@ int main(int argc, char *argv[])
             cout << "==============" << endl;
         }
         enum {
-            MAX_SLEEP_CYCLES = 1000,
-            SLEEP_MS = 100
+            k_MAX_SLEEP_CYCLES = 1000,
+            k_SLEEP_MS = 100
         };
 
         {
@@ -180,9 +180,9 @@ int main(int argc, char *argv[])
             args.d_retval = 0;
             args.d_retvalSet = 0;
             My_CreateDetachedThread(MyThread, &args);
-            for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+            for (int i = 0; 0 == args.d_retvalSet && i < k_MAX_SLEEP_CYCLES;
                  ++i) {
-                My_Sleep(SLEEP_MS);
+                My_Sleep(k_SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 != args.d_retval); // should fail
@@ -195,9 +195,9 @@ int main(int argc, char *argv[])
             args.d_retval = 0;
             args.d_retvalSet = 0;
             My_CreateDetachedThread(MyThread, &args);
-            for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+            for (int i = 0; 0 == args.d_retvalSet && i < k_MAX_SLEEP_CYCLES;
                  ++i) {
-                My_Sleep(SLEEP_MS);
+                My_Sleep(k_SLEEP_MS);
             }
             ASSERT(args.d_retvalSet);
             ASSERT(0 == args.d_retval); // should succeed

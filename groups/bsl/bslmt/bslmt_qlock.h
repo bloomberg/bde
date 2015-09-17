@@ -186,13 +186,15 @@ BSLS_IDENT("$Id: $")
 // Note that 'hello1' and 'hello2' have the same address, demonstrating that
 // there was only one string created.
 //..
-//  int main()
+//  int usageExample1()
 //  {
+//      const bsl::string EXPECTED("Hello");
+//
 //      const bsl::string& hello1 = helloString();
-//      assert(hello1 == "Hello");
+//      assert(hello1 == EXPECTED);
 //
 //      const bsl::string& hello2 = helloString();
-//      assert(hello2 == "Hello");
+//      assert(hello2  == EXPECTED);
 //      assert(&hello2 == &hello1);
 //
 //      return 0;

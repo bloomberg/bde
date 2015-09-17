@@ -232,9 +232,9 @@ int veryVerbose;
 // Next, we populate the queue using 'pushRange':
 //..
         const int rawData[] = { 17, 3, 21, -19, 4, 87, 29, 3, 101, 31, 36 };
-        enum { RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
+        enum { k_RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
 
-        queue.pushRange(rawData + 0, rawData + RAW_DATA_LENGTH);
+        queue.pushRange(rawData + 0, rawData + k_RAW_DATA_LENGTH);
 //..
 // Then, we pop a few items off the front of the queue and verify their values:
 //..
@@ -307,9 +307,9 @@ struct TestCase3SubThread {
 namespace TEST_CASE_2 {
 
 enum AssortMode {
-    SAFE_MODE,
-    NORMAL_MODE,
-    OPT_MODE
+    e_SAFE_MODE,
+    e_NORMAL_MODE,
+    e_OPT_MODE
 } mode;
 
 int expectedLine;
@@ -317,13 +317,13 @@ int expectedLine;
 void myHandler(const char *text, const char *file, int line)
 {
     switch (mode) {
-      case SAFE_MODE: {
+      case e_SAFE_MODE: {
         ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex)", text));
       } break;
-      case NORMAL_MODE: {
+      case e_NORMAL_MODE: {
         ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED(&mutex)",      text));
       } break;
-      case OPT_MODE: {
+      case e_OPT_MODE: {
         ASSERT(!bsl::strcmp("BSLMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex)",  text));
       } break;
       default: {
@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
 #endif
 
             try {
-                TEST_CASE_2::mode = TEST_CASE_2::SAFE_MODE;
+                TEST_CASE_2::mode = TEST_CASE_2::e_SAFE_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
                 BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
                 ASSERT(!expectThrow);
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
 #endif
 
             try {
-                TEST_CASE_2::mode = TEST_CASE_2::NORMAL_MODE;
+                TEST_CASE_2::mode = TEST_CASE_2::e_NORMAL_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
                 BSLMT_MUTEXASSERT_IS_LOCKED(&mutex);
                 ASSERT(!expectThrow);
@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
 #endif
 
             try {
-                TEST_CASE_2::mode = TEST_CASE_2::OPT_MODE;
+                TEST_CASE_2::mode = TEST_CASE_2::e_OPT_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
                 BSLMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex);
                 ASSERT(!expectThrow);
