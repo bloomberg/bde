@@ -651,7 +651,8 @@ void TcpTimedCbConnector::deallocateCb(btlsc::CbChannel *channel) {
         s = c->socket();
     }
     BSLS_ASSERT(s);
-    channel->~CbChannel();
+    channel->invalidate();
+    channel->cancelAll();
     d_factory_p->deallocate(s);
 
     bsl::vector<btlsc::CbChannel*>::iterator idx =

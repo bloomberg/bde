@@ -31,14 +31,14 @@ BSLS_IDENT("$Id: $")
 // The interface hierarchy (defined by direct public inheritance) of the
 // 'btlsc::TimedChannel' protocol is as follows:
 //..
-//                        ,------------------.
+//                        ,-------------------.
 //                       ( btlsc::TimedChannel )
-//                        `------------------'
+//                        `-------------------'
 //                                  |
 //                                  V
-//                           ,-------------.
+//                           ,--------------.
 //                          ( btlsc::Channel )
-//                           `-------------'
+//                           `--------------'
 //..
 // This protocol adds a "timeout" capability for read and write methods.
 //

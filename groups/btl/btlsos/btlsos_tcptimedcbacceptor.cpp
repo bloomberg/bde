@@ -387,7 +387,8 @@ void TcpTimedCbAcceptor::deallocateCb(btlsc::CbChannel *channel)
         s = c->socket();
     }
     BSLS_ASSERT(s);
-    channel->~CbChannel();  // This will cancel all pending requests.
+    channel->invalidate();  // This will cancel all pending requests.
+    channel->cancelAll();
     d_factory_p->deallocate(s);
 
     bsl::vector<btlsc::CbChannel*>::iterator idx =

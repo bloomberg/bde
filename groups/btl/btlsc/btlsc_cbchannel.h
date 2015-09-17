@@ -45,9 +45,9 @@ BSLS_IDENT("$Id: $")
 // 'btlsc::CbChannel' forms the base of an interface hierarchy; other interfaces
 // may be defined by direct public inheritance.
 //..
-//                           ,---------------.
+//                           ,----------------.
 //                          ( btlsc::CbChannel )
-//                           `---------------'
+//                           `----------------'
 //..
 //
 ///Non-Blocking Stream-Based Transport

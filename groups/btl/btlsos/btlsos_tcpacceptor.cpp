@@ -176,7 +176,7 @@ void TcpAcceptor::deallocate(btlsc::Channel *channel) {
     BSLS_ASSERT(s);
 
     d_factory_p->deallocate(s);
-    channel->~Channel();
+    channel->invalidate();
 
     bsl::vector<btlsc::Channel*>::iterator idx =
                bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);

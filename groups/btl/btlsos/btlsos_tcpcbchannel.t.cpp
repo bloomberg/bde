@@ -698,7 +698,7 @@ static void writeCallback(int                          status,
                 ASSERT(status > 0);
                 if (veryVerbose) {
                     cout << "Write (efficiently) transmitted " << status
-                         << " of " << status << "bytes." << endl;
+                         << " of " << status << " bytes." << endl;
                 }
             }
         }

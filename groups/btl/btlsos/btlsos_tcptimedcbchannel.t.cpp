@@ -1647,7 +1647,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
                 ASSERT(expRet == ret || channel->isInvalidRead());
                 if (veryVerbose) {
                     cout << "rManager ret: " << ret << ", isinvalid: "
-                         << channel->isInvalidWrite() << endl;
+                         << channel->isInvalidRead() << endl;
                 }
                 break;
             case 'w':

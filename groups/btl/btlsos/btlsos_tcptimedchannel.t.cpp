@@ -697,7 +697,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                       command->numToProcess.d_numBytes,
                                       command->flag.d_interruptFlags);
         if (command->d_expStatus > 0) {
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_RBA: {  //
@@ -709,7 +709,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                       command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
         if (command->d_expStatus > 0) {
-             ASSERT(0 == buffer);
+             ASSERT(0 == cbuffer);
         }
     } break;
     case e_TRB: {  //
@@ -719,7 +719,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 *command->d_timeout + bdlt::CurrentTime::now(),
                                  command->flag.d_interruptFlags);
         if (command->d_expStatus >= 0) { // It's interrupted or timeout
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_TRBA: {  //
@@ -732,7 +732,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
         if (command->d_expStatus > 0) {
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_RVR: {  //
