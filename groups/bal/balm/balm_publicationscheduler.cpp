@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bslma_default.h>
-#include <bdlf_function.h>
 #include <bdlb_print.h>
 
 #include <bsl_ostream.h>
@@ -110,7 +109,7 @@ class PublicationScheduler_ClockData {
     // publication; otherwise (if 'defaultSchedule' is 'false') the meaning of
     // 'nonDefaultCategories' is undefined.  Note that a shared pointer to a
     // 'ClockData' object is bound (by 'PublicationScheduler'), with the
-    // 'PublicationScheduler::publish' method, into the 'bdlf::Function' object
+    // 'PublicationScheduler::publish' method, into the 'bsl::function' object
     // supplied to 'bdlmt::TimerEventScheduler::startClock'.
 
     // DATA
@@ -133,10 +132,9 @@ class PublicationScheduler_ClockData {
                                               // the default publication
 
     // NOT IMPLEMENTED
-    PublicationScheduler_ClockData(
-                                  const PublicationScheduler_ClockData& );
+    PublicationScheduler_ClockData(const PublicationScheduler_ClockData &);
     PublicationScheduler_ClockData& operator=(
-                                  const PublicationScheduler_ClockData& );
+                                        const PublicationScheduler_ClockData&);
 
   public:
     // TRAITS
@@ -491,11 +489,11 @@ void PublicationScheduler::scheduleCategory(
         d_clocks.insert(bsl::make_pair(interval, clock));
         bslmt::LockGuard<bslmt::Mutex> guard(clock->mutex());
         clock->handle() = d_scheduler_p->startClock(
-                     interval,
-                     bdlf::BindUtil::bindA(d_allocator_p,
-                                          &PublicationScheduler::publish,
-                                          this,
-                                          clock));
+                          interval,
+                          bdlf::BindUtil::bindA(d_allocator_p,
+                                                &PublicationScheduler::publish,
+                                                this,
+                                                clock));
     }
     else {
         clock = clockIt->second;
@@ -577,9 +575,9 @@ void PublicationScheduler::setDefaultSchedule(
         clock->handle() = d_scheduler_p->startClock(
             interval,
             bdlf::BindUtil::bindA(d_allocator_p,
-                                 &PublicationScheduler::publish,
-                                 this,
-                                 clock));
+                                  &PublicationScheduler::publish,
+                                  this,
+                                  clock));
     }
 
     proctor.release();

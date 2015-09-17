@@ -31,9 +31,9 @@ BSLS_IDENT("$Id: $")
 // 'btlsc::Channel' forms the base of an interface hierarchy; other interfaces
 // may be defined by direct public inheritance.
 //..
-//                           ,-------------.
+//                           ,--------------.
 //                          ( btlsc::Channel )
-//                           `-------------'
+//                           `--------------'
 //..
 //
 ///Synchronous Stream-Based Transport

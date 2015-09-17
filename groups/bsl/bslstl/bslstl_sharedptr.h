@@ -4579,7 +4579,7 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
 
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
-                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 # else
@@ -5702,9 +5702,9 @@ bsl::allocate_shared(ALLOC a, ARGS&&... args)
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
     bsl::allocator_traits<ALLOC>::construct(
-                              a,
-                              rep_p->ptr(),
-                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
+                                  a,
+                                  rep_p->ptr(),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
@@ -5714,8 +5714,8 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC *a, ARGS&&... args)
 {
     return bsl::allocate_shared<ELEMENT_TYPE>(
-                              bsl::allocator<ELEMENT_TYPE>(a),
-                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
+                                  bsl::allocator<ELEMENT_TYPE>(a),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 }
 
 template<class ELEMENT_TYPE, class... ARGS>
@@ -5723,8 +5723,8 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
 {
     return bsl::allocate_shared<ELEMENT_TYPE>(
-                              BloombergLP::bslma::Default::allocator(),
-                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
+                                  BloombergLP::bslma::Default::allocator(),
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 }
 # else
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>

@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
@@ -28,6 +27,9 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+
+#include <bsl_functional.h>
+#include <bsl_memory.h>
 
 namespace BloombergLP {
 
@@ -66,7 +68,9 @@ struct SessionPool_Handle {
 
     // CREATORS
     SessionPool_Handle(bslma::Allocator *basicAllocator = 0)
-    : d_sessionStateCB(basicAllocator)
+    : d_sessionStateCB(
+             bsl::allocator_arg_t(),
+             bsl::allocator<SessionPool::SessionStateCallback>(basicAllocator))
     {
     }
 };
@@ -118,7 +122,7 @@ void SessionPoolSessionIterator::operator++()
 typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 
 static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
-                               btlmt::SessionPool::ConnectResolutionMode mode)
+                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
     if (mode == btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT) {
         return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
@@ -281,10 +285,10 @@ void SessionPool::connectAbortTimerCb(
     } while (1 != handle.use_count());
 }
 
-void SessionPool::blobBasedReadCb(int          *numNeeded,
+void SessionPool::blobBasedReadCb(int        *numNeeded,
                                   btlb::Blob *data,
-                                  int           channelId,
-                                  void         *userData)
+                                  int         channelId,
+                                  void       *userData)
 {
     HandlePtr spHandle; // Make sure that we hold a shared pointer
                         // until the callback is complete
@@ -466,9 +470,9 @@ int SessionPool::makeConnectHandle(
     return (handle->d_handleId = d_handles.add(handle));
 }
 
-void SessionPool::sessionAllocationCb(int       result,
-                                      Session  *session,
-                                      int       handleId)
+void SessionPool::sessionAllocationCb(int      result,
+                                      Session *session,
+                                      int      handleId)
 {
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
@@ -523,7 +527,9 @@ SessionPool::SessionPool(const ChannelPoolConfiguration&  config,
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
-, d_poolStateCB(poolStateCallback, allocator)
+, d_poolStateCB(bsl::allocator_arg_t(),
+                bsl::allocator<SessionPoolStateCallback>(allocator),
+                poolStateCallback)
 , d_spAllocator(allocator)
 , d_blobBufferFactory()
 , d_numSessions(0)
@@ -532,14 +538,16 @@ SessionPool::SessionPool(const ChannelPoolConfiguration&  config,
     init();
 }
 
-SessionPool::SessionPool(btlb::BlobBufferFactory       *blobBufferFactory,
+SessionPool::SessionPool(btlb::BlobBufferFactory         *blobBufferFactory,
                          const ChannelPoolConfiguration&  config,
                          const SessionPoolStateCallback&  poolStateCallback,
                          bslma::Allocator                *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
-, d_poolStateCB(poolStateCallback, allocator)
+, d_poolStateCB(bsl::allocator_arg_t(),
+                bsl::allocator<SessionPoolStateCallback>(allocator),
+                poolStateCallback)
 , d_spAllocator(allocator)
 , d_blobBufferFactory(blobBufferFactory,
                       0,
@@ -570,12 +578,14 @@ int SessionPool::start()
     }
 
     ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-        bdlf::MemFnUtil::memFn(&SessionPool::channelStateCb, this),
-        d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<ChannelPool::ChannelStateChangeCallback>(d_allocator_p),
+        bdlf::MemFnUtil::memFn(&SessionPool::channelStateCb, this));
 
     ChannelPool::PoolStateChangeCallback poolStateFunctor(
-        bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this),
-        d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<ChannelPool::PoolStateChangeCallback>(d_allocator_p),
+        bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this));
 
     ChannelPool::BlobBasedReadCallback dataFunctor =
             bdlf::MemFnUtil::memFn(&SessionPool::blobBasedReadCb,
@@ -717,21 +727,19 @@ int SessionPool::closeHandle(int handleId)
             int clockId = handleId;
             int ret;
             do {
-                bdlf::Function<void (*)()> fctor(
-                    bdlf::BindUtil::bindA(
-                        d_allocator_p,
-                        bdlf::MemFnUtil::memFn(
-                                       &SessionPool::connectAbortTimerCb,
-                                       this),
-                        handle,
-                        clockId));
+                bsl::function<void()> fctor(bdlf::BindUtil::bindA(
+                                          d_allocator_p,
+                                          bdlf::MemFnUtil::memFn(
+                                             &SessionPool::connectAbortTimerCb,
+                                             this),
+                                          handle,
+                                          clockId));
 
                 ret = d_channelPool_p->registerClock(
-                                    fctor,
-                                    bdlt::CurrentTime::now(),
-                                    bsls::TimeInterval(0,
-                                                      1 * 1000 * 1000), // 1 ms
-                                    clockId);
+                                fctor,
+                                bdlt::CurrentTime::now(),
+                                bsls::TimeInterval(0, 1 * 1000 * 1000), // 1 ms
+                                clockId);
 
                 clockId += 0x01000000;
             } while (0 != ret);
@@ -870,15 +878,14 @@ int SessionPool::connect(
 }
 
 int SessionPool::connect(
-                    int                                      *handleBuffer,
-                    const SessionPool::SessionStateCallback&  cb,
-                    btlso::IPv4Address const&                 endpoint,
-                    int                                       numAttempts,
-                    const bsls::TimeInterval&                 interval,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                             *socket,
-                    SessionFactory                           *factory,
-                    void                                     *userData)
+     int                                                         *handleBuffer,
+     const SessionPool::SessionStateCallback&                     cb,
+     btlso::IPv4Address const&                                    endpoint,
+     int                                                          numAttempts,
+     const bsls::TimeInterval&                                    interval,
+     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > *socket,
+     SessionFactory                                              *factory,
+     void                                                        *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -908,12 +915,11 @@ int SessionPool::connect(
 }
 
 int SessionPool::import(
-                    int                                      *handleBuffer,
-                    const SessionPool::SessionStateCallback&  cb,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                             *streamSocket,
-                    SessionFactory                           *sessionFactory,
-                    void                                     *userData)
+   int                                                         *handleBuffer,
+   const SessionPool::SessionStateCallback&                     cb,
+   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > *streamSocket,
+   SessionFactory                                              *sessionFactory,
+   void                                                        *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 

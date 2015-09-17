@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // functions used by the hash table, 'bdlc::HashTableDefaultHash1' and
 // 'bdlc::HashTableDefaultHash2'.  Hash functors may also optionally be
 // specified at construction time, in case the functors contain state (e.g., if
-// 'bdlf::Function' is used).
+// 'bsl::function' is used).
 //
 // The constructor for 'bdlc::HashTable' takes a 'capacityHint' argument.  This
 // 'capacityHint' is used to calculate the capacity of the hash table (i.e.,

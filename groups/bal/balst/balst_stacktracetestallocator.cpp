@@ -21,8 +21,10 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>
 #include <bsl_vector.h>
 #include <bsl_utility.h>
@@ -257,8 +259,10 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
-                                  : &bslma::MallocFreeAllocator::singleton())
+, d_failureHandler(bsl::allocator_arg_t(),
+                   bsl::allocator<FailureHandler>(basicAllocator
+                                   ? basicAllocator
+                                   : &bslma::MallocFreeAllocator::singleton()))
 , d_maxRecordedFrames(k_DEFAULT_NUM_RECORDED_FRAMES + k_IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(k_DEFAULT_NUM_RECORDED_FRAMES))
 , d_ostream(&bsl::cerr)
@@ -284,8 +288,10 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
-                                  : &bslma::MallocFreeAllocator::singleton())
+, d_failureHandler(bsl::allocator_arg_t(),
+                   bsl::allocator<FailureHandler>(basicAllocator
+                                   ? basicAllocator
+                                   : &bslma::MallocFreeAllocator::singleton()))
 , d_maxRecordedFrames(numRecordedFrames + k_IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(&bsl::cerr)
@@ -457,7 +463,7 @@ void StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
 }
 
 void StackTraceTestAllocator::setFailureHandler(
-                                        const bdlf::Function<void (*)()>& func)
+                                             const bsl::function<void()>& func)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 

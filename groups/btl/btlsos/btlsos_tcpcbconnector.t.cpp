@@ -20,7 +20,6 @@
 
 #include <bsls_timeinterval.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
@@ -32,6 +31,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -200,8 +200,8 @@ struct TestCommand {
         int                    d_maxConnections;
         int                    d_numMessages;
 
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                                             d_allocateFunctor;
+        bsl::function<void(btlsc::TimedCbChannel*, int)>
+                               d_allocateFunctor;
 
         void allocateCb(btlsc::TimedCbChannel *channel, int status);
             // Invoked by the socket event manager when a connection is
@@ -278,7 +278,7 @@ struct TestCommand {
     {
         if (channel) {
             // Connected to a server.  Issue a buffered write request.
-            bdlf::Function<void (*)(int, int)> callback(
+            bsl::function<void(int, int)> callback(
                          bdlf::BindUtil::bind(
                                 bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb,
                                                        this),
@@ -336,7 +336,7 @@ struct TestCommand {
 
             // If we're not done -- enqueue another request
             if (sequence < d_numMessages) {
-                bdlf::Function<void (*)(int, int)> callback(
+                bsl::function<void(int, int)> callback(
                         bdlf::BindUtil::bind(
                                 bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb,
                                                        this),
@@ -387,7 +387,7 @@ struct TestCommand {
                 ASSERT("Failed to send data to the server" && 0);
             }
             else {
-                bdlf::Function<void (*)(const char *, int, int)> callback(
+                bsl::function<void(const char *, int, int)> callback(
                       bdlf::BindUtil::bind(
                          bdlf::MemFnUtil::memFn(&my_EchoClient::bufferedReadCb,
                                                 this),
@@ -511,7 +511,7 @@ struct TestCommand {
     }
 
     int my_DataStream::setUpCallbacks() {
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
+        bsl::function<void(btlsc::TimedCbChannel*, int)> callback(
             bdlf::BindUtil::bind(
                              bdlf::MemFnUtil::memFn(&my_DataStream::allocateCb,
                                                     this),
@@ -643,7 +643,7 @@ static int testExecutionHelper(btlsos::TcpCbConnector      *connector,
     case 'R': {  // a "CONNECT" request
         if (command->d_channelType) {
             // a 'btlsos::TcpTimedCbChannel'
-            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> cb(
+            bsl::function<void(btlsc::TimedCbChannel*, int)> cb(
                     bdlf::BindUtil::bind( &connectCb
                                        , _1, _2
                                        , connector
@@ -674,7 +674,7 @@ static int testExecutionHelper(btlsos::TcpCbConnector      *connector,
         }
         else {
             // a 'btlsos::TcpCbChannel'
-            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+            bsl::function<void(btlsc::CbChannel*, int)> cb(
                     bdlf::BindUtil::bind( &connectCb
                                        , _1, _2
                                        , connector
@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[])
 
                     int validChannel = 1, expStatus = 0, cancelFlag = 0;
 
-                    bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                    bsl::function<void(btlsc::CbChannel*, int)> cb(
                             bdlf::BindUtil::bind( &connectCb
                                                , _1, _2
                                                , &connector
@@ -2006,7 +2006,7 @@ int main(int argc, char *argv[])
 
                     int validChannel = 1, expStatus = 0, cancelFlag = 0;
 
-                    bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                    bsl::function<void(btlsc::CbChannel*, int)> cb(
                             bdlf::BindUtil::bind( &connectCb
                                                , _1, _2
                                                , &connector

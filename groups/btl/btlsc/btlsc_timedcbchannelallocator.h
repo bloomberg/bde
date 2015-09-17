@@ -455,7 +455,7 @@ BSLS_IDENT("$Id: $")
 //              ::myPrintTick(bsl::cout, buffer, msgSize);
 //          }
 //          if (1 == curNumTicks) {
-//              bdlf::Function<void (*)()> timerFunctor(
+//              bsl::function<void()> timerFunctor(
 //                      bdlf::BindUtil::bind(&my_TickReporter::timeCb,
 //                                          this,
 //                                          0,
@@ -522,7 +522,7 @@ BSLS_IDENT("$Id: $")
 //      cout << "The read rate is " << (int) (numTicks / numSeconds)
 //           << " Ticks/second." << endl << endl;
 //
-//      bdlf::Function<void (*)()> timerFunctor(
+//      bsl::function<void()> timerFunctor(
 //                      bdlf::BindUtil::bind(&my_TickReporter::timeCb,
 //                                          this,
 //                                          *curNumTicks,
@@ -628,7 +628,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::ostream&                  d_console;      // where to write errors
 //      const int                      d_inputSize;    // input packet size
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+//      bsl::function<void(btlsc::TimedCbChannel*, int)>
 //                                                 d_allocateFunctor;
 //      btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 //
@@ -791,7 +791,7 @@ BSLS_IDENT("$Id: $")
 //          }
 //
 //          if (1 == curNumTicks) {
-//              bdlf::Function<void (*)()> timerFunctor(
+//              bsl::function<void()> timerFunctor(
 //                      bdlf::BindUtil::bind(&my_TickerplantSimulator::timeCb,
 //                                          this,
 //                                          0,
@@ -863,7 +863,7 @@ BSLS_IDENT("$Id: $")
 //      cout << "The send rate is " << (int) (numTicks / numSeconds)
 //           << " Ticks/second." << endl << endl;
 //      if (*curNumTicks < maxTicks) {
-//          bdlf::Function<void (*)()> timerFunctor
+//          bsl::function<void()> timerFunctor
 //                  bdlf::BindUtil::bind(
 //                            &my_TickerplantSimulator::timeCb,
 //                            this,
@@ -958,8 +958,8 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -1010,7 +1010,7 @@ class TimedCbChannelAllocator
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(CbChannel *, int)> Callback;
+    typedef bsl::function<void(CbChannel *, int)> Callback;
         // Invoked as a result of an 'allocate' or 'timedAllocate' request,
         // 'Callback' is an alias for a callback function object (functor) that
         // returns 'void' and takes as arguments the (possibly null) address of
@@ -1019,7 +1019,7 @@ class TimedCbChannelAllocator
         // (negative).  Note that "status" is meaningful only if "channel" is
         // 0.
 
-    typedef bdlf::Function<void (*)(TimedCbChannel *, int)> TimedCallback;
+    typedef bsl::function<void(TimedCbChannel *, int)> TimedCallback;
         // Invoked as a result of an 'allocateTimed' or 'timedAllocateTimed'
         // request, 'TimedCallback' is an alias for a callback function object
         // (functor) that returns 'void' and takes as arguments the (possibly

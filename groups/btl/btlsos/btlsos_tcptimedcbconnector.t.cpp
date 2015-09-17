@@ -13,7 +13,6 @@
 
 #include <btlsc_timedcbchannel.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
@@ -39,6 +38,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
+#include <bsl_functional.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -195,8 +195,8 @@ struct TestCommand {
         int                         d_maxConnections;
         int                         d_numMessages;
 
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                                             d_allocateFunctor;
+        bsl::function<void(btlsc::TimedCbChannel*, int)>
+                                    d_allocateFunctor;
 
         void allocateCb(btlsc::TimedCbChannel *channel, int status);
             // Invoked by the socket event manager when a connection is
@@ -278,7 +278,7 @@ struct TestCommand {
         if (channel) {
             // Connected to a server.  Issue a buffered write request.
 
-            bdlf::Function<void (*)(int, int)> callback(
+            bsl::function<void(int, int)> callback(
                                   bdlf::BindUtil::bind(&my_EchoClient::writeCb,
                                                        this,
                                                        _1,
@@ -338,7 +338,7 @@ struct TestCommand {
 
             // If we're not done -- enqueue another request
             if (sequence < d_numMessages) {
-                bdlf::Function<void (*)(int, int)> callback(
+                bsl::function<void(int, int)> callback(
                                   bdlf::BindUtil::bind(&my_EchoClient::writeCb,
                                                        this,
                                                        _1,
@@ -386,7 +386,7 @@ struct TestCommand {
                 ASSERT("Failed to send data to the server" && 0);
             }
             else {
-                bdlf::Function<void (*)(const char *, int, int)> callback(
+                bsl::function<void(const char *, int, int)> callback(
                            bdlf::BindUtil::bind(&my_EchoClient::bufferedReadCb,
                                                 this,
                                                 _1,
@@ -558,7 +558,7 @@ void *echoClientThread(void *arg) {
     }
 
     int my_DataStream::setUpCallbacks() {
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
+        bsl::function<void(btlsc::TimedCbChannel*, int)> callback(
                                bdlf::BindUtil::bind(&my_DataStream::allocateCb,
                                                     this,
                                                     _1,
@@ -691,7 +691,7 @@ static int testExecutionHelper(btlsos::TcpTimedCbConnector *connector,
     case 'R': {  // a "CONNECT" request
         if (command->d_channelType) {
             // a 'btlsos::TcpTimedCbChannel'
-            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> cb(
+            bsl::function<void(btlsc::TimedCbChannel*, int)> cb(
                     bdlf::BindUtil::bind(
                                 &connectCb,
                                 _1, _2,
@@ -722,7 +722,7 @@ static int testExecutionHelper(btlsos::TcpTimedCbConnector *connector,
         }
         else {
             // a 'btlsos::TcpCbChannel'
-            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+            bsl::function<void(btlsc::CbChannel*, int)> cb(
                     bdlf::BindUtil::bind(
                                 &connectCb,
                                 _1, _2,
@@ -974,8 +974,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         bsl::ostream&                  d_console;      // where to write errors
         const int                      d_inputSize;    // input packet size
 
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                                             d_allocateFunctor;
+        bsl::function<void(btlsc::TimedCbChannel*, int)>
+                                       d_allocateFunctor;
         btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 
       private:
@@ -1133,7 +1133,7 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
             }
 
             if (1 == curNumTicks) {
-                bdlf::Function<void (*)()> timerFunctor(
+                bsl::function<void()> timerFunctor(
                         bdlf::BindUtil::bind(
                             &my_TickerplantSimulator::timeCb
                           , this
@@ -1206,7 +1206,7 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         cout << "The send rate is " << (int) (numTicks / numSeconds)
              << " Ticks/second." << endl << endl;
         if (*curNumTicks < maxTicks) {
-            bdlf::Function<void (*)()> timerFunctor(
+            bsl::function<void()> timerFunctor(
                     bdlf::BindUtil::bind(
                         &my_TickerplantSimulator::timeCb
                       , this
@@ -1702,7 +1702,7 @@ int main(int argc, char *argv[])
 
                     int validChannel = 1, expStatus = 0, cancelFlag = 0;
 
-                    bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                    bsl::function<void(btlsc::CbChannel*, int)> cb(
                             bdlf::BindUtil::bind(
                                         &connectCb,
                                         _1, _2,
@@ -2960,7 +2960,7 @@ int main(int argc, char *argv[])
 
                     int validChannel = 1, expStatus = 0, cancelFlag = 0;
 
-                    bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                    bsl::function<void(btlsc::CbChannel*, int)> cb(
                             bdlf::BindUtil::bind(
                                         &connectCb,
                                         _1, _2,

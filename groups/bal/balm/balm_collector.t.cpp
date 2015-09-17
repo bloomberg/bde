@@ -9,6 +9,7 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
@@ -199,7 +200,7 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
                                                      d_allocator_p,
                                                      &ConcurrencyTest::execute,
                                                      this);

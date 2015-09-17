@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 #include <btlsc_flag.h>
 #include <btls_iovecutil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -21,7 +20,9 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdio.h>
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_memory.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -214,16 +215,16 @@ TcpCbChannel_RReg::TcpCbChannel_RReg(
 inline
 TcpCbChannel_RReg::~TcpCbChannel_RReg() {
     if (d_callbackType == e_VFUNC3) {
-        bdlf::Function<void (*)(const char *, int, int)> *cb =
-                    (bdlf::Function<void (*)(const char *, int, int)> *)
+        bsl::function<void(const char *, int, int)> *cb =
+                    (bsl::function<void(const char *, int, int)> *)
                         (void *)d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == e_VFUNC2);
-        bdlf::Function<void (*)(int, int)> *cb =
-            (bdlf::Function<void (*)(int, int)> *) (void *) d_cb.d_arena;
+        bsl::function<void(int, int)> *cb =
+            (bsl::function<void(int, int)> *) (void *) d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
@@ -234,8 +235,8 @@ inline
 void TcpCbChannel_RReg::invoke(int status, int augStatus) const
 {
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
-    bdlf::Function<void (*)(int, int)> *cb =
-        (bdlf::Function<void (*)(int, int)> *)
+    bsl::function<void(int, int)> *cb =
+        (bsl::function<void(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(status, augStatus);
 }
@@ -296,7 +297,7 @@ public:
         e_VECTORED_O     // the request is for a vectored write operation
     };
 
-    bdlf::Function<void (*)(int, int)> d_callback;
+    bsl::function<void(int, int)> d_callback;
 
     // Data for the I/O operation
     union {
@@ -1360,24 +1361,28 @@ TcpCbChannel::TcpCbChannel(
     BSLS_ASSERT(sSocket);
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
-              bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedReadCb, this)
-            , d_allocator_p);
+        = bsl::function<void()>(
+              bsl::allocator_arg_t(),
+              bsl::allocator<bsl::function<void()> >(d_allocator_p),
+              bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedReadCb, this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
-               bdlf::MemFnUtil::memFn(&TcpCbChannel::readCb, this)
-             , d_allocator_p);
+        = bsl::function<void()>(
+               bsl::allocator_arg_t(),
+               bsl::allocator<bsl::function<void()> >(d_allocator_p),
+               bdlf::MemFnUtil::memFn(&TcpCbChannel::readCb, this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
-             bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedWriteCb, this)
-           , d_allocator_p);
+        = bsl::function<void()>(
+             bsl::allocator_arg_t(),
+             bsl::allocator<bsl::function<void()> >(d_allocator_p),
+             bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedWriteCb, this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
-              bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this)
-            , d_allocator_p);
+        = bsl::function<void()>(
+              bsl::allocator_arg_t(),
+              bsl::allocator<bsl::function<void()> >(d_allocator_p),
+              bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
@@ -1408,24 +1413,28 @@ TcpCbChannel::TcpCbChannel(
     BSLS_ASSERT(sSocket);
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
-              bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedReadCb, this)
-            , d_allocator_p);
+        = bsl::function<void()>(
+              bsl::allocator_arg_t(),
+              bsl::allocator<bsl::function<void()> >(d_allocator_p),
+              bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedReadCb, this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
-               bdlf::MemFnUtil::memFn(&TcpCbChannel::readCb, this)
-             , d_allocator_p);
+        = bsl::function<void()>(
+               bsl::allocator_arg_t(),
+               bsl::allocator<bsl::function<void()> >(d_allocator_p),
+               bdlf::MemFnUtil::memFn(&TcpCbChannel::readCb, this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
-             bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedWriteCb, this)
-           , d_allocator_p);
+        = bsl::function<void()>(
+             bsl::allocator_arg_t(),
+             bsl::allocator<bsl::function<void()> >(d_allocator_p),
+             bdlf::MemFnUtil::memFn(&TcpCbChannel::bufferedWriteCb, this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
-              bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this)
-            , d_allocator_p);
+        = bsl::function<void()>(
+              bsl::allocator_arg_t(),
+              bsl::allocator<bsl::function<void()> >(d_allocator_p),
+              bdlf::MemFnUtil::memFn(&TcpCbChannel::writeCb, this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }

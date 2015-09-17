@@ -23,7 +23,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bslmt_writelockguard.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bdls_processutil.h>
 #include <bdlt_datetime.h>
@@ -40,7 +39,9 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>       // for warning print only
+#include <bsl_memory.h>
 #include <bsl_new.h>            // placement 'new' syntax
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -106,10 +107,9 @@ NewFunc makeFunc(const OldFunc& old) {
 }
 
 const char *filterName(
-           bsl::string                                     *filteredNameBuffer,
-           const char                                      *originalName,
-           const bdlf::Function<void (*)(bsl::string *, const char *)>&
-                                                            nameFilter)
+   bsl::string                                             *filteredNameBuffer,
+   const char                                              *originalName,
+   const bsl::function<void(bsl::string *, const char *)>&  nameFilter)
     // If the specified category 'nameFilter' is a non-null functor, apply
     // 'nameFilter' to the specified 'originalName', store the translated
     // result in the specified 'filteredNameBuffer', and return the address of
@@ -697,10 +697,10 @@ void LoggerManager::constructObject(
     BSLS_ASSERT(0 == d_defaultCategory_p);
     BSLS_ASSERT(0 == d_recordBuffer_p);
 
-    d_publishAllCallback
-        = bdlf::Function<void (*)(Transmission::Cause)>(
-                bdlf::MemFnUtil::memFn(&LoggerManager::publishAllImp, this)
-              , d_allocator_p);
+    d_publishAllCallback = bsl::function<void(Transmission::Cause)>(
+      bsl::allocator_arg_t(),
+      bsl::allocator<bsl::function<void(Transmission::Cause)> >(d_allocator_p),
+      bdlf::MemFnUtil::memFn(&LoggerManager::publishAllImp, this));
 
     int recordBufferSize = configuration.defaults().defaultRecordBufferSize();
     d_recordBuffer_p     = new(*d_allocator_p) FixedSizeRecordBuffer(

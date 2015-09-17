@@ -1,5 +1,4 @@
 // bdlma_concurrentfixedpool.t.cpp                                    -*-C++-*-
-
 #include <bdlma_concurrentfixedpool.h>
 
 #include <bslim_testutil.h>
@@ -22,10 +21,12 @@
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_vector.h>
-#include <bsl_iostream.h>
 #include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_deque.h>
+#include <bsl_functional.h>
+#include <bsl_iostream.h>
+#include <bsl_memory.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -118,7 +119,7 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 // 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place*
 // container classes that hold up to a fixed number of elements, all of uniform
 // size.  Suppose we wish to implement a simple thread pool.  We want the
-// equivalent of a 'bsl::deque<bdlf::Function<void(*)(void)> >'.  However, to
+// equivalent of a 'bsl::deque<bsl::function<void(void)> >'.  However, to
 // minimize the time spent performing operations on this deque - which must be
 // carried out under a lock - we instead store just pointers in the deque, and
 // manage memory efficiently using 'bdlma::ConcurrentFixedPool'.
@@ -133,7 +134,7 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
       public:
         // PUBLIC TYPES
-        typedef bdlf::Function<void(*)(void)> Job;
+        typedef bsl::function<void(void)> Job;
 
       private:
         // DATA
@@ -175,7 +176,9 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
     void my_JobQueue::enqueueJob(const Job& job)
     {
-        Job *jobPtr = new (d_pool) Job(job, d_allocator_p);
+        Job *jobPtr = new (d_pool) Job(bsl::allocator_arg_t(),
+                                       bsl::allocator<Job>(d_allocator_p),
+                                       job);
         d_lock.lock();
         d_queue.push_back(jobPtr);
         d_lock.unlock();
@@ -896,13 +899,13 @@ int main(int argc, char *argv[]) {
             my_JobQueue q(10, &a);
             double result;
 
-            bdlf::Function<void(*)(void)> job = bdlf::BindUtil::bind(&sum5,
-                                                                   &result,
-                                                                   1.0,
-                                                                   2.0,
-                                                                   3.0,
-                                                                   4.0,
-                                                                   5.0);
+            bsl::function<void(void)> job = bdlf::BindUtil::bind(&sum5,
+                                                                 &result,
+                                                                 1.0,
+                                                                 2.0,
+                                                                 3.0,
+                                                                 4.0,
+                                                                 5.0);
 
             q.enqueueJob(job);
             q.enqueueJob(job);

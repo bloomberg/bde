@@ -45,9 +45,9 @@ BSLS_IDENT("$Id: $")
 // 'btlsc::CbChannel' forms the base of an interface hierarchy; other interfaces
 // may be defined by direct public inheritance.
 //..
-//                           ,---------------.
+//                           ,----------------.
 //                          ( btlsc::CbChannel )
-//                           `---------------'
+//                           `----------------'
 //..
 //
 ///Non-Blocking Stream-Based Transport
@@ -452,8 +452,8 @@ BSLS_IDENT("$Id: $")
 #include <btls_iovec.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
                            // ======================
@@ -483,7 +483,7 @@ class CbChannel {
         // Destroy this channel.
 
     // TYPES
-    typedef bdlf::Function<void (*)(int, int)> ReadCallback;
+    typedef bsl::function<void(int, int)> ReadCallback;
         // Invoked as a result of any non-buffered read method, 'ReadCallback'
         // is an alias for a callback function object (functor) that returns
         // 'void' and takes as arguments an integer "status" indicating
@@ -495,8 +495,7 @@ class CbChannel {
         // optimization, or (3) an operation dequeued (cancelled) by the
         // implementation or the user.
 
-    typedef bdlf::Function<void (*)(const char *, int, int)>
-                                                          BufferedReadCallback;
+    typedef bsl::function<void(const char *, int, int)> BufferedReadCallback;
         // Invoked as a result of any buffered read method,
         // 'BufferedReadCallback' is an alias for a callback function object
         // (functor) that returns 'void' and takes as arguments the (potential)
@@ -509,7 +508,7 @@ class CbChannel {
         // optimization, or (3) an operation dequeued (cancelled) by the
         // implementation or the user.
 
-    typedef bdlf::Function<void (*)(int, int)> WriteCallback;
+    typedef bsl::function<void(int, int)> WriteCallback;
         // Invoked as a result of any write method, 'WriteCallback' is an alias
         // for a callback function object (functor) that returns 'void' and
         // takes as arguments an integer "status" indicating *success*, an

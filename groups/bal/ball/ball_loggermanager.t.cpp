@@ -44,8 +44,10 @@
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
+#include <bsl_functional.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_sstream.h>
@@ -509,12 +511,12 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
           static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //..
 // and the following wraps the 'inheritThresholdLevels' function within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::DefaultThresholdLevelsCallback
                                    thresholdsCallback(&inheritThresholdLevels);
@@ -1247,7 +1249,7 @@ enum {
     NUM_THREADS = 4 // number of threads
 };
 ball::LoggerManager *manager;
-bdlf::Function<void (*)(int *, int *, int *, int *, const char *)> function;
+bsl::function<void(int *, int *, int *, int *, const char *)> function24;
 bslmt::Barrier barrier(NUM_THREADS + 1);
 bslmt::Condition condition;
 
@@ -1278,7 +1280,7 @@ extern "C" {
         // out, because the setter mutex is locked by that thread.
     {
         barrier.wait();
-        manager->setDefaultThresholdLevelsCallback(&function);
+        manager->setDefaultThresholdLevelsCallback(&function24);
         condition.signal();
         return 0;
     }
@@ -1569,8 +1571,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
-        function = &callback;
-        manager->setDefaultThresholdLevelsCallback(&function);
+        function24 = &callback;
+        manager->setDefaultThresholdLevelsCallback(&function24);
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadUtil::create(&handle, setCategory, 0);
         executeInParallel(NUM_THREADS, workerThread30);
@@ -3937,11 +3939,15 @@ int main(int argc, char *argv[])
             ball::TestObserver testObserver(bsl::cout, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Cnf nameFilter(&toLower, OA);
+            Cnf nameFilter(bsl::allocator_arg_t(),
+                           bsl::allocator<Cnf>(OA),
+                           &toLower);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Obj::DefaultThresholdLevelsCallback
-                thresholdsCallback(&simpleThresholdLevels, OA);
+            Obj::DefaultThresholdLevelsCallback thresholdsCallback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<Obj::DefaultThresholdLevelsCallback>(OA),
+                       &simpleThresholdLevels);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::UserFieldsSchema descriptors(OA);
@@ -3950,7 +3956,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::Logger::UserFieldsPopulatorCallback populator(
-                                                       &simplePopulator, OA);
+                 bsl::allocator_arg_t(),
+                 bsl::allocator<ball::Logger::UserFieldsPopulatorCallback>(OA),
+                 &simplePopulator);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::LoggerManagerDefaults mLMD;

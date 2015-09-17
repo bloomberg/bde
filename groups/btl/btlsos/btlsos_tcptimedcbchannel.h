@@ -70,10 +70,6 @@ BSLS_IDENT("$Id: $")
 #include <btlsc_timedcbchannel.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -84,6 +80,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -119,8 +119,8 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
 
     btlso::StreamSocket<btlso::IPv4Address>
                                 *d_socket_p;
-    btlso::TimerEventManager     *d_rManager_p;
-    btlso::TimerEventManager     *d_wManager_p;
+    btlso::TimerEventManager    *d_rManager_p;
+    btlso::TimerEventManager    *d_wManager_p;
 
     bsl::vector<char>            d_readBuffer;
     int                          d_readBufferOffset;
@@ -135,16 +135,16 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
     bsl::deque<TcpTimedCbChannel_WReg *>
                                  d_writeRequests;
 
-    bdlf::Function<void (*)()>    d_bufferedReadFunctor;
-    bdlf::Function<void (*)()>    d_readFunctor;
-    bdlf::Function<void (*)()>    d_writeFunctor;
+    bsl::function<void()>        d_bufferedReadFunctor;
+    bsl::function<void()>        d_readFunctor;
+    bsl::function<void()>        d_writeFunctor;
 
-    bdlf::Function<void (*)()>    d_bufferedWriteFunctor;
-    bdlf::Function<void (*)()>    d_readTimerFunctor;
-    bdlf::Function<void (*)()>    d_writeTimerFunctor;
+    bsl::function<void()>        d_bufferedWriteFunctor;
+    bsl::function<void()>        d_readTimerFunctor;
+    bsl::function<void()>        d_writeTimerFunctor;
 
-    bdlma::Pool                   d_rrequestPool; // read requests' pool
-    bdlma::Pool                   d_wrequestPool; // write requests' pool
+    bdlma::Pool                  d_rrequestPool; // read requests' pool
+    bdlma::Pool                  d_wrequestPool; // write requests' pool
     bslma::Allocator            *d_allocator_p;
 
     int                          d_isInvalidReadFlag;
@@ -153,10 +153,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
     void                        *d_readTimerId;
     void                        *d_writeTimerId;
 
-    TcpTimedCbChannel_RReg
-                                *d_currentReadRequest_p;
-    TcpTimedCbChannel_WReg
-                                *d_currentWriteRequest_p;
+    TcpTimedCbChannel_RReg      *d_currentReadRequest_p;
+    TcpTimedCbChannel_WReg      *d_currentWriteRequest_p;
+
   private:
     void initializeReadBuffer(int size = -1);
     void initializeWriteBuffer(int size = -1);

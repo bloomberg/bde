@@ -25,6 +25,7 @@ BSLS_IDENT_RCSID(btls5_networkconnector_cpp, "$Id$ $CSID$")
 #include <bsl_cerrno.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -786,7 +787,9 @@ btls5::NetworkConnector::ConnectionAttempt::ConnectionAttempt(
                              const btlso::Endpoint&             server,
                              const bsl::shared_ptr<Connector>&  connector,
                              bslma::Allocator                  *basicAllocator)
-: d_callback(callback, basicAllocator)
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ConnectionStateCallback>(basicAllocator),
+             callback)
 , d_proxyTimeout(proxyTimeout)
 , d_totalTimeout(totalTimeout)
 , d_server(server, basicAllocator)

@@ -198,12 +198,12 @@ BSLS_IDENT("$Id: $")
 #include <balxml_errorinfo.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
@@ -303,9 +303,8 @@ class Reader {
 
     typedef bslma::ManagedPtr<bsl::streambuf> StreamBufPtr;
 
-    typedef
-    bdlf::Function<StreamBufPtr (*)(const char *location,
-                                    const char *namespaceUri)>
+    typedef bsl::function<StreamBufPtr(const char *location,
+                                       const char *namespaceUri)>
                                                             XmlResolverFunctor;
         // Type for a user supplied functor that finds and opens an external
         // resource for the specified 'location' and/or 'namespaceUri' and

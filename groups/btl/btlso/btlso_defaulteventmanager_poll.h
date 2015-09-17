@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // 'btlso::DefaultEventManager<btlso::Platform::POLL>', that uses the 'poll'
 // system call to monitor for socket events and adheres to the
 // 'btlso::EventManager' protocol.  In particular, this protocol supports the
-// registration of socket events, along with an associated 'bdlf::Function'
+// registration of socket events, along with an associated 'bsl::function'
 // callback functor, which is invoked when the corresponding socket event
 // occurs.
 //

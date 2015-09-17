@@ -84,8 +84,8 @@ BSLS_IDENT("$Id: $")
 //      int                         d_maxConnections;
 //      int                         d_numMessages;
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-//                                                           d_allocateFunctor;
+//      bsl::function<void(btlsc::TimedCbChannel*, int)>
+//                                  d_allocateFunctor;
 //
 //      void allocateCb(btlsc::TimedCbChannel *channel, int status);
 //          // Invoked by the socket event manager when a connection is
@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //      if (channel) {
 //          // Connected to a server.  Issue a buffered write request.
 //
-//          bdlf::Function<void (*)(int, int)> callback(
+//          bsl::function<void(int, int)> callback(
 //                                bdlf::BindUtil::bind(&my_EchoClient::writeCb,
 //                                                     this,
 //                                                     _1,
@@ -227,7 +227,7 @@ BSLS_IDENT("$Id: $")
 //
 //          // If we're not done -- enqueue another request
 //          if (sequence < d_numMessages) {
-//              bdlf::Function<void (*)(int, int)> callback(
+//              bsl::function<void(int, int)> callback(
 //                                bdlf::BindUtil::bind(&my_EchoClient::writeCb,
 //                                                     this,
 //                                                     _1,
@@ -275,7 +275,7 @@ BSLS_IDENT("$Id: $")
 //              assert("Failed to send data to the server" && 0);
 //          }
 //          else {
-//              bdlf::Function<void (*)(const char *, int, int)> callback(
+//              bsl::function<void(const char *, int, int)> callback(
 //                         bdlf::BindUtil::bind(&my_EchoClient::bufferedReadCb,
 //                                              this,
 //                                              _1,
@@ -400,7 +400,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  int my_DataStream::setUpCallbacks() {
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
+//      bsl::function<void(btlsc::TimedCbChannel*, int)> callback(
 //                             bdlf::BindUtil::bind(&my_DataStream::allocateCb,
 //                                                  this,
 //                                                  _1,
@@ -486,10 +486,6 @@ BSLS_IDENT("$Id: $")
 #include <btlso_ipv4address.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -500,6 +496,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -535,30 +535,30 @@ class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
     bdlma::Pool        d_channelPool;     // memory pool for channels
 
     bsl::deque<TcpTimedCbConnector_Reg *>
-                      d_callbacks;       // registered callbacks
+                       d_callbacks;       // registered callbacks
 
-    bsl::vector<btlsc::CbChannel*>         // managed channels
-                      d_channels;
+    bsl::vector<btlsc::CbChannel*>        // managed channels
+                       d_channels;
 
     TcpTimedCbConnector_Reg
                      *d_currentRequest_p;// the address of the current request.
 
     btlso::TimerEventManager              // multiplexer of both socket events
-                     *d_manager_p;       // and timers
+                      *d_manager_p;       // and timers
 
     btlso::StreamSocketFactory<btlso::IPv4Address>
-                     *d_factory_p;       // factory used to supply sockets
+                      *d_factory_p;       // factory used to supply sockets
 
     btlso::StreamSocket<btlso::IPv4Address>
                      *d_connectingSocket_p;
 
     btlso::IPv4Address d_peerAddress;     // address of peer process
 
-    int               d_isInvalidFlag;   // set if connector is invalid
+    int               d_isInvalidFlag;    // set if connector is invalid
 
-    bdlf::Function<void (*)()>
+    bsl::function<void()>
                       d_connectFunctor;  // cached callbacks
-    bdlf::Function<void (*)()>
+    bsl::function<void()>
                       d_timeoutFunctor;
 
     void             *d_timerId;         // registration id from socket event

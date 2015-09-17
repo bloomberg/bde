@@ -1273,7 +1273,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator allocator, defaultAllocator;
+    bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
+    bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
     bslma::TestAllocator *Z = &allocator;
 

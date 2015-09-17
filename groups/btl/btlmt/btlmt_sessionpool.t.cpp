@@ -1910,6 +1910,8 @@ int main(int argc, char *argv[])
         config.setMaxThreads(4);
 
         const int SIZE = 88;
+        BSLS_ASSERT(0 == SIZE%2); // test invariant
+        btlb::PooledBlobBufferFactory blobFactory(SIZE/2);
         btlb::Blob    blob;
         bslmt::Barrier barrier(2);
 
@@ -1935,8 +1937,6 @@ int main(int argc, char *argv[])
                                               _4,
                                               &barrier);
         const char FILL = 0xBB;
-        BSLS_ASSERT(0 == SIZE%2); // test invariant
-        btlb::PooledBlobBufferFactory blobFactory(SIZE/2);
         {
             Obj mX(&blobFactory, config, poolCb, &pa);
 

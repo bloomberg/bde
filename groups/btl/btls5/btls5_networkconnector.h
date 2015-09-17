@@ -166,10 +166,6 @@ BSLS_IDENT("$Id: $")
 #include <btlso_streamsocketfactory.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -180,6 +176,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -230,7 +230,7 @@ class NetworkConnector {
         e_ERROR           // any other error
     };
 
-    typedef bdlf::Function<void (*)(
+    typedef bsl::function<void(
                NetworkConnector::ConnectionStatus              status,
                btlso::StreamSocket<btlso::IPv4Address>        *socket,
                btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,

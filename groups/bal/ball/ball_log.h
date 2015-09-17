@@ -497,7 +497,7 @@ BSLS_IDENT("$Id: $")
 // that the callback supplied to the logging macro must match the prototype
 // 'void (*)(ball::UserFields *)'.
 //..
-//      bdlf::Function <void (*)(ball::UserFields *)> callback;
+//      bsl::function <void(ball::UserFields *)> callback;
 //      callback = bdlf::BindUtil::bind(&populateUsingPoint,
 //                                     bdlf::PlaceHolders::_1,
 //                                     point);

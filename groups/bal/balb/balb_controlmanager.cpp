@@ -13,6 +13,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_utility.h>
 
@@ -159,7 +160,8 @@ void ControlManager::printUsage(bsl::ostream&      stream,
 // CREATORS
 
 ControlManager_Entry::ControlManager_Entry(bslma::Allocator *basicAllocator)
-: d_callback(basicAllocator)
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ControlManager::ControlHandler>(basicAllocator))
 , d_arguments(basicAllocator)
 , d_description(basicAllocator)
 {}
@@ -172,7 +174,9 @@ ControlManager_Entry::ControlManager_Entry(
                          const bsl::string&                     arguments,
                          const bsl::string&                     description,
                          bslma::Allocator                      *basicAllocator)
-: d_callback(callback, basicAllocator)
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ControlManager::ControlHandler>(basicAllocator),
+             callback)
 , d_arguments(arguments, basicAllocator)
 , d_description(description, basicAllocator)
 {}
@@ -180,7 +184,9 @@ ControlManager_Entry::ControlManager_Entry(
 ControlManager_Entry::ControlManager_Entry(
                                    const ControlManager_Entry&  original,
                                    bslma::Allocator            *basicAllocator)
-: d_callback(original.d_callback, basicAllocator)
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ControlManager::ControlHandler>(basicAllocator),
+             original.d_callback)
 , d_arguments(original.d_arguments, basicAllocator)
 , d_description(original.d_description, basicAllocator)
 {}

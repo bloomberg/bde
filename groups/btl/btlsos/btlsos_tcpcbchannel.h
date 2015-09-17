@@ -68,10 +68,6 @@ BSLS_IDENT("$Id: $")
 #include <btlsc_cbchannel.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -82,6 +78,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -131,14 +131,14 @@ class TcpCbChannel : public btlsc::CbChannel {
     bsl::deque<TcpCbChannel_WReg *>
                                  d_writeRequests;
 
-    bdlf::Function<void (*)()>    d_bufferedReadFunctor;
-    bdlf::Function<void (*)()>    d_readFunctor;
+    bsl::function<void()>        d_bufferedReadFunctor;
+    bsl::function<void()>        d_readFunctor;
 
-    bdlf::Function<void (*)()>    d_bufferedWriteFunctor;
-    bdlf::Function<void (*)()>    d_writeFunctor;
+    bsl::function<void()>        d_bufferedWriteFunctor;
+    bsl::function<void()>        d_writeFunctor;
 
-    bdlma::Pool                   d_rrequestPool; // read requests' pool
-    bdlma::Pool                   d_wrequestPool; // write requests' pool
+    bdlma::Pool                  d_rrequestPool; // read requests' pool
+    bdlma::Pool                  d_wrequestPool; // write requests' pool
     bslma::Allocator            *d_allocator_p;
 
     int                          d_isInvalidReadFlag;

@@ -16,10 +16,12 @@
 #include <bsls_assert.h>
 
 #include <bsls_stopwatch.h>
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
+
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <ball_observer.h>
@@ -409,10 +411,10 @@ void StandardMacroConcurrencyTest::execute()
 
 void StandardMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                 d_allocator_p,
-                                 &StandardMacroConcurrencyTest::execute,
-                                 this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                        d_allocator_p,
+                                        &StandardMacroConcurrencyTest::execute,
+                                        this);
 
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
@@ -514,10 +516,10 @@ void DynamicMacroConcurrencyTest::execute()
 
 void DynamicMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                        d_allocator_p,
-                                        &DynamicMacroConcurrencyTest::execute,
-                                        this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                         d_allocator_p,
+                                         &DynamicMacroConcurrencyTest::execute,
+                                         this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -720,10 +722,10 @@ void TlsMacroConcurrencyTest::execute()
 
 void TlsMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                 d_allocator_p,
-                                 &TlsMacroConcurrencyTest::execute,
-                                 this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                             d_allocator_p,
+                                             &TlsMacroConcurrencyTest::execute,
+                                             this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -870,10 +872,10 @@ void StandardIntMacroConcurrencyTest::execute()
 
 void StandardIntMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                    d_allocator_p,
-                                    &StandardIntMacroConcurrencyTest::execute,
-                                    this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                     d_allocator_p,
+                                     &StandardIntMacroConcurrencyTest::execute,
+                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -996,7 +998,7 @@ void DynamicIntMacroConcurrencyTest::execute()
 
 void DynamicIntMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
                                       d_allocator_p,
                                       &DynamicIntMacroConcurrencyTest::execute,
                                       this);
@@ -1200,10 +1202,10 @@ void TlsIntMacroConcurrencyTest::execute()
 
 void TlsIntMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                        d_allocator_p,
-                                        &TlsIntMacroConcurrencyTest::execute,
-                                        this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                          d_allocator_p,
+                                          &TlsIntMacroConcurrencyTest::execute,
+                                          this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }

@@ -19,8 +19,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
-//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
+//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has <type_traits> header
+//  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
+//  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -112,6 +116,16 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
 //:    This macro is defined if 'alignas' alignment specifier is supported by
 //:    the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+//:    This macro is defined if the 'noexcept' keyword is supported by the
+//:    current compiler settings for this platform, both for designating a
+//:    function as not throwing and for testing if an expression may throw.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
+//:    This macro is defined if the <type_traits> header is provided by the
+//:    current compiler settings for this platform and supports traits like
+//:    'is_trivially_copyable' and 'is_nothrow_destructible'
 //
 ///Usage
 ///-----
@@ -365,6 +379,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_MACROREPEAT
+#include <bsls_macrorepeat.h>
+#endif
+
 // gcc
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 #if defined(BSLS_PLATFORM_CMP_GNU)
@@ -405,8 +423,10 @@ BSLS_IDENT("$Id: $")
 // gcc supports __attribute__((noreturn)) in earlier versions
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
+#if BSLS_PLATFORM_CMP_VERSION >= 50000
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
-
+#endif
 
 // clang
 // http://clang.llvm.org/cxx_status.html
@@ -590,6 +610,15 @@ BSLS_IDENT("$Id: $")
 
 
 
+             // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+// GCC 4.6 has support with '-std=c++0x'.
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#endif
+
+
     //  *** Simulate various C++11 features ***
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -598,7 +627,29 @@ BSLS_IDENT("$Id: $")
 #   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 #       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
 #   endif
-#endif
+
+#   if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+namespace BloombergLP {
+namespace bsls {
+
+    enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
+
+#   define BSLS_COMPILERFEATURES_NILT BloombergLP::bsls::CompilerFeaturesNilT
+#   define BSLS_COMPILERFEATURES_NILV BloombergLP::bsls::CompilerFeaturesNilV
+
+#   define BSLS_COMPILERFEATURES_NILTR(n) BSLS_COMPILERFEATURES_NILT,
+#   define BSLS_COMPILERFEATURES_FILLT(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILTR) BSLS_COMPILERFEATURES_NILT
+
+#   define BSLS_COMPILERFEATURES_NILVR(n) BSLS_COMPILERFEATURES_NILV,
+#   define BSLS_COMPILERFEATURES_FILLV(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV
+
+} // close package namespace
+} // close enterprise namespace
+
+#   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #   define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND 1
@@ -634,7 +685,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2013-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

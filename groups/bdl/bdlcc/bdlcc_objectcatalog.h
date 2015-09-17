@@ -139,8 +139,8 @@ BSLS_IDENT("$Id: $")
 //      serverMutex.unlock();
 //  }
 //
-//  void getQueryAndCallback(Query                                 *query,
-//                           bdlf::Function<void (*)(QueryResult)> *callBack)
+//  void getQueryAndCallback(Query                            *query,
+//                           bsl::function<void(QueryResult)> *callBack)
 //      // Set the specified 'query' and 'callBack' to the next 'Query' and its
 //      // associated functor (the functor to be called when the response to
 //      // this 'Query' comes in).
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  RemoteAddress serverAddress;  // address of remote server
 //
-//  bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
+//  bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
 //      // Catalog of query callbacks, used by the client internally to keep
 //      // track of callback functions across multiple queries.  The invariant
 //      // is that each element corresponds to a pending query (i.e., the
@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
 //      while (queriesToBeProcessed--) {
 //          Query query;
-//          bdlf::Function<void (*)(QueryResult)> callBack;
+//          bsl::function<void(QueryResult)> callBack;
 //
 //          // The following call blocks until a query becomes available.
 //          getQueryAndCallback(&query, &callBack);
@@ -198,7 +198,7 @@ BSLS_IDENT("$Id: $")
 //          // The 'callBack' function is retrieved from the 'catalog' using
 //          // the given 'handle'.
 //
-//          bdlf::Function<void (*)(QueryResult)> callBack;
+//          bsl::function<void(QueryResult)> callBack;
 //          assert(0 == catalog.find(handle, &callBack));
 //          callBack(result);
 //
@@ -233,7 +233,7 @@ BSLS_IDENT("$Id: $")
 // iterate through all the objects of 'catalog' (a catalog of objects of type
 // 'MyType').
 //..
-//  void use(bdlf::Function<void (*)(QueryResult)> object)
+//  void use(bsl::function<void(QueryResult)> object)
 //  {
 //      (void)object;
 //  }

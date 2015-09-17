@@ -51,9 +51,14 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
                                               bslma::Allocator *basicAllocator)
 : d_defaults()
 , d_userFieldsSchema(basicAllocator)
-, d_userPopulator(basicAllocator)
-, d_categoryNameFilter()
-, d_defaultThresholdsCb()
+, d_userPopulator(bsl::allocator_arg_t(),
+                  bsl::allocator<UserFieldsPopulatorCallback>(basicAllocator))
+, d_categoryNameFilter(
+                    bsl::allocator_arg_t(),
+                    bsl::allocator<CategoryNameFilterCallback>(basicAllocator))
+, d_defaultThresholdsCb(
+                bsl::allocator_arg_t(),
+                bsl::allocator<DefaultThresholdLevelsCallback>(basicAllocator))
 , d_logOrder(e_LIFO)
 , d_triggerMarkers(e_BEGIN_END_MARKERS)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -65,9 +70,17 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
                              bslma::Allocator                  *basicAllocator)
 : d_defaults(original.d_defaults)
 , d_userFieldsSchema(original.d_userFieldsSchema, basicAllocator)
-, d_userPopulator(original.d_userPopulator, basicAllocator)
-, d_categoryNameFilter(original.d_categoryNameFilter)
-, d_defaultThresholdsCb(original.d_defaultThresholdsCb)
+, d_userPopulator(bsl::allocator_arg_t(),
+                  bsl::allocator<UserFieldsPopulatorCallback>(basicAllocator),
+                  original.d_userPopulator)
+, d_categoryNameFilter(
+                    bsl::allocator_arg_t(),
+                    bsl::allocator<CategoryNameFilterCallback>(basicAllocator),
+                    original.d_categoryNameFilter)
+, d_defaultThresholdsCb(
+                bsl::allocator_arg_t(),
+                bsl::allocator<DefaultThresholdLevelsCallback>(basicAllocator),
+                original.d_defaultThresholdsCb)
 , d_logOrder(original.d_logOrder)
 , d_triggerMarkers(original.d_triggerMarkers)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -293,9 +306,9 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
 // FREE OPERATORS
 bool ball::operator==(const ball::LoggerManagerConfiguration& lhs,
                       const ball::LoggerManagerConfiguration& rhs)
-{   // TBD: Note that we are casting the three 'bdlf::Function' data members to
+{   // TBD: Note that we are casting the three 'bsl::function' data members to
     // 'bool' and comparing the boolean values as this was the accidental
-    // behavior present in 'bdlf::Function'.  Now that 'bdlf::Function' has
+    // behavior present in 'bsl::function'.  Now that 'bsl::function' has
     // been updated to suppress this operator, the operation has been coded
     // inline here to retain the old semantic - but we need to consider whether
     // this is truly the desired behavior, and if so remove this note, or

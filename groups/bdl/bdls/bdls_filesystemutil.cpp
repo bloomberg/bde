@@ -706,8 +706,8 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 }
 
 void FilesystemUtil::visitPaths(
-                       const char                                  *patternStr,
-                       const bdlf::Function<void(*)(const char*)>&  visitor)
+                           const char                              *patternStr,
+                           const bsl::function<void(const char*)>&  visitor)
 {
     // Windows 'FindFirstFileW' function only looks at pattern characters ('*'
     // and '?') in the leaf element of the path.  Therefore we must first
@@ -1352,8 +1352,8 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 }
 
 void FilesystemUtil::visitPaths(
-                         const char                                   *pattern,
-                         const bdlf::Function<void(*)(const char *)>&  visitor)
+                             const char                               *pattern,
+                             const bsl::function<void(const char *)>&  visitor)
 {
     BSLS_ASSERT(pattern);
 

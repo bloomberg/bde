@@ -256,7 +256,7 @@ class PublicationScheduler {
         // indicated by the specified 'clockData'.  Note that this operation
         // serves as the event callback provided to the underlying
         // 'bdlmt::TimerEventScheduler': this method is bound with a
-        // 'ClockData' object in the 'bdlf::Function' objects provided to
+        // 'ClockData' object in the 'bsl::function' objects provided to
         // 'd_scheduler_p'.
 
     void cancelCategory(Categories::iterator categoryIterator);

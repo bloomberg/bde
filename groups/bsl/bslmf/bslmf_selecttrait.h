@@ -12,7 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bslmf::SelectTrait        Template that selects the first of multiple traits
 // bslmf::SelectTraitCase    Template that identifies a selected trait
-// bslmf::SelectTraitDefault Class that identifies no traits
 //
 //@SEE_ALSO:
 //
