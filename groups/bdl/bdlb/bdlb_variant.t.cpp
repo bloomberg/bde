@@ -1,37 +1,33 @@
 // bdlb_variant.t.cpp                                                 -*-C++-*-
-
 #include <bdlb_variant.h>
 
 #include <bdlb_print.h>
 
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
-#include <bslalg_typetraits.h>
+#include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>                      // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
-#include <bslmf_issame.h>                       // for testing only
-#include <bslmf_typelist.h>                     // for testing only
+#include <bslmf_issame.h>
+#include <bslmf_typelist.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
+#include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-#include <bsl_cstdlib.h>    // atoi()
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
 #undef GS
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -39,15 +35,14 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // The component under test is a value-semantic "variant" type, whose state is
-// a type identifier (an index in an underlying type list) and a value of the
+// a type identifier (an index into an underlying type list) and a value of the
 // corresponding type.  In addition, there are several versions of the variant
-// type ('bdeut::VariantN'), accepting different numbers of template arguments,
-// and a basic version that accepts a type list ('bdlb::VariantImp') and
-// actually contains the implementation (hence its name).
+// type ('bdlb::VariantN') accepting different numbers of template arguments,
+// and a basic version that accepts a type list ('bdlb::VariantImp').  The
+// latter actually contains the implementation (hence its name).
 //
 // We have chosen the primary manipulators for the 'bdlb::Variant' class to be
-// 'assign' and 'reset'.  We have chosen the basic accessors for
-// 'bdlb::Variant' to be 'is<TYPE>', 'the<TYPE>' (non-modifiable version), and
+// 'assign' and 'reset'.  The basic accessors are 'is<TYPE>', 'the<TYPE>', and
 // 'typeIndex'.
 //
 //                      // ----------------------
@@ -68,6 +63,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] void assign(const TYPE& value);
 // [11] void assignTo(SOURCE const& value);
 // [14] void createInPlace<TYPE>(...);                     // all 15 variations
+// [ 2] void reset();
 // [ 2] TYPE& the<TYPE>();
 //
 // // Testing return value aspect of 'apply'.
@@ -126,103 +122,105 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
-// [18] CLASSES: 'bdeut::VariantN', 'bdlb::Variant'
+// [22] USAGE EXAMPLE
+// [18] CLASSES: 'bdlb::VariantN', 'bdlb::Variant'
 // [ 3] int ggg(bdlb::Variant *o, const char *s, bool verbose);
 // [ 3] bdlb::VariantImp& gg(bdlb::VariantImp *o, const char *s);
 // [ 8] bdlb::VariantImp   g(const char *spec, const T *value);
-// [19] CONCERN: No allocator pointer in object if not necessary
-// [19] CONCERN: No 'bslalg::TypeTraitUsesBslmaAllocator' when no alloc
-// [19] CONCERN: 'bslalg::TypeTraitBitwiseCopyable' trait
-// [19] CONCERN: 'bslalg::TypeTraitBitwiseMoveable' trait
-// [20] CONCERN: 'applyRaw' accepts VISITORs without a 'bslmf::Nil' overload
-// [10] Reserved for 'BDEX' streaming.
+// [19] CONCERN: No allocator pointer in object if not necessary.
+// [19] CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
+// [19] CONCERN: 'bsl::is_trivially_copyable' trait
+// [19] CONCERN: 'bslmf::IsBitwiseMoveable' trait
+// [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
+// [10] Reserved for BDEX streaming.
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
 namespace {
+
 int testStatus = 0;
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-   if (c) {
-       cout << "Error " << __FILE__ << "(" << i << "): " << s
-            << "    (failed)" << endl;
-       if (0 <= testStatus && testStatus <= 100) ++testStatus;
-   }
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
+    }
 }
+
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << '\t' << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //                   HELPER TYPEDEF/STRUCT/CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class TestAllocObj;
-class TestInt;
-class TestString;
+class  TestAllocObj;
+class  TestInt;
+class  TestString;
 struct TestVoid;
 
 enum {
-    UNSET              = 0
-  , INT_TYPE           = 1
-  , STRING_TYPE        = 2
-  , TEST_INT_TYPE      = 3
-  , TEST_STRING_TYPE   = 4
-  , TEST_VOID_TYPE     = 5
+    UNSET            = 0
+  , INT_TYPE         = 1
+  , STRING_TYPE      = 2
+  , TEST_INT_TYPE    = 3
+  , TEST_STRING_TYPE = 4
+  , TEST_VOID_TYPE   = 5
 };
 
 typedef bslmf::TypeList<int, bsl::string, TestInt,
-                       TestString, TestVoid>              VariantTypes;
+                        TestString, TestVoid> VariantTypes;
 
-typedef bdlb::VariantImp<VariantTypes>                    Obj;
-    // For convenience only.
+typedef bdlb::VariantImp<VariantTypes>        Obj;
 
 //-----------------------------------------------------------------------------
 
@@ -232,12 +230,10 @@ typedef bdlb::VariantImp<VariantTypes>                    Obj;
 
 struct TestVoid {
     // This class has no state, hence no value (all objects of this type
-    // compare equal).  For brevity, and only because this is a test driver, we
-    // relax our rules and implement each method in the class body and do not
-    // provide documentation of these straightforward and bde-standard methods.
+    // compare equal).
 };
 
-bool operator==(const TestVoid& lhs, const TestVoid& rhs)
+bool operator==(const TestVoid&, const TestVoid&)
 {
     return true;
 }
@@ -247,10 +243,9 @@ bool operator!=(const TestVoid& lhs, const TestVoid& rhs)
     return !(lhs == rhs);
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
+bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid&)
 {
-    stream << "TestVoid";
-    return stream;
+    return stream << "TestVoid";
 }
 
 //-----------------------------------------------------------------------------
@@ -262,10 +257,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
 class TestAllocObj {
     // This class has no state, hence no value (all objects of this type
     // compare equal).  The object allocates during construction and
-    // deallocates during destruction.  For brevity, and only because this is a
-    // test driver, we relax our rules and implement each method in the class
-    // body and do not provide documentation of these straightforward and
-    // bde-standard methods.
+    // deallocates during destruction.
 
     void             *d_data_p;       // holds the memory allocated on
                                       // construction
@@ -274,8 +266,7 @@ class TestAllocObj {
 
   public:
     // TYPES
-    BSLALG_DECLARE_NESTED_TRAITS(TestAllocObj,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestAllocObj, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TestAllocObj(bslma::Allocator *basicAllocator = 0)
@@ -284,8 +275,7 @@ class TestAllocObj {
         d_data_p = d_allocator_p->allocate(1);
     }
 
-    TestAllocObj(const TestAllocObj&  original,
-                 bslma::Allocator    *basicAllocator = 0)
+    TestAllocObj(const TestAllocObj&, bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
     {
         d_data_p = d_allocator_p->allocate(1);
@@ -293,17 +283,19 @@ class TestAllocObj {
 
     ~TestAllocObj()
     {
+        ASSERT(d_allocator_p);
+
         d_allocator_p->deallocate(d_data_p);
     }
 
     // MANIPULATORS
-    TestAllocObj& operator=(const TestAllocObj& original)
+    TestAllocObj& operator=(const TestAllocObj&)
     {
         return *this;
     }
 };
 
-bool operator==(const TestAllocObj& lhs, const TestAllocObj& rhs)
+bool operator==(const TestAllocObj&, const TestAllocObj&)
 {
     return true;
 }
@@ -313,7 +305,7 @@ bool operator!=(const TestAllocObj& lhs, const TestAllocObj& rhs)
     return !(lhs == rhs);
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj& rhs)
+bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj&)
 {
     stream << "TestAllocObj";
     return stream;
@@ -326,19 +318,16 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj& rhs)
                                // =============
 
 class TestInt {
-    // This class, similar to the forthcoming 'TestString', wraps an 'int'
-    // value, a reference to which one can obtain using 'theInt' method.  It
-    // also supports 'bdeu' print methods.  For brevity, and only because this
-    // is a test driver, we relax our rules and implement each method in the
-    // class body and do not provide documentation of these straightforward and
-    // bde-standard methods.
+    // This class, similar to 'TestString' (below), wraps an 'int' value, a
+    // reference to which one can obtain using the 'theInt' method.  This class
+    // also supports 'bdlb' print methods.
 
     // DATA
     int d_value;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestInt, bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestInt, bdlb::HasPrintMethod);
 
     // CREATORS
     explicit TestInt(int value = 0)
@@ -370,7 +359,8 @@ class TestInt {
     {
         if (0 > level) {
             level = -level;
-        } else {
+        }
+        else {
             bdlb::Print::indent(stream, level, spacesPerLevel);
         }
         stream << "[";
@@ -406,21 +396,17 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
                                // ================
 
 class TestString {
-    // This class, similar to 'TestInt', wraps a 'bsl::string' value, a
-    // reference to which one can obtain using 'theString' method.  It also
-    // supports 'bdeu' print methods.  For brevity, and only because this is a
-    // test driver, we relax our rules and implement each method in the class
-    // body and do not provide documentation of these straightforward and
-    // bde-standard methods.
+    // This class, similar to 'TestInt' (above), wraps a 'bsl::string' value, a
+    // reference to which one can obtain using the 'theString' method.  This
+    // class also supports 'bdlb' print methods.
 
     // DATA
     bsl::string d_value;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(TestString,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestString, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestString, bdlb::HasPrintMethod);
 
     // CREATORS
     explicit TestString(bslma::Allocator *allocator = 0)
@@ -463,7 +449,8 @@ class TestString {
     {
         if (0 > level) {
             level = -level;
-        } else {
+        }
+        else {
             bdlb::Print::indent(stream, level, spacesPerLevel);
         }
         stream << "[";
@@ -500,15 +487,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestString& rhs)
 
 template <int N>
 class TestArg {
-    // This class, identical to 'TestInt' allows to have several distinct types
-    // (depending on the parameterized integral 'N').
+    // This class is identical to 'TestInt' except that it allows for several
+    // distinct types (depending on the integral template parameter type 'N').
 
     // DATA
     int d_value;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestArg, bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestArg, bdlb::HasPrintMethod);
 
     // CREATORS
     explicit TestArg(int value = 0)
@@ -540,7 +527,8 @@ class TestArg {
     {
         if (0 > level) {
             level = -level;
-        } else {
+        }
+        else {
             bdlb::Print::indent(stream, level, spacesPerLevel);
         }
         stream << "[";
@@ -580,16 +568,16 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestArg<N>& rhs)
 
 enum { MAX_COPYABLE_PARAMETERS = 14 };
 
-struct Copyable
-    // This 'struct' is a simple mechanism to count for the number of copy
-    // constructor calls.  For brevity, and only because this is a test driver,
-    // we relax our rules and implement each method in the class body and do
-    // not provide documentation.
-{
-    static bool d_copyConstructorCalled;  // flag for whether copy constructor
-                                          // is called.
+struct Copyable {
+    // This 'struct' is a simple mechanism for counting the number of copy
+    // constructor calls.
 
-    bool        d_arguments[MAX_COPYABLE_PARAMETERS];  // the 14 arguments
+    // PUBLIC CLASS DATA
+    static bool s_copyConstructorCalled;  // flag indicating whether copy
+                                          // constructor was called
+
+    // PUBLIC DATA
+    bool d_arguments[MAX_COPYABLE_PARAMETERS];  // the 14 arguments
 
     Copyable(bool a1  = false, bool a2  = false, bool a3  = false,
              bool a4  = false, bool a5  = false, bool a6  = false,
@@ -604,20 +592,21 @@ struct Copyable
         d_arguments[12] = a13; d_arguments[13] = a14;
     }
 
-    Copyable(int i)  // implicit conversion, on purpose
+    Copyable(int)  // IMPLICIT
     {
     }
 
-    Copyable(const Copyable& another)
+    Copyable(const Copyable&)
     {
-        d_copyConstructorCalled = true;
+        s_copyConstructorCalled = true;
     }
 };
 
-bool Copyable::d_copyConstructorCalled = false;
+// PUBLIC CLASS DATA
+bool Copyable::s_copyConstructorCalled = false;
 
 void checkCopyableParameters(const Copyable& object, int numTrue)
-    // Helper function that help check the specified 'numTrue' number of true
+    // Helper function that checks the specified 'numTrue' number of 'true'
     // parameters (in increasing order of the argument list) in the specified
     // 'Copyable' 'object'.
 {
@@ -634,12 +623,12 @@ void checkCopyableParameters(const Copyable& object, int numTrue)
 
 template <int index>
 struct BitwiseCopyable
-    // This struct has the bitwise copyable trait declared and is used for
+    // This struct has the bitwise-copyable trait declared and is used for
     // testing traits in the variant.
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyable,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyable,
+                                   bsl::is_trivially_copyable);
 
     // DATA
     int d_x;  // take up space
@@ -653,12 +642,11 @@ struct BitwiseCopyable
 
 template <int index>
 struct BitwiseMoveable
-    // This struct has the bitwise moveable trait declared and is used for
+    // This struct has the bitwise-moveable trait declared and is used for
     // testing traits in the variant.
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseMoveable,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveable, bslmf::IsBitwiseMoveable);
 
     // DATA
     int d_x;  // take up space
@@ -672,12 +660,11 @@ struct BitwiseMoveable
 
 template <int index>
 struct UsesAllocator
-    // This struct has the uses allocator trait declared and is used for
+    // This struct has the uses-allocator trait declared and is used for
     // testing traits in the variant.
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(UsesAllocator,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocator, bslma::UsesBslmaAllocator);
 
     // DATA
     bslma::Allocator *allocator;
@@ -686,7 +673,7 @@ struct UsesAllocator
 //-----------------------------------------------------------------------------
 
                                   // ================
-                                  // struct Niltraits
+                                  // struct NilTraits
                                   // ================
 
 template <int index>
@@ -702,11 +689,11 @@ struct NilTraits
 //                        GLOBAL CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-const int         VA       = 123;
-const int         VB       = 456;
-const int         VC       = 789;
-const int         VD       = 147;
-const int         VE       = 369;
+const int         VA = 123;
+const int         VB = 456;
+const int         VC = 789;
+const int         VD = 147;
+const int         VE = 369;
 
 const TestInt     VF(123);
 const TestInt     VG(456);
@@ -733,34 +720,6 @@ const bsl::string STRING_DATA[]      = { VS, VT, VU, VV, VW };
 const TestString  TEST_STRING_DATA[] = { VK, VL, VM, VN, VO };
 
 //=============================================================================
-//                         HELPER FUNCTION FOR TESTING
-//=============================================================================
-
-struct VariantTestDriverException {};
-
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BDEUT_VARIANT_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BDEUT_VARIANT_NORETURN __declspec(noreturn)
-#else
-#   define BDEUT_VARIANT_NORETURN
-#endif
-
-BDEUT_VARIANT_NORETURN
-void applyRawFailureHandler(const char *, const char *, int)
-{
-    // TBD
-    // This function is a placeholder for BDE 2.4, until "negative testing" is
-    // formalized in a later BDE release.
-
-    throw VariantTestDriverException();
-}
-
-#undef BDEUT_VARIANT_NORETURN
-
-//=============================================================================
 //                      WRAPPERS AND VISITORS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -768,20 +727,21 @@ void applyRawFailureHandler(const char *, const char *, int)
                           // struct Convertible
                           // ==================
 
-struct Convertible
+struct Convertible {
     // This struct is convertible from any type.  This is used to facilitate
-    // testing for explicit return type specification on the 'visit' method
-    // of the variant.  For more details, please see test plan for case 15.
-{
+    // testing for explicit return type specification on the 'apply' method of
+    // the variant.  For more details, see the test plan for case 15.
+
     template <class TYPE>
-    Convertible(const TYPE &)  // implicit conversion, on purpose
+    Convertible(const TYPE &)  // IMPLICIT
     {
     }
 
     int memberFunc()
     {
-        // Return something to prevent compiler from optimizing away the
+        // Return something to prevent the compiler from optimizing away the
         // function.
+
         static int x = 999;
         return x++;
     }
@@ -793,46 +753,47 @@ struct Convertible
                           // class my_ModifyingVisitor
                           // =========================
 
-class my_ModifyingVisitor
+class my_ModifyingVisitor {
     // This class modifies the value of the visitor according to the type of
     // object being passed in.  This visitor only supports 4 types: 'int',
-    // 'TestInt', 'bsl::string' and 'TestString'.  For brevity, and only
-    // because this is a test driver, we relax our rules and implement each
-    // method in the class body and do not provide documentation of these
-    // straightforward methods.
-{
+    // 'TestInt', 'bsl::string', and 'TestString'.
+
     // DATA
     int d_valueIdx;  // value index
 
   public:
     // CREATORS
     explicit my_ModifyingVisitor(int valueIdx)
-        // Modifies the value of the value visited to the corresponding value
-        // at the specified 'valueIdx' in the test data.
+        // Modifies the value of the variant visited to the value at the
+        // specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
 
     // ACCESSORS
-    void operator()(int& value) const {
+    void operator()(int& value) const
+    {
         value = INT_DATA[d_valueIdx];
     }
 
-    void operator()(TestInt& value) const {
+    void operator()(TestInt& value) const
+    {
         value = TEST_INT_DATA[d_valueIdx];
     }
 
-    void operator()(bsl::string& value) const {
+    void operator()(bsl::string& value) const
+    {
         value = STRING_DATA[d_valueIdx];
     }
 
-    void operator()(TestString& value) const {
+    void operator()(TestString& value) const
+    {
         value = TEST_STRING_DATA[d_valueIdx];
     }
 
-    void operator()(bslmf::Nil value) const {
-        ASSERT("Should never be here");
-        // NO-OP
+    void operator()(bslmf::Nil) const
+    {
+        ASSERT("Should never be here!");
     }
 };
 
@@ -842,49 +803,52 @@ class my_ModifyingVisitor
                           // class my_DefaultNoReturnVisitor
                           // ===============================
 
-class my_DefaultNoReturnVisitor
+class my_DefaultNoReturnVisitor {
     // This class modifies the value of the visitor according to the type of
-    // object being passed in and return the type index of the type modified.
-    // This visitor only supports 4 types: 'int', 'TestInt', 'bsl::string' and
-    // 'TestString'.  For brevity, and only because this is a test driver, we
-    // relax our rules and implement each method in the class body and do not
-    // provide documentation of these straightforward methods.
-{
+    // object being passed in and returns the type index of the type modified.
+    // This visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
+    // 'TestString'.
+
     // DATA
     my_ModifyingVisitor d_visitor;  // implementation of visitor
 
   public:
     // CREATORS
     explicit my_DefaultNoReturnVisitor(int valueIdx)
-        // Modifies the value of the value visited to the corresponding value
-        // at the specified 'valueIdx' in the test data.
+        // Modifies the value of the variant visited to the value at the
+        // specified 'valueIdx' in the test data.
     : d_visitor(valueIdx)
     {
     }
 
     // ACCESSORS
-    int operator()(int& value) const {
+    int operator()(int& value) const
+    {
         d_visitor(value);
         return INT_TYPE;
     }
 
-    int operator()(TestInt& value) const {
+    int operator()(TestInt& value) const
+    {
         d_visitor(value);
         return TEST_INT_TYPE;
     }
 
-    int operator()(bsl::string& value) const {
+    int operator()(bsl::string& value) const
+    {
         d_visitor(value);
         return STRING_TYPE;
     }
 
-    int operator()(TestString& value) const {
+    int operator()(TestString& value) const
+    {
         d_visitor(value);
         return TEST_STRING_TYPE;
     }
 
-    int operator()(bslmf::Nil value) const {
-        ASSERT("Should never be here");
+    int operator()(bslmf::Nil) const
+    {
+        ASSERT("Should never be here!");
         return -1;
     }
 };
@@ -895,16 +859,13 @@ class my_DefaultNoReturnVisitor
                           // class my_ReturningVisitor
                           // =========================
 
-class my_ReturningVisitor : public my_DefaultNoReturnVisitor
+class my_ReturningVisitor : public my_DefaultNoReturnVisitor {
     // This class modifies the value of the visitor according to the type of
-    // object being passed in and return the type index of the type modified.
+    // object being passed in and returns the type index of the type modified.
     // Furthermore, this class specifies its 'operator()'s return type with a
-    // typedef of 'ResultType'.  This visitor only supports 4 types: 'int',
-    // 'TestInt', 'bsl::string' and 'TestString'.  For brevity, and only
-    // because this is a test driver, we relax our rules and implement each
-    // method in the class body and do not provide documentation of these
-    // straightforward methods.
-{
+    // 'typedef' of 'ResultType'.  This visitor only supports 4 types: 'int',
+    // 'TestInt', 'bsl::string', and 'TestString'.
+
   public:
     // PUBLIC TYPES
     typedef int ResultType;
@@ -921,44 +882,47 @@ class my_ReturningVisitor : public my_DefaultNoReturnVisitor
                           // class my_ConstVisitor
                           // =====================
 
-class my_ConstVisitor
+class my_ConstVisitor {
     // This class simply verifies the values being passed to the visitor.  This
-    // visitor only supports 4 types: 'int', 'TestInt', 'bsl::string' and
-    // 'TestString'.  For brevity, and only because this is a test driver, we
-    // relax our rules and implement each method in the class body and do not
-    // provide documentation of these straightforward methods.
-{
+    // visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
+    // 'TestString'.
+
     // DATA
     int d_valueIdx;  // value index
 
   public:
     // CREATORS
     explicit my_ConstVisitor(int valueIdx)
-        // Modifies the value of the value visited to the corresponding value
-        // at the specified 'valueIdx' in the test data.
+        // Modifies the value of the variant visited to the value at the
+        // specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
 
     // ACCESSORS
-    void operator()(const int& value) const {
+    void operator()(const int& value) const
+    {
         ASSERT(INT_DATA[d_valueIdx] == value);
     }
 
-    void operator()(const TestInt& value) const {
+    void operator()(const TestInt& value) const
+    {
         ASSERT(TEST_INT_DATA[d_valueIdx] == value);
     }
 
-    void operator()(const bsl::string& value) const {
+    void operator()(const bsl::string& value) const
+    {
         ASSERT(STRING_DATA[d_valueIdx] == value);
     }
 
-    void operator()(const TestString& value) const {
+    void operator()(const TestString& value) const
+    {
         ASSERT(TEST_STRING_DATA[d_valueIdx] == value);
     }
 
-    void operator()(bslmf::Nil value) const {
-        ASSERT("Should never be here");
+    void operator()(bslmf::Nil) const
+    {
+        ASSERT("Should never be here!");
     }
 };
 
@@ -968,14 +932,11 @@ class my_ConstVisitor
                           // class my_ConstReturningVisitor
                           // ==============================
 
-class my_ConstReturningVisitor
+class my_ConstReturningVisitor {
     // This class simply verifies the values being passed to the visitor and
     // returns the type of the value.  This visitor only supports 4 types:
-    // 'int', 'TestInt', 'bsl::string' and 'TestString'.  For brevity, and
-    // only because this is a test driver, we relax our rules and implement
-    // each method in the class body and do not provide documentation of these
-    // straightforward methods.
-{
+    // 'int', 'TestInt', 'bsl::string', and 'TestString'.
+
   public:
     // PUBLIC TYPES
     typedef int ResultType;
@@ -987,35 +948,40 @@ class my_ConstReturningVisitor
   public:
     // CREATORS
     explicit my_ConstReturningVisitor(int valueIdx)
-        // Modifies the value of the value visited to the corresponding value
-        // at the specified 'valueIdx' in the test data.
+        // Modifies the value of the variant visited to the value at the
+        // specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
 
     // ACCESSORS
-    ResultType operator()(const int& value) const {
+    ResultType operator()(const int& value) const
+    {
         ASSERT(INT_DATA[d_valueIdx] == value);
         return INT_TYPE;
     }
 
-    ResultType operator()(const TestInt& value) const {
+    ResultType operator()(const TestInt& value) const
+    {
         ASSERT(TEST_INT_DATA[d_valueIdx] == value);
         return TEST_INT_TYPE;
     }
 
-    ResultType operator()(const bsl::string& value) const {
+    ResultType operator()(const bsl::string& value) const
+    {
         ASSERT(STRING_DATA[d_valueIdx] == value);
         return STRING_TYPE;
     }
 
-    ResultType operator()(const TestString& value) const {
+    ResultType operator()(const TestString& value) const
+    {
         ASSERT(TEST_STRING_DATA[d_valueIdx] == value);
         return TEST_STRING_TYPE;
     }
 
-    ResultType operator()(bslmf::Nil value) const {
-        ASSERT("Should never be here");
+    ResultType operator()(bslmf::Nil) const
+    {
+        ASSERT("Should never be here!");
         return -1;
     }
 };
@@ -1027,10 +993,7 @@ class my_ConstReturningVisitor
                           // ==============================
 
 class my_UnsetVariantVisitor {
-    // This class simply record the type being passed to the visitor.   For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward methods.
+    // This class simply records the type being passed to the visitor.
 
   public:
     // PUBLIC TYPES
@@ -1045,19 +1008,25 @@ class my_UnsetVariantVisitor {
                            // 'operator()' with
 
     // CREATORS
-    my_UnsetVariantVisitor() : d_lastType(GENERIC) {}
+    my_UnsetVariantVisitor()
+    : d_lastType(GENERIC)
+    {
+    }
 
     // MANIPULATORS
     template <class TYPE>
-    void operator()(const TYPE& value) {
+    void operator()(const TYPE&)
+    {
         d_lastType = GENERIC;
     }
 
-    void operator()(bslmf::Nil value) {
+    void operator()(bslmf::Nil)
+    {
         d_lastType = BSLMF_NIL;
     }
 
-    void operator()(const TestArg<1>& value) {
+    void operator()(const TestArg<1>&)
+    {
         d_lastType = TEST_ARG;
     }
 };
@@ -1069,9 +1038,9 @@ class my_UnsetVariantVisitor {
                         // =========================
 
 class my_NilAssertVisitor {
-    //  This class is crafted to reproduce 'The variable nil has not yet been
-    //  assigned a value' warning on Sun, where 'nil' refers to an object in
-    //  'bdlb::Variant::apply' method.
+    // This class is crafted to reproduce "The variable nil has not yet been
+    // assigned a value" warning on Solaris, where 'nil' refers to an object in
+    // the 'bdlb::Variant::apply' method.
 
     void *d_result_p;
 
@@ -1081,11 +1050,11 @@ class my_NilAssertVisitor {
     {
     }
 
-    void operator()(int x) const
+    void operator()(int) const
     {
     }
 
-    void operator()(const bslmf::Nil x) const
+    void operator()(const bslmf::Nil) const
     {
         BSLS_ASSERT(false);
     }
@@ -1103,56 +1072,60 @@ void dummyConvert(void *result, const bdlb::Variant<int>& value)
                           // class my_VariantWrapper
                           // =======================
 
-
 template <class VARIANT>
 class my_VariantWrapper {
-    // This class wraps a variant object.  This class also implements a similar
-    // 'visit' interface as the 'bdlb::VariantImp', which is used to keep track
-    // of which 'visit' method is invoked.  A reference to the wrapped variant
-    // object is accessible through 'theVariant' methods.
+    // This class wraps a variant object.  It also implements a similar 'apply'
+    // interface as 'bdlb::VariantImp' that is used to keep track of which
+    // 'apply' method is invoked.  A reference to the wrapped variant object is
+    // accessible through 'theVariant' method.
 
   public:
     // PUBLIC TYPES
     enum VisitType {
-        RESULT_TYPE_VISIT,        // VISITOR::ResultType visit(...);
-        RESULT_TYPE_VISIT_CONST,  // VISITOR::ResultType visit(...) const;
-        VOID_VISIT,               // void visit(...);
-        VOID_VISIT_CONST,         // void visit(...) const;
-        RET_TYPE_VISIT,           // RET_TYPE visit(...);
-        RET_TYPE_VISIT_CONST      // RET_TYPE visit(...) const;
+        RESULT_TYPE_VISIT,        // VISITOR::ResultType visitor(...);
+        RESULT_TYPE_VISIT_CONST,  // VISITOR::ResultType visitor(...) const;
+        VOID_VISIT,               // void visitor(...);
+        VOID_VISIT_CONST,         // void visitor(...) const;
+        RET_TYPE_VISIT,           // RET_TYPE visitor(...);
+        RET_TYPE_VISIT_CONST      // RET_TYPE visitor(...) const;
     };
 
+  private:
     // DATA
     VARIANT           d_variant;        // internal variant implementation
     mutable VisitType d_lastVisitCall;  // last visit function invoked
 
+    // NOT IMPLEMENTED
+    my_VariantWrapper(const my_VariantWrapper&, bslma::Allocator * = 0);
+    my_VariantWrapper& operator=(const my_VariantWrapper&);
+
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_VariantWrapper,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_VariantWrapper,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
         // Create a wrapper around an unset variant object.
 
-    my_VariantWrapper(const VARIANT&    original,
+    my_VariantWrapper(const VARIANT&    object,
                       bslma::Allocator *basicAllocator = 0);
-        // Create a wrapper around a variant object having the same value as
-        // the specified 'original'.
+        // Create a wrapper around the specified variant 'object'.
 
     ~my_VariantWrapper();
         // Destroy this wrapper object.
 
     // MANIPULATORS
     VARIANT& variant();
-        // Return a reference to the modifiable variant object held by this
-        // wrapper.
+        // Return a reference providing modifiable access to the variant object
+        // held by this wrapper.
 
     template <class VISITOR>
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    apply(VISITOR& visitor) {
+    apply(VISITOR& visitor)
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.apply(visitor);
     }
@@ -1161,7 +1134,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    apply(const VISITOR& visitor) {
+    apply(const VISITOR& visitor)
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.apply(visitor);
     }
@@ -1170,7 +1144,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    applyRaw(const VISITOR& visitor) {
+    applyRaw(const VISITOR& visitor)
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.applyRaw(visitor);
     }
@@ -1179,7 +1154,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    apply(VISITOR&       visitor) {
+    apply(VISITOR& visitor)
+    {
         d_lastVisitCall = VOID_VISIT;
         d_variant.apply(visitor);
     }
@@ -1188,7 +1164,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    apply(const VISITOR& visitor) {
+    apply(const VISITOR& visitor)
+    {
         d_lastVisitCall = VOID_VISIT;
         d_variant.apply(visitor);
     }
@@ -1197,7 +1174,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    applyRaw(const VISITOR& visitor) {
+    applyRaw(const VISITOR& visitor)
+    {
         d_lastVisitCall = VOID_VISIT;
         d_variant.applyRaw(visitor);
     }
@@ -1208,22 +1186,23 @@ class my_VariantWrapper {
     RET_TYPE apply(const VISITOR& visitor);
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor);
-        // Wrappers around the 'visit' method of 'bdlb::Variant'.  Records
+        // Wrappers around the 'apply' method of 'bdlb::Variant'.  Records
         // which visit method is invoked.
 
     // ACCESSORS
     VisitType lastVisited() const { return d_lastVisitCall; }
-        // Returns the last visit method invoked on this variant wrapper.
+        // Return the last visitor method invoked on this variant wrapper.
 
     const VARIANT& variant() const;
-        // Return a reference to the non-modifiable variant object held by this
-        // wrapper.
+        // Return a reference providing non-modifiable access to the variant
+        // object held by this wrapper.
 
     template <class VISITOR>
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    apply(VISITOR& visitor) const {
+    apply(VISITOR& visitor) const
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.apply(visitor);
     }
@@ -1232,7 +1211,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    apply(const VISITOR& visitor) const {
+    apply(const VISITOR& visitor) const
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.apply(visitor);
     }
@@ -1241,7 +1221,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
-    applyRaw(const VISITOR& visitor) const {
+    applyRaw(const VISITOR& visitor) const
+    {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.applyRaw(visitor);
     }
@@ -1250,7 +1231,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    apply(VISITOR&       visitor) const {
+    apply(VISITOR& visitor) const
+    {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.apply(visitor);
     }
@@ -1259,7 +1241,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    apply(const VISITOR& visitor) const {
+    apply(const VISITOR& visitor) const
+    {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.apply(visitor);
     }
@@ -1268,7 +1251,8 @@ class my_VariantWrapper {
     typename bsl::enable_if<
                           bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
-    applyRaw(const VISITOR& visitor) const {
+    applyRaw(const VISITOR& visitor) const
+    {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.applyRaw(visitor);
     }
@@ -1279,7 +1263,7 @@ class my_VariantWrapper {
     RET_TYPE apply(const VISITOR& visitor) const;
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor) const;
-        // Wrappers around the 'visit' method of 'bdlb::Variant'.  Records
+        // Wrappers around the 'apply' method of 'bdlb::Variant'.  Records
         // which visit method is invoked.
 };
 
@@ -1443,17 +1427,17 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 //-----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
-// letters [A .. E] correspond to arbitrary (but unique) int values to be
+// letters '[A .. E]' correspond to arbitrary (but unique) 'int' values to be
 // assigned to the 'bdlb::Variant' object (thus of type 'INT_TYPE').  Uppercase
-// letters [F .. J] correspond to arbitrary (but unique) 'TestInt' values to be
-// assigned to the 'bdlb::Variant' object (thus of type 'TEST_INT_TYPE').
-// Uppercase letters [S .. W] correspond to arbitrary (but unique) string
+// letters '[F .. J]' correspond to arbitrary (but unique) 'TestInt' values to
+// be assigned to the 'bdlb::Variant' object (thus of type 'TEST_INT_TYPE').
+// Uppercase letters '[S .. W]' correspond to arbitrary (but unique) 'string'
 // values to be assigned to the 'bdlb::Variant' object (thus of type
-// 'STRING_TYPE').  Uppercase letters [K .. O] correspond to arbitrary (but
+// 'STRING_TYPE').  Uppercase letters '[K .. O]' correspond to arbitrary (but
 // unique) 'TestString' values to be assigned to the 'bdlb::Variant' object
-// (thus of type 'TEST_STRING_TYPE').  Uppercase letter Z correspond to an
+// (thus of type 'TEST_STRING_TYPE').  Uppercase letter 'Z' corresponds to an
 // object of type 'TestVoid'.  A tilde ('~') indicates that the value of the
-// object be set to its initial, empty state (via the 'reset' method).
+// object is to be set to its initial, unset state (via the 'reset' method).
 //
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -1466,74 +1450,73 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 //
 // <ITEM>       ::= <ELEMENT> | <RESET>
 //
-// <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E'   // int
-//                | 'S' | 'T' | 'U' | 'V' | 'W'   // string
-//                | 'F' | 'G' | 'H' | 'I' | 'J'   // TestInt
-//                | 'K' | 'L' | 'M' | 'N' | 'O'   // TestString
-//                | 'Z'                           // TestVoid
-//                                        // unique but otherwise arbitrary
+// <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E'   // 'int'
+//                | 'S' | 'T' | 'U' | 'V' | 'W'   // 'string'
+//                | 'F' | 'G' | 'H' | 'I' | 'J'   // 'TestInt'
+//                | 'K' | 'L' | 'M' | 'N' | 'O'   // 'TestString'
+//                | 'Z'                           // 'TestVoid' (unique but
+                                                  // otherwise arbitrary)
 //
 // Spec String  Description
 // -----------  ---------------------------------------------------------------
-// ""           Has no effect; leaves the object empty.
-// "A"          Assign the value corresponding to A.
-// "AA"         Assign two values both corresponding to A.
-// "ABC"        Assign three values corresponding to A, B and C.  Note that the
-//              generated value of the variant object is equal to C.
+// ""           Has no effect; leaves the object unset.
+// "A"          Assign the value corresponding to 'A'.
+// "AA"         Assign two values both corresponding to 'A'.
+// "ABC"        Assign three values corresponding to 'A', 'B', and 'C'.  Note
+//              that the generated value of the variant object is equal to 'C'.
 //
 //-----------------------------------------------------------------------------
 
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
     // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulators 'assign<>', and
-    // 'reset'.  Optionally specify a 'false' 'verboseFlag' to
-    // suppress 'spec' syntax error messages.  Return the index of the first
-    // invalid character, and a negative value otherwise.  Note that this
-    // function is used to implement 'gg' as well as allow for verification of
-    // syntax error detection.
+    // using only the primary manipulators 'assign<>' and 'reset'.  Optionally
+    // specify a 'false' 'verboseFlag' to suppress 'spec' syntax error
+    // messages.  Return the index of the first invalid character, and a
+    // negative value otherwise.  Note that this function is used to implement
+    // 'gg' as well as allow for verification of syntax error detection.
 {
     ASSERT(object);
     ASSERT(spec);
     bool continueParse = true;
-    const char *input = spec;
+    const char *input  = spec;
 
     for (; *input && continueParse; ++input) {
         switch (*input) {
-            // *** int ***
+            // *** 'int' ***
           case 'A': object->assign<int>(VA); break;
           case 'B': object->assign<int>(VB); break;
           case 'C': object->assign<int>(VC); break;
           case 'D': object->assign<int>(VD); break;
           case 'E': object->assign<int>(VE); break;
-            // *** TestInt ***
+            // *** 'TestInt' ***
           case 'F': object->assign<TestInt>(VF); break;
           case 'G': object->assign<TestInt>(VG); break;
           case 'H': object->assign<TestInt>(VH); break;
           case 'I': object->assign<TestInt>(VI); break;
           case 'J': object->assign<TestInt>(VJ); break;
-            // *** TestString ***
+            // *** 'TestString' ***
           case 'K': object->assign<TestString>(VK); break;
           case 'L': object->assign<TestString>(VL); break;
           case 'M': object->assign<TestString>(VM); break;
           case 'N': object->assign<TestString>(VN); break;
           case 'O': object->assign<TestString>(VO); break;
-            // *** bsl::string ***
+            // *** 'bsl::string' ***
           case 'S': object->assign<bsl::string>(VS); break;
           case 'T': object->assign<bsl::string>(VT); break;
           case 'U': object->assign<bsl::string>(VU); break;
           case 'V': object->assign<bsl::string>(VV); break;
           case 'W': object->assign<bsl::string>(VW); break;
-            // *** TestVoid ***
+            // *** 'TestVoid' ***
           case 'Z': object->assign<TestVoid>(TestVoid()); break;
             // *** reset ***
           case '~': object->reset(); break;
             // ** Parse Error ***
-          default: continueParse = false;
-        };
+          default: continueParse = false; break;
+        }
     }
 
     if (!continueParse) {
-        int idx = input - spec - 1;
+        int idx = static_cast<int>(input - spec) - 1;
         if (verboseFlag) {
             cout << "An error occurred near character ('" << spec[idx]
                  << "') in spec \"" << spec << "\" at position " << idx
@@ -1545,73 +1528,29 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
     return -1; // All input was consumed.
 }
 
-Obj gg(Obj * object, const char *spec)
-    // Return, by reference, the specified object with its value adjusted
+Obj gg(Obj *object, const char *spec)
+    // Return, by reference, the specified 'object' with its value adjusted
     // according to the specified 'spec' according to the custom language
-    // described above (in the test driver).
+    // described above.
 {
     ASSERT(object); ASSERT(spec);
     ASSERT(ggg(object, spec) < 0);
+
     return *object;
 }
 
 Obj g(const char *spec)
     // Return, by value, an object with its value adjusted according to the
-    // specified 'spec' according to the custom language described above (in
-    // the test driver).
+    // specified 'spec' according to the custom language described above.
 {
     ASSERT(spec);
+
     Obj object;
     return gg(&object, spec);
 }
 
 //=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-    class my_PrintVisitor
-    {
-      public:
-        template <class TYPE>
-        void operator()(const TYPE& value) const
-        {
-            bsl::cout << value << bsl::endl;
-        }
-
-        void operator()(const bslmf::Nil& value) const
-        {
-            bsl::cout << "nil" << bsl::endl;
-        }
-    };
-
-    class my_AddVisitor
-    {
-      public:
-        typedef bool ResultType;
-
-        //*********************************************************************
-        // Note that the return type of 'operator()' is same as the 'typedef' *
-        //*********************************************************************
-
-        template <class TYPE>
-        ResultType operator()(TYPE& value) const
-            // Return 'true' when addition is performed successfully and
-            // 'false' otherwise.
-        {
-            if (bslmf::IsConvertible<TYPE, double>::VALUE) {
-
-                // Add certain values to the variant.  The details are elided
-                // as it is the return value that is the focus of this example.
-
-                return true;                                          // RETURN
-            }
-            return false;
-        }
-    };
-
-
-//=============================================================================
-//                                 DRQS 52499438
+//             VISITORs Without a 'bslmf::Nil' Overload (case 20)
 //-----------------------------------------------------------------------------
 
 namespace nilvisitor {
@@ -1639,7 +1578,6 @@ struct TestVisitorWithUndeclaredResultType {
      int operator()(int) const { return 0; }
 };
 
-
 }  // close namespace nilvisitor
 
 struct TestUtil {
@@ -1655,8 +1593,7 @@ struct TestUtil {
                 << "CONCERN: 'applyRaw' & VISITOR w/o Nil overload" << endl
                 << "==============================================" << endl;
 
-
-       typedef bdlb::Variant<int> Varient;
+       typedef bdlb::Variant<int> Variant;
 
        TestVisitorWithResultType           withResultType;
        TestVisitorWithoutResultType        withoutResultType;
@@ -1673,32 +1610,28 @@ struct TestUtil {
        //: o 'const' and non-'const' variant.
        //: o 'const' and non-'const' visitor.
        //: o A visitor functor that:
-       //:   o Declares a result type
-       //:   o Does not declare a result type and returns 'void'
+       //:   o Declares a result type.
+       //:   o Does not declare a result type and returns 'void'.
        //:   o Does not declare a result type and doesn't return 'void'.
 
        if (verbose) cout <<
            "\nCall applyRaw using template deduction for the return type."
                          << endl;
        {
-
-           Varient value(1);
-           const Varient& x = value; const Varient& X = value;
+           Variant value(1);
+           const Variant& x = value; const Variant& X = value;
 
            x.applyRaw(vwrt);
            x.applyRaw(vwort);
            x.applyRaw(vwurt);
 
-
            x.applyRaw(VWRT);
            x.applyRaw(VWORT);
            x.applyRaw(VWURT);
 
-
            X.applyRaw(vwrt);
            X.applyRaw(vwort);
            X.applyRaw(vwurt);
-
 
            X.applyRaw(VWRT);
            X.applyRaw(VWORT);
@@ -1709,27 +1642,22 @@ struct TestUtil {
            "\nCall applyRaw using template w/o deduction for the return type."
                          << endl;
        {
-           // Note that 'applyRaw<TYPE>' cannot be have 'void' as the result
-           // type.
+           // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
 
-           Varient value(1);
-           const Varient& x = value; const Varient& X = value;
+           Variant value(1);
+           const Variant& x = value; const Variant& X = value;
 
            x.applyRaw<int>(vwrt);
            x.applyRaw<int>(vwurt);
 
-
-
            // x.applyRaw<int>(VWRT);
            // x.applyRaw<int>(VWURT);
-
 
            X.applyRaw<int>(vwrt);
            X.applyRaw<int>(vwurt);
 
-
            // X.applyRaw<int>(VWRT);
-           //  X.applyRaw<int>(VWURT);
+           // X.applyRaw<int>(VWURT);
        }
    }
 
@@ -1782,22 +1710,20 @@ struct TestUtil {
        typedef BitwiseMoveable<17>  BM17;   typedef BitwiseMoveable<18>  BM18;
        typedef BitwiseMoveable<19>  BM19;   typedef BitwiseMoveable<20>  BM20;
 
-       typedef bslalg::TypeTraitUsesBslmaAllocator UsesAllocTrait;
-       typedef bslalg::TypeTraitBitwiseCopyable    CopyableTrait;
-       typedef bslalg::TypeTraitBitwiseMoveable    MoveableTrait;
-
        if (verbose) cout << "\nSanity check for test driver defined types."
                          << endl;
 
-       ASSERT((1 == bslalg::HasTrait<UA1,  UsesAllocTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<UA10, UsesAllocTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<UA20, UsesAllocTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BC1,  CopyableTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BC10, CopyableTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BC20, CopyableTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BM1,  MoveableTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BM10, MoveableTrait>::VALUE));
-       ASSERT((1 == bslalg::HasTrait<BM20, MoveableTrait>::VALUE));
+       ASSERT(true == bslma::UsesBslmaAllocator<UA1>::value);
+       ASSERT(true == bslma::UsesBslmaAllocator<UA10>::value);
+       ASSERT(true == bslma::UsesBslmaAllocator<UA20>::value);
+
+       ASSERT(true == bsl::is_trivially_copyable<BC1>::value);
+       ASSERT(true == bsl::is_trivially_copyable<BC10>::value);
+       ASSERT(true == bsl::is_trivially_copyable<BC20>::value);
+
+       ASSERT(true == bslmf::IsBitwiseMoveable<BM1>::value);
+       ASSERT(true == bslmf::IsBitwiseMoveable<BM10>::value);
+       ASSERT(true == bslmf::IsBitwiseMoveable<BM20>::value);
 
        if (verbose) cout << "\nTesting size of the variant." << endl;
        {
@@ -1816,22 +1742,22 @@ struct TestUtil {
            typedef bdlb::Variant<NT1, NT2, UA3> BigVar3;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, UA18, NT19, NT20>   BigVar18;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, UA18, NT19, NT20> BigVar18;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, UA19, NT20>   BigVar19;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, UA19, NT20> BigVar19;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, NT19, UA20>   BigVar20;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, NT19, UA20> BigVar20;
 
 #if BSLS_PLATFORM_CPU_64_BIT
            LOOP_ASSERT(sizeof(BigVar1),  24 == sizeof(BigVar1));
@@ -1856,16 +1782,16 @@ struct TestUtil {
        {
            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
-           ASSERT((0 == bslalg::HasTrait<Obj, UsesAllocTrait>::VALUE));
+           ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
        }
 
        if (verbose) cout << "\tAll uses bslma::Allocator" << endl;
        {
            typedef bdlb::Variant<UA1, UA2,  UA3,  UA4,  UA5,  UA6,  UA7,  UA8,
-               UA9, UA10, UA11, UA12, UA13, UA14, UA15,
-               UA16, UA17, UA18, UA19, UA20>            Obj;
+                                 UA9, UA10, UA11, UA12, UA13, UA14, UA15,
+                                 UA16, UA17, UA18, UA19, UA20> Obj;
 
-           ASSERT((1 == bslalg::HasTrait<Obj, UsesAllocTrait>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
        }
 
        if (verbose) cout << "\tSome uses bslma::Allocator" << endl;
@@ -1875,29 +1801,29 @@ struct TestUtil {
            typedef bdlb::Variant<NT1, NT2, UA3> Obj3;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, UA18, NT19, NT20>   Obj18;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, UA18, NT19, NT20> Obj18;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, UA19, NT20>   Obj19;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, UA19, NT20> Obj19;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, NT19, UA20>   Obj20;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, NT19, UA20> Obj20;
 
-           ASSERT((1 == bslalg::HasTrait<Obj1,  UsesAllocTrait>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj2,  UsesAllocTrait>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj3,  UsesAllocTrait>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj18, UsesAllocTrait>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj19, UsesAllocTrait>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj20, UsesAllocTrait>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj1>::value);
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj2>::value);
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj3>::value);
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj18>::value);
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj19>::value);
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj20>::value);
        }
 
        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
@@ -1906,16 +1832,16 @@ struct TestUtil {
        {
            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
-           ASSERT((0 == bslalg::HasTrait<Obj, CopyableTrait>::VALUE));
+           ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
        }
 
        if (verbose) cout << "\tAll are bitwise copyable." << endl;
        {
            typedef bdlb::Variant<BC1, BC2,  BC3,  BC4,  BC5,  BC6,  BC7,  BC8,
-               BC9, BC10, BC11, BC12, BC13, BC14, BC15,
-               BC16, BC17, BC18, BC19, BC20>            Obj;
+                                 BC9, BC10, BC11, BC12, BC13, BC14, BC15,
+                                 BC16, BC17, BC18, BC19, BC20> Obj;
 
-           ASSERT((1 == bslalg::HasTrait<Obj, CopyableTrait>::VALUE));
+           ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
        }
 
        if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -1925,29 +1851,29 @@ struct TestUtil {
            typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, BC18, NT19, NT20>         Obj18;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, BC18, NT19, NT20> Obj18;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, BC19, NT20>         Obj19;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, BC19, NT20> Obj19;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, NT19, BC20>         Obj20;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, NT19, BC20> Obj20;
 
-           ASSERT((0 == bslalg::HasTrait<Obj1,  CopyableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj2,  CopyableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj3,  CopyableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj18, CopyableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj19, CopyableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj20, CopyableTrait>::VALUE));
+           ASSERT(false == bsl::is_trivially_copyable<Obj1>::value);
+           ASSERT(false == bsl::is_trivially_copyable<Obj2>::value);
+           ASSERT(false == bsl::is_trivially_copyable<Obj3>::value);
+           ASSERT(false == bsl::is_trivially_copyable<Obj18>::value);
+           ASSERT(false == bsl::is_trivially_copyable<Obj19>::value);
+           ASSERT(false == bsl::is_trivially_copyable<Obj20>::value);
        }
 
        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
@@ -1956,16 +1882,16 @@ struct TestUtil {
        {
            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
-           ASSERT((0 == bslalg::HasTrait<Obj, MoveableTrait>::VALUE));
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
        }
 
        if (verbose) cout << "\tAll are bitwise moveable." << endl;
        {
            typedef bdlb::Variant<BM1, BM2,  BM3,  BM4,  BM5,  BM6,  BM7,  BM8,
-               BM9, BM10, BM11, BM12, BM13, BM14, BM15,
-               BM16, BM17, BM18, BM19, BM20>            Obj;
+                                 BM9, BM10, BM11, BM12, BM13, BM14, BM15,
+                                 BM16, BM17, BM18, BM19, BM20> Obj;
 
-           ASSERT((1 == bslalg::HasTrait<Obj, MoveableTrait>::VALUE));
+           ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
        }
 
        if (verbose) cout << "\tSome are bitwise moveable." << endl;
@@ -1975,38 +1901,38 @@ struct TestUtil {
            typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, BC18, NT19, NT20>         Obj18;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, BC18, NT19, NT20> Obj18;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, BC19, NT20>         Obj19;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, BC19, NT20> Obj19;
 
            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-               NT5,  NT6,  NT7,  NT8,
-               NT9,  NT10, NT11, NT12,
-               NT13, NT14, NT15, NT16,
-               NT17, NT18, NT19, BC20>         Obj20;
+                                 NT5,  NT6,  NT7,  NT8,
+                                 NT9,  NT10, NT11, NT12,
+                                 NT13, NT14, NT15, NT16,
+                                 NT17, NT18, NT19, BC20> Obj20;
 
-           ASSERT((0 == bslalg::HasTrait<Obj1,  MoveableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj2,  MoveableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj3,  MoveableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj18, MoveableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj19, MoveableTrait>::VALUE));
-           ASSERT((0 == bslalg::HasTrait<Obj20, MoveableTrait>::VALUE));
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj1>::value);
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj2>::value);
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj3>::value);
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj18>::value);
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj19>::value);
+           ASSERT(false == bslmf::IsBitwiseMoveable<Obj20>::value);
        }
    }
 
    static void testCase18()
    {
-       bslma::TestAllocator  testAllocator(veryVeryVerbose);
+       bslma::TestAllocator testAllocator(veryVeryVerbose);
 
        if (verbose) cout << endl
-                         << "TESTING CLASSES 'bdeut::VariantN'."
+                         << "TESTING CLASSES 'bdlb::VariantN'."
                          << "=================================" << endl;
 
        typedef bslmf::TypeListNil  TestNil;  // for brevity
@@ -2031,10 +1957,9 @@ struct TestUtil {
        typedef TestArg<18>  TestArg18;
        typedef TestArg<19>  TestArg19;
        typedef TestArg<20>  TestArg20;
-
        const TestArg1 V1("This is a string long enough to trigger allocation"
-                         "even if Small-String-Optimization is used"
-                         "in bsl::string implementation.");
+                         " even if Small-String-Optimization is used"
+                         " in the 'bsl::string' implementation.");
 
        const TestArg2  V2 (2 );
        const TestArg3  V3 (3 );
@@ -2062,37 +1987,37 @@ struct TestUtil {
 
            ASSERT(2 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator);         const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2121,10 +2046,10 @@ struct TestUtil {
                ASSERT(V2 == X.the<TestArg2>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2139,7 +2064,6 @@ struct TestUtil {
                ASSERT(X2.is<TestArg2>());
                ASSERT(V2 == X2.the<TestArg2>());
            }
-
        }
 
        if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -2148,38 +2072,37 @@ struct TestUtil {
 
            ASSERT(3 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2218,10 +2141,10 @@ struct TestUtil {
                ASSERT(V3 == X.the<TestArg3>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2249,38 +2172,37 @@ struct TestUtil {
 
            ASSERT(4 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2329,10 +2251,10 @@ struct TestUtil {
                ASSERT(V4 == X.the<TestArg4>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2362,42 +2284,41 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
        {
            typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5>  Obj;
+                                  TestArg5> Obj;
 
            ASSERT(5 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2456,10 +2377,10 @@ struct TestUtil {
                ASSERT(V5 == X.the<TestArg5>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2494,43 +2415,41 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
        {
            typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6> Obj;
+                                  TestArg5, TestArg6> Obj;
 
            ASSERT(6 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
-
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2599,10 +2518,10 @@ struct TestUtil {
                ASSERT(V6 == X.the<TestArg6>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2642,43 +2561,41 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
        {
            typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6, TestArg7> Obj;
+                                  TestArg5, TestArg6, TestArg7> Obj;
 
            ASSERT(7 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
-
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2757,10 +2674,10 @@ struct TestUtil {
                ASSERT(V7 == X.the<TestArg7>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2800,48 +2717,46 @@ struct TestUtil {
                ASSERT(X7.is<TestArg7>());
                ASSERT(V7 == X7.the<TestArg7>());
            }
-
        }
 
        if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
        {
            typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6, TestArg7, TestArg8> Obj;
+                                  TestArg5, TestArg6, TestArg7, TestArg8> Obj;
 
            ASSERT(8 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8, Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -2930,10 +2845,10 @@ struct TestUtil {
                ASSERT(V8 == X.the<TestArg8>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -2978,49 +2893,47 @@ struct TestUtil {
                ASSERT(X8.is<TestArg8>());
                ASSERT(V8 == X8.the<TestArg8>());
            }
-
        }
 
        if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
        {
            typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6, TestArg7, TestArg8,
-               TestArg9>  Obj;
+                                  TestArg5, TestArg6, TestArg7, TestArg8,
+                                  TestArg9> Obj;
 
            ASSERT(9 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8, Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9, Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,  Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9, Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -3119,10 +3032,10 @@ struct TestUtil {
                ASSERT(V9 == X.the<TestArg9>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -3177,43 +3090,42 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
        {
            typedef bdlb::Variant10<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6, TestArg7, TestArg8,
-               TestArg9, TestArg10>  Obj;
+                                   TestArg5, TestArg6, TestArg7, TestArg8,
+                                   TestArg9, TestArg10> Obj;
 
            ASSERT(10 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -3322,10 +3234,10 @@ struct TestUtil {
                ASSERT(V10 == X.the<TestArg10>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -3385,43 +3297,42 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
        {
            typedef bdlb::Variant11<TestArg1, TestArg2, TestArg3, TestArg4,
-               TestArg5, TestArg6, TestArg7, TestArg8,
-               TestArg9, TestArg10, TestArg11>  Obj;
+                                   TestArg5, TestArg6, TestArg7, TestArg8,
+                                   TestArg9, TestArg10, TestArg11> Obj;
 
            ASSERT(11 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -3540,10 +3451,10 @@ struct TestUtil {
                ASSERT(V11 == X.the<TestArg11>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -3608,44 +3519,43 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
        {
            typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3, TestArg4,
-               TestArg5, TestArg6,  TestArg7, TestArg8,
-               TestArg9, TestArg10, TestArg11, TestArg12>
-               Obj;
+                                   TestArg5, TestArg6,  TestArg7, TestArg8,
+                                   TestArg9, TestArg10, TestArg11,
+                                   TestArg12> Obj;
 
            ASSERT(12 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -3774,10 +3684,10 @@ struct TestUtil {
                ASSERT(V12 == X.the<TestArg12>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -3847,44 +3757,43 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
        {
            typedef bdlb::Variant13<TestArg1, TestArg2,  TestArg3,  TestArg4,
-               TestArg5, TestArg6,  TestArg7,  TestArg8,
-               TestArg9, TestArg10, TestArg11, TestArg12,
-               TestArg13> Obj;
+                                   TestArg5, TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9, TestArg10, TestArg11, TestArg12,
+                                   TestArg13> Obj;
 
            ASSERT(13 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -4023,10 +3932,10 @@ struct TestUtil {
                ASSERT(V13 == X.the<TestArg13>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -4096,50 +4005,48 @@ struct TestUtil {
                ASSERT(X13.is<TestArg13>());
                ASSERT(V13 == X13.the<TestArg13>());
            }
-
        }
 
        if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
        {
            typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14> Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14> Obj;
 
            ASSERT(14 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -4288,10 +4195,10 @@ struct TestUtil {
                ASSERT(V14 == X.the<TestArg14>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -4366,50 +4273,48 @@ struct TestUtil {
                ASSERT(X14.is<TestArg14>());
                ASSERT(V14 == X14.the<TestArg14>());
            }
-
        }
 
        if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
        {
            typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15>  Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14, TestArg15> Obj;
 
            ASSERT(15 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -4568,10 +4473,10 @@ struct TestUtil {
                ASSERT(V15 == X.the<TestArg15>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -4656,45 +4561,44 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
        {
            typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15, TestArg16>
-               Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14, TestArg15,
+                                   TestArg16> Obj;
 
            ASSERT(16 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -4863,10 +4767,10 @@ struct TestUtil {
                ASSERT(V16 == X.the<TestArg16>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -4956,45 +4860,48 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
        {
            typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15, TestArg16,
-               TestArg17> Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14, TestArg15, TestArg16,
+                                   TestArg17> Obj;
 
            ASSERT(17 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
+
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -5173,10 +5080,10 @@ struct TestUtil {
                ASSERT(V17 == X.the<TestArg17>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -5271,45 +5178,44 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
        {
            typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15, TestArg16,
-               TestArg17, TestArg18> Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14, TestArg15, TestArg16,
+                                   TestArg17, TestArg18> Obj;
 
            ASSERT(18 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -5493,10 +5399,10 @@ struct TestUtil {
                ASSERT(V18 == X.the<TestArg18>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -5596,45 +5502,44 @@ struct TestUtil {
        if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
        {
            typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15, TestArg16,
-               TestArg17, TestArg18, TestArg19>  Obj;
+                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                   TestArg9,  TestArg10, TestArg11, TestArg12,
+                                   TestArg13, TestArg14, TestArg15, TestArg16,
+                                   TestArg17, TestArg18, TestArg19> Obj;
 
            ASSERT(19 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg19, Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil,   Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -5828,10 +5733,10 @@ struct TestUtil {
                ASSERT(V19 == X.the<TestArg19>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -5931,41 +5836,38 @@ struct TestUtil {
                ASSERT(X19.is<TestArg19>());
                ASSERT(V19 == X19.the<TestArg19>());
            }
-
        }
 
        if (verbose)
            cout << "\nTesting 'bdlb::Variant (with no types)'." << endl;
        {
-           typedef bdlb::Variant<>  Obj;
+           typedef bdlb::Variant<> Obj;
 
            ASSERT(0 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestNil, Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestNil, Obj::Type20>::VALUE));
 
-           ASSERT((0 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
 
            Obj mX(&testAllocator); const Obj& X = mX;
            ASSERT(0 == X.typeIndex());
@@ -5975,46 +5877,45 @@ struct TestUtil {
            cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
        {
            typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-               TestArg5,  TestArg6,  TestArg7,  TestArg8,
-               TestArg9,  TestArg10, TestArg11, TestArg12,
-               TestArg13, TestArg14, TestArg15, TestArg16,
-               TestArg17, TestArg18, TestArg19, TestArg20>
-               Obj;
+                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                 TestArg9,  TestArg10, TestArg11, TestArg12,
+                                 TestArg13, TestArg14, TestArg15, TestArg16,
+                                 TestArg17, TestArg18, TestArg19,
+                                 TestArg20> Obj;
 
            ASSERT(20 == Obj::TypeList::LENGTH);
 
-           ASSERT((bslmf::IsSame<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bslmf::IsSame<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg19, Obj::Type19>::VALUE));
-           ASSERT((bslmf::IsSame<TestArg20, Obj::Type20>::VALUE));
+           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+           ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
+           ASSERT((bsl::is_same<TestArg20, Obj::Type20>::VALUE));
 
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-           ASSERT((1 == bslalg::HasTrait<Obj,
-                   bdlb::TypeTraitHasPrintMethod>::VALUE));
+           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
 
            {
                if (verbose) cout << "\tTesting default constructor." << endl;
                Obj mX(&testAllocator); const Obj& X = mX;
                ASSERT(0 == X.typeIndex());
 
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                ASSERT(0 == testAllocator.numBlocksInUse());
 
                if (verbose) cout << "\tTesting 'assign'." << endl;
@@ -6223,10 +6124,10 @@ struct TestUtil {
                ASSERT(V20 == X.the<TestArg20>());
            }
 
-           if (verbose) cout << "\tTesting placement constructor."
-                             << endl;
+           if (verbose) cout << "\tTesting placement constructor." << endl;
            {
-               const int PREVIOUS = testAllocator.numBlocksTotal();
+               const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
                ASSERT(1 == X1.typeIndex());
@@ -6333,21 +6234,82 @@ struct TestUtil {
            }
        }
    }
-
 };
 
-
 //=============================================================================
-//                                 MAIN PROGRAM
+//                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+//..
+    class my_PrintVisitor {
+      public:
+        template <class TYPE>
+        void operator()(const TYPE& value) const
+        {
+            bsl::cout << value << bsl::endl;
+        }
+
+        void operator()(bslmf::Nil /* value */) const
+        {
+            bsl::cout << "null" << bsl::endl;
+        }
+    };
+//..
+
+//..
+    class my_AddVisitor {
+      public:
+        typedef bool ResultType;
+
+        //*************************************************************
+        // Note that the return type of 'operator()' is 'ResultType'. *
+        //*************************************************************
+
+        template <class TYPE>
+        ResultType operator()(TYPE& /* value */) const
+            // Return 'true' when addition is performed successfully, and
+            // 'false' otherwise.
+        {
+            if (bslmf::IsConvertible<TYPE, double>::VALUE) {
+
+                // Add certain values to the variant.  The details are elided
+                // as it is the return value that is the focus of this example.
+
+                return true;                                          // RETURN
+            }
+            return false;
+        }
+    };
+//..
+
+//..
+    class ThirdPartyVisitor {
+      public:
+        template <class TYPE>
+        bsl::string operator()(const TYPE& /* value */) const /* ; */
+            // Return the name of the specified 'value' as a 'bsl::string'.
+            // Note that the implementation of this class is deliberately not
+            // shown since this class belongs to a third-party library.
+        {
+            return "dummy";
+        }
+    };
+//..
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD
 // The following list of explicit instantiations was provided by IBM as a
-// work-around for DRQS 22791105 (xlC compiler crash unless case 18 is
-// commented out).
+// work-around for an xlC compiler crash (unless case 18 is commented out).
 
 #if BSLS_PLATFORM_CMP_IBM
-template class BloombergLP::bdlb::Variant<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraitbitwisecopyable.h>
+#include <bslalg_typetraitbitwisemoveable.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
+#include <bslalg_typetraits.h>
+
+template class BloombergLP::bdlb::Variant<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<1>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<10>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<20>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
@@ -6544,7 +6506,7 @@ template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeLis
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<6> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<7> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<8> >;
-template struct BloombergLP::bslmf::IsSame<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,const char *>;
+template struct BloombergLP::bslmf::IsSame<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,const char *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<9> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<10> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<11> >;
@@ -6609,22 +6571,22 @@ template class BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestA
 template struct BloombergLP::bslmf::IsSame<TestArg<20>,TestArg<20> >;
 template struct BloombergLP::bslalg::HasTrait<BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bdlb::TypeTraitHasPrintMethod>;
-template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
+template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<BloombergLP::bslmf::Nil,int,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,char,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
+template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
 template struct BloombergLP::bdlb::Variant_ReturnValueHelper<my_ReturningVisitor>;
 template struct bsl::enable_if<1,int>;
 template struct bsl::enable_if<0,void>;
 template struct BloombergLP::bdlb::Variant_ReturnValueHelper<my_ConstReturningVisitor>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template class BloombergLP::bdlb::Variant<TestAllocObj,int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class BloombergLP::bdlb::Variant<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestAllocObj,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
+template class BloombergLP::bdlb::Variant<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+template class BloombergLP::bdlb::Variant<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestAllocObj,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
 template class BloombergLP::bdlb::Variant<int,const char *,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class bsl::basic_ostringstream<char,bsl::char_traits<char>,bsl::allocator<char> >;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,int>;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,double>;
+template class bsl::basic_ostringstream<char,std::char_traits<char>,bsl::allocator<char> >;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,int>;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,double>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;  // 80650
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<3> >;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<4> >;  // 59187
@@ -6652,25 +6614,22 @@ template struct BloombergLP::bslalg::HasTrait<char,BloombergLP::bslalg::TypeTrai
 template struct BloombergLP::bslalg::HasTrait<char,BloombergLP::bslalg::TypeTraitPair>;  // 41035
 template struct BloombergLP::bslmf::IsSame<char,BloombergLP::bslmf::Nil>;  // 58554
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<BloombergLP::bslmf::Nil,int,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslmf::Nil>;  // 59035
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,int>;  // 59187
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,int>;  // 59187
 template struct BloombergLP::bslmf::IsSame<TestInt,BloombergLP::bslmf::Nil>;  // 58554
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList6<TestAllocObj,int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >;  // 59187
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList6<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,Copyable>;  // 59203
 template struct BloombergLP::bslmf::IsSame<Copyable,int>;  // 59204
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;  // 80651
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,int>;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,const char *>;  // 59187
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;
 template struct BloombergLP::bslmf::IsSame<double,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bslalg::HasTrait<double,BloombergLP::bslalg::TypeTraitBitwiseCopyable>;
 template struct BloombergLP::bslalg::HasTrait<double,BloombergLP::bslalg::TypeTraitPair>;
-// TBD
-// The following triggered compilation errors with xlC 10.1.
-// template class bsl::_Tidyfac<bsl::num_put<char,bsl::ostreambuf_iterator<char,bsl::char_traits<char> > > >;
 template struct BloombergLP::bslmf::IsConvertible<BloombergLP::bslmf::Nil,double>;
 template struct BloombergLP::bslmf::IsConvertible<int,double>;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslma::TestAllocator *>;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,TestString>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,TestArg<2> >;
@@ -6712,7 +6671,7 @@ template struct BloombergLP::bslmf::IsSame<TestArg<6>,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestString>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template struct BloombergLP::bslmf::IsConvertible<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,double>;
+template struct BloombergLP::bslmf::IsConvertible<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,double>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<2> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<3> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<4> >;
@@ -6797,7 +6756,13 @@ template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeLis
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<4> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<5> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<6> >;
-#endif
+
+#endif  // BSLS_PLATFORM_CMP_IBM
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
+//=============================================================================
+//                                 MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -6806,31 +6771,38 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator  testAllocator(veryVeryVerbose);
-    bslma::TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // zero is always the leading case.
       case 22: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST:
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example code and replace 'assert' by 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
-                                  << "==================" << endl;
-        {
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+        {
 ///Example 1: Variant Construction
 ///- - - - - - - - - - - - - - - -
 // The following example illustrates the different ways of constructing a
@@ -6843,12 +6815,12 @@ int main(int argc, char *argv[])
 // 'TypeList' nested type), or individually (using 'TypeN', for 'N' varying
 // from 1 to the length of the 'TypeList').  In the example below, we use the
 // 'List' variant, but this could be substituted with 'List3' with no change
-// to the source code:
+// to the code:
 //..
     ASSERT(3 == List::TypeList::LENGTH);
 //..
-// We can check whether the variant defaults to the first type in its type list
-// by using 'is<TYPE>()':
+// We can check whether the variant defaults to the unset state by using the
+// 'is<TYPE>' and 'typeIndex' methods:
 //..
     List x;
 
@@ -6857,10 +6829,11 @@ int main(int argc, char *argv[])
     ASSERT(!x.is<bsl::string>());
     ASSERT(0 == x.typeIndex());
 //..
-// To improve efficiency, single argument construction from a type in the
-// typelist to a variant is also supported:
+// Single-argument construction from a type in the 'TypeList' of a variant is
+// also supported.  This is more efficient than creating an unset variant and
+// assigning a value to it:
 //..
-    List y(bsl::string("Hello"));
+    List3 y(bsl::string("Hello"));
 
     ASSERT(!y.is<int>());
     ASSERT(!y.is<double>());
@@ -6868,11 +6841,10 @@ int main(int argc, char *argv[])
 
     ASSERT("Hello" == y.the<bsl::string>());
 //..
-// By constructing the variant with the type directly, we avoided the need of
-// first default constructing the variant, then assigning the value to it.
-//
-// Furthermore, 'createInPlace' is provided to support direct in place
-// construction to avoid creating expensive temporary objects:
+// Furthermore, 'createInPlace' is provided to support direct in-place
+// construction.  This method allows users to directly construct the target
+// type inside the variant, instead of first creating a temporary object, then
+// copy constructing the object to initialize the variant:
 //..
     List z;
     z.createInPlace<bsl::string>("Hello", 5);
@@ -6883,10 +6855,11 @@ int main(int argc, char *argv[])
 
     ASSERT("Hello" == z.the<bsl::string>());
 //..
-// Up to 14 constructor arguments are supported for in place construction of
-// an object of type in the type list of the variant.  Users can also safely
-// create another object of same or different type in the variant using the
-// 'createInPlace' method:
+// Up to 14 constructor arguments are supported for in-place construction of
+// an object.  Users can also safely create another object of the same or
+// different type in a variant that already holds a value using the
+// 'createInPlace' method.  No memory will be leaked in all cases and the
+// destructor for the currently held object will be invoked:
 //..
     z.createInPlace<bsl::string>("Hello", 5);
     ASSERT(z.is<bsl::string>());
@@ -6900,30 +6873,27 @@ int main(int argc, char *argv[])
     ASSERT(z.is<int>());
     ASSERT(10 == z.the<int>());
 //..
-// No memory will be leaked in all cases and destructors for the currently
-// held object will be invoked.
-
         }
-
         {
-
+//
 ///Example 2: Variant Assignment
 ///- - - - - - - - - - - - - - -
 // A value of a given type can be stored in a variant in three different ways:
 //..
-//  a) 'assign'
-//  b) 'assignTo<TYPE>'
-//  c) 'operator='
+//: o 'operator='
+//: o 'assignTo<TYPE>'
+//: o 'assign'
 //..
-// The 'assign' method automatically deduce the type that the user is trying to
-// assign to the variant.  This should be used most of the time.  The
-// 'assignTo<TYPE>' method should be used when conversion to the type that
-// the user is trying to assign to is necessary.  Finally, 'operator=' is
-// equivalent to 'assign' and exists simply for brevity.
+// 'operator=' automatically deduces the type that the user is trying to assign
+// to the variant.  This should be used most of the time.  The 'assignTo<TYPE>'
+// method should be used when conversion to the type that the user is assigning
+// to is necessary (see the first two examples below for more details).
+// Finally, 'assign' is equivalent to 'operator=' and exists simply for
+// backwards compatibility.
 //
-///a) 'assign'
-///-  -  -  -  -
-// The following example illustrates how to use the 'assign' method:
+///'operator='
+/// -  -  -  -
+// The following example illustrates how to use 'operator=':
 //..
     typedef bdlb::Variant <int, double, bsl::string> List;
 
@@ -6933,6 +6903,60 @@ int main(int argc, char *argv[])
     List::Type2 v2 = 2.0;     // 'double'
     List::Type3 v3("hello");  // 'bsl::string'
 
+    x = v1;
+    ASSERT( x.is<int>());
+    ASSERT(!x.is<double>());
+    ASSERT(!x.is<bsl::string>());
+    ASSERT(v1 == x.the<int>());
+
+    x = v2;
+    ASSERT(!x.is<int>());
+    ASSERT( x.is<double>());
+    ASSERT(!x.is<bsl::string>());
+    ASSERT(v2 == x.the<double>());
+
+    x = v3;
+    ASSERT(!x.is<int>());
+    ASSERT(!x.is<double>());
+    ASSERT( x.is<bsl::string>());
+    ASSERT(v3 == x.the<bsl::string>());
+//..
+// Note that the type of the object can be deduced automatically during
+// assignment, as in:
+//..
+//  x = v1;
+//..
+// This automatic deduction, however, cannot be extended to conversion
+// constructors, such as:
+//..
+//  x = (const char *)"Bye";  // ERROR
+//..
+// The compiler will diagnose that 'const char *' is not a variant type
+// specified in the list of parameter types used in the definition of 'List',
+// and will trigger a compile-time assertion.  To overcome this problem, see
+// the next usage example of 'assignTo<TYPE>'.
+//
+///'assignTo<TYPE>'
+///-  -  -  -  -  -
+// In the previous example, 'const char *' was not part of the variant's type
+// list, which resulted in a compilation diagnostic.  The use of
+// 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
+// assign to the variant:
+//..
+    x.assignTo<bsl::string>((const char*)"Bye");
+
+    ASSERT(!x.is<int>());
+    ASSERT(!x.is<double>());
+    ASSERT( x.is<bsl::string>());
+
+    ASSERT("Bye" == x.the<bsl::string>());
+//..
+//
+///'assign'
+/// -  -  -
+// Finally, for backwards compatibility, 'assign' can also be used in place of
+// 'operator=' (but not 'assignTo'):
+//..
     x.assign<int>(v1);
     ASSERT( x.is<int>());
     ASSERT(!x.is<double>());
@@ -6951,91 +6975,34 @@ int main(int argc, char *argv[])
     ASSERT( x.is<bsl::string>());
     ASSERT(v3 == x.the<bsl::string>());
 //..
-// Note that the type of the object can be deduced automatically during
-// assignment, as in:
-//..
-    x.assign(v1);  // note: no 'assign<int>' explicit qualification
-//..
-// This automatic deduction, however, cannot be extended to conversion
-// constructors, such as:
-//..
-    // x.assign((const char *)"hello");                // ERROR
-//..
-// The compiler will complain that 'const char *' is not a variant type
-// specified in the list of parameter types used in the definition of 'List',
-// and will trigger a compile-time ASSERTion.  The following will correct this
-// misunderstanding:
-//..
-    x.assign<bsl::string>((const char*)"hello");    // OK, creates temporary
-//..
-//
-///b) 'assignTo<TYPE>'
-///-  -  -  -  -  -  -
-// Note, however, that in example 2a, a 'bsl::string' temporary is created for
-// the sole purpose of the 'assign' function call.  It would be more economical
-// in that situation to specify the type of the variant object to assign to,
-// separately from the (deduced) type of the argument, and to do the conversion
-// into the variant object directly instead of the temporary.  This can be
-// achieved by using 'assignTo<TYPE>' instead:
-//..
-    x.assignTo<bsl::string>((const char*)"hello");  // OK, no temporary
-//..
-// The code above eliminates the creation of the temporary.
-//
-///c) 'operator='
-///-  -  -  -  -  -
-// Finally, for convenience, 'operator=' can also be used in place of 'assign'
-// (but not 'assignTo'):
-//..
-    x = v1;
-    ASSERT(x.is<int>());
-    ASSERT(!x.is<double>());
-    ASSERT(!x.is<bsl::string>());
-    ASSERT(v1 == x.the<int>());
-
-    x = v2;
-    ASSERT(!x.is<int>());
-    ASSERT( x.is<double>());
-    ASSERT(!x.is<bsl::string>());
-    ASSERT(v2 == x.the<double>());
-
-    x = v3;
-    ASSERT(!x.is<int>());
-    ASSERT(!x.is<double>());
-    ASSERT( x.is<bsl::string>());
-    ASSERT(v3 == x.the<bsl::string>());
-//..
-
         }
-
         {
-
-///Example 3: Visiting variant
-///- - - - - - - - - - - - - -
-// The following usage examples will illustrate 5 different variations of the
-// 'apply' method:
+//
+///Example 3: Visiting a Variant via 'apply'
+///- - - - - - - - - - - - - - - - - - - - -
+// As described in {Visitors} (above), there are different ways to invoke the
+// 'apply' method.  The first two examples below illustrate the different ways
+// to invoke 'apply' (with no return value) to control the behavior of visiting
+// an unset variant:
 //..
-//  a) variation 1 - 'bslmf::Nil' passed to visitor, no return value
-//
-//  b) variation 2 - 'bslmf::Nil' passed to visitor, return value specified in
-//                   visitor
-//
-//  c) variation 3 - 'bslmf::Nil' passed to visitor, return value specified
-//                   explicitly during function call
-//
-//  d) variation 4 - user provided default value passed to visitor, no return
-//                   value
-//
-//  e) variation 7 - undefined behavior if visitor is unset, no return value
+//: o 'bslmf::Nil' is passed to the visitor.
+//:
+//: o A user-specified default value is passed to the visitor.
+//..
+// Then, the next two examples below illustrate different ways to specify the
+// return value from 'apply:
+//..
+//: o The return value is specified in the visitor.
+//:
+//: o The return value is specified with the function call.
 //..
 //
-///a) Variation 1
-///-  -  -  -  -  -
-// A simple visitor that does not require any return values might be one that
-// prints to 'stdout' the value of the variant:
+///'bslmf::Nil' Passed to Visitor
+///-  -  -  -  -  -  -  -  -  - -
+// A simple visitor that does not require any return value might be one that
+// prints the value of the variant to 'stdout':
 //..
-//  class my_PrintVisitor
-//  {
+//  class my_PrintVisitor {
 //    public:
 //      template <class TYPE>
 //      void operator()(const TYPE& value) const
@@ -7048,14 +7015,14 @@ int main(int argc, char *argv[])
 //          bsl::cout << "null" << bsl::endl;
 //      }
 //  };
-
+//
     typedef bdlb::Variant <int, double, bsl::string> List;
 
     List x[4];
 
-        //************************************
-        // Note that 'x[3]' is uninitialized *
-        //************************************
+    //*************************************
+    // Note that 'x[3]' is uninitialized. *
+    //*************************************
 
     x[0].assign(1);
     x[1].assign(1.1);
@@ -7067,7 +7034,7 @@ int main(int argc, char *argv[])
         x[i].apply(printVisitor);
     }
 //..
-// The above will print the following on 'stdout':
+// The above prints the following on 'stdout':
 //..
 //  1
 //  1.1
@@ -7076,29 +7043,64 @@ int main(int argc, char *argv[])
 //..
 // Note that 'operator()' is overloaded with 'bslmf::Nil'.  A direct match has
 // higher precedence than a template parameter match.  When the variant is
-// unset (such as 'x[3]'), a 'bslmf::Nil' will be passed to the visitor.
-
-        }
-
-        {
-
-///b) with a return value of return type, specified in visitor definition
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Users can also specify a return type that 'operator()' will return by
-// specifying a 'typedef' with the name 'ResultType' in their interface:
+// unset (such as 'x[3]'), a 'bslmf::Nil' is passed to the visitor.
+//
+///User-Specified Default Value Passed to Visitor
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// Instead of using 'bslmf::Nil', users can also specify a default value to
+// pass to the visitor when the variant is currently unset.  Using the same
+// 'my_PrintVisitor' class from previous example:
 //..
-//  class my_AddVisitor
-//  {
+    for (int i = 0; i < 4; ++i) {
+        x[i].apply(printVisitor, "Print this when unset");
+    }
+//..
+// Now, the above code prints the following on 'stdout':
+//..
+//  1
+//  1.1
+//  Hello
+//  Print this when unset
+//..
+// This variation of 'apply' is useful since the user can provide a default
+// value to the visitor without incurring the cost of initializing the variant
+// itself.
+//
+///'applyRaw' Undefined If Variant Is Unset
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -
+// If it is certain that a variant is not unset, then the 'applyRaw' method can
+// be used instead of 'apply'.  'applyRaw' is slightly more efficient than
+// 'apply', but the behavior of 'applyRaw' is undefined if the variant is
+// unset.  In the following application of 'applyRaw', we purposely circumvent
+// 'x[3]' from being visited because we know that it is unset:
+//..
+    for (int i = 0; i < 3; ++i) {     // NOT 'i < 4' as above.
+        ASSERT(!x[i].isUnset());
+        x[i].applyRaw(printVisitor);  // undefined behavior for 'x[3]'
+    }
+    ASSERT(x[3].isUnset());
+//..
+//
+        }
+        {
+///Return Value Specified in Visitor
+///  -  -  -  -  -  -  -  -  -  -  -
+// Users can also specify a return type that 'operator()' will return by
+// specifying a 'typedef' with the name 'ResultType' in their functor class.
+// This is necessary in order for the 'apply' method to know what type to
+// return at compile time:
+//..
+//  class my_AddVisitor {
 //    public:
 //      typedef bool ResultType;
 //
-//      //*********************************************************************
-//      // Note that the return type of 'operator()' is same as the 'typedef' *
-//      //*********************************************************************
+//      //*************************************************************
+//      // Note that the return type of 'operator()' is 'ResultType'. *
+//      //*************************************************************
 //
 //      template <class TYPE>
 //      ResultType operator()(TYPE& value) const
-//          // Return 'true' when addition is performed successfully and
+//          // Return 'true' when addition is performed successfully, and
 //          // 'false' otherwise.
 //      {
 //          if (bslmf::IsConvertible<TYPE, double>::VALUE) {
@@ -7111,7 +7113,7 @@ int main(int argc, char *argv[])
 //          return false;
 //      }
 //  };
-
+//
     typedef bdlb::Variant <int, double, bsl::string> List;
 
     List x[3];
@@ -7127,7 +7129,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 3; ++i) {
         ret[i] = x[i].apply(addVisitor);
         if (!ret[i]) {
-            bsl::cout << "Cannot add to types not convertible to double."
+            bsl::cout << "Cannot add to types not convertible to 'double'."
                       << bsl::endl;
         }
     }
@@ -7135,120 +7137,50 @@ int main(int argc, char *argv[])
     ASSERT(true  == ret[1]);
     ASSERT(false == ret[2]);
 //..
-// The above will print the following on 'stdout':
+// The above prints the following on 'stdout':
 //..
-//  Cannot add to types not convertible to double.
+//  Cannot add to types not convertible to 'double'.
 //..
-// Note that if no 'typedef' is provided (as in the 'my_PrintVisitor' in
-// example 3a), then the default return value is 'void'.
-
+// Note that if no 'typedef' is provided (as in the 'my_PrintVisitor' class),
+// then the default return value is 'void'.
         }
-
         {
-
-///c) Variation 3
-///-  -  -  -  -  -
-// There are some cases when a visitor interface is not owned by the
-// user (hence cannot add a 'typedef' in the interface), or the visitor
+//
+///Return Value Specified With Function Call
+/// -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// There may be some cases when a visitor interface is not owned by a client
+// (hence the client cannot add a 'typedef' to the visitor), or the visitor
 // could not determine the return type at design time.  In these scenarios,
-// users can explicitly specify the return type when invoking 'visit':
+// users can explicitly specify the return type when invoking 'apply':
 //..
-//  class ThirdPartyVisitor
-//  {
+//  class ThirdPartyVisitor {
 //    public:
 //      template <class TYPE>
-//      bsl::string operator()(const TYPE& type) const;
-//          // Returns the name of the specified 'value' as a 'bsl::string'.
+//      bsl::string operator()(const TYPE& value) const;
+//          // Return the name of the specified 'value' as a 'bsl::string'.
 //          // Note that the implementation of this class is deliberately not
-//          // shown since this class belongs to a third party library.
+//          // shown since this class belongs to a third-party library.
 //  };
 //
-//  typedef bdlb::Variant <int, double, bsl::string> List;
-//
-//  List x[3];
-//
-//  x[0].assign(1);
-//  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
-//
-//  ThirdPartyVisitor visitor;
-//
-//  for (int i = 0; i < 3; ++i) {
-//
-//      //****************************************************
-//      // Note that the return type is explicitly specified *
-//      //****************************************************
-//
-//      bsl::string ret = x[i].apply<bsl::string>(visitor);
-//  }
-//..
-        }
-
-        {
-
-///d) Variation 4
-///-  -  -  -  -  -
-// Instead of using 'bslmf::Nil', users can also specify a default value to
-// pass to the visitor when the variant is currently unset.  Using the same
-// 'my_PrintVisitor' class from example 3a:
-//..
     typedef bdlb::Variant <int, double, bsl::string> List;
 
-    List x[4];
-
-        //************************************
-        // Note that 'x[3]' is uninitialized *
-        //************************************
+    List x[3];
 
     x[0].assign(1);
     x[1].assign(1.1);
     x[2].assignTo<bsl::string>((const char *)"Hello");
 
-    my_PrintVisitor printVisitor;
+    ThirdPartyVisitor visitor;
 
-    for (int i = 0; i < 4; ++i) {
-        x[i].apply(printVisitor, "Print this when unset");
+    for (int i = 0; i < 3; ++i) {
+
+        //*****************************************************
+        // Note that the return type is explicitly specified. *
+        //*****************************************************
+
+        bsl::string ret = x[i].apply<bsl::string>(visitor);
+        bsl::cout << ret << bsl::endl;
     }
-//..
-// Now, the above code will print the following on 'stdout':
-//..
-//  1
-//  1.1
-//  Hello
-//  Print this when unset
-//..
-// This variation of 'apply' is useful since the user can provide a default
-// value to the variant without incurring the cost of initializing the variant
-// itself.
-
-        }
-
-        {
-///e) Variation 5
-///-  -  -  -  -  -
-// Finally, if the user is sure that their variant type will never be unset,
-// the 'applyRaw' method can be invoked.  This method is slightly more
-// efficient than the regular 'apply' method, but the behavior is undefined if
-// the variant is currently unset.  Again, borrowing 'my_PrintVisitor' from
-// example 3a:
-//..
-//  typedef bdlb::Variant <int, double, bsl::string> List;
-//
-//  List x[4];
-//
-//      //************************************
-//      // Note that 'x[3]' is uninitialized *
-//      //************************************
-//
-//  x[0].assign(1);
-//  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
-//
-//  my_PrintVisitor printVisitor;
-//
-//  for (int i = 0; i < 4; ++i) {
-//      x[i].applyRaw(printVisitor);  // undefined behavior for 'x[3]'
-//  }
 //..
         }
 
@@ -7259,7 +7191,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. That unset variants can be swapped successfully.
-        //   2. That if one (and only one) of the variant is unset, the swap
+        //   2. That if one (and only one) of the variants is unset, the swap
         //      can be completed successfully.
         //   3. That if both variants are set, the swap can be completed
         //      successfully.
@@ -7270,17 +7202,18 @@ int main(int argc, char *argv[])
         //   void swap(bdlb::VariantImp& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'swap'" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'swap'" << endl
+                          << "==============" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::TestAllocator tb(veryVeryVerbose);
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE INPUT         TYPE_IDX VALUE_IDX
           // ---- -----         -------- ---------
@@ -7295,7 +7228,7 @@ int main(int argc, char *argv[])
             { L_, "L",  TEST_STRING_TYPE,        1 },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1      = DATA[ti].d_lineNum;
@@ -7372,36 +7305,36 @@ int main(int argc, char *argv[])
         }
       } break;
       case 20: {
+        // --------------------------------------------------------------------
         // CONCERN: 'applyRaw' accepts VISITORs without a 'bslmf::Nil' overload
-        //          (DRQS 52499438)
         //
         // Concerns:
         //: 1 That 'applyRaw' can be called on a VISITOR functor that does not
-        //:   provide an overload of 'bslmf::Nil'.
+        //:   provide an overload for 'bslmf::Nil'.
         //:
-        //: 2 That 'applyRaw' can be called on both const and non-const
+        //: 2 That 'applyRaw' can be called on both 'const' and non-'const'
         //:   VISITOR functors.
         //:
-        //: 3 That 'applyRaw' can be called on both const and non-const
+        //: 3 That 'applyRaw' can be called on both 'const' and non-'const'
         //:   variants.
         //:
-        //: 4 That 'applyRaw' can be called on variants that define
-        //:   and do not define a 'ResultType`.
+        //: 4 That 'applyRaw' can be called on functors that define and do not
+        //:   define a 'ResultType`.
         //
         // Plan:
         //: 1 Call 'applyRaw' using a 'VISITOR' that does not have an overload
         //:   for 'bslmf::Nil' on a cross product of:
-        //:   o 'const' and non-'const' variant.
-        //:   o 'const' and non-'const' visitor.
+        //:   o 'const' and non-'const' variants.
+        //:   o 'const' and non-'const' visitors.
         //:   o A visitor functor that:
-        //:     o Declares a result type
-        //:     o Does not declare a result type and returns 'void'
+        //:     o Declares a result type.
+        //:     o Does not declare a result type and returns 'void'.
         //:     o Does not declare a result type and doesn't return 'void'.
         //:
-        //: 2 Call 'applyRaw<RESULT_TYPE>' (i.e.., without using template
-        //:   argument deduction to determine the result type), using a
-        //:   visitor that does not have an overload of 'Nil' for the same
-        //:   crossproduct of situations as (1).
+        //: 2 Call 'applyRaw<RESULT_TYPE>' (i.e., without using template
+        //:   argument deduction to determine the result type) using a visitor
+        //:   that does not have an overload of 'Nil' for the same cross
+        //:   product of situations as (1).
         //
         // Testing:
         //  CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload
@@ -7421,34 +7354,33 @@ int main(int argc, char *argv[])
         //   1. If no allocator pointer is needed, it will not be a part of the
         //      variant members, i.e., 'sizeof(bdlb::Variant)' should go down
         //      by 'sizeof(bslma::Allocator *)'.
-        //   2. That the 'bslalg::TypeTraitUsesBslmaAllocator' trait is
-        //      declared for the variant when any types it held has the trait.
-        //      If none of the types has the trait, then the variant itself
-        //      will not have the trait.
+        //   2. That the 'bslma::UsesBslmaAllocator' trait is declared for the
+        //      variant when any types it holds has the trait.  If none of the
+        //      types has the trait, then the variant itself will not have the
+        //      trait.
         //   3. When any types held by the variant does not have the
-        //      'bslalg::TypeTraitBitwiseCopyable' trait, then the variant
-        //      itself will not have the bitwise moveable trait.
+        //      'bsl::is_trivially_copyable' trait, then the variant itself
+        //      will not have the bitwise moveable trait.
         //   4. When any types held by the variant does not have the
-        //      'bslalg::TypeTraitBitwiseMoveable' trait, then the variant
-        //      itself will not have the bitwise moveable trait.
+        //      'bslmf::IsBitwiseMoveable' trait, then the variant itself will
+        //      not have the bitwise moveable trait.
         //
         // Plan:
-        //   To address all the concerns, create a variety of types that
-        //   have the following traits:
-        //       a. 'bslalg::TypeTraitUsesBslmaAllocator'
-        //       b. 'bslalg::TypeTraitBitwiseCopyable'
-        //       c. 'bslalg::TypeTraitBitwiseMoveable'
-        //       d. no traits
+        //   To address all the concerns, create a variety of types that have
+        //   the following traits:
+        //       o 'bslma::UsesBslmaAllocator'
+        //       o 'bsl::is_trivially_copyable'
+        //       o 'bslmf::IsBitwiseMoveable'
+        //       o no traits
         //   Then populate the variant with different types and different
         //   scenarios outlined in the concerns section.  Finally, check
-        //   whether the expected traits are declared (or not) using
-        //   'bslalg::HasTrait'.
+        //   whether the expected traits are declared (or not).
         //
         // Testing:
-        //   CONCERN: No allocator pointer in object if not necessary
-        //   CONCERN: No 'bslalg::TypeTraitUsesBslmaAllocator' when no alloc
-        //   CONCERN: 'bslalg::TypeTraitBitwiseCopyable' trait
-        //   CONCERN: 'bslalg::TypeTraitBitwiseMoveable' trait
+        //   CONCERN: No allocator pointer in object if not necessary.
+        //   CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
+        //   CONCERN: 'bsl::is_trivially_copyable' trait
+        //   CONCERN: 'bslmf::IsBitwiseMoveable' trait
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -7459,25 +7391,25 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING CLASSES 'bdeut::VariantN'
-        //   So far, our testing has test the core functionality of the
+        // TESTING CLASSES 'bdlb::VariantN'
+        //   So far, our testing has tested the core functionality of the
         //   'bdlb::VariantImp' class, through the thin 'bdlb::Variant'
         //   wrapper.  We have focused on the value-semantic portion of the
-        //   functionality offered by this class.  We now address the concerns
-        //   related to the implementation of a core 'bdlb::VariantImp' and a
-        //   multitude of thin wrappers (that derive from the
-        //   'bdlb::VariantImp') that offer extra constructors and traits.
+        //   functionality offered by this component.  We now address the
+        //   concerns related to the implementation of the core
+        //   'bdlb::VariantImp' and a multitude of thin wrappers (that derive
+        //   from 'bdlb::VariantImp') that offer extra constructors and traits.
         //
         // Concerns:
-        //   1. That the 'bdeut::VariantN' class templates take exactly 'N'
+        //   1. That the 'bdlb::VariantN' class templates take exactly 'N'
         //      template arguments.
-        //   2. That the 'bdeut::VariantN' class constructor takes a single
+        //   2. That the 'bdlb::VariantN' class constructor takes a single
         //      argument of one of the 'N' types specified in its type list.
-        //   3. That the 'bdeut::VariantN' class 'operator=' takes a single
+        //   3. That the 'bdlb::VariantN' class 'operator=' takes a single
         //      argument of one of the 'N' types specified in its type list.
-        //   4. That the 'bdlb::Variant' class template take a variable
+        //   4. That the 'bdlb::Variant' class template takes a variable
         //      number of template arguments.
-        //   5. That the traits are set properly for those thin wrappers.
+        //   5. That the traits are set properly for the thin wrappers.
         //   6. That the constructors propagate the allocator properly.
         //   7. That the type indices are set properly.
         //
@@ -7485,8 +7417,8 @@ int main(int argc, char *argv[])
         //   To address concern 1, we instantiate each type with up to 20
         //   parameters of distinct types 'TestArg<1>' to 'TestArg<20>'.
         //   For Concern 2, we instantiate 'bdlb::Variant' with each
-        //   combination of up to '20' parameters and verify that the remaining
-        //   ones are defaulted to 'bslmf::TypeListNil'.
+        //   combination of up to 20 parameters and verify that the remaining
+        //   ones default to 'bslmf::TypeListNil'.
         //
         //   For concern 3, we manually check the traits of each class.
         //
@@ -7501,7 +7433,7 @@ int main(int argc, char *argv[])
         //   'TypeList' and 'TypeN' types.
         //
         // Testing:
-        //   CLASSES: 'bdeut::VariantN', 'bdlb::Variant'
+        //   CLASSES: 'bdlb::VariantN', 'bdlb::Variant'
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -7515,30 +7447,31 @@ int main(int argc, char *argv[])
         // TESTING 'isUnset'
         //
         // Concerns:
-        //   1. That 'isUnset' returns true for an unset variant (default
-        //      constructed and after 'reset'), and false otherwise.
+        //   1. That 'isUnset' returns 'true' for an unset variant (default
+        //      constructed or after 'reset'), and 'false' otherwise.
         //   2. That when 'bslmf::Nil' is used as one of the types in the
-        //      typelist, 'isUnset' still returns false even when the variant
+        //      type list, 'isUnset' still returns false even when the variant
         //      is initialized to 'bslmf::Nil'.
         //
         // Plan:
         //   To address concern 1, create two variants, both default
-        //   constructed, and verify that 'isUnset' returns true.  Assign a
-        //   value to both the variants, and verify that 'isUnset' return
-        //   false.  Finally, invoke 'reset' on the first variant, and verify
-        //   that 'isUnset' returns true on the first variant and false on the
+        //   constructed, and verify that 'isUnset' returns 'true'.  Assign a
+        //   value to both the variants, and verify that 'isUnset' returns
+        //   'false'.  Finally, invoke 'reset' on the first variant, and verify
+        //   that 'isUnset' returns 'true' on the first variant and 'false' on
         //   the second variant.
         //
-        //   For concern 2, create a variant with 'bslmf::Nil' in its typelist,
-        //   then initialize it to a nil value.  Verify that 'isUnset' returns
-        //   false.
+        //   For concern 2, create a variant with 'bslmf::Nil' in its type
+        //   list, then initialize it to a nil value.  Verify that 'isUnset'
+        //   returns 'false'.
         //
         // Testing:
         //   bool isUnset() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'isUnset'" << endl
-                                  << "=================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'isUnset'" << endl
+                          << "=================" << endl;
 
         if (verbose) cout << "\nTesting 'isUnset' with 'reset'." << endl;
         {
@@ -7585,15 +7518,15 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   To address concerns 1 and 2, create a visitor that has three
-        //   'operator()' overloads.  First one should be a templated
-        //   'operator()' that takes any type.  Second one should be one that
-        //   takes a 'bslmf::Nil'.  The last one should be one that takes a
-        //   user defined type, and in this test case, 'TestArg<1>'.  Verify
+        //   'operator()' overloads.  The first one is a parameterized
+        //   'operator()' that takes any type.  The second one is one that
+        //   takes a 'bslmf::Nil'.  The last one is one that takes a
+        //   user-defined type, and in this test case, 'TestArg<1>'.  Verify
         //   that the proper 'operator()' is invoked when the variant is unset.
         //
         //   To address concern 3, use a 'bsls::AssertFailureHandlerGuard' and
-        //   provide a assertion handler.  In the assertion handler, record
-        //   that an assert is called in debug mode.
+        //   provide an assertion handler.  In the assertion handler, record
+        //   that an assert is fired in debug mode.
         //
         // Testing:
         //   VISITOR::ResultType apply(VISITOR& visitor, const TYPE& dVal);
@@ -7610,9 +7543,9 @@ int main(int argc, char *argv[])
         //   RET_TYPE applyRaw(VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-            endl << "TESTING VISITORS (unset variants)" << endl
-                 << "=================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING VISITORS (unset variants)" << endl
+                          << "=================================" << endl;
 
         typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
@@ -7669,30 +7602,18 @@ int main(int argc, char *argv[])
             dummyConvert(0, v);
         }
 
-// No asserts if we're in optimized mode.
-#ifndef BDE_BUILD_TARGET_OPT
-        if (verbose) cout << "\nTesting 'applyRaw'." << endl;
+        if (verbose) cout << "\nNegative Testing 'applyRaw'." << endl;
         {
-            bsls::AssertFailureHandlerGuard guard(&applyRawFailureHandler);
-            ASSERT(applyRawFailureHandler == bsls::Assert::failureHandler());
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
-#ifdef BDE_BUILD_TARGET_EXC
-            try {
-                my_UnsetVariantVisitor visitor;
+            Obj                    mX;
+            my_UnsetVariantVisitor visitor;
 
-                Obj mX;
-                mX.applyRaw(visitor);
-
-                ASSERT(!"The call above should have thrown an exception.");
-            }
-            catch (VariantTestDriverException) {
-                // This is the expected path, after catching an exception from
-                // the registered assert handler, indicating that 'mX' is
-                // empty.
-            }
-#endif
+            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(visitor));
+            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(visitor));
         }
-#endif
+
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -7700,14 +7621,14 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. Visitors can modify the value currently held by the variant
-        //      (meaning, visitors are not read only).
+        //      (meaning visitors are not read-only).
         //   2. When no 'ResultType' is defined as a class type of the
-        //      visitor, the 'visit' method will not return anything.
+        //      visitor, the 'apply' method will not return anything.
         //   3. When 'ResultType' is defined as a class type of the visitor,
-        //      the 'visit' method will return 'ResultType'.
+        //      the 'apply' method returns 'ResultType'.
         //   4. When 'RET_TYPE' is specified as an explicit function template
-        //      parameter, the 'visit' method will return 'RET_TYPE',
-        //      overriding any return type specified in 'ResultType'.
+        //      parameter, the 'apply' method returns 'RET_TYPE', overriding
+        //      any return type specified in 'ResultType'.
         //   5. 'const' variants can be visited by visitors with an
         //      'operator()' that takes a 'const' reference to the value held
         //      by the visitor.
@@ -7719,17 +7640,17 @@ int main(int argc, char *argv[])
         //   values of the variant according to the type of object currently
         //   held by the variant.
         //
-        //   To address concerns 2, 3 and 4, create a wrapper for
-        //   'bdlb::Variant' that records which 'visit' method is invoked.
+        //   To address concerns 2, 3, and 4, create a wrapper for
+        //   'bdlb::Variant' that records which 'apply' method is invoked.
         //   Verify that the correct method is invoked depending on the
         //   requirements listed in the concerns.  Furthermore, for visitors
         //   that return values, verify that the value returned is as expected.
         //   Finally, to verify that the return value is overridden when
-        //   explicitly specified in the 'visit' method, define a class
+        //   explicitly specified in the 'apply' method, define a class
         //   'Convertible' that is implicitly convertible from any class.
         //   Specify 'Convertible' explicitly as the return type, and invoke
         //   a member function 'memberFunc' of 'Convertible' directly on the
-        //   value returned by the 'visit' method:
+        //   value returned by the 'apply' method:
         //
         //      (myVariant.apply<Convertible>(visitor)).memberFunc();
         //
@@ -7739,13 +7660,13 @@ int main(int argc, char *argv[])
         //   'memberFunc' will not be defined and the above will fail to
         //   compile.
         //
-        //   To address concern 5, create a const variant and a visitor that
+        //   To address concern 5, create a 'const' variant and a visitor that
         //   has a 'operator()' that takes a 'const' reference to the value
         //   held by the visitor.  In the visitor, verify the value is properly
         //   passed.
         //
-        //   To address concern 6, create a (non-const) variant and use the
-        //   visitor as concern 5 to visit it.  After visiting, verify that the
+        //   To address concern 6, create a (non-'const') variant and use the
+        //   visitor of concern 5 to visit it.  After visiting, verify that the
         //   value held by the variant is not modified in any way.
         //
         // Testing:
@@ -7769,9 +7690,9 @@ int main(int argc, char *argv[])
         //   RET_TYPE applyRaw<RET_TYPE>(const VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-            endl << "TESTING VISITORS (return values)" << endl
-                 << "================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING VISITORS (return values)" << endl
+                          << "================================" << endl;
 
         typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
@@ -7791,7 +7712,8 @@ int main(int argc, char *argv[])
             mYs[2].createInPlace<bsl::string>(STRING_DATA[0]);
             mYs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
 
-            for (int i = 0; i < (sizeof STRING_DATA / sizeof *STRING_DATA);
+            for (int i = 0;
+                i < static_cast<int>(sizeof STRING_DATA / sizeof *STRING_DATA);
                                                                          ++i) {
 
                 const int         INTVAL        = mXs[0].the<int>();
@@ -7810,7 +7732,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, STRINGVAL     == mYs[2].the<bsl::string>());
                 LOOP_ASSERT(i, TESTSTRINGVAL == mYs[3].the<TestString>());
 
-                // Visiting the values.
+                // Visit the values.
 
                 for (int j = 0; j < LENGTH; ++j) {
                     mXs[j].apply(visitor);
@@ -7826,7 +7748,6 @@ int main(int argc, char *argv[])
                     T_ P_(i) P_(INT_DATA[i])    P_(TEST_INT_DATA[i])
                              P_(STRING_DATA[i]) P(TEST_STRING_DATA[i])
                     P_(theInt) P_(theTestInt) P_(theString) P(theTestString)
-
                 }
 
                 LOOP_ASSERT(i, INT_DATA[i]        ==mXs[0].the<int>());
@@ -7879,7 +7800,7 @@ int main(int argc, char *argv[])
             ASSERT(RET2 == INT_TYPE);
         }
 
-        if (verbose) cout << "\t3. Explicitly specifying RET_TYPE." << endl;
+        if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
             VWrap wrappedVariant(tmp, &testAllocator);
@@ -7898,7 +7819,7 @@ int main(int argc, char *argv[])
                                                 wrappedVariant2.lastVisited());
         }
 
-        if (verbose) cout << "\nTesting 'const' 'visit' methods" << endl;
+        if (verbose) cout << "\nTesting 'const' 'apply' methods" << endl;
 
         if (verbose) cout << "\t1. No specified return value." << endl;
         {
@@ -7949,7 +7870,7 @@ int main(int argc, char *argv[])
             ASSERT(RET2 == INT_TYPE);
         }
 
-        if (verbose) cout << "\t3. Explicitly specifiying RET_TYPE." << endl;
+        if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
             VWrap wrappedVariant(tmp, &testAllocator);
@@ -7999,15 +7920,15 @@ int main(int argc, char *argv[])
         // TESTING 'createInPlace'
         //
         // Concerns:
-        //   1. Create in place does not invoke copy constructor of the object
-        //      being created.
+        //   1. The 'createInPlace' method does not invoke the copy constructor
+        //      of the object being created.
         //   2. The variant holds the correct type and value of the object
-        //      being created inside the variant (implies all constructor
-        //      arguments are forwarded properly.
+        //      being created inside the variant (implying that all constructor
+        //      arguments are forwarded properly).
         //
         // Plan:
-        //   Define a 'Copyable' class, whose copy constructor is monitored
-        //   and has a constructor that takes up to 14 arguments.  Also provide
+        //   Define a 'Copyable' class whose copy constructor is monitored and
+        //   has a constructor that takes up to 14 arguments.  Also provide an
         //   accessor to the 15 arguments being passed in.  Then invoke all 15
         //   versions of 'createInPlace' and verify the arguments are forwarded
         //   properly.  Also assert that the copy constructor is never invoked.
@@ -8020,14 +7941,14 @@ int main(int argc, char *argv[])
                           << "TESTING 'createInPlace'" << endl
                           << "=======================" << endl;
 
-        typedef bdlb::VariantImp<bslmf::TypeList<Copyable> >               Obj;
+        typedef bdlb::VariantImp<bslmf::TypeList<Copyable> > Obj;
 
         if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
         {
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>();
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 0);
         }
 
@@ -8036,7 +7957,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 1);
         }
 
@@ -8045,7 +7966,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 2);
         }
 
@@ -8054,7 +7975,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 3);
         }
 
@@ -8063,7 +7984,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 4);
         }
 
@@ -8072,7 +7993,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true, true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 5);
         }
 
@@ -8081,7 +8002,7 @@ int main(int argc, char *argv[])
             Obj mX;     const Obj& X = mX;
             mX.createInPlace<Copyable>(true, true, true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 6);
         }
 
@@ -8091,7 +8012,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 7);
         }
 
@@ -8101,7 +8022,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 8);
         }
 
@@ -8111,7 +8032,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 9);
         }
 
@@ -8121,7 +8042,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 10);
         }
 
@@ -8131,7 +8052,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 11);
         }
 
@@ -8141,7 +8062,7 @@ int main(int argc, char *argv[])
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 12);
         }
 
@@ -8152,7 +8073,7 @@ int main(int argc, char *argv[])
                                        true, true, true, true, true, true,
                                        true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 13);
         }
 
@@ -8163,7 +8084,7 @@ int main(int argc, char *argv[])
                                        true, true, true, true, true, true,
                                        true, true);
 
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 14);
         }
 
@@ -8188,7 +8109,7 @@ int main(int argc, char *argv[])
         //      guarantee of rollback.
         //
         // Plan:
-        //   To address concerns 1, 2, 3 and 4, specify a set S of unique
+        //   To address concerns 1, 2, 3, and 4, specify a set S of unique
         //   object values with substantial and varied differences.  Construct
         //   variant(X) = Y for all (X, Y) in S x S.  Also create YY that has
         //   the same value as Y.  After the assignment, assert that
@@ -8197,11 +8118,11 @@ int main(int argc, char *argv[])
         //   variant(X).
         //
         //   To address concern 5, we create an object with the default
-        //   allocator and assigned to it an object with a test allocator.
+        //   allocator and assign to it an object with a test allocator.
         //   Then we verify that the memory of the new object is drawn from the
         //   default allocator.
         //
-        //   To address concern 6, we use a standard 'bdema' exception test.
+        //   To address concern 6, we use a standard 'bslma' exception test.
         //
         // Testing:
         //   bdlb::VariantImp& operator=(const TYPE& value);
@@ -8216,9 +8137,9 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE  INPUT           TYPE_IDX  VALUE_IDX
           // ----  -----           --------  ---------
@@ -8244,7 +8165,7 @@ int main(int argc, char *argv[])
           , { L_,  "O",    TEST_STRING_TYPE,         4 }
           , { L_,  "Z",      TEST_VOID_TYPE,         0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1      = DATA[ti].d_lineNum;
@@ -8274,7 +8195,7 @@ int main(int argc, char *argv[])
 
                         int Y = INT_DATA[VALUE_IDX2];
 
-                        // Assign to 'X' the value 'Y' and check returned
+                        // Assign to 'X' the value 'Y' and check the returned
                         // reference.
 
                         LOOP2_ASSERT(LINE1, LINE2, INT_DATA[VALUE_IDX2] ==
@@ -8336,6 +8257,7 @@ int main(int argc, char *argv[])
                     }
 
                     // Verify value after 'Y' goes out of scope.
+
                     switch (TYPE_IDX2) {
                       case INT_TYPE: {
                         LOOP2_ASSERT(LINE1, LINE2,
@@ -8377,7 +8299,7 @@ int main(int argc, char *argv[])
 
             TestAllocObj value(&ta);
 
-            const int TATOTAL = ta.numBlocksTotal();
+            const int TATOTAL = static_cast<int>(ta.numBlocksTotal());
             ASSERT(TATOTAL == ta.numBlocksTotal());
             ASSERT(0       == da.numBlocksTotal());
 
@@ -8409,41 +8331,41 @@ int main(int argc, char *argv[])
                     T_ T_ P_(LINE2) P_(TYPE_IDX2) P(VALUE_IDX2)
                 }
 
-                Obj mX(&testAllocator);     const Obj& X = mX;
+                Obj mX(&testAllocator);  const Obj& X = mX;
                 gg(&mX, INPUT1);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    switch (TYPE_IDX2) {
-                      case INT_TYPE: {
-                        mX = INT_DATA[VALUE_IDX2];
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     INT_DATA[VALUE_IDX2] == X.the<int>());
-                      } break;
-                      case TEST_INT_TYPE: {
-                        mX = TEST_INT_DATA[VALUE_IDX2];
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TEST_INT_DATA[VALUE_IDX2]
+                  switch (TYPE_IDX2) {
+                    case INT_TYPE: {
+                      mX = INT_DATA[VALUE_IDX2];
+                      LOOP2_ASSERT(LINE1, LINE2,
+                                   INT_DATA[VALUE_IDX2] == X.the<int>());
+                    } break;
+                    case TEST_INT_TYPE: {
+                      mX = TEST_INT_DATA[VALUE_IDX2];
+                      LOOP2_ASSERT(LINE1, LINE2,
+                                   TEST_INT_DATA[VALUE_IDX2]
                                                           == X.the<TestInt>());
-                      } break;
-                      case STRING_TYPE: {
-                        mX = STRING_DATA[VALUE_IDX2];
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     STRING_DATA[VALUE_IDX2]
+                    } break;
+                    case STRING_TYPE: {
+                      mX = STRING_DATA[VALUE_IDX2];
+                      LOOP2_ASSERT(LINE1, LINE2,
+                                   STRING_DATA[VALUE_IDX2]
                                                       == X.the<bsl::string>());
-                      } break;
-                      case TEST_STRING_TYPE: {
-                        mX = TEST_STRING_DATA[VALUE_IDX2];
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TEST_STRING_DATA[VALUE_IDX2]
+                    } break;
+                    case TEST_STRING_TYPE: {
+                      mX = TEST_STRING_DATA[VALUE_IDX2];
+                      LOOP2_ASSERT(LINE1, LINE2,
+                                   TEST_STRING_DATA[VALUE_IDX2]
                                                        == X.the<TestString>());
-                      } break;
-                      case TEST_VOID_TYPE: {
-                        mX = TestVoid();
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TestVoid() == X.the<TestVoid>());
-                      } break;
-                      default: ASSERT(!"Unreachable by design");
-                    }
+                    } break;
+                    case TEST_VOID_TYPE: {
+                      mX = TestVoid();
+                      LOOP2_ASSERT(LINE1, LINE2,
+                                   TestVoid() == X.the<TestVoid>());
+                    } break;
+                    default: ASSERT(!"Unreachable by design");
+                  }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
@@ -8453,30 +8375,30 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //   1. When a 'bslma::Allocator' pointer is passed to the one argument
+        //   1. When a 'bslma::Allocator' pointer is passed to the one-argument
         //      constructor, the allocator should be used to supply memory
         //      for construction.
-        //   2. When an object with type in the variant's type list is passed
-        //      to the one argument constructor, the variant should be
+        //   2. When an object of a type in the variant's type list is passed
+        //      to the one-argument constructor, the variant should be
         //      constructed with the specified type and value.  The currently
         //      installed default allocator should be used to supply memory for
         //      construction (if the default constructed variant uses an
         //      allocator).
-        //   3. When the two argument constructor is invoked, the variant
+        //   3. When the two-argument constructor is invoked, the variant
         //      should be constructed with the specified type and value.
         //      Memory should be supplied by the specified allocator (if the
         //      default constructed variant uses an allocator).
         //
         // Plan:
         //   To address concern 1, we make use of both the default allocator
-        //   guard and the 'bslma::TestAllocator'.  First create two test
+        //   guard and the 'bslma::TestAllocator'.  First, create two test
         //   allocators, then hook one up with the default allocator guard.
-        //   Next construct a variant passing the second test allocator in.
+        //   Next, construct a variant passing the second test allocator in.
         //   Verify that construction and subsequent allocations (using
-        //   'assign') uses the allocator that's passed in.  Also verify that
+        //   'assign') uses the allocator that is passed in.  Also verify that
         //   no memory allocations come from the first (default) allocator.
         //
-        //   For concern 2, using the table driven technique, construct every
+        //   For concern 2, using the table-driven technique, construct every
         //   type in the type list of the variant by passing in a
         //   preconstructed object of that type.  Verify that the type and
         //   value are same as the preconstructed object, and also verify that
@@ -8485,7 +8407,7 @@ int main(int argc, char *argv[])
         //   Finally, verify that all memory comes from the default allocator
         //   using a default allocator guard and a test allocator.
         //
-        //   For concern 3, construct a variant using the two argument
+        //   For concern 3, construct a variant using the two-argument
         //   constructor and verify both concerns 1 and 2 at the same time.
         //   The same table will be used to test this.
         //
@@ -8494,20 +8416,22 @@ int main(int argc, char *argv[])
         //   bdlb::VariantImp(const TYPE& value, bslma::Allocator *ba);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING CREATORS" << endl
-                                  << "================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING CREATORS" << endl
+                          << "================" << endl;
 
         if (verbose) cout << "\nTesting one argument constructor with "
                              "allocator." << endl;
 
         {
-            // Added TestAlloc to confirm allocation.
+            // Added 'TestAllocObj' to confirm allocation.
             typedef bdlb::Variant<TestAllocObj, int, bsl::string,
-                                  TestInt, TestString, TestVoid>    Obj;
+                                  TestInt, TestString, TestVoid> Obj;
 
             // 'da'  - default allocator
             // 'ta'  - test allocator passed to the variant
             // 'tmp' - allocator for temporaries
+
             bslma::TestAllocator da, ta, tmp;
             bslma::DefaultAllocatorGuard guard(&da);
 
@@ -8526,10 +8450,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ta.numBlocksTotal());
                 ASSERT(0 == tmp.numBlocksTotal());
 
-                const int CURRENTTOTAL = ta.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(ta.numBlocksTotal());
 
                 bsl::string testString("Hello, this is a string long "
-                                       "enough to force memory allocation",
+                                       " enough to force memory allocation",
                                        &tmp);
 
                 ASSERT(0            == da.numBlocksTotal());
@@ -8548,12 +8472,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nTesting one argument constructor with "
-                             "TYPE and two argument constructor" << endl;
+                             "'TYPE' and two-argument constructor" << endl;
 
         static struct {
             int         d_lineNum;
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE          TYPE_IDX  VALUE_IDX
           // ----          --------  ---------
@@ -8579,7 +8503,7 @@ int main(int argc, char *argv[])
           , { L_,  TEST_STRING_TYPE,         4 }
           , { L_,    TEST_VOID_TYPE,         0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int LINE      = DATA[ti].d_lineNum;
@@ -8606,7 +8530,7 @@ int main(int argc, char *argv[])
                 ASSERT(0                   == da.numBlocksTotal());
                 ASSERT(0                   == ta.numBlocksTotal());
 
-                const int CURRENTTOTAL = da.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
                 Obj mY(INT_DATA[VALUE_IDX], &ta);            const Obj& Y = mY;
 
@@ -8639,7 +8563,7 @@ int main(int argc, char *argv[])
                 ASSERT(0                        == da.numBlocksTotal());
                 ASSERT(0                        == ta.numBlocksTotal());
 
-                const int CURRENTTOTAL = da.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
                 Obj mY(TEST_INT_DATA[VALUE_IDX], &ta);       const Obj& Y = mY;
 
@@ -8671,7 +8595,7 @@ int main(int argc, char *argv[])
                 ASSERT(STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
                 ASSERT(0                      == ta.numBlocksTotal());
 
-                const int CURRENTTOTAL = da.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
                 Obj mY(STRING_DATA[VALUE_IDX], &ta);         const Obj& Y = mY;
 
@@ -8702,7 +8626,7 @@ int main(int argc, char *argv[])
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
                 ASSERT(0                           == ta.numBlocksTotal());
 
-                const int CURRENTTOTAL = da.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
                 Obj mY(TEST_STRING_DATA[VALUE_IDX], &ta);    const Obj& Y = mY;
 
@@ -8738,7 +8662,7 @@ int main(int argc, char *argv[])
                 ASSERT(0              == da.numBlocksTotal());
                 ASSERT(0              == ta.numBlocksTotal());
 
-                const int CURRENTTOTAL = da.numBlocksTotal();
+                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
                 Obj mY(TestVoid(), &ta);                     const Obj& Y = mY;
 
@@ -8762,12 +8686,11 @@ int main(int argc, char *argv[])
               default : {
                 ASSERT(!"Not reachable by design");
               }
-           }
+            }
 
-            Obj x(int(3));
-            const Obj& X = x;
-            ASSERT(1 == x.is<int>());
-            ASSERT(3 == x.the<int>());
+            const Obj X(int(3));
+            ASSERT(1 == X.is<int>());
+            ASSERT(3 == X.the<int>());
         }
       } break;
       case 11: {
@@ -8788,22 +8711,23 @@ int main(int argc, char *argv[])
         //   bdlb::VariantImp& assignTo(SOURCE& value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'assignTo'" << endl
-                                  << "==================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'assignTo'" << endl
+                          << "==================" << endl;
 
         if (verbose) cout << "\nWith custom 'Copyable' type." << endl;
         {
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
             bdlb::VariantImp<bslmf::TypeList<Copyable> > variant;
             variant.assignTo<Copyable>(0);
-            ASSERT(false == Copyable::d_copyConstructorCalled);
+            ASSERT(false == Copyable::s_copyConstructorCalled);
         }
 
       } break;
       case 10: {
         // --------------------------------------------------------------------
         // BDEX STREAMING
-        //   'bdlb::Variant' does not support 'BDEX' streaming.
+        //   'bdlb::Variant' does not support BDEX streaming.
         //
         // Concerns:
         //   N/A
@@ -8812,23 +8736,23 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   Reserved for 'BDEX' streaming.
+        //   Reserved for BDEX streaming.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BDEX STREAMING" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "'BDEX' streaming is not supported." << endl;
+        if (verbose) cout << "BDEX streaming is not supported." << endl;
 
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
+        // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //   1. The value represented by any object of a variant-type can be
-        //      assigned to by another object of the same variant-type and that
+        //   1. The value represented by any object of a variant type can be
+        //      assigned to by another object of the same variant type and that
         //      the assignment operator returns a reference to the destination
         //      object.
         //   2. The 'rhs' value must not be affected by the operation.
@@ -8852,11 +8776,11 @@ int main(int argc, char *argv[])
         //   return value of the assignment and Y itself equal YY.
         //
         //   To address concern 5, we create an object with the default
-        //   allocator and assigned to it an object with a test allocator.
-        //   Then we verify that the memory of the new object is drawn from the
+        //   allocator and assign to it an object with a test allocator.  Then
+        //   we verify that the memory of the new object is drawn from the
         //   default allocator.
         //
-        //   To address concern 6, we use a standard 'bdema' exception test.
+        //   To address concern 6, we use a standard 'bslma' exception test.
         //
         // Testing:
         //   bdlb::Variant& operator=(const bdlb::Variant& rhs);
@@ -8921,22 +8845,26 @@ int main(int argc, char *argv[])
 
                     Obj mX(&testAllocator);
                     gg(&mX, SPECS[i]);
-                    int blocks = testAllocator.numBlocksTotal();
+                    int blocks =
+                              static_cast<int>(testAllocator.numBlocksTotal());
                     mX = YY;
-                    blocks = testAllocator.numBlocksTotal() - blocks;
+                    blocks = static_cast<int>(testAllocator.numBlocksTotal())
+                             - blocks;
 
-                    // Assign 'YY', which uses a test allocator, to 'mY', which
-                    // uses the default allocator.  The allocator value of 'mY'
-                    // should not be affected.
+                    // Assign 'YY' (which uses a test allocator) to 'mY' (which
+                    // uses the default allocator).  The allocator value of
+                    // 'mY' should not be affected.
 
                     bslma::TestAllocator da; // default allocator
                     const bslma::DefaultAllocatorGuard DAG(&da);
                     Obj mY;
                     gg(&mY, SPECS[i]);
-                    int defaultBlocks = da.numBlocksTotal();
-                    int testBlocks = testAllocator.numBlocksTotal();
+                    int defaultBlocks = static_cast<int>(da.numBlocksTotal());
+                    int testBlocks    =
+                             static_cast<int>(testAllocator.numBlocksTotal());
                     mY = YY;
-                    defaultBlocks = da.numBlocksTotal() - defaultBlocks;
+                    defaultBlocks = static_cast<int>(da.numBlocksTotal())
+                                    - defaultBlocks;
 
                     // Verify 'mY' still uses the default allocator to obtain
                     // memory and the test allocator used by 'YY' is not used,
@@ -8957,10 +8885,9 @@ int main(int argc, char *argv[])
                     gg(&mX, SPECS[i]);
                     gg(&mY, SPECS[j]);
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        mX = Y;
+                      mX = Y;
 
-                        LOOP2_ASSERT(i, j, X == Y);
-
+                      LOOP2_ASSERT(i, j, X == Y);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
@@ -8969,7 +8896,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION:
+        // TESTING GENERATOR FUNCTION
         //
         // Concerns:
         //   Since 'g' is implemented almost entirely using 'gg', we need to
@@ -8989,7 +8916,7 @@ int main(int argc, char *argv[])
         //   object by value.
         //
         // Testing:
-        //   bdlb::Variant g(const char *spec)
+        //   bdlb::Variant g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -9006,18 +8933,25 @@ int main(int argc, char *argv[])
                                                                        << endl;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *spec = SPECS[ti];
+
             if (veryVerbose) { P_(ti);  P(spec); }
+
             Obj mX(&testAllocator);  gg(&mX, spec);  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t g = " << g(spec) << endl;
                 cout << "\tgg = " << X       << endl;
             }
-            const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+
+            const int TOTAL_BLOCKS_BEFORE =
+                              static_cast<int>(testAllocator.numBlocksTotal());
+            const int IN_USE_BYTES_BEFORE =
+                              static_cast<int>(testAllocator.numBytesInUse());
             LOOP_ASSERT(ti, X == g(spec));
-            const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+            const int TOTAL_BLOCKS_AFTER =
+                              static_cast<int>(testAllocator.numBlocksTotal());
+            const int IN_USE_BYTES_AFTER =
+                              static_cast<int>(testAllocator.numBytesInUse());
             LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
             LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
         }
@@ -9036,7 +8970,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR:
+        // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
         //  1. The new object's value is the same as that of the original
@@ -9052,10 +8986,9 @@ int main(int argc, char *argv[])
         // Plan:
         //  To address concern 1 - 3, specify a set S of object values with
         //  substantial and varied differences.  For each value in S,
-        //  initialize objects W and X, copy construct Y from X and use
-        //  'operator==()' to verify that both X and Y subsequently have the
-        //  same value as W.  Let X go out of scope and again verify that
-        //  W == Y.
+        //  initialize objects W and X, copy construct Y from X, and use
+        //  'operator==' to verify that both X and Y subsequently have the same
+        //  value as W.  Let X go out of scope and again verify that W == Y.
         //
         //  To address concern 4, we will install a test allocator as the
         //  default and also supply a separate test allocator explicitly.  We
@@ -9067,7 +9000,7 @@ int main(int argc, char *argv[])
         //  supplied test allocator.
         //
         // Testing:
-        //   bdlb::Variant(const bdlb::Variant&, bslma::Allocator *ba = 0)
+        //   bdlb::Variant(const bdlb::Variant&, bslma::Allocator *ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -9076,9 +9009,9 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE INPUT               TYPE_IDX  VALUE_IDX
           // ---- -----               --------  ---------
@@ -9105,7 +9038,7 @@ int main(int argc, char *argv[])
           , { L_, "O",        TEST_STRING_TYPE,         4 }
           , { L_, "Z",          TEST_VOID_TYPE,         0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with allocators." << endl;
 
@@ -9133,15 +9066,16 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a;  // specified allocator
 
             LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
-            int blocks = a.numBlocksTotal();
+            int blocks = static_cast<int>(a.numBlocksTotal());
 
             const Obj Y(X, &a);
-            blocks = a.numBlocksTotal() - blocks;
+            blocks = static_cast<int>(a.numBlocksTotal()) - blocks;
             LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
-            int defaultBlocks = da.numBlocksTotal();
+            int defaultBlocks = static_cast<int>(da.numBlocksTotal());
             const Obj Z(X);
-            defaultBlocks = da.numBlocksTotal() - defaultBlocks;
+            defaultBlocks = static_cast<int>(da.numBlocksTotal())
+                            - defaultBlocks;
             LOOP3_ASSERT(LINE, blocks, defaultBlocks, blocks == defaultBlocks);
 
             LOOP_ASSERT(LINE, W == X);
@@ -9150,7 +9084,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, W == Y);
         }
 
-#ifdef BDE_BUILD_TARGET_EXC
         if (verbose)
             cout << "\nTesting with allocators in the presence of exceptions."
                  << endl;
@@ -9169,13 +9102,11 @@ int main(int argc, char *argv[])
             gg(&mX, INPUT);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const Obj Y(X, &testAllocator);  // TEST HERE
+              const Obj Y(X, &testAllocator);  // TEST HERE
 
-                LOOP_ASSERT(LINE, X == Y);
-
+              LOOP_ASSERT(LINE, X == Y);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
-#endif
 
       } break;
       case 6: {
@@ -9184,14 +9115,14 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   For 'operator==', we have the following concerns:
-        //   1. Return false for two variants holding different types.
-        //   2. Return false for two variants holding the same type but does
-        //      not hold the same value.
-        //   3. Return true for two variants holding the same type and same
-        //      value.
+        //   1. Return 'false' for two variants holding different types.
+        //   2. Return 'false' for two variants holding the same type but not
+        //      holding the same value.
+        //   3. Return 'true' for two variants holding the same type and the
+        //      same value.
         //   For 'operator!=', we have the same concerns, except the method
-        //   should return false whenever 'operator==' return true and true
-        //   whenever 'operator==' return false.
+        //   should return 'false' whenever 'operator==' returns 'true' and
+        //   'true' whenever 'operator==' returns 'false'.
         //
         // Plan:
         //   Using the table-driven technique, construct a set of specs
@@ -9206,17 +9137,18 @@ int main(int argc, char *argv[])
         //   bool operator!=(const bdlb::Variant& l, const bdlb::Variant& r);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING EQUALITY OEPRATORS" << endl
-                                  << "==========================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING EQUALITY OEPRATORS" << endl
+                          << "==========================" << endl;
 
         if (verbose) cout <<
             "\nCompare each pair of similar values (u,v) in S X S." << endl;
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE INPUT               TYPE_IDX  VALUE_IDX
           // ---- -----               --------  ---------
@@ -9243,7 +9175,7 @@ int main(int argc, char *argv[])
           , { L_, "O",        TEST_STRING_TYPE,         4 }
           , { L_, "Z",          TEST_VOID_TYPE,         0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1      = DATA[ti].d_lineNum;
@@ -9279,11 +9211,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR AND 'print':
+        // TESTING OUTPUT (<<) OPERATOR AND 'print'
         //
         // Concerns:
         //  We want to ensure that the 'print' method correctly formats a
-        //  'bdeutVariant' object for output with any valid 'level' and
+        //  'bdlb::Variant' object for output with any valid 'level' and
         //  'spacesPerLevel' values and returns the specified stream.
         //
         // Plan:
@@ -9297,8 +9229,8 @@ int main(int argc, char *argv[])
         //  that 'operator<<' returns the specified stream.
         //
         // Testing:
-        //   bsl::ostream& print(bsl::ostream&, int, int) const
-        //   bsl::ostream& operator<<(bsl::ostream&, const bdlb::VariantImp&)
+        //   bsl::ostream& print(bsl::ostream&, int, int) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const bdlb::VariantImp&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -9354,7 +9286,7 @@ int main(int argc, char *argv[])
           {  L_,  "L",       1,     2,    L1            },
           {  L_,  "L",      -1,    -2,    L0            },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE   = DATA[ti].d_lineNum;
@@ -9366,6 +9298,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 T_ P_(LINE) P_(SPEC) P_(LEVEL) P_(SPACES) P(RESULT)
             }
+
             bsl::ostringstream printStream;
             bsl::ostringstream operatorStream;
             Obj mX(&testAllocator); const Obj& X = mX;
@@ -9380,17 +9313,18 @@ int main(int argc, char *argv[])
                 T_ T_ P(printStream.str())
                 T_ T_ P(operatorStream.str())
             }
+
             bsl::string cmp = printStream.str();
             LOOP3_ASSERT(LINE, cmp.size(), RESULT.size(),
                                                   cmp.size() == RESULT.size());
-            for (int i = 0; i < cmp.size(); ++i) {
+            for (int i = 0; i < static_cast<int>(cmp.size()); ++i) {
                 LOOP4_ASSERT(LINE, i, cmp[i], RESULT[i], cmp[i] == RESULT[i]);
             }
-            if (LEVEL == 0 && SPACES == -1) {
+            if (0 == LEVEL && -1 == SPACES) {
                 bsl::string cmp2 = operatorStream.str();
                 LOOP3_ASSERT(LINE, cmp.size(), cmp2.size(),
                                                     cmp.size() == cmp2.size());
-                for (int i = 0; i < cmp.size(); ++i) {
+                for (int i = 0; i < static_cast<int>(cmp.size()); ++i) {
                     LOOP4_ASSERT(LINE, i, cmp[i], cmp2[i], cmp[i] == cmp2[i]);
                 }
             }
@@ -9404,7 +9338,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. 'is<TYPE>()' reflects correct type information after both
         //      default construction and assignment.
-        //   2. 'the<TYPE>()' returns proper value after both default
+        //   2. 'the<TYPE>()' returns the proper value after both default
         //      construction and assignment.
         //
         // Plan:
@@ -9424,9 +9358,9 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE INPUT               TYPE_IDX VALUE_IDX
           // ---- -----        --------------- ---------
@@ -9469,7 +9403,7 @@ int main(int argc, char *argv[])
           , { L_, "SK",       TEST_STRING_TYPE,       0 }
           , { L_, "Z",          TEST_VOID_TYPE,       0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
@@ -9535,66 +9469,66 @@ int main(int argc, char *argv[])
                            TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
               } break;
               default: LOOP_ASSERT(LINE, 0);
-            };
-        };
+            }
+        }
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTIONS:
+        // TESTING PRIMITIVE GENERATOR FUNCTIONS
         //
         // Developing a generator also means developing a test case to verify
         // it.  We will need to select an appropriate suite of inputs specs
         // and, using basic accessors, verify that valid syntax drives the
-        // object to its desired state:
+        // object to its desired state.
         //
-        // We will also want to verify that simple typo's are detected and
+        // We will also want to verify that simple typos are detected and
         // reported reliably.  In order to test that aspect, we will need to
         // supply invalid syntax.  But supplying invalid syntax to 'gg' will,
         // by design, result in a diagnostic message and a test failure.  To
         // address this testing issue, notice that the implementation of the
-        // primitive generator 'gg' in Figure 9-45 has been broken into two
-        // functions 'ggg' and 'gg' with the latter implemented trivially in
-        // terms of the former.  The primitive generator *implementation* 'ggg'
-        // exposes one additional parameter that can be used to suppress output
-        // during what is sometimes called "negative testing" -- i.e., making
-        // sure that the function "breaks" when it should.  Instead of
-        // returning a reference, the 'ggg' function returns the index of the
-        // character that caused the error and a negative value on success.
-        // This extra information (useful only when testing the generator
-        // itself) ensures that spec-parsing failed at the expected location
-        // and not accidentally for some other reason.
+        // primitive generator 'gg' has been broken into two functions 'ggg'
+        // and 'gg' with the latter implemented trivially in terms of the
+        // former.  The primitive generator *implementation* 'ggg' exposes one
+        // additional parameter that can be used to suppress output during what
+        // is sometimes called "negative testing" -- i.e., making sure that the
+        // function "breaks" when it should.  Instead of returning a reference,
+        // the 'ggg' function returns the index of the character that caused
+        // the error and a negative value on success.  This extra information
+        // (useful only when testing the generator itself) ensures that
+        // spec-parsing failed at the expected location and not accidentally
+        // for some other reason.
         //
         // Concerns:
-        //  1. The parsing stops at the first incorrect character of expression
-        //  2. The resulting value has correct type and value.
-        //  3. All examples in the documentation are parsed as expected
+        //  1. Parsing stops at the first incorrect character of the spec.
+        //  2. The resulting object has the correct type and value.
+        //  3. All examples in the documentation are parsed as expected.
         //
         // Plan:
         //  Using the table-driven technique, create a table of test vectors
         //  containing the line number, spec, expected return code, expected
-        //  type index and value index.  For concern 1, make sure the return
+        //  type index, and value index.  For concern 1, make sure the return
         //  code is the same as the specified offset where the error occurred.
         //  For concerns 2 and 3, verify that the type index and value index
         //  are as expected.
         //
         // Testing:
-        //   int ggg(bdlb::Variant *, const char *, bool=true)
-        //   bdlb::Variant *gg(bdlb::Variant *, const char *)
+        //   int ggg(bdlb::Variant *, const char *, bool = true);
+        //   bdlb::Variant *gg(bdlb::Variant *, const char *);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl << "TESTING PRIMITIVE GENERATOR FUNCTION" << endl
-                         << "====================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING PRIMITIVE GENERATOR FUNCTION" << endl
+                          << "====================================" << endl;
 
         if (verbose) cout << "\nTesting generator on valid specs." << endl;
 
         static struct {
             int         d_lineNum;
-            const char *d_input;         // input specifications
-            int         d_retCode;       // return code of ggg()
-            int         d_expTypeIdx;    // expected type index
-            int         d_expValueIdx;   // expected value index (within type)
+            const char *d_input;        // input specifications
+            int         d_retCode;      // return code of ggg()
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE INPUT        RC         TYPE_IDX VALUE_IDX
           // ---- -----        --         -------- ---------
@@ -9651,7 +9585,7 @@ int main(int argc, char *argv[])
           , { L_, "ABC~",     -1,            UNSET,       0 }
           , { L_, "ABC~DE",   -1,         INT_TYPE,       4 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
@@ -9675,8 +9609,7 @@ int main(int argc, char *argv[])
               case UNSET: {
               } break;
               case TEST_VOID_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX,
-                                              TestVoid() == X.the<TestVoid>());
+                LOOP2_ASSERT(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
               } break;
               case INT_TYPE: {
                 LOOP3_ASSERT(LINE, VALUE_IDX, X.the<int>(),
@@ -9695,64 +9628,62 @@ int main(int argc, char *argv[])
                            TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
               } break;
               default: LOOP_ASSERT(LINE, 0);
-            };
+            }
 
-            // Testing the "reset" facility
+            // Testing the "reset" facility.
 
             if (veryVerbose)
                 cout << "\t\twith appending '~' (reset).'" << endl;
 
-            if (retCode == -1) {
+            if (-1 == retCode) {
                 bsl::string strInput(INPUT);
                 strInput.push_back('~');
 
                 Obj mY; const Obj& Y = mY;
 
                 int ret = ggg(&mY, strInput.c_str(), false);
-                LOOP_ASSERT(LINE, ret == -1);
-                LOOP_ASSERT(LINE, 0 == Y.typeIndex());
+                LOOP_ASSERT(LINE, -1 == ret);
+                LOOP_ASSERT(LINE,  0 == Y.typeIndex());
             }
-
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS
-        //
-        // We want to exercise the set of primary manipulators, which can put
-        // the object in any state.
+        //  We want to exercise the set of primary manipulators that can put
+        //  the object into any state.
         //
         // Concerns:
-        //  1. Default constructor
-        //      a. creates an object with the expected value
-        //      b. does not allocate, does not throw
-        //      c. properly wires the optionally-specified allocator
+        //  1. That the default constructor:
+        //     a. creates an object with the expected value.
+        //     b. does not allocate and does not throw.
+        //     c. properly wires the optionally-specified allocator.
         //
         //  2. That 'assign<TYPE>'
-        //      a. properly assigns a variable of the variant 'TYPE'
-        //      b. properly destroys the current variable of the current type
-        //      c. uses assignment (not dtor+ctor) if assigning the same type
-        //      d. is exception-neutral with no guarantee of rollback
+        //     a. properly assigns a value of the variant 'TYPE'.
+        //     b. properly destroys the current value of the current type.
+        //     c. uses assignment (not dtor+ctor) if assigning the same type.
+        //     d. is exception-neutral with no guarantee of rollback.
         //
-        //  3. That 'reset'
-        //      a. produces the expected value (unset)
-        //      b. properly destroys the current variable of the current type
-        //      c. leaves the object in a consistent state
+        //  3. That 'reset':
+        //      a. Produces the expected state (unset).
+        //      b. Properly destroys the current value of the current type.
+        //      c. Leaves the object in a consistent state.
         //
         // Plan:
         //  To address concerns for 1, create an object using the default
-        //  constructor
-        //      - without passing an allocator, in which case the object will
-        //        allocate memory using the default allocator (if default
-        //        construction of default type uses allocator).
-        //      - with an allocator, in which case the object will allocate
-        //        memory using the specified allocator (if default construction
-        //        of default type uses allocator).
-        //      - Repeat the above two points using a first type that allocates
-        //        memory.
-        //      - in the presence of exceptions during memory allocations using
-        //        a 'bslma::TestAllocator' and varying its allocation limit.
-        //  Use 'typeIndex' to verify that the newly-created variant is has the
+        //  constructor:
+        //    - Without passing an allocator, in which case the object will
+        //      allocate memory using the default allocator (if default
+        //      construction of the default type uses an allocator).
+        //    - With an allocator, in which case the object will allocate
+        //      memory using the specified allocator (if default construction
+        //      of the default type uses an allocator).
+        //    - Repeat the above two points using a first type that allocates
+        //      memory.
+        //    - In the presence of exceptions during memory allocations using
+        //      a 'bslma::TestAllocator' and varying its allocation limit.
+        //  Use 'typeIndex' to verify that the newly-created variant has the
         //  proper type.  Also use 'numBlocksTotal' of the default allocator
         //  and the specified allocator to verify that the constructor
         //  allocates memory from the correct source.
@@ -9768,7 +9699,7 @@ int main(int argc, char *argv[])
         //  destroyed and its memory reclaimed by the allocator.
         //
         //  To address concerns for 3, create an object, exercise 'assign', at
-        //  will, then call 'removeAll', check the value and then exercise
+        //  will, then call 'reset'; check the value and then exercise
         //  'assign' again to check consistency.
         //
         //  Testing:
@@ -9776,14 +9707,14 @@ int main(int argc, char *argv[])
         //    bdlb::Variant(const TYPEORALLOCATOR& typeOrAlloc);
         //    ~bdlb::Variant();
         //    void assign<TYPE>(const TYPE& value);
+        //    void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
-                                  << "============================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING PRIMARY MANIPULATORS" << endl
+                          << "============================" << endl;
 
         // Default construction does not allocate memory.
-        typedef bdlb::Variant<int, bsl::string, TestInt,
-                              TestString, TestVoid>           Obj1;
 
         if (verbose) cout << "\nTesting default constructor." << endl;
 
@@ -9796,7 +9727,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator da; // default allocator
             bslma::DefaultAllocatorGuard DAG(&da);
-            int previousTotal = da.numBlocksTotal();
+            int previousTotal = static_cast<int>(da.numBlocksTotal());
             const Obj X, Y((bslma::Allocator *)0);
             LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
             LOOP_ASSERT(X.typeIndex(), 0 == Y.typeIndex());
@@ -9806,7 +9737,8 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "\twith a specified allocator" << endl;
-            int previousTotal = testAllocator.numBlocksTotal();
+            int previousTotal =
+                              static_cast<int>(testAllocator.numBlocksTotal());
             const Obj X(&testAllocator);
             LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
             LOOP_ASSERT(testAllocator.numBlocksTotal(),
@@ -9817,10 +9749,11 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\twith a specified allocator and exceptions"
                               << endl;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const int previousTotal = testAllocator.numBlocksTotal();
-                const Obj X(&testAllocator);
-                ASSERT(0 == X.typeIndex());
-                ASSERT(testAllocator.numBlocksTotal() == previousTotal);
+              const int previousTotal =
+                              static_cast<int>(testAllocator.numBlocksTotal());
+              const Obj X(&testAllocator);
+              ASSERT(0 == X.typeIndex());
+              ASSERT(testAllocator.numBlocksTotal() == previousTotal);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
@@ -9834,6 +9767,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VA << endl;
             }
+
             mX.assign<int>(VA);
             ASSERT(1  == X.is<int>());
             ASSERT(VA == X.the<int>());
@@ -9841,6 +9775,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VB << " (same type)" << endl;
             }
+
             mX.assign<int>(VB);
             ASSERT(1  == X.is<int>());
             ASSERT(VB == X.the<int>());
@@ -9848,6 +9783,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
+
             mX.assign<TestInt>(VF);
             ASSERT(1  == X.is<TestInt>());
             ASSERT(VF == X.the<TestInt>());
@@ -9855,6 +9791,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
+
             mX.assign<TestString>(VK);
             ASSERT(1  == X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
@@ -9870,6 +9807,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VS << endl;
             }
+
             mX.assign<bsl::string>(VS);
             ASSERT(1  == X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
@@ -9877,6 +9815,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VT << " (same type)" << endl;
             }
+
             mX.assign<bsl::string>(VT);
             ASSERT(1  == X.is<bsl::string>());
             ASSERT(VT == X.the<bsl::string>());
@@ -9884,6 +9823,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
+
             mX.assign<TestString>(VK);
             ASSERT(1  == X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
@@ -9891,6 +9831,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
+
             mX.assign<TestInt>(VF);
             ASSERT(1  == X.is<TestInt>());
             ASSERT(VF == X.the<TestInt>());
@@ -9903,13 +9844,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\twith specified allocator" << endl;
 
         {
-            const int TOTAL = testAllocator.numBlocksTotal();
+            const int TOTAL = static_cast<int>(testAllocator.numBlocksTotal());
 
             Obj mX(&testAllocator);  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VA << endl;
             }
+
             mX.assign<int>(VA);
             ASSERT(1     == X.is<int>());
             ASSERT(VA    == X.the<int>());
@@ -9919,6 +9861,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VB << " (same type)" << endl;
             }
+
             mX.assign<int>(VB);
             ASSERT(1     == X.is<int>());
             ASSERT(VB    == X.the<int>());
@@ -9928,6 +9871,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
+
             mX.assign<TestInt>(VF);
             ASSERT(1     == X.is<TestInt>());
             ASSERT(VF    == X.the<TestInt>());
@@ -9937,6 +9881,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
+
             mX.assign<TestString>(VK);
             ASSERT(1     == X.is<TestString>());
             ASSERT(VK    == X.the<TestString>());
@@ -9948,7 +9893,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            const int TOTAL = testAllocator.numBlocksTotal();
+            const int TOTAL = static_cast<int>(testAllocator.numBlocksTotal());
             Obj mX(&testAllocator);  const Obj& X = mX;
 
             ASSERT(0     == testAllocator.numBlocksInUse());
@@ -9957,16 +9902,19 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VS << endl;
             }
+
             mX.assign<bsl::string>(VS);
             ASSERT(1  == X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
 
             {
-                const int PREVIOUS = testAllocator.numBlocksTotal();
+                const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                 if (veryVerbose) {
                     cout << "\t\t\tthen to " << VT << " (same type)" << endl;
                 }
+
                 mX.assign<bsl::string>(VT);
                 ASSERT(1  == X.is<bsl::string>());
                 ASSERT(VT == X.the<bsl::string>());
@@ -9976,23 +9924,63 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
+
             mX.assign<TestString>(VK);
             ASSERT(1  == X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
 
             {
-                const int PREVIOUS = testAllocator.numBlocksTotal();
+                const int PREVIOUS =
+                              static_cast<int>(testAllocator.numBlocksTotal());
 
                 if (veryVerbose) {
                     cout << "\t\t\tthen to " << VF << " (different type)"
                          << endl;
                 }
+
                 mX.assign<TestInt>(VF);
                 ASSERT(1  == X.is<TestInt>());
                 ASSERT(VF == X.the<TestInt>());
                 ASSERT(0        == testAllocator.numBlocksInUse());
                 ASSERT(PREVIOUS == testAllocator.numBlocksTotal());
             }
+        }
+
+        if (verbose) cout << "\tTesting 'reset'." << endl;
+        {
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            ASSERT( X.isUnset());
+
+            mX.reset();
+            ASSERT( X.isUnset());
+
+            mX.assign<int>(VA);
+            ASSERT(!X.isUnset());
+            ASSERT( X.is<int>());
+
+            mX.reset();
+            ASSERT( X.isUnset());
+
+            mX.assign<TestInt>(VF);
+            ASSERT(!X.isUnset());
+            ASSERT( X.is<TestInt>());
+
+            mX.reset();
+            ASSERT( X.isUnset());
+
+            mX.assign<TestString>(VK);
+            ASSERT(!X.isUnset());
+            ASSERT( X.is<TestString>());
+
+            mX.reset();
+            ASSERT( X.isUnset());
+
+            mX.assign<int>(VA);
+            ASSERT(!X.isUnset());
+            ASSERT( X.is<int>());
+
+            mX.reset();
+            ASSERT( X.isUnset());
         }
 
       } break;
@@ -10017,29 +10005,30 @@ int main(int argc, char *argv[])
         //   Invoke the primary (black box) manipulator [3, 5], copy
         //   constructor [2, 8], and assignment operator [9, 10] in situations
         //   where the internal data (i) does *not* and (ii) *does* have to
-        //   morph.  Try aliasing with assignment for a non-empty object [11]
+        //   morph.  Try aliasing with assignment for a non-null object [11]
         //   and allow the result to leave scope, enabling the destructor to
         //   assert internal object invariants.  Display object values
         //   frequently in verbose mode:
         //    1. Create an object x1 (default ctor).       x1:
-        //    2. Create a second object x2 (copy from x1). x1: x2:
+        //    2. Create a second object x2 (copy from x1). x1:  x2:
         //    3. Append an element value A to x1).         x1:A x2:
         //    4. Append the same element value A to x2).   x1:A x2:A
         //    5. Append another element value B to x2).    x1:A x2:B
         //    6. Create a third object x3 (default ctor).  x1:A x2:B x3:
-        //    7. Create a fourth object x4 (copy of x2).   x1:A x2:B x3: x4:B
-        //    8. Assign x2 = x1 (non-empty becomes empty). x1:A x2: x3: x4:B
-        //    9. Assign x3 = x4 (empty becomes non-empty). x1:A x2: x3:B x4:B
-        //   10. Assign x4 = x4 (aliasing).                x1:A x2: x3:B x4:B
+        //    7. Create a fourth object x4 (copy of x2).   x1:A x2:B x3:  x4:B
+        //    8. Assign x2 = x1 (non-null becomes null).   x1:A x2:  x3:  x4:B
+        //    9. Assign x3 = x4 (null becomes non-null).   x1:A x2:  x3:B x4:B
+        //   10. Assign x4 = x4 (aliasing).                x1:A x2:  x3:B x4:B
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
-        typedef bdlb::Variant<int, const char *, TestVoid>  Obj;
+        typedef bdlb::Variant<int, const char *, TestVoid> Obj;
 
         int         VA = 123;
         const char *VB = "This is a null-terminated byte string.";
@@ -10051,8 +10040,7 @@ int main(int argc, char *argv[])
         Obj mX1; const Obj& X1 = mX1;
         if (verbose) { T_ P(X1) }
 
-        if (verbose) cout <<
-            "\ta. Check initial state of x1." << endl;
+        if (verbose) cout << "\ta. Check initial state of x1." << endl;
         ASSERT(0 == X1.typeIndex());
         ASSERT(0 == X1.is<int>());
         ASSERT(0 == X1.is<const char *>());
@@ -10068,8 +10056,7 @@ int main(int argc, char *argv[])
         Obj mX2(X1); const Obj& X2 = mX2;
         if (verbose) { T_ P(X2) }
 
-        if (verbose) cout <<
-            "\ta. Check the initial state of x2." << endl;
+        if (verbose) cout << "\ta. Check the initial state of x2." << endl;
         ASSERT(0 == X2.typeIndex());
         ASSERT(0 == X2.is<int>());
         ASSERT(0 == X2.is<const char *>());
@@ -10086,8 +10073,7 @@ int main(int argc, char *argv[])
         mX1.assign<int>(VA);
         if (verbose) { T_ P(X1) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x1." << endl;
+        if (verbose) cout << "\ta. Check new state of x1." << endl;
         ASSERT( 1 == X1.typeIndex());
         ASSERT( 1 == X1.is<int>());
         ASSERT( 0 == X1.is<const char *>());
@@ -10105,8 +10091,7 @@ int main(int argc, char *argv[])
         mX2.assign<int>(VA);
         if (verbose) { T_ P(X2) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x2." << endl;
+        if (verbose) cout << "\ta. Check new state of x2." << endl;
         ASSERT( 1 == X2.typeIndex());
         ASSERT( 1 == X2.is<int>());
         ASSERT( 0 == X2.is<const char *>());
@@ -10163,8 +10148,7 @@ int main(int argc, char *argv[])
         Obj mX4(X2); const Obj& X4 = mX4;
         if (verbose) { T_ P(X4) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x4." << endl;
+        if (verbose) cout << "\ta. Check new state of x4." << endl;
         ASSERT( 2 == X4.typeIndex());
         ASSERT( 0 == X4.is<int>());
         ASSERT( 1 == X4.is<const char *>());
@@ -10179,13 +10163,12 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X4 == X4));          ASSERT(0 == (X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 8. Assign x2 = x3 (non-empty becomes empty). "
+        if (verbose) cout << "\n 8. Assign x2 = x3 (non-null becomes null). "
                              "          { x1:A x2: x3: x4:B }" << endl;
         mX2 = X3;
         if (verbose) { T_ P(X2) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x2." << endl;
+        if (verbose) cout << "\ta. Check new state of x2." << endl;
         ASSERT(0 == X2.typeIndex());
         ASSERT(0 == X2.is<int>());
         ASSERT(0 == X2.is<const char *>());
@@ -10199,13 +10182,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == (X2 == X4));          ASSERT(1 == (X2 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n9. Assign x3 = x4 (empty becomes non-empty). "
+        if (verbose) cout << "\n9. Assign x3 = x4 (null becomes non-null). "
                              "          { x1:A x2: x3:B x4:B }" << endl;
         mX3 = X4;
         if (verbose) { T_ P(X3) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x3." << endl;
+        if (verbose) cout << "\ta. Check new state of x3." << endl;
         ASSERT( 2 == X3.typeIndex());
         ASSERT( 0 == X3.is<int>());
         ASSERT( 1 == X3.is<const char *>());
@@ -10225,8 +10207,7 @@ int main(int argc, char *argv[])
         mX4 = X4;
         if (verbose) { T_ P(X4) }
 
-        if (verbose) cout <<
-            "\ta. Check new state of x4." << endl;
+        if (verbose) cout << "\ta. Check new state of x4." << endl;
         ASSERT( 2 == X4.typeIndex());
         ASSERT( 0 == X4.is<int>());
         ASSERT( 1 == X4.is<const char *>());
