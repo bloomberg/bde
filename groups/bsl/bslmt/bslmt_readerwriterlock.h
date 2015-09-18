@@ -17,8 +17,9 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha(irocha)
 //
 //@DESCRIPTION: This component defines an efficient multi-reader/single-writer
-// lock (RW-Lock) mechanism.  It is designed to allow concurrent *read* access
-// to a shared resource while still controlling *write* access.
+// lock (RW-Lock) mechanism, 'bslmt::ReaderWriterLock'.  It is designed to
+// allow concurrent *read* access to a shared resource while still controlling
+// *write* access.
 //
 // RW-Locks are generally used for resources which are frequently read and less
 // frequently updated.  Unlike other lock mechanisms (e.g.,"Mutexes"), RW-Locks

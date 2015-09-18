@@ -20,10 +20,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a portable and efficient lock for
 // ensuring that only one thread at a time enters a specific "critical region"
-// -- a section of code that accesses a shared resource.  The functionality of
-// the 'bslmt::QLock' class overlaps those of the 'bslmt::Mutex' and
-// 'bsls::SpinLock' classes, but with different usage and performance
-// characteristics, as shown in the following grid:
+// -- a section of code that accesses a shared resource -- 'bslmt::Qlock' and
+// its associated 'bslmt::QLockGuard'.  The functionality of the 'bslmt::QLock'
+// class overlaps those of the 'bslmt::Mutex' and 'bsls::SpinLock' classes, but
+// with different usage and performance characteristics, as shown in the
+// following grid:
 //..
 //                                    | QLock | Mutex | SpinLock
 // -----------------------------------+-------+-------+---------
@@ -248,7 +249,8 @@ struct QLock {
 
     // We would like to prohibit copy construction, but then this class would
     // not be a POD and we would lose the ability to initialize objects of this
-    // class statically:
+    // class statically.
+
     // QLock(const QLock&);
 
   public:

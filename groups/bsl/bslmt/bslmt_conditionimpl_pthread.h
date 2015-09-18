@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
-// for POSIX threads ("pthreads") via the template specialization:
+// for POSIX threads ("pthreads"), 'bslmt::ConditionImpl<PosixThreads>', via
+// the template specialization:
 //..
 //  bslmt::ConditionImpl<Platform::PosixThreads>
 //..
@@ -137,7 +138,7 @@ class ConditionImpl<Platform::PosixThreads> {
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout', then re-acquire a lock on the
         // 'mutex'.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is detemined by the clock indicated
+        // interval from some epoch, which is determined by the clock indicated
         // at construction (see {'Supported Clock-Types'} in the component
         // documentation).  Return 0 on success, -1 on timeout, and a non-zero
         // value different from -1 if an error occurs.  The behavior is

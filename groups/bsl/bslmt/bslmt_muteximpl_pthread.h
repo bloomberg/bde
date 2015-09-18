@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Mutex' for
-// POSIX threads ("pthreads") via the template specialization:
+// POSIX threads ("pthreads"), 'bslmt::MutexImpl<Platform::PosixThreads>', via
+// the template specialization:
 //..
 //  bslmt::MutexImpl<Platform::PosixThreads>
 //..
@@ -82,8 +83,8 @@ class MutexImpl<Platform::PosixThreads> {
   public:
     // PUBLIC TYPES
     typedef pthread_mutex_t NativeType;
-       // The underlying OS-level type.  Exposed so that other bslmt components
-       // can operate directly on this mutex.
+       // The underlying OS-level type.  Exposed so that other 'bslmt'
+       // components can operate directly on this mutex.
 
     // CREATORS
     MutexImpl();
@@ -103,7 +104,7 @@ class MutexImpl<Platform::PosixThreads> {
 
     NativeType& nativeMutex();
         // Return a reference to the modifiable OS-level mutex underlying this
-        // object.  This method is intended only to support other bslmt
+        // object.  This method is intended only to support other 'bslmt'
         // components that must operate directly on this mutex.
 
     int tryLock();

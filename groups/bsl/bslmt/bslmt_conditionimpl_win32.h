@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
-// for Windows (win32) via the template specialization:
+// for Windows (win32), 'bslmt::ConditionImpl<Win32Threads>', via the template
+// specialization:
 //..
 //  bslmt::ConditionImpl<Platform::Win32Threads>
 //..

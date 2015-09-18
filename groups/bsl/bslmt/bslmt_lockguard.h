@@ -20,10 +20,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides generic proctors to automatically lock
-// and unlock an external synchronization object.  The synchronization object
-// can be any type (e.g., 'bslmt::Mutex' or 'bslmt::RecursiveMutex') that
-// provides the following methods:
+//@DESCRIPTION: This component provides generic proctors, 'bslmt::LockGuard',
+// 'bslmt::LockGuardUnlock', 'bslmt::LockGuardTryLock', 'bslmt::UnLockGuard',
+// and 'bslmt::TryLockGuard', to automatically lock and unlock an external
+// synchronization object.  The synchronization object can be any type (e.g.,
+// 'bslmt::Mutex' or 'bslmt::RecursiveMutex') that provides the following
+// methods:
 //..
 //  void lock();
 //  void unlock();
@@ -327,9 +329,9 @@ class LockGuardTryLock {
     explicit LockGuardTryLock(T *lock, int attempts = 1);
         // Create a proctor object that conditionally manages the specified
         // 'lock' (if non-zero), and invokes the 'tryLock' method on 'lock'
-        // until the lock is acquired, or until up to the specified 'attempts'
-        // have been made to acquire the lock.  The behavior is undefined
-        // unless '0 < attempts'.  Note that 'lock' must remain valid
+        // until the lock is acquired, or until up to the optionally specified
+        // 'attempts' have been made to acquire the lock.  The behavior is
+        // undefined unless '0 < attempts'.  Note that 'lock' must remain valid
         // throughout the lifetime of this proctor, or until 'release' is
         // called.
 
@@ -394,10 +396,10 @@ bslmt::LockGuard<T>::LockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockGuard<T>::LockGuard(T *lock, int preLocked)
+bslmt::LockGuard<T>::LockGuard(T *lock, int preLockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preLocked) {
+    if (d_lock_p && !preLockedFlag) {
         d_lock_p->lock();
     }
 }
@@ -476,10 +478,10 @@ bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock, int preUnlocked)
+bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock, int preUnlockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preUnlocked) {
+    if (d_lock_p && !preUnlockedFlag) {
         d_lock_p->unlock();
     }
 }
