@@ -658,8 +658,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
-    bslma::TestAllocator defaultAllocator;
+    bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
+    bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
@@ -894,7 +895,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1037,6 +1038,7 @@ int main(int argc, char *argv[])
         mX.disableFileLogging();
         FileUtil::remove(logfilename.c_str());
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1063,7 +1065,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1090,6 +1092,8 @@ int main(int argc, char *argv[])
 
         mX.disableFileLogging();
         FileUtil::remove(BASENAME.c_str());
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1126,7 +1130,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1218,6 +1222,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1269,7 +1274,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Test infrastructure setup" << endl;
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -1381,6 +1386,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1407,7 +1413,7 @@ int main(int argc, char *argv[])
                                               ball::Severity::e_OFF,
                                               ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1464,6 +1470,8 @@ int main(int argc, char *argv[])
                          FileUtil::exists(cb.rotatedFileName().c_str()));
             }
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1492,7 +1500,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta); const Obj& X = mX;
 
@@ -1534,6 +1542,8 @@ int main(int argc, char *argv[])
 
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName()));
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1823,7 +1833,7 @@ int main(int argc, char *argv[])
 
         if (veryVeryVerbose) { P(processId) }
 
-         bslma::TestAllocator ta(veryVeryVeryVerbose);
+         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -2103,6 +2113,8 @@ int main(int argc, char *argv[])
                 FileUtil::remove(logFilename.c_str());
             }
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2121,7 +2133,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
 
@@ -2211,6 +2223,8 @@ int main(int argc, char *argv[])
             cout << "Skipping case 4 on Windows and Cygwin..." << endl;
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2231,7 +2245,7 @@ int main(int argc, char *argv[])
         //   int removeExcessLogFiles();
         // --------------------------------------------------------------------
 
-        static bslma::TestAllocator ta(veryVeryVeryVerbose);
+        static bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
@@ -2438,7 +2452,7 @@ int main(int argc, char *argv[])
                                               configuration);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             bsl::string filename = tempFileName(veryVerbose);
@@ -2706,6 +2720,8 @@ int main(int argc, char *argv[])
             multiplexObserver.deregisterObserver(&mX);
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2746,7 +2762,7 @@ int main(int argc, char *argv[])
         //   bdlt::DatetimeInterval localTimeOffset();
         // --------------------------------------------------------------------
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 // TBD fix this for Windows !!!
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #if (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)\
@@ -3258,6 +3274,8 @@ int main(int argc, char *argv[])
 #endif
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -3281,7 +3299,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
         ball::LoggerManager::initSingleton(&mX, configuration);
@@ -3306,6 +3324,7 @@ int main(int argc, char *argv[])
 
         //FileUtil::remove(BASENAME.c_str());
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
