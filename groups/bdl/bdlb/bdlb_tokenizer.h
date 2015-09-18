@@ -604,12 +604,12 @@ class Tokenizer {
     // PRIVATE MANIPULATORS
     void resetImpl(const char *input, const char *endOfInput);
         // Rebind this object to refer to the specified sequence of 'input'
-        // characters ending at the specified 'endOfInput' pointer.
-        // The state of the tokenizer following this call is *as* *if* it had
-        // been constructed with 'input' and its current sets of *soft* and
-        // *hard* delimiter characters.  Note that the behavior is also
-        // undefined if this object is used in any way (other than to reset or
-        // destroy it) after its underlying 'input' string is modified.
+        // characters ending at the specified 'endOfInput' pointer.  The state
+        // of the tokenizer following this call is *as* *if* it had been
+        // constructed with 'input' and its current sets of *soft* and *hard*
+        // delimiter characters.  Note that the behavior is also undefined if
+        // this object is used in any way (other than to reset or destroy it)
+        // after its underlying 'input' string is modified.
 
   private:
     // NOT IMPLEMENTED

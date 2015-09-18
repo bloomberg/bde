@@ -87,6 +87,12 @@ using namespace bsl;
 // build mode) to ensure that such user are detected (and similarly for
 // repeated characters in the same delimiter set).
 //
+// Primary manipulators and basic accessors tests for 'Tokenizer' class have
+// been united because of identity of testing.  Also secondary constructor
+// verification has been added to the same test case in order not to duplicate
+// machinery and the table of input data.  Similarly tests for
+// 'TokenizerIterator' class have been united.
+//
 // We will need to make sure that  the use of postfix ++ on a 'Tokenizer'
 // object fails to compile.  We will also want to make sure that neither
 // 'Tokenizer_Data' or 'Tokenizer' is not copy constructable or assignable.
@@ -96,33 +102,33 @@ using namespace bsl;
 //                      // private class Tokenizer_Data
 //                      // ----------------------------
 // CREATORS
-//*[ 3] Tokenizer_Data(const StringRef& softD);
-//*[ 2] Tokenizer_Data(const bslstl::StringRef& softD, const StringRef& hardD);
-//*[ 2] ~Tokenizer_Data()
+// [ 2] Tokenizer_Data(const StringRef& softD);
+// [ 2] Tokenizer_Data(const bslstl::StringRef& softD, const StringRef& hardD);
+// [ 2] ~Tokenizer_Data()
 //
 // ACCESSORS
-//*[ 2] int inputType(char character) const;
+// [ 2] int inputType(char character) const;
 //
 //                        // -----------------------
 //                        // class TokenizerIterator
 //                        // -----------------------
 //
 // CREATORS
-// [  ] TokenizerIterator();
-// [  ] TokenizerIterator(const TokenizerIterator& origin);
-// [  ] ~Tokenizer();
+// [ 7] TokenizerIterator();
+// [ 7] TokenizerIterator(const TokenizerIterator& origin);
+// [ 7] ~TokenizerIterator();
 //
 // MANIPULATORS
-// [  ] TokenizerIterator& operator=(const TokenizerIterator& rhs);
-// [  ] TokenizerIterator& operator++();
+// [ 8] TokenizerIterator& operator=(const TokenizerIterator& rhs);
+// [ 7] TokenizerIterator& operator++();
 //
 // ACCESSORS
-// [  ] StringRef operator*() const;
+// [ 7] StringRef operator*() const;
 //
 // FREE OPERATORS
-// [  ] bool operator==(const TokenizerIterator&, const TokenizerIterator& );
-// [  ] bool operator!=(const TokenizerIterator&, const TokenizerIterator& );
-// [  ] const TokenizerIterator operator++(TokenizerIterator& object, int);
+// [ 8] bool operator==(const TokenizerIterator&,const TokenizerIterator&)
+// [ 8] bool operator!=(const TokenizerIterator&,const TokenizerIterator&)
+// [ 8] const TokenizerIterator operator++(TokenizerIterator& object, int);
 //
 //                             // ===============
 //                             // class Tokenizer
@@ -132,40 +138,36 @@ using namespace bsl;
 // [  ] typedef TokenizerIterator iterator;
 //
 // CREATORS
-// [  ] Tokenizer(const char *input, const StringRef& soft);
-// [  ] Tokenizer(const StringRef& input, const StringRef& soft);
-//*[ 5] Tokenizer(const char *i, const StringRef& s, const StringRef& h);
-//*[ 4] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
-//*[ 5] ~Tokenizer();
+// [ 4] Tokenizer(const char *, const StringRef&);
+// [ 4] Tokenizer(const StringRef&, const StringRef&);
+// [ 4] Tokenizer(const char *, const StringRef&, const StringRef&);
+// [ 4] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+// [ 4] ~Tokenizer();
 //
 // MANIPULATORS
-//*[ 5] Tokenizer& operator++();
-// [  ] void reset(const char *input);
-// [  ] void reset(const bslstl::StringRef& input);
+// [ 5] Tokenizer& operator++();
+// [ 6] void reset(const char *input);
+// [ 6] void reset(const bslstl::StringRef& input);
 //
 // ACCESSORS
-// [  ] bool hasPreviousSoft() const;
-// [  ] bool hasTrailingSoft() const;
-// [  ] bool isPreviousHard() const;
-// [  ] bool isTrailingHard() const;
-//*[ 6] bool isValid () const;
-//*[ 7] StringRef previousDelimiter() const;
-//*[ 7] StringRef token() const;
-//*[ 7] StringRef trailingDelimiter() const;
+// [ 5] bool hasPreviousSoft() const;
+// [ 5] bool hasTrailingSoft() const;
+// [ 5] bool isPreviousHard() const;
+// [ 5] bool isTrailingHard() const;
+// [ 5] bool isValid () const;
+// [ 4] StringRef previousDelimiter() const;
+// [ 4] StringRef token() const;
+// [ 4] StringRef trailingDelimiter() const;
 //
 //                        // iterators
-// [  ] iterator begin() const;
+// [ 7] iterator begin() const;
 // [  ] iterator end() const;
-//
-// FREE OPERATORS
-// [  ] const Tokenizer operator++(Tokenizer& object, int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] OPERATOR POSTFIX ++ FOR TOKENIZER DOES NOT COMPILE
 // [  ] TOKENIZER IS NOT COPIABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-//*[ 3] bool isValid(const StrRef,const StrRef,const StrRef,const StrRef);
 // [  ] USAGE EXAMPLE #1
 // [  ] USAGE EXAMPLE #2
 // [  ] USAGE EXAMPLE #3
@@ -418,16 +420,73 @@ int main(int argc, char **argv)
         // 'TokenizerIterator' OPERATORS
         //
         // Concerns:
-        //: 1
+        //: 1 The assignment operator can change the value of any modifiable
+        //:   target object to that of any source object.
+        //:
+        //: 2 Assigning doesn't modify the value of the source object.
+        //:
+        //: 3 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //: 4 Two objects, 'X' and 'Y', compare equal if and only if each of
+        //:   their corresponding salient attributes respectively compares
+        //:   equal.
+        //:
+        //: 5 Comparison is symmetric.
+        //:
+        //: 6 Non-modifiable objects can be compared (i.e., objects or
+        //:   references providing only non-modifiable access).
+        //:
+        //: 7 The post-increment operator changes the value of the object to
+        //:   refer to the next element in the list.
+        //:
+        //: 8 The value returned is the value of the object prior to the
+        //:   operator call.
+        //:
+        //: 9 The signature and return type of operators are standard.
         //
         // Plan:
-        //: 1
+        //: 1 Using the table-driven technique, specify a sets of input for
+        //:   tokenizer construction.
+        //:
+        //: 2 For each row 'R' in the table of P-1:
+        //:
+        //:   1 Create a tokenizer and acquire a TokenizerIterator.
+        //:
+        //:   2 Create an empty TokenizerIterator and assign previous one to
+        //:     it.
+        //:
+        //:   3 Verify integrity of the source object.  (C-2)
+        //:
+        //:   4 Verify new state of tested iterator.  (C-1,9)
+        //:
+        //:   5 Assign tested iterator to itself and verify it's integrity.
+        //:     (C-3,9)
+        //:
+        //: 3 For each row 'R' in the table of P-1:
+        //:
+        //:   1 Create a tokenizer and acquire a TokenizerIterator.
+        //:
+        //:   2 Create a copy of iterator.
+        //:
+        //:   3 Move both iterators along the input string and verify their
+        //:     comparison results.  (C-4..6,9)
+        //:
+        //: 4 For each row 'R' in the table of P-1:
+        //:
+        //:   1 Create a tokenizer and acquire a TokenizerIterator (model).
+        //:
+        //:   2 Create a copy of model (tested iterator).
+        //:
+        //:   3 Move model iterator with pre-increment operator and tested
+        //:     iterator with post-increment operator.  Verify returned value
+        //:     of post-increment operator and compare both operators result.
+        //:     (C-7..9)
         //
         // Testing:
-        //   TokenizerIterator::operator=()
-        //   TokenizerIterator::operator==()
-        //   TokenizerIterator::operator!=()
-        //   TokenizerIterator::operator++(int)
+        //   TokenizerIterator& operator=(const TokenizerIterator& rhs);
+        //   bool operator==(const TokenizerIterator&,const TokenizerIterator&)
+        //   bool operator!=(const TokenizerIterator&,const TokenizerIterator&)
+        //   const TokenizerIterator operator++(TokenizerIterator&, int);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -489,7 +548,16 @@ int main(int argc, char **argv)
 
                 int i = 0;
                 do {
-                    ObjIt        eMIt;  // experimental iterator
+                    // To test the immutability of the source object we need to
+                    // store it's current state.  As we can't call accessor for
+                    // invalid iterators, we need to check it's validity first.
+
+                    StringRef currentToken;
+                    if (DATA[ti].d_tokens[i]) {
+                        currentToken = *It;
+                    }
+
+                    ObjIt        eMIt;                 // experimental iterator
                     const ObjIt& eIt  = eMIt;
                     eMIt = It;
 
@@ -507,6 +575,14 @@ int main(int argc, char **argv)
                     const StringRef MODEL_TOKEN = *It;
                     const StringRef EXPERIMENTAL_TOKEN = *eIt;
 
+                    // Testing the immutability of the source object.
+
+                    ASSERTV(LINE,
+                            i,
+                            MODEL_TOKEN,
+                            currentToken,
+                            MODEL_TOKEN == currentToken);
+
                     if (veryVerbose) {
                         T_ T_ P_(i) P_(MODEL_TOKEN) P(EXPERIMENTAL_TOKEN)
                     }
@@ -521,6 +597,17 @@ int main(int argc, char **argv)
                             MODEL_TOKEN,
                             EXPERIMENTAL_TOKEN,
                             MODEL_TOKEN == EXPERIMENTAL_TOKEN);
+
+                    // Testing assigning an object to itself.
+
+                    eMIt = eMIt;
+                    currentToken = *eIt;
+
+                    ASSERTV(LINE,
+                            i,
+                            EXPERIMENTAL_TOKEN,
+                            currentToken,
+                            EXPERIMENTAL_TOKEN == currentToken);
 
                     ++mIt;
                     ++i;
@@ -558,6 +645,14 @@ int main(int argc, char **argv)
                     if (veryVerbose) {
                         T_ T_ P_(i) P_(areEqual) P(areNotEqual)
                     }
+                    ASSERTV(LINE, i, true  == areEqual);
+                    ASSERTV(LINE, i, false == areNotEqual);
+
+                    // Testing comparison symmetry
+
+                    areEqual    = (eIt == It);
+                    areNotEqual = (eIt != It);
+
                     ASSERTV(LINE, i, true  == areEqual);
                     ASSERTV(LINE, i, false == areNotEqual);
 
@@ -612,15 +707,23 @@ int main(int argc, char **argv)
                         break;
                     }
 
-                    ++mIt;
-                    eMIt++;
+                    // Testing return value.
 
+                    ObjIt        mTempIt(eMIt++);
+                    const ObjIt &tempIt  = mTempIt;
+                    bool         arePrevEqual = (It == tempIt);
+
+                    // Testing iterator shift.
+
+                    ++mIt;
                     bool areEqual = (It == eIt);
 
                     if (veryVerbose) {
-                        T_ T_ P_(i) P(areEqual)
+
+                        T_ T_ P_(i) P_(arePrevEqual) P(areEqual)
                     }
 
+                    ASSERTV(LINE, i, true == arePrevEqual);
                     ASSERTV(LINE, i, true == areEqual);
 
                     ++i;
@@ -631,33 +734,40 @@ int main(int argc, char **argv)
       case 7: {
         // --------------------------------------------------------------------
         // 'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR
-        //   Bring the object to every state relevant for thorough testing.
         //
         // Concerns:
-        //: 1
+        //: 1 All (including internal) relevant states can be reached with
+        //:   primary manipulators.
+        //:
+        //: 2 TokenizerIterator correctly performs a traverse along the input
+        //:   string supplied at the 'Tokenizer' construction.
+        //:
+        //: 3 The pre-increment operator changes the value of the object to
+        //:    refer to the next token sequence in the input string.
+        //:
+        //: 4 Indirection operator provide an access to the tokens sequence,
+        //:   iterator pointing to.
+        //:
+        //: 5 'TokenizerIterator' object can be destroyed.
         //
         // Plan:
-        //: 1 Using the table-driven technique, apply depth-ordered enumeration
-        //:   on the length of the input string to parse all unique inputs (in
-        //:   lexicographic order) up to a "depth" of 4 (note that for this
-        //:   first test, we have hard-coded "stuv" to be set of soft delimiter
-        //:   characters, and "HIJK" to be the set of hard ones, leaving the
-        //:   digit characters "0123" to be used as unique token characters).
-        //:   The input string as well as the sequence of expected "parsed"
-        //:   strings will be provided -- each on a single row of the table.
+        //: 1 Using the table-driven technique, specify a sets of input for
+        //:   tokenizer construction.
+        //:
+        //: 2 For each row 'R' in the table of P-1 create a tokenizer and
+        //:   acquire TokenizerIterator.  Iterate through the input string and
+        //:   verify token sequence, returned by the indirection operator.
         //:   Failing to supply a token implies that the iterator has become
-        //:   invalid after the internal iteration loop exits. (C-1..2)
+        //:   invalid after the internal iteration loop exits.  (C-1..4)
         //:
-        //: 2 Additional add-hoc tests are provided to address remaining
-        //:   concerns. (C-3..7)
-        //:
-        //: 3 Finally defensive checks are addressed. (C-8..10)
+        //: 3 Allow 'TokenizerIterator' object leave the scope.  (C-5)
         //
         // Testing:
-        //   Tokenizer::begin()
-        //   TokenizerIterator(const TokenizerIterator& other);
-        //   TokenizerIterator::operator++()
-        //   TokenizerIterator::operator*()
+        //   iterator begin() const;
+        //   TokenizerIterator(const TokenizerIterator& origin);
+        //   ~TokenizerIterator();
+        //   TokenizerIterator& operator++();
+        //   StringRef operator*() const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -883,10 +993,9 @@ int main(int argc, char **argv)
                                      TOKEN_CHARS);
                 ASSERTV(LINE, INPUT, true == VALID);
 
-                Obj        mT(INPUT,
-                              StringRef(SOFT_DELIM_CHARS),
-                              StringRef(HARD_DELIM_CHARS));
-
+                Obj          mT(INPUT,
+                                StringRef(SOFT_DELIM_CHARS),
+                                StringRef(HARD_DELIM_CHARS));
                 ObjIt        mIt = mT.begin();
                 const ObjIt& It  = mIt;
 
@@ -939,7 +1048,8 @@ int main(int argc, char **argv)
         // Concerns:
         //: 1 'reset' method re-directs 'Tokenizer' object to new input.
         //:
-        //: 2 'reset' method place 'Tokenizer' object to just-constructed state.
+        //: 2 'reset' method place 'Tokenizer' object to just-constructed
+        //:   state.
         //:
         //: 3 'reset' method preserve delimiter sets, supplied at construction.
         //:
@@ -1093,7 +1203,6 @@ int main(int argc, char **argv)
                                              bsls::AssertTest::failTestDriver);
 
             Obj        mT("", "", "");
-            const Obj& T = mT;
 
             ASSERT_SAFE_FAIL(mT.reset(static_cast<const char*>(0)));
             ASSERT_SAFE_FAIL(mT.reset((StringRef())));
@@ -1121,11 +1230,11 @@ int main(int argc, char **argv)
         //:   (C-2)
         //
         // Testing:
-        //   bool Tokenizer::isValid();
-        //   bool Tokenizer::hasTrailingSoft();
-        //   bool Tokenizer::hasPreviousSoft();
-        //   bool Tokenizer::isTrailingHard();
-        //   bool Tokenizer::isPreviousHard());
+        //   bool isValid() const;
+        //   bool hasTrailingSoft() const;
+        //   bool hasPreviousSoft() const;
+        //   bool isTrailingHard() const;
+        //   bool isPreviousHard() const;
         //
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -1202,6 +1311,7 @@ int main(int argc, char **argv)
                                         {"uJ",  true,   true  },
                                         {"K",   false,  true  }}},
             };
+
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < DATA_LEN; ++ti) {
@@ -1282,6 +1392,7 @@ int main(int argc, char **argv)
                                         {"uJ",  true,   true  },
                                         {"K",   false,  true  }}},
             };
+
             enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < DATA_LEN; ++ti) {
@@ -1372,26 +1483,28 @@ int main(int argc, char **argv)
         //   accessors are working as expected also.
         //
         // Concerns:
-        //:  1 All (including internal) relevant states can be reached with
-        //:    primary manipulators.
+        //: 1 All (including internal) relevant states can be reached with
+        //:   primary manipulators.
         //:
-        //:  2 Multiple distinct characters of the same type are handled
-        //:    correctly.
+        //: 2 Multiple distinct characters of the same type are handled
+        //:   correctly.
         //:
-        //:  3 Repeated characters are handled correctly.
+        //: 3 Repeated characters are handled correctly.
         //:
-        //:  4 The null character is handled the same way as any other
-        //:    character.
+        //: 4 The null character is handled the same way as any other
+        //:   character.
         //:
-        //:  5 Non-ASCII characters are handled the same way as ASCII ones.
+        //: 5 Non-ASCII characters are handled the same way as ASCII ones.
         //:
-        //:  6 Inputs requiring many iterations succeed.
+        //: 6 Inputs requiring many iterations succeed.
         //:
-        //:  7 Inputs having large tokens/delimiters succeed.
+        //: 7 Inputs having large tokens/delimiters succeed.
         //:
-        //:  8 QoI: asserted precondition violations are detected when enabled.
+        //: 8 QoI: asserted precondition violations are detected when enabled.
         //:
-        //:  9 Accessors return references to expected character sequences.
+        //: 9 Accessors return references to expected character sequences.
+        //:
+        //:10 'Tokenizer' object can be destroyed.
         //
         // Plan:
         //: 1 Using the table-driven technique, apply depth-ordered enumeration
@@ -1407,10 +1520,12 @@ int main(int argc, char **argv)
         //:   iteration loop exits.  Verify each state of 'Tokenizer' object
         //:   with basic accessors.  (C-1..2, 9)
         //:
-        //: 2 Additional add-hoc tests are provided to address remaining
+        //: 2 Allow 'Tokenizer' object to leave the scope.  (C-10)
+        //:
+        //: 3 Additional add-hoc tests are provided to address remaining
         //:   concerns.  (C-3..7)
         //:
-        //: 3 Verify that defensive checks are addressed.  (C-8)
+        //: 4 Verify that defensive checks are addressed.  (C-8)
         //
         // Testing:
         //   Tokenizer(const char *, const StringRef&, const StringRef&);
@@ -1418,10 +1533,10 @@ int main(int argc, char **argv)
         //   Tokenizer(const char *, const StringRef&);
         //   Tokenizer(const StringRef&, const StringRef&);
         //   Tokenizer::operator++();
-        //   StringRef Tokenizer::trailingDelimiter();
-        //   StringRef Tokenizer::previousDelimiter();
-        //   StringRef Tokenizer::token();
-
+        //   StringRef Tokenizer::trailingDelimiter() const;
+        //   StringRef Tokenizer::previousDelimiter() const;
+        //   StringRef Tokenizer::token() const;
+        //   ~Tokenizer();
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -1707,10 +1822,10 @@ int main(int argc, char **argv)
                             // Printing result for two-parameters constructor
 
                             if (veryVerbose) {
-                               T_ T_ T_ T_ T_ T_ P(N)
-                               T_ T_ T_ T_ T_ T_ P_(EXP_PREV)  P(RET_PREV)
-                               T_ T_ T_ T_ T_ T_ P_(EXP_TOKEN) P(RET_TOKEN)
-                               T_ T_ T_ T_ T_ T_ P_(EXP_POST)  P(RET_POST)
+                                T_ T_ T_ T_ T_ T_ P(N)
+                                T_ T_ T_ T_ T_ T_ P_(EXP_PREV)  P(RET_PREV)
+                                T_ T_ T_ T_ T_ T_ P_(EXP_TOKEN) P(RET_TOKEN)
+                                T_ T_ T_ T_ T_ T_ P_(EXP_POST)  P(RET_POST)
                             }
                         }
 
@@ -1804,6 +1919,75 @@ int main(int argc, char **argv)
 
             if (verbose) cout << "\tTesting Non-ASCII characters." << endl;
             {
+                {
+                    // Testing Non-ASCII characters as soft delimiters.
+
+                    char delim[129];
+                    char input[130];
+
+                    for (int i = 0; i < 128; ++i) {
+                        delim[i] = static_cast<char>(i + 128);
+                        input[i] = static_cast<char>(i + 128);
+                    }
+
+                    delim[128] = 0;    // end of delim string
+                    input[128] = '0';  // token symbol
+                    input[129] = 0;    // end of input string
+
+                    Obj        mT(input, StringRef(delim), StringRef(""));
+                    const Obj& T = mT;
+
+                    ASSERT(StringRef(delim) == T.previousDelimiter());
+                    ASSERT("0"              == T.token());
+                    ASSERT(""               == T.trailingDelimiter());
+                }
+
+                {
+                    // Testing Non-ASCII characters as hard delimiters.
+
+                    char input[129];
+
+                    for (int i = 0; i < 128; ++i) {
+                        input[i] = static_cast<char>(i + 128);
+                    }
+
+                    input[128] = 0;    // end of input string
+
+                    Obj        mT(input, StringRef(""), StringRef(input));
+                    const Obj& T = mT;
+
+                    for (int i = 0; i < 128; ++i) {
+                        const StringRef EXP_DELIM(input + i, 1);
+
+                        if (veryVerbose) {
+                            T_ P(i)
+                        }
+
+                        ASSERTV(i, EXP_DELIM == T.trailingDelimiter());
+                        ASSERTV(i, ""        == T.token());
+
+                        ++mT;
+                    }
+                }
+
+                {
+                    // Testing Non-ASCII characters as tokens.
+
+                    char input[129];
+
+                    for (int i = 0; i < 128; ++i) {
+                        input[i] = static_cast<char>(i + 128);
+                    }
+
+                    input[128] = 0;    // end of input string
+
+                    Obj        mT(input, StringRef(""), StringRef(""));
+                    const Obj& T = mT;
+
+                    ASSERT(""               == T.previousDelimiter());
+                    ASSERT(StringRef(input) == T.token());
+                    ASSERT(""               == T.trailingDelimiter());
+                }
             }
         }
 
@@ -2047,7 +2231,7 @@ int main(int argc, char **argv)
                 // returns 'false' is eliminated from patterns of longer depth.
                 // For example, 't' is first shortest 'false' pattern that
                 // tests that symbol 't' from the soft delimiter set cannot
-                // appear as a first soft delimiter. All longer patterns that
+                // appear as a first soft delimiter.  All longer patterns that
                 // have first soft delimiter 't' are eliminated.  Some elided
                 // patterns are left in the table for illustration purposes and
                 // marked with "* (pattern)".
@@ -2245,6 +2429,7 @@ int main(int argc, char **argv)
         // Testing:
         //   Tokenizer_Data(const StringRef& softD);
         //   Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+        //   ~Tokenizer_Data();
         //   int inputType(char character);
         // --------------------------------------------------------------------
 
@@ -2634,16 +2819,21 @@ int main(int argc, char **argv)
             Obj tokenizer("Hello, world,,,", " ,");
 
             while (tokenizer.isValid()) {
-               if (veryVeryVerbose)
-                cout << "|\t"
-                     << '"' << tokenizer.token() << '"'
-                     << "\t"
-                     << '"' << tokenizer.trailingDelimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
-                     << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
-                     << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
-                     << endl;
+                if (veryVeryVerbose) {
+                    cout << "|\t"
+                         << '"' << tokenizer.token() << '"'
+                         << "\t"
+                         << '"' << tokenizer.trailingDelimiter() << '"'
+                         << "\tSoft?: "
+                         << (tokenizer.hasTrailingSoft() ? "T":"F")
+                         << "\tPSoft?: "
+                         << (tokenizer.hasPreviousSoft() ? "T":"F")
+                         << "\tHard?: "
+                         << (tokenizer.isTrailingHard() ? "T":"F")
+                         << "\tPHard?: "
+                         << (tokenizer.isPreviousHard() ? "T":"F")
+                         << endl;
+                }
                 ++tokenizer;
             }
         }
@@ -2655,16 +2845,21 @@ int main(int argc, char **argv)
                           StringRef(","));
 
             while (tokenizer.isValid()) {
-                if (veryVeryVerbose)
-                cout << "|\t"
-                     << '"' << tokenizer.token() << '"'
-                     << "\t"
-                     << '"' << tokenizer.trailingDelimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
-                     << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
-                     << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
-                     << endl;
+                if (veryVeryVerbose) {
+                    cout << "|\t"
+                         << '"' << tokenizer.token() << '"'
+                         << "\t"
+                         << '"' << tokenizer.trailingDelimiter() << '"'
+                         << "\tSoft?: "
+                         << (tokenizer.hasTrailingSoft() ? "T":"F")
+                         << "\tPSoft?: "
+                         << (tokenizer.hasPreviousSoft() ? "T":"F")
+                         << "\tHard?: "
+                         << (tokenizer.isTrailingHard() ? "T":"F")
+                         << "\tPHard?: "
+                         << (tokenizer.isPreviousHard() ? "T":"F")
+                         << endl;
+                }
                 ++tokenizer;
             }
         }
@@ -2676,16 +2871,21 @@ int main(int argc, char **argv)
                           StringRef(":/"));
 
             for (; tokenizer.isValid(); ++tokenizer) {
-                if (veryVeryVerbose)
-                cout << "|\t"
-                     << '"' << tokenizer.token() << '"'
-                     << "\t"
-                     << '"' << tokenizer.trailingDelimiter() << '"'
-                     << "\tSoft?: " << (tokenizer.hasTrailingSoft() ? "T":"F")
-                     << "\tPSoft?: " << (tokenizer.hasPreviousSoft() ? "T":"F")
-                     << "\tHard?: " << (tokenizer.isTrailingHard() ? "T":"F")
-                     << "\tPHard?: " << (tokenizer.isPreviousHard() ? "T":"F")
-                     << endl;
+                if (veryVeryVerbose) {
+                    cout << "|\t"
+                         << '"' << tokenizer.token() << '"'
+                         << "\t"
+                         << '"' << tokenizer.trailingDelimiter() << '"'
+                         << "\tSoft?: "
+                         << (tokenizer.hasTrailingSoft() ? "T":"F")
+                         << "\tPSoft?: "
+                         << (tokenizer.hasPreviousSoft() ? "T":"F")
+                         << "\tHard?: "
+                         << (tokenizer.isTrailingHard() ? "T":"F")
+                         << "\tPHard?: "
+                         << (tokenizer.isPreviousHard() ? "T":"F")
+                         << endl;
+                }
             }
         }
 
@@ -2709,10 +2909,11 @@ int main(int argc, char **argv)
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
                                ++it) {
-                if (veryVeryVerbose) cout << "|\t"
-                                          << '"' << *it << '"'
-                                          << endl;
-
+                if (veryVeryVerbose) {
+                    cout << "|\t"
+                         << '"' << *it << '"'
+                         << endl;
+                }
             }
         }
 
