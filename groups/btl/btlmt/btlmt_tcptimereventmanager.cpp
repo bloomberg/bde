@@ -21,7 +21,6 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -37,6 +36,8 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>                // printf
+#include <bsl_functional.h>
+#include <bsl_memory.h>
 #include <bsl_ostream.h>
 
 #include <bsl_c_errno.h>
@@ -326,47 +327,52 @@ class TcpTimerEventManager_Request {
 // CREATORS
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                           const btlso::SocketHandle::Handle&    handle,
-                           btlso::EventType::Type                event,
-                           const btlso::EventManager::Callback&  callback,
-                           bslma::Allocator                    *basicAllocator)
+                          const btlso::SocketHandle::Handle&    handle,
+                          btlso::EventType::Type                event,
+                          const btlso::EventManager::Callback&  callback,
+                          bslma::Allocator                     *basicAllocator)
 : d_opCode(REGISTER_SOCKET_EVENT)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_handle(handle)
 , d_eventType(event)
 , d_timerId((void *) 0)
-, d_callback(callback, basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator),
+             callback)
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                           const bsls::TimeInterval&             timeout,
-                           const btlso::EventManager::Callback&  callback,
-                           bslma::Allocator                    *basicAllocator)
+                          const bsls::TimeInterval&             timeout,
+                          const btlso::EventManager::Callback&  callback,
+                          bslma::Allocator                     *basicAllocator)
 : d_opCode(REGISTER_TIMER)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_timeout(timeout)
 , d_timerId((void *) 0)
-, d_callback(callback, basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator),
+             callback)
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                                      const void               *timerId,
-                                      const bsls::TimeInterval&  timeout,
-                                      bslma::Allocator         *basicAllocator)
+                                     const void                *timerId,
+                                     const bsls::TimeInterval&  timeout,
+                                     bslma::Allocator          *basicAllocator)
 : d_opCode(RESCHEDULE_TIMER)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_timeout(timeout)
 , d_timerId(const_cast<void *>(timerId))
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
@@ -379,71 +385,76 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_timerId(timerId)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                             const btlso::SocketHandle::Handle&  handle,
-                             bslma::Allocator                  *basicAllocator)
+                            const btlso::SocketHandle::Handle&  handle,
+                            bslma::Allocator                   *basicAllocator)
 : d_opCode(DEREGISTER_SOCKET)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_handle(handle)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                             const btlso::SocketHandle::Handle&  handle,
-                             bslmt::Condition                   *condition,
-                             bslmt::Mutex                       *mutex,
-                             bslma::Allocator                  *basicAllocator)
+                            const btlso::SocketHandle::Handle&  handle,
+                            bslmt::Condition                   *condition,
+                            bslmt::Mutex                       *mutex,
+                            bslma::Allocator                   *basicAllocator)
 : d_opCode(NUM_SOCKET_EVENTS)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
 , d_handle(handle)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                                    btlso::SocketHandle::Handle  handle,
-                                    btlso::EventType::Type       event,
-                                    bslma::Allocator           *basicAllocator)
+                                   btlso::SocketHandle::Handle  handle,
+                                   btlso::EventType::Type       event,
+                                   bslma::Allocator            *basicAllocator)
 : d_opCode(DEREGISTER_SOCKET_EVENT)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_handle(handle)
 , d_eventType(event)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                                    btlso::SocketHandle::Handle  handle,
-                                    btlso::EventType::Type       event,
-                                    bslmt::Condition            *condition,
-                                    bslmt::Mutex                *mutex,
-                                    bslma::Allocator           *basicAllocator)
+                                   btlso::SocketHandle::Handle  handle,
+                                   btlso::EventType::Type       event,
+                                   bslmt::Condition            *condition,
+                                   bslmt::Mutex                *mutex,
+                                   bslma::Allocator            *basicAllocator)
 : d_opCode(IS_REGISTERED)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
 , d_handle(handle)
 , d_eventType(event)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
 }
@@ -456,7 +467,8 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
     BSLS_ASSERT(NO_OP == code
@@ -468,14 +480,15 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
                                               OpCode            code,
-                                              bslmt::Condition  *condition,
-                                              bslmt::Mutex      *mutex,
+                                              bslmt::Condition *condition,
+                                              bslmt::Mutex     *mutex,
                                               bslma::Allocator *basicAllocator)
 : d_opCode(code)
 , d_mutex_p(mutex)
 , d_condition_p(condition)
 , d_timerId((void *) 0)
-, d_callback(basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator))
 , d_result(-1)
 {
     BSLS_ASSERT(NO_OP == code || TERMINATE == code);
@@ -483,13 +496,15 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
-                           const btlso::EventManager::Callback&  callback,
-                           bslma::Allocator                    *basicAllocator)
+                          const btlso::EventManager::Callback&  callback,
+                          bslma::Allocator                     *basicAllocator)
 : d_opCode(EXECUTE)
 , d_mutex_p(0)
 , d_condition_p(0)
 , d_timerId((void *) 0)
-, d_callback(callback, basicAllocator)
+, d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<btlso::EventManager::Callback>(basicAllocator),
+             callback)
 , d_result(-1)
 {
 }
@@ -787,16 +802,15 @@ void TcpTimerEventManager::initialize()
 
     // Initialize the functor containing the dispatch thread's entry point
     // method.
-    d_dispatchThreadEntryPoint
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(
-                      &TcpTimerEventManager::dispatchThreadEntryPoint
-                    , this)
-              , d_allocator_p);
+    d_dispatchThreadEntryPoint = bsl::function<void()>(
+        bsl::allocator_arg_t(),
+        bsl::allocator<bsl::function<void()> >(d_allocator_p),
+        bdlf::MemFnUtil::memFn(&TcpTimerEventManager::dispatchThreadEntryPoint,
+                               this));
 
     // Create the queue of executed timers.
     d_executeQueue_p = new (*d_allocator_p)
-                        bsl::vector<bdlf::Function<void (*)()> >(d_allocator_p);
+                            bsl::vector<bsl::function<void()> >(d_allocator_p);
     d_executeQueue_p->reserve(4);
 }
 
@@ -925,13 +939,13 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
         d_metrics.switchTo(btlso::TimeMetrics::e_CPU_BOUND);
     }
 
-    bsl::vector<bdlf::Function<void (*)()> > *requestsPtr
-        = new (*d_allocator_p)
-                        bsl::vector<bdlf::Function<void (*)()> >(d_allocator_p);
+    bsl::vector<bsl::function<void()> > *requestsPtr = new (*d_allocator_p)
+                            bsl::vector<bsl::function<void()> >(d_allocator_p);
     requestsPtr->reserve(4);
-    bslma::AutoRawDeleter< bsl::vector<bdlf::Function<void (*)()> >
-                        , bslma::Allocator>
-                                    autoDelete(&requestsPtr, d_allocator_p, 1);
+    bslma::AutoRawDeleter<bsl::vector<bsl::function<void()> >,
+                          bslma::Allocator> autoDelete(&requestsPtr,
+                                                       d_allocator_p,
+                                                       1);
 
     // Set the state to e_ENABLED before dispatching any events
     // (DRQS 15212134).  Note that the thread calling 'enable' should be
@@ -992,12 +1006,12 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
         if (d_timerQueue.length()) {
             const int NUM_TIMERS = 32;
             const int SIZE = NUM_TIMERS *
-                sizeof(bdlcc::TimeQueueItem<bdlf::Function<void (*)()> >);
+                sizeof(bdlcc::TimeQueueItem<bsl::function<void()> >);
 
             char BUFFER[SIZE];
             bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
 
-            bsl::vector<bdlcc::TimeQueueItem<bdlf::Function<void (*)()> > >
+            bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
                                                     requests(&bufferAllocator);
             d_timerQueue.popLE(bdlt::CurrentTime::now(), &requests);
             int numTimers = requests.size();
@@ -1039,9 +1053,9 @@ int TcpTimerEventManager::reinitializeControlChannel()
 
     // Register the server fd of 'd_controlChannel_p' for READs.
     btlso::EventManager::Callback cb(
-                  bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb,
-                                        this),
-                  d_allocator_p);
+               bsl::allocator_arg_t(),
+               bsl::allocator<btlso::EventManager::Callback>(d_allocator_p),
+               bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb, this));
 
     rc = d_manager_p->registerSocketEvent(d_controlChannel_p->serverFd(),
                                           btlso::EventType::e_READ,
@@ -1059,11 +1073,10 @@ int TcpTimerEventManager::reinitializeControlChannel()
     bslmt::ThreadAttributes   attributes;
     attributes.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
-    bdlf::Function<void (*)()> initiateReadFunctor = bdlf::Function<void (*)()>(
-      bdlf::BindUtil::bindA(
-                       d_allocator_p,
-                       &TcpTimerEventManager::initiateControlChannelRead,
-                       this));
+    bsl::function<void()> initiateReadFunctor(bdlf::BindUtil::bindA(
+                             d_allocator_p,
+                             &TcpTimerEventManager::initiateControlChannelRead,
+                             this));
 
     rc = bslmt::ThreadUtil::create(&handle, attributes, initiateReadFunctor);
     BSLS_ASSERT_OPT(0 == rc);
@@ -1224,23 +1237,21 @@ TcpTimerEventManager::TcpTimerEventManager(
 
     // Initialize the functor containing the dispatch thread's entry point
     // method.
-    d_dispatchThreadEntryPoint
-        = bdlf::Function<void (*)()>(
-                bdlf::MemFnUtil::memFn(&TcpTimerEventManager
-                                                    ::dispatchThreadEntryPoint,
-                                      this),
-                d_allocator_p);
+    d_dispatchThreadEntryPoint = bsl::function<void()>(
+        bsl::allocator_arg_t(),
+        bsl::allocator<bsl::function<void()> >(d_allocator_p),
+        bdlf::MemFnUtil::memFn(&TcpTimerEventManager::dispatchThreadEntryPoint,
+                               this));
 
     // Create the queue of executed timers.
-    d_executeQueue_p
-        = new (*d_allocator_p)
-                       bsl::vector<bdlf::Function<void (*)()> >(d_allocator_p);
+    d_executeQueue_p = new (*d_allocator_p)
+                            bsl::vector<bsl::function<void()> >(d_allocator_p);
 }
 
 TcpTimerEventManager::~TcpTimerEventManager()
 {
     disable();
-    bsl::vector<bdlf::Function<void (*)()> > *executeQueue = d_executeQueue_p;
+    bsl::vector<bsl::function<void()> > *executeQueue = d_executeQueue_p;
     d_allocator_p->deleteObjectRaw(executeQueue);
     if (d_isManagedFlag) {
         d_allocator_p->deleteObjectRaw(d_manager_p);
@@ -1336,9 +1347,9 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
 
         // Register the server fd of 'd_controlChannel_p' for READs.
         btlso::EventManager::Callback cb(
-                  bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb,
-                                        this),
-                  d_allocator_p);
+               bsl::allocator_arg_t(),
+               bsl::allocator<btlso::EventManager::Callback>(d_allocator_p),
+               bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb, this));
 
         int rc = d_manager_p->registerSocketEvent(
                                                 d_controlChannel_p->serverFd(),
@@ -1378,9 +1389,10 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
 #endif
 
         d_terminateThread = 0;
-        rc = bslmt::ThreadUtil::create((bslmt::ThreadUtil::Handle*)&d_dispatcher,
-                                      attr,
-                                      d_dispatchThreadEntryPoint);
+        rc = bslmt::ThreadUtil::create(
+                                    (bslmt::ThreadUtil::Handle *)&d_dispatcher,
+                                    attr,
+                                    d_dispatchThreadEntryPoint);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
         // Restore the mask.
@@ -1609,8 +1621,7 @@ void TcpTimerEventManager::deregisterSocketEvent(
     }
 }
 
-void TcpTimerEventManager::execute(const bdlf::Function<void (*)()>&
-                                                                       functor)
+void TcpTimerEventManager::execute(const bsl::function<void()>& functor)
 {
     if (bslmt::ThreadUtil::isEqual(
                     bslmt::ThreadUtil::self(), d_dispatcher)) {

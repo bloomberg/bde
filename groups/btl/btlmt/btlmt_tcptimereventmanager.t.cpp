@@ -28,11 +28,12 @@
 #include <bdlt_currenttime.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -180,8 +181,7 @@ static int nbytes[NUM_TASKS];
 void
 timerCb(int taskId, Obj *mX)
 {
-    bdlf::Function<void (*)()> functor(
-            bdlf::BindUtil::bind(&timerCb, taskId, mX));
+    bsl::function<void()> functor(bdlf::BindUtil::bind(&timerCb, taskId, mX));
 
     bsls::TimeInterval now(bdlt::CurrentTime::now());
     bsls::TimeInterval timeout(now);
@@ -218,14 +218,14 @@ extern "C" void * case100EntryPoint(void *arg)
 {
     int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
-    bdlf::Function<void (*)()> mgrReinitFunctor;
+    bsl::function<void()> mgrReinitFunctor;
     btlmt::TcpTimerEventManager& em = *pEventManager;
     btlmt::TcpTimerEventManager_ControlChannel chnl;
 
-    bdlf::Function<void (*)()> socketFunctor(
+    bsl::function<void()> socketFunctor(
             bdlf::BindUtil::bind(&socketCb, &em, &chnl, j));
 
-    bdlf::Function<void (*)()> timerFunctor(
+    bsl::function<void()> timerFunctor(
             bdlf::BindUtil::bind(&timerCb, j, &em));
 
     bsls::TimeInterval timeout(bdlt::CurrentTime::now());
@@ -311,7 +311,7 @@ static void producer(bdlcc::Queue<int>            *workQueue,
 
     bsls::TimeInterval nextNextTime(nextTime);
     nextNextTime.addSeconds(TIME_OFFSET);
-    bdlf::Function<void (*)()> callback(
+    bsl::function<void()> callback(
             bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
 
     void *timerId = manager->registerTimer(nextTime, callback);
@@ -351,7 +351,10 @@ void *registerThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
         bslma::TestAllocator ta;
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
         if (veryVerbose) {
             printf("Thread %d: Iteration (O) %d\n",
                    bslmt::ThreadUtil::self(),
@@ -370,7 +373,10 @@ void *registerThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
         bslma::TestAllocator ta;
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
         mX->registerSocketEvent(fd,
                                 btlso::EventType::e_READ, callback);
         if (veryVerbose) {
@@ -430,28 +436,23 @@ void *deregisterThread(void *arg)
     bslma::TestAllocator ta;
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
-        mX->registerSocketEvent(fd,
-                                btlso::EventType::e_READ, callback);
-        LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::e_READ));
-        mX->deregisterSocketEvent(fd,
-                                btlso::EventType::e_READ);
-        LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::e_READ));
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
+        mX->registerSocketEvent(fd, btlso::EventType::e_READ, callback);
+        LOOP_ASSERT(i, mX->isRegistered(fd, btlso::EventType::e_READ));
+        mX->deregisterSocketEvent(fd, btlso::EventType::e_READ);
+        LOOP_ASSERT(i, 0 == mX->isRegistered(fd, btlso::EventType::e_READ));
     }
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
-        bdlf::Function<void (*)()> callback(&dummyFunction);
-        mX->registerSocketEvent(fd,
-                                btlso::EventType::e_READ, callback);
-        LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::e_READ));
+        bsl::function<void()> callback(&dummyFunction);
+        mX->registerSocketEvent(fd, btlso::EventType::e_READ, callback);
+        LOOP_ASSERT(i, mX->isRegistered(fd, btlso::EventType::e_READ));
 
-        mX->deregisterSocketEvent(fd,
-                                btlso::EventType::e_READ);
-        LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::e_READ));
+        mX->deregisterSocketEvent(fd, btlso::EventType::e_READ);
+        LOOP_ASSERT(i, 0 == mX->isRegistered(fd, btlso::EventType::e_READ));
     }
 
     globalBarrier->wait();
@@ -460,7 +461,10 @@ void *deregisterThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
     }
 
     // 'testPairs' cannot be destroyed until ALL threads are done.
@@ -517,7 +521,7 @@ extern "C" void *testTimersThread(void *arg) {
         flags[i] = 0;
         bsls::TimeInterval expDelta = i % 2 ? delta : bsls::TimeInterval(0);
         expDelta += bsls::TimeInterval(0.25);
-        bdlf::Function<void (*)()> functor(
+        bsl::function<void()> functor(
                 bdlf::BindUtil::bind(&timerCallback, &flags[i],
                                     &timeValues[i], expDelta, -i, true));
 
@@ -605,7 +609,7 @@ extern "C" void *executeTest(void *arg) {
 
     vector<my_Event> results;
     for (int i = 0; i < NUM_EXECUTES; ++i) {
-        bdlf::Function<void (*)()> functor(
+        bsl::function<void()> functor(
                 bdlf::BindUtil::bindA(testAllocator_p, &recordCb, (void*)i,
                                      &results));
         mX->execute(functor);
@@ -763,7 +767,7 @@ int main(int argc, char *argv[])
           bsls::TimeInterval nextTime(now);
           nextTime.addSeconds(TIME_OFFSET);
 
-          bdlf::Function<void (*)()> callback(
+          bsl::function<void()> callback(
                   bdlf::BindUtil::bind(&producer, &workQueue, &manager,
                                       nextTime));
 
@@ -866,7 +870,7 @@ int main(int argc, char *argv[])
                 writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
                 writeDataArgs[j].d_numBytesWritten   = 0;
 
-                bdlf::Function<void (*)()> readFunctor, writeFunctor;
+                bsl::function<void()> readFunctor, writeFunctor;
                 readFunctor = bdlf::BindUtil::bind(readData,
                                                   &readDataArgs[j]);
                 do {
@@ -945,7 +949,7 @@ int main(int argc, char *argv[])
                 writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
                 writeDataArgs[j].d_numBytesWritten   = 0;
 
-                bdlf::Function<void (*)()> readFunctor, writeFunctor;
+                bsl::function<void()> readFunctor, writeFunctor;
                 readFunctor = bdlf::BindUtil::bind(readData,
                                                   &readDataArgs[j]);
                 do {
@@ -1091,7 +1095,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 flags[i] = 0;
                 timeValues[i] = bdlt::CurrentTime::now() + delta;
-                bdlf::Function<void (*)()> functor(
+                bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i],
                                             &timeValues[i],
@@ -1242,7 +1246,7 @@ int main(int argc, char *argv[])
                   btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
               Obj mX(&testAllocator); const Obj& X = mX;
-              bdlf::Function<void (*)()> callback(&waitForASec);
+              bsl::function<void()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
                                                  btlso::EventType::e_READ,
                                                  callback));
@@ -1278,7 +1282,7 @@ int main(int argc, char *argv[])
 
               Obj mX(Obj::e_NO_HINT, false, &testAllocator);
               const Obj& X = mX;
-              bdlf::Function<void (*)()> callback(&waitForASec);
+              bsl::function<void()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
                                                  btlso::EventType::e_READ,
                                                  callback));
@@ -1342,7 +1346,7 @@ int main(int argc, char *argv[])
 
           bsls::AtomicInt complete(0);
           btlmt::TcpTimerEventManager manager(&testAllocator);
-          bdlf::Function<void (*)()> callback(
+          bsl::function<void()> callback(
                   bdlf::BindUtil::bind(&testIsEnabled, &manager, &complete));
           ASSERT(0 == manager.registerSocketEvent(handles[0],
                                                   btlso::EventType::e_READ,
@@ -1368,7 +1372,7 @@ int main(int argc, char *argv[])
          //   channel pool is running and when it is not.
           //
           // Testing:
-          //   void execute(const bdlf::Function<void (*)()>& functor);
+          //   void execute(const bsl::function<void()>& functor);
           // ----------------------------------------------------------------
 
           if (verbose)
@@ -1422,7 +1426,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, mX.isEnabled());
 
                 btlso::EventManagerTestPair testPair;
-                bdlf::Function<void (*)()> callback(
+                bsl::function<void()> callback(
                         bdlf::BindUtil::bindA(&testAllocator, &disableCb, &mX));
 
                 mX.registerSocketEvent(testPair.observedFd(),
@@ -1751,7 +1755,7 @@ int main(int argc, char *argv[])
                     timeValues[i] = bdlt::CurrentTime::now();
                     timeValues[i] += offset;
 
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, false));
@@ -1814,7 +1818,7 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     flags[i] = 0;
                     timeValues[i] = bdlt::CurrentTime::now();
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, true));

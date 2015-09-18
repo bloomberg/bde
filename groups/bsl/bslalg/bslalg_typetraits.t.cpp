@@ -181,6 +181,20 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_Class0' would normally be implicitly bitwise moveable.
+// Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class0> : bsl::false_type { };
+
+// Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
+// Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
+
+}  // close bslmf namespace
+
 namespace bslma {
 
 template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
@@ -210,6 +224,17 @@ enum my_Enum
     // Enumeration type (is automatically bitwise copyable)
     MY_ENUM_0
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_Class4' would normally be implicitly bitwise moveable.
+// Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class4> : bsl::false_type { };
+
+}  // close bslmf namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE

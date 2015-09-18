@@ -527,12 +527,12 @@ BSLS_IDENT("$Id: $")
 //        static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
 //        ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //..
 // and the following wraps the 'inheritThresholdLevels' function within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
 //        ball::LoggerManager::DefaultThresholdLevelsCallback
 //                                 thresholdsCallback(&inheritThresholdLevels);
@@ -881,16 +881,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -933,8 +933,7 @@ class Logger {
         // log record.  Note that the user-defined fields of each record must
         // be type-consistent with the schema of the user populator callback.
 
-    typedef bdlf::Function<void (*)(Transmission::Cause)>
-                                                     PublishAllTriggerCallback;
+    typedef bsl::function<void(Transmission::Cause)> PublishAllTriggerCallback;
         // 'PublishAllTriggerCallback' is the type of the functor that is
         // invoked with the publication cause to publish all record buffers of
         // all loggers that are allocated by the logger manager.

@@ -11,7 +11,6 @@
 #include <bslmt_threadutil.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 
 #include <bdlt_currenttime.h>
 
@@ -25,6 +24,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_queue.h>
 #include <bsl_utility.h>
@@ -607,8 +607,8 @@ void queryCallBack(const QueryResult& result)
         serverMutex.unlock();
     }
 
-    void getQueryAndCallback(Query                                 *query,
-                             bdlf::Function<void (*)(QueryResult)> *callBack)
+    void getQueryAndCallback(Query                            *query,
+                             bsl::function<void(QueryResult)> *callBack)
         // Set the specified 'query' and 'callBack' to the next 'Query' and its
         // associated functor (the functor to be called when the response to
         // this 'Query' comes in).
@@ -621,7 +621,7 @@ void queryCallBack(const QueryResult& result)
 //..
     RemoteAddress serverAddress;  // address of remote server
 
-    bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
+    bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
         // Catalog of query callbacks, used by the client internally to keep
         // track of callback functions across multiple queries.  The invariant
         // is that each element corresponds to a pending query (i.e., the
@@ -635,7 +635,7 @@ void queryCallBack(const QueryResult& result)
         int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
         while (queriesToBeProcessed--) {
             Query query;
-            bdlf::Function<void (*)(QueryResult)> callBack;
+            bsl::function<void(QueryResult)> callBack;
 
             // The following call blocks until a query becomes available.
             getQueryAndCallback(&query, &callBack);
@@ -666,7 +666,7 @@ void queryCallBack(const QueryResult& result)
             // The 'callBack' function is retrieved from the 'catalog' using
             // the given 'handle'.
 
-            bdlf::Function<void (*)(QueryResult)> callBack;
+            bsl::function<void(QueryResult)> callBack;
             ASSERT(0 == catalog.find(handle, &callBack));
             callBack(result);
 
@@ -685,7 +685,7 @@ void queryCallBack(const QueryResult& result)
 // iterate through all the objects of 'catalog' (a catalog of objects of type
 // 'MyType').
 //..
-    void use(bdlf::Function<void (*)(QueryResult)> object)
+    void use(bsl::function<void(QueryResult)> object)
     {
         (void)object;
     }

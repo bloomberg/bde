@@ -14,7 +14,6 @@
 #include <bslmt_threadgroup.h>
 #include <bsls_atomic.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bdlb_random.h>
@@ -27,6 +26,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -1440,21 +1440,21 @@ struct Consumer {
 namespace seqtst {
 
 struct Item {
-    int  d_threadId;
-    int  d_sequenceNum;
-    bdlf::Function<void(*)()> d_funct;
+    int                   d_threadId;
+    int                   d_sequenceNum;
+    bsl::function<void()> d_funct;
 };
 
 struct Control {
-    bslmt::Barrier         *d_barrier;
+    bslmt::Barrier     *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
-    int                    d_numExpectedPushers;
-    int                    d_iterations;
+    int                 d_numExpectedPushers;
+    int                 d_iterations;
 
-    bsls::AtomicInt         d_numPushers;
-    bsls::AtomicInt         d_numPopped;
+    bsls::AtomicInt     d_numPushers;
+    bsls::AtomicInt     d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1466,7 +1466,7 @@ void pusherThread(Control *control)
     bsl::shared_ptr<int> sp;
     sp.createInplace(bslma::Default::allocator(), 12345);
 
-    bdlf::Function<void(*)()> funct = bdlf::BindUtil::bind(&f, sp);
+    bsl::function<void()> funct = bdlf::BindUtil::bind(&f, sp);
 
     bdlcc::Queue<Item> *queue = control->d_queue;
 
@@ -1537,21 +1537,21 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 namespace seqtst2 {
 
 struct Item {
-    int  d_threadId;
-    int  d_sequenceNum;
-    bdlf::Function<void(*)()> d_funct;
+    int                   d_threadId;
+    int                   d_sequenceNum;
+    bsl::function<void()> d_funct;
 };
 
 struct Control {
-    bslmt::Barrier         *d_barrier;
+    bslmt::Barrier     *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
-    int                    d_numExpectedPushers;
-    int                    d_iterations;
+    int                 d_numExpectedPushers;
+    int                 d_iterations;
 
-    bsls::AtomicInt         d_numPushers;
-    bsls::AtomicInt         d_numPopped;
+    bsls::AtomicInt     d_numPushers;
+    bsls::AtomicInt     d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1563,7 +1563,7 @@ void pusherThread(Control *control)
     bsl::shared_ptr<int> sp;
     sp.createInplace(bslma::Default::allocator(), 12345);
 
-    bdlf::Function<void(*)()> funct = bdlf::BindUtil::bind(&f, sp);
+    bsl::function<void()> funct = bdlf::BindUtil::bind(&f, sp);
 
     bdlcc::Queue<Item> *queue = control->d_queue;
 
@@ -1635,21 +1635,21 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 namespace seqtst3 {
 
 struct Item {
-    int  d_threadId;
-    int  d_sequenceNum;
-    bdlf::Function<void(*)()> d_funct;
+    int                   d_threadId;
+    int                   d_sequenceNum;
+    bsl::function<void()> d_funct;
 };
 
 struct Control {
-    bslmt::Barrier         *d_barrier;
+    bslmt::Barrier     *d_barrier;
 
     bdlcc::Queue<Item> *d_queue;
 
-    int                    d_numExpectedPushers;
-    int                    d_iterations;
+    int                 d_numExpectedPushers;
+    int                 d_iterations;
 
-    bsls::AtomicInt         d_numPushers;
-    bsls::AtomicInt         d_numPopped;
+    bsls::AtomicInt     d_numPushers;
+    bsls::AtomicInt     d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1661,7 +1661,7 @@ void pusherThread(Control *control)
     bsl::shared_ptr<int> sp;
     sp.createInplace(bslma::Default::allocator(), 12345);
 
-    bdlf::Function<void(*)()> funct = bdlf::BindUtil::bind(&f, sp);
+    bsl::function<void()> funct = bdlf::BindUtil::bind(&f, sp);
 
     bdlcc::Queue<Item> *queue = control->d_queue;
 

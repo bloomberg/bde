@@ -138,16 +138,16 @@ BSLS_IDENT("$Id: $")
 #include <btlso_streamsocket.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -192,8 +192,8 @@ class Negotiator {
         e_ERROR          = -2   // any other error
     };
 
-    typedef bdlf::Function<void(*)(Negotiator::NegotiationStatus,
-                                   const DetailedStatus&)>
+    typedef bsl::function<void(Negotiator::NegotiationStatus,
+                               const DetailedStatus&)>
                                                       NegotiationStateCallback;
         // A callback of this type is invoked when a SOCKS5 negotiation is
         // complete.  If the specified 'status' is 0 the connection has been

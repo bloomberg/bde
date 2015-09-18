@@ -154,7 +154,7 @@ BSLS_IDENT("$Id: $")
 // class SimpleScheduler
 // {
 //    // DATA
-//    typedef bdlcc::SkipList<bdlt::Datetime, bdlf::Function<void(*)()> > List;
+//    typedef bdlcc::SkipList<bdlt::Datetime, bsl::function<void()> > List;
 //
 //    List                     d_list;
 //    bslmt::ThreadUtil::Handle d_dispatcher;
@@ -246,7 +246,7 @@ BSLS_IDENT("$Id: $")
 //        }
 //    }
 //
-//    void scheduleEvent(const bdlf::Function<void(*)()>& event,
+//    void scheduleEvent(const bsl::function<void()>& event,
 //                       const bdlt::Datetime& when)
 //    {
 //        // Use 'addR' since this event will probably be placed near the end

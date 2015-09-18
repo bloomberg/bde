@@ -12,10 +12,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bslim_testutil.h>
@@ -196,7 +197,7 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
                                                      d_allocator_p,
                                                      &ConcurrencyTest::execute,
                                                      this);

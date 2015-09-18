@@ -13,13 +13,13 @@
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(mX.canRegisterSockets());
 
-                bdlf::Function<void (*)()> cb1, cb2;
+                bsl::function<void()> cb1, cb2;
                 int rc = mX.registerSocketEvent(
                                           (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!mX.canRegisterSockets());
 
-                bdlf::Function<void (*)()> cb1, cb2;
+                bsl::function<void()> cb1, cb2;
                 ASSERT_FAIL(mX.registerSocketEvent(
                                           (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle sendSocket;
             int        errorCode;
 
-            bdlf::Function<void (*)()> connectCallback;
+            bsl::function<void()> connectCallback;
             const int NUM_ATTEMPTS = 100;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 errorCode = 0;
@@ -709,7 +709,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             const int NUM_ATTEMPTS = 5000;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             const int NUM_ATTEMPTS = 5000;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);

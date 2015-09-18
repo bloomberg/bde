@@ -4,7 +4,6 @@
 #include <bsls_bsltestutil.h>
 
 #include <bdlf_bind_test.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
 #include <bslalg_typetraits.h>
@@ -21,6 +20,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>    // atoi()
 #include <bsl_cstring.h>    // strcpy()
+#include <bsl_functional.h>
 #include <bsl_string.h>
 
 #include <bsl_functional.h>  // ref, cref
@@ -1091,7 +1091,7 @@ using namespace bdlf::PlaceHolders;
 // limitation applies to free functions with 'extern "C"' linkage.  In that
 // case, the return type has to be given explicitly to the binder.  This can be
 // done by using the 'bdlf::BindUtil::bindR' function.  Note that all
-// 'bdlf::Function' objects have a public type 'ResultType' to assist the
+// 'bsl::function' objects have a public type 'ResultType' to assist the
 // compiler in that respect and can be used with 'bdlf::BindUtil::bind'.  See
 // the usage example "Binding to a Function Object with Explicit Return Type"
 // below.
@@ -1240,7 +1240,7 @@ using namespace bdlf::PlaceHolders;
         //its own stream of events.
 
         // PRIVATE INSTANCE DATA
-        bdlf::Function<void (*)(int, MyEvent)> d_callback;
+        bsl::function<void(int, MyEvent)> d_callback;
 //..
 // For illustration purposes, we give this scheduler a dummy stream of events:
 //..
@@ -1261,7 +1261,7 @@ using namespace bdlf::PlaceHolders;
 //..
       public:
         // CREATORS
-        MyEventScheduler(bdlf::Function<void(*)(int, MyEvent)> const& callback)
+        MyEventScheduler(bsl::function<void(int, MyEvent)> const& callback)
         : d_callback(callback)
         {
         }
@@ -1491,7 +1491,7 @@ using namespace bdlf::PlaceHolders;
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound object (using
-// 'FUNC::ResultType'), the binder needs an explicitly specification.  This is
+// 'FUNC::result_type'), the binder needs an explicitly specification.  This is
 // done by using the 'bdlf::BindUtil::bindR' function template as exemplified
 // below:
 //..
@@ -1750,7 +1750,7 @@ DEFINE_TEST_CASE(7) {
             // Failure to copy MyInt by value (the signature of 'enqueueJob'
             // takes a 'const&') will trigger destruction of the MyInt object.
 
-            bdlf::Function<void(*)(void)> job;
+            bsl::function<void(void)> job;
 
             { // scope for 'MyInt i' (initialized at 314159)
                 MyInt i(314159);

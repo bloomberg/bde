@@ -33,13 +33,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
-//  bdlf::Function<void (*)(ball::UserFields*, const ball::UserFieldsSchema&)>
+//  bsl::function<void(ball::UserFields*, const ball::UserFieldsSchema&)>
 //                                               UserFieldsPopulatorCallback;
 //
-//  bdlf::Function<void (*)(bsl::string *, const char *)>
+//  bsl::function<void(bsl::string *, const char *)>
 //                                               CategoryNameFilterCallback
 //
-//  bdlf::Function<void (*)(int *, int *, int *, int *, const char *)>
+//  bsl::function<void(int *, int *, int *, int *, const char *)>
 //                                               DefaultThresholdLevelsCallback
 //..
 // The attributes contained by a 'ball::LoggerManagerConfiguration' object
@@ -238,10 +238,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldsschema.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -252,6 +248,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -291,8 +291,8 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(ball::UserFields *,
-                                    const ball::UserFieldsSchema& )>
+    typedef bsl::function<void(ball::UserFields *,
+                               const ball::UserFieldsSchema&)>
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
         // callback functor used to populate the user-defined fields in each
@@ -301,12 +301,12 @@ class LoggerManagerConfiguration {
         // populator callback.
 
 
-    typedef bdlf::Function<void (*)(bsl::string *, const char *)>
+    typedef bsl::function<void(bsl::string *, const char *)>
                                                     CategoryNameFilterCallback;
         // 'CategoryNameFilterCallback' is the type of the user-supplied
         // functor that translates external category names to internal names.
 
-    typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char *)>
+    typedef bsl::function<void(int *, int *, int *, int *, const char *)>
                                                 DefaultThresholdLevelsCallback;
         // 'DefaultThresholdLevelsCallback' is the type of the functor that
         // determines default threshold levels for categories added to the

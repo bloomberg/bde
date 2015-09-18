@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_iterator.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 //  Should not be defining project-level configuration macros inside a cpp file
@@ -423,7 +424,9 @@ namespace balb {
 
 PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
                                        bslma::Allocator       *basicAllocator)
-: d_callback(callback, bslma::Default::allocator(basicAllocator))
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ControlCallback>(basicAllocator),
+             callback)
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
 , d_thread(bslmt::ThreadUtil::invalidHandle())

@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // a bit more involved) situation.
 //
 // Note that 'bdlf::Bind' functors are typically used with standard algorithms,
-// or with 'bdlf::Function'.  This mechanism is similar to, but much more
+// or with 'bsl::function'.  This mechanism is similar to, but much more
 // powerful than 'bsl::binder1st' or 'bsl::binder2nd'.
 //
 // The difference between a binder created using one of 'bindS' and 'bindSR'
@@ -432,7 +432,7 @@ BSLS_IDENT("$Id: $")
 // limitation applies to free functions with 'extern "C"' linkage.  In that
 // case, the return type has to be given explicitly to the binder.  This can be
 // done by using the 'bdlf::BindUtil::bindR' function.  Note that all
-// 'bdlf::Function' objects have a standard public type 'ResultType' to assist
+// 'bsl::function' objects have a standard public type 'result_type' to assist
 // the deduction of return type and can be used with 'bdlf::BindUtil::bind'.
 // See the usage example "Binding to a Function Object with Explicit Return
 // Type" below.
@@ -569,7 +569,7 @@ BSLS_IDENT("$Id: $")
 //      // its own stream of events.
 //
 //      // PRIVATE INSTANCE DATA
-//      bdlf::Function<void (*)(int, MyEvent)>  d_callback;
+//      bsl::function<void(int, MyEvent)>  d_callback;
 //
 //      // PRIVATE MANIPULATORS
 //      int getNextEvent(MyEvent *eventBuffer) {
@@ -584,7 +584,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    public:
 //      // CREATORS
-//      MyEventDispatcher(bdlf::Function<void(*)(int, MyEvent)> const& cb)
+//      MyEventDispatcher(bsl::function<void(int, MyEvent)> const& cb)
 //      : d_callback(cb)
 //      {
 //      }
@@ -919,6 +919,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -4855,6 +4859,23 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     typedef typename FUNC::ResultType ResultType;
 };
 
+template <class PROTO>
+struct Bind_FuncTraitsImp<bslmf::Nil,bsl::function<PROTO>,0,0,0> {
+    // Function traits for bsl::function objects that are passed by value.  The
+    // result type is determined to the 'bsl::function<PROTO>::result_type'.
+
+    // ENUMERATIONS
+    enum {
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
+
+    // PUBLIC TYPES
+    typedef bsl::function<PROTO>                       Type;
+    typedef bsl::function<PROTO>                       WrapperType;
+    typedef typename bsl::function<PROTO>::result_type ResultType;
+};
+
 template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     // Function traits for objects passed by pointer with no explicit return
@@ -4872,6 +4893,23 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     typedef typename FUNC::ResultType ResultType;
 };
 
+template <class PROTO>
+struct Bind_FuncTraitsImp<bslmf::Nil,bsl::function<PROTO>*,0,0,0> {
+    // Function traits for objects passed by pointer with no explicit return
+    // type.  The object is assumed to have a 'ResultType' type definition.
+
+    // ENUMERATIONS
+    enum {
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = 1
+    };
+
+    // PUBLIC TYPES
+    typedef bsl::function<PROTO>                       Type;
+    typedef bsl::function<PROTO>*                      WrapperType;
+    typedef typename bsl::function<PROTO>::result_type ResultType;
+};
+
                               // ================
                               // class FuncTraits
                               // ================
@@ -4887,7 +4925,7 @@ struct Bind_FuncTraits
     // This 'struct' provides various traits of the functor type 'FUNC'
     // documented below.  If 'RET' is 'bslmf::Nil', then the return type is
     // inferred by using either 'bslmf::FunctionPointerTraits',
-    // 'bslmf::MemberFunctionPointerTraits', or 'FUNC::ResultType' as
+    // 'bslmf::MemberFunctionPointerTraits', or 'FUNC::result_type' as
     // appropriate.
     //..
     // // ENUMERATIONS

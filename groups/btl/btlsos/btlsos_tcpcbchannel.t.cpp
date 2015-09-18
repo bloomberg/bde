@@ -12,7 +12,6 @@
 
 #include <btls_iovec.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -28,6 +27,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>                       // 'atoi'
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 #include <unistd.h>
@@ -698,7 +698,7 @@ static void writeCallback(int                          status,
                 ASSERT(status > 0);
                 if (veryVerbose) {
                     cout << "Write (efficiently) transmitted " << status
-                         << " of " << status << "bytes." << endl;
+                         << " of " << status << " bytes." << endl;
                 }
             }
         }
@@ -985,7 +985,7 @@ static int gg(btlsos::TcpCbChannel        *channel,
       case 'r': {
           int readLen, optFlag = 0, second = 0, nanoSec = 0,
               expStatus, expAugStatus;
-          bdlf::Function<void (*)(int, int)> callback;
+          bsl::function<void(int, int)> callback;
 
           switch (*(script+1)) {
             case 'b': {
@@ -1490,7 +1490,7 @@ int main(int argc, char *argv[])
             int optFlag1 = 0;
             char readBuf1[20] = "\0";
 
-            bdlf::Function<void (*)(int, int)> callback1(
+            bsl::function<void(int, int)> callback1(
                    bdlf::BindUtil::bind(&myReadCallback, _1, _2, readLen1, 0));
             // Issue a read request:
             ret = channel.read(readBuf1, readLen1, callback1, optFlag1);
@@ -1504,7 +1504,7 @@ int main(int argc, char *argv[])
             int readLen2 = 9;
             int optFlag2 = 0;
             char readBuf2[20] = "\0";
-            bdlf::Function<void (*)(int, int)> callback2(
+            bsl::function<void(int, int)> callback2(
                    bdlf::BindUtil::bind(&myReadCallback, _1, _2, readLen2, 0));
             // Issue a read request:
             ret = channel.read(readBuf2, readLen2, callback2, optFlag2);

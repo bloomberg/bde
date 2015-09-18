@@ -23,14 +23,15 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_assert.h>
 
+#include <bsl_c_stdio.h>
+#include <bsl_c_stdlib.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
-#include <bsl_c_stdlib.h>
-#include <bsl_c_stdio.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
@@ -264,7 +265,7 @@ class TestCallback {
     // the metric returned by the 'recordMetrics' operation.  A 'TestCallback'
     // object keeps track of the number of times 'recordMetrics' is invoked.  A
     // callback object also provides a 'function' method that returns a
-    // 'bdlf::Function' object matching the
+    // 'bsl::function' object matching the
     // 'balm::MetricsManager::MetricsCollectionCallback' signature that, on
     // invocation, calls 'recordMetrics' on the object.
 
@@ -308,7 +309,7 @@ class TestCallback {
         // that will be appended on a call to 'recordMetrics'.
 
     balm::MetricsManager::RecordsCollectionCallback function();
-        // Return a 'bdlf::Function' of type
+        // Return a 'bsl::function' of type
         // 'balm::MetricsManager::RecordsCollectionCallback' that will invoke
         // the 'recordMetrics' method on this object.
 
@@ -1131,10 +1132,10 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                                   d_allocator_p,
-                                                   &ConcurrencyTest::execute,
-                                                   this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
+                                                     d_allocator_p,
+                                                     &ConcurrencyTest::execute,
+                                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1400,7 +1401,7 @@ void ConcurrencyTest::runTest()
 //..
 // We now register the callback function 'collectMetricsCb' with the metrics
 // manager.  We use 'bdlf::BindUtil' to bind the member function to a
-// 'bdlf::Function' matching the
+// 'bsl::function' matching the
 // 'balm::MetricsManager::RecordsCollectionCallback' function prototype.  The
 // private data member 'd_callbackHandle' is used to store the
 // 'balm::MetricsManager::CallbackHandle' returned for the registered callback;
@@ -1464,6 +1465,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -1485,8 +1487,9 @@ int main(int argc, char *argv[])
                                       ball::Severity::e_OFF,
                                       ball::Severity::e_OFF);
 
-    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
-    bslma::TestAllocator defaultAllocator;
+    bslma::TestAllocator testAlloc("Test", veryVeryVeryVerbose);
+    bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     bdlt::CurrentTime::now();

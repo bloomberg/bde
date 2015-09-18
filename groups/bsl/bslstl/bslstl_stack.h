@@ -286,6 +286,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_enableif.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -458,45 +462,132 @@ class stack {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_stack.h
+// Generator command line: sim_cpp11_features.pl bslstl_stack.h
     void emplace();
 
-    template <class Args_1>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+    template <class Args_01>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
 
-    template <class Args_1,
-              class Args_2>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+    template <class Args_01,
+              class Args_02>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
 
-    template <class Args_1,
-              class Args_2,
-              class Args_3>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
 
-    template <class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
 
-    template <class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4,
-              class Args_5>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template <class... Args>
     void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
 // }}} END GENERATED CODE
@@ -674,7 +765,7 @@ stack<VALUE, CONTAINER>::stack(
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(CONTAINER&& container)
-: d_container(std::move(container))
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(container))
 , c(d_container)
 {}
 
@@ -687,14 +778,15 @@ stack<VALUE, CONTAINER>::stack(
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(container), basicAllocator)
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(container),
+              basicAllocator)
 , c(d_container)
 {}
 
 template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>::stack(stack&& original)
-: d_container(std::move(original.d_container))
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(original.d_container))
 , c(d_container)
 {}
 
@@ -707,7 +799,8 @@ stack<VALUE, CONTAINER>::stack(
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(original.d_container), basicAllocator)
+: d_container(BloombergLP::bslmf::MovableRefUtil::move(original.d_container),
+              basicAllocator)
 , c(d_container)
 {}
 
@@ -729,12 +822,12 @@ template <class... Args>
 inline
 void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
-    d_container.emplace_back(BloombergLP::bsls::Util::forward<Args>(args)...);
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_stack.h
+// Generator command line: sim_cpp11_features.pl bslstl_stack.h
 template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::emplace(
@@ -744,88 +837,240 @@ void stack<VALUE, CONTAINER>::emplace(
 }
 
 template <class VALUE, class CONTAINER>
-template <class Args_1>
+template <class Args_01>
 inline
 void stack<VALUE, CONTAINER>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
 }
 
 template <class VALUE, class CONTAINER>
-template <class Args_1,
-          class Args_2>
+template <class Args_01,
+          class Args_02>
 inline
 void stack<VALUE, CONTAINER>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
 }
 
 template <class VALUE, class CONTAINER>
-template <class Args_1,
-          class Args_2,
-          class Args_3>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
 inline
 void stack<VALUE, CONTAINER>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3));
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
 }
 
 template <class VALUE, class CONTAINER>
-template <class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
 inline
 void stack<VALUE, CONTAINER>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4));
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
 }
 
 template <class VALUE, class CONTAINER>
-template <class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4,
-          class Args_5>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
 inline
 void stack<VALUE, CONTAINER>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4),
-                             BSLS_COMPILERFEATURES_FORWARD(Args_5, args_5));
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+void stack<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+void stack<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+void stack<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+void stack<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+void stack<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
 }
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 template <class VALUE, class CONTAINER>
 template <class... Args>
 inline
 void stack<VALUE, CONTAINER>::emplace(
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
-    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+    d_container.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
 }
 // }}} END GENERATED CODE
 #endif
@@ -851,7 +1096,7 @@ template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::push(value_type&& value)
 {
-    d_container.push_back(std::move(value));
+    d_container.push_back(BloombergLP::bslmf::MovableRefUtil::move(value));
 }
 #endif
 

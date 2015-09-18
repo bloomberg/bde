@@ -11,11 +11,11 @@
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
 #include <bslmt_threadutil.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bsls_platform.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -404,7 +404,7 @@ int main(int argc, char *argv[]) {
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[]) {
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             const int NUM_ATTEMPTS = 10 * 1000;
             for (int i = 0; i < NUM_ATTEMPTS; i += 11) {
                 Obj mX(&timeMetric, &testAllocator);
@@ -1109,7 +1109,7 @@ int main(int argc, char *argv[]) {
             enum { NUM_DEREGISTERS = 70000 };
             Obj mX;
 
-            bdlf::Function<void (*)()> cb(&assertCb);
+            bsl::function<void()> cb(&assertCb);
 
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -1204,7 +1204,7 @@ int main(int argc, char *argv[]) {
             enum { NUM_DEREGISTERS = 70000 };
             Obj mX;
 
-            bdlf::Function<void (*)()> cb(&assertCb);
+            bsl::function<void()> cb(&assertCb);
 
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);

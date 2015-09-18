@@ -469,10 +469,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
 #endif
@@ -483,6 +479,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -518,7 +518,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)()> FailureHandler;
+    typedef bsl::function<void()> FailureHandler;
                 // Type of functor called by this object to handle failures.
                 // Note that this can be set and accessed using th
                 // 'setFailureHandler' and 'failureHandler' methods

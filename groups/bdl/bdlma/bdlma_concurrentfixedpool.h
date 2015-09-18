@@ -34,7 +34,7 @@
 // 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place*
 // container classes that hold up to a fixed number of elements, all of uniform
 // size.  Suppose we wish to implement a simple thread pool.  We want the
-// equivalent of a 'bsl::deque<bdlf::Function<void(*)(void)> >'.  However, to
+// equivalent of a 'bsl::deque<bsl::function<void(void)> >'.  However, to
 // minimize the time spent performing operations on this deque - which must be
 // carried out under a lock - we instead store just pointers in the deque, and
 // manage memory efficiently using 'bdlma::ConcurrentFixedPool'.
@@ -49,7 +49,7 @@
 //
 //    public:
 //      // PUBLIC TYPES
-//      typedef bdlf::Function<void(*)(void)> Job;
+//      typedef bsl::function<void(void)> Job;
 //
 //    private:
 //      // DATA

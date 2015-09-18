@@ -250,16 +250,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -528,11 +528,11 @@ struct FilesystemUtil {
         // directories in 'path' could not be created.
 
     static void visitPaths(
-                    const bsl::string&                                pattern,
-                    const bdlf::Function<void(*)(const char *path)>&  visitor);
+                         const bsl::string&                           pattern,
+                         const bsl::function<void(const char *path)>& visitor);
     static void visitPaths(
-                    const char                                       *pattern,
-                    const bdlf::Function<void(*)(const char *path)>&  visitor);
+                        const char                                   *pattern,
+                        const bsl::function<void(const char *path)>&  visitor);
         // Call the specified 'visitor' functor for each path in the filesystem
         // matching the specified 'pattern'.  If 'visitor' deletes files or
         // directories during the search, the behavior is
@@ -751,8 +751,8 @@ int FilesystemUtil::createDirectories(const bsl::string& path,
 
 inline
 void FilesystemUtil::visitPaths(
-                      const bsl::string&                               pattern,
-                      const bdlf::Function<void(*)(const char *path)>& visitor)
+                          const bsl::string&                           pattern,
+                          const bsl::function<void(const char *path)>& visitor)
 {
     return visitPaths(pattern.c_str(), visitor);
 }

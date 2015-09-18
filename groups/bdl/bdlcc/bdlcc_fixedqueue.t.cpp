@@ -22,7 +22,6 @@
 #include <bslmt_turnstile.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlt_currenttime.h>
 #include <bdlb_random.h>
 
@@ -38,6 +37,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -623,25 +623,25 @@ void abaThread(char                     *firstValue,
 namespace nonblocktst {
 
 struct Item {
-    int  d_threadId;
-    int  d_sequenceNum;
-    bdlf::Function<void(*)()> d_funct;
+    int                   d_threadId;
+    int                   d_sequenceNum;
+    bsl::function<void()> d_funct;
 };
 
 struct Control {
-    bslmt::Barrier         *d_barrier;
+    bslmt::Barrier          *d_barrier;
 
     bdlcc::FixedQueue<Item> *d_queue;
 
-    int                    d_numExpectedThreads;
-    int                    d_iterations;
-    int                    d_queueSize;
-    int                    d_pushCount;
+    int                      d_numExpectedThreads;
+    int                      d_iterations;
+    int                      d_queueSize;
+    int                      d_pushCount;
 
-    bsls::AtomicInt         d_numThreads;
+    bsls::AtomicInt          d_numThreads;
 
-    bsls::AtomicInt         d_numPushed;
-    bsls::AtomicInt         d_numPopped;
+    bsls::AtomicInt          d_numPushed;
+    bsls::AtomicInt          d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -653,7 +653,7 @@ void workerThread(Control *control)
     bsl::shared_ptr<int> sp;
     sp.createInplace(bslma::Default::allocator(), 12345);
 
-    bdlf::Function<void(*)()> funct = bdlf::BindUtil::bind(&f, sp);
+    bsl::function<void()> funct = bdlf::BindUtil::bind(&f, sp);
 
     bsl::vector<int> seq(control->d_numExpectedThreads, -1);
 
@@ -799,7 +799,7 @@ namespace seqtst {
 struct Item {
     int  d_threadId;
     int  d_sequenceNum;
-    bdlf::Function<void(*)()> d_funct;
+    bsl::function<void()> d_funct;
 };
 
 struct Control {
@@ -823,7 +823,7 @@ void pusherThread(Control *control)
     bsl::shared_ptr<int> sp;
     sp.createInplace(bslma::Default::allocator(), 12345);
 
-    bdlf::Function<void(*)()> funct = bdlf::BindUtil::bind(&f, sp);
+    bsl::function<void()> funct = bdlf::BindUtil::bind(&f, sp);
 
     bdlcc::FixedQueue<Item> *queue = control->d_queue;
 

@@ -23,7 +23,6 @@
 #include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
 #include <bdlsb_memoutstreambuf.h>
@@ -50,6 +49,7 @@
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -371,7 +371,7 @@ class Point {
 // that the callback supplied to the logging macro must match the prototype
 // 'void (*)(ball::UserFields *)'.
 //..
-        bdlf::Function <void (*)(ball::UserFields *)> callback;
+        bsl::function <void(ball::UserFields *)> callback;
         callback = bdlf::BindUtil::bind(&populateUsingPoint,
                                        bdlf::PlaceHolders::_1,
                                        point);
@@ -2333,8 +2333,7 @@ int main(int argc, char *argv[])
                 bsl::cerr.rdbuf(os.rdbuf());
 
                 ASSERT(false == ball::LoggerManager::isInitialized());
-                BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFields *)> callback =
+                bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
                 numIncCallback = 0;
 
@@ -2381,8 +2380,8 @@ int main(int argc, char *argv[])
                       << "Testing callback macro safety w/o LoggerManager\n"
                       << "===============================================\n";
 
-        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFields *)>
-                                                       callback = &incCallback;
+        bsl::function<void(BloombergLP::ball::UserFields *)> callback =
+                                                                  &incCallback;
 
         numIncCallback = 0;
 
@@ -2467,8 +2466,7 @@ int main(int argc, char *argv[])
                                << "===================================="
                                << bsl::endl;
 
-        BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFields *)> callback =
+        bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
         numIncCallback = 0;
 

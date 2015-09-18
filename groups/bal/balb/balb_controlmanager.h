@@ -76,12 +76,12 @@
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -132,8 +132,8 @@ class ControlManager {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(const bsl::string& prefix,
-                                    bsl::istream&      stream)> ControlHandler;
+    typedef bsl::function<void(const bsl::string& prefix,
+                               bsl::istream&      stream)> ControlHandler;
         // Defines a type alias for the function called to handle control
         // messages.  The 'prefix' argument is the first space-delimited word
         // read from the message, and the 'stream' argument is the

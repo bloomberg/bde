@@ -30,16 +30,16 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BTLSO_IPV4ADDRESS
 #include <btlso_ipv4address.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -90,7 +90,7 @@ class AsyncChannel {
 
     };
 
-    typedef bdlf::Function<void (*)(int, int *, btlb::Blob *, int)>
+    typedef bsl::function<void(int, int *, btlb::Blob *, int)>
                                                          BlobBasedReadCallback;
         // A callback of this type is invoked for 'read' and 'timeRead' when
         // either the requested number of bytes are available, or an error

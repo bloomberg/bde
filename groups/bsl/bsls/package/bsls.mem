@@ -43,6 +43,7 @@ bsls_int64
 bsls_linkcoercion
 bsls_log
 bsls_macroincrement
+bsls_macrorepeat
 bsls_nativestd
 bsls_nullptr
 bsls_objectbuffer

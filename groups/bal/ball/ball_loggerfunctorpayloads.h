@@ -34,26 +34,25 @@ BSLS_IDENT("$Id: $")
 // 'ball_loggermanager' component, as shown below.  Note that
 // 'ball::LoggerManager::PublishAllCallback' is just an alias for
 // 'ball::Logger::PublishAllCallback', which is itself an alias for a
-// particular 'bdlf::Function' specialization.
+// particular 'bsl::function' specialization.
 //..
 //  ball::Logger Functors
 //  --------------------
-//  typedef bdlf::Function<
-//            void (*)(ball::UserFields *, const ball::UserSchema&)> Populator;
+//  typedef bsl::function<void(ball::UserFields *, const ball::UserSchema&)>
+//                                                                   Populator;
 //      // 'Populator' is the type of a user-supplied callback functor used to
 //      // populate the user-defined fields in each log record.  In particular,
 //      // the first 'd_userSchema_p->length()' user-defined fields of each
 //      // record must be type-consistent with 'd_userSchema_p'.
 //
-//  typedef bdlf::Function<void (*)(ball::Transmission::Cause)>
-//                                                          PublishAllCallback;
+//  typedef bsl::function<void(ball::Transmission::Cause)> PublishAllCallback;
 //      // 'PublishAllCallback' is the type of the functor that is invoked
 //      // to publish all record buffers of all loggers that are allocated
 //      // by the logger manager.
 //
 //  ball::LoggerManager Functors
 //  ---------------------------
-//  typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char *)>
+//  typedef bsl::function<void(int *, int *, int *, int *, const char *)>
 //                                                   DefaultThresholdsCallback;
 //      // 'DefaultThresholdsCallback' is the type of the functor that
 //      // determines default threshold levels for categories added to the

@@ -258,11 +258,11 @@ BSLS_IDENT("$Id: $")
 //      config.setMaxConnections(16);
 //      config.setIncomingMessageSizes(1, 128, 256);
 //
-//      bdlf::Function<void (*)(int, int, int, void*)>
+//      bsl::function<void(int, int, int, void*)>
 //                                          ccb;    // channel state callback
-//      bdlf::Function<void (*)(int, int*, int*, void*)>
+//      bsl::function<void(int, int*, int*, void*)>
 //                                          dcb;    // data callback
-//      bdlf::Function<void (*)(int, int, int)>
+//      bsl::function<void(int, int, int)>
 //                                          pcb;    // pool state callback
 //
 //      bslmt::ChannelPool *poolAddr;
@@ -587,10 +587,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -621,6 +617,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -684,7 +684,7 @@ struct TimerState {
                                                   // the timer; otherwise it
                                                   // is a non-recurring timer
 
-    bdlf::Function<void (*)()>  d_callback;       // callback function to
+    bsl::function<void()>       d_callback;       // callback function to
                                                   // invoke
 };
 
@@ -719,7 +719,7 @@ class ChannelPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(int, int, int, void*)>
+    typedef bsl::function<void(int, int, int, void*)>
                                                     ChannelStateChangeCallback;
         // The callback of this type is invoked whenever a channel's state
         // changes.  The first argument is the (unique) channel ID, chosen by
@@ -742,7 +742,7 @@ class ChannelPool {
         //                            void *context);
         //..
 
-    typedef bdlf::Function<void (*)(int *, btlb::Blob *, int, void *)>
+    typedef bsl::function<void(int *, btlb::Blob *, int, void *)>
                                                          BlobBasedReadCallback;
         // The callback of this type is invoked every time there is a
         // sufficiently large amount of data read from a channel.  The second
@@ -765,7 +765,7 @@ class ChannelPool {
         //                        void         *context);
         //..
 
-    typedef bdlf::Function<void (*)(int, int, int)> PoolStateChangeCallback;
+    typedef bsl::function<void(int, int, int)> PoolStateChangeCallback;
         // The callback of this type is invoked whenever a change affecting the
         // pool occurs.  The first parameter indicates the type of event which
         // triggered the callback (i.e., one of the 'PoolEvents' enumerations).
@@ -993,7 +993,7 @@ class ChannelPool {
 
                                         // *** Capacity monitoring ***
     bdlb::NullableValue<void *>         d_metricsTimerId;
-    bdlf::Function<void (*)()>          d_metricsFunctor;
+    bsl::function<void()>               d_metricsFunctor;
     ChannelStateChangeCallback          d_channelStateCb;
     PoolStateChangeCallback             d_poolStateCb;
     BlobBasedReadCallback               d_blobBasedReadCb;
@@ -1765,15 +1765,15 @@ class ChannelPool {
 
                                   // *** Clock management ***
 
-    int registerClock(const bdlf::Function<void (*)()>& command,
-                      const bsls::TimeInterval&         startTime,
-                      const bsls::TimeInterval&         period,
-                      int                               clockId);
-    int registerClock(const bdlf::Function<void (*)()>& command,
-                      const bsls::TimeInterval&         startTime,
-                      const bsls::TimeInterval&         period,
-                      int                               clockId,
-                      int                               channelId);
+    int registerClock(const bsl::function<void()>& command,
+                      const bsls::TimeInterval&    startTime,
+                      const bsls::TimeInterval&    period,
+                      int                          clockId);
+    int registerClock(const bsl::function<void()>& command,
+                      const bsls::TimeInterval&    startTime,
+                      const bsls::TimeInterval&    period,
+                      int                          clockId,
+                      int                          channelId);
         // Register the specified 'command' to be invoked after the specified
         // 'startTime' absolute time and associate this registration with the
         // specified 'clockId'.  If the specified 'period' (relative time) is
