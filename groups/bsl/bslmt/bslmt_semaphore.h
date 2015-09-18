@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This example illustrates a very simple queue where potential clients can
 // push integers to a queue, and later retrieve the integer values from the
-// queue in FIFO order.  It illustrates two potential uses of semaphores:
-// to enforce exclusive access, and to allow resource sharing.
+// queue in FIFO order.  It illustrates two potential uses of semaphores: to
+// enforce exclusive access, and to allow resource sharing.
 //..
 //  class IntQueue {
 //      // FIFO queue of integer values.

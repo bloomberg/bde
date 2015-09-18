@@ -17,16 +17,17 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component defines a namespace containing static functions
-// that perform narrowing conversions on time-related types.  The provided
-// conversions "saturate", meaning that for input values outside the
-// representable range of the destination variable, the destination variable
-// will be set to its maximum or minimum value (whichever is closer to the
-// input value).  Such saturating conversions are typically used to implement
-// functions with a time-out (e.g., 'bslmt::Condition::timedWait') where a
-// user-supplied time-out must be converted to a different time type before
-// calling a system-library function.  In such situations it is often simpler,
-// safer, and within contract to perform a saturating conversion, rather than
-// either return an error status or define complex undefined behavior for the
+// that perform narrowing conversions on time-related types,
+// 'bslmt::SaturatedTimeConversionImpUtil'.  The provided conversions
+// "saturate", meaning that for input values outside the representable range of
+// the destination variable, the destination variable will be set to its
+// maximum or minimum value (whichever is closer to the input value).  Such
+// saturating conversions are typically used to implement functions with a
+// time-out (e.g., 'bslmt::Condition::timedWait') where a user-supplied
+// time-out must be converted to a different time type before calling a
+// system-library function.  In such situations it is often simpler, safer, and
+// within contract to perform a saturating conversion, rather than either
+// return an error status or define complex undefined behavior for the
 // function.
 //
 ///Usage

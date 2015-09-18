@@ -56,6 +56,10 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmt {
 

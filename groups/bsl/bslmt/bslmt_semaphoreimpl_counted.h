@@ -14,8 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_semaphore
 //
-//@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
-// via the template specialization:
+//@DESCRIPTION: This component provides an implementation of
+// 'bslmt::Semaphore', 'bslmt::SemaphoreImpl<CountedSemaphore>', via the
+// template specialization:
 //..
 //  bslmt::SemaphoreImpl<Platform::CountedSemaphore>
 //..

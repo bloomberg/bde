@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
-// for Windows (win32) via the template specialization:
+// for Windows (win32), 'bslmt::SemaphoreImpl<Win32Semaphore>', via the
+// template specialization:
 //..
 //  bslmt::SemaphoreImpl<Platform::Win32Threads>
 //..

@@ -358,9 +358,9 @@ class ThreadAttributes {
   public:
     // CLASS METHODS
     static int getMaxSchedPriority(SchedulingPolicy policy);
-        // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Note that
-        // for some platform / policy combinations,
+        // Return the maximum available priority for the specified 'policy',
+        // where 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'ThreadAttributes::SchedulingPolicy'.
@@ -368,9 +368,9 @@ class ThreadAttributes {
         // DEPRECATED: use 'ThreadUtil::getMaxSchedulingPriority' instead.
 
     static int getMinSchedPriority(SchedulingPolicy policy);
-        // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Note that
-        // for some platform / policy combinations,
+        // Return the minimum available priority for the specified 'policy',
+        // where 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'ThreadAttributes::SchedulingPolicy'.

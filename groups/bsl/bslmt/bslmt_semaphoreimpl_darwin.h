@@ -16,7 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // for POSIX threads ("pthreads") according to the POSIX support on Darwin
-// platform via the template specialization:
+// platform, 'bslmt::SemaphoreImpl<DarwinSemaphore>', via the template
+// specialization:
 //..
 //  bslmt::SemaphoreImpl<Platform::DarwinSemaphore>
 //..
