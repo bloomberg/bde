@@ -12,16 +12,17 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmt::ReadLockGuard: automatic locking-unlocking for read access
 //  bslmt::ReadLockGuardUnlock: automatic unlocking-locking for read access
-//  bslmt::ReadLockGuardTryLock: automatic non-blocking locking-unlocking for
-//                              read access
+//  bslmt::ReadLockGuardTryLock: automatic non-blocking locking-unlocking
 //  bslmt::LockReadGuard: DEPRECATED
 //
 //@SEE_ALSO: bslmt_lockguard, bslmt_writelockguard, bslmt_rwmutex
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides generic proctors to automatically lock
-// and unlock an external synchronization object for reading.  The
+//@DESCRIPTION: This component provides generic proctors,
+// 'bslmt::ReadLockGuard', 'bslmt::ReadLockGuardUnlock',
+// 'bslmt::ReadLockGuardTryLock', and 'bslmt::LockReadGuard', to automatically
+// lock and unlock an external synchronization object for reading.  The
 // synchronization object can be any type (e.g., 'bslmt::ReaderWriterLock')
 // that provides the following methods:
 //..
@@ -381,9 +382,9 @@ class ReadLockGuardTryLock {
     explicit ReadLockGuardTryLock(T *lock, int attempts = 1);
         // Create a proctor object that conditionally manages the specified
         // 'lock' (if non-zero), and invokes the 'tryLockRead' method on 'lock'
-        // until the lock is acquired, or until up to the specified 'attempts'
-        // have been made to acquire the lock.  The behavior is undefined
-        // unless '0 < attempts'.  Note that 'lock' must remain valid
+        // until the lock is acquired, or until up to the optionally specified
+        // 'attempts' have been made to acquire the lock.  The behavior is
+        // undefined unless '0 < attempts'.  Note that 'lock' must remain valid
         // throughout the lifetime of this proctor, or until 'release' is
         // called.
 
@@ -429,10 +430,10 @@ bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
+bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preLocked) {
+    if (d_lock_p && !preLockedFlag) {
         d_lock_p->lockRead();
     }
 }
@@ -478,8 +479,8 @@ bslmt::LockReadGuard<T>::LockReadGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
-: ReadLockGuard<T>(lock, preLocked)
+bslmt::LockReadGuard<T>::LockReadGuard(T *lock, int preLockedFlag)
+: ReadLockGuard<T>(lock, preLockedFlag)
 {
 }
 
@@ -500,10 +501,11 @@ bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock, int preUnlocked)
+bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T   *lock,
+                                                   int  preUnlockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preUnlocked) {
+    if (d_lock_p && !preUnlockedFlag) {
         d_lock_p->unlock();
     }
 }
@@ -541,11 +543,11 @@ T *bslmt::ReadLockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bslmt::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
+bslmt::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
-        while (retries--) {
+        while (attempts--) {
             if (!lock->tryLockRead()) {
                 d_lock_p = lock;
                 break;
