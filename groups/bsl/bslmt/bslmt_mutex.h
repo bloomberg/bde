@@ -66,10 +66,45 @@ BSLS_IDENT("$Id: $")
 //          // Return the amount of money that is available for withdrawal
 //          // from this account.
 //  };
-//..
-// The implementation of this class is straightforward and omitted here for
-// brevity.
 //
+//  // CREATORS
+//  my_Account::my_Account()
+//  : d_money(0.0)
+//  {
+//  }
+//
+//  my_Account::my_Account(const my_Account& obj)
+//  : d_money(obj.d_money)
+//  {
+//  }
+//
+//  my_Account::~my_Account()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  my_Account& my_Account::operator=(const my_Account& rhs)
+//  {
+//      d_money = rhs.d_money;
+//      return *this;
+//  }
+//
+//  void my_Account::deposit(double amount)
+//  {
+//      d_money += amount;
+//  }
+//
+//  void my_Account::withdraw(double amount)
+//  {
+//      d_money -= amount;
+//  }
+//
+//  // ACCESSORS
+//  double my_Account::balance() const
+//  {
+//      return d_money;
+//  }
+//..
 // Next, we use a 'bslmt::Mutex' object to render atomic the function calls of
 // a new thread-safe class that uses the thread-unsafe class in its
 // implementation.  Note the typical use of 'mutable' for the lock:
@@ -183,7 +218,7 @@ BSLS_IDENT("$Id: $")
 // The handle's atomic methods are used just as the corresponding methods in
 // 'my_Account':
 //..
-//  Account account;
+//  my_Account account;
 //  account.deposit(100.50);
 //  double paycheck = 50.25;
 //  my_SafeAccountHandle handle(&account);
