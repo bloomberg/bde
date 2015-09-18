@@ -61,96 +61,94 @@ BSLS_IDENT("$Id: $")
 // we use two mutexes (one for each counter) and in the second strategy
 // (strategy2), we use a single mutex for both counters.
 //..
-//    int oddCount = 0;
-//    int evenCount = 0;
+//  int oddCount = 0;
+//  int evenCount = 0;
 //
-//    typedef bslmt::MeteredMutex Obj;
-//    Obj oddMutex;
-//    Obj evenMutex;
-//    Obj globalMutex;
+//  typedef bslmt::MeteredMutex Obj;
+//  Obj oddMutex;
+//  Obj evenMutex;
+//  Obj globalMutex;
 //
-//    enum { k_NUM_THREADS = 4, k_SLEEP_TIME = 4 };
-//    bslmt::Barrier barrier(k_NUM_THREADS);
+//  enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 1 };
+//  bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 //
-//    void executeInParallel(int numThreads,
-//                           bslmt::ThreadUtil::ThreadFunction func)
-//       // Create the specified 'numThreads', each executing the
-//       // specified 'func'.  Number each thread (sequentially from 0
-//       // to 'numThreads-1') by passing i to i'th thread.  Finally
-//       // join all the threads.
-//    {
-//        bslmt::ThreadUtil::Handle *threads =
-//                           new bslmt::ThreadUtil::Handle[numThreads];
-//        ASSERT(threads);
+//  void executeInParallel(int                               numThreads,
+//                         bslmt::ThreadUtil::ThreadFunction func)
+//      // Create the specified 'numThreads', each executing the
+//      // specified 'func'.  Number each thread (sequentially from 0
+//      // to 'numThreads-1') by passing i to i'th thread.  Finally
+//      // join all the threads.
+//  {
+//      bslmt::ThreadUtil::Handle *threads =
+//                                   new bslmt::ThreadUtil::Handle[numThreads];
+//      assert(threads);
 //
-//        for (int i = 0; i < numThreads; ++i) {
-//            bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
-//        }
-//        for (int i = 0; i < numThreads; ++i) {
-//            bslmt::ThreadUtil::join(threads[i]);
-//        }
+//      for (int i = 0; i < numThreads; ++i) {
+//          bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
+//      }
+//      for (int i = 0; i < numThreads; ++i) {
+//          bslmt::ThreadUtil::join(threads[i]);
+//      }
 //
-//        delete [] threads;
-//    }
+//      delete [] threads;
+//  }
 //
-//    extern "C" {
+//  extern "C" {
 //      void *strategy1(void *arg)
-//        {
-//            barrier.wait();
-//            int remainder = (int)arg % 2;
-//            if (remainder == 1) {
-//                oddMutex.lock();
-//                ++oddCount;
-//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
-//                oddMutex.unlock();
-//            }
-//            else {
-//                evenMutex.lock();
-//                ++evenCount;
-//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
-//                evenMutex.unlock();
-//            }
-//            return NULL;
-//        }
-//    } //extern "C"
+//      {
+//          usageBarrier.wait();
+//          int remainder = (int)(bsls::Types::IntPtr)arg % 2;
+//          if (remainder == 1) {
+//              oddMutex.lock();
+//              ++oddCount;
+//              bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+//              oddMutex.unlock();
+//          }
+//          else {
+//              evenMutex.lock();
+//              ++evenCount;
+//              bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+//              evenMutex.unlock();
+//          }
+//          return NULL;
+//      }
+//  } // extern "C"
 //
-//    extern "C" {
-//        void *strategy2(void *arg)
-//        {
-//            barrier.wait();
-//            int remainder = (int)arg % 2;
-//            if (remainder == 1) {
-//                globalMutex.lock();
-//                ++oddCount;
-//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
-//                globalMutex.unlock();
-//            }
-//            else {
-//                globalMutex.lock();
-//                ++evenCount;
-//                bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
-//                globalMutex.unlock();
-//            }
-//            return NULL;
-//        }
-//    } //extern "C"
+//  extern "C" {
+//      void *strategy2(void *arg)
+//      {
+//          usageBarrier.wait();
+//          int remainder = (int)(bsls::Types::IntPtr)arg % 2;
+//          if (remainder == 1) {
+//              globalMutex.lock();
+//              ++oddCount;
+//              bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+//              globalMutex.unlock();
+//          }
+//          else {
+//              globalMutex.lock();
+//              ++evenCount;
+//              bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+//              globalMutex.unlock();
+//          }
+//          return NULL;
+//      }
+//  } // extern "C"
+//..
+// Then in the application 'main':
+//..
+//  executeInParallel(k_USAGE_NUM_THREADS, strategy1);
+//  bsls::Types::Int64 waitTimeForStrategy1 =
+//                                  oddMutex.waitTime() + evenMutex.waitTime();
 //
-//    int main()
-//    {
-//        executeInParallel(k_NUM_THREADS, strategy1);
-//        bsls::Types::Int64 waitTimeForStrategy1 =
-//                oddMutex.waitTime() + evenMutex.waitTime();
+//  executeInParallel(k_USAGE_NUM_THREADS, strategy2);
+//  bsls::Types::Int64 waitTimeForStrategy2 = globalMutex.waitTime();
 //
-//        executeInParallel(k_NUM_THREADS, strategy2);
-//        bsls::Types::Int64 waitTimeForStrategy2 =
-//                                 globalMutex.waitTime();
-//
-//        ASSERT(waitTimeForStrategy2 > waitTimeForStrategy1);
-//        if (veryVerbose) {
-//            P(waitTimeForStrategy1);
-//            P(waitTimeForStrategy2);
-//        }
-//    }
+//  assert(waitTimeForStrategy2 > waitTimeForStrategy1);
+//  if (veryVerbose) {
+//      P(waitTimeForStrategy1);
+//      P(waitTimeForStrategy2);
+//  }
 //..
 // We measured the wait times for each strategy.  Intuitively, the wait time
 // for the second strategy should be greater than that of the first.  The

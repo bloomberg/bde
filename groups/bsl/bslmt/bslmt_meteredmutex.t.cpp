@@ -1,10 +1,11 @@
 // bslmt_meteredmutex.t.cpp                                           -*-C++-*-
-
 #include <bslmt_meteredmutex.h>
 
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_barrier.h>     // for testing only
+
+#include <bslim_testutil.h>
 
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -48,45 +49,48 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //              GLOBAL TYPEDEFS/CONSTANTS/VARIABLES FOR TESTING
@@ -99,82 +103,94 @@ typedef bslmt::MeteredMutex Obj;
 const bsls::Types::Int64 NANOSECONDS_IN_ONE_MICRO_SECOND = 1000LL;
 bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
 
-//=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
-
-void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
-{
-    bslmt::ThreadUtil::Handle *threads =
-                               new bslmt::ThreadUtil::Handle[numThreads];
-    ASSERT(threads);
-
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
-    }
-    for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::join(threads[i]);
-    }
-
-    delete [] threads;
-}
-
 // ============================================================================
 //                          CASE 5 RELATED ENTITIES
 // ----------------------------------------------------------------------------
-int oddCount = 0;
-int evenCount = 0;
 
-Obj oddMutex;
-Obj evenMutex;
-Obj globalMutex;
+///Usage
+///-----
+// In the following example, we have 'NUM_THREADS' threads (that are
+// sequentially numbered from '0' to 'NUM_THREADS-1') and two counters
+// 'evenCount' and 'oddCount'.  'evenCount' is incremented by the even numbered
+// threads and 'oddCount' is incremented by the odd ones.  We considers two
+// strategies to increment these counters.  In the first strategy (strategy1),
+// we use two mutexes (one for each counter) and in the second strategy
+// (strategy2), we use a single mutex for both counters.
+//..
+    int oddCount = 0;
+    int evenCount = 0;
 
-enum { k_NUM_THREADS5 = 4, k_SLEEP_TIME5 = 1 };
-bslmt::Barrier barrier5(k_NUM_THREADS5);
+    typedef bslmt::MeteredMutex Obj;
+    Obj oddMutex;
+    Obj evenMutex;
+    Obj globalMutex;
 
-extern "C" {
-  void *strategy1(void *arg)
+    enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 1 };
+    bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
+
+    void executeInParallel(int                               numThreads,
+                           bslmt::ThreadUtil::ThreadFunction func)
+        // Create the specified 'numThreads', each executing the
+        // specified 'func'.  Number each thread (sequentially from 0
+        // to 'numThreads-1') by passing i to i'th thread.  Finally
+        // join all the threads.
     {
-        barrier5.wait();
-        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
-        if (remainder == 1) {
-            oddMutex.lock();
-            ++oddCount;
-            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
-            oddMutex.unlock();
-        }
-        else {
-            evenMutex.lock();
-            ++evenCount;
-            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
-            evenMutex.unlock();
-        }
-        return NULL;
-    }
-} //extern "C"
+        bslmt::ThreadUtil::Handle *threads =
+                                     new bslmt::ThreadUtil::Handle[numThreads];
+        ASSERT(threads);
 
-extern "C" {
-    void *strategy2(void *arg)
-    {
-        barrier5.wait();
-        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
-        if (remainder == 1) {
-            globalMutex.lock();
-            ++oddCount;
-            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
-            globalMutex.unlock();
+        for (int i = 0; i < numThreads; ++i) {
+            bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
         }
-        else {
-            globalMutex.lock();
-            ++evenCount;
-            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME5);
-            globalMutex.unlock();
+        for (int i = 0; i < numThreads; ++i) {
+            bslmt::ThreadUtil::join(threads[i]);
         }
-        return NULL;
+
+        delete [] threads;
     }
-} //extern "C"
+
+    extern "C" {
+        void *strategy1(void *arg)
+        {
+            usageBarrier.wait();
+            int remainder = (int)(bsls::Types::IntPtr)arg % 2;
+            if (remainder == 1) {
+                oddMutex.lock();
+                ++oddCount;
+                bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+                oddMutex.unlock();
+            }
+            else {
+                evenMutex.lock();
+                ++evenCount;
+                bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+                evenMutex.unlock();
+            }
+            return NULL;
+        }
+    } // extern "C"
+
+    extern "C" {
+        void *strategy2(void *arg)
+        {
+            usageBarrier.wait();
+            int remainder = (int)(bsls::Types::IntPtr)arg % 2;
+            if (remainder == 1) {
+                globalMutex.lock();
+                ++oddCount;
+                bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+                globalMutex.unlock();
+            }
+            else {
+                globalMutex.lock();
+                ++evenCount;
+                bslmt::ThreadUtil::microSleep(k_USAGE_SLEEP_TIME);
+                globalMutex.unlock();
+            }
+            return NULL;
+        }
+    } // extern "C"
+//..
 
 // ============================================================================
 //                          CASE 4 RELATED ENTITIES
@@ -302,19 +318,28 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-        executeInParallel(k_NUM_THREADS5, strategy1);
-        bsls::Types::Int64 waitTimeForStrategy1 = oddMutex.waitTime()
-                                                      + evenMutex.waitTime();
+// Then in the application 'main':
+//..
+    executeInParallel(k_USAGE_NUM_THREADS, strategy1);
+    bsls::Types::Int64 waitTimeForStrategy1 =
+                                    oddMutex.waitTime() + evenMutex.waitTime();
 
-        executeInParallel(k_NUM_THREADS5, strategy2);
-        bsls::Types::Int64 waitTimeForStrategy2 =
-                                 globalMutex.waitTime();
+    executeInParallel(k_USAGE_NUM_THREADS, strategy2);
+    bsls::Types::Int64 waitTimeForStrategy2 = globalMutex.waitTime();
 
-        if (veryVerbose) {
-            P(waitTimeForStrategy1);
-            P(waitTimeForStrategy2);
-        }
-
+    ASSERT(waitTimeForStrategy2 > waitTimeForStrategy1);
+    if (veryVerbose) {
+        P(waitTimeForStrategy1);
+        P(waitTimeForStrategy2);
+    }
+//..
+// We measured the wait times for each strategy.  Intuitively, the wait time
+// for the second strategy should be greater than that of the first.  The
+// output was consistent with our expectation.
+//..
+// waitTimeForStrategy1 = 400787000
+// waitTimeForStrategy2 = 880765000
+//..
       break;  }
       case 4: {
         // --------------------------------------------------------------------
