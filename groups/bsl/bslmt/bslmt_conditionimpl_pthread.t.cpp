@@ -5,6 +5,9 @@
 
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
+
+#include <bslim_testutil.h>
+
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
@@ -16,36 +19,55 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";   \
-                aSsErT(1, #X, __LINE__); } }
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J <<         \
-                        "\t" << #K << ": " << K << "\n";                      \
-                aSsErT(1, #X, __LINE__); } }
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o line feed.
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+///Usage
+///-----
+// This component is an implementation detail of 'bslmt' and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -72,7 +94,7 @@ struct PingPongArgs
 };
 
 enum {
-    PINGPONG_ITER = 200
+    k_PINGPONG_ITER = 200
 };
 
 extern "C" {
@@ -80,7 +102,7 @@ extern "C" {
 void* pingPong(void* argp) {
     PingPongArgs *arg = (PingPongArgs*)argp;
 
-    while (arg->d_count < PINGPONG_ITER) {
+    while (arg->d_count < k_PINGPONG_ITER) {
         arg->d_lock->lock();
         arg->d_cond->signal();
         ASSERT(0 == arg->d_cond->wait(arg->d_lock));
@@ -126,7 +148,7 @@ struct Case1 {
 };
 
 enum {
-    NUM_ITEMS = 1000
+    k_NUM_ITEMS = 1000
 };
 
 extern "C" void *producer(void *arg_p)
@@ -138,9 +160,9 @@ extern "C" void *producer(void *arg_p)
     my_WorkQueue *queue = arg->d_queue;
 
     // For simplicity, the external source is modeled by a for loop that
-    // generates NUM_ITEMS random numbers.
+    // generates k_NUM_ITEMS random numbers.
 
-    for (int i = 0; i < NUM_ITEMS; ++i) {
+    for (int i = 0; i < k_NUM_ITEMS; ++i) {
         my_WorkItem request;
         request.d_item = rand();
         queue->d_mx.lock();
@@ -207,7 +229,7 @@ extern "C" void *consumer(void *arg_p)
             finished = 1;
         }
     }
-    ASSERT(NUM_ITEMS == received);
+    ASSERT(k_NUM_ITEMS == received);
     if (verbose) {
         P(received);
     }
@@ -246,24 +268,24 @@ int main(int argc, char *argv[])
         My_CreateDetachedThread(&pingPong, &args1);
         My_CreateDetachedThread(&pingPong, &args2);
 
-        while (args1.d_count < PINGPONG_ITER-1 ||
-               args2.d_count < PINGPONG_ITER-1) {
+        while (args1.d_count < k_PINGPONG_ITER-1 ||
+               args2.d_count < k_PINGPONG_ITER-1) {
             My_Sleep(250);
         }
 
         // one of them is still waiting on the last 'pong'
-        if (args1.d_count == PINGPONG_ITER) {
-            ASSERT(args2.d_count == PINGPONG_ITER - 1);
+        if (args1.d_count == k_PINGPONG_ITER) {
+            ASSERT(args2.d_count == k_PINGPONG_ITER - 1);
             x.signal();
             My_Sleep(100);
-            ASSERT(args2.d_count == PINGPONG_ITER);
+            ASSERT(args2.d_count == k_PINGPONG_ITER);
         }
         else {
-            ASSERT(args1.d_count == PINGPONG_ITER-1);
-            ASSERT(args2.d_count == PINGPONG_ITER);
+            ASSERT(args1.d_count == k_PINGPONG_ITER-1);
+            ASSERT(args2.d_count == k_PINGPONG_ITER);
             x.signal();
             My_Sleep(100);
-            ASSERT(args1.d_count == PINGPONG_ITER);
+            ASSERT(args1.d_count == k_PINGPONG_ITER);
         }
     } break;
 

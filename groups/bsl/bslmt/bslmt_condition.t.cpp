@@ -3,10 +3,10 @@
 #include <bslmt_condition.h>
 
 #include <bslmt_mutex.h>
+
+#include <bslim_testutil.h>
+
 #include <bsls_atomic.h>
-
-#include <bsls_systemtime.h>
-
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 
@@ -17,36 +17,63 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";   \
-                aSsErT(1, #X, __LINE__); } }
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J <<         \
-                        "\t" << #K << ": " << K << "\n";                      \
-                aSsErT(1, #X, __LINE__); } }
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o line feed.
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+///Usage
+///-----
+// Suppose we have a 'bslmt::Condition' object, 'condition', and a boolean
+// predicate associated with 'condition' (represented here as a free function
+// that returns a 'bool' value):
+//..
+    bool predicate()
+        // Return 'true' if the invariant holds for 'condition', and 'false'
+        // otherwise.
+    {
+        return true;
+    }
+//..
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -70,6 +97,62 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 2: {
+// The following usage pattern should always be followed:
+//..
+      // ...
+
+      bslmt::Condition condition;
+      bslmt::Mutex     mutex;
+
+      mutex.lock();
+      while (false == predicate()) {
+          condition.wait(&mutex);
+      }
+
+      // Modify shared resources and adjust the predicate here.
+
+      mutex.unlock();
+
+      // ...
+//..
+// The usage pattern for a timed wait is similar, but has extra branches to
+// handle a timeout:
+//..
+      // ...
+
+      enum { e_TIMED_OUT = -1 };
+      bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
+
+      // Advance 'timeout' to some delta into the future here.
+
+      mutex.lock();
+      while (false == predicate()) {
+          const int status = condition.timedWait(&mutex, timeout);
+          if (e_TIMED_OUT == status) {
+              break;
+          }
+      }
+
+      if (false == predicate()) {
+          // The wait timed out and 'predicate' returned 'false'.  Perform
+          // timeout logic here.
+
+          // ...
+      }
+      else {
+          // The condition variable was either signaled or timed out and
+          // 'predicate' returned 'true'.  Modify shared resources and adjust
+          // predicate here.
+
+          // ...
+      }
+      mutex.unlock();
+
+      // ...
+//..
+      } break;
+      case 1: {
         // --------------------------------------------------------------------
         // TEST THAT THIS IS A CONDITION
         //
@@ -78,7 +161,6 @@ int main(int argc, char *argv[])
         // test that timedWait on a default-constructed Condition object
         // returns in roughly the right amount of time.
         // --------------------------------------------------------------------
-      case 1: {
           if (verbose) cout << "Basic forwarding test" << endl
                             << "=====================" << endl;
 

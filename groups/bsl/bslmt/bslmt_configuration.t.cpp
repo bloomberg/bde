@@ -3,6 +3,8 @@
 
 #include <bslmt_threadattributes.h>
 
+#include <bslim_testutil.h>
+
 #include <bsl_cstddef.h>  // 'size_t'
 #include <bsl_cstdlib.h>  // 'atoi()'
 #include <bsl_iostream.h>
@@ -30,45 +32,50 @@ using namespace bsl;  // automatically added by script
 // [3] defaultThreadStackSize
 // [3] Usage
 // [4] results constant across multiple calls
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -89,6 +96,53 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 5: {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to access both the platform's native and
+// BCE configured default stack sizes, and then to set the default stack size
+// used by BCE.  Note that the value returned by 'defaultThreadStackSize' may
+// be adjusted from that provided by the underlying operating system to reflect
+// the actual amount of stack memory available to a created thread.  For
+// example, on Itanium platforms (HPUX) the value will be scaled down from the
+// operating system supplied value to account for the extra stack space devoted
+// to storing registers.  Note that operations creating a thread should perform
+// a similar inverse adjustment when configuring the new thread's stack size
+// (see 'bslmt_threadutil').
+//
+// First, we examine the platform's native thread stack size:
+//..
+    const int nativeDefault =
+                          bslmt::Configuration::nativeDefaultThreadStackSize();
+
+    ASSERT(nativeDefault > 0);
+//..
+// Then, we verify that 'defaultThreadStackSize' is unset.
+//..
+    ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
+                               bslmt::Configuration::defaultThreadStackSize());
+//..
+// Next, we define 'newDefaultStackSize' to some size other than the platform's
+// native default stack size:
+//..
+    const int newDefaultStackSize = nativeDefault * 2;
+//..
+// Now, we set the default size for BCE to the new size:
+//..
+    bslmt::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
+//..
+// Finally, we verify that BCE's default thread stack size has been set to the
+// value we specified:
+//..
+    ASSERT(bslmt::Configuration::defaultThreadStackSize() ==
+                                                          newDefaultStackSize);
+    ASSERT(bslmt::Configuration::defaultThreadStackSize() != nativeDefault);
+//..
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // MULTIPLE CALLS YIELD SAME RESULT

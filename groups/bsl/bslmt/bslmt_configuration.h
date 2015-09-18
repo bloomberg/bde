@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we verify that 'defaultThreadStackSize' is unset.
 //..
-//  assert(bslmt::ThreadAttributes::BSLMT_UNSET_STACK_SIZE ==
+//  assert(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
 //                             bslmt::Configuration::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's

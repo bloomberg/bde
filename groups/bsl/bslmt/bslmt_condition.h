@@ -78,18 +78,19 @@ BSLS_IDENT("$Id: $")
 // predicate associated with 'condition' (represented here as a free function
 // that returns a 'bool' value):
 //..
-//  bslmt::Condition condition;
-//
 //  bool predicate()
 //      // Return 'true' if the invariant holds for 'condition', and 'false'
 //      // otherwise.
 //  {
-//      // ...
+//      return true;
 //  }
 //..
 // The following usage pattern should always be followed:
 //..
 //    // ...
+//
+//    bslmt::Condition condition;
+//    bslmt::Mutex     mutex;
 //
 //    mutex.lock();
 //    while (false == predicate()) {
