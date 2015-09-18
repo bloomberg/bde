@@ -21,7 +21,7 @@ namespace BloombergLP {
 
 BSLMF_ASSERT(sizeof(CRITICAL_SECTION) ==
              sizeof(void *) * bslmt::MutexImpl<bslmt::Platform::Win32Threads>::
-                                                 CRITICAL_SECTION_BUFFER_SIZE);
+                                               k_CRITICAL_SECTION_BUFFER_SIZE);
 
 }  // close enterprise namespace
 

@@ -84,17 +84,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 extern "C" {
-    typedef void *(*ThreadFunction)(void *);
-        // 'ThreadFunction' is an alias for a function type taking a single
-        // 'void' pointer argument and returning 'void *'.  Such functions are
-        // suitable to be specified as thread entry point functions to
-        // 'bslmt::ThreadUtil::create'.
+    typedef void *(*bslmt_ThreadFunction)(void *);
+        // 'bslmt_ThreadFunction' is an alias for a function type taking a
+        // single 'void' pointer argument and returning 'void *'.  Such
+        // functions are suitable to be specified as thread entry point
+        // functions to 'bslmt::ThreadUtil::create'.
 
-    typedef void (*KeyDestructorFunction)(void *);
-        // 'KeyDestructorFunction' is an alias for a function type taking a
-        // single 'void' pointer argument and returning 'void'.  Such functions
-        // are suitable to be specified as thread-specific key destructor
-        // functions to 'bslmt::ThreadUtil::createKey'.
+    typedef void (*bslmt_KeyDestructorFunction)(void *);
+        // 'bslmt_KeyDestructorFunction' is an alias for a function type taking
+        // a single 'void' pointer argument and returning 'void'.  Such
+        // functions are suitable to be specified as thread-specific key
+        // destructor functions to 'bslmt::ThreadUtil::createKey'.
 }
 
 namespace bslmt {
@@ -125,7 +125,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
     static int create(Handle                  *thread,
                       const ThreadAttributes&  attributes,
-                      ThreadFunction     function,
+                      bslmt_ThreadFunction     function,
                       void                    *userData);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' with a single
@@ -141,7 +141,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // identifier.
 
     static int create(Handle               *thread,
-                      ThreadFunction  function,
+                      bslmt_ThreadFunction  function,
                       void                 *userData);
         // Create a new thread of program control having platform specific
         // default attributes (i.e., "stack size", "scheduling priority"), that
@@ -321,7 +321,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
-    static int createKey(Key *key, KeyDestructorFunction destructor);
+    static int createKey(Key *key, bslmt_KeyDestructorFunction destructor);
         // Load, into the specified 'key', an identifier that can be used to
         // store ('setSpecific') and retrieve ('getSpecific') a single
         // thread-specific pointer value.  Associate with the identifier, the
@@ -360,9 +360,9 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
                           // *** Thread Management ***
 inline
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
-                                                      Handle         *handle,
-                                                      ThreadFunction  function,
-                                                      void           *userData)
+                                                Handle               *handle,
+                                                bslmt_ThreadFunction  function,
+                                                void                 *userData)
 {
     ThreadAttributes attr;
     return create(handle, attr, function, userData);
@@ -492,8 +492,8 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
 
 inline
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::createKey(
-                                             Key                   *key,
-                                             KeyDestructorFunction  destructor)
+                                       Key                         *key,
+                                       bslmt_KeyDestructorFunction  destructor)
 {
     return pthread_key_create(key,destructor);
 }

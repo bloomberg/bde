@@ -116,17 +116,17 @@ extern "C" {
 namespace BloombergLP {
 
 extern "C" {
-    typedef void *(*ThreadFunction)(void *);
-        // 'ThreadFunction' is an alias for a function type taking a single
-        // 'void' pointer argument and returning 'void *'.  Such functions are
-        // suitable to be specified as thread entry point functions to
-        // 'bslmt::ThreadUtil::create'.
+    typedef void *(*bslmt_ThreadFunction)(void *);
+        // 'bslmt_ThreadFunction' is an alias for a function type taking a
+        // single 'void' pointer argument and returning 'void *'.  Such
+        // functions are suitable to be specified as thread entry point
+        // functions to 'bslmt::ThreadUtil::create'.
 
-    typedef void (*KeyDestructorFunction)(void *);
-        // 'KeyDestructorFunction' is an alias for a function type taking a
-        // single 'void' pointer argument and returning 'void'.  Such functions
-        // are suitable to be specified as thread-specific key destructor
-        // functions to 'bslmt::ThreadUtil::createKey'.
+    typedef void (*bslmt_KeyDestructorFunction)(void *);
+        // 'bslmt_KeyDestructorFunction' is an alias for a function type taking
+        // a single 'void' pointer argument and returning 'void'.  Such
+        // functions are suitable to be specified as thread-specific key
+        // destructor functions to 'bslmt::ThreadUtil::createKey'.
 }
 
 namespace bslmt {
@@ -169,7 +169,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
 
     static int create(Handle                  *thread,
                       const ThreadAttributes&  attribute,
-                      ThreadFunction           function,
+                      bslmt_ThreadFunction     function,
                       void                    *userData);
         // Create a new thread of program control having the attributes
         // specified by 'attribute', that invokes the specified 'function' with
@@ -182,9 +182,9 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // 'join' must be made once the thread terminates to reclaim any system
         // resources associated with the newly created identifier.
 
-    static int create(Handle         *thread,
-                      ThreadFunction  function,
-                      void           *userData);
+    static int create(Handle               *thread,
+                      bslmt_ThreadFunction  function,
+                      void                 *userData);
         // Create a new thread of program control having platform specific
         // default attributes(i.e., "stack size", "scheduling priority"), that
         // invokes the specified 'function' with a single argument specified by
@@ -330,7 +330,7 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // Return 'true' if the specified 'a' and 'b' thread id identify the
         // same thread and 'false' otherwise.
 
-    static int createKey(Key *key, KeyDestructorFunction destructor);
+    static int createKey(Key *key, bslmt_KeyDestructorFunction destructor);
         // Store into the specified 'key', an identifier that can be used to
         // associate('setSpecific') and retrieve('getSpecific') a single
         // thread-specific pointer value.  Associated with the identifier,the

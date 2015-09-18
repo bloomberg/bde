@@ -203,7 +203,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::INVALID_HANDLE =
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
                                             Handle                  *handle,
                                             const ThreadAttributes&  attribute,
-                                            ThreadFunction           function,
+                                            bslmt_ThreadFunction     function,
                                             void                    *userData)
 {
     int rc;

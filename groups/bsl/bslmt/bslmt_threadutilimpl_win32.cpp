@@ -81,7 +81,7 @@ struct ThreadStartupInfo {
     // function.
 
     bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle  d_handle;
-    ThreadFunction                                          d_function;
+    bslmt_ThreadFunction                                          d_function;
     void                                                         *d_threadArg;
     ThreadStartupInfo                                            *d_next;
 };
@@ -182,7 +182,7 @@ static void bslmt_threadutil_win32_Deinitialize()
     // prevents static objects from inadvertently re-initializing
     // re-initializing the environment when they are destroyed.
 {
-    if (InterlockedExchange(&s_initializationState, DEe_INITIALIZED)
+    if (InterlockedExchange(&s_initializationState, e_DEINITIALIZED)
                                                             != e_INITIALIZED) {
         return;                                                       // RETURN
     }
@@ -326,9 +326,9 @@ static unsigned _stdcall ThreadEntry(void *arg)
 
 // CLASS METHODS
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
-                                                      Handle         *thread,
-                                                      ThreadFunction  function,
-                                                      void           *userData)
+                                                Handle               *thread,
+                                                bslmt_ThreadFunction  function,
+                                                void                 *userData)
 {
     ThreadAttributes attribute;
     return create(thread, attribute, function, userData);
@@ -337,7 +337,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                             Handle                  *handle,
                                             const ThreadAttributes&  attribute,
-                                            ThreadFunction           function,
+                                            bslmt_ThreadFunction     function,
                                             void                    *userData)
 {
     if (bslmt_threadutil_win32_Initialize()) {
