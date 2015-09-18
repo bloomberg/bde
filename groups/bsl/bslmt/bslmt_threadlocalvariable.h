@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to declare a thread-local variable.
 //
 //@CLASSES:
-//   BCES_THREAD_LOCAL_VARIABLE: macro to declare a thread-local variable
+//   BSLMT_THREAD_LOCAL_VARIABLE: macro to declare a thread-local variable
 //
 //@SEE_ALSO:
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // location for all threads within a process, a thread-local static variable
 // has a different memory location for each thread in the process:
 //..
-//  BCES_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE)
+//  BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE)
 //      Declare, at function or namespace scope, a thread-local 'static'
 //      variable having the specified 'VARIABLE_NAME' of the specified
 //      'BASIC_TYPE' in the current context and initialize it with the
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //      except that the declared variable, 'VARIABLE_NAME', refers to a
 //      different memory location for each thread in the process.
 //..
-// Note that, 'BCES_THREAD_LOCAL_VARIABLE' should *not* be instantiated at
+// Note that, 'BSLMT_THREAD_LOCAL_VARIABLE' should *not* be instantiated at
 // class scope.
 //
 ///Platform Notes
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  const RequestContext *&RequestProcessor::contextReference()
 //  {
-//      BCES_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
+//      BSLMT_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
 //      return context;
 //  }
 //
@@ -214,8 +214,8 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
  || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
-#define BCES_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME,  INITIAL_VALUE) \
-static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
+#define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
+static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // This macro should *not* be used by clients outside of the 'bce'
     // package-group at this time.
     //
@@ -240,7 +240,7 @@ static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
  || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
-#define BCES_THREAD_LOCAL_KEYWORD __thread
+#define BSLMT_THREAD_LOCAL_KEYWORD __thread
 #endif
 
 #endif

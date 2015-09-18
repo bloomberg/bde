@@ -27,17 +27,17 @@ using bsl::flush;
 //                                 Overview
 //                                 --------
 // The 'bslmt_threadlocalvariable' component defines a macro
-// 'BCES_THREAD_LOCAL_VARIABLE' that declares a thread local variable.  The
+// 'BSLMT_THREAD_LOCAL_VARIABLE' that declares a thread local variable.  The
 // tests verify that the variable is static (i.e., it has the same address on
 // every invocation on the same thread), that it is thread-local (i.e., it has
 // a different address for very thread), that it is initialized correctly with
 // the supplied 'INITIAL_VALUE', and that it can be created for any pointer
 // type.
 //-----------------------------------------------------------------------------
-// [ 5] BCES_DECLARE_THREAD_LOCAL_VARIABLE: data types test
-// [ 4] BCES_DECLARE_THREAD_LOCAL_VARIABLE: initial value test
-// [ 3] BCES_DECLARE_THREAD_LOCAL_VARIABLE: global scope test
-// [ 2] BCES_DECLARE_THREAD_LOCAL_VARIABLE: function scope static test
+// [ 5] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: data types test
+// [ 4] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: initial value test
+// [ 3] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: global scope test
+// [ 2] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: function scope static test
 //-----------------------------------------------------------------------------
 // [ 1] Helper Test: 'my_Barrier'
 // [ 6] Usage examples
@@ -434,18 +434,18 @@ void my_Barrier::wait()
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
  || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
-#ifndef BCES_THREAD_LOCAL_VARIABLE
-#error "'BCES_THREAD_LOCAL_VARIABLE' macro undefined for a supported platform"
+#ifndef BSLMT_THREAD_LOCAL_VARIABLE
+#error "'BSLMT_THREAD_LOCAL_VARIABLE' macro undefined for a supported platform"
 #endif
 #else  // unsupported platform
-#ifdef BCES_THREAD_LOCAL_VARIABLE
-#error "'BCES_THREAD_LOCAL_VARIABLE' macro defined for an unsupported platform"
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
+#error "'BSLMT_THREAD_LOCAL_VARIABLE' macro defined for an unsupported platform"
 #endif
 #endif
 
 // If the macro is not define (i.e., this is an unsupported platform) disable
 // all the tests.
-#ifndef BCES_THREAD_LOCAL_VARIABLE
+#ifndef BSLMT_THREAD_LOCAL_VARIABLE
 #define DISABLE_TEST
 #endif
 
@@ -517,7 +517,7 @@ void functionScopeAddressTestDelegate(int    threadId,
                                       void **address,
                                       void  *expectedValue)
 {
-    BCES_THREAD_LOCAL_VARIABLE(void *, variable, 0);
+    BSLMT_THREAD_LOCAL_VARIABLE(void *, variable, 0);
     ASSERT(variable == expectedValue);
 
     *address = &variable;
@@ -551,7 +551,7 @@ extern "C" void *functionScopeAddressTest(void *voidArgs)
 
 // --------------------  GLOBAL SCOPED ADDRESS TEST  --------------------------
 
-BCES_THREAD_LOCAL_VARIABLE(void *, g_testVariable, 0);
+BSLMT_THREAD_LOCAL_VARIABLE(void *, g_testVariable, 0);
 
 extern "C" void *globalScopeAddressTest(void *voidArgs)
 {
@@ -588,9 +588,9 @@ extern "C" void *initialValueTest(void *voidArgs)
 
     args->d_barrier->wait();
 
-    BCES_THREAD_LOCAL_VARIABLE(void *, nullAddress, 0);
-    BCES_THREAD_LOCAL_VARIABLE(void *, tenAddress,  (void *)10);
-    BCES_THREAD_LOCAL_VARIABLE(void *, deadAddress, (void *)0xdead);
+    BSLMT_THREAD_LOCAL_VARIABLE(void *, nullAddress, 0);
+    BSLMT_THREAD_LOCAL_VARIABLE(void *, tenAddress,  (void *)10);
+    BSLMT_THREAD_LOCAL_VARIABLE(void *, deadAddress, (void *)0xdead);
 
     ASSERT(0              == nullAddress);
     ASSERT((void *)10     == tenAddress);
@@ -607,7 +607,7 @@ struct TypesThreadArgs {
 };
 
 #define VERIFY_BASIC_TYPE(TYPE, ID) {                                         \
-    BCES_THREAD_LOCAL_VARIABLE(TYPE, testValue, (TYPE)0xaa);                  \
+    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, (TYPE)0xaa);                  \
     ASSERT((TYPE)0xaa == testValue);                                          \
     TYPE value = testValue;                                                   \
     ASSERT(value == (TYPE)0xaa);                                              \
@@ -616,7 +616,7 @@ struct TypesThreadArgs {
 }
 
 #define VERIFY_STRUCT_TYPE(TYPE, VALUE) {                                     \
-    BCES_THREAD_LOCAL_VARIABLE(TYPE, testValue, VALUE);                       \
+    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, VALUE);                       \
     ASSERT(VALUE == testValue);                                               \
 }
 
@@ -728,7 +728,7 @@ extern "C" void *typesTest(void *voidArgs)
 //..
     const RequestContext *&RequestProcessor::contextReference()
     {
-        BCES_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
+        BSLMT_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
         return context;
     }
 
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
         // TEST TYPES
         //
         // Concerns:
-        //    That 'BCES_THREAD_LOCAL_VARIABLE' creates variables of the
+        //    That 'BSLMT_THREAD_LOCAL_VARIABLE' creates variables of the
         //    correct type.
         //
         // Plan:
@@ -880,7 +880,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //    That a variable declared with
-        //    'BCES_THREAD_LOCAL_VARIABLE'
+        //    'BSLMT_THREAD_LOCAL_VARIABLE'
         //    is initialized with the specified 'INITIAL_VALUE'
         //
         // Plan:
@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
         // TEST GLOBAL VARIABLE ADDRESS
         //
         // Concerns:
-        //    That the 'BCES_THREAD_LOCAL_VARIABLE' macro declares a
+        //    That the 'BSLMT_THREAD_LOCAL_VARIABLE' macro declares a
         //    static global address that is different for each thread.
         //
         // Plan:
@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
         // TEST FUNCTION SCOPE VARIABLE ADDRESS
         //
         // Concerns:
-        //    That the 'BCES_THREAD_LOCAL_VARIABLE' macro declares a
+        //    That the 'BSLMT_THREAD_LOCAL_VARIABLE' macro declares a
         //    static function scoped address that is different for each thread.
         //
         // Plan:

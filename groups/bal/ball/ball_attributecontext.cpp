@@ -139,8 +139,8 @@ namespace {
 // Note that the memory will still be managed by 'bslmt::ThreadUtil' thread
 // specific storage.
 
-#ifdef BCES_THREAD_LOCAL_VARIABLE
-BCES_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
+BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 #endif
 
 }  // close unnamed namespace
@@ -178,7 +178,7 @@ const bslmt::ThreadUtil::Key& AttributeContext::contextKey()
 
 void AttributeContext::removeContext(void *arg)
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
         g_threadLocalContext = 0;
 #endif
 
@@ -213,7 +213,7 @@ AttributeContext::initialize(CategoryManager  *categoryManager,
 
 AttributeContext *AttributeContext::lookupContext()
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
     return g_threadLocalContext;
 #else
     return (AttributeContext*) bslmt::ThreadUtil::getSpecific(contextKey());
@@ -222,7 +222,7 @@ AttributeContext *AttributeContext::lookupContext()
 
 AttributeContext *AttributeContext::getContext()
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
     if (g_threadLocalContext) {
         return g_threadLocalContext;                                  // RETURN
     }

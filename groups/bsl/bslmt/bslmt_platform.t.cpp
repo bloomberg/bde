@@ -110,13 +110,13 @@ int main(int argc, char *argv[]) {
 
             #if defined(BSLMT_PLATFORM_POSIX_THREADS)
                 ASSERT(0 <= BSLMT_PLATFORM_POSIX_THREADS);
-                cout  << "\tBCES_PLATFORM_POSIX_THREADS = "
+                cout  << "\tBSLMT_PLATFORM_POSIX_THREADS = "
                       <<    BSLMT_PLATFORM_POSIX_THREADS << endl;
             #endif
 
             #if defined(BSLMT_PLATFORM_WIN32_THREADS)
                 ASSERT(0 <= BSLMT_PLATFORM_WIN32_THREADS);
-                cout  << "\tBCES_PLATFORM_WIN32_THREADS = "
+                cout  << "\tBSLMT_PLATFORM_WIN32_THREADS = "
                       <<    BSLMT_PLATFORM_WIN32_THREADS << endl;
             #endif
 

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a container for managing a group of threads
+//@PURPOSE: Provide a container for managing a group of threads.
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
@@ -88,6 +88,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
 #endif
@@ -139,8 +143,8 @@ class ThreadGroup {
 
     // PRIVATE MANIPULATORS
     void addThread(const ThreadUtil::Handle& handle);
-       // Add the specified 'handle' to the 'd_threads' container.  If an
-       // exception is thrown, 'handle' will be released.
+        // Add the specified 'handle' to the 'd_threads' container.  If an
+        // exception is thrown, 'handle' will be released.
 
   private:
     // not implemented
@@ -164,9 +168,9 @@ class ThreadGroup {
         // independently, and will no longer be joinable.
 
     // MANIPULATORS
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     int addThread(const INVOKABLE& functor);
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     int addThread(const INVOKABLE&        functor,
                   const ThreadAttributes& attributes);
         // Begin executing the specified invokable 'functor' in a new thread,
@@ -176,9 +180,9 @@ class ThreadGroup {
         // 'void operator()()'.  Note that threads are always created joinable,
         // regardless of the mode specified in 'attributes'.
 
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     int addThreads(const INVOKABLE& functor, int numThreads);
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     int addThreads(const INVOKABLE&        functor,
                    int                     numThreads,
                    const ThreadAttributes& attributes);
@@ -211,21 +215,21 @@ class ThreadGroup {
                             // -----------------
 
 // MANIPULATORS
-template<typename INVOKABLE>
+template<class INVOKABLE>
 inline
 int bslmt::ThreadGroup::addThread(const INVOKABLE& functor)
 {
     return addThread(functor, ThreadAttributes());
 }
 
-template<typename INVOKABLE>
+template<class INVOKABLE>
 inline
 int bslmt::ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
 
-template<typename INVOKABLE>
+template<class INVOKABLE>
 int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
                                   const ThreadAttributes& attributes)
 {
@@ -247,7 +251,7 @@ int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
     return rc;
 }
 
-template<typename INVOKABLE>
+template<class INVOKABLE>
 int bslmt::ThreadGroup::addThreads(const INVOKABLE&        functor,
                                    int                     numThreads,
                                    const ThreadAttributes& attributes)

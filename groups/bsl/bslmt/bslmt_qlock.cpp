@@ -19,10 +19,10 @@ using namespace BloombergLP;
 
 typedef bslmt::Semaphore *SemaphorePtr;
 
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
 // The thread-local variable that caches a thread-specific semaphore used by
 // the 'setFlag' and 'waitOnFlag' methods.
-BCES_THREAD_LOCAL_VARIABLE(SemaphorePtr, s_semaphore, 0)
+BSLMT_THREAD_LOCAL_VARIABLE(SemaphorePtr, s_semaphore, 0)
 #endif
 
 typedef bslmt::ThreadUtil::Key TlsKey;
@@ -156,7 +156,7 @@ TlsKey *getSemaphoreTLSKey()
 SemaphorePtr getSemaphoreForCurrentThread()
     // Return the address of the semaphore unique to the calling thread.
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
     // Use a thread local variable if it's supported directly.
 
     if (!s_semaphore) {

@@ -291,6 +291,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -420,7 +424,7 @@ public:
         // failure to specify a stack size, either through a 'ThreadAttributes'
         // object or through 'Configuration', can lead to non-portable code.
 
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
                       const INVOKABLE&         function,
@@ -429,24 +433,24 @@ public:
         // 'attributes' that invokes the specified 'function' object, and load
         // into the specified 'handle' an identifier that may be used to refer
         // to this thread in calls to other 'ThreadUtil' methods.  Use the
-        // specified 'allocator' to create a copy of 'function' to be used by
-        // the thread.  If no 'allocator' is specified, the global allocator is
-        // used'.  Return 0 on success and a non-zero value otherwise.  The
-        // behavior is undefined unless 'handle != 0', unless 'allocator' is
-        // thread-safe, and unless 'attributes.stackSize' is either greater
-        // than 0 or unset.  'INVOKABLE' shall be a copy-constructible type
-        // having the equivalent of 'void operator()()'.  Note that unless
-        // explicitly "detached" (by invoking 'detach(*handle)') or the
-        // 'BSLMT_CREATE_DETACHED' attribute is specified, a call to 'join'
-        // must be made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the lifetime of 'allocator',
-        // if specified, must exceed the lifetime of the thread.  Also note
-        // that the platform-specific values of default thread stack size vary
-        // wildly between platforms; failure to specify a stack size, either
-        // through 'attributes' or 'Configuration', can lead to non-portable
-        // code.
+        // optionally specified 'allocator' to create a copy of 'function' to
+        // be used by the thread.  If no 'allocator' is specified, the global
+        // allocator is used'.  Return 0 on success and a non-zero value
+        // otherwise.  The behavior is undefined unless 'handle != 0', unless
+        // 'allocator' is thread-safe, and unless 'attributes.stackSize' is
+        // either greater than 0 or unset.  'INVOKABLE' shall be a
+        // copy-constructible type having the equivalent of
+        // 'void operator()()'.  Note that unless explicitly "detached" (by
+        // invoking 'detach(*handle)') or the 'BSLMT_CREATE_DETACHED' attribute
+        // is specified, a call to 'join' must be made to reclaim any system
+        // resources associated with the newly-created thread.  Also note that
+        // the lifetime of 'allocator', if specified, must exceed the lifetime
+        // of the thread.  Also note that the platform-specific values of
+        // default thread stack size vary wildly between platforms; failure to
+        // specify a stack size, either through 'attributes' or
+        // 'Configuration', can lead to non-portable code.
 
-    template <typename INVOKABLE>
+    template <class INVOKABLE>
     static int create(Handle           *handle,
                       const INVOKABLE&  function,
                       bslma::Allocator *allocator = 0);
@@ -455,11 +459,11 @@ public:
         // 'Configuration' or platform-specific default attributes that invokes
         // the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
-        // calls to other 'ThreadUtil' methods.  Use the specified 'allocator'
-        // to create a copy of 'function' to be used by the thread.  If no
-        // 'allocator' is specified, the global allocator is used'.  Return 0
-        // on success, and a non-zero value otherwise.  The behavior is
-        // undefined unless 'handle != 0' and unless 'allocator' is
+        // calls to other 'ThreadUtil' methods.  Use the optionally specified
+        // 'allocator' to create a copy of 'function' to be used by the thread.
+        // If no 'allocator' is specified, the global allocator is used'.
+        // Return 0 on success, and a non-zero value otherwise.  The behavior
+        // is undefined unless 'handle != 0' and unless 'allocator' is
         // thread-safe.  'INVOKABLE' shall be a copy-constructible type having
         // the equivalent of 'void operator()()'.  Note that unless explicitly
         // "detached" (by invoking 'detach(*handle)'), a call to 'join' must be
@@ -488,30 +492,30 @@ public:
 
     static int getMinSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
-        // Return the minimum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::e_UNSET_PRIORITY' if the minimum scheduling
-        // priority cannot be determined.  Note that, for some platform /
-        // policy combinations, 'getMinSchedulingPriority(policy)' and
-        // 'getMaxSchedulingPriority(policy)' return the same value.
+        // Return the minimum available priority for the specified 'policy',
+        // where 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
+        // Return 'ThreadAttributes::e_UNSET_PRIORITY' if the minimum
+        // scheduling priority cannot be determined.  Note that, for some
+        // platform / policy combinations, 'getMinSchedulingPriority(policy)'
+        // and 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
                                     ThreadAttributes::SchedulingPolicy policy);
-        // Return the maximum available priority for the 'policy', where
-        // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.  Return
-        // 'ThreadAttributes::e_UNSET_PRIORITY' if the maximum scheduling
-        // priority cannot be determined.  Note that, for some platform /
-        // policy combinations, 'getMinSchedulingPriority(policy)' and
-        // 'getMaxSchedulingPriority(policy)' return the same value.
+        // Return the maximum available priority for the specified 'policy',
+        // where 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
+        // Return 'ThreadAttributes::e_UNSET_PRIORITY' if the maximum
+        // scheduling priority cannot be determined.  Note that, for some
+        // platform / policy combinations, 'getMinSchedulingPriority(policy)'
+        // and 'getMaxSchedulingPriority(policy)' return the same value.
 
-    static int join(Handle& handle, void **status = 0);
+    static int join(Handle& threadHandle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
-        // by the specified 'handle' terminates, and reclaim any system
-        // resources associated with 'handle'.  If the specified 'status' is
-        // not 0, load into '*status' the value returned by the function
-        // supplied at the creation of the thread identified by 'handle'.  The
-        // behavior is undefined unless 'handle' was obtained by a call to
-        // 'create'.
+        // by the specified 'threadHandle' terminates, and reclaim any system
+        // resources associated with 'threadHandle'.  If the optionally
+        // specified 'status' is not 0, load into '*status' the value returned
+        // by the function supplied at the creation of the thread identified by
+        // 'threadHandle'.  The behavior is undefined unless 'threadHandle' was
+        // obtained by a call to 'create'.
 
     static void microSleep(int microseconds, int seconds = 0);
         // Suspend execution of the current thread for a period of at least the
@@ -520,9 +524,9 @@ public:
         // many factors including system scheduling and system timer
         // resolution, and may be significantly longer than the time requested.
 
-    static void sleep(const bsls::TimeInterval& time);
+    static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
-        // specified 'time' (relative time).  Note that the actual time
+        // specified 'sleepTime' (relative time).  Note that the actual time
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
 
@@ -708,7 +712,7 @@ int bslmt::ThreadUtil::create(Handle         *handle,
     return Imp::create(handle, function, userData);
 }
 
-template <typename INVOKABLE>
+template <class INVOKABLE>
 inline
 int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
@@ -728,7 +732,7 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
     return rc;
 }
 
-template <typename INVOKABLE>
+template <class INVOKABLE>
 inline
 int bslmt::ThreadUtil::create(Handle           *handle,
                               const INVOKABLE&  function,
@@ -774,9 +778,9 @@ int bslmt::ThreadUtil::getMaxSchedulingPriority(
 }
 
 inline
-int bslmt::ThreadUtil::join(Handle& thread, void **status)
+int bslmt::ThreadUtil::join(Handle& threadHandle, void **status)
 {
-    return Imp::join(thread, status);
+    return Imp::join(threadHandle, status);
 }
 
 inline
@@ -827,21 +831,21 @@ bool bslmt::ThreadUtil::areEqualId(const Id& a, const Id& b)
 }
 
 inline
-bslmt::ThreadUtil::Id bslmt::ThreadUtil::handleToId(const Handle& handle)
+bslmt::ThreadUtil::Id bslmt::ThreadUtil::handleToId(const Handle& threadHandle)
 {
-    return Imp::handleToId(handle);
+    return Imp::handleToId(threadHandle);
 }
 
 inline
-bsls::Types::Uint64 bslmt::ThreadUtil::idAsUint64(const Id& id)
+bsls::Types::Uint64 bslmt::ThreadUtil::idAsUint64(const Id& threadId)
 {
-    return Imp::idAsUint64(id);
+    return Imp::idAsUint64(threadId);
 }
 
 inline
-int bslmt::ThreadUtil::idAsInt(const Id& id)
+int bslmt::ThreadUtil::idAsInt(const Id& threadId)
 {
-    return Imp::idAsInt(id);
+    return Imp::idAsInt(threadId);
 }
 
 inline
