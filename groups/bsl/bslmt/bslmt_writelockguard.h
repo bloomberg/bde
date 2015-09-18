@@ -12,18 +12,19 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmt::WriteLockGuard: automatic locking-unlocking for write access
 //  bslmt::WriteLockGuardUnlock: automatic unlocking-locking for write access
-//  bslmt::WriteLockGuardTryLock: automatic non-blocking locking-unlocking for
-//                               write access
-// bslmt::LockWriteGuard: DEPRECATED
+//  bslmt::WriteLockGuardTryLock: automatic non-blocking locking-unlocking
+//  bslmt::LockWriteGuard: DEPRECATED
 //
 //@SEE_ALSO: bslmt_lockguard, bslmt_readlockguard, bslmt_rwmutex
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides generic proctors to automatically lock
-// and unlock an external synchronization object for writing.  The
-// synchronization object can be any type (e.g., 'bslmt::ReaderWriterLock')
-// that provides the following methods:
+//@DESCRIPTION: This component provides generic proctors,
+// 'bslmt::WriteLockGuard', 'bslmt::WriteLockGuardUnlock',
+// 'bslmt::WriteLockGuardTryLock', and 'bslmt::LockWriteGuard', to
+// automatically lock and unlock an external synchronization object for
+// writing.  The synchronization object can be any type (e.g.,
+// 'bslmt::ReaderWriterLock') that provides the following methods:
 //..
 //  void lockWrite();
 //  void unlock();
@@ -316,11 +317,11 @@ class WriteLockGuardTryLock {
     explicit WriteLockGuardTryLock(T *lock, int attempts = 1);
         // Create a proctor object that conditionally manages the specified
         // 'lock' (if non-zero), and invokes the 'tryLockWrite' method on
-        // 'lock' until the lock is acquired, or until up to the specified
-        // 'attempts' have been made to acquire the lock.  The behavior is
-        // undefined unless '0 < attempts'.  Note that 'lock' must remain valid
-        // throughout the lifetime of this proctor, or until 'release' is
-        // called.
+        // 'lock' until the lock is acquired, or until up to the optionally
+        // specified 'attempts' have been made to acquire the lock.  The
+        // behavior is undefined unless '0 < attempts'.  Note that 'lock' must
+        // remain valid throughout the lifetime of this proctor, or until
+        // 'release' is called.
 
     ~WriteLockGuardTryLock();
         // Destroy this proctor object and invoke the 'unlock' method on the
@@ -364,10 +365,10 @@ bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
+bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preLocked) {
+    if (d_lock_p && !preLockedFlag) {
         d_lock_p->lockWrite();
     }
 }
@@ -417,10 +418,11 @@ bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock, int preUnlocked)
+bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T   *lock,
+                                                     int  preUnlockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preUnlocked) {
+    if (d_lock_p && !preUnlockedFlag) {
         d_lock_p->unlock();
     }
 }
@@ -512,8 +514,8 @@ bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLocked)
-: WriteLockGuard<T>(lock, preLocked)
+bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLockedFlag)
+: WriteLockGuard<T>(lock, preLockedFlag)
 {
 }
 

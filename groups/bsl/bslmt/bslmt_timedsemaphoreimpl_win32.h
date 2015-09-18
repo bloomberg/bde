@@ -17,7 +17,9 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::TimedSemaphore' for Windows (win32) via the template specialization:
+// 'bslmt::TimedSemaphore' for Windows (win32),
+// 'bslmt::TimedSemaphoreImpl<Win32TimedSemaphore>', via the template
+// specialization:
 //..
 //  bslmt::TimedSemaphoreImpl<Platform::Win32Threads>
 //..

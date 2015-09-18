@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::TimedSemaphore' for POSIX threads ("pthreads") via the template
-// specialization:
+// 'bslmt::TimedSemaphore', 'bslmt::TimedSemaphoreImpl<PthreadTimedSemaphore>',
+// for POSIX threads ("pthreads") via the template specialization:
 //..
 //  bslmt::TimedSemaphoreImpl<Platform::PosixThreads>
 //..
@@ -107,9 +107,10 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
         // Block until the count of this semaphore is potentially a positive
         // value, or until the specified 'timeout' expires.  The 'timeout' is
         // an absolute time represented as an interval from some epoch, which
-        // is detemined by the clock indicated at construction (see {'Supported
-        // Clock-Types'} in the component documentation).  Return 0 if the
-        // 'timeout' did not expire, -1 if a timeout occurred, and -2 on error.
+        // is determined by the clock indicated at construction (see
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
+        // if the 'timeout' did not expire, -1 if a timeout occurred, and -2 on
+        // error.
 
   public:
     // CREATORS
@@ -147,7 +148,7 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     int timedWait(const bsls::TimeInterval& timeout);
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'timeout' expires.  The 'timeout' is an absolute
-        // time represented as an interval from some epoch, which is detemined
+        // time represented as an interval from some epoch, which is determined
         // by the clock indicated at construction (see {'Supported
         // Clock-Types'} in the component documentation).  If the 'timeout' did
         // not expire before the count attained a positive value, atomically
