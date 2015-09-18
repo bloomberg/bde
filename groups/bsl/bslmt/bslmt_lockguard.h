@@ -95,10 +95,11 @@ BSLS_IDENT("$Id: $")
 //      if (someCondition) {
 //          obj->someMethod();
 //          mutex->unlock();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          obj->someOtherMethod();
-//          return;                       // MISTAKE! forgot to unlock mutex
+//          // MISTAKE! forgot to unlock mutex
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultMethod();
 //      mutex->unlock();
@@ -115,10 +116,11 @@ BSLS_IDENT("$Id: $")
 //      bslmt::LockGuard<my_Mutex> guard(mutex);
 //      if (someCondition) {
 //          obj->someMethod();
-//          return;
+//          return;                                                   // RETURN
 //      } else if (someOtherCondition) {
 //          obj->someOtherMethod();
-//          return;                   // OK, mutex is automatically unlocked
+//          // OK, mutex is automatically unlocked
+//          return;                                                   // RETURN
 //      }
 //      obj->defaultMethod();
 //      return;
@@ -128,21 +130,21 @@ BSLS_IDENT("$Id: $")
 // a 'bslmt::LockGuardTryLock' in the typical following fashion:
 //..
 //  static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
-//      // Perform task and return positive value if locking succeeds.
-//      // Return 0 if locking fails.
+//      // Perform task and return positive value if locking succeeds.  Return
+//      // 0 if locking fails.
 //  {
 //      const int RETRIES = 1; // use higher values for higher success rate
 //      bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
 //      if (guard.ptr()) { // mutex is locked
 //          if (someCondition) {
 //              obj->someMethod();
-//              return 2;
+//              return 2;                                             // RETURN
 //          } else if (someOtherCondition) {
 //              obj->someOtherMethod();
-//              return 3;
+//              return 3;                                             // RETURN
 //          }
 //          obj->defaultMethod();
-//          return 1;
+//          return 1;                                                 // RETURN
 //      }
 //      return 0;
 //  }
@@ -158,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //      // critical section here
 //
 //      {
-//           bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
+//          bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
 //
 //          // mutex is unlocked here
 //

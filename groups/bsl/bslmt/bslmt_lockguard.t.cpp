@@ -1,6 +1,8 @@
 // bslmt_lockguard.t.cpp                                              -*-C++-*-
 #include <bslmt_lockguard.h>
 
+#include <bslim_testutil.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>  // 'strcmp'
 #include <bsl_cstdlib.h>  // 'atoi'
@@ -43,48 +45,50 @@ using namespace bsl;  // automatically added by script
 // [5] INTERACTION BETW. 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
 // [6] DEPRECATED 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard'
 // [7] USAGE EXAMPLES
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
-                                              // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
-                                              // PA(X, L) without '\n'
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -122,80 +126,97 @@ struct my_Object {
     void defaultMethod() {};
 };
 
-// USAGE EXAMPLE
-
-static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
-{
-    mutex->lock();
-    if (someCondition) {
-        obj->someMethod();
-        mutex->unlock();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        obj->someOtherMethod();
-        return;                              // MISTAKE! forgot to unlock mutex
-                                                                      // RETURN
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultMethod();
-    mutex->unlock();
-    return;
-}
-
-static void safeFunc(my_Object *obj, my_Mutex *mutex)
-{
-    bslmt::LockGuard<my_Mutex> guard(mutex);
-    if (someCondition) {
-        obj->someMethod();
-        return;                                                       // RETURN
-    } else if (someOtherCondition) {
-        obj->someOtherMethod();
-        return;                          // OK, mutex is automatically unlocked
-                                                                      // RETURN
-                                                                      // RETURN
-                                                                      // RETURN
-    }
-    obj->defaultMethod();
-    return;
-}
-
-static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
-    // Perform task and return positive value if locking succeeds.  Return 0 if
-    // locking fails.
-{
-    const int RETRIES = 1; // use higher values for higher success rate
-    bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
-    if (guard.ptr()) { // mutex is locked
+///Usage
+///-----
+// Use this component to ensure that in the event of an exception or exit from
+// any point in a given scope, the synchronization object will be properly
+// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// exception safe, and contains a bug.
+//..
+    static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
+    {
+        mutex->lock();
         if (someCondition) {
             obj->someMethod();
-            return 2;                                                 // RETURN
+            mutex->unlock();
+            return;                                                   // RETURN
         } else if (someOtherCondition) {
             obj->someOtherMethod();
-            return 3;                                                 // RETURN
+            // MISTAKE! forgot to unlock mutex
+            return;                                                   // RETURN
         }
         obj->defaultMethod();
-        return 1;                                                     // RETURN
+        mutex->unlock();
+        return;
     }
-    return 0;
-}
-
-void f(my_Mutex *mutex)
-{
-    bslmt::LockGuard<my_Mutex> guard(mutex);
-
-    // critical section here
-
+//..
+// The function can be rewritten with a cleaner and safer implementation using
+// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// is exception safe, and avoids the multiple calls to unlock that can be a
+// source of errors.
+//..
+    static void safeFunc(my_Object *obj, my_Mutex *mutex)
     {
-        bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
+        bslmt::LockGuard<my_Mutex> guard(mutex);
+        if (someCondition) {
+            obj->someMethod();
+            return;                                                   // RETURN
+        } else if (someOtherCondition) {
+            obj->someOtherMethod();
+            // OK, mutex is automatically unlocked
+            return;                                                   // RETURN
+        }
+        obj->defaultMethod();
+        return;
+    }
+//..
+// When blocking while acquiring the lock is not desirable, one may instead use
+// a 'bslmt::LockGuardTryLock' in the typical following fashion:
+//..
+    static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
+        // Perform task and return positive value if locking succeeds.  Return
+        // 0 if locking fails.
+    {
+        const int RETRIES = 1; // use higher values for higher success rate
+        bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
+        if (guard.ptr()) { // mutex is locked
+            if (someCondition) {
+                obj->someMethod();
+                return 2;                                             // RETURN
+            } else if (someOtherCondition) {
+                obj->someOtherMethod();
+                return 3;                                             // RETURN
+            }
+            obj->defaultMethod();
+            return 1;                                                 // RETURN
+        }
+        return 0;
+    }
+//..
+// Instantiations of 'bslmt::LockGuardUnlock' can be interleaved with
+// instantiations of 'bslmt::LockGuard' to create both critical sections and
+// regions where the lock is released.
+//..
+    void f(my_Mutex *mutex)
+    {
+        bslmt::LockGuard<my_Mutex> guard(mutex);
 
-        // mutex is unlocked here
+        // critical section here
 
-    } // mutex is locked again here
+        {
+            bslmt::LockGuardUnlock<my_Mutex> guard(mutex);
 
-    // critical section here
+            // mutex is unlocked here
 
-} // mutex is unlocked here
+        } // mutex is locked again here
+
+        // critical section here
+
+    } // mutex is unlocked here
+//..
+// Care must be taken so as not to interleave guard objects in such a way as to
+// cause an illegal sequence of calls on a lock (two sequential lock calls or
+// two sequential unlock calls on a non-recursive mutex).
 
 // ============================================================================
 //                               MAIN PROGRAM
