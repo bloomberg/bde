@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides an implementation of
-// 'bslmt::ThreadUtil' for Windows (win32) via the template specialization:
+// 'bslmt::ThreadUtil' for Windows (win32),
+// 'bslmt::ThreadUtilImpl<Win32Threads>', via the template specialization:
 //..
 //  bslmt::ThreadUtilImpl<Platform::Win32Threads>
 //..

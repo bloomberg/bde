@@ -205,7 +205,7 @@ class TimedSemaphore {
     int timedWait(const bsls::TimeInterval& timeout);
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'timeout' expires.  The 'timeout' is an absolute
-        // time represented as an interval from some epoch, which is detemined
+        // time represented as an interval from some epoch, which is determined
         // by the clock indicated at construction (see {'Supported
         // Clock-Types'} in the component documentation).  If the 'timeout' did
         // not expire before the count attained a positive value, atomically
