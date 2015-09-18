@@ -442,7 +442,7 @@ void my_Barrier::wait()
 #endif
 #else  // unsupported platform
 #ifdef BSLMT_THREAD_LOCAL_VARIABLE
-#error "'BSLMT_THREAD_LOCAL_VARIABLE' macro defined for an unsupported platform"
+#error "BSLMT_THREAD_LOCAL_VARIABLE macro defined for an unsupported platform"
 #endif
 #endif
 
@@ -610,7 +610,7 @@ struct TypesThreadArgs {
 };
 
 #define VERIFY_BASIC_TYPE(TYPE, ID) {                                         \
-    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, (TYPE)0xaa);                  \
+    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, (TYPE)0xaa);                 \
     ASSERT((TYPE)0xaa == testValue);                                          \
     TYPE value = testValue;                                                   \
     ASSERT(value == (TYPE)0xaa);                                              \
@@ -619,7 +619,7 @@ struct TypesThreadArgs {
 }
 
 #define VERIFY_STRUCT_TYPE(TYPE, VALUE) {                                     \
-    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, VALUE);                       \
+    BSLMT_THREAD_LOCAL_VARIABLE(TYPE, testValue, VALUE);                      \
     ASSERT(VALUE == testValue);                                               \
 }
 
