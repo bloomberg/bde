@@ -1724,12 +1724,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
 
         {
-            bsl::function<void(void *, bslma::Allocator *)> objectCreator(
-                                       bdlf::BindUtil::bind(
-                                                           &createString,
-                                                           _1,
-                                                           DEFAULT_STRING_INIT,
-                                                           _2));
+            typedef bsl::function<void(void *, bslma::Allocator *)> Creator;
+            Creator objectCreator(bsl::allocator_arg_t(),
+                                  bsl::allocator<Creator>(&ta),
+                                  bdlf::BindUtil::bind(&createString,
+                                                       _1,
+                                                       DEFAULT_STRING_INIT,
+                                                       _2));
             bdlcc::ObjectPool<bsl::string> pool(objectCreator, -1, &ta);
 
             bsl::string *myString = pool.getObject();
