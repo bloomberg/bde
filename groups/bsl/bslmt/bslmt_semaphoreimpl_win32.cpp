@@ -8,8 +8,6 @@ BSLS_IDENT_RCSID(bslmt_semaphoreimpl_win32_cpp,"$Id$ $CSID$")
 #include <bslmt_mutex.h>        // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
-#include <bslmt_platform.h>
-
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {

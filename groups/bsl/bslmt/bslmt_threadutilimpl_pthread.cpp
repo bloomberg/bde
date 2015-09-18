@@ -4,13 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
-#include <bslmt_configuration.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_saturatedtimeconversionimputil.h>
-
-#include <bslmt_platform.h>
-
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
+
+#include <bslmt_configuration.h>
+#include <bslmt_saturatedtimeconversionimputil.h>
+#include <bslmt_threadattributes.h>
 
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -37,7 +35,7 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 # include <sys/utsname.h>
 #endif
 
-#include <errno.h>         // constant EINTR
+#include <errno.h>         // constant 'EINTR'
 
 namespace BloombergLP {
 
@@ -65,16 +63,16 @@ int localPthreadsPolicy(int policy)
     BSLS_ASSERT_OPT(0);
 }
 
-static int initPthreadAttribute(pthread_attr_t                 *dest,
+static int initPthreadAttribute(pthread_attr_t                 *destination,
                                 const bslmt::ThreadAttributes&  src)
-    // Initialize the specified pthreads attribute type 'dest', configuring it
-    // with information from the specified thread attributes object 'src'.
-    // Note that it is assumed that 'dest' is uninitialized and
-    // 'pthread_attr_init' has not already been call on it.
+    // Initialize the specified pthreads attribute type 'destination',
+    // configuring it with information from the specified thread attributes
+    // object 'src'.  Note that it is assumed that 'destination' is
+    // uninitialized and 'pthread_attr_init' has not already been call on it.
 {
     typedef bslmt::ThreadAttributes Attr;
 
-    int rc = pthread_attr_init(dest);
+    int rc = pthread_attr_init(destination);
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
@@ -85,28 +83,28 @@ static int initPthreadAttribute(pthread_attr_t                 *dest,
     // by avoiding confusing the pipeline with branches.
 
     rc |= pthread_attr_setdetachstate(
-                             dest,
+                             destination,
                              Attr::e_CREATE_DETACHED == src.detachedState()
                                                     ? PTHREAD_CREATE_DETACHED
                                                     : PTHREAD_CREATE_JOINABLE);
 
     int guardSize = src.guardSize();
     if (Attr::e_UNSET_GUARD_SIZE != guardSize) {
-        rc |= pthread_attr_setguardsize(dest, guardSize);
+        rc |= pthread_attr_setguardsize(destination, guardSize);
     }
 
     if (!src.inheritSchedule()) {
-        rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
+        rc |= pthread_attr_setinheritsched(destination, PTHREAD_EXPLICIT_SCHED);
 
         int pthreadPolicy = localPthreadsPolicy(src.schedulingPolicy());
-        rc |= pthread_attr_setschedpolicy(dest, pthreadPolicy);
+        rc |= pthread_attr_setschedpolicy(destination, pthreadPolicy);
 
         int priority = src.schedulingPriority();
         if (Attr::e_UNSET_PRIORITY != priority) {
             sched_param param;
-            rc |= pthread_attr_getschedparam(dest, &param);
+            rc |= pthread_attr_getschedparam(destination, &param);
             param.sched_priority = priority;
-            rc |= pthread_attr_setschedparam(dest, &param);
+            rc |= pthread_attr_setschedparam(destination, &param);
         }
     }
 
@@ -116,8 +114,8 @@ static int initPthreadAttribute(pthread_attr_t                 *dest,
     }
 
     if (Attr::e_UNSET_STACK_SIZE != stackSize) {
-        // Note that if 'stackSize' is still unset, we just leave the '*dest'
-        // to its default, initialized state.
+        // Note that if 'stackSize' is still unset, we just leave the
+        // '*destination' to its default, initialized state.
 
         BSLS_ASSERT_OPT(stackSize > 0);
 
@@ -154,7 +152,7 @@ static int initPthreadAttribute(pthread_attr_t                 *dest,
         stackSize = (stackSize + pageSize - 1) & ~(pageSize - 1);
 #endif
 
-        rc |= pthread_attr_setstacksize(dest, stackSize);
+        rc |= pthread_attr_setstacksize(destination, stackSize);
     }
 
     return rc;
@@ -201,25 +199,25 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::INVALID_HANDLE =
 
 // CLASS METHODS
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
-                                            Handle                  *handle,
-                                            const ThreadAttributes&  attribute,
-                                            bslmt_ThreadFunction     function,
-                                            void                    *userData)
+                                         Handle                  *threadHandle,
+                                         const ThreadAttributes&  attributes,
+                                         bslmt_ThreadFunction     function,
+                                         void                    *userData)
 {
     int rc;
     pthread_attr_t pthreadAttr;
 
-    rc = initPthreadAttribute(&pthreadAttr, attribute);
+    rc = initPthreadAttribute(&pthreadAttr, attributes);
     if (rc) {
         return -1;                                                    // RETURN
     }
 
-    rc = pthread_create(handle,
+    rc = pthread_create(threadHandle,
                         &pthreadAttr,
                         function,
                         userData);
 
-    // If attr destruction fails, don't want to return a bad status if thread
+    // If 'attr' destruction fails, don't want to return a bad status if thread
     // creation succeeded and thread potentially needs to be joined.
 
     int rcDestroy = pthread_attr_destroy(&pthreadAttr);
@@ -368,33 +366,33 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleep(
-                                       const bsls::TimeInterval&  sleepTime,
-                                       bsls::TimeInterval        *unsleeptTime)
+                                        const bsls::TimeInterval&  sleepTime,
+                                        bsls::TimeInterval        *unsleptTime)
 {
     timespec naptime;
     timespec unslept_time;
     SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleepTime);
 
-    const int result = nanosleep(&naptime, unsleeptTime ? &unslept_time : 0);
-    if (result && unsleeptTime) {
-        unsleeptTime->setInterval(unslept_time.tv_sec,
+    const int result = nanosleep(&naptime, unsleptTime ? &unslept_time : 0);
+    if (result && unsleptTime) {
+        unsleptTime->setInterval(unslept_time.tv_sec,
                                   static_cast<int>(unslept_time.tv_nsec));
     }
     return result;
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
-                                               int                 microsecs,
-                                               int                 seconds,
-                                               bsls::TimeInterval *unsleptTime)
+                                              int                 microseconds,
+                                              int                 seconds,
+                                              bsls::TimeInterval *unsleptTime)
 {
     enum { k_MILLION = 1000 * 1000 };
 
-    bsls::TimeInterval sleepTime((microsecs / k_MILLION) + seconds,
-                                (microsecs % k_MILLION) * 1000);
+    bsls::TimeInterval sleptTime((microseconds / k_MILLION) + seconds,
+                                 (microseconds % k_MILLION) * 1000);
     timespec naptime;
     timespec unslept;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleepTime);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&naptime, sleptTime);
 
     const int result = nanosleep(&naptime, unsleptTime ? &unslept : 0);
     if (result && unsleptTime) {
@@ -405,9 +403,9 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
-                             const bsls::TimeInterval&   absoluteTime,
-                             bool                        retryOnSignalInterupt,
-                             bsls::SystemClockType::Enum clockType)
+                            const bsls::TimeInterval&   absoluteTime,
+                            bool                        retryOnSignalInterrupt,
+                            bsls::SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and the
     // end of December 31, 9999 (i.e., less than January 1, 10000).
@@ -497,7 +495,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
                                  TIMER_ABSTIME,
                                  &clockTime,
                                  0);
-    } while (EINTR == result && retryOnSignalInterupt);
+    } while (EINTR == result && retryOnSignalInterrupt);
 
     // An signal interrupt is not considered an error.
 

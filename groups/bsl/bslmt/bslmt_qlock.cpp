@@ -42,9 +42,9 @@ bslma::Allocator& semaphoreAllocator()
 
 inline
 void releaseSemaphoreObject(void *semaphore)
-    // Release the 'semaphore' object of type 'SemaphorePtr' which was
-    // allocated with the 'semaphoreAllocator()'.  If 'semaphore' is 0, this
-    // operation has no effect.
+    // Release the specified 'semaphore' object of type 'SemaphorePtr' which
+    // was allocated with the 'semaphoreAllocator()'.  If 'semaphore' is 0,
+    // this operation has no effect.
 {
     SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(semaphore);
     semaphoreAllocator().deleteObjectRaw(sema);
@@ -52,8 +52,8 @@ void releaseSemaphoreObject(void *semaphore)
 
 inline
 void releaseTlsKey(TlsKey *key)
-    // Delete the TLS key and release the TLS key object which was allocated
-    // with the 'semaphoreAllocator()'.
+    // Delete the specified TLS 'key' and release the TLS 'key' object which
+    // was allocated with the 'semaphoreAllocator()'.
 {
     bslmt::ThreadUtil::deleteKey(*key);
     semaphoreAllocator().deleteObjectRaw(key);
@@ -70,9 +70,9 @@ struct SemaphoreKeyGuard {
                                 // on program terminate.
 
     SemaphoreKeyGuard(TlsKey *key)
-        // Construct a 'SemaphoreKeyGuard' object with the TLS 'key' pointer to
-        // be released in its destructor.  The behavior is undefined unless
-        // 'key' is not NULL.
+        // Construct a 'SemaphoreKeyGuard' object with the specified TLS 'key'
+        // pointer to be released in its destructor.  The behavior is undefined
+        // unless 'key' is not NULL.
     : d_key_p(key)
     {
         BSLS_ASSERT(d_key_p);

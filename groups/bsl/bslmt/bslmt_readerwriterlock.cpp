@@ -27,7 +27,7 @@ BSLS_IDENT_RCSID(bslmt_readerwriterlock_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#ifdef BSLS_PLATFORM_OS_AIX // IBM does not properly inline these consts
+#ifdef BSLS_PLATFORM_OS_AIX // IBM does not properly inline these constants
 const long long bslmt::ReaderWriterLock::WRITER_MASK;
 const long long bslmt::ReaderWriterLock::READER_MASK;
 const long long bslmt::ReaderWriterLock::READER_INC;

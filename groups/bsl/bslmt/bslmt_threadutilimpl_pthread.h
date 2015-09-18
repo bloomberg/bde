@@ -123,7 +123,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
     // CLASS METHODS
                           // *** Thread Management ***
 
-    static int create(Handle                  *thread,
+    static int create(Handle                  *threadHandle,
                       const ThreadAttributes&  attributes,
                       bslmt_ThreadFunction     function,
                       void                    *userData);

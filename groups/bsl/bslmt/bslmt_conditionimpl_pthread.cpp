@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(bslmt_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bslmt_saturatedtimeconversionimputil.h>
 
+#include <bsls_assert.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
@@ -36,7 +37,7 @@ public:
         // specified 'clockType'.
     {
         int rc = pthread_condattr_init(&d_attr);
-        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on ENOMEM
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on 'ENOMEM'
 
         clockid_t clockId;
         switch (clockType) {

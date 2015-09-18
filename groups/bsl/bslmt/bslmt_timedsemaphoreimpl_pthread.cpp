@@ -45,7 +45,7 @@ public:
         // specified 'clockType'.
     {
         int rc = pthread_condattr_init(&d_attr);
-        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on ENOMEM
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on 'ENOMEM'
 
         clockid_t clockId;
         switch (clockType) {
@@ -176,11 +176,12 @@ void bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::post()
 }
 
 void
-bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::post(int n)
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::post(
+                                                                    int number)
 {
-    BSLS_ASSERT(n > 0);
+    BSLS_ASSERT(number > 0);
 
-    d_resources += n;
+    d_resources += number;
     // barrier
     if (d_waiters > 0) {
         pthread_mutex_lock(&d_lock);

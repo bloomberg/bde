@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bslmt_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_conditional.h>
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 
 // PRIVATE CONSTANTS
@@ -180,7 +182,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
     else {
         // 'src.seconds() < 2^32', therefore
         // 'src.seconds() * 1000 + 999 < 2^63', so this will work.  We also
-        // know that 'src' is a poitive time interval.
+        // know that 'src' is a positive time interval.
 
         toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
     }

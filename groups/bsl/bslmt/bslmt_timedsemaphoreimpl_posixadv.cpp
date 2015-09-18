@@ -4,12 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 
-#include <bslmt_muteximpl_pthread.h>   // for testing only
-#include <bslmt_threadutil.h>          // for testing only
-
 #ifdef BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
+#include <bslmt_muteximpl_pthread.h>   // for testing only
 #include <bslmt_saturatedtimeconversionimputil.h>
+#include <bslmt_threadutil.h>          // for testing only
 
 #include <bsls_timeinterval.h>
 #include <bsls_systemclocktype.h>

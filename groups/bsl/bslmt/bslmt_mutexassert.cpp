@@ -5,9 +5,8 @@
 BSLS_IDENT_RCSID(bslmt_mutex_cpp,"$Id$ $CSID$")
 
 #include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>     // for testing only
-
 #include <bslmt_platform.h>
+#include <bslmt_threadutil.h>     // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
