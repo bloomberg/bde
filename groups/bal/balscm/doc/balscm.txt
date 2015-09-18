@@ -1,0 +1,28 @@
+ balscm.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (balscm)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'balscm' ("Basic Application Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balscm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. balscm_version
+
+  1. balscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'balscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'balscm_versiontag':
+:      Provide versioning information for the 'bae' package group.

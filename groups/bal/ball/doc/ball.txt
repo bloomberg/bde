@@ -1,0 +1,212 @@
+ ball.txt
+
+@PURPOSE: Provide date and time vocabulary types, and related utilities.
+
+@MNEMONIC: Basic Application Library XXX (ball)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'ball' ("Basic Application Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'ball' package currently has 44 components having 16 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  16. ball_asyncfileobserver
+
+  15. ball_fileobserver
+
+  14. ball_fileobserver2
+
+  13. ball_log
+
+  12. ball_administration
+
+  11. ball_loggercategoryutil
+      ball_loggerfunctorpayloads
+
+  10. ball_loggermanager
+      ball_scopedattribute
+      ball_scopedattributes
+
+   9. ball_attributecontext
+
+   8. ball_categorymanager
+
+   7. ball_category
+      ball_multiplexobserver
+
+   6. ball_defaultobserver
+      ball_observeradapter
+      ball_ruleset
+      ball_testobserver
+
+   5. ball_fixedsizerecordbuffer
+      ball_observer
+      ball_recordstringformatter
+      ball_rule
+
+   4. ball_predicateset
+      ball_record
+
+   3. ball_attributecontainerlist
+      ball_defaultattributecontainer
+      ball_loggermanagerconfiguration
+      ball_userfields
+
+   2. ball_attributecontainer
+      ball_context
+      ball_predicate
+      ball_recordbuffer
+      ball_severityutil
+      ball_userfieldsschema
+      ball_userfieldvalue
+
+   1. ball_attribute
+      ball_countingallocator
+      ball_loggermanagerdefaults
+      ball_patternutil
+      ball_recordattributes
+      ball_severity
+      ball_thresholdaggregate
+      ball_transmission
+      ball_userfieldtype
+..
+
+/Component Synopsis
+/------------------
+: 'ball_administration':
+:      Provide a suite of utility functions for logging administration.
+:
+: 'ball_asyncfileobserver':
+:      Provide an asynchronous observer that logs to a file and 'stdout'.
+:
+: 'ball_attribute':
+:      Provide a representation of (literal) name/value pairs.
+:
+: 'ball_attributecontainer':
+:      Provide a protocol for containers holding logging attributes.
+:
+: 'ball_attributecontainerlist':
+:      Provide a list of attribute container addresses.
+:
+: 'ball_attributecontext':
+:      Provide a container for storing attributes and caching results.
+:
+: 'ball_category':
+:      Provide a container for a name and associated thresholds.
+:
+: 'ball_categorymanager':
+:      Provide a manager of named categories each having "thresholds".
+:
+: 'ball_context':
+:      Provide a container for the context of a transmitted log record.
+:
+: 'ball_countingallocator':
+:      Provide a concrete allocator keep a count of allocated bytes.
+:
+: 'ball_defaultattributecontainer':
+:      Provide a default container for storing attribute name/value pairs.
+:
+: 'ball_defaultobserver':
+:      Provide a default observer that emits log records to 'stdout'.
+:
+: 'ball_fileobserver':
+:      Provide a thread-safe observer that logs to a file and to 'stdout'.
+:
+: 'ball_fileobserver2':
+:      Provide a thread-safe observer that emits log records to a file.
+:
+: 'ball_fixedsizerecordbuffer':
+:      Provide a thread-safe fixed-size buffer of record handles.
+:
+: 'ball_log':
+:      Provide macros and utility functions to facilitate logging.
+:
+: 'ball_loggercategoryutil':
+:      Provide a suite of utility functions for category management.
+:
+: 'ball_loggerfunctorpayloads':
+:      Provide a suite of useful logger manager functor payloads.
+:
+: 'ball_loggermanager':
+:      Provide a manager of core logging functionality.
+:
+: 'ball_loggermanagerconfiguration':
+:      Provide a constrained-attribute class for the logger manager.
+:
+: 'ball_loggermanagerdefaults':
+:      Provide constrained default attributes for the logger manager.
+:
+: 'ball_multiplexobserver':
+:      Provide a multiplexing observer that forwards to other observers.
+:
+: 'ball_observer':
+:      Define a protocol for receiving and processing log records.
+:
+: 'ball_observeradapter':
+:      Provide a helper for implementing the 'ball::Observer' protocol.
+:
+: 'ball_patternutil':
+:      Provide a utility class for string pattern matching.
+:
+: 'ball_predicate':
+:      Provide a predicate object that consists of a name/value pair.
+:
+: 'ball_predicateset':
+:      Provide a container for predicates.
+:
+: 'ball_record':
+:      Provide a container for all fields of a log record.
+:
+: 'ball_recordattributes':
+:      Provide a container for a fixed set of fields suitable for logging.
+:
+: 'ball_recordbuffer':
+:      Provide a protocol for managing log record handles.
+:
+: 'ball_recordstringformatter':
+:      Provide a record formatter that uses a 'printf'-style format spec.
+:
+: 'ball_rule':
+:      Provide an object having a pattern, thresholds, and predicates.
+:
+: 'ball_ruleset':
+:      Provide a set of unique rules.
+:
+: 'ball_scopedattribute':
+:      Provide a scoped guard for a single BALL attribute.
+:
+: 'ball_scopedattributes':
+:      Provide a class to add and remove attributes automatically.
+:
+: 'ball_severity':
+:      Enumerate a set of logging severity levels.
+:
+: 'ball_severityutil':
+:      Provide a suite of utility functions on 'ball::Severity' levels.
+:
+: 'ball_testobserver':
+:      Provide an instrumented observer for testing.
+:
+: 'ball_thresholdaggregate':
+:      Provide an aggregate of the four logging threshold levels.
+:
+: 'ball_transmission':
+:      Enumerate the set of states for log record transmission.
+:
+: 'ball_userfields':
+:      Provide a container of user supplied field values.
+:
+: 'ball_userfieldsschema':
+:      Provide a description for a sequence user field values.
+:
+: 'ball_userfieldtype':
+:      Enumerate the set of data types for a user supplied attribute.
+:
+: 'ball_userfieldvalue':
+:      Provide a type for the value of a user supplied field.
