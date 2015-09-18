@@ -1,0 +1,70 @@
+ btlsos.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Transport Library XXX (btlsos)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'btlsos' ("Basic Transport Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlsos' package currently has 12 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. btlsos_tcpacceptor
+     btlsos_tcpcbacceptor
+     btlsos_tcpcbconnector
+     btlsos_tcpconnector
+     btlsos_tcptimedacceptor
+     btlsos_tcptimedcbacceptor
+     btlsos_tcptimedcbconnector
+     btlsos_tcptimedconnector
+
+  1. btlsos_tcpcbchannel
+     btlsos_tcpchannel
+     btlsos_tcptimedcbchannel
+     btlsos_tcptimedchannel
+..
+
+/Component Synopsis
+/------------------
+: 'btlsos_tcpacceptor':
+:      Provide a blocking acceptor of TCP-based connections.
+:
+: 'btlsos_tcpcbacceptor':
+:      Provide a non-blocking acceptor of TCP connections.
+:
+: 'btlsos_tcpcbchannel':
+:      Provide stream-based communication channel over TCP sockets.
+:
+: 'btlsos_tcpcbconnector':
+:      Provide a non-blocking connector to TCP servers.
+:
+: 'btlsos_tcpchannel':
+:      Provide synchronous TCP-based communication channel.
+:
+: 'btlsos_tcpconnector':
+:      Provide a synchronous connector to TCP-based servers.
+:
+: 'btlsos_tcptimedacceptor':
+:      Provide a blocking acceptor of TCP-based connections with timeout.
+:
+: 'btlsos_tcptimedcbacceptor':
+:      Provide a non-blocking acceptor of TCP connections with timeout.
+:
+: 'btlsos_tcptimedcbchannel':
+:      Provide timed stream-based communication channel over TCP sockets.
+:
+: 'btlsos_tcptimedcbconnector':
+:      Provide a non-blocking connector (with timeout) to TCP servers.
+:
+: 'btlsos_tcptimedchannel':
+:      Provide synchronous TCP-based communication channel with timeouts.
+:
+: 'btlsos_tcptimedconnector':
+:      Provide a synchronous connector (with timeout) to TCP servers.

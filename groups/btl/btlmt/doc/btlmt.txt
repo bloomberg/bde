@@ -1,0 +1,60 @@
+ btlmt.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Transport Library XXX (btlmt)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'btlmt' ("Basic Transport Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlmt' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. btlmt_sessionpool
+
+  3. btlmt_channelpoolchannel
+
+  2. btlmt_channelpool
+
+  1. btlmt_asyncchannel
+     btlmt_channelpoolconfiguration
+     btlmt_channelstatus
+     btlmt_channeltype
+     btlmt_session
+     btlmt_tcptimereventmanager
+..
+
+/Component Synopsis
+/------------------
+: 'btlmt_asyncchannel':
+:      Provide a protocol for asynchronous IO operations
+:
+: 'btlmt_channelpool':
+:      Provide thread-enabled stream-based IPv4 communication.
+:
+: 'btlmt_channelpoolchannel':
+:      Provide a concrete implementation of 'btlmt::AsyncChannel'
+:
+: 'btlmt_channelpoolconfiguration':
+:      Provide a constrained-attribute class for channel pools.
+:
+: 'btlmt_channelstatus':
+:      Provide a set of enumerations for the channel status codes.
+:
+: 'btlmt_channeltype':
+:      Provide a namespace for representing channel type values.
+:
+: 'btlmt_session':
+:      Provide a *pure* protocol class for creating sessions
+:
+: 'btlmt_sessionpool':
+:      Provide thread-enabled session-based IPv4 communication
+:
+: 'btlmt_tcptimereventmanager':
+:      Provide a thread-enabled multiplexor of socket events and timers.

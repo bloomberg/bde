@@ -1,0 +1,58 @@
+ btl.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Transport Library XXX (btl)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'btl' ("Basic Transport Library XXX") package group
+ provides ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btl' package group currently has 8 packages having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. btls5
+
+  5. btlmt
+
+  4. btlso
+
+  3. btls
+
+  2. btlb
+
+  1. btlsc
+     btlscm
+     btlsos
+..
+
+/Package Synopsis
+/----------------
+: 'btlb':
+:      Provide ...
+:
+: 'btlmt':
+:      Provide ...
+:
+: 'btls':
+:      Provide ...
+:
+: 'btls5':
+:      Provide ...
+:
+: 'btlsc':
+:      Provide ...
+:
+: 'btlscm':
+:      Provide ...
+:
+: 'btlso':
+:      Provide ...
+:
+: 'btlsos':
+:      Provide ...
