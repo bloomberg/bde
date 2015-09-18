@@ -391,7 +391,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -413,7 +413,7 @@ int main(int argc, char **argv)
                           << "=============" << endl;
         if (verbose) cout << "TODO" << endl;
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // 'TokenizerIterator' OPERATORS
         //
@@ -628,7 +628,7 @@ int main(int argc, char **argv)
             }
         }
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // 'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR
         //   Bring the object to every state relevant for thorough testing.
@@ -932,7 +932,7 @@ int main(int argc, char **argv)
             }  // for each row in table
         }
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'reset' METHOD
         //
@@ -1101,123 +1101,6 @@ int main(int argc, char **argv)
             ASSERT_SAFE_PASS(mT.reset(StringRef("")));
         }
 
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // SECONDARY CONSTRUCTOR
-        //   Ensure that constructor with two parameters is "wired-up" and
-        //   defaults properly.
-        //
-        // Concerns:
-        //: 1
-        //
-        // Plan:
-        //: 1
-        //
-        // Testing:
-        //   Tokenizer(const char *, const StringRef&);
-        //   Tokenizer(const StringRef&, const StringRef&);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "SECONDARY CONSTRUCTOR" << endl
-                          << "====================" << endl;
-
-        if (verbose) cout << "\nTesting two-parameter constructor" << endl;
-
-        static const struct {
-            int         d_line;       // line number
-            const char *d_input;      // input
-            const char *d_values[3];  // current object values
-         } DATA[] = {
-            //L#  INPUT     LEADER  TOKEN    DELIM
-            //--  -------   ------  -------  ------
-            {L_,  "",      {""                     }},  // Depth 0
-            //--  -------   ------  -------  ------
-            {L_,  "s",     {"s"                    }},  // Depth 1
-            {L_,  "0",     {"",     "0",     ""    }},
-            //--  -------   ------  -------  ------
-            {L_,  "st",    {"st"                   }},  // Depth 2
-            {L_,  "s0",    {"s",    "0",     ""    }},
-            {L_,  "0s",    {"",     "0",     "s"   }},
-            {L_,  "01",    {"",     "01",    ""    }},
-            //--  -------   ------  -------  ------
-            {L_,  "stu",   {"stu"                  }},  // Depth 3
-            {L_,  "st0",   {"st",   "0",     ""    }},
-            {L_,  "s0t",   {"s",    "0",     "t"   }},
-            {L_,  "s01",   {"s",    "01",    ""    }},
-            {L_,  "0st",   {"",     "0",     "st"  }},
-            {L_,  "0s1",   {"",     "0",     "s"   }},
-            {L_,  "01s",   {"",     "01",    "s"   }},
-            {L_,  "012",   {"",     "012",   ""    }},
-            //--  -------   ------  -------  ------
-            {L_,  "stuv",  {"stuv"                 }},  // Depth 4
-            {L_,  "stu0",  {"stu",  "0",     ""    }},
-            {L_,  "st0u",  {"st",   "0",     "u"   }},
-            {L_,  "st01",  {"st",   "01",    ""    }},
-            {L_,  "s0tu",  {"s",    "0",     "tu"  }},
-            {L_,  "s0t1",  {"s",    "0",     "t"   }},
-            {L_,  "s01t",  {"s",    "01",    "t"   }},
-            {L_,  "s012",  {"s",    "012",   ""    }},
-            {L_,  "0stu",  {"",     "0",     "stu" }},
-            {L_,  "0st1",  {"",     "0",     "st"  }},
-            {L_,  "0s1t",  {"",     "0",     "s"   }},
-            {L_,  "0s12",  {"",     "0",     "s"   }},
-            {L_,  "01st",  {"",     "01",    "st"  }},
-            {L_,  "01s2",  {"",     "01",    "s"   }},
-            {L_,  "012s",  {"",     "012",   "s"   }},
-            {L_,  "0123",  {"",     "0123",  ""    }},
-        };  // DATA
-
-        enum { DATA_LEN = sizeof DATA / sizeof *DATA };
-
-        for (int i = 0; i < DATA_LEN; ++i) {
-            const int   LINE   = DATA[i].d_line;
-            const char *INPUT  = DATA[i].d_input;
-            const char *LEADER = DATA[i].d_values[0];  // leader
-            const char *TOKEN  = DATA[i].d_values[1];  // trailing token
-            const char *DELIM  = DATA[i].d_values[2];  // trailing delimiter
-
-            // Make sure that the characters in the input string occur in the
-            // same relative order as they do in each of the respective
-            // character sets defined above, and that they do NOT skip over any
-            // characters in those respective sets.
-
-            if (veryVerbose) {
-                T_ T_ P_(LINE) P(INPUT)
-            }
-
-            bool VALID = isValid(INPUT,
-                                 SOFT_DELIM_CHARS,
-                                 HARD_DELIM_CHARS,
-                                 TOKEN_CHARS);
-            ASSERTV(LINE, INPUT, true == VALID);
-
-            Obj        mTPtr(INPUT, StringRef(SOFT_DELIM_CHARS));
-            const Obj& TPtr = mTPtr;
-
-            Obj        mTRef(StringRef(INPUT),
-                             StringRef(SOFT_DELIM_CHARS));
-            const Obj& TRef = mTPtr;
-
-            if (TOKEN) {
-                ASSERTV(LINE, true   == TPtr.isValid());
-                ASSERTV(LINE, LEADER == TPtr.previousDelimiter());
-                ASSERTV(LINE, TOKEN  == TPtr.token());
-                ASSERTV(LINE, DELIM  == TPtr.trailingDelimiter());
-
-                ASSERTV(LINE, true   == TRef.isValid());
-                ASSERTV(LINE, LEADER == TRef.previousDelimiter());
-                ASSERTV(LINE, TOKEN  == TRef.token());
-                ASSERTV(LINE, DELIM  == TRef.trailingDelimiter());
-            } else {
-                ASSERTV(LINE, false  == TPtr.isValid());
-                ASSERTV(LINE, LEADER == TPtr.previousDelimiter());
-
-                ASSERTV(LINE, false  == TRef.isValid());
-                ASSERTV(LINE, LEADER == TRef.previousDelimiter());
-            }
-        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1506,7 +1389,8 @@ int main(int argc, char **argv)
         //:
         //:  7 Inputs having large tokens/delimiters succeed.
         //:
-        //:  8 QoI: asserted precondition violations are detected when enabled.           //:
+        //:  8 QoI: asserted precondition violations are detected when enabled.
+        //:
         //:  9 Accessors return references to expected character sequences.
         //
         // Plan:
@@ -1520,8 +1404,8 @@ int main(int argc, char **argv)
         //:   provided -- each on a single row of the table.  Failing to supply
         //:   a token (followed by its trailing delimiter) implies that the
         //:   iterator has become invalid (which is tested) after the internal
-        //:   iteration loop exits.  Verify each state of 'Tokenizer' object with
-        //:   basic accessors.  (C-1..2, 9)
+        //:   iteration loop exits.  Verify each state of 'Tokenizer' object
+        //:   with basic accessors.  (C-1..2, 9)
         //:
         //: 2 Additional add-hoc tests are provided to address remaining
         //:   concerns.  (C-3..7)
@@ -1529,9 +1413,11 @@ int main(int argc, char **argv)
         //: 3 Verify that defensive checks are addressed.  (C-8)
         //
         // Testing:
-        //   Tokenizer(const char *i, const StringRef& sd, const StringRef& hd)
-        //   Tokenizer(const StringRef&, const StringRef&, const StringRef&)
-        //   Tokenizer::operator++()
+        //   Tokenizer(const char *, const StringRef&, const StringRef&);
+        //   Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+        //   Tokenizer(const char *, const StringRef&);
+        //   Tokenizer(const StringRef&, const StringRef&);
+        //   Tokenizer::operator++();
         //   StringRef Tokenizer::trailingDelimiter();
         //   StringRef Tokenizer::previousDelimiter();
         //   StringRef Tokenizer::token();
@@ -1760,62 +1646,95 @@ int main(int argc, char **argv)
                                      TOKEN_CHARS);
                 ASSERTV(LINE, INPUT, true == VALID);
 
-                Obj        mT(INPUT,
-                              StringRef(SOFT_DELIM_CHARS),
-                              StringRef(HARD_DELIM_CHARS));
-                const Obj& T = mT;
+                Obj        mT3(INPUT,
+                               StringRef(SOFT_DELIM_CHARS),
+                               StringRef(HARD_DELIM_CHARS));
 
-                // Initially 'cursor' is the address of the first token string.
+                Obj        mT2(INPUT,
+                               StringRef(SOFT_DELIM_CHARS));
 
-                for (const char * const *cursor = EXPECTED+1;
-                                        *cursor;
-                                        cursor += 2) {
+                for (int i = 0; i < 2; ++i) {
+                    Obj       &mT = (!(i % 2)) ? mT3 : mT2;
+                    const Obj &T = mT;
 
-                    ASSERTV(LINE, T.isValid());  // Table: tokanizer's valid!
+                    // We need to check input appropriateness for
+                    // two-parameters constructor.
 
-                    // Extract iteration number, N; used in error reporting.
-
-                    const long int N = (cursor - EXPECTED) / 2;  // Nth token
-
-                    // Expected values of Tokenizer's op++ at (this) iteration:
-
-                    const char *EXP_PREV  = cursor[-1];  // previous delimiter
-                    const char *EXP_TOKEN = cursor[ 0];  // current token
-                    const char *EXP_POST  = cursor[+1];  // trailing delimiter
-
-                    // Shorten for better error messages.
-
-                    const StringRef RET_PREV  = T.previousDelimiter();
-                    const StringRef RET_TOKEN = T.token();
-                    const StringRef RET_POST  = T.trailingDelimiter();
-
-                    if (veryVerbose) {
-                        T_ T_ P_(N) T_ P_(EXP_PREV)  P(RET_PREV)
-                        T_ T_       T_ P_(EXP_TOKEN) P(RET_TOKEN)
-                        T_ T_       T_ P_(EXP_POST)  P(RET_POST)
+                    if (i % 2) {
+                        if (strlen(INPUT) != strcspn(INPUT,
+                                                     HARD_DELIM_CHARS)) {
+                            continue;  // input contains hard delimiters
+                        }
                     }
 
-                    ASSERTV(LINE,
-                            N,
-                            EXP_PREV,
-                            RET_PREV,
-                            EXP_PREV  == RET_PREV);
-                    ASSERTV(LINE,
-                            N,
-                            EXP_TOKEN,
-                            RET_TOKEN,
-                            EXP_TOKEN == RET_TOKEN);
-                    ASSERTV(LINE,
-                            N,
-                            EXP_POST,
-                            RET_POST,
-                            EXP_POST  == RET_POST);
+                    // Initially 'cursor' is the address of the first token
+                    // string.
 
-                    ++mT;
+                    for (const char * const *cursor = EXPECTED+1;
+                                            *cursor;
+                                            cursor += 2) {
 
-                }  // for current token in input row
+                        ASSERTV(LINE, T.isValid());
 
-                ASSERTV(LINE, !T.isValid());
+                        // Extract iteration number, N; used in error
+                        // reporting.
+
+                        const long int N = (cursor - EXPECTED) / 2;
+
+                        // Expected values of Tokenizer's op++ at (this)
+                        // iteration:
+
+                        const char *EXP_PREV  = cursor[-1];  // previous delim
+                        const char *EXP_TOKEN = cursor[ 0];  // current token
+                        const char *EXP_POST  = cursor[+1];  // trailing delim
+
+                        // Shorten for better error messages.
+
+                        const StringRef RET_PREV  = T.previousDelimiter();
+                        const StringRef RET_TOKEN = T.token();
+                        const StringRef RET_POST  = T.trailingDelimiter();
+
+                        if (!(i % 2)) {
+                            // Printing result for three-parameters constructor
+
+                            if (veryVerbose) {
+                                T_ T_ P(N)
+                                T_ T_ P_(EXP_PREV)  P(RET_PREV)
+                                T_ T_ P_(EXP_TOKEN) P(RET_TOKEN)
+                                T_ T_ P_(EXP_POST)  P(RET_POST)
+                            }
+                        } else {
+                            // Printing result for two-parameters constructor
+
+                            if (veryVerbose) {
+                               T_ T_ T_ T_ T_ T_ P(N)
+                               T_ T_ T_ T_ T_ T_ P_(EXP_PREV)  P(RET_PREV)
+                               T_ T_ T_ T_ T_ T_ P_(EXP_TOKEN) P(RET_TOKEN)
+                               T_ T_ T_ T_ T_ T_ P_(EXP_POST)  P(RET_POST)
+                            }
+                        }
+
+                        ASSERTV(LINE,
+                                N,
+                                EXP_PREV,
+                                RET_PREV,
+                                EXP_PREV  == RET_PREV);
+                        ASSERTV(LINE,
+                                N,
+                                EXP_TOKEN,
+                                RET_TOKEN,
+                                EXP_TOKEN == RET_TOKEN);
+                        ASSERTV(LINE,
+                                N,
+                                EXP_POST,
+                                RET_POST,
+                                EXP_POST  == RET_POST);
+
+                        ++mT;
+
+                    }  // for current token in input row
+
+                }  // for each constructor
 
             }  // for each row in table
         }
