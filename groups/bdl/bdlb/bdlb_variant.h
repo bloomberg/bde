@@ -98,10 +98,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: o A return type specified explicitly when invoking 'apply'.
 //..
-// The default is case no return value.  If users would like to return a value
-// from the visitor's 'operator()', the functor should specify an alias
-// 'ResultType' to the desired return type.  For example, if 'operator()' were
-// to return an 'int', the functor class should specify:
+// The default is no return value.  If users would like to return a value from
+// the visitor's 'operator()', the functor should specify an alias 'ResultType'
+// to the desired return type.  For example, if 'operator()' were to return an
+// 'int', the functor class should specify:
 //..
 //  typedef int ResultType;
 //..
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //  apply<int>(visitor);
 //..
 // Secondly, the 'apply' method varies based on how the method handles an unset
-// variant.  A users can choose to either:
+// variant.  A user can choose to:
 //..
 //: o Pass a default constructed 'bslmf::Nil' to the visitor.
 //:
@@ -403,8 +403,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o A user-specified default value is passed to the visitor.
 //..
-// Then, the next two examples below illustrate different ways to specify the
-// return value from 'apply:
+// A third example illustrates use of 'applyRaw', the behavior of which is
+// undefined if the variant is unset.  Two final examples illustrate different
+// ways to specify the return value from 'apply:
 //..
 //: o The return value is specified in the visitor.
 //:
@@ -1812,7 +1813,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to the 'visitor' object's 'operator()'.
         // This method does not return a value.  If the variant is unset, a
-        // default constructed 'bslmf::Nil' is passed to the visitor.  Note
+        // default constructed 'bslmf::Nil' is passed to the 'visitor'.  Note
         // that this method is selected only if the template parameter type
         // 'VISITOR' does not define a 'typedef' of 'ResultType' in its public
         // interface.  Also note that this method is defined inline to work
@@ -1909,7 +1910,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // this variant currently holds to the 'visitor' object's 'operator()',
         // and return the value (of template parameter 'RET_TYPE') returned by
         // the 'visitor'.  If the variant is unset, the specified
-        // 'defaultValue' is passed to the visitor.
+        // 'defaultValue' is passed to the 'visitor'.
 
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
@@ -3617,8 +3618,8 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     // 'Variant<A1, A2, ..., A12>'.
 
     // TYPES
-    typedef VariantImp<typename bslmf::TypeList12<A1,  A2,  A3,  A4,  A5,  A6,
-                                                  A7,  A8,  A9,  A10, A11,
+    typedef VariantImp<typename bslmf::TypeList12<A1, A2, A3, A4,  A5, A6,
+                                                  A7, A8, A9, A10, A11,
                                                   A12>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -3760,8 +3761,8 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     // 'Variant<A1, A2, ..., A13>'.
 
     // TYPES
-    typedef VariantImp<typename bslmf::TypeList13<A1,  A2,  A3,  A4,  A5,  A6,
-                                                  A7,  A8,  A9,  A10, A11, A12,
+    typedef VariantImp<typename bslmf::TypeList13<A1, A2, A3, A4,  A5,  A6,
+                                                  A7, A8, A9, A10, A11, A12,
                                                   A13>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
@@ -4062,8 +4063,8 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     // 'Variant<A1, A2, ..., A15>'.
 
     // TYPES
-    typedef VariantImp<typename bslmf::TypeList15<A1,  A2,  A3,  A4,  A5,  A6,
-                                                  A7,  A8,  A9,  A10, A11, A12,
+    typedef VariantImp<typename bslmf::TypeList15<A1,  A2, A3, A4,  A5,  A6,
+                                                  A7,  A8, A9, A10, A11, A12,
                                                   A13, A14,
                                                   A15>::ListType> Imp;
 
@@ -4215,8 +4216,8 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     // 'Variant<A1, A2, ..., A16>'.
 
     // TYPES
-    typedef VariantImp<typename bslmf::TypeList16<A1,  A2,  A3,  A4,  A5,  A6,
-                                                  A7,  A8,  A9,  A10, A11, A12,
+    typedef VariantImp<typename bslmf::TypeList16<A1,  A2,  A3, A4,  A5,  A6,
+                                                  A7,  A8,  A9, A10, A11, A12,
                                                   A13, A14, A15,
                                                   A16>::ListType> Imp;
 

@@ -1618,16 +1618,7 @@ struct TestUtil {
            "\nCall applyRaw using template deduction for the return type."
                          << endl;
        {
-           Variant value(1);
-           const Variant& x = value; const Variant& X = value;
-
-           x.applyRaw(vwrt);
-           x.applyRaw(vwort);
-           x.applyRaw(vwurt);
-
-           x.applyRaw(VWRT);
-           x.applyRaw(VWORT);
-           x.applyRaw(VWURT);
+           Variant value(1);  const Variant& X = value;
 
            X.applyRaw(vwrt);
            X.applyRaw(vwort);
@@ -1644,14 +1635,7 @@ struct TestUtil {
        {
            // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
 
-           Variant value(1);
-           const Variant& x = value; const Variant& X = value;
-
-           x.applyRaw<int>(vwrt);
-           x.applyRaw<int>(vwurt);
-
-           // x.applyRaw<int>(VWRT);
-           // x.applyRaw<int>(VWURT);
+           Variant value(1);  const Variant& X = value;
 
            X.applyRaw<int>(vwrt);
            X.applyRaw<int>(vwurt);
@@ -6309,7 +6293,7 @@ struct TestUtil {
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslalg_typetraits.h>
 
-template class BloombergLP::bdlb::Variant<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+template class BloombergLP::bdlb::Variant<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<1>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<10>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<UsesAllocator<20>,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
@@ -6506,7 +6490,7 @@ template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeLis
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<6> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<7> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<8> >;
-template struct BloombergLP::bslmf::IsSame<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,const char *>;
+template struct BloombergLP::bslmf::IsSame<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,const char *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<9> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<10> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<11> >;
@@ -6571,22 +6555,22 @@ template class BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestA
 template struct BloombergLP::bslmf::IsSame<TestArg<20>,TestArg<20> >;
 template struct BloombergLP::bslalg::HasTrait<BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>;
 template struct BloombergLP::bslalg::HasTrait<BloombergLP::bdlb::Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bdlb::TypeTraitHasPrintMethod>;
-template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
+template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<BloombergLP::bslmf::Nil,int,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,char,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
+template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
 template struct BloombergLP::bdlb::Variant_ReturnValueHelper<my_ReturningVisitor>;
 template struct bsl::enable_if<1,int>;
 template struct bsl::enable_if<0,void>;
 template struct BloombergLP::bdlb::Variant_ReturnValueHelper<my_ConstReturningVisitor>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template class BloombergLP::bdlb::Variant<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class BloombergLP::bdlb::Variant<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestAllocObj,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
+template class BloombergLP::bdlb::Variant<TestAllocObj,int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+template class BloombergLP::bdlb::Variant<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestAllocObj,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
+template class my_VariantWrapper<BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
 template class BloombergLP::bdlb::Variant<int,const char *,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
-template class bsl::basic_ostringstream<char,std::char_traits<char>,bsl::allocator<char> >;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,int>;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,double>;
+template class bsl::basic_ostringstream<char,bsl::char_traits<char>,bsl::allocator<char> >;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,int>;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,double>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;  // 80650
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<3> >;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<4> >;  // 59187
@@ -6614,22 +6598,22 @@ template struct BloombergLP::bslalg::HasTrait<char,BloombergLP::bslalg::TypeTrai
 template struct BloombergLP::bslalg::HasTrait<char,BloombergLP::bslalg::TypeTraitPair>;  // 41035
 template struct BloombergLP::bslmf::IsSame<char,BloombergLP::bslmf::Nil>;  // 58554
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<BloombergLP::bslmf::Nil,int,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslmf::Nil>;  // 59035
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,int>;  // 59187
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,int>;  // 59187
 template struct BloombergLP::bslmf::IsSame<TestInt,BloombergLP::bslmf::Nil>;  // 58554
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList6<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;  // 59187
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList6<TestAllocObj,int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,Copyable>;  // 59203
 template struct BloombergLP::bslmf::IsSame<Copyable,int>;  // 59204
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;  // 80651
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,int>;  // 59187
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,const char *,TestVoid>,const char *>;  // 59187
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList3<int,double,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> > >;
 template struct BloombergLP::bslmf::IsSame<double,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bslalg::HasTrait<double,BloombergLP::bslalg::TypeTraitBitwiseCopyable>;
 template struct BloombergLP::bslalg::HasTrait<double,BloombergLP::bslalg::TypeTraitPair>;
 template struct BloombergLP::bslmf::IsConvertible<BloombergLP::bslmf::Nil,double>;
 template struct BloombergLP::bslmf::IsConvertible<int,double>;
-template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslma::TestAllocator *>;
+template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList<int,bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,TestString>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList2<TestString,TestArg<2> >,TestArg<2> >;
@@ -6671,7 +6655,7 @@ template struct BloombergLP::bslmf::IsSame<TestArg<6>,BloombergLP::bslmf::Nil>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,BloombergLP::bslma::TestAllocator *>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestString>;
 //template class BloombergLP::bdlb::VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
-template struct BloombergLP::bslmf::IsConvertible<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,double>;
+template struct BloombergLP::bslmf::IsConvertible<bsl::basic_string<char,bsl::char_traits<char>,bsl::allocator<char> >,double>;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<2> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<3> >;
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<4> >;
@@ -6989,8 +6973,9 @@ int main(int argc, char *argv[])
 //:
 //: o A user-specified default value is passed to the visitor.
 //..
-// Then, the next two examples below illustrate different ways to specify the
-// return value from 'apply:
+// A third example illustrates use of 'applyRaw', the behavior of which is
+// undefined if the variant is unset.  Two final examples illustrate different
+// ways to specify the return value from 'apply:
 //..
 //: o The return value is specified in the visitor.
 //:
