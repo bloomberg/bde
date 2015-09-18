@@ -7,8 +7,8 @@
 #include <bslmt_mutex.h>       // for testing only
 #include <bslmt_threadutil.h>  // for testing only
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
-
 #include <bsls_timeinterval.h>
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
@@ -136,16 +136,21 @@ class MyBarrier {
     // Barrier, but depending on bslmt Barrier itself here would cause a
     // dependency cycle.
 
-    bslmt::Mutex     d_mutex;      // mutex used to control access to this
+    bslmt::Mutex     d_mutex;     // mutex used to control access to this
                                   // barrier.
-    MyCondition d_cond;       // condition variable used for signaling
+
+    MyCondition d_cond;           // condition variable used for signaling
                                   // blocked threads.
+
     const int       d_numThreads; // number of threads required to be waiting
                                   // before this barrier can be signaled.
-    int             d_numWaiting; // number of threads currently waiting
-                                  // for this barrier to be signaled.
+
+    int             d_numWaiting; // number of threads currently waiting for
+                                  // this barrier to be signaled.
+
     int             d_sigCount;   // counted of number of times this barrier
                                   // has been signaled.
+
     int             d_numPending; // Number of threads that have been signaled
                                   // but have not yet awakened.
 
@@ -156,8 +161,9 @@ class MyBarrier {
   public:
     // CREATORS
     explicit MyBarrier(int numThreads);
-        // Construct a barrier that requires 'numThreads' to unblock.  Note
-        // that the behavior is undefined unless '0 < numThreads'.
+        // Construct a barrier that requires the specified 'numThreads' to
+        // unblock.  Note that the behavior is undefined unless
+        // '0 < numThreads'.
 
     ~MyBarrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
@@ -469,10 +475,10 @@ int IntQueue::getInt()
     return ret;
 }
 
-void IntQueue::pushInt(int n)
+void IntQueue::pushInt(int number)
 {
     d_mutexSem.wait();
-    d_queue.push_front(n);
+    d_queue.push_front(number);
     d_mutexSem.post();
     d_resourceSem.post();
 }
@@ -485,7 +491,6 @@ int main(int argc, char *argv[]) {
 
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3; int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -515,10 +520,11 @@ int main(int argc, char *argv[]) {
         //      or return an error otherwise.
         //
         // Plan:
-        // We create two groups of threads.  One will call 'post', the other
-        // 'tryWait'.  First, we make sure that 'tryWait' fails if no resources
-        // is available.  Then we will make sure it succeeds if resources are.
-        // We will also test 'tryWait' in the steady state works fine.
+        //   We create two groups of threads.  One will call 'post', the other
+        //   'tryWait'.  First, we make sure that 'tryWait' fails if no
+        //   resources are available.  Then we will make sure it succeeds if
+        //   resources are.  We will also test 'tryWait' in the steady state
+        //   works fine.
         //
         // Testing:
         //   void tryWait();
@@ -559,8 +565,8 @@ int main(int argc, char *argv[]) {
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        // Create a set of threads calling 'wait' and use a thread to post a
-        // number smaller than the set of threads.
+        //   Create a set of threads calling 'wait' and use a thread to post a
+        //   number smaller than the set of threads.
         //
         // Testing:
         //   void post(int number);

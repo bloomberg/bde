@@ -6,6 +6,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_ostream.h>
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -14,6 +16,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_c_sys_time.h>
 
 using namespace BloombergLP;
 
@@ -702,8 +705,8 @@ extern "C" void *typesTest(void *voidArgs)
 
         // CLASS METHODS
         static const RequestContext *requestContext();
-            // Return the address of the non-modifiable, request context
-            // for this thread, or 0 if none has been set.
+            // Return the address of the non-modifiable, request context for
+            // this thread, or 0 if none has been set.
 
         // CREATORS
         RequestProcessor() {}

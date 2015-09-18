@@ -228,11 +228,11 @@ class SynchronizedAddJob {
     int                 d_numThreadsToAdd;
 
 public:
-    SynchronizedAddJob(bslmt::ThreadGroup* tg,
+    SynchronizedAddJob(bslmt::ThreadGroup* threadGroup,
                        const MutexTestJob& job,
                        bslmt::Mutex*       start,
                        int                 numThreadsToAdd)
-    : d_tg_p(tg)
+    : d_tg_p(threadGroup)
     , d_job(job)
     , d_start_p(start)
     , d_numThreadsToAdd(numThreadsToAdd) {
@@ -303,11 +303,11 @@ int main(int argc, char *argv[])
 
         MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 
-        bslmt::ThreadGroup tg(&ta);
+        bslmt::ThreadGroup threadGroup(&ta);
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == tg.addThread(testJob));
+            ASSERT(0 == threadGroup.addThread(testJob));
         }
-        tg.joinAll();
+        threadGroup.joinAll();
         ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
     }
     ASSERT(0 <  ta.numAllocations());
@@ -348,17 +348,17 @@ int main(int argc, char *argv[])
                                             &startSemaphore, &doneSemaphore);
 
             {
-                bslmt::ThreadGroup tg(&ta);
+                bslmt::ThreadGroup threadGroup(&ta);
 
                 // Threads in the first batch are added individually
                 for (int i = 0; i < NUM_THREADS; ++i) {
-                   ASSERT(0 == tg.addThread(testFunc));
+                   ASSERT(0 == threadGroup.addThread(testFunc));
                 }
 
                 // Threads in each subsequent batch are added as a group.
                 for (int i = 0; i < NUM_BATCHES - 1; ++i) {
-                    ASSERT(NUM_THREADS == tg.addThreads(testFunc,
-                                                        NUM_THREADS));
+                    ASSERT(NUM_THREADS == threadGroup.addThreads(testFunc,
+                                                                 NUM_THREADS));
                 }
             }
             ASSERT(0 == value);

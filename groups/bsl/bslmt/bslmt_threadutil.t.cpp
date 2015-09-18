@@ -23,6 +23,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_c_limits.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -275,7 +276,7 @@ bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
     return a >= 0 ? a : -a;
 }
 
-bsl::ostream& operator<<(bsl::ostream&                            stream,
+bsl::ostream& operator<<(bsl::ostream&                             stream,
                          bslmt::ThreadAttributes::SchedulingPolicy policy)
 {
     switch (policy) {
@@ -622,7 +623,7 @@ void Functor::operator()()
             // 'TIMER'_MASK controls how often threads wait for other threads
             // to pile up against the mutex.  A lower value of 'k_TIMER_MASK'
             // means more frequent sleeps.  Solaris is more sloppy about
-            // priroities and sleeps are needed more frequently.
+            // priorities and sleeps are needed more frequently.
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
             k_TIMER_MASK =  4 * k_LIMIT - 1
@@ -745,7 +746,7 @@ struct Func {
         // Recurse to create depth on stack
 
     void operator()();
-        // Initialize, then call recurser, then set 'd_success'
+        // Initialize, then call 'recurser', then set 'd_success'
 };
 bool Func::s_success;
 
@@ -1287,13 +1288,13 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 We create a scenario where a large number of threads are
         //:   contending many times for a single mutex.  One of these threads
-        //:   has max pirority, all the others have min priority.  We verify
+        //:   has max priority, all the others have min priority.  We verify
         //:   that the one thread with max priority is successful at getting
         //:   more rapid access to the mutex.  We have an atomic variable
-        //:   's_finished' which counts how many threads have finished aquiring
-        //:   the mutex a large number of times.  When the urgent thread
-        //:   finishes, it sets the value 's_urgentPlace' to the value of
-        //:   's_finished' when it finished, so after all threads have
+        //:   's_finished' which counts how many threads have finished
+        //:   acquiring the mutex a large number of times.  When the urgent
+        //:   thread finishes, it sets the value 's_urgentPlace' to the value
+        //:   of 's_finished' when it finished, so after all threads have
         //:   finished, 's_urgentPlace' tells us how many threads finished
         //:   before the urgent thread.
         //: 2 We do a number of trials, inserting the value of 's_urgentPlace'
@@ -1529,7 +1530,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: o Determine which policies and priority values it will be possible
         //:   create a thread at, and for which platform, and verify that our
-        //:   component doc about which polices will work on which platofrm is
+        //:   component doc about which polices will work on which platform is
         //:   accurate.
         //
         // Plan:
@@ -1539,8 +1540,9 @@ int main(int argc, char *argv[])
         //:   for the current platform and policy.
         //: o Set a thread attributes object with the given policy.
         //: o Iterate variable 'priority' from the min to the max priority for
-        //:   the given platform as specfied by 'Obj::getMinSchedulingPriority'
-        //:   and 'Obj::getMaxSchedulingPriority'.
+        //:   the given platform as specified by
+        //:   'Obj::getMinSchedulingPriority' and
+        //:   'Obj::getMaxSchedulingPriority'.
         //: o Attempt to spawn a thread running the 'Touch' functor, which if
         //:   it runs will set a boolean variable 'finished'.
         //: o Verify from the return code of 'Obj::create' that thread creation
@@ -1764,7 +1766,7 @@ int main(int argc, char *argv[])
       }  break;
       case 11: {
         // --------------------------------------------------------------------
-        // Usgae Example 3: MULTIPLE PRIORITY THREADS
+        // Usage Example 3: MULTIPLE PRIORITY THREADS
         //
         // Concern:
         //   Need to demonstrate setting priorities for threads.  Note that we
@@ -1912,11 +1914,11 @@ int main(int argc, char *argv[])
         // TESTING: convertToSchedulingPriority
         //
         // Concern:
-        //   That 'convertToSchedulingPriority' works as specced.
+        //   That 'convertToSchedulingPriority' works as expected.
         //
         // Plan:
         //   Call 'get{Min,Max}SchedPriority' and compare the results they
-        //   return to results reterned by 'convertToSchedulingPriority'.
+        //   return to results returned by 'convertToSchedulingPriority'.
         // --------------------------------------------------------------------
 
         typedef bslmt::ThreadAttributes Attr;
@@ -2527,7 +2529,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Declare two automatic variables in two different stack frames,
-        //   subtract pointers between the two to deterimine direction of stack
+        //   subtract pointers between the two to determine direction of stack
         //   growth.
         // --------------------------------------------------------------------
 
@@ -2566,7 +2568,7 @@ int main(int argc, char *argv[])
         int rc = bslmt::ThreadUtil::create(&handle,
                                           attr,
                                           &secondClearanceTest,
-                                          (void *) stackSize);
+                                          (void *)stackSize);
         ASSERT(0 == rc);
         rc = bslmt::ThreadUtil::join(handle);
       }  break;
