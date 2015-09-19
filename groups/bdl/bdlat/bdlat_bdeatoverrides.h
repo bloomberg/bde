@@ -7,6 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+//@PURPOSE: Provide macros to map 'bdeat' names to 'bdlat' names.
+//
+//@CLASSES:
+//
+//@DESCRIPTION: The 'bdlat_bdeatoverrides' component provides macros that
+// replace 'bdeat' class names with the names of their successor classes in
+// this package.
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif

@@ -1,0 +1,70 @@
+ bdlde.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (bdlde)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bdlde' ("Basic Development Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlde' package currently has 12 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlde_base64decoder
+     bdlde_charconvertucs2
+     bdlde_charconvertutf16
+     bdlde_charconvertutf32
+
+  1. bdlde_base64encoder
+     bdlde_byteorder
+     bdlde_charconvertstatus
+     bdlde_crc32
+     bdlde_md5
+     bdlde_quotedprintabledecoder
+     bdlde_quotedprintableencoder
+     bdlde_utf8util
+..
+
+/Component Synopsis
+/------------------
+: 'bdlde_base64decoder':
+:      Provide automata for converting to and from Base64 encodings.
+:
+: 'bdlde_base64encoder':
+:      Provide automata for converting to and from Base64 encodings.
+:
+: 'bdlde_byteorder':
+:      Provide an enumeration of the set of possible byte orders.
+:
+: 'bdlde_charconvertstatus':
+:      Provide masks for interpreting status from charconvert functions.
+:
+: 'bdlde_charconvertucs2':
+:      Provide efficient conversions between UTF-8 and UCS-2 encodings.
+:
+: 'bdlde_charconvertutf16':
+:      Provide fast, safe conversion between UTF-8 and UTF-16 encodings.
+:
+: 'bdlde_charconvertutf32':
+:      Provide fast, safe conversion between UTF-8 encoding and UTF-32.
+:
+: 'bdlde_crc32':
+:      Provide a mechanism for computing the CRC-32 checksum of a dataset.
+:
+: 'bdlde_md5':
+:      Provide a value-semantic type encoding a message in an MD5 digest.
+:
+: 'bdlde_quotedprintabledecoder':
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdlde_quotedprintableencoder':
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdlde_utf8util':
+:      Provide basic utilities for UTF-8 encodings.
