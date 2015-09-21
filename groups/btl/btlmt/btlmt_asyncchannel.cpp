@@ -8,6 +8,10 @@ namespace BloombergLP {
 
 namespace btlmt {
 
+                          // ------------------
+                          // class AsyncChannel
+                          // ------------------
+
 AsyncChannel::~AsyncChannel()
 {
 }

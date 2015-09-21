@@ -1,6 +1,6 @@
-// btlmt_session.t.cpp                                                -*-C++-*-
+// btlmt_sessionfactory.t.cpp                                         -*-C++-*-
 
-#include <btlmt_session.h>
+#include <btlmt_sessionfactory.h>
 #include <bslma_testallocator.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -20,17 +20,16 @@ using namespace bsl;  // automatically added by script
 // verify that when a method is called through a base class instance pointer
 // the appropriate method in the derived class instance is invoked.
 //-----------------------------------------------------------------------------
-// [ 1] ~btlmt::Session();
-// [ 1] int start();
-// [ 1] int stop();
-// [ 1] AsyncChannel *channel() const;
+// [ 1] ~btlmt::SessionFactory();
+// [ 1] void allocate(bsl::shared_ptr<AsyncChannel>& channel, callback);
+// [ 1] void allocate(AsyncChannel *channel, callback);
+// [ 1] void deallocate(Session *session) = 0;
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -92,48 +91,88 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //          USAGE example from header(with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
-
-///Usage
-///-----
-// This section illustrates intended use of this component.
 //
-///Example 1: Implementing a concrete channel type
-///- - - - - - - - - - - - - - - - - - - - - - - -
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class TestSession : public btlmt::Session
-    // This 'class' provides a test implementation of the 'btlmt::Session'
-    // protocol.
+class TestSessionFactory : public btlmt::SessionFactory
+    // This 'class' provides a test implementation of the
+    // 'btlmt::SessionFactory' protocol.  This 'class' *does not* override the
+    // 'allocate' method that takes a 'btlmt::AsyncChannel' by a
+    // 'bsl::shared_ptr'.
 {
    // DATA
    int *d_funcCode_p;                  // code of the function, held
 
    // NOT IMPLEMENTED
-   TestSession(const btlmt::Session&);
-   TestSession& operator=(const btlmt::Session&);
+   TestSessionFactory(const btlmt::SessionFactory&);
+   TestSessionFactory& operator=(const btlmt::SessionFactory&);
 
   public:
-   // CREATORS
-   TestSession(int *funcCode)
-   : d_funcCode_p (funcCode) { ASSERT(d_funcCode_p); *d_funcCode_p = 0; };
+    // CREATORS
+    TestSessionFactory(int *funcCode)
+    : d_funcCode_p (funcCode) { *d_funcCode_p = 0; }
 
-   ~TestSession() { *d_funcCode_p = 1; };
+    ~TestSessionFactory() { *d_funcCode_p = 1; }
 
-   // MANIPULATORS
-   int start() { *d_funcCode_p = 2; return 0;}
+    // MANIPULATORS
+    void allocate(btlmt::AsyncChannel                    *,
+                  const btlmt::SessionFactory::Callback&  )
+    {
+       *d_funcCode_p = 2;
+    }
 
-   int stop() { *d_funcCode_p = 3; return 0;}
-
-   btlmt::AsyncChannel* channel() const
-       { *d_funcCode_p = 4; return (btlmt::AsyncChannel *) 0;}
+    void deallocate(btlmt::Session *)
+    {
+       *d_funcCode_p = 3;
+    }
 };
 
-void* MyCallback(int, btlmt::Session *)
+class TestSessionFactoryWithSharedAsyncChannel : public btlmt::SessionFactory
+    // This 'class' provides a test implementation of the
+    // 'btlmt::SessionFactory' protocol.  This 'class' overrides all the
+    // methods of the underlying protocol including the 'allocate' method that
+    // takes a 'btlmt::AsyncChannel' by a 'bsl::shared_ptr'.
 {
-   return (void *) 0;
+   // DATA
+   int *d_funcCode_p;  // code of the function, held
+
+   // NOT IMPLEMENTED
+   TestSessionFactoryWithSharedAsyncChannel(const btlmt::SessionFactory&);
+   TestSessionFactoryWithSharedAsyncChannel& operator=(
+                                                 const btlmt::SessionFactory&);
+
+  public:
+    // CREATORS
+    TestSessionFactoryWithSharedAsyncChannel(int *funcCode)
+    : d_funcCode_p (funcCode) { *d_funcCode_p = 0; }
+
+    ~TestSessionFactoryWithSharedAsyncChannel() { *d_funcCode_p = 1; }
+
+    // MANIPULATORS
+    void allocate(btlmt::AsyncChannel                    *,
+                  const btlmt::SessionFactory::Callback&  )
+    {
+       *d_funcCode_p = 2;
+    }
+
+    void allocate(const bsl::shared_ptr<btlmt::AsyncChannel>& ,
+                  const btlmt::SessionFactory::Callback&      )
+    {
+       *d_funcCode_p = 4;
+    }
+
+    void deallocate(btlmt::Session *)
+    {
+       *d_funcCode_p = 3;
+    }
+};
+
+void* MyCallback(int , btlmt::Session*)
+{
+   return (void*)0;
 }
 
 //=============================================================================
@@ -165,30 +204,86 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "BREATHING TEST." << bsl::endl
                                << "===============" << bsl::endl;
 
-        if (veryVerbose) bsl::cout
-         << "\tTesting 'btlmt::Session': protocol test." << bsl::endl;
         {
+           if (veryVerbose) bsl::cout
+            << "\tTesting 'btlmt::SessionFactory': protocol test."<< bsl::endl;
+
            int opCode = -1;
 
-           TestSession  mX(&opCode);           ASSERT(0 == opCode);
+           TestSessionFactory mX1(&opCode);    ASSERT(0 == opCode);
 
-           btlmt::Session& session = mX;
+           btlmt::SessionFactory& factory = mX1;
 
-           session.start();                    ASSERT(2 == opCode);
-           session.stop();                     ASSERT(3 == opCode);
-           session.channel();                  ASSERT(4 == opCode);
+           // must intialize these poiinters, as copying an uninitialized value
+           // as a function argument is undefined behaviour, even if it is not
+           // used within the function.  This is a real problem on Windows in
+           // debug builds.
+           btlmt::AsyncChannel *channel = 0;
+           btlmt::Session *session = 0;
+
+           factory.allocate(channel, &MyCallback);     ASSERT(2 == opCode);
+           factory.deallocate(session);                ASSERT(3 == opCode);
+        }
+
+        {
+            if (veryVerbose) bsl::cout << "\tTesting 'btlmt::SessionFactory': "
+                                       << "Derived imp does not override "
+                                       << "shared async channel method."
+                                       << bsl::endl;
+
+           int opCode = -1;
+
+           TestSessionFactory mX1(&opCode);    ASSERT(0 == opCode);
+
+           btlmt::SessionFactory& factory = mX1;
+
+           // must intialize these poiinters, as copying an uninitialized value
+           // as a function argument is undefined behaviour, even if it is not
+           // used within the function.  This is a real problem on Windows in
+           // debug builds.
+           bsl::shared_ptr<btlmt::AsyncChannel> spChannel;
+           btlmt::Session *session = 0;
+
+           factory.allocate(spChannel, &MyCallback);   ASSERT(2 == opCode);
+           factory.deallocate(session);                ASSERT(3 == opCode);
+        }
+
+        {
+            if (veryVerbose) bsl::cout << "\tTesting 'btlmt::SessionFactory': "
+                                       << "Derived imp overrides "
+                                       << "shared async channel method."
+                                       << bsl::endl;
+
+           int opCode = -1;
+
+           TestSessionFactoryWithSharedAsyncChannel mX1(&opCode);
+           ASSERT(0 == opCode);
+
+           btlmt::SessionFactory& factory = mX1;
+
+           // must intialize these poiinters, as copying an uninitialized value
+           // as a function argument is undefined behaviour, even if it is not
+           // used within the function.  This is a real problem on Windows in
+           // debug builds.
+           bsl::shared_ptr<btlmt::AsyncChannel> spChannel;
+           btlmt::Session *session = 0;
+
+           factory.allocate(spChannel.get(), &MyCallback); ASSERT(2 == opCode);
+           factory.allocate(spChannel, &MyCallback);       ASSERT(4 == opCode);
+           factory.deallocate(session);                    ASSERT(3 == opCode);
         }
 
         {
            int opCode = -1;
 
            if (veryVerbose) bsl::cout
-            << "\tTesting 'btlmt::Session': destructor test." << bsl::endl;
+            <<"\tTesting 'btlmt::SessionFactory': destructor test."<<bsl::endl;
 
-           btlmt::Session *session = new(testAllocator) TestSession(&opCode);
+           btlmt::SessionFactory *factory =
+            new(testAllocator) TestSessionFactory(&opCode);
            ASSERT(0 == opCode);
 
-           testAllocator.deleteObjectRaw(session);
+           testAllocator.deleteObjectRaw(factory);
            ASSERT(1 == opCode);
         }
 

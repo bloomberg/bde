@@ -213,13 +213,13 @@ class IPv4Address {
         //
         // Windows XP currently does not support the inet_aton function as
         // specified by the contract above (inet_pton does not handle
-        // hexadecimal or octal numerals.)  In DRQS 44521942 it is noted that
-        // 255.255.255.255, while being a valid address, is not parsed
-        // correctly by inet_addr because -1 is used as an error code.  This
-        // function checks if the specified 'address' is an IP representation
-        // of a address with an integer value of -1.  This function is intended
-        // to detect all cases in which a valid address of 255.255.255.255 is
-        // wrongfully detected as an invalid address by inet_addr.
+        // hexadecimal or octal numerals.)  In some cases 255.255.255.255,
+        // while being a valid address, is not parsed correctly by inet_addr
+        // because -1 is used as an error code.  This function checks if the
+        // specified 'address' is an IP representation of a address with an
+        // integer value of -1.  This function is intended to detect all cases
+        // in which a valid address of 255.255.255.255 is wrongfully detected
+        // as an invalid address by inet_addr.
 
     // CREATORS
     IPv4Address();

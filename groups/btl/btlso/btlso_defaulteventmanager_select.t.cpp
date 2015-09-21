@@ -59,7 +59,7 @@ using namespace bsl;  // automatically added by script
 // [10] isRegistered
 //-----------------------------------------------------------------------------
 // [18] USAGE
-// [16] TESTING CONCERN: exception set on windows (DRQS 11464834)
+// [16] TESTING CONCERN: exception set on windows
 // [ 1] BREATHING TEST
 // [ 2] Assumptions about 'select' system call
 // [-4] TESTING PERFORMANCE 'registerSocketEvent'
@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // -----------------------------------------------------------------
-        // TESTING CONCERN: exception set on windows (DRQS 11464834)
+        // TESTING CONCERN: exception set on windows
         //   Connecting to a port that is not listened on, should trigger a
         //   write/connect event.  On windows, however, it selects the
         //   exception set instead of the write set.
@@ -524,12 +524,11 @@ int main(int argc, char *argv[])
         //   selects an exception set and invokes the appropriate callback.
         //
         // Testing:
-        //   CONCERN: EXCEPTION SET ON WINDOWS (DRQS 11464834)
+        //   CONCERN: EXCEPTION SET ON WINDOWS
         // -----------------------------------------------------------------
-        if (verbose)
-            cout << endl
-                << "TESTING exception set on windows (DRQS 11464834)." << endl
-                << "=================================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING exception set on windows." << endl
+                          << "=================================" << endl;
 
         {
             Obj mX(&timeMetric, &testAllocator);
@@ -1453,9 +1452,9 @@ int main(int argc, char *argv[])
             FD_SET(testPairs[i].observedFd(), &readSet);
             FD_SET(testPairs[i].observedFd(), &writeSet);
 
-            // Fix test failure (DRQS 16736357). Ensure the data written above
-            // is ready to be read, by calling select and not providing a write
-            // set.
+            // Fix test failure.  Ensure the data written above is ready to be
+            // read, by calling select and not providing a write set.
+
             int selectReturnValue = ::select(maxFd,
                                              &readSet,
                                              NULL,

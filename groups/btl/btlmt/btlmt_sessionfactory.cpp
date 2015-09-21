@@ -1,20 +1,27 @@
-// btlmt_session.cpp                                                  -*-C++-*-
-#include <btlmt_session.h>
+// btlmt_sessionfactory.cpp                                           -*-C++-*-
+#include <btlmt_sessionfactory.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(btlmt_session_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlmt_sessionfactory_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
 namespace btlmt {
 
-                            // -------------
-                            // class Session
-                            // -------------
+                            // --------------------
+                            // class SessionFactory
+                            // --------------------
 
 // CREATORS
-Session::~Session()
+SessionFactory::~SessionFactory()
 {
+}
+
+// MANIPULATORS
+void SessionFactory::allocate(const bsl::shared_ptr<AsyncChannel>& channel,
+                              const SessionFactory::Callback&      callback)
+{
+    allocate(channel.get(), callback);
 }
 
 }  // close package namespace

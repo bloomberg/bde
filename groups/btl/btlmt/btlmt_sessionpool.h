@@ -53,6 +53,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing an echo server
+///- - - - - - - - - - - - - - - - - - -
 // The following example implements a simple echo server.  This server accepts
 // connections, reads what it receives right away from the network stream,
 // sends it back and closes the connection.
@@ -78,10 +82,10 @@ BSLS_IDENT("$Id: $")
 //     btlmt::AsyncChannel *d_channel_p;// underlying channel (held, not owned)
 //
 //     // PRIVATE MANIPULATORS
-//     void readCb(int           result,
-//                 int          *numNeeded,
+//     void readCb(int         result,
+//                 int        *numNeeded,
 //                 btlb::Blob *blob,
-//                 int           channelId);
+//                 int         channelId);
 //         // Read callback for session pool.
 //
 //   private:
@@ -157,10 +161,10 @@ BSLS_IDENT("$Id: $")
 //                          // --------------------
 //
 //  // PRIVATE MANIPULATORS
-//  void my_EchoSession::readCb(int           result,
-//                              int          *numNeeded,
+//  void my_EchoSession::readCb(int         result,
+//                              int        *numNeeded,
 //                              btlb::Blob *blob,
-//                              int           channelId)
+//                              int         channelId)
 //  {
 //      if (result) {
 //          d_channel_p->close();
@@ -253,33 +257,33 @@ BSLS_IDENT("$Id: $")
 //      // This class implements a multi-user multi-threaded echo server.
 //
 //      // DATA
-//      btlmt::ChannelPoolConfiguration  d_config;        // pool
-//                                                        // configuration
+//      btlmt::ChannelPoolConfiguration  d_config;         // pool
+//                                                         // configuration
 //
-//      btlmt::SessionPool              *d_sessionPool_p; // managed pool
-//                                                        // (owned)
+//      btlmt::SessionPool              *d_sessionPool_p;  // managed pool
+//                                                         // (owned)
 //
-//      my_EchoSessionFactory            d_sessionFactory;// my_EchoSession
-//                                                        // factory
+//      my_EchoSessionFactory            d_sessionFactory; // my_EchoSession
+//                                                         // factory
 //
-//      int                              d_portNumber;    // port on which this
-//                                                        // server is
-//                                                        // listening
+//      int                              d_portNumber;     // port on which
+//                                                         // this server is
+//                                                         // listening
 //
-//      bslmt::Mutex                    *d_coutLock_p;    // mutex protecting
-//                                                        // bsl::cout
+//      bdlqq::Mutex                    *d_coutLock_p;     // mutex protecting
+//                                                         // bsl::cout
 //
-//      bslma::Allocator                *d_allocator_p;   // memory allocator
-//                                                        // (held)
+//      bslma::Allocator                *d_allocator_p;    // memory allocator
+//                                                         // (held)
 //
 //      // PRIVATE MANIPULATORS
 //      void poolStateCb(int reason, int source, void *userData);
 //          // Indicates the status of the whole pool.
 //
-//      void sessionStateCb(int            state,
-//                          int            handle,
+//      void sessionStateCb(int             state,
+//                          int             handle,
 //                          btlmt::Session *session,
-//                          void          *userData);
+//                          void           *userData);
 //          // Per-session state.
 //
 //    private:
@@ -343,10 +347,10 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void my_EchoServer::sessionStateCb(int            state,
-//                                     int            handle,
+//  void my_EchoServer::sessionStateCb(int             state,
+//                                     int             handle,
 //                                     btlmt::Session *session,
-//                                     void          *userData) {
+//                                     void           *userData) {
 //
 //      switch(state) {
 //        case btlmt::SessionPool::SESSION_DOWN: {
@@ -383,25 +387,28 @@ BSLS_IDENT("$Id: $")
 //      d_config.setMaxThreads(4);                  // 4 I/O threads
 //      d_config.setMaxConnections(numConnections);
 //      d_config.setMetricsInterval(10.0);          // seconds
-//      d_config.setMaxWriteCache(1<<10);           // 1Mb
+//      d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
 //      d_config.setIncomingMessageSizes(1, 100, 1024);
 //
 //      typedef btlmt::SessionPool::SessionPoolStateCallback SessionStateCb;
 //
 //      SessionStateCb poolStateCb = bdlf::MemFnUtil::memFn(
-//                                          &my_EchoServer::poolStateCb, this);
+//                                                 &my_EchoServer::poolStateCb,
+//                                                 this);
 //
-//      d_sessionPool_p = new (*d_allocator_p)
-//                           btlmt::SessionPool(d_config, poolStateCb,
-//                                             basicAllocator);
+//      d_sessionPool_p = new (*d_allocator_p) btlmt::SessionPool(
+//                                                             d_config,
+//                                                             poolStateCb,
+//                                                             basicAllocator);
 //
 //      btlmt::SessionPool::SessionStateCallback sessionStateCb =
-//                     bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
-//                                           this);
+//                       bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
+//                                              this);
 //
 //      ASSERT(0 == d_sessionPool_p->start());
 //      int handle;
-//      ASSERT(0 == d_sessionPool_p->listen(&handle, sessionStateCb,
+//      ASSERT(0 == d_sessionPool_p->listen(&handle,
+//                                          sessionStateCb,
 //                                          portNumber,
 //                                          numConnections,
 //                                          &d_sessionFactory));
@@ -496,8 +503,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
@@ -518,20 +529,18 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace btlmt {
+namespace btlso { class SocketOptions; }
 
 class ChannelPool;
 class Session;
 class SessionFactory;
 
+class  ChannelPool;
+class  Session;
+class  SessionFactory;
 struct SessionPool_Handle;
-class SessionPool;
+class  SessionPool;
 
-}  // close package namespace
-
-namespace btlso { class SocketOptions; }
-
-namespace btlmt {
                    // ================================
                    // class SessionPoolSessionIterator
                    // ================================
@@ -545,14 +554,14 @@ class SessionPoolSessionIterator {
                                                                CatalogIterator;
 
     // DATA
-    CatalogIterator           d_iterator;  // underlying catalog iterator
+    CatalogIterator            d_iterator;  // underlying catalog iterator
 
-    bsl::pair<int, Session*>  d_current;   // pair referenced by
-                                           // this iterator
+    bsl::pair<int, Session *>  d_current;   // pair referenced by
+                                            // this iterator
 
-    bsl::pair<int, Session*> *d_current_p; // points to 'd_current' if
-                                           // the iterator is valid, or
-                                           // 0 otherwise.
+    bsl::pair<int, Session *> *d_current_p; // points to 'd_current' if
+                                            // the iterator is valid, or
+                                            // 0 otherwise.
 
   private:
     // NOT IMPLEMENTED
@@ -584,7 +593,7 @@ class SessionPoolSessionIterator {
     operator bool() const;
         // Return true if the iterator is *valid*, and false otherwise.
 
-    bsl::pair<int, Session*> const & operator *() const;
+    const bsl::pair<int, Session *>& operator*() const;
         // Return a pair containing the handle ('first' element of the pair)
         // and a pointer to the session ('second' element of the pair )
         // associated with this iterator.  The behavior is undefined unless the
@@ -623,29 +632,31 @@ class SessionPool {
     enum SessionState{
         // Result code passed to the session callback.
 
-        e_SESSION_UP = 1              // new session has been allocated
-      , e_SESSION_DOWN = 2            // session went down
-      , e_SESSION_ALLOC_FAILED = 3    // session allocation failed
-      , e_SESSION_STARTUP_FAILED = 4  // the call to 'start' failed
-      , e_WRITE_CACHE_LOWWAT = 5      // write cache low watermark reached
-      , e_WRITE_CACHE_HIWAT = 6       // write cache high watermark reached
-      , e_ACCEPT_FAILED = 7           // accept failed
-      , e_CONNECT_ATTEMPT_FAILED = 8  // a connection attempt failed
-      , e_CONNECT_FAILED = 9          // the connection initiation failed
-      , e_CONNECT_ABORTED = 10        // session was shutdown before the
-                                    // connection could be established
+        e_SESSION_UP             = 1,  // new session has been allocated
+        e_SESSION_DOWN           = 2,  // session went down
+        e_SESSION_ALLOC_FAILED   = 3,  // session allocation failed
+        e_SESSION_STARTUP_FAILED = 4,  // the call to 'start' failed
+        e_WRITE_CACHE_LOWWAT     = 5,  // write cache low watermark reached
+        e_WRITE_CACHE_HIWAT      = 6,  // write cache high watermark reached
+        e_ACCEPT_FAILED          = 7,  // accept failed
+        e_CONNECT_ATTEMPT_FAILED = 8,  // a connection attempt failed
+        e_CONNECT_FAILED         = 9,  // the connection initiation failed
+        e_CONNECT_ABORTED        = 10  // session was shutdown before the
+                                       // connection could be established
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , SESSION_UP = e_SESSION_UP
-      , SESSION_DOWN = e_SESSION_DOWN
-      , SESSION_ALLOC_FAILED = e_SESSION_ALLOC_FAILED
+      , SESSION_UP             = e_SESSION_UP
+      , SESSION_DOWN           = e_SESSION_DOWN
+      , SESSION_ALLOC_FAILED   = e_SESSION_ALLOC_FAILED
       , SESSION_STARTUP_FAILED = e_SESSION_STARTUP_FAILED
-      , WRITE_CACHE_LOWWAT = e_WRITE_CACHE_LOWWAT
-      , WRITE_CACHE_HIWAT = e_WRITE_CACHE_HIWAT
-      , ACCEPT_FAILED = e_ACCEPT_FAILED
+      , WRITE_CACHE_LOWWAT     = e_WRITE_CACHE_LOWWAT
+      , WRITE_CACHE_HIWAT      = e_WRITE_CACHE_HIWAT
+      , ACCEPT_FAILED          = e_ACCEPT_FAILED
       , CONNECT_ATTEMPT_FAILED = e_CONNECT_ATTEMPT_FAILED
-      , CONNECT_FAILED = e_CONNECT_FAILED
-      , CONNECT_ABORTED = e_CONNECT_ABORTED
+      , CONNECT_FAILED         = e_CONNECT_FAILED
+      , CONNECT_ABORTED        = e_CONNECT_ABORTED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     enum ConnectResolutionMode {
@@ -653,37 +664,41 @@ class SessionPool {
         // attempt in 'connect'.
 
         e_RESOLVE_ONCE            = 0,  // perform resolution once prior to the
-                                      // first connect attempt
+                                        // first connect attempt
 
         e_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
-                                      // connect attempt
+                                        // connect attempt
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , RESOLVE_ONCE = e_RESOLVE_ONCE
-      , RESOLVE_AT_EACH_ATTEMPT = e_RESOLVE_AT_EACH_ATTEMPT
+      , RESOLVE_ONCE              = e_RESOLVE_ONCE
+      , RESOLVE_AT_EACH_ATTEMPT   = e_RESOLVE_AT_EACH_ATTEMPT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     enum PoolState {
         // Result code passed to the pool callback.  Note that
-        // 'CONNECT_ABORTED', 'CONNECT_ATTEMPT_FAILED', 'CONNECT_FAILED',
-        // 'ACCEPT_FAILED' are passed to both the session and the pool
+        // 'e_CONNECT_ABORTED', 'e_CONNECT_ATTEMPT_FAILED', 'e_CONNECT_FAILED',
+        // 'e_ACCEPT_FAILED' are passed to both the session and the pool
         // callbacks.
 
         e_SESSION_LIMIT_REACHED = 1   // cannot create more sessions
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , SESSION_LIMIT_REACHED = e_SESSION_LIMIT_REACHED
+      , SESSION_LIMIT_REACHED   = e_SESSION_LIMIT_REACHED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
-    typedef bsl::function<void(int      state,
-                               int      handle,
-                               Session *session,
-                               void    *userData)> SessionStateCallback;
+    typedef bdlf::Function<void (*)(int      state,
+                                    int      handle,
+                                    Session *session,
+                                    void    *userData)> SessionStateCallback;
         // Session callback.
 
-    typedef bsl::function<void(int   state,
-                               int   source,
-                               void *userData)> SessionPoolStateCallback;
+    typedef bdlf::Function<void (*)(int   state,
+                                    int   source,
+                                    void *userData)> SessionPoolStateCallback;
         // Pool callback.
 
   private:
@@ -730,10 +745,10 @@ class SessionPool {
         // registered with the underlying channel pool and destroy the
         // specified 'handle'.
 
-    void blobBasedReadCb(int          *numNeeded,
+    void blobBasedReadCb(int        *numNeeded,
                          btlb::Blob *msg,
-                         int           channelId,
-                         void         *userData);
+                         int         channelId,
+                         void       *userData);
         // Channel pool's blob based read callback.
 
     void terminateSession(SessionPool_Handle *handle);
@@ -773,14 +788,13 @@ class SessionPool {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SessionPool,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(SessionPool, bslma::UsesBslmaAllocator);
 
     // CREATORS
     SessionPool(const ChannelPoolConfiguration&  config,
                 const SessionPoolStateCallback&  poolStateCallback,
                 bslma::Allocator                *basicAllocator = 0);
-    SessionPool(btlb::BlobBufferFactory       *blobBufferFactory,
+    SessionPool(btlb::BlobBufferFactory         *blobBufferFactory,
                 const ChannelPoolConfiguration&  config,
                 const SessionPoolStateCallback&  poolStateCallback,
                 bslma::Allocator                *basicAllocator = 0);
@@ -889,7 +903,7 @@ class SessionPool {
                 SessionFactory                           *factory,
                 void                                     *userData = 0,
                 ConnectResolutionMode                     resolutionMode
-                                                               = e_RESOLVE_ONCE);
+                                                             = e_RESOLVE_ONCE);
     int connect(int                                      *handleBuffer,
                 const SessionPool::SessionStateCallback&  callback,
                 const char                               *hostname,
@@ -899,7 +913,7 @@ class SessionPool {
                 SessionFactory                           *factory,
                 void                                     *userData = 0,
                 ConnectResolutionMode                     resolutionMode
-                                                               = e_RESOLVE_ONCE,
+                                                              = e_RESOLVE_ONCE,
                 const btlso::SocketOptions               *socketOptions = 0,
                 const btlso::IPv4Address                 *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'hostname' on the
@@ -1008,8 +1022,8 @@ class SessionPool {
 
     // ACCESSORS
     const ChannelPoolConfiguration& config() const;
-        // Return a non-modifiable reference to the configuration used
-        // during the construction of this session pool.
+        // Return a non-modifiable reference to the configuration used during
+        // the construction of this session pool.
 
     void getChannelHandleStatistics(
                        bsl::vector<ChannelPool::HandleInfo> *handleInfo) const;
@@ -1040,7 +1054,6 @@ inline
 SessionPoolSessionIterator::~SessionPoolSessionIterator()
 {
 }
-}  // close package namespace
 
 // ACCESSORS
 inline
@@ -1049,10 +1062,8 @@ btlmt::SessionPoolSessionIterator::operator bool() const
     return d_current_p;
 }
 
-namespace btlmt {
 inline
-bsl::pair<int, Session*> const &
-SessionPoolSessionIterator::operator*() const
+const bsl::pair<int, Session *>& SessionPoolSessionIterator::operator*() const
 {
     return *d_current_p;
 }
@@ -1086,12 +1097,12 @@ int SessionPool::numSessions() const
 // MANIPULATORS
 inline
 int SessionPool::import(
-               int                                             *handleBuffer,
-               const SessionPool::SessionStateCallback&         callback,
-               btlso::StreamSocket<btlso::IPv4Address>         *streamSocket,
-               btlso::StreamSocketFactory<btlso::IPv4Address>  *socketFactory,
-               SessionFactory                                  *sessionFactory,
-               void                                            *userData)
+                int                                            *handleBuffer,
+                const SessionPool::SessionStateCallback&        callback,
+                btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+                btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+                SessionFactory                                 *sessionFactory,
+                void                                           *userData)
 {
     typedef btlso::StreamSocketFactoryDeleter Deleter;
 
@@ -1099,11 +1110,13 @@ int SessionPool::import(
                                    streamSocket,
                                    socketFactory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
+
     const int rc = import(handleBuffer,
                           callback,
                           &socket,
                           sessionFactory,
                           userData);
+
     if (rc) {
         socket.release();
     }
@@ -1113,7 +1126,7 @@ int SessionPool::import(
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif  // INCLUDED_BTLMT_SESSIONPOOL
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

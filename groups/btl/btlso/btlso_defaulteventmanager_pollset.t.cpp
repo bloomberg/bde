@@ -578,6 +578,7 @@ int main(int argc, char *argv[])
       case 8: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
+        //
         // Concern:
         //   o  Deregistration from a callback of the same socket is handled
         //      correctly
@@ -585,10 +586,12 @@ int main(int argc, char *argv[])
         //      correctly
         //   o  Deregistration from a callback of one of the _previous_
         //      sockets and subsequent socket registration is handled
-        //      correctly - see DRQS 8134027
+        //      correctly
+        //
         // Plan:
         //   Create custom set of scripts for each concern and exercise them
         //   using 'btlso::EventManagerTester'.
+        //
         // Testing:
         //   int deregisterSocket();
         // -----------------------------------------------------------------

@@ -139,8 +139,8 @@ typedef bslx::TestOutStream Out;
 int main(int argc, char *argv[])
 {
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
-    // drqs 38679960 - clang can use up all the memory on Linux compiling
-    // this test driver, crashing the machine.
+    // clang can use up all the memory on Linux compiling this test driver,
+    // crashing the machine.
     return -1;                                                        // RETURN
 #endif
     int test = argc > 1 ? atoi(argv[1]) : 0;

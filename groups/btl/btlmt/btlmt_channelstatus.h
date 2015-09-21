@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //      //...
 //  };
 //..
-// Further suppose that we have a 'bdlmca::Blob' object, 'blob', and a
+// Further suppose that we have a 'btlb::Blob' object, 'blob', and a
 // 'MyChannel' object, 'channel'.
 //
 // First, we use the 'write' method to write 'blob' into 'channel':
@@ -95,28 +95,33 @@ BSLS_IDENT("$Id: $")
 // 'btlmt::ChannelStatus::Enum' to handle the different return conditions:
 //..
 //  switch(rc) {
-//    case btlmt::ChannelStatus::BTEMT_SUCCESS:  // Success
-//    {
+//    case btlmt::ChannelStatus::BTEMT_SUCCESS: { // Success
+//
 //        // ...
+//
 //    } break;
 //
 //    // We handle the different types of failures in the cases below.
 //
-//    case btlmt::ChannelStatus::BTEMT_CACHE_OVERFLOW:
-//    {
+//    case btlmt::ChannelStatus::BTEMT_CACHE_OVERFLOW: {
+//
 //        // ...
+//
 //    } break;
-//    case btlmt::ChannelStatus::BTEMT_CACHE_HIGHWATER:
-//    {
+//    case btlmt::ChannelStatus::BTEMT_CACHE_HIGHWATER: {
+//
 //        // ...
+//
 //    } break;
-//    case btlmt::ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN:
-//    {
+//    case btlmt::ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN: {
+//
 //        // ...
+//
 //    } break;
-//    default:  // Handle other failures.
-//    {
-//        //...
+//    default: { // Handle other failures.
+//
+//        // ...
+//
 //    }
 //  };
 //..
@@ -132,16 +137,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlmt {
-                        // ==========================
+
+                        // ====================
                         // struct ChannelStatus
-                        // ==========================
+                        // ====================
 
 struct ChannelStatus {
     // This 'struct' provides a namespace for enumerating the set of named
     // status codes that may be returned by functions that operate on a
-    // channel, e.g., 'AsyncChannel::write' and
-    // 'AsyncChannel::write'.  See 'Enum' in the TYPES sub-section for
-    // details.
+    // channel, e.g., 'AsyncChannel::write' and 'AsyncChannel::write'.  See
+    // 'Enum' in the TYPES sub-section for details.
     //
     // This class:
     //: o supports a complete set of *enumeration* operations
@@ -153,60 +158,61 @@ struct ChannelStatus {
     // TYPES
     enum Enum {
         e_SUCCESS            =  0,  // The write request was successfully
-                                        // enqueued or has been successfully
-                                        // written synchronously.
+                                    // enqueued or has been successfully
+                                    // written synchronously.
 
         e_CACHE_OVERFLOW     = -1,  // The write request failed because the
-                                        // existing write cache size (not
-                                        // including the size of the message
-                                        // being written) is greater than the
-                                        // write cache high-water mark.  Note
-                                        // that this status can only occur when
-                                        // the write cache high-water mark is
-                                        // modified after construction of the
-                                        // object managing the channels.
+                                    // existing write cache size (not including
+                                    // the size of the message being written)
+                                    // is greater than the write cache
+                                    // high-water mark.  Note that this status
+                                    // can only occur when the write cache
+                                    // high-water mark is modified after
+                                    // construction of the object managing the
+                                    // channels.
 
         e_CACHE_HIGHWATER    = -2,  // The write request failed because the
-                                        // existing write cache size after the
-                                        // current message gets enqueued will
-                                        // be greater than the write cache
-                                        // high-water mark.
+                                    // existing write cache size after the
+                                    // current message gets enqueued will be
+                                    // greater than the write cache high-water
+                                    // mark.
 
         e_READ_CHANNEL_DOWN  = -6,  // The read request falied because the
-                                        // read part of the channel had already
-                                        // been closed.
+                                    // read part of the channel had already
+                                    // been closed.
 
         e_WRITE_CHANNEL_DOWN = -3,  // The write request failed because the
-                                        // write part of the channel had
-                                        // already been closed.
+                                    // write part of the channel had
+                                    // already been closed.
 
         e_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
-                                        // existing write cache size (not
-                                        // including the size of the message
-                                        // being written) is greater than the
-                                        // enqueued cache high-water mark
-                                        // provided as a function argument.
+                                    // existing write cache size (not
+                                    // including the size of the message
+                                    // being written) is greater than the
+                                    // enqueued cache high-water mark
+                                    // provided as a function argument.
 
         e_UNKNOWN_ID         = -5   // The write request failed because the
-                                        // channel identified by an specified
-                                        // id does not exist.
+                                    // channel identified by an specified
+                                    // id does not exist.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BTEMT_SUCCESS = e_SUCCESS
-      , BTEMT_CACHE_OVERFLOW = e_CACHE_OVERFLOW
-      , BTEMT_CACHE_HIGHWATER = e_CACHE_HIGHWATER
-      , BTEMT_READ_CHANNEL_DOWN = e_READ_CHANNEL_DOWN
+      , BTEMT_SUCCESS            = e_SUCCESS
+      , BTEMT_CACHE_OVERFLOW     = e_CACHE_OVERFLOW
+      , BTEMT_CACHE_HIGHWATER    = e_CACHE_HIGHWATER
+      , BTEMT_READ_CHANNEL_DOWN  = e_READ_CHANNEL_DOWN
       , BTEMT_WRITE_CHANNEL_DOWN = e_WRITE_CHANNEL_DOWN
-      , BTEMT_ENQUEUE_HIGHWATER = e_ENQUEUE_HIGHWATER
-      , BTEMT_UNKNOWN_ID = e_UNKNOWN_ID
+      , BTEMT_ENQUEUE_HIGHWATER  = e_ENQUEUE_HIGHWATER
+      , BTEMT_UNKNOWN_ID         = e_UNKNOWN_ID
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream&             stream,
+    static bsl::ostream& print(bsl::ostream&       stream,
                                ChannelStatus::Enum value,
-                               int                       level          = 0,
-                               int                       spacesPerLevel = 4);
+                               int                 level          = 0,
+                               int                 spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -227,8 +233,7 @@ struct ChannelStatus {
         // corresponding enumerator name with the "BALTZO_" prefix elided.  For
         // example:
         //..
-        //  bsl::cout << ChannelStatus::toAscii(
-        //                                 ChannelStatus::BTEMT_SUCCESS);
+        //  bsl::cut << ChannelStatus::toAscii(ChannelStatus::e_SUCCESS);
         //..
         // will print the following on standard output:
         //..
@@ -243,7 +248,6 @@ struct ChannelStatus {
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          ChannelStatus::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -253,17 +257,20 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     //  btlmt::ChannelStatus::print(stream, value, 0, -1);
     //..
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // struct btlmt::ChannelStatus
-                        // --------------------------
+                        // --------------------
+                        // struct ChannelStatus
+                        // ---------------------
 
 // FREE OPERATORS
 inline
-bsl::ostream& btlmt::operator<<(bsl::ostream& stream, ChannelStatus::Enum value)
+bsl::ostream& btlmt::operator<<(bsl::ostream&       stream,
+                                ChannelStatus::Enum value)
 {
     return ChannelStatus::print(stream, value, 0, -1);
 }
