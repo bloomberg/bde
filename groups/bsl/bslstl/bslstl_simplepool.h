@@ -553,6 +553,16 @@ SimplePool<VALUE, ALLOCATOR>::allocator() const
 template <class VALUE, class ALLOCATOR>
 void SimplePool<VALUE, ALLOCATOR>::release()
 {
+    // The values in 'd_chunkList_p' are allocated using
+    // 'AllocatorTraits::allocate' for max-aligned type (see
+    // 'allocateChunk'). Casting from 'Chunk *' back to that type
+    // will not impact alignment, but may generate warnings.
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
     while (d_chunkList_p) {
         typename AllocatorTraits::value_type *lastChunk =
                       reinterpret_cast<typename AllocatorTraits::value_type *>(
@@ -561,6 +571,11 @@ void SimplePool<VALUE, ALLOCATOR>::release()
         AllocatorTraits::deallocate(allocator(), lastChunk, 1);
     }
     d_freeList_p = 0;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
 }
 
 }  // close namespace bslstl
