@@ -495,7 +495,7 @@ ChannelPoolConfiguration::lookupAttributeInfo(int id)
       }
 
       default:
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 

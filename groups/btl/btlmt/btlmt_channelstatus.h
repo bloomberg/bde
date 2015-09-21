@@ -246,7 +246,7 @@ struct ChannelStatus {
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&             stream,
+bsl::ostream& operator<<(bsl::ostream&       stream,
                          ChannelStatus::Enum value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
@@ -265,7 +265,7 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 
                         // --------------------
                         // struct ChannelStatus
-                        // ---------------------
+                        // --------------------
 
 // FREE OPERATORS
 inline
