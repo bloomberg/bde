@@ -73,11 +73,11 @@ BSLS_IDENT("$Id: $")
 //
 //      MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 //
-//      bslmt::ThreadGroup tg(&ta);
+//      bslmt::ThreadGroup threadGroup(&ta);
 //      for (int i = 0; i < NUM_THREADS; ++i) {
-//          assert(0 == tg.addThread(testJob));
+//          assert(0 == threadGroup.addThread(testJob));
 //      }
-//      tg.joinAll();
+//      threadGroup.joinAll();
 //      assert(NUM_ITERATIONS * NUM_THREADS == value);
 //  }
 //  assert(0 <  ta.numAllocations());

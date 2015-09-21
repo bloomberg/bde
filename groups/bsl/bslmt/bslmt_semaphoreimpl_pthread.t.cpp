@@ -9,11 +9,12 @@
 
 #include <bslim_testutil.h>
 
-#include <bsls_atomic.h>
+#include <bslmf_assert.h>
+
 #include <bslmt_platform.h>
 
+#include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
-
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -21,10 +22,10 @@
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
-
-#include <bsl_c_time.h>
-#include <bsl_c_stdio.h>
+#include <bsl_cstdio.h>
+#include <bsl_ctime.h>
 
 #include <pthread.h>
 
@@ -142,18 +143,23 @@ class MyBarrier {
     // Barrier, but depending on bslmt Barrier itself here would cause a
     // dependency cycle.
 
-    bslmt::Mutex     d_mutex;      // mutex used to control access to this
-                                  // barrier.
-    MyCondition d_cond;       // condition variable used for signaling
-                                  // blocked threads.
+    bslmt::Mutex     d_mutex;     // mutex used to control access to this
+                                  // barrier
+
+    MyCondition d_cond;           // condition variable used for signaling
+                                  // blocked threads
+
     const int       d_numThreads; // number of threads required to be waiting
-                                  // before this barrier can be signaled.
-    int             d_numWaiting; // number of threads currently waiting
-                                  // for this barrier to be signaled.
+                                  // before this barrier can be signaled
+
+    int             d_numWaiting; // number of threads currently waiting for
+                                  // this barrier to be signaled
+
     int             d_sigCount;   // counted of number of times this barrier
-                                  // has been signaled.
-    int             d_numPending; // Number of threads that have been signaled
-                                  // but have not yet awakened.
+                                  // has been signaled
+
+    int             d_numPending; // number of threads that have been signaled
+                                  // but have not yet awakened
 
   private:
     // NOT IMPLEMENTED
@@ -163,8 +169,9 @@ class MyBarrier {
   public:
     // CREATORS
     explicit MyBarrier(int numThreads);
-        // Construct a barrier that requires 'numThreads' to unblock.  Note
-        // that the behavior is undefined unless '0 < numThreads'.
+        // Construct a barrier that requires the specified 'numThreads' to
+        // unblock.  Note that the behavior is undefined unless
+        // '0 < numThreads'.
 
     ~MyBarrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
@@ -442,10 +449,10 @@ int IntQueue::getInt()
     return ret;
 }
 
-void IntQueue::pushInt(int n)
+void IntQueue::pushInt(int number)
 {
     d_mutexSem.wait();
-    d_queue.push_front(n);
+    d_queue.push_front(number);
     d_mutexSem.post();
     d_resourceSem.post();
 }
@@ -464,7 +471,6 @@ extern "C" void *benchConsumer(void* arg)
     while (true) {
         data->resource->wait();
         data->queue->post();
-//        cout << "-" << flush;
         if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
@@ -476,7 +482,6 @@ extern "C" void *benchProducer(void* arg)
     while (true) {
         data->queue->wait();
         data->resource->post();
-//        cout << "+" << flush;
         if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
@@ -542,14 +547,14 @@ int main(int argc, char *argv[])
         // TESTING CONCURRENT SEMAPHORE CREATION
         //
         // Concerns:
-        // 1. On Darwin the creation of the semaphore object is synchronized
-        //    because it's implemented via named semaphores.  Concurrent
-        //    creation of multiple semaphores should not lead to invalid
-        //    semaphore objects or deadlock.
+        //   1. On Darwin the creation of the semaphore object is synchronized
+        //      because it's implemented via named semaphores.  Concurrent
+        //      creation of multiple semaphores should not lead to invalid
+        //      semaphore objects or deadlock.
         //
         // Plan:
-        // 1. In multiple threads, create a number of semaphore objects and
-        //    verify that they are valid.
+        //   1. In multiple threads, create a number of semaphore objects and
+        //      verify that they are valid.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing concurrent creation\n"
@@ -678,10 +683,11 @@ int main(int argc, char *argv[])
         //      or return an error otherwise.
         //
         // Plan:
-        // We create two groups of threads.  One will call 'post', the other
-        // 'tryWait'.  First, we make sure that 'tryWait' fails if no resources
-        // is available.  Then we will make sure it succeeds if resources are.
-        // We will also test 'tryWait' in the steady state works fine.
+        //   We create two groups of threads.  One will call 'post', the other
+        //   'tryWait'.  First, we make sure that 'tryWait' fails if no
+        //   resources are available.  Then we will make sure it succeeds if
+        //   resources are.  We will also test 'tryWait' in the steady state
+        //   works fine.
         //
         // Testing:
         //   void tryWait();
@@ -722,8 +728,8 @@ int main(int argc, char *argv[])
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        // Create a set of threads calling 'wait' and use a thread to post a
-        // number smaller than the set of threads.
+        //   Create a set of threads calling 'wait' and use a thread to post a
+        //   number smaller than the set of threads.
         //
         // Testing:
         //   void post(int number);

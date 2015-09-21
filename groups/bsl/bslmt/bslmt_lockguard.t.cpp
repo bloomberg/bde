@@ -42,7 +42,7 @@ using namespace bsl;  // automatically added by script
 // [4] release();
 //-----------------------------------------------------------------------------
 // [1] Ensure helper class 'my_Mutex' works as expected
-// [5] INTERACTION BETW. 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
+// [5] INTERACTION BETWEEN 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
 // [6] DEPRECATED 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard'
 // [7] USAGE EXAMPLES
 
@@ -112,10 +112,17 @@ struct my_Mutex {
     my_Mutex() : d_count(0), d_attempt(1) {}
     ~my_Mutex() {};
     int lockCount() const { return d_count; }
-    int tryLock() { if ((++d_attempt)%2) lock(); else return 1; return 0; }
-                                                                      // RETURN
-                                                                      // RETURN
-                                                                      // RETURN
+
+    int tryLock() {
+        if ((++d_attempt) % 2) {
+            lock();
+        }
+        else {
+            return 1;                                                 // RETURN
+        }
+        return 0;
+    }
+
     void lock() { ++ d_count; }
     void unlock() { --d_count; }
 };
@@ -226,7 +233,6 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3; int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

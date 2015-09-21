@@ -8,6 +8,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
@@ -88,8 +89,8 @@ struct PingPongArgs
     bslmt::Mutex *d_lock;
     bsls::AtomicInt d_count;
 
-    PingPongArgs(Obj* cond, bslmt::Mutex *lock)
-        : d_cond(cond), d_lock(lock), d_count(0)
+    PingPongArgs(Obj *condition, bslmt::Mutex *lock)
+        : d_cond(condition), d_lock(lock), d_count(0)
     {}
 };
 
@@ -99,8 +100,8 @@ enum {
 
 extern "C" {
 
-void* pingPong(void* argp) {
-    PingPongArgs *arg = (PingPongArgs*)argp;
+void *pingPong(void *argument) {
+    PingPongArgs *arg = (PingPongArgs*)argument;
 
     while (arg->d_count < k_PINGPONG_ITER) {
         arg->d_lock->lock();
@@ -110,7 +111,7 @@ void* pingPong(void* argp) {
 
         ++arg->d_count;
     }
-    return argp;
+    return argument;
 }
 
 }  // extern "C"
@@ -126,7 +127,8 @@ void My_CreateDetachedThread(ThreadFunction function, void *userData) {
 }
 
 // ----------------------------------------------------------------------------
-// Case 1. Producer-consumer example
+//                     Case 1: Producer-consumer example
+// ----------------------------------------------------------------------------
 
 struct my_WorkItem {
     int d_item;  // represents work to perform

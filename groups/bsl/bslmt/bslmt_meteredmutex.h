@@ -73,18 +73,18 @@ BSLS_IDENT("$Id: $")
 //  bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 //
 //  void executeInParallel(int                               numThreads,
-//                         bslmt::ThreadUtil::ThreadFunction func)
-//      // Create the specified 'numThreads', each executing the
-//      // specified 'func'.  Number each thread (sequentially from 0
-//      // to 'numThreads-1') by passing i to i'th thread.  Finally
-//      // join all the threads.
+//                         bslmt::ThreadUtil::ThreadFunction function)
+//      // Create the specified 'numThreads', each executing the specified
+//      // 'function'.  Number each thread (sequentially from 0 to
+//      // 'numThreads - 1') by passing i to i'th thread.  Finally join all the
+//      // threads.
 //  {
 //      bslmt::ThreadUtil::Handle *threads =
 //                                   new bslmt::ThreadUtil::Handle[numThreads];
 //      assert(threads);
 //
 //      for (int i = 0; i < numThreads; ++i) {
-//          bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
+//          bslmt::ThreadUtil::create(&threads[i], function, (void*)i);
 //      }
 //      for (int i = 0; i < numThreads; ++i) {
 //          bslmt::ThreadUtil::join(threads[i]);

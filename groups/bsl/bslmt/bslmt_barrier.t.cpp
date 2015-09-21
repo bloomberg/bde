@@ -357,7 +357,7 @@ extern "C" void * testThread4(void *arg)
 extern "C" void * testThread3(void *arg)
     // This function is used to test the 'wait' method: it begins by
     // incrementing the 'd_waitCount' member of the provided 'ThreadArgs'
-    // structure, then calls the 'wait' method of the provided barrier. and
+    // structure, then calls the 'wait' method of the provided barrier, and
     // finally decrements 'd_waitCount' and returns.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
@@ -481,10 +481,10 @@ extern "C" void * testThread3(void *arg)
         int                 d_tradeNum;
     };
 
-    TradeThreadArgument *processTrade(TradeThreadArgument *args)
+    TradeThreadArgument *processTrade(TradeThreadArgument *arguments)
     {
         int retval;
-        Trade &trade = (*args->d_trades_p)[args->d_tradeNum];
+        Trade &trade = (*arguments->d_trades_p)[arguments->d_tradeNum];
 
         retval = validateTrade(trade);
 //..
@@ -493,44 +493,44 @@ extern "C" void * testThread3(void *arg)
 // object; otherwise, other threads which did not fail would remain blocked
 // indefinitely.
 //..
-        if (retval) *args->d_errorFlag_p = true;
-        args->d_barrier_p->wait();
+        if (retval) *arguments->d_errorFlag_p = true;
+        arguments->d_barrier_p->wait();
 //..
 // Once all threads have completed the validation phase, check to see if any
 // errors occurred; if so, exit.  Otherwise continue to the next step.
 //..
-        if (*args->d_errorFlag_p) return args;                        // RETURN
+        if (*arguments->d_errorFlag_p) return arguments;              // RETURN
 
         retval = insertToDatabase(trade);
-        if (retval) *args->d_errorFlag_p = true;
-        args->d_barrier_p->wait();
+        if (retval) *arguments->d_errorFlag_p = true;
+        arguments->d_barrier_p->wait();
 //..
 // As before, if an error occurs on this thread, we must still block on the
 // barrier object.  This time, if an error has occurred, we need to check to
 // see whether this trade had an error.  If not, then the trade has been
 // inserted into the database, so we need to remove it before we exit.
 //..
-        if (*args->d_errorFlag_p) {
+        if (*arguments->d_errorFlag_p) {
             if (!retval) deleteFromDatabase(trade);
-            return args;                                              // RETURN
+            return arguments;                                         // RETURN
         }
 //..
 // The final synchronization point is at the exchange.  As before, if there is
 // an error in the basket, we may need to cancel the individual trade.
 //..
         retval = submitToExchange(trade);
-        if (retval) *args->d_errorFlag_p = true;
-        args->d_barrier_p->wait();
-        if (*args->d_errorFlag_p) {
+        if (retval) *arguments->d_errorFlag_p = true;
+        arguments->d_barrier_p->wait();
+        if (*arguments->d_errorFlag_p) {
             if (!retval) cancelAtExchange(trade);
             deleteFromDatabase(trade);
-            return args;                                              // RETURN
+            return arguments;                                         // RETURN
         }
 //..
 // All synchronized steps have completed for all trades in this basket.  The
 // basket trade is placed.
 //..
-        return args;
+        return arguments;
     }
 //..
 // Function 'tradeProcessingThread' is a callback for 'bslmt::ThreadUtil',
@@ -544,9 +544,9 @@ extern "C" void * testThread3(void *arg)
 // type-specific function, 'processTrade'.  On return, the specific type is
 // cast back to 'void*'.
 //..
-    extern "C" void *tradeProcessingThread(void *argsIn)
+    extern "C" void *tradeProcessingThread(void *argumentsIn)
     {
-        return (void *) processTrade ((TradeThreadArgument *)argsIn);
+        return (void *) processTrade ((TradeThreadArgument *)argumentsIn);
     }
 //..
 // Function 'processBasketTrade' drives the example.  Given a 'BasketTrade',
@@ -555,9 +555,10 @@ extern "C" void * testThread3(void *arg)
 // each thread.
 //..
     bool processBasketTrade(BasketTrade& trade)
-        // Return 'true' if the basket trade was processed successfully,
-        // 'false' otherwise.  The trade is processed atomically, i.e.,
-        // all the trades succeed, or none of the trades are executed.
+        // Return 'true' if the specified basket 'trade' was processed
+        // successfully, and 'false' otherwise.  The 'trade' is processed
+        // atomically, i.e., all the trades succeed, or none of the trades are
+        // executed.
     {
         TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
         bslmt::ThreadAttributes attributes;
@@ -697,7 +698,6 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1295,13 +1295,13 @@ int main(int argc, char *argv[])
                 int d_lineNum;
                 int d_numThreads;
             } VALUES[] = {
-                //line num threads
-                //---- -----------
-                { L_ ,           1 },
-                { L_ ,           2 },
-                { L_ ,          10 },
-                { L_ ,          50 },
-                { L_ ,         100 }
+                //line # threads
+                //---- ---------
+                { L_ ,         1 },
+                { L_ ,         2 },
+                { L_ ,        10 },
+                { L_ ,        50 },
+                { L_ ,       100 }
             };
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 

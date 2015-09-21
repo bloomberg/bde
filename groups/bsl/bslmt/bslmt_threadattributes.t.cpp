@@ -7,6 +7,7 @@
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_ios.h>
 #include <bsl_iostream.h>
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
@@ -73,9 +74,9 @@ void aSsErT(bool condition, const char *message, int line)
 //
 // First we forward declare a routine that we will use to create a thread:
 //..
-    void myThreadCreate(int                            *threadHandle,
-                        const bslmt::ThreadAttributes&  attributes,
-                        void                            (*function)());
+    void myThreadCreate(int                             *threadHandle,
+                        const bslmt::ThreadAttributes&   attributes,
+                        void                           (*function)());
         // Spawn a thread having properties described by the specified
         // 'attributes' and that runs the specified 'function', and assign a
         // handle referring to the spawned thread to the specified
@@ -105,7 +106,7 @@ void aSsErT(bool condition, const char *message, int line)
 // 'bslmt::ThreadAttributes' object describing the properties a thread we will
 // create.
 //..
-    int testMain()
+    void testMain()
     {
 //..
 // Next, we create a thread attributes object, 'attributes', and set its
@@ -135,9 +136,9 @@ void aSsErT(bool condition, const char *message, int line)
 // Finally, we define the thread creation function, and show how a thread
 // attributes object might be interpreted by it:
 //..
-    void myThreadCreate(int                            *threadHandle,
-                        const bslmt::ThreadAttributes&  attributes,
-                        void                            (*function)())
+    void myThreadCreate(int                             *threadHandle,
+                        const bslmt::ThreadAttributes&   attributes,
+                        void                           (*function)())
         // Spawn a thread with properties described by the specified
         // 'attributes', running the specified 'function', and assign a handle
         // referring to the spawned thread to the specified '*threadHandle'.
@@ -146,8 +147,9 @@ void aSsErT(bool condition, const char *message, int line)
         if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
             stackSize = bslmt::Configuration::defaultThreadStackSize();
         }
-        // Add a "fudge factor" to 'stackSize' to ensure that the client
-        // can declare an object of 'stackSize' bytes on the stack safely.
+
+        // Add a "fudge factor" to 'stackSize' to ensure that the client can
+        // declare an object of 'stackSize' bytes on the stack safely.
 
         stackSize += 8192;
 

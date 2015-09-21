@@ -11,10 +11,15 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
+#include <bslma_default.h>
+
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
+#include <bsls_timeinterval.h>
+
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -477,8 +482,6 @@ void *macroCancelTest(void *ptr)
 // it uses the 'BSLMT_ONCE_DO' macro to handle multiple entries to the function
 // in a thread-safe manner:
 //..
-    #include <bslmt_once.h>
-
     const bsl::string& singleton0(const char *s)
     {
         static bsl::string *theSingletonPtr = 0;
@@ -706,7 +709,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // Specify "0.xyz" as second argument (argv[2]) to set repeat count to xyz.
+    // Specify "0.xyz" as second argument (argv[2]) to set repeat count to
+    // "xyz".
+
     int REPEAT_COUNT = 20;  // Repeat test 100 times
     if (verbose) {
         const char *pt = bsl::strchr(argv[2], '.');

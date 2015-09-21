@@ -5,10 +5,12 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cstddef.h>  // 'size_t'
-#include <bsl_cstdlib.h>  // 'atoi()'
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_limits.h>   // 'INT_MAX'
+#include <bsl_limits.h>
+
+#include <bsl_c_limits.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -91,7 +93,6 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3; int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

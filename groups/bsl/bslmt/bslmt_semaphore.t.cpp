@@ -75,8 +75,8 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This example illustrates a very simple queue where potential clients can
 // push integers to a queue, and later retrieve the integer values from the
-// queue in FIFO order.  It illustrates two potential uses of semaphores:
-// to enforce exclusive access, and to allow resource sharing.
+// queue in FIFO order.  It illustrates two potential uses of semaphores: to
+// enforce exclusive access, and to allow resource sharing.
 //..
     class IntQueue {
         // FIFO queue of integer values.
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
+    switch (test) {  case 0:
       case 3: {
         IntQueue testQueue;
 
