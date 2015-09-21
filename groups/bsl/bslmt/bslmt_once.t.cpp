@@ -466,21 +466,24 @@ void *macroCancelTest(void *ptr)
 //                    CLASSES FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
-// A typical use of the facilities in this component is to implement a
-// thread-safe singleton.  We will implement the same singleton four times,
+///Usage
+///-----
+// Typically, the facilities in this component are used to implement a
+// thread-safe singleton.  Below, we implement the a singleton four ways,
 // illustrating the two ways to directly use 'bslmt::Once', the use of
-// 'bslmt::OnceGuard', and the use of 'BSLMT_ONCE_DO'.  All of our singleton
-// functions take a C-string ('const char*') argument and return a
-// 'bsl::string' object containing a copy of the input string.  Only the first
-// call to each singleton function affect the contents of the singleton string.
-// (The argument to the second and subsequent calls are ignored.)
+// 'bslmt::OnceGuard', and the use of 'BSLMT_ONCE_DO'.  In each example, the
+// singleton functions take a C-string ('const char*') argument and return a
+// reference to a 'bsl::string' object constructed from the input string.  Only
+// the first call to each singleton function affect the contents of the
+// singleton string.  (The argument is ignored on subsequent calls.)
 //
-// Our first implementation hides all of the machinery and reduces one-time
-// initialization to a simple 'BSLMT_ONCE_DO' construct.  This implementation
-// illustrates the the recommended way to use this component.  The function is
-// a variation of the singleton pattern described by Scott Meyers, except that
-// it uses the 'BSLMT_ONCE_DO' macro to handle multiple entries to the function
-// in a thread-safe manner:
+///First Implementation
+/// - - - - - - - - - -
+// Our first implementation uses the 'BSLMT_ONCE_DO' construct, the
+// recommended way to use this component.  The function is a variation of the
+// singleton pattern described by Scott Meyers, except that the 'BSLMT_ONCE_DO'
+// macro is used to handle multiple entries to the function in a thread-safe
+// manner:
 //..
     const bsl::string& singleton0(const char *s)
     {
@@ -493,24 +496,19 @@ void *macroCancelTest(void *ptr)
         return *theSingletonPtr;
     }
 //..
-// This implementation is self-explanatory and robust.  It will behave
-// correctly if there are return statements within the one-time initialization
-// code and it ensures that no once-related locks are held past the end of the
-// one-time code region.  [Once we get a fix for an MS VC++ 2003 bug, throwing
-// an exception from within the one-time code will cause the one-time code to
-// be considered not to have run and to be re-executed the next time this
-// function is entered (i.e., it will retry).]
+// The 'BSLMT_ONCE_DO' mechanism suffices for most situations; however, if more
+// flexibility is required, review the remaining examples in this series for
+// more design choices.  The next example will use the lowest-level facilities
+// of 'bslmt::Once'.  The two following examples use progressively higher-level
+// facilities to produce simpler singleton implementations (though none as
+// simple as the 'BSLMT_ONCE_DO' example above).
 //
-// If the 'BSLMT_ONCE_DO' mechanism works for you, then you need not read any
-// farther.  If, however, you need more flexibility for some reason, then read
-// on.  Our next singleton function implementation uses the 'doOnce' method of
-// 'bslmt::Once'.  Each succeeding example will use higher-level facilities to
-// produce a simpler implementations (though none as simple as the
-// 'BSLMT_ONCE_DO' example above).
-//
-// We begin by declaring a simple function that does most of the work of the
-// singleton -- constructing the string and setting a (static) pointer to the
-// string:
+///Second Implementation
+///- - - - - - - - - - -
+// The next singleton function implementation directly uses the 'doOnce' method
+// of 'bslmt::Once'.  We begin by declaring a simple function that does most of
+// the work of the singleton, i.e., constructing the string and setting a
+// (static) pointer to the string:
 //..
     static bsl::string *theSingletonPtr = 0;
 
@@ -520,12 +518,13 @@ void *macroCancelTest(void *ptr)
         theSingletonPtr = &theSingleton;
     }
 //..
-// Note that the above function, by itself, is not thread-safe.  Not only is it
-// possible that multiple threads would attempt to construct 'theSingleton' at
-// the same time, but there are no memory barriers to ensure that, once
-// 'theSingletonPtr' is set, that other threads will see the change before
-// trying to initialize the singleton again.  The 'singleton1' function, below,
-// uses 'bslmt::Once' to ensure that 'singletonImp' is called in only one
+// The above function is *not* thread-safe.  Firstly, many threads might
+// attempt to simultaneously construct the 'theSingleton' object.  Secondly,
+// once 'theSingletonPtr' is set by one thread, other threads still might not
+// see the change (and try to initialize the singleton again).
+//
+// The 'singleton1' function, below, calls 'singletonImp' via the 'callOnce'
+// method of 'bslmt::Once' to ensure that 'singletonImp' is called by only one
 // thread and that the result is visible to all threads.  We start by creating
 // and initializing a static object of type 'bslmt::Once':
 //..
@@ -536,10 +535,11 @@ void *macroCancelTest(void *ptr)
     {
         static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
 //..
-// In order to call 'callOnce', we must bind our argument 's' two our function,
-// 'singletonImp' using a binder.  We pass the bound function to 'callOnce' and
-// it is executed only if this is the first thread entering this section of
-// code:
+// Since the 'callOnce' method takes only a no-argument functor (or function),
+// to call 'callOnce', we must bind our argument 's' to our function,
+// 'singletonImp' using a binder method and then pass that functor to
+// 'callOnce'.  The first thread (and only the first thread) entering this
+// section of code we will set 'theSingleton'.
 //..
         /* TBD -- bind
         once.callOnce(bdlf::BindUtil::bind(singletonImp, s));
@@ -547,31 +547,34 @@ void *macroCancelTest(void *ptr)
         return *theSingletonPtr;
     }
 //..
-// Note that when we return from 'callOnce', the appropriate memory barrier has
-// been executed so that the change to 'theSingletonPtr' is visible to all
-// threads.  It is not a good idea for the code to test the value of
-// 'theSingletonPtr' before calling 'callOnce' because the contents of the
-// string may be cached by a different CPU, even though the pointer has already
-// been update in on the common memory bus.  The implementation of 'callOnce'
-// is fast enough that a pre-check would not provide any performance benefit.
-// A thread calling 'callOnce' after the initialization is complete would
+// Once we return from 'callOnce', the appropriate memory barrier has been
+// executed so that the change to 'theSingletonPtr' is visible to all threads.
+// A thread calling 'callOnce' after the initialization has completed would
 // immediately return from the call.  A thread calling 'callOnce' while
 // initialization is still in progress would block until initialization
-// completes.
+// completes and then return.
+//
+// *Implementation* *Note*: As an optimization, developers sometimes pre-check
+// the value to be set, 'theSingletonPtr' in this case, to avoid (heavy) memory
+// barrier operations; however, that practice is not recommended here.  First,
+// the value of the string may be cached by a different CPU, even though the
+// pointer has already been updated on the common memory bus.  Second, The
+// implementation of the 'callOnce' method is fast enough that a pre-check
+// would not provide any performance benefit.
 //
 // The one advantage of this implementation over the previous one is that an
 // exception thrown from within 'singletonImp' will cause the 'bslmt::Once'
 // object to be restored to its original state, so that the next entry into the
-// singleton will retry the operation.  [This same advantage will be available
-// to 'BSLMT_ONCE_DO' when we get a fix for the MS VC++ 2003 compiler bug or
-// upgrade to MS VC++ 2005.]
+// singleton will retry the operation.
 //
-// Our next implementation eliminates the need for the 'singletonImp' function
-// and does away with the use of 'bdlf::BindUtil', but it does require the use
-// of the special type, 'bslmt::Once::OnceLock', which is a cookie created on
-// each thread's stack and passed to the methods of 'bslmt::Once'.  First, we
-// declare a static 'bslmt::Once' object as before, and also declare a static
-// pointer 'bsl::string':
+///Third Implementation
+/// - - - - - - - - - -
+// Our next implementation, 'singleton2', eliminates the need for the
+// 'singletonImp' function and thereby does away with the use of the
+// 'bdlf::BindUtil' method; however, it does require use of
+// 'bslmt::Once::OnceLock', created on each thread's stack and passed to the
+// methods of 'bslmt::Once'.  First, we declare a static 'bslmt::Once' object
+// as before, and also declare a static pointer to 'bsl::string':
 //..
     const bsl::string& singleton2(const char *s)
     {
@@ -590,26 +593,29 @@ void *macroCancelTest(void *ptr)
             static bsl::string theSingleton(s);
             theSingletonPtr = &theSingleton;
 //..
-// When initialization is complete, we call 'leave' to close out the process,
-// passing the same context cookie used in the call to 'enter':
+// When initialization is complete, the 'leave' method is called for the same
+// context cookie previously used in the call to 'enter':
 //..
             once.leave(&onceLock);
         }
 //..
-// When any thread reaches this point, initialization has been complete.
-// Return the initialized string:
+// When any thread reaches this point, initialization has been complete and
+// initialized string is returned:
 //..
         return *theSingletonPtr;
     }
 //..
-// Our third implementation uses 'bslmt::OnceGuard' to simplify the previous
-// implementation.  The 'bslmt::OnceGuard' hides (automates) the use of
-// 'bslmt::Once::OnceLock'.  We begin as before, defining a static
+//
+///Fourth Implementation
+///- - - - - - - - - - -
+// Our final implementation, 'singleton3', uses 'bslmt::OnceGuard' to simplify
+// the previous implementation by using 'bslmt::OnceGuard' to hide (automate)
+// the use of 'bslmt::Once::OnceLock'.  We begin as before, defining a static
 // 'bslmt::Once' object and a static 'bsl::string' pointer:
 //..
     const bsl::string& singleton3(const char *s)
     {
-        static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
+        static bslmt::Once  once            = BSLMT_ONCE_INITIALIZER;
         static bsl::string *theSingletonPtr = 0;
 //..
 // We then declare a local 'bslmt::OnceGuard' object and associate it with the
@@ -623,16 +629,21 @@ void *macroCancelTest(void *ptr)
         return *theSingletonPtr;
     }
 //..
-// Note that it was not necessary to call 'onceGuard.leave()' because it is
-// called automatically when the function returns.  This machinery makes the
+// Note that it is unnecessary to call 'onceGuard.leave()' because that is
+// called automatically before the function returns.  This machinery makes the
 // code more robust in the presence of, e.g., return statements in the
-// initialization code.  However, if there is significant code after the end of
-// the one-time initialization, the guard and the initialization code should be
-// enclosed in an extra block so that the guard is destroyed sooner and other
-// threads waiting on the initialization can continue.  Alternatively, one can
+// initialization code.
+//
+// If there is significant code after the end of the one-time initialization,
+// the guard and the initialization code should be enclosed in an extra block
+// so that the guard is destroyed as soon as validly possible and allow other
+// threads waiting on the initialization to continue.  Alternatively, one can
 // call 'onceGuard.leave()' explicitly at the end of the initialization.
 //
-// Assume the following pair of thread functions
+///Using the Semaphore Implementations
+///- - - - - - - - - - - - - - - - - -
+// The following pair of functions, 'thread1func' and 'thread2func' which will
+// be run by different threads:
 //..
     void *thread1func(void *)
     {
@@ -666,15 +677,15 @@ void *macroCancelTest(void *ptr)
         return 0;
     }
 //..
-// Both threads will attempt to initialize the four singletons.  In our
-// example, each thread passes a different argument to the singleton, allowing
-// us to detect which thread actually ran called singleton first.  In practice,
-// the arguments passed to a specific singleton are almost always fixed and
-// most singletons don't take arguments at all.
+// Both threads attempt to initialize the four singletons.  In our example,
+// each thread passes a distinct argument to the singleton, allowing us to
+// identify the thread that initializes the singleton.  (In practice, the
+// arguments passed to a specific singleton are almost always fixed and most
+// singletons don't take arguments at all.)
 //
 // Assuming that the first thread function wins all of the races to initialize
-// the singletons, we would would expect that the first singleton would have
-// the text, "0 hello", etc.:
+// the singletons, the first singleton is set to "0 hello", the second
+// singleton to "1 hello", etc.
 //..
     int usageExample1()
     {
