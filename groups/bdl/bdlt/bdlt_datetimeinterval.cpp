@@ -32,9 +32,9 @@ bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
                                       int           level,
                                       int           spacesPerLevel) const
 {
-    // space usage:  s dd...d _  hh: mm: ss: mmm null
+    // space usage:    s dd...d _  hh: mm: ss: mmm null
     const int k_SIZE = 1 + 10 + 1 + 3 + 3 + 3 + 3 + 1;
-    char buf[k_SIZE];
+    char      buf[k_SIZE];
 
     const int d  = days();
     const int h  = hours();

@@ -71,6 +71,10 @@ using namespace bsl;
 //: o No memory is ever allocated from the default allocator.
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
+// PUBLIC CLASS DATA
+// [  ] static const bsls::Types::Int64 k_MILLISECONDS_MAX = ...;
+// [  ] static const bsls::Types::Int64 k_MILLISECONDS_MIN = ...;
+//
 // CLASS METHODS
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
@@ -232,12 +236,10 @@ const Int64 k_SECS_MIN  =   60 *                    k_MINS_MIN  -  59;
 const Int64 k_MSECS_MAX = 1000 *                    k_SECS_MAX  + 999;
 const Int64 k_MSECS_MIN = 1000 *                    k_SECS_MIN  - 999;
 
-// The following compile-time assertions must be kept in sync with the
-// corresponding enumerators declared 'private' to 'DatetimeInterval' in this
-// component's header file.
+// Verify PUBLIC CLASS DATA
 
-BSLMF_ASSERT(k_MSECS_MAX ==  185542587187199999LL);
-BSLMF_ASSERT(k_MSECS_MIN == -185542587187199999LL - k_MSECS_PER_DAY);
+BSLMF_ASSERT(k_MSECS_MAX == Obj::k_MILLISECONDS_MAX);
+BSLMF_ASSERT(k_MSECS_MIN == Obj::k_MILLISECONDS_MIN);
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -541,7 +543,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the default allocator.
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::TestAllocator         defaultAllocator("default",
+                                                  veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
@@ -1690,7 +1693,7 @@ if (veryVerbose)
         if (verbose) cout << "\nUse a table of distinct object values."
                           << endl;
 
-        const int NUM_DATA                 = ALT_NUM_DATA;
+        const int          NUM_DATA        = ALT_NUM_DATA;
         const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -2630,7 +2633,7 @@ if (veryVerbose)
         if (verbose) cout << "\nUse a table of distinct object values."
                           << endl;
 
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3140,7 +3143,7 @@ if (veryVerbose)
         if (verbose) cout << "\nUse a table of distinct object values."
                           << endl;
 
-        const int NUM_DATA                 = ALT_NUM_DATA;
+        const int          NUM_DATA        = ALT_NUM_DATA;
         const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3428,7 +3431,7 @@ if (veryVerbose)
         if (verbose) cout << "\nUse a table of distinct object values."
                           << endl;
 
-        const int NUM_DATA                 = ALT_NUM_DATA;
+        const int          NUM_DATA        = ALT_NUM_DATA;
         const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4958,7 +4961,8 @@ if (veryVerbose)
                 }
 
                 {
-                    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                    bslma::TestAllocator         da("default",
+                                                    veryVeryVeryVerbose);
                     bslma::DefaultAllocatorGuard dag(&da);
 
                     // Verify output is formatted as expected.
@@ -5051,7 +5055,8 @@ if (veryVerbose)
                 LOOP_ASSERT(LINE, &os2 == &(os2 << X));
 
                 {
-                    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                    bslma::TestAllocator         da("default",
+                                                    veryVeryVeryVerbose);
                     bslma::DefaultAllocatorGuard dag(&da);
 
                     // Verify output is formatted as expected.
@@ -5132,7 +5137,7 @@ if (veryVerbose)
         if (verbose) cout << "\nUse a table of distinct object values."
                           << endl;
 
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        const int              NUM_DATA        = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         if (verbose) cout <<
