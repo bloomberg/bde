@@ -1,13 +1,19 @@
- bdlsb.txt
+   bdlsb.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide concrete 'streambuf' implementations.
 
-@MNEMONIC: Basic Application Library XXX (bdlsb)
+@MNEMONIC: Basic Development Environment Stream Buffers (bdlsb)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR Tom Marshall (tmarshal)
 
-@DESCRIPTION: The 'bdlsb' ("Basic Development Library XXX") package provides
- ...
+@SEE_ALSO: bdlx
+
+@DESCRIPTION: The 'bdlsb' package provides concrete implementations of the
+ 'std::streambuf' interface.  In particular, these implementations use either a
+ fixed-size user-supplied buffer or else manage a buffer obtained from a
+ user-supplied or default allocator.  Also, concrete implementations are
+ specialized to implement either the input ot the output portion of the
+ interface.  
 
 /Hierarchical Synopsis
 /---------------------
