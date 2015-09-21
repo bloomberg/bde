@@ -1,13 +1,27 @@
- balb.txt
+balb.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide common application-level facilities.
 
-@MNEMONIC: Basic Application Library XXX (balb)
+@MNEMONIC: Basic Application Environment Application services (balb)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Stefano Pacifico (spacifico1)
 
-@DESCRIPTION: The 'balb' ("Basic Application Library XXX") package provides
- ...
+@SEE_ALSO: baem
+
+@DESCRIPTION: The 'balb' package provides support for an assortment of common
+ application-level services (e.g., command-line processing).  In particular,
+ 'balb' includes the following:
+
+: o A mechanism for monitoring and reporting the observable performance of a
+:   process.
+:
+: o Classes for (1) defining commands (as short strings), (2) passing these
+:   commands through a pipe-channel to a running process, and (3) registering
+:   callback functions to be invoked upon reception of such commands.
+:
+: o A metric reporting protocol and a value-semantic type to represent
+:   metrics.  Note that the metric reporting facilities provided by 'balb'
+:   have been !DEPRECATED! in lieu of 'baem'.
 
 /Hierarchical Synopsis
 /---------------------
