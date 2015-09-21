@@ -72,26 +72,27 @@ public:
 #endif
 
 static
-void initializeCondition(pthread_cond_t              *cond,
+void initializeCondition(pthread_cond_t              *condition,
                          bsls::SystemClockType::Enum  clockType)
-    // Initialize the specified 'cond' variable with the specified 'clockType'.
+    // Initialize the specified 'condition' variable with the specified
+    // 'clockType'.
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
-    int rc = pthread_cond_init(cond, 0);
+    int rc = pthread_cond_init(condition, 0);
     (void) rc; BSLS_ASSERT(0 == rc); // 'pthread_cond_int' can only fail for
                                      // two possible reasons in this usage and
                                      // neither should ever occur:
                                      //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'cond'
+                                     //: 2 attempt to re-initialise 'condition'
 #else
     CondAttr attr(clockType);
-    int rc = pthread_cond_init(cond, &attr.conditonAttributes());
+    int rc = pthread_cond_init(condition, &attr.conditonAttributes());
     (void) rc; BSLS_ASSERT(0 == rc); // 'pthread_cond_int' can only fail for
                                      // three possible reasons in this usage
                                      // and none should ever occur:
                                      //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'cond'
+                                     //: 2 attempt to re-initialise 'condition'
                                      //: 3 the attribute is invalid
 #endif
 }
