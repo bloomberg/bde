@@ -1,13 +1,17 @@
  balber.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide encoding/decoding of data per the (binary) BER rules.
 
-@MNEMONIC: Basic Application Library XXX (balber)
+@MNEMONIC: Basic Application Library BER (balber)
 
 @AUTHOR: Steven Breitstein (sbreitstein)
 
-@DESCRIPTION: The 'balber' ("Basic Application Library XXX") package provides
- ...
+@DESCRIPTION: The 'balber' ("Basic Application BER") package defines classes
+ that can encode and decode data per the X.690 BER (Basic Encoding Rules)
+ specification.  These classes can be used only for types supported by the
+ 'bdlat' framework.  Typical usage is illustrated in
+ {'balber_berdecoder'|Example 1: Decoding an Employee Record} and
+ {'balber_berencoder'|Example 1: Encoding an Employee Record}.
 
 /Hierarchical Synopsis
 /---------------------
