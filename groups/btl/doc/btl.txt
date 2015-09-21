@@ -1,13 +1,20 @@
  btl.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide support, services, and frameworks for transport (IPC)
 
-@MNEMONIC: Basic Transport Library XXX (btl)
+@MNEMONIC: Basic Transport Environment (btl)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Tom Marshall (tmarshal)
 
-@DESCRIPTION: The 'btl' ("Basic Transport Library XXX") package group
- provides ...
+@LAST_MODIFIED: June 5, 2014
+
+@DESCRIPTION: The 'btl' ("Basic Transport Environment") package group provides
+ a variety of concrete transport (IPC) mechanisms and services that conform to
+ a uniform set of pure abstract interfaces.  In addition, 'btl' supplies
+ low-level support for sockets and event managers, and a higher-level
+ multi-threaded transport framework that is similar in functionality to
+ 'ptdispatch'.  As of this release, there is no support in 'btl' for 'fstsend',
+ but we expect to add this functionality in the next release.
 
 /Hierarchical Synopsis
 /---------------------
@@ -37,22 +44,75 @@
 :      Provide ...
 :
 : 'btlmt':
-:      Provide ...
+:      Provide framework for multi-threaded TCP/IP transport.
 :
 : 'btls':
-:      Provide ...
+:      Provide transport-specific system level services.
 :
 : 'btls5':
-:      Provide ...
+:      Support connecting through a network of SOCKS5 proxies.
 :
 : 'btlsc':
-:      Provide ...
+:      Provide abstract interfaces for transport channels and factories.
 :
 : 'btlscm':
-:      Provide ...
+:      Provide versioning information for 'btl' library components.
 :
 : 'btlso':
-:      Provide ...
+:      Provide low-level support for sockets and event managers.
 :
 : 'btlsos':
-:      Provide ...
+:      Provide concrete TCP/IPv4 channels derived from 'btlsc' protocols.
+
+/Package Overview
+/----------------
+ The following provides an overview of the 'btl' packages.  The subsections are
+ still very brief.  See the respective Package Level documents for more details
+ and usage examples.
+
+/btlmt
+/- - -
+ {'btlmt'} provides a multi-threaded framework that supports TCP/IPv4
+ transport.  In functionality, 'btlmt' is similar to 'ptdispatch' except that
+ there is no support for 'fstsnd' at this time.
+
+/btls
+/- -
+ {'btls'} provides "system level" services that are required by this transport
+ package group in a form that is portable across all suported platforms.
+ Currently, the package supplies objects and utilities to implement the Unix
+ 'iovec' ("scatter/gather") buffer structure in a platform-neutral form.
+
+/btls5
+/- -
+ {'btls5'} provides  connectivity through a network of SOCKS5 proxies with
+ optional username/password authentication.
+
+/btlsc
+/- - -
+ 'btlsc' provides a suite of protocols (i.e., pure abstract interfaces)
+ abstracting the general behavior of communications "channels".  All
+ abstractions in this package consider stream-based (as opposed to
+ message-based) transport.  The three general abstractions are called
+ "channel", "channel allocator", and "allocator factory".  In our usage,
+ "allocator" and "factory" are synonymous; we use different words to avoid
+ repetition.  In simplest form, "channel" abstracts the concept of an endpoint
+ of a communication mechanism, providing appropriate "read" and "write"
+ methods, while a "channel allocator" dispenses channels as resources, and
+ hence abstracts the concepts of creating and destroying channels.  Finally, a
+ "(channel) allocator factory" is substantially a naming service that is
+ capable of dispensing channel allocators that will in turn dispense channels
+ that are appropriately connected of concrete event managers.  Each of the
+ above interfaces is available in blocking and non-blocking form, and with and
+ without support for timeouts.
+
+/btlso
+/- - -
+ {'btlso'} provides relatively low-level support for sockets as well as a
+ number of concrete event managers.
+
+/btlsos
+/- - -
+ {'btlsos'} provides concrete impementations of 'btlsc' channels using TCP/IPv4
+ sockets.  Timed and untimed, and blocking and non-blocking versions of generic
+ channels, acceptors, and connectors are provided.

@@ -1,13 +1,14 @@
- btls5.txt
+    btls5.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Support connecting through a network of SOCKS5 proxies.
 
-@MNEMONIC: Basic Transport Library XXX (btls5)
+@MNEMONIC: Basic Transport Environment Socks5 (btls5)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: David Brukman
 
-@DESCRIPTION: The 'btls5' ("Basic Transport Library XXX") package provides
- ...
+@DESCRIPTION: The 'btls5' package supports connecting through a network of
+ SOCKS5 proxies.  The top-level interface is provided by
+ 'btls5_NetworkConnector'.
 
 /Hierarchical Synopsis
 /---------------------

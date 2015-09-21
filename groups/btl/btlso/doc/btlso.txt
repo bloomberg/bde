@@ -1,13 +1,13 @@
- btlso.txt
+    btlso.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide low-level support for sockets and event managers.
 
-@MNEMONIC: Basic Transport Library XXX (btlso)
+@MNEMONIC: Basic Transport Environment SOcket (btlso)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Herve Bronnimann
 
-@DESCRIPTION: The 'btlso' ("Basic Transport Library XXX") package provides
- ...
+@DESCRIPTION: The 'btlso' package provides relatively low-level support for
+sockets as well as a number of concrete event managers.
 
 /Hierarchical Synopsis
 /---------------------

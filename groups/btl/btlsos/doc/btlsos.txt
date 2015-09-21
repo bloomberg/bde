@@ -1,13 +1,15 @@
  btlsos.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide concrete TCP/IPv4 channels derived from 'btlsc' protocols.
 
-@MNEMONIC: Basic Transport Library XXX (btlsos)
+@MNEMONIC: Basic Transport Environment SOcket-based Streams (btlsos)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Tom Marshall (tmarshal)
 
-@DESCRIPTION: The 'btlsos' ("Basic Transport Library XXX") package provides
- ...
+@DESCRIPTION: The 'btlsos' package provides concrete imlpementations of 'btlsc'
+ channels using TCP/IPv4 sockets.  Timed and untimed, and blocking and
+ non-blocking versions of generic channels, acceptors, and connectors are
+ provided.
 
 /Hierarchical Synopsis
 /---------------------
