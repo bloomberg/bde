@@ -1,13 +1,16 @@
  balxml.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide utility components for using XML and XSD.
 
-@MNEMONIC: Basic Application Library XXX (balxml)
+@MNEMONIC: Basic Application Environment XML (balxml)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Rohan Bhindwale (rbhindwa)
 
-@DESCRIPTION: The 'balxml' ("Basic Application Library XXX") package provides
- ...
+@SEE ALSO: a_xercesc, a_xml2
+
+@DESCRIPTION: The 'balxml' package provides utilities for working with XML and
+ XSD.  Clients can use the components provided by 'balxml' for parsing and
+ printing fundamental types, XML schema, and XML data documents.
 
 /Hierarchical Synopsis
 /---------------------

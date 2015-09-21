@@ -1,13 +1,17 @@
  bal.txt
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide application-level support services.
 
-@MNEMONIC: Basic Application Library (bal)
+@MNEMONIC: Basic Application Environment (bal)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
+@AUTHOR: Tom Marshall (tmarshal)
 
-@DESCRIPTION: The 'bal' ("Basic Application Library") package group provides
- ...
+@DESCRIPTION: The 'bal' ("Basic Applications Environment") package group
+ contains twelve packages (beyond the required 'balscm' source management
+ versioning package -- see 'bdescm' for a general discussion of version
+ control).  Those packages provide application-level support services in varied
+ areas such as encoders/decoders, timezone support, command-line handling,
+ metrics, and logging.
 
 /Hierarchical Synopsis
 /---------------------
@@ -33,28 +37,28 @@
 /Package Synopsis
 /----------------
 : 'balb':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide ...
 :
 : 'balber':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide ...
 :
 : 'baljsn':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide components for encoding/decoding in the JSON format.
 :
 : 'ball':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide thread-safe logging toolkit suitable for all platforms.
 :
 : 'balm':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide thread-safe collection and publishing of metrics.
 :
 : 'balscm':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide versioning information for library components in 'bal'
 :
 : 'balst':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide ...
 :
 : 'baltzo':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide timezone data for use with timezone-enabled vocabulary types.
 :
 : 'balxml':
-:      Provide date and time vocabulary types, and related utilities.
+:      Provide utility components for using XML and XSD.
