@@ -54,6 +54,13 @@ BSLS_IDENT("$Id: $")
 //  seconds        [ -59 ..  59]         all fields non-pos. or all non-neg.
 //  milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
 //..
+///Extremal Time Intervals
+///-----------------------
+// The 'bdlt::DatetimeInterval' class provides two integral constants,
+// 'k_MILLISECONDS_MAX' and 'k_MILLISECONDS_MIN', that define (respectively)
+// the maximum and minimum intervals representable by 'DatetimeInterval'
+// objects.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -157,15 +164,21 @@ class DatetimeInterval {
     // millisecond resolution.  See {The Representation of a Time Interval} for
     // details.
 
-    // CLASS DATA
-    static const bsls::Types::Int64 k_MILLISECS_MAX =  185542587187199999LL;
-    static const bsls::Types::Int64 k_MILLISECS_MIN = -185542587187199999LL
-                                                   - TimeUnitRatio::k_MS_PER_D;
-
     // DATA
     bsls::Types::Int64 d_milliseconds;  // interval in (signed) milliseconds
 
   public:
+    // PUBLIC CLASS DATA
+    static const bsls::Types::Int64 k_MILLISECONDS_MAX = 185542587187199999LL;
+        // The maximum interval that is representable by a 'DatetimeInterval',
+        // in milliseconds.
+
+    static const bsls::Types::Int64 k_MILLISECONDS_MIN =
+                   -k_MILLISECONDS_MAX - TimeUnitRatio::k_MILLISECONDS_PER_DAY;
+        // The minimum interval that is representable by a 'DatetimeInterval,
+        // in milliseconds'.
+
+
     // CLASS METHODS
 
                                   // Aspects
@@ -501,8 +514,8 @@ DatetimeInterval::DatetimeInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D)
 {
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -524,8 +537,8 @@ DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 {
     d_milliseconds += rhs.d_milliseconds;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 
     return *this;
 }
@@ -535,8 +548,8 @@ DatetimeInterval& DatetimeInterval::operator-=(const DatetimeInterval& rhs)
 {
     d_milliseconds -= rhs.d_milliseconds;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 
     return *this;
 }
@@ -554,8 +567,8 @@ void DatetimeInterval::setInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -570,8 +583,8 @@ void DatetimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
     d_milliseconds = hours * TimeUnitRatio::k_MS_PER_H;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -579,8 +592,8 @@ void DatetimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds = minutes * TimeUnitRatio::k_MS_PER_M;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -588,8 +601,8 @@ void DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds = seconds * TimeUnitRatio::k_MS_PER_S;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -597,8 +610,8 @@ void DatetimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_milliseconds = milliseconds;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -614,8 +627,8 @@ void DatetimeInterval::addInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -624,8 +637,8 @@ void DatetimeInterval::addDays(int days)
     d_milliseconds +=
              static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -633,8 +646,8 @@ void DatetimeInterval::addHours(bsls::Types::Int64 hours)
 {
     d_milliseconds += hours * TimeUnitRatio::k_MS_PER_H;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -642,8 +655,8 @@ void DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds += minutes * TimeUnitRatio::k_MS_PER_M;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -651,8 +664,8 @@ void DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds += seconds * TimeUnitRatio::k_MS_PER_S;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
 inline
@@ -661,8 +674,8 @@ DatetimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_milliseconds += milliseconds;
 
-    BSLS_ASSERT_SAFE(k_MILLISECS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(                   d_milliseconds <= k_MILLISECS_MAX);
+    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
+    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
 
                                   // Aspects
@@ -676,7 +689,8 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
             bsls::Types::Int64 tmp;
             stream.getInt64(tmp);
 
-            if (stream && k_MILLISECS_MIN <= tmp && k_MILLISECS_MAX >= tmp) {
+            if (stream
+             && k_MILLISECONDS_MIN <= tmp && k_MILLISECONDS_MAX >= tmp) {
                 d_milliseconds = tmp;
             }
             else {
