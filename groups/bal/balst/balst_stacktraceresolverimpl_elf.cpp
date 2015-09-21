@@ -29,10 +29,17 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_cerrno.h>
 #include <bsl_cstring.h>
 #include <bsl_climits.h>
+#include <bsl_cstdarg.h>
 #include <bsl_vector.h>
 
 #include <elf.h>
 #include <unistd.h>
+
+#undef BALST_DWARF
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
+# define BALST_DWARF 1
+# include <dwarf.h>
+#endif
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
 
@@ -65,19 +72,87 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // ============================================================================
 
 #undef  TRACES
-#define TRACES 0    // debugging traces off
+#define TRACES 2    // 0 == debugging traces off
+                    // 1 == debugging traces on
+                    // 2 == debugging traces on, eprintf core dumps
 
-#if TRACES == 1
+#undef eprintf
+#undef zprintf
+#undef ASSERT_WARN
+#undef P
+#undef PH
+#define EPRINTF
+
+#if TRACES > 0
 # include <stdio.h>
 
+#define zprintf printf
+
+#if 1 == TRACES
 # define eprintf printf
-# define zprintf printf
+#else
+static
+void eprintf(const char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+
+    vprintf(format, ap);
+
+    va_end(ap);
+
+    BSLS_ASSERT_OPT(0 && "eprintf called");
+}
+#endif
+
+static bool warnHandler(const char *expr,
+                        const char *functionName,
+                        int         line)
+{
+    zprintf("Warning: assertion (%s) failed at line %d in function %s\n",
+            expr, line, functionName);
+
+    return false;
+}
+
+#define ASSERT_WARN(expr)    ((expr) || warnHandler(#expr, (fn), __LINE__))
+
+static bool warnPrint(const char *expr, void *value)
+{
+    zprintf("%s = 0x%p\n", expr, value);
+
+    return false;
+}
+static bool warnPrint(const char                        *expr,
+                      BloombergLP::bsls::Types::UintPtr  value)
+{
+    zprintf("%s = %lu\n", expr, value);
+
+    return false;
+}
+static bool warnPrint(const char *expr, int value)
+{
+    zprintf("%s = %d\n", expr, value);
+
+    return false;
+}
+
+static bool warnPrintHex(const char                        *expr,
+                         BloombergLP::bsls::Types::UintPtr  value)
+{
+    zprintf("%s = 0x%lx\n", expr, value);
+
+    return false;
+}
+
+#define P(expr)     warnPrint(   #expr, (expr))
+#define PH(expr)    warnPrintHex(#expr, (expr))
 
 #else
 
 static inline
 void eprintf(const char *, ...)
-    // only called on errors
+    // called on debug output - output is very voluminous if this is turned on
 {
 }
 
@@ -86,6 +161,11 @@ void zprintf(const char *, ...)
     // called on debug output - output is very voluminous if this is turned on
 {
 }
+
+
+#define ASSERT_WARN(expr)
+#define P(expr)
+#define PH(expr)
 
 #endif
 
@@ -416,12 +496,27 @@ void zprintf(const char *, ...)
 //     // value otherwise.  Note that an 'index' value of 0 refers to the main
 //     // program itself and -1 refers to the dynamic loader.
 //..
+// DWARF:
+// ----------------------------------------------------------------------------
+//..
+// The DWARF information is in 3 sections of the segments:
+// .debug_aranges:     Specifies addresses ranges, and for each range, the
+//                     offset of the compilation unit for addresss within those
+//                     ranges in the .debug_info section.
+// .debug_info:        Various information about the compilation, including the
+//                     source file directory and name and the offset in the
+//                     .debug_line section of the line number information.
+// .debug_line:        Line number information.
+//..
 
 namespace BloombergLP {
 
 namespace {
 
 namespace local {
+
+typedef bsls::Types::UintPtr UintPtr;
+typedef bsls::Types::IntPtr  IntPtr;
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
                                                             StackTraceResolver;
@@ -494,19 +589,96 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
                                            // symbol table.
 #undef SPLICE
 
+struct Section {
+    // Refers to one section of a segment.
+
+    // DATA
+    UintPtr d_offset;    // offset of the section in the file
+    UintPtr d_size;      // size of that section
+
+    // CREATOR
+    Section()
+    : d_offset(0)
+    , d_size(0)
+    {
+    }
+
+    // MANIPULATOR
+    void reset(UintPtr offset = 0, UintPtr size = 0)
+    {
+        d_offset = offset;
+        d_size   = size;
+    }
+
+    // ACCESSORS
+    bool contains(UintPtr offset) const
+    {
+        return d_offset <= offset && offset <= d_offset + d_size;
+    }
+
+    bool contains(const void *address) const
+    {
+        return contains(reinterpret_cast<UintPtr>(address));
+    }
+
+    bool contains(const Section& section) const
+    {
+        return d_offset <= section.d_offset &&
+                        section.d_offset + section.d_size <= d_offset + d_size;
+    }
+};
+
+#ifdef BALST_DWARF
+template <class TYPE>
+void readValue(TYPE        *dst,
+               const char **readPtr)
+    // Copy the memory pointed at by the specified '*readPtr' to the specified
+    // '*dst', then increment the '*readPtr' by the size of the memory read.
+{
+    bsl::memcpy(dst, *readPtr, sizeof(*dst));
+    *readPtr += sizeof(*dst);
+}
+
+template <class TYPE>
+void readAlignedValue(TYPE        *dst,
+                      const char **readPtr)
+    // Copy the memory pointed at by the specified '*readPtr' to the specified
+    // '*dst', then increment the '*readPtr' by the size of the memory read.
+    // The behavior is undefined unless 'sizeof(TYPE)' is a power of 2 and
+    // '*readPtr' is aligned for a 'TYPE *'.
+{
+    BSLMF_ASSERT(0 == (sizeof(TYPE) & (sizeof(TYPE) - 1)));       // power of 2
+    BSLS_ASSERT_SAFE(0 == (reinterpret_cast<UintPtr>(*readPtr) &
+                                                          (sizeof(TYPE) - 1)));
+    *dst = *reinterpret_cast<const TYPE *>(*readPtr);
+    *readPtr += sizeof(*dst);
+}
+#endif
+
                                     // --------
                                     // FrameRec
                                     // --------
 
 class FrameRec {
     // A struct consisting of the things we want stored associated with a given
-    // frame.  We put these into a vector and sort them for fast lookup by
+    // frame.  We put these into a vector and sort them for O(log n) lookup by
     // address.
 
     // DATA
     const void             *d_address;
     balst::StackTraceFrame *d_frame_p;
-    bool                    d_isResolved;
+#ifdef BALST_DWARF
+    UintPtr                 d_compileUnitOffset;
+    local::Section          d_lineNumbers;
+#endif
+    bool                    d_isDone;        // This has differrent meanings in
+                                             // different contexts.  When
+                                             // resolving, this flag, if true,
+                                             // means the symbol in this frame
+                                             // is resolved.  When reading
+                                             // DWARF information, means this
+                                             // frame has had line numbers and
+                                             // source file name resolved.
 
   public:
     // CREATORS
@@ -515,7 +687,11 @@ class FrameRec {
              balst::StackTraceFrame *framePtr = 0)
     : d_address(address)
     , d_frame_p(framePtr)
-    , d_isResolved(false)
+#ifdef BALST_DWARF
+    , d_compileUnitOffset(0)
+    , d_lineNumbers()
+#endif
+    , d_isDone(false)
         // Create a 'FrameRec' referring to the specified 'address' and the
         // specified 'framePtr'.
     {
@@ -528,9 +704,31 @@ class FrameRec {
     // MANIPULATORS
     // inline operator=(const FrameRec&) = default;
 
-    void setResolved()
+    void setAddress(const void *value)
     {
-        d_isResolved = true;
+        d_address = value;
+    }
+
+    void setAddress(const UintPtr value)
+    {
+        d_address = reinterpret_cast<const void *>(value);
+    }
+
+    void setCompileUnitOffset(const UintPtr value)
+    {
+        d_compileUnitOffset = value;
+    }
+
+    void setDone()
+        // Set this frame as being done.
+    {
+        d_isDone = true;
+    }
+
+    void setNotDone()
+        // Set this frame as being done.
+    {
+        d_isDone = false;
     }
 
     // ACCESSORS
@@ -547,6 +745,11 @@ class FrameRec {
         return d_address;
     }
 
+    UintPtr compileUnitOffset()
+    {
+        return d_compileUnitOffset;
+    }
+
     balst::StackTraceFrame& frame() const
         // Return a reference to the modifiable 'frame' referenced by this
         // object.  Note that though this is a 'const' method, modifiable
@@ -555,9 +758,10 @@ class FrameRec {
         return *d_frame_p;
     }
 
-    bool isResolved() const
+    bool isDone() const
+        // Return 'true' if this frame is done and 'false' otherwise.
     {
-        return d_isResolved;
+        return d_isDone;
     }
 };
 
@@ -614,15 +818,17 @@ struct local::StackTraceResolver::CurrentSegment {
     // resolving symbols within one at a time.
 
     // TYPES
-    typedef bsls::Types::UintPtr
+    typedef local::UintPtr
                    UintPtr;             // 32 bit unsigned on 32 bit, 64 bit
                                         // unsigned on 64 bit, usually used for
                                         // absolute offsets into a file
 
     // DATA
-    balst::StackTraceResolver_FileHelper
+    StackTraceResolver_FileHelper
                   *d_helper_p;          // file helper associated with current
                                         // segment
+
+    StackTrace    *d_stackTrace_p;      // the stack trace we are resolving
 
     local::FrameRecVec
                    d_frameRecs;         // Vector of address frame pairs for
@@ -640,18 +846,30 @@ struct local::StackTraceResolver::CurrentSegment {
                                         // addresses in memory for current
                                         // segment
 
-    UintPtr        d_symTableOffset;    // symbol table offset (symbol table
+    local::Section d_symTableSec;       // symbol table section (symbol table
                                         // does not contain symbol names, just
                                         // offsets into string table) from the
                                         // beginning of the executable or
                                         // library file
 
-    UintPtr        d_symTableSize;      // size in bytes of symbol table
-
-    UintPtr        d_stringTableOffset; // string table offset from the
+    local::Section d_stringTableSec;    // string table offset from the
                                         // beginning of the file
 
-    UintPtr        d_stringTableSize;   // size in bytes of string table
+#ifdef BALST_DWARF
+    local::Section d_arangesSec;        // .debug_aranges section
+
+    local::Section d_infoSec;           // .debug_info section
+
+    local::Section d_lineSec;           // .debug_line section
+#endif
+
+    char          *d_scratchBuf_p;      // scratch buffer (from resolver)
+
+    char          *d_symbolBuf_p;       // scratch space for symbols (from
+                                        // resolver)
+
+    int            d_numTotalUnmatched; // Total number of unmatched frames
+                                        // remaining in this resolve.
 
     bool           d_isMainExecutable;  // 'true' if in main executable
                                         // segment, as opposed to a shared
@@ -664,48 +882,313 @@ struct local::StackTraceResolver::CurrentSegment {
 
   public:
     // CREATORS
-    CurrentSegment(balst::StackTrace *stackTrace,
-                   bslma::Allocator  *basicAllocator);
+    CurrentSegment(local::StackTraceResolver *resolver);
         // Create this 'Seg' object, initialize 'd_numFrames' to 'numFrames',
         // and initialize all other fields to 0.
 
     // MANIPULATORS
+#ifdef BALST_DWARF
+    int readAranges();
+        // Read the .debug_aranges section.
+
+    int readDwarf();
+        // Read the DWARF information.
+#endif
+
     void reset();
-        // Zero numerous fields.  Note that this action is not necessary, it's
-        // just conceptually clean to be starting out with a fairly blank
-        // slate.
+        // Zero numerous fields.
 };
 
 // CREATORS
 local::StackTraceResolver::CurrentSegment::CurrentSegment(
-                                             balst::StackTrace *stackTrace,
-                                             bslma::Allocator  *basicAllocator)
+                                           local::StackTraceResolver *resolver)
 : d_helper_p(0)
-, d_frameRecs(basicAllocator)
+, d_stackTrace_p(resolver->d_stackTrace_p)
+, d_frameRecs(&resolver->d_hbpAlloc)
+, d_frameRecsBegin()
+, d_frameRecsEnd()
 , d_adjustment(0)
-, d_symTableOffset(0)
-, d_symTableSize(0)
-, d_stringTableOffset(0)
-, d_stringTableSize(0)
+, d_symTableSec()
+, d_stringTableSec()
+#ifdef BALST_DWARF
+, d_arangesSec()
+, d_infoSec()
+, d_lineSec()
+#endif
+, d_scratchBuf_p(resolver->d_scratchBuf_p)
+, d_symbolBuf_p( resolver->d_symbolBuf_p)
+, d_numTotalUnmatched(resolver->d_stackTrace_p->length())
 , d_isMainExecutable(0)
 {
-    d_frameRecs.reserve(stackTrace->length());
-    for (int ii = 0; ii < stackTrace->length(); ++ii) {
-        balst::StackTraceFrame& frame = (*stackTrace)[ii];
+    d_frameRecs.reserve(d_numTotalUnmatched);
+    for (int ii = 0; ii < d_numTotalUnmatched; ++ii) {
+        balst::StackTraceFrame& frame = (*resolver->d_stackTrace_p)[ii];
         d_frameRecs.push_back(local::FrameRec(frame.address(), &frame));
     }
     bsl::sort(d_frameRecs.begin(), d_frameRecs.end());
 }
 
 // MANIPULATORS
+#ifdef BALST_DWARF
+int local::StackTraceResolver::CurrentSegment::readAranges()
+{
+    enum { SIZE_INITIAL_LENGTH    = (8 == sizeof(void *) ? sizeof(int) : 0) +
+                                                               sizeof(UintPtr),
+           SIZE_VERSION           = sizeof(short),
+           SIZE_DEBUG_INFO_OFFSET = sizeof(UintPtr),
+           SIZE_ADDRESS_SIZE      = sizeof(char),
+           SIZE_SEGMENT_SIZE      = sizeof(char),
+           SIZE_PAIR              = 2 * sizeof(UintPtr),
+           MIN_READ_LENGTH        = SIZE_INITIAL_LENGTH + SIZE_VERSION +
+                                   SIZE_DEBUG_INFO_OFFSET + SIZE_ADDRESS_SIZE +
+                                           SIZE_SEGMENT_SIZE + 2 * SIZE_PAIR };
+
+    // This compile-time assert establishes that the 'ptr, length' pairs at
+    // the end of each set are 'UintPtr' aligned.
+
+    BSLMF_ASSERT(0 == MIN_READ_LENGTH % sizeof(UintPtr));
+
+    static const char fn[] = { "readAranges:" };
+
+    local::FrameRecVecIt end = d_frameRecsEnd;
+    int matched = static_cast<int>(end - d_frameRecsBegin);
+    BSLS_ASSERT(matched > 0);    // otherwise we should not have been called.
+
+    zprintf("%s starting, matched=%d\n", fn, matched);
+
+    UintPtr offset     = d_arangesSec.d_offset;
+    UintPtr arangesEnd = offset + d_arangesSec.d_size;
+
+    local::Section  addressRange;
+    local::FrameRec dummyFrameRec(0);
+
+    const char *readPtr;
+    for (; offset < arangesEnd; offset += readPtr - d_scratchBuf_p) {
+        int lengthToRead = static_cast<int>(
+                                    bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
+                                                      arangesEnd - offset));
+        if (lengthToRead < MIN_READ_LENGTH) {
+            eprintf("%s Unacceptably short read %u bytes, < min %u bytes\n",
+                                            fn, lengthToRead, MIN_READ_LENGTH);
+            return -1;                                                // RETURN
+        }
+
+        int rc = d_helper_p->readExact(d_scratchBuf_p,
+                                       lengthToRead,
+                                       offset);
+        if (rc) {
+            eprintf("fn read failed\n", fn);
+
+            return -1;                                                // RETURN
+        }
+
+        // Note 'arangesEndPtr' may stack way past the end of the buffer.
+
+        const char * const arangesEndPtr = d_scratchBuf_p +
+                        d_arangesSec.d_size - (offset - d_arangesSec.d_offset);
+
+        readPtr = d_scratchBuf_p;
+        const char * const endPtr = readPtr + lengthToRead;
+        BSLS_ASSERT(endPtr <= arangesEndPtr);
+        for (;;) {
+            if (endPtr - readPtr < MIN_READ_LENGTH) {
+                break;    // go back and re-read buffer
+            }
+
+            const char * const startPtr = readPtr;
+
+            UintPtr rangeLength;
+            unsigned u, u2;
+            local::readValue(&u, &readPtr);
+            bool bit32;
+            if (0xffffffff == u) {
+                local::readValue(&rangeLength, &readPtr);
+                bit32 = false;
+            }
+            else {
+                if (u >= 0xfffffff0) {
+                    eprintf("%s illegal preNum:0x%x\n", fn, u);
+                    return -1;                                        // RETURN
+                }
+                bit32 = true;
+                rangeLength = u;
+            }
+            if (4096 < rangeLength) {
+                eprintf("%s absurd rangeLength:%lu\n", fn, rangeLength);
+                return -1;                                            // RETURN
+            }
+            const char *rangeEnd = readPtr + rangeLength;
+            if (rangeEnd > endPtr) {
+                if (rangeEnd > arangesEndPtr) {
+                    eprintf("%s range end:0x%p > arangesEndPtr:0x%p\n", fn,
+                                                      rangeEnd, arangesEndPtr);
+                    return -1;                                        // RETURN
+                }
+
+                readPtr = startPtr;
+                break;    // go back and re-read buffer
+            }
+            BSLS_ASSERT(rangeEnd <= endPtr);
+            unsigned short version;
+            local::readValue(&version, &readPtr);
+            if (2 != version) {
+                eprintf("%s invalid version:%u\n", fn, version);
+                return -1;                                            // RETURN
+            }
+            UintPtr debugInfoOffset;
+            if (bit32) {
+                local::readValue(&u, &readPtr);
+                debugInfoOffset = u;
+            }
+            else {
+                local::readValue(&debugInfoOffset, &readPtr);
+            }
+            if (!debugInfoOffset > d_infoSec.d_size) {
+                eprintf("%s invalid debugInfoOffset:%lx\n",
+                                                          fn, debugInfoOffset);
+                return -1;                                            // RETURN
+            }
+            unsigned char addressSize = *readPtr++;
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+            if (sizeof(UintPtr) != addressSize && sizeof(int) != addressSize) {
+                eprintf("%s invalid address size:%u\n", fn, addressSize);
+                return -1;                                            // RETURN
+            }
+#else
+            if (sizeof(UintPtr) != addressSize) {
+                eprintf("%s invalid address size:%u\n", fn, addressSize);
+                return -1;                                            // RETURN
+            }
+#endif
+            unsigned char segmentSize = *readPtr++;
+            if (0 != segmentSize) {
+                eprintf("%s invalid segment size:%u\n", fn, segmentSize);
+                return -1;                                            // RETURN
+            }
+            if (0 != (rangeEnd - readPtr) % (sizeof(unsigned) == addressSize
+                                             ? (2 * sizeof(unsigned))
+                                             : (2 * sizeof(UintPtr)))) {
+                eprintf("%s strange rangeLength\n", fn);
+                return -1;                                            // RETURN
+            }
+            for (;;) {
+                if (readPtr >= rangeEnd) {
+                    eprintf("%s set not terminated by 0's\n", fn);
+                    return -1;                                        // RETURN
+                }
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+                if (sizeof(unsigned) == addressSize) {
+                    local::readAlignedValue(&u,  &readPtr);
+                    local::readAlignedValue(&u2, &readPtr);
+                    addressRange.reset(u, u2);
+                }
+                else {
+                    local::readAlignedValue(&addressRange.d_offset, &readPtr);
+                    local::readAlignedValue(&addressRange.d_size,   &readPtr);
+                }
+#else
+                local::readAlignedValue(&addressRange.d_offset, &readPtr);
+                local::readAlignedValue(&addressRange.d_size,   &readPtr);
+#endif
+
+                if (0 == addressRange.d_offset) {
+                    if (0 != addressRange.d_size) {
+                        eprintf("%s partial zero\n", fn);
+                    }
+                    if (readPtr != rangeEnd) {
+                        eprintf("%s terminating 0's %s range end\n", fn,
+                                          readPtr < rangeEnd ? "reached before"
+                                                             : "overlap");
+                        readPtr = rangeEnd;
+                    }
+
+                    break;
+                }
+
+                dummyFrameRec.setAddress(addressRange.d_offset);
+                local::FrameRecVecIt begin =
+                        bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
+                for (local::FrameRecVecIt it = begin; it < end &&
+                                  addressRange.contains(it->address()); ++it) {
+                    const bool redundant = 0 != it->compileUnitOffset();
+                    zprintf("%s%s range (0x%lx, %lu) matches frame %lu,"
+                                                    " compile unit at 0x%lx\n",
+                                             fn, redundant ? " redundant" : "",
+                                    addressRange.d_offset, addressRange.d_size,
+                                          &it->frame() - &(*d_stackTrace_p)[0],
+                                                              debugInfoOffset);
+                    if (redundant) {
+                        continue;
+                    }
+
+                    it->setCompileUnitOffset(d_infoSec.d_offset +
+                                                              debugInfoOffset);
+                    if (0 == --matched) {
+                        zprintf("%s last frame matched\n", fn);
+                        return 0;                                     // RETURN
+                    }
+                }
+            }
+        }
+    }
+
+    zprintf("%s failed to complete -- %d frames unmatched.\n", fn, matched);
+
+    return 0;
+}
+
+int local::StackTraceResolver::CurrentSegment::readDwarf()
+{
+    if (0 == d_arangesSec.d_offset || 0 == d_infoSec.d_offset) {
+        zprintf("readDwarf: Not enough information to find file names or line"
+                                                                " numbers.\n");
+        return -1;
+    }
+
+    int rc = readAranges();      // Get the locations of the compile unit info
+    if (rc) {                    // for each frame, from .debug_aranges.
+        zprintf("readDwarf: .debug_aranges failed\n");
+        return -1;
+    }
+#if 0
+    rc = readInfo();             // Get the source filenames and the location
+    if (rc) {                    // of the line number info, from .debug_info.
+        zprintf("readDwarf: .debug_info failed\n");
+        return -1;
+    }
+
+    if (0 == d_lineSec.d_offset) {
+        zprintf("readDwarf: Line number info not found.\n");
+        return -1;
+    }
+
+    rc = readLine();             // Get the line numbers, from .debug_line.
+    if (rc) {
+        zprintf("readDwarf: .debug_line failed\n");
+        return -1;
+    }
+#endif
+    return 0;
+}
+#endif
+
 void local::StackTraceResolver::CurrentSegment::reset()
 {
+    // Note that 'd_frameRecs' and 'd_numTotalUnmatched' are not to be cleared
+    // or reinitialized, they have a lifetime of the length of the resolve.
+
     d_helper_p           = 0;
+    d_frameRecsBegin     = local::FrameRecVecIt();
+    d_frameRecsEnd       = local::FrameRecVecIt();
     d_adjustment         = 0;
-    d_symTableOffset     = 0;
-    d_symTableSize       = 0;
-    d_stringTableOffset  = 0;
-    d_stringTableSize    = 0;
+    d_symTableSec.reset();
+    d_stringTableSec.reset();
+#ifdef BALST_DWARF
+    d_arangesSec.reset();
+    d_infoSec.reset();
+    d_lineSec.reset();
+#endif
 }
 
      // -----------------------------------------------------------------
@@ -727,8 +1210,7 @@ local::StackTraceResolver::StackTraceResolverImpl(
                                 d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN));
     d_symbolBuf_p  = static_cast<char *>(
                                  d_hbpAlloc.allocate(local::k_SYMBOL_BUF_LEN));
-    d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace,
-                                                     &d_hbpAlloc);
+    d_seg_p        = new (d_hbpAlloc) CurrentSegment(this);
 }
 
 local::StackTraceResolver::~StackTraceResolverImpl()
@@ -858,6 +1340,22 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
                 dynSymHdr = *sec;
             }
           } break;
+#ifdef BALST_DWARF
+          case SHT_PROGBITS: {
+            if ('d' != sectionName[1]) {
+                ; // do nothing
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_aranges")) {
+                d_seg_p->d_arangesSec.reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_info")) {
+                d_seg_p->d_infoSec.   reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_line")) {
+                d_seg_p->d_lineSec.   reset(sec->sh_offset, sec->sh_size);
+            }
+          } break;
+#endif
         }
     }
 
@@ -871,18 +1369,18 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     if (0 != strTabHdr.sh_size && 0 != symTabHdr.sh_size) {
         // use the full symbol table if it is available
 
-        d_seg_p->d_symTableOffset    = symTabHdr.sh_offset;
-        d_seg_p->d_symTableSize      = symTabHdr.sh_size;
-        d_seg_p->d_stringTableOffset = strTabHdr.sh_offset;
-        d_seg_p->d_stringTableSize   = strTabHdr.sh_size;
+        d_seg_p->d_symTableSec.   reset(symTabHdr.sh_offset,
+                                        symTabHdr.sh_size);
+        d_seg_p->d_stringTableSec.reset(strTabHdr.sh_offset,
+                                        strTabHdr.sh_size);
     }
     else if (0 != dynSymHdr.sh_size && 0 != dynStrHdr.sh_size) {
         // otherwise use the dynamic symbol table
 
-        d_seg_p->d_symTableOffset    = dynSymHdr.sh_offset;
-        d_seg_p->d_symTableSize      = dynSymHdr.sh_size;
-        d_seg_p->d_stringTableOffset = dynStrHdr.sh_offset;
-        d_seg_p->d_stringTableSize   = dynStrHdr.sh_size;
+        d_seg_p->d_symTableSec.   reset(dynSymHdr.sh_offset,
+                                        dynSymHdr.sh_size);
+        d_seg_p->d_stringTableSec.reset(dynStrHdr.sh_offset,
+                                        dynStrHdr.sh_size);
     }
     else {
         // otherwise fail
@@ -891,28 +1389,49 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     }
 
     zprintf("Sym table:(0x%lx, %lu) string table:(0x%lx %lu)\n",
-            d_seg_p->d_symTableOffset,
-            d_seg_p->d_symTableSize,
-            d_seg_p->d_stringTableOffset,
-            d_seg_p->d_stringTableSize);
+            d_seg_p->d_symTableSec.d_offset,
+            d_seg_p->d_symTableSec.d_size,
+            d_seg_p->d_stringTableSec.d_offset,
+            d_seg_p->d_stringTableSec.d_size);
+
+#ifdef BALST_DWARF
+    zprintf("Aranges:(0x%lx, %lu) info:(0x%lx %lu) line::(0x%lx %lu)\n",
+            d_seg_p->d_arangesSec.d_offset,
+            d_seg_p->d_arangesSec.d_size,
+            d_seg_p->d_infoSec.d_offset,
+            d_seg_p->d_infoSec.d_size,
+            d_seg_p->d_lineSec.d_offset,
+            d_seg_p->d_lineSec.d_size);
+#endif
 
     rc = loadSymbols(matched);
+    if (rc) {
+        eprintf("loadSymbols failed\n");
+        return -1;                                                    // RETURN
+    }
+
     // we return 'rc' at the end.
 
-    d_seg_p->d_frameRecs.erase(d_seg_p->d_frameRecsBegin,
-                               d_seg_p->d_frameRecsEnd);
-    if (d_seg_p->d_frameRecs.empty()) {
+#ifdef BALST_DWARF
+    rc = d_seg_p->readDwarf();
+    if (rc) {
+        eprintf("readDwarf failed\n");
+        return -1;                                                    // RETURN
+    }
+#endif
+
+    if (0 == (d_seg_p->d_numTotalUnmatched -= matched)) {
         zprintf("Last address matched\n");
     }
 
-    return rc;
+    return 0;
 }
 
 int local::StackTraceResolver::loadSymbols(int matched)
 {
     const int     symSize = static_cast<int>(sizeof(local::ElfSymbol));
     const UintPtr maxSymbolsPerPass = local::k_SYMBOL_BUF_LEN / symSize;
-    const UintPtr numSyms = d_seg_p->d_symTableSize / symSize;
+    const UintPtr numSyms = d_seg_p->d_symTableSec.d_size / symSize;
     UintPtr       sourceFileNameOffset = ~static_cast<UintPtr>(0);
 
     UintPtr      numSymsThisTime;
@@ -920,11 +1439,12 @@ int local::StackTraceResolver::loadSymbols(int matched)
                                                  symIndex += numSymsThisTime) {
         numSymsThisTime = bsl::min(numSyms - symIndex, maxSymbolsPerPass);
 
-        const UintPtr offsetToRead = d_seg_p->d_symTableOffset +
+        const UintPtr offsetToRead = d_seg_p->d_symTableSec.d_offset +
                                                             symIndex * symSize;
-        int           rc = d_seg_p->d_helper_p->readExact(d_symbolBuf_p,
-                                                numSymsThisTime * symSize,
-                                                offsetToRead);
+        int           rc = d_seg_p->d_helper_p->readExact(
+                                                     d_symbolBuf_p,
+                                                     numSymsThisTime * symSize,
+                                                     offsetToRead);
         if (rc) {
             eprintf("failed to read %lu symbols from offset %lu, errno %d\n",
                     numSymsThisTime,
@@ -958,7 +1478,7 @@ int local::StackTraceResolver::loadSymbols(int matched)
                                             d_seg_p->d_frameRecsEnd,
                                             local::FrameRec(endSymbolAddress));
                     for (local::FrameRecVecIt it = begin; it < end; ++it) {
-                        if (it->isResolved()) {
+                        if (it->isDone()) {
                             continue;
                         }
 
@@ -975,31 +1495,31 @@ int local::StackTraceResolver::loadSymbols(int matched)
                            && STB_LOCAL == ELF32_ST_BIND(sym->st_info)) {
                             frame.setSourceFileName(
                                       d_seg_p->d_helper_p->loadString(
-                                            d_seg_p->d_stringTableOffset +
+                                           d_seg_p->d_stringTableSec.d_offset +
                                                           sourceFileNameOffset,
-                                            d_scratchBuf_p,
-                                            local::k_SCRATCH_BUF_LEN,
-                                            &d_hbpAlloc));
+                                           d_scratchBuf_p,
+                                           local::k_SCRATCH_BUF_LEN,
+                                           &d_hbpAlloc));
                         }
 
                         frame.setMangledSymbolName(
                                   d_seg_p->d_helper_p->loadString(
-                                            d_seg_p->d_stringTableOffset +
+                                           d_seg_p->d_stringTableSec.d_offset +
                                                                   sym->st_name,
-                                            d_scratchBuf_p,
-                                            local::k_SCRATCH_BUF_LEN,
-                                            &d_hbpAlloc));
+                                           d_scratchBuf_p,
+                                           local::k_SCRATCH_BUF_LEN,
+                                           &d_hbpAlloc));
                         if (frame.isMangledSymbolNameKnown()) {
                             setFrameSymbolName(&frame);
 
-                            it->setResolved();
+                            it->setDone();
 
-                            zprintf("Resolved symbol %s, frame %d, [%p, %p)\n",
-                                    frame.symbolName().c_str(),
-                                    static_cast<int>(&frame -
-                                                       &(*d_stackTrace_p)[0]),
-                                    symbolAddress,
-                                    endSymbolAddress);
+                            zprintf(
+                                   "Resolved symbol %s, frame %ld, [%p, %p)\n",
+                                   frame.symbolName().c_str(),
+                                   &frame - &(*d_stackTrace_p)[0],
+                                   symbolAddress,
+                                   endSymbolAddress);
 
                             if (0 == --matched) {
                                 zprintf("Last symbol in segment loaded\n");
@@ -1063,6 +1583,8 @@ int local::StackTraceResolver::processLoadedImage(
             name = d_scratchBuf_p;
         }
         else {
+            zprintf("readlink of /proc/self/exe failed\n");
+
             return -1;                                                // RETURN
         }
     }
@@ -1403,7 +1925,7 @@ int local::StackTraceResolver::resolve(
 // PUBLIC ACCESSOR
 int local::StackTraceResolver::numUnmatchedFrames() const
 {
-    return static_cast<int>(d_seg_p->d_frameRecs.size());
+    return static_cast<int>(d_seg_p->d_numTotalUnmatched);
 }
 
 }  // close enterprise namespace

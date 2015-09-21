@@ -130,6 +130,10 @@ struct ObjectFileFormat {
     typedef Elf Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
+# if defined(BSLS_PLATFORM_OS_LINUX)
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
+# endif
+
 #elif defined(BSLS_PLATFORM_OS_AIX)
 
     typedef Xcoff Policy;
