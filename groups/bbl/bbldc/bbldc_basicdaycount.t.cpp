@@ -151,15 +151,15 @@ typedef bbldc::BasicDayCount ProtocolClass;
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int daysDiff(const bdlt::Date& beginDate,
                  const bdlt::Date& endDate) const {
-        beginDate;
-        endDate;
+        (void)beginDate;
+        (void)endDate;
         return markDone();
     }
 
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const {
-        beginDate;
-        endDate;
+        (void)beginDate;
+        (void)endDate;
         return markDone();
     }
 };

@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // daysDiff ::= sign(endDate - beginDate) *
 //                           max((Yl - Ye) * 360 + (Ml - Me) * 30 + Dl - De, 0)
 //..
-// The 'max' function is required because Dl has no February adjustment and
+// The 'max' function is required because 'Dl' has no February adjustment and
 // simple differences like (19990228 - 19990228) produce -2 without 'max'.
 //
 // Reference: PSA Standard Formulas, page SF-17

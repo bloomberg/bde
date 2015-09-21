@@ -216,8 +216,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
 
     //                          - - -first - - -  - - - second - -
-    //line  type                year  mnth  day  year  mnth  day  numYears
-    //----  ------------------  ----  ----  ---  ----  ----  ---  --------
+    //line  type                year  month day  year  month day  numYears
+    //----  ------------------  ----  ----- ---  ----  ----- ---  --------
     { L_,   ACTUAL_360,         1993,   12,  15, 1993,   12,  31, 0.0444444 },
     { L_,   ACTUAL_360,         2003,    2,  28, 2004,    2,  29, 1.01667   },
 

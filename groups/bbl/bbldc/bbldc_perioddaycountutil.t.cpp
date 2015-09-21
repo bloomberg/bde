@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
 
     //                           - - first - - -  - - second - -
-    //line  type                 year  mnth  day  year  mnth  day  numYears
-    //----  -------------------  ----  ----  ---  ----  ----  ---  --------
+    //line  type                 year  month day  year  month day  numYears
+    //----  -------------------  ----  ----- ---  ----  ----- ---  --------
     { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
                                  1992,   2,    1, 1993,    3,   1, 1.0769 },
     { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,

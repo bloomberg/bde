@@ -744,18 +744,18 @@ int main(int argc, char *argv[])
                 bsl::size_t  d_length;       // expect output length
                 const char  *d_fmt_p;        // expected output format
             } DATA[] = {
-                //LINE  VALUE                      VER  LEN  FORMAT
-                //----  -------------------------  ---  ---  -------
-                { L_,   Obj::e_ACTUAL_360,           1,   1,  "\x00" },
-                { L_,   Obj::e_ACTUAL_365_FIXED,     1,   1,  "\x01" },
-                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,   1,   1,  "\x03" },
-                { L_,   Obj::e_ISMA_30_360,          1,   1,  "\x05" },
-                { L_,   Obj::e_PSA_30_360_EOM,       1,   1,  "\x06" },
-                { L_,   Obj::e_SIA_30_360_EOM,       1,   1,  "\x07" },
-                { L_,   Obj::e_SIA_30_360_NEOM,      1,   1,  "\x08" },
+                //LINE  VALUE                      VERSION  LEN  FORMAT
+                //----  -------------------------  -------  ---  -------
+                { L_,   Obj::e_ACTUAL_360,               1,   1,  "\x00" },
+                { L_,   Obj::e_ACTUAL_365_FIXED,         1,   1,  "\x01" },
+                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,       1,   1,  "\x03" },
+                { L_,   Obj::e_ISMA_30_360,              1,   1,  "\x05" },
+                { L_,   Obj::e_PSA_30_360_EOM,           1,   1,  "\x06" },
+                { L_,   Obj::e_SIA_30_360_EOM,           1,   1,  "\x07" },
+                { L_,   Obj::e_SIA_30_360_NEOM,          1,   1,  "\x08" },
                 { L_,   Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
-                                                     1,   1,  "\x09" },
-                { L_,   Obj::e_CALENDAR_BUS_252,     1,   1,  "\x0A" },
+                                                         1,   1,  "\x09" },
+                { L_,   Obj::e_CALENDAR_BUS_252,         1,   1,  "\x0A" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
