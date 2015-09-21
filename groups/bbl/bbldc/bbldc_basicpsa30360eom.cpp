@@ -75,9 +75,9 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
     return result;
 }
 
-                           // ------------------
-                           // struct Psa30360Eom
-                           // ------------------
+                            // ------------------
+                            // struct Psa30360Eom
+                            // ------------------
 
 // CLASS METHODS
 int BasicPsa30360Eom::daysDiff(const bdlt::Date& beginDate,

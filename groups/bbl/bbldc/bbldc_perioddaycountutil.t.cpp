@@ -15,7 +15,6 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-
 // ============================================================================
 //                              TEST PLAN
 // ----------------------------------------------------------------------------
@@ -200,7 +199,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   double yearsDiff(begin, end, periodDate, periodYearDiff, conv);
         // --------------------------------------------------------------------
-
 
         if (verbose) cout << endl
                           << "TESTING 'yearsDiff'" << endl

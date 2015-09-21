@@ -14,7 +14,6 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-
 // ============================================================================
 //                              TEST PLAN
 // ----------------------------------------------------------------------------
@@ -213,10 +212,12 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
 //: * Define a concrete day-count type derived from 'bbldc::DateRangeDayCount'.
+//:
 //: * Implement the four pure virtual methods.
+//:
 //: * Instantiate and use an object of the concrete type.
 //
-// First define the (derived) 'my_DayCountConvention' class and implement its
+// First, define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
 // definition):
 //..
@@ -253,7 +254,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //..
 // Next, we implement the (virtual) 'daysDiff', 'firstDate', 'lastDate', and
 // 'yearsDiff' methods, which incorporate the "policy" of what it means for
-// this day-count convention to calculate these values:
+// this day-count convention to calculate day count, year fraction, and the
+// valid range of the convention instance:
 //..
     int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate) const

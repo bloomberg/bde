@@ -71,7 +71,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {
 
 class Date;
@@ -80,9 +79,9 @@ class Date;
 
 namespace bbldc {
 
-                         // =====================
-                         // struct BasicIsma30360
-                         // =====================
+                          // =====================
+                          // struct BasicIsma30360
+                          // =====================
 
 struct BasicIsma30360 {
     // This 'struct' provides a namespace for a suite of pure functions that

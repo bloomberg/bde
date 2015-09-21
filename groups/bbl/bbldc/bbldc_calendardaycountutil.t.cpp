@@ -1,7 +1,8 @@
-// bbldc_basicdaycountutil.t.cpp                                      -*-C++-*-
+// bbldc_calendardaycountutil.t.cpp                                   -*-C++-*-
 
-#include <bbldc_basicdaycountutil.h>
+#include <bbldc_calendardaycountutil.h>
 
+#include <bdlt_calendar.h>
 #include <bdlt_date.h>
 
 #include <bslim_testutil.h>
@@ -25,9 +26,9 @@ using namespace bsl;
 // The standard table-based test case implementation is used to verify the
 // functionality of these methods.
 // ----------------------------------------------------------------------------
-// [ 2] int daysDiff(beginDate, endDate, convention);
+// [ 2] int daysDiff(beginDate, endDate, calendar, convention);
 // [ 1] bool isSupported(convention);
-// [ 3] double yearsDiff(beginDate, endDate, convention);
+// [ 3] double yearsDiff(beginDate, endDate, calendar, convention);
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -91,18 +92,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicDayCountUtil        Util;
+typedef bbldc::CalendarDayCountUtil     Util;
 typedef bbldc::DayCountConvention::Enum Enum;
 
-const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
-const Enum ACTUAL_365_FIXED   = bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
-const Enum INVALID_CONVENTION = static_cast<Enum>(2);
-const Enum ISDA_ACTUAL_ACTUAL =
-                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
-const Enum ISMA_30_360        = bbldc::DayCountConvention::e_ISMA_30_360;
-const Enum PSA_30_360_EOM     = bbldc::DayCountConvention::e_PSA_30_360_EOM;
-const Enum SIA_30_360_EOM     = bbldc::DayCountConvention::e_SIA_30_360_EOM;
-const Enum SIA_30_360_NEOM    = bbldc::DayCountConvention::e_SIA_30_360_NEOM;
+const Enum CALENDAR_BUS_252 = bbldc::DayCountConvention::e_CALENDAR_BUS_252;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -115,6 +108,20 @@ int main(int argc, char *argv[])
     bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // Define and populate calendars used in testing.
+
+    bdlt::Calendar mCA;  const bdlt::Calendar& CA = mCA;
+    {
+        mCA.setValidRange(bdlt::Date(2015, 6, 1), bdlt::Date(2015, 6, 30));
+    }
+
+    bdlt::Calendar mCB;  const bdlt::Calendar& CB = mCB;
+    {
+        mCB.setValidRange(bdlt::Date(2015, 6, 1), bdlt::Date(2015, 6, 30));
+        mCB.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+        mCB.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+    }
 
     switch (test) { case 0:
       case 4: {
@@ -146,30 +153,40 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicDayCountUtil' methods.  First, create two 'bdlt::Date'
+// 'bbldc::CalendarDayCountUtil' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, compute the day count between 'd1' and 'd2' according to the ISDA
-// Actual/Actual convention:
+// Then, create a 'calendar' with a valid range spanning 2003 and typical
+// weekend days:
 //..
-    const int daysDiff = bbldc::BasicDayCountUtil::daysDiff(
-                              d1,
-                              d2,
-                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
-    ASSERT(73 == daysDiff);
+    bdlt::Calendar calendar;
+    calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
+    calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+    calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+//..
+// Now, compute the day count between 'd1' and 'd2' according to the BUS-252
+// day-count convention:
+//..
+    const int daysDiff = bbldc::CalendarDayCountUtil::daysDiff(
+                                d1,
+                                d2,
+                                calendar,
+                                bbldc::DayCountConvention::e_CALENDAR_BUS_252);
+    ASSERT(52 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates according to the
-// ISDA Actual/Actual convention:
+// BUS-252 day-count convention:
 //..
-    const double yearsDiff = bbldc::BasicDayCountUtil::yearsDiff(
-                              d1,
-                              d2,
-                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+    const double yearsDiff = bbldc::CalendarDayCountUtil::yearsDiff(
+                                d1,
+                                d2,
+                                calendar,
+                                bbldc::DayCountConvention::e_CALENDAR_BUS_252);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-    ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
+    ASSERT(0.2063 < yearsDiff && 0.2064 > yearsDiff);
 //..
       } break;
       case 3: {
@@ -195,7 +212,7 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   double yearsDiff(beginDate, endDate, convention);
+        //   double yearsDiff(beginDate, endDate, calendar, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -204,46 +221,24 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int    d_lineNum;   // source line number
-                Enum   d_type;      // convention to use
-                int    d_year1;     // beginDate year
-                int    d_month1;    // beginDate month
-                int    d_day1;      // beginDate day
-                int    d_year2;     // endDate year
-                int    d_month2;    // endDate month
-                int    d_day2;      // endDate day
-                double d_numYears;  // result # of years
+                int    d_lineNum;    // source line number
+                Enum   d_type;       // convention to use
+                int    d_year1;      // beginDate year
+                int    d_month1;     // beginDate month
+                int    d_day1;       // beginDate day
+                int    d_year2;      // endDate year
+                int    d_month2;     // endDate month
+                int    d_day2;       // endDate day
+                double d_numYearsA;  // result # of years for calendar 'CA'
+                double d_numYearsB;  // result # of years for calendar 'CB'
             } DATA[] = {
-
-    //                          - - -first - - -  - - - second - -
-    //line  type                year  mnth  day  year  mnth  day  numYears
-    //----  ------------------  ----  ----  ---  ----  ----  ---  --------
-    { L_,   ACTUAL_360,         1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   ACTUAL_360,         2003,    2,  28, 2004,    2,  29, 1.01667   },
-
-    { L_,   ACTUAL_365_FIXED,   1993,   12,  15, 1993,   12,  31, 0.0438356 },
-    { L_,   ACTUAL_365_FIXED,   2003,    2,  28, 2004,    2,  29, 1.00274   },
-
-    { L_,   ISDA_ACTUAL_ACTUAL, 1993,   12,  15, 1993,   12,  31, 0.0438356 },
-    { L_,   ISDA_ACTUAL_ACTUAL, 2003,    2,  28, 2004,    2,  29, 1.0023    },
-
-    { L_,   ISMA_30_360,        1993,   12,  15, 1993,   12,  31, 0.0416667 },
-    { L_,   ISMA_30_360,        2003,    2,  28, 2004,    2,  29, 1.00278   },
-
-    { L_,   PSA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   PSA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 0.997222  },
-
-    { L_,   SIA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   SIA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 1.0000    },
-
-    { L_,   SIA_30_360_NEOM,    1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   SIA_30_360_NEOM,    2003,    2,  28, 2004,    2,  29, 1.00278   },
+//                          - - first - -   - - second - -
+//line  type                year  mon  day  year  mon  day    YA      YB
+//----  ------------------  ----  ---  ---  ----  ---  ---  ------  ------
+{ L_,   CALENDAR_BUS_252,   2015,   6,   1, 2015,   6,   1, 0.0000, 0.0000 },
+{ L_,   CALENDAR_BUS_252,   2015,   6,   1, 2015,   6,   8, 0.0278, 0.0198 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            if (verbose) cout <<
-                "\nTesting: 'yearsDiff(beginDate, endDate, type)'" << endl;
 
             // Ensure the test data differentiates each convention type.
 
@@ -259,13 +254,14 @@ int main(int argc, char *argv[])
                                   for (int jj = 0; jj < NUM_DATA; ++jj) {
                                       if (CONV2 == DATA[jj].d_type) {
                         //---------------^
-                        if (DATA[ii].d_year1    == DATA[jj].d_year1 &&
-                            DATA[ii].d_month1   == DATA[jj].d_month1 &&
-                            DATA[ii].d_day1     == DATA[jj].d_day1 &&
-                            DATA[ii].d_year2    == DATA[jj].d_year2 &&
-                            DATA[ii].d_month2   == DATA[jj].d_month2 &&
-                            DATA[ii].d_day2     == DATA[jj].d_day2 &&
-                            DATA[ii].d_numYears != DATA[jj].d_numYears) {
+                        if (DATA[ii].d_year1      == DATA[jj].d_year1
+                         && DATA[ii].d_month1     == DATA[jj].d_month1
+                         && DATA[ii].d_day1       == DATA[jj].d_day1
+                         && DATA[ii].d_year2      == DATA[jj].d_year2
+                         && DATA[ii].d_month2     == DATA[jj].d_month2
+                         && DATA[ii].d_day2       == DATA[jj].d_day2
+                         && (DATA[ii].d_numYearsA != DATA[jj].d_numYearsA
+                          || DATA[ii].d_numYearsB != DATA[jj].d_numYearsB)) {
                             hasUnique = 1;
                         }
                         //---------------v
@@ -286,9 +282,10 @@ int main(int argc, char *argv[])
 
             int di;
             for (di = 0; di < NUM_DATA; ++di) {
-                const int    LINE      = DATA[di].d_lineNum;
-                const double NUM_YEARS = DATA[di].d_numYears;
-                const Enum   CONV      = DATA[di].d_type;
+                const int    LINE        = DATA[di].d_lineNum;
+                const double NUM_YEARS_A = DATA[di].d_numYearsA;
+                const double NUM_YEARS_B = DATA[di].d_numYearsB;
+                const Enum   CONV        = DATA[di].d_type;
 
                 const bdlt::Date X(DATA[di].d_year1,
                                    DATA[di].d_month1,
@@ -300,18 +297,26 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     T_ P_(X) P_(Y) P(CONV);
-                    T_ T_ T_ T_ T_ T_ T_ P(NUM_YEARS);
+                    T_ T_ T_ T_ T_ T_ T_ P_(NUM_YEARS_A) P(NUM_YEARS_B);
                     T_ T_ T_ T_ T_ T_ T_;
                 }
 
-                const double RESULT = Util::yearsDiff(X, Y, CONV);
+                const double RESULT_A = Util::yearsDiff(X, Y, CA, CONV);
+                const double RESULT_B = Util::yearsDiff(X, Y, CB, CONV);
 
-                if (veryVerbose) { P(RESULT); }
-                const double diff = NUM_YEARS - RESULT;
+                if (veryVerbose) { P(RESULT_A); P(RESULT_B); }
+
+                const double diff_A = NUM_YEARS_A - RESULT_A;
                 LOOP3_ASSERT(LINE,
-                             NUM_YEARS,
-                             RESULT,
-                             -0.00005 <= diff && diff <= 0.00005);
+                             NUM_YEARS_A,
+                             RESULT_A,
+                             -0.00005 <= diff_A && diff_A <= 0.00005);
+
+                const double diff_B = NUM_YEARS_B - RESULT_B;
+                LOOP3_ASSERT(LINE,
+                             NUM_YEARS_B,
+                             RESULT_B,
+                             -0.00005 <= diff_B && diff_B <= 0.00005);
             }
         }
 
@@ -319,14 +324,26 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_OPT_PASS(Util::yearsDiff(
-                                     bdlt::Date(2012, 1, 1),
-                                     bdlt::Date(2012, 1, 1),
-                                     bbldc::DayCountConvention::e_ACTUAL_360));
+            ASSERT_OPT_PASS(Util::yearsDiff(bdlt::Date(2015, 6,  1),
+                                            bdlt::Date(2015, 6, 30),
+                                            CA,
+                                            CALENDAR_BUS_252));
 
-            ASSERT_OPT_FAIL(Util::yearsDiff(bdlt::Date(2012, 1, 1),
-                                            bdlt::Date(2012, 1, 1),
-                                            INVALID_CONVENTION));
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 5, 31),
+                                        bdlt::Date(2015, 6, 30),
+                                        CA,
+                                        CALENDAR_BUS_252));
+
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 6,  1),
+                                        bdlt::Date(2015, 7,  1),
+                                        CA,
+                                        CALENDAR_BUS_252));
+
+            ASSERT_OPT_FAIL(Util::yearsDiff(
+                             bdlt::Date(2015, 1, 5),
+                             bdlt::Date(2015, 5, 6),
+                             CA,
+                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
         }
       } break;
       case 2: {
@@ -351,7 +368,7 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   int daysDiff(beginDate, endDate, convention);
+        //   int daysDiff(beginDate, endDate, calendar, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -360,47 +377,24 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int  d_lineNum;  // source line number
-                Enum d_type;     // convention to use
-                int  d_year1;    // beginDate year
-                int  d_month1;   // beginDate month
-                int  d_day1;     // beginDate day
-                int  d_year2;    // endDate year
-                int  d_month2;   // endDate month
-                int  d_day2;     // endDate day
-                int  d_numDays;  // result # of days
+                int  d_lineNum;   // source line number
+                Enum d_type;      // convention to use
+                int  d_year1;     // beginDate year
+                int  d_month1;    // beginDate month
+                int  d_day1;      // beginDate day
+                int  d_year2;     // endDate year
+                int  d_month2;    // endDate month
+                int  d_day2;      // endDate day
+                int  d_numDaysA;  // result # of years for calendar 'CA'
+                int  d_numDaysB;  // result # of years for calendar 'CB'
             } DATA[] = {
-
-    //                          - - -first - - -  - - - second - -
-    //line  type                year  month  day  year  month  day  numDays
-    //----  ------------------  ----  -----  ---  ----  -----  ---  -------
-
-    { L_,   ISDA_ACTUAL_ACTUAL, 1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ISDA_ACTUAL_ACTUAL, 2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ACTUAL_360,         1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ACTUAL_360,         2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ACTUAL_365_FIXED,   1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ACTUAL_365_FIXED,   2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ISMA_30_360,        1993,    12,  15, 1993,    12,  31,      15 },
-    { L_,   ISMA_30_360,        2003,     2,  28, 2004,     2,  29,     361 },
-
-    { L_,   SIA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   SIA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     360 },
-
-    { L_,   SIA_30_360_NEOM,    1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   SIA_30_360_NEOM,    2003,     2,  28, 2004,     2,  29,     361 },
-
-    { L_,   PSA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   PSA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     359 },
+//                          - - first - -   - - second - -
+//line  type                year  mon  day  year  mon  day  DA  DB
+//----  ------------------  ----  ---  ---  ----  ---  ---  --  --
+{ L_,   CALENDAR_BUS_252,   2015,   6,   1, 2015,   6,   1,  0,  0 },
+{ L_,   CALENDAR_BUS_252,   2015,   6,   1, 2015,   6,   8,  7,  5 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            if (verbose) cout <<
-                "\nTesting: 'daysDiff(beginDate, endDate, type)'" << endl;
 
             // Ensure the test data differentiates each convention type.  Note:
             // this part of the test is getting inappropriate as we add more
@@ -412,26 +406,20 @@ int main(int argc, char *argv[])
                     for (int j = i + 1; j < NUM_DATA; ++j) {
                         const Enum CONV2 = DATA[j].d_type;
                         if (CONV1 != CONV2) {
-                            if (CONV1 == ACTUAL_360 ||
-                                CONV1 == ACTUAL_365_FIXED ||
-                                CONV2 == ACTUAL_360 ||
-                                CONV2 == ACTUAL_365_FIXED) {
-                                continue;
-                            }
-
                             int hasUnique = 0;
                             for (int ii = 0; ii < NUM_DATA; ++ii) {
                                 if (CONV1 == DATA[ii].d_type) {
                                   for (int jj = 0; jj < NUM_DATA; ++jj) {
                                       if (CONV2 == DATA[jj].d_type) {
                         //---------------^
-                        if (DATA[ii].d_year1   == DATA[jj].d_year1 &&
-                            DATA[ii].d_month1  == DATA[jj].d_month1 &&
-                            DATA[ii].d_day1    == DATA[jj].d_day1 &&
-                            DATA[ii].d_year2   == DATA[jj].d_year2 &&
-                            DATA[ii].d_month2  == DATA[jj].d_month2 &&
-                            DATA[ii].d_day2    == DATA[jj].d_day2 &&
-                            DATA[ii].d_numDays != DATA[jj].d_numDays) {
+                        if (DATA[ii].d_year1     == DATA[jj].d_year1
+                         && DATA[ii].d_month1    == DATA[jj].d_month1
+                         && DATA[ii].d_day1      == DATA[jj].d_day1
+                         && DATA[ii].d_year2     == DATA[jj].d_year2
+                         && DATA[ii].d_month2    == DATA[jj].d_month2
+                         && DATA[ii].d_day2      == DATA[jj].d_day2
+                         && (DATA[ii].d_numDaysA != DATA[jj].d_numDaysA
+                          || DATA[ii].d_numDaysB != DATA[jj].d_numDaysB)) {
                             hasUnique = 1;
                         }
                         //---------------v
@@ -452,9 +440,10 @@ int main(int argc, char *argv[])
 
             int di;
             for (di = 0; di < NUM_DATA ; ++di) {
-                const int  LINE     = DATA[di].d_lineNum;
-                const int  NUM_DAYS = DATA[di].d_numDays;
-                const Enum CONV     = DATA[di].d_type;
+                const int  LINE       = DATA[di].d_lineNum;
+                const int  NUM_DAYS_A = DATA[di].d_numDaysA;
+                const int  NUM_DAYS_B = DATA[di].d_numDaysB;
+                const Enum CONV       = DATA[di].d_type;
 
                 const bdlt::Date X(DATA[di].d_year1,
                                    DATA[di].d_month1,
@@ -466,14 +455,16 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     T_ P_(X) P_(Y) P(CONV);
-                    T_ T_ T_ T_ T_ T_ T_ P(NUM_DAYS);
+                    T_ T_ T_ T_ T_ T_ T_ P_(NUM_DAYS_A) P(NUM_DAYS_B);
                     T_ T_ T_ T_ T_ T_ T_;
                 }
 
-                const int RESULT = Util::daysDiff(X, Y, CONV);
+                const int RESULT_A = Util::daysDiff(X, Y, CA, CONV);
+                const int RESULT_B = Util::daysDiff(X, Y, CB, CONV);
 
-                if (veryVerbose) { P(RESULT); }
-                LOOP_ASSERT(LINE, NUM_DAYS == RESULT);
+                if (veryVerbose) { P_(RESULT_A); P(RESULT_B); }
+                LOOP_ASSERT(LINE, NUM_DAYS_A == RESULT_A);
+                LOOP_ASSERT(LINE, NUM_DAYS_B == RESULT_B);
             }
         }
 
@@ -481,14 +472,26 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_OPT_PASS(Util::daysDiff(
-                                     bdlt::Date(2012, 1, 1),
-                                     bdlt::Date(2012, 1, 1),
-                                     bbldc::DayCountConvention::e_ACTUAL_360));
+            ASSERT_OPT_PASS(Util::daysDiff(bdlt::Date(2015, 6,  1),
+                                           bdlt::Date(2015, 6, 30),
+                                           CA,
+                                           CALENDAR_BUS_252));
 
-            ASSERT_OPT_FAIL(Util::daysDiff(bdlt::Date(2012, 1, 1),
-                                           bdlt::Date(2012, 1, 1),
-                                           INVALID_CONVENTION));
+            ASSERT_FAIL(Util::daysDiff(bdlt::Date(2015, 5, 31),
+                                       bdlt::Date(2015, 6, 30),
+                                       CA,
+                                       CALENDAR_BUS_252));
+
+            ASSERT_FAIL(Util::daysDiff(bdlt::Date(2015, 6,  1),
+                                       bdlt::Date(2015, 7,  1),
+                                       CA,
+                                       CALENDAR_BUS_252));
+
+            ASSERT_OPT_FAIL(Util::daysDiff(
+                             bdlt::Date(2015, 1, 5),
+                             bdlt::Date(2015, 5, 6),
+                             CA,
+                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
         }
       } break;
       case 1: {
@@ -514,14 +517,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 1000; ++i) {
             const Enum convention = static_cast<Enum>(i);
-            ASSERT((   ACTUAL_360         == convention
-                    || ACTUAL_365_FIXED   == convention
-                    || ISDA_ACTUAL_ACTUAL == convention
-                    || ISMA_30_360        == convention
-                    || PSA_30_360_EOM     == convention
-                    || SIA_30_360_EOM     == convention
-                    || SIA_30_360_NEOM    == convention)
-                   == Util::isSupported(convention));
+            ASSERT((CALENDAR_BUS_252 == convention)
+                == Util::isSupported(convention));
         }
       } break;
       default: {
