@@ -1,0 +1,81 @@
+ balst.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (balst)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'balst' ("Basic Application Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balst' package currently has 14 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. balst_assertionlogger
+     balst_stacktraceprintutil
+     balst_stacktracetestallocator
+
+  4. balst_stacktraceutil
+
+  3. balst_stacktraceresolverimpl_dladdr                              !PRIVATE!
+     balst_stacktraceresolverimpl_elf                                 !PRIVATE!
+     balst_stacktraceresolverimpl_windows                             !PRIVATE!
+     balst_stacktraceresolverimpl_xcoff                               !PRIVATE!
+
+  2. balst_stackaddressutil
+     balst_stacktrace
+     balst_stacktraceresolver_filehelper                              !PRIVATE!
+
+  1. balst_dbghelpdllimpl_windows                                     !PRIVATE!
+     balst_objectfileformat
+     balst_stacktraceframe
+..
+
+/Component Synopsis
+/------------------
+: 'balst_assertionlogger':
+:      Provide configurable logging handler for assertion failures.
+:
+: 'balst_dbghelpdllimpl_windows':                                     !PRIVATE!
+:      Provide access to the 'dbghelp.dll' shared library on Windows.
+:
+: 'balst_objectfileformat':
+:      Provide platform-dependent object file format trait definitions.
+:
+: 'balst_stackaddressutil':
+:      Provide a utility for obtaining return addresses from the stack.
+:
+: 'balst_stacktrace':
+:      Provide a description of a function-call stack.
+:
+: 'balst_stacktraceframe':
+:      Provide an attribute class describing an execution stack frame.
+:
+: 'balst_stacktraceprintutil':
+:      Provide a single function to perform and print a stack trace.
+:
+: 'balst_stacktraceresolver_filehelper':                              !PRIVATE!
+:      Provide platform-independent file input for stack trace resolvers.
+:
+: 'balst_stacktraceresolverimpl_dladdr':                              !PRIVATE!
+:      Provide functions for resolving a stack trace using 'dladdr'.
+:
+: 'balst_stacktraceresolverimpl_elf':                                 !PRIVATE!
+:      Provide a utility to resolve ELF symbols in a stack trace.
+:
+: 'balst_stacktraceresolverimpl_windows':                             !PRIVATE!
+:      Provide resolution of symbols in stack trace for Windows objects.
+:
+: 'balst_stacktraceresolverimpl_xcoff':                               !PRIVATE!
+:      Provide a utility to resolve xcoff symbols in a stack trace.
+:
+: 'balst_stacktracetestallocator':
+:      Provide a test allocator that reports the call stack for leaks.
+:
+: 'balst_stacktraceutil':
+:      Provide low-level utilities for obtaining & printing a stack-trace.

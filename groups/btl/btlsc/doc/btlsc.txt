@@ -1,0 +1,60 @@
+ btlsc.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Transport Library XXX (btlsc)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'btlsc' ("Basic Transport Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlsc' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. btlsc_channelallocator
+     btlsc_timedchannelallocator
+
+  3. btlsc_timedcbchannel
+     btlsc_timedchannel
+
+  2. btlsc_cbchannel
+     btlsc_cbchannelallocator
+     btlsc_channel
+     btlsc_timedcbchannelallocator
+
+  1. btlsc_flag
+..
+
+/Component Synopsis
+/------------------
+: 'btlsc_cbchannel':
+:      Provide protocol for stream-based data communication.
+:
+: 'btlsc_cbchannelallocator':
+:      Provide protocol for non-blocking stream-based channel allocators.
+:
+: 'btlsc_channel':
+:      Provide a protocol for synchronous stream-based communication.
+:
+: 'btlsc_channelallocator':
+:      Provide protocol for blocking stream-based channel allocators.
+:
+: 'btlsc_flag':
+:      Enumerate all flags for stream-based-channel transport.
+:
+: 'btlsc_timedcbchannel':
+:      Provide protocol for stream-based data communication with timeout.
+:
+: 'btlsc_timedcbchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.
+:
+: 'btlsc_timedchannel':
+:      Provide protocol for stream-based communication with timeout.
+:
+: 'btlsc_timedchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.

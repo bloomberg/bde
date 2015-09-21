@@ -1,0 +1,60 @@
+ bal.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library (bal)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bal' ("Basic Application Library") package group provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bal' package group currently has 9 packages having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. baljsn
+
+  3. balb
+     balm
+     balst
+     baltzo
+
+  2. ball
+
+  1. balber
+     balscm
+     balxml
+..
+
+/Package Synopsis
+/----------------
+: 'balb':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'balber':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'baljsn':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'ball':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'balm':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'balscm':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'balst':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'baltzo':
+:      Provide date and time vocabulary types, and related utilities.
+:
+: 'balxml':
+:      Provide date and time vocabulary types, and related utilities.

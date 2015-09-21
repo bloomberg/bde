@@ -1,0 +1,37 @@
+ balb.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (balb)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'balb' ("Basic Application Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balb' package currently has 4 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. balb_controlmanager
+     balb_performancemonitor
+     balb_pipecontrolchannel
+     balb_testmessages
+..
+
+/Component Synopsis
+/------------------
+: 'balb_controlmanager':
+:      Provide a mechanism for mapping control messages to callbacks.
+:
+: 'balb_performancemonitor':
+:      Provide a mechanism to collect process performance measures.
+:
+: 'balb_pipecontrolchannel':
+:      Provide a mechanism for reading control messages from a named pipe.
+:
+: 'balb_testmessages':
+:      Provide value-semantic attribute classes

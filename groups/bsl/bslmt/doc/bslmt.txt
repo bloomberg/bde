@@ -1,0 +1,195 @@
+ bslmt.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Standard Library Multi-Threading (bslmt)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bslt' package provides components that ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslmt' package currently has 40 components having 16 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  16. bslmt_once
+      bslmt_rwmutex
+
+  15. bslmt_meteredmutex
+      bslmt_qlock
+      bslmt_readerwriterlock
+      bslmt_turnstile
+
+  14. bslmt_barrier
+
+  13. bslmt_condition
+
+  12. bslmt_conditionimpl_win32                                       !PRIVATE!
+
+  11. bslmt_sluice
+
+  10. bslmt_threadgroup
+
+   9. bslmt_semaphore
+
+   8. bslmt_semaphoreimpl_counted                                     !PRIVATE!
+      bslmt_timedsemaphore
+
+   7. bslmt_conditionimpl_pthread                                     !PRIVATE!
+      bslmt_mutexassert
+      bslmt_semaphoreimpl_darwin                                      !PRIVATE!
+      bslmt_semaphoreimpl_pthread                                     !PRIVATE!
+      bslmt_semaphoreimpl_win32                                       !PRIVATE!
+      bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
+
+   6. bslmt_mutex
+      bslmt_recursivemutex
+      bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
+      bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
+
+   5. bslmt_threadutil
+
+   4. bslmt_threadutilimpl_pthread                                    !PRIVATE!
+      bslmt_threadutilimpl_win32                                      !PRIVATE!
+
+   3. bslmt_configuration
+      bslmt_recursivemuteximpl_win32                                  !PRIVATE!
+
+   2. bslmt_muteximpl_pthread                                         !PRIVATE!
+      bslmt_muteximpl_win32                                           !PRIVATE!
+      bslmt_recursivemuteximpl_pthread                                !PRIVATE!
+      bslmt_saturatedtimeconversionimputil
+      bslmt_threadattributes
+
+   1. bslmt_entrypointfunctoradapter
+      bslmt_lockguard
+      bslmt_platform
+      bslmt_readlockguard
+      bslmt_threadlocalvariable
+      bslmt_writelockguard
+..
+
+/Component Synopsis
+/------------------
+: 'bslmt_barrier':
+:      Provide a thread barrier component.
+:
+: 'bslmt_condition':
+:      Provide a portable, efficient condition variable.
+:
+: 'bslmt_conditionimpl_pthread':                                      !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::Condition'.
+:
+: 'bslmt_conditionimpl_win32':                                        !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::Condition'.
+:
+: 'bslmt_configuration':
+:      Provide utilities to allow configuration of values for BCE.
+:
+: 'bslmt_entrypointfunctoradapter':
+:      Provide types and utilities to simplify thread creation.
+:
+: 'bslmt_lockguard':
+:      Provide a generic proctor for synchronization objects.
+:
+: 'bslmt_meteredmutex':
+:      Provide a mutex capable of keeping track of wait and hold time.
+:
+: 'bslmt_mutex':
+:      Provide a platform-independent mutex.
+:
+: 'bslmt_mutexassert':
+:      Provide an assert macro for verifying that a mutex is locked.
+:
+: 'bslmt_muteximpl_pthread':                                          !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::Mutex'.
+:
+: 'bslmt_muteximpl_win32':                                            !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::Mutex'.
+:
+: 'bslmt_once':
+:      Provide a thread-safe way to execute code once per process.
+:
+: 'bslmt_platform':
+:      Provide platform-dependent thread-related trait definitions.
+:
+: 'bslmt_qlock':
+:      Provide small, statically-initializable mutex lock.
+:
+: 'bslmt_readerwriterlock':
+:      Provide a multi-reader/single-writer lock.
+:
+: 'bslmt_readlockguard':
+:      Provide a generic proctor for read synchronization objects.
+:
+: 'bslmt_recursivemutex':
+:      Provide a platform-independent recursive mutex.
+:
+: 'bslmt_recursivemuteximpl_pthread':                                 !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::RecursiveMutex'.
+:
+: 'bslmt_recursivemuteximpl_win32':                                   !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::RecursiveMutex'.
+:
+: 'bslmt_rwmutex':
+:      Provide a platform-independent RW mutex class.
+:
+: 'bslmt_saturatedtimeconversionimputil':
+:      Provide special narrowing conversions for time types.
+:
+: 'bslmt_semaphore':
+:      Provide a semaphore class.
+:
+: 'bslmt_semaphoreimpl_counted':                                      !PRIVATE!
+:      Provide an implementation of 'bslmt::Semaphore' with count.
+:
+: 'bslmt_semaphoreimpl_darwin':                                       !PRIVATE!
+:      Provide a Darwin implementation of 'bslmt::Semaphore'.
+:
+: 'bslmt_semaphoreimpl_pthread':                                      !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::Semaphore'.
+:
+: 'bslmt_semaphoreimpl_win32':                                        !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::Semaphore'.
+:
+: 'bslmt_sluice':
+:      Provide a "sluice" class.
+:
+: 'bslmt_threadattributes':
+:      Provide a description of the attributes of a thread.
+:
+: 'bslmt_threadgroup':
+:      Provide a container for managing a group of threads.
+:
+: 'bslmt_threadlocalvariable':
+:      Provide a macro to declare a thread-local variable.
+:
+: 'bslmt_threadutil':
+:      Provide platform-independent utilities related to threading.
+:
+: 'bslmt_threadutilimpl_pthread':                                     !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::ThreadUtil'.
+:
+: 'bslmt_threadutilimpl_win32':                                       !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::ThreadUtil'.
+:
+: 'bslmt_timedsemaphore':
+:      Provide a timed semaphore class.
+:
+: 'bslmt_timedsemaphoreimpl_posixadv':                                !PRIVATE!
+:      Provide "advanced" POSIX implementation of 'bslmt::TimedSemaphore'.
+:
+: 'bslmt_timedsemaphoreimpl_pthread':                                 !PRIVATE!
+:      Provide a POSIX implementation of 'bslmt::TimedSemaphore'.
+:
+: 'bslmt_timedsemaphoreimpl_win32':                                   !PRIVATE!
+:      Provide a win32 implementation of 'bslmt::TimedSemaphore'.
+:
+: 'bslmt_turnstile':
+:      Provide a mechanism to meter time.
+:
+: 'bslmt_writelockguard':
+:      Provide a generic proctor for write synchronization objects.

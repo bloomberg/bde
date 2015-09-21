@@ -1,0 +1,28 @@
+ btlscm.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Transport Library XXX (btlscm)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'btlscm' ("Basic Transport Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlscm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. btlscm_version
+
+  1. btlscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'btlscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'btlscm_versiontag':
+:      Provide versioning information for the 'btl' package group.

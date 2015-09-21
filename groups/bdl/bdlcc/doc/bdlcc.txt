@@ -1,0 +1,60 @@
+ bdlcc.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (bdlcc)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bdlcc' ("Basic Development Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlcc' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdlcc_sharedobjectpool
+
+  3. bdlcc_objectpool
+
+  2. bdlcc_fixedqueue
+
+  1. bdlcc_fixedqueueindexmanager
+     bdlcc_multipriorityqueue
+     bdlcc_objectcatalog
+     bdlcc_queue
+     bdlcc_skiplist
+     bdlcc_timequeue
+..
+
+/Component Synopsis
+/------------------
+: 'bdlcc_fixedqueue':
+:      Provide a thread-enabled fixed-size queue of values.
+:
+: 'bdlcc_fixedqueueindexmanager':
+:      Provide thread-enabled state management for a fixed-size queue.
+:
+: 'bdlcc_multipriorityqueue':
+:      Provide a thread-enabled parameterized multi-priority queue.
+:
+: 'bdlcc_objectcatalog':
+:      Provide an efficient indexed, thread-safe object container.
+:
+: 'bdlcc_objectpool':
+:      Provide a thread-safe object pool.
+:
+: 'bdlcc_queue':
+:      Provide a thread-enabled queue of items of parameterized 'TYPE'.
+:
+: 'bdlcc_sharedobjectpool':
+:      Provide a thread-safe pool of shared objects.
+:
+: 'bdlcc_skiplist':
+:      Provide a generic thread-safe Skip List.
+:
+: 'bdlcc_timequeue':
+:      Provide an efficient queue for time events.

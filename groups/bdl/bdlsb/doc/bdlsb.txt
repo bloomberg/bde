@@ -1,0 +1,49 @@
+ bdlsb.txt
+
+@PURPOSE: Provide ...
+
+@MNEMONIC: Basic Application Library XXX (bdlsb)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bdlsb' ("Basic Development Library XXX") package provides
+ ...
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlsb' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdlsb_fixedmeminput
+     bdlsb_fixedmeminstreambuf
+     bdlsb_fixedmemoutput
+     bdlsb_fixedmemoutstreambuf
+     bdlsb_memoutstreambuf
+     bdlsb_overflowmemoutput
+     bdlsb_overflowmemoutstreambuf
+..
+
+/Component Synopsis
+/------------------
+: 'bdlsb_fixedmeminput':
+:      Provide a basic input stream buffer using a client buffer.
+:
+: 'bdlsb_fixedmeminstreambuf':
+:      Provide an input 'basic_streambuf' using a client buffer.
+:
+: 'bdlsb_fixedmemoutput':
+:      Provide a basic output stream buffer using a client buffer.
+:
+: 'bdlsb_fixedmemoutstreambuf':
+:      Provide an output 'basic_streambuf' using a client buffer.
+:
+: 'bdlsb_memoutstreambuf':
+:      Provide an output 'basic_streambuf' using managed memory.
+:
+: 'bdlsb_overflowmemoutput':
+:      Provide an overflowable output 'streambuf' using a client buffer.
+:
+: 'bdlsb_overflowmemoutstreambuf':
+:      Provide an overflowable output 'streambuf' using a client buffer.
