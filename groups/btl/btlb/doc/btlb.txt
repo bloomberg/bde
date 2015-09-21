@@ -1,13 +1,19 @@
- btlb.txt
+ btlb.h
 
-@PURPOSE: Provide ...
+@PURPOSE: Provide flexible, efficient management of message buffers.
 
-@MNEMONIC: Basic Transport Library XXX (btlb)
+@MNEMONIC: Basic Transport Library Blobs (btlb)
 
 @AUTHOR: Steven Breitstein (sbreitstein)
 
-@DESCRIPTION: The 'btlb' ("Basic Transport Library XXX") package provides
- ...
+@SEE_ALSO: bces, bcemt, bdema, bslma
+
+@DESCRIPTION: This package defines, 'btlb::Blob', a vocabulary type for other
+ 'btl' packages.  A 'btlb::Blob' object consists of a sequence of
+ 'bltb::BlobBuffer' objects, each of which have a shared pointer to underlying
+ memory.  A protocol is defined for factories to manage 'bltb::BlobBuffer'
+ objects, and a concrete implementation is provided.  Other components define
+ non-primitive operations on 'btlb::Blob's.
 
 /Hierarchical Synopsis
 /---------------------
