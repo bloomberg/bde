@@ -834,7 +834,7 @@ struct Iso8601Util {
     static int generateRaw(char              *buffer,
                            const DatetimeTz&  object,
                            bool               useZAbbreviationForUtc);
-#endif
+#endif  // BDE_OPENSOURCE_PUBLICATION
 };
 
 // ============================================================================
@@ -1150,7 +1150,8 @@ int Iso8601Util::generate(char          *buffer,
                           int            bufferLength,
                           bool           useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(buffer, bufferLength, object, configuration);
@@ -1168,7 +1169,8 @@ int Iso8601Util::generate(char          *buffer,
                           int            bufferLength,
                           bool           useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(buffer, bufferLength, object, configuration);
@@ -1188,7 +1190,8 @@ int Iso8601Util::generate(char              *buffer,
                           int                bufferLength,
                           bool               useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(buffer, bufferLength, object, configuration);
@@ -1199,7 +1202,8 @@ bsl::ostream& Iso8601Util::generate(bsl::ostream& stream,
                                     const DateTz& object,
                                     bool          useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(stream, object, configuration);
@@ -1210,7 +1214,8 @@ bsl::ostream& Iso8601Util::generate(bsl::ostream& stream,
                                     const TimeTz& object,
                                     bool          useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(stream, object, configuration);
@@ -1221,7 +1226,8 @@ bsl::ostream& Iso8601Util::generate(bsl::ostream&     stream,
                                     const DatetimeTz& object,
                                     bool              useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(stream, object, configuration);
@@ -1232,7 +1238,8 @@ int Iso8601Util::generateRaw(char          *buffer,
                              const DateTz&  object,
                              bool           useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generateRaw(buffer, object, configuration);
@@ -1243,7 +1250,8 @@ int Iso8601Util::generateRaw(char          *buffer,
                              const TimeTz&  object,
                              bool           useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generateRaw(buffer, object, configuration);
@@ -1254,12 +1262,13 @@ int Iso8601Util::generateRaw(char              *buffer,
                              const DatetimeTz&  object,
                              bool               useZAbbreviationForUtc)
 {
-    Iso8601UtilConfiguration configuration;
+    Iso8601UtilConfiguration configuration =
+                              Iso8601UtilConfiguration::defaultConfiguration();
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generateRaw(buffer, object, configuration);
 }
-#endif
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
 }  // close package namespace
 }  // close enterprise namespace

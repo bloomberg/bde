@@ -90,6 +90,23 @@ using namespace bsl;
 // [ 7] int parse(DateTz *, const char *, int);
 // [ 8] int parse(TimeTz *, const char *, int);
 // [ 9] int parse(DatetimeTz *, const char *, int);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+// [ 1] int generate(char *, const Date&, int);
+// [ 2] int generate(char *, const Time&, int);
+// [ 3] int generate(char *, const Datetime&, int);
+// [ 4] int generate(char *, const DateTz&, int);
+// [ 4] int generate(char *, const DateTz&, int, bool useZ);
+// [ 5] int generate(char *, const TimeTz&, int);
+// [ 5] int generate(char *, const TimeTz&, int, bool useZ);
+// [ 6] int generate(char *, const DatetimeTz&, int);
+// [ 6] int generate(char *, const DatetimeTz&, int, bool useZ);
+// [ 4] ostream generate(ostream&, const DateTz&, bool useZ);
+// [ 5] ostream generate(ostream&, const TimeTz&, bool useZ);
+// [ 6] ostream generate(ostream&, const DatetimeTz&, bool useZ);
+// [ 4] int generateRaw(char *, const DateTz&, bool useZ);
+// [ 5] int generateRaw(char *, const TimeTz&, bool useZ);
+// [ 6] int generateRaw(char *, const DatetimeTz&, bool useZ);
+#endif // BDE_OPENSOURCE_PUBLICATION
 //-----------------------------------------------------------------------------
 // [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1854,6 +1871,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const DatetimeTz&, const Config&);
         //   int generateRaw(char *, const DatetimeTz&);
         //   int generateRaw(char *, const DatetimeTz&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const DatetimeTz&, int);
+        //   int generate(char *, const DatetimeTz&, int, bool useZ);
+        //   ostream generate(ostream&, const DatetimeTz&, bool useZ);
+        //   int generateRaw(char *, const DatetimeTz&, bool useZ);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1976,6 +1999,37 @@ if (veryVerbose)
                                                          buffer + k + 1,
                                                          BUFLEN - k - 1));
                             }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                            // Swap order of 'k' and 'X' in call to 'generate'.
+                            {
+                                bsl::memset(buffer, '?', BUFLEN);
+
+                                ASSERTV(ILINE, k, OUTLEN,
+                                       OUTLEN == Util::generate(buffer, X, k));
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(
+                                                     EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                                if (k <= OUTLEN) {
+                                    ASSERTV(ILINE, EXPECTED, buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k,
+                                                             BUFLEN - k));
+                                }
+                                else {
+                                    ASSERTV(ILINE, k, OUTLEN,
+                                            '\0' == buffer[OUTLEN]);
+
+                                    ASSERTV(ILINE, EXPECTED, buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k + 1,
+                                                             BUFLEN - k - 1));
+                                }
+                            }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                         }
 
                         // 'generate' to an 'ostream'
@@ -2010,8 +2064,6 @@ if (veryVerbose)
                         }
                     }  // loop over 'CNFG_DATA'
 
-                    Config::setDefaultConfiguration(Config());
-
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
                         const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -2024,6 +2076,13 @@ if (veryVerbose)
 
                         Config mC;  const Config& C = mC;
                         gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                        // Set the default configuration to the complement of
+                        // 'C'.
+
+                        Config mDFLT;  const Config& DFLT = mDFLT;
+                        gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                        Config::setDefaultConfiguration(DFLT);
 
                         bsl::string EXPECTED(BASE_EXPECTED);
                         updateExpectedPerConfig(&EXPECTED, C);
@@ -2094,6 +2153,104 @@ if (veryVerbose)
                                                      BUFLEN - OUTLEN));
                         }
                     }  // loop over 'CNFG_DATA'
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                    // Test methods taking (legacy)
+                    // 'bool useZAbbreviationForUtc'.
+
+                    const bool USEZ_CNFG_DATA[] = { false, true };
+
+                    for (int tc = 0; tc < 2; ++tc) {
+                        const bool OMITCOLON = true;
+                        const bool USECOMMA  = true;
+                        const bool USEZ      = USEZ_CNFG_DATA[tc];
+
+                        if (veryVerbose) {
+                            T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                        // Set the default configuration to use the complement
+                        // of 'USEZ'.
+
+                        Config mDFLT;  const Config& DFLT = mDFLT;
+                        gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                        Config::setDefaultConfiguration(DFLT);
+
+                        bsl::string EXPECTED(BASE_EXPECTED);
+                        updateExpectedPerConfig(&EXPECTED, C);
+
+                        const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                        // 'generate' taking 'bufferLength'
+
+                        for (int k = 0; k < BUFLEN; ++k) {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            if (veryVeryVerbose) {
+                                T_ T_ cout << "Length: "; P(k)
+                            }
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                 OUTLEN == Util::generate(buffer, X, k, USEZ));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+
+                        // 'generate' to an 'ostream'
+                        {
+                            bsl::ostringstream os;
+
+                            ASSERTV(ILINE,
+                                    &os == &Util::generate(os, X, USEZ));
+
+                            ASSERTV(ILINE, EXPECTED, os.str(),
+                                    EXPECTED == os.str());
+
+                            if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                        }
+
+                        // 'generateRaw'
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, OUTLEN,
+                                 OUTLEN == Util::generateRaw(buffer, X, USEZ));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     OUTLEN));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + OUTLEN,
+                                                     BUFLEN - OUTLEN));
+                        }
+                    }  // loop over 'USEZ_CNFG_DATA'
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
                 }  // loop over 'ZONE_DATA'
             }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
@@ -2191,6 +2348,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const TimeTz&, const Config&);
         //   int generateRaw(char *, const TimeTz&);
         //   int generateRaw(char *, const TimeTz&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const TimeTz&, int);
+        //   int generate(char *, const TimeTz&, int, bool useZ);
+        //   ostream generate(ostream&, const TimeTz&, bool useZ);
+        //   int generateRaw(char *, const TimeTz&, bool useZ);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2298,6 +2461,36 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                        // Swap order of 'k' and 'X' in call to 'generate'.
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, X, k));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
                     // 'generate' to an 'ostream'
@@ -2331,8 +2524,6 @@ if (veryVerbose)
                     }
                 }  // loop over 'CNFG_DATA'
 
-                Config::setDefaultConfiguration(Config());
-
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -2345,6 +2536,12 @@ if (veryVerbose)
 
                     Config mC;  const Config& C = mC;
                     gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to the complement of 'C'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED, C);
@@ -2414,6 +2611,101 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'CNFG_DATA'
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                // Test methods taking (legacy) 'bool useZAbbreviationForUtc'.
+
+                const bool USEZ_CNFG_DATA[] = { false, true };
+
+                for (int tc = 0; tc < 2; ++tc) {
+                    const bool OMITCOLON = true;
+                    const bool USECOMMA  = true;
+                    const bool USEZ      = USEZ_CNFG_DATA[tc];
+
+                    if (veryVerbose) {
+                        T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to use the complement of
+                    // 'USEZ'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
+
+                    bsl::string EXPECTED(BASE_EXPECTED);
+                    updateExpectedPerConfig(&EXPECTED, C);
+
+                    const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                    // 'generate' taking 'bufferLength'
+
+                    for (int k = 0; k < BUFLEN; ++k) {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        if (veryVeryVerbose) {
+                            T_ T_ cout << "Length: "; P(k)
+                        }
+
+                        ASSERTV(ILINE, k, OUTLEN,
+                                OUTLEN == Util::generate(buffer, X, k, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 k < OUTLEN ? k : OUTLEN));
+
+                        if (k <= OUTLEN) {
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k,
+                                                     BUFLEN - k));
+                        }
+                        else {
+                            ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k + 1,
+                                                     BUFLEN - k - 1));
+                        }
+                    }
+
+                    // 'generate' to an 'ostream'
+                    {
+                        bsl::ostringstream os;
+
+                        ASSERTV(ILINE, &os == &Util::generate(os, X, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, os.str(),
+                                EXPECTED == os.str());
+
+                        if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                    }
+
+                    // 'generateRaw'
+                    {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generateRaw(buffer, X, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 OUTLEN));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + OUTLEN,
+                                                 BUFLEN - OUTLEN));
+                    }
+                }  // loop over 'USEZ_CNFG_DATA'
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
 
@@ -2510,6 +2802,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const DateTz&, const Config&);
         //   int generateRaw(char *, const DateTz&);
         //   int generateRaw(char *, const DateTz&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const DateTz&, int);
+        //   int generate(char *, const DateTz&, int, bool useZ);
+        //   ostream generate(ostream&, const DateTz&, bool useZ);
+        //   int generateRaw(char *, const DateTz&, bool useZ);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2612,6 +2910,36 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                        // Swap order of 'k' and 'X' in call to 'generate'.
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, X, k));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
                     // 'generate' to an 'ostream'
@@ -2645,8 +2973,6 @@ if (veryVerbose)
                     }
                 }  // loop over 'CNFG_DATA'
 
-                Config::setDefaultConfiguration(Config());
-
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -2659,6 +2985,12 @@ if (veryVerbose)
 
                     Config mC;  const Config& C = mC;
                     gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to the complement of 'C'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED, C);
@@ -2728,6 +3060,101 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'CNFG_DATA'
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                // Test methods taking (legacy) 'bool useZAbbreviationForUtc'.
+
+                const bool USEZ_CNFG_DATA[] = { false, true };
+
+                for (int tc = 0; tc < 2; ++tc) {
+                    const bool OMITCOLON = true;
+                    const bool USECOMMA  = true;
+                    const bool USEZ      = USEZ_CNFG_DATA[tc];
+
+                    if (veryVerbose) {
+                        T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to use the complement of
+                    // 'USEZ'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
+
+                    bsl::string EXPECTED(BASE_EXPECTED);
+                    updateExpectedPerConfig(&EXPECTED, C);
+
+                    const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                    // 'generate' taking 'bufferLength'
+
+                    for (int k = 0; k < BUFLEN; ++k) {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        if (veryVeryVerbose) {
+                            T_ T_ cout << "Length: "; P(k)
+                        }
+
+                        ASSERTV(ILINE, k, OUTLEN,
+                                OUTLEN == Util::generate(buffer, X, k, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 k < OUTLEN ? k : OUTLEN));
+
+                        if (k <= OUTLEN) {
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k,
+                                                     BUFLEN - k));
+                        }
+                        else {
+                            ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k + 1,
+                                                     BUFLEN - k - 1));
+                        }
+                    }
+
+                    // 'generate' to an 'ostream'
+                    {
+                        bsl::ostringstream os;
+
+                        ASSERTV(ILINE, &os == &Util::generate(os, X, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, os.str(),
+                                EXPECTED == os.str());
+
+                        if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                    }
+
+                    // 'generateRaw'
+                    {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generateRaw(buffer, X, USEZ));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 OUTLEN));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + OUTLEN,
+                                                 BUFLEN - OUTLEN));
+                    }
+                }  // loop over 'USEZ_CNFG_DATA'
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
             }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
 
@@ -2824,6 +3251,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Datetime&, const Config&);
         //   int generateRaw(char *, const Datetime&);
         //   int generateRaw(char *, const Datetime&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const Datetime&, int);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2931,6 +3361,36 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                        // Swap order of 'k' and 'X' in call to 'generate'.
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, X, k));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
                     // 'generate' to an 'ostream'
@@ -2964,8 +3424,6 @@ if (veryVerbose)
                     }
                 }  // loop over 'CNFG_DATA'
 
-                Config::setDefaultConfiguration(Config());
-
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -2978,6 +3436,12 @@ if (veryVerbose)
 
                     Config mC;  const Config& C = mC;
                     gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to the complement of 'C'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED, C);
@@ -3139,6 +3603,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Time&, const Config&);
         //   int generateRaw(char *, const Time&);
         //   int generateRaw(char *, const Time&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const Time&, int);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3225,6 +3692,35 @@ if (veryVerbose)
                                                  buffer + k + 1,
                                                  BUFLEN - k - 1));
                     }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                    // Swap order of 'k' and 'X' in call to 'generate'.
+                    {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        ASSERTV(ILINE, k, OUTLEN,
+                                OUTLEN == Util::generate(buffer, X, k));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 k < OUTLEN ? k : OUTLEN));
+
+                        if (k <= OUTLEN) {
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k,
+                                                     BUFLEN - k));
+                        }
+                        else {
+                            ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k + 1,
+                                                     BUFLEN - k - 1));
+                        }
+                    }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                 }
 
                 // 'generate' to an 'ostream'
@@ -3257,8 +3753,6 @@ if (veryVerbose)
                 }
             }  // loop over 'CNFG_DATA'
 
-            Config::setDefaultConfiguration(Config());
-
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -3271,6 +3765,12 @@ if (veryVerbose)
 
                 Config mC;  const Config& C = mC;
                 gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                // Set the default configuration to the complement of 'C'.
+
+                Config mDFLT;  const Config& DFLT = mDFLT;
+                gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
                 updateExpectedPerConfig(&EXPECTED, C);
@@ -3430,6 +3930,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Date&, const Config&);
         //   int generateRaw(char *, const Date&);
         //   int generateRaw(char *, const Date&, const Config&);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        //   int generate(char *, const Date&, int);
+#endif  // BDE_OPENSOURCE_PUBLICATION
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3515,6 +4018,35 @@ if (veryVerbose)
                                                  buffer + k + 1,
                                                  BUFLEN - k - 1));
                     }
+#ifndef BDE_OPENSOURCE_PUBLICATION
+                    // Swap order of 'k' and 'X' in call to 'generate'.
+                    {
+                        bsl::memset(buffer, '?', BUFLEN);
+
+                        ASSERTV(ILINE, k, OUTLEN,
+                                OUTLEN == Util::generate(buffer, X, k));
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(EXPECTED.c_str(),
+                                                 buffer,
+                                                 k < OUTLEN ? k : OUTLEN));
+
+                        if (k <= OUTLEN) {
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k,
+                                                     BUFLEN - k));
+                        }
+                        else {
+                            ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + k + 1,
+                                                     BUFLEN - k - 1));
+                        }
+                    }
+#endif  // BDE_OPENSOURCE_PUBLICATION
                 }
 
                 // 'generate' to an 'ostream'
@@ -3547,8 +4079,6 @@ if (veryVerbose)
                 }
             }  // loop over 'CNFG_DATA'
 
-            Config::setDefaultConfiguration(Config());
-
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
@@ -3561,6 +4091,12 @@ if (veryVerbose)
 
                 Config mC;  const Config& C = mC;
                 gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                // Set the default configuration to the complement of 'C'.
+
+                Config mDFLT;  const Config& DFLT = mDFLT;
+                gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
                 updateExpectedPerConfig(&EXPECTED, C);
