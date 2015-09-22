@@ -29,8 +29,6 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] int daysDiff(beginDate, endDate, calendar);
 // [ 2] double yearsDiff(beginDate, endDate, calendar);
-// [ 1] int daysDiff(beginDate, endDate, calendar);
-// [ 2] double yearsDiff(beginDate, endDate, calendar);
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------

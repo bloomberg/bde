@@ -6,15 +6,9 @@ BSLS_IDENT_RCSID(bbldc_daycountconvention_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bslmf_assert.h>
-
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-BSLMF_ASSERT(bbldc::DayCountConvention::e_ACTUAL_360
-           < bbldc::DayCountConvention::e_CALENDAR_BUS_252);
-
 namespace bbldc {
 
                         // -------------------------

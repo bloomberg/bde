@@ -147,6 +147,8 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
 
     // NOT IMPLEMENTED
     PeriodDateRangeDayCountAdapter(const PeriodDateRangeDayCountAdapter&);
+    PeriodDateRangeDayCountAdapter& operator=(
+                                        const PeriodDateRangeDayCountAdapter&);
 
   public:
     // CREATORS

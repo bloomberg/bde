@@ -202,12 +202,14 @@ int main(int argc, char *argv[])
         //: 2 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in years D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D with a fuzzy comparison (since the return value is a
-        //:   floating-point number).  (C-1)
+        //: 1 Specify two calendars, CA and CB, and a set S of {convention C,
+        //:   pairs of dates (d1, d2), their difference in years DA for CA, and
+        //:   their difference in years DB for CB}.  For the method under test,
+        //:   in a loop over the elements of S, apply the method to dates
+        //:   having the values d1 and d2 using convention C and confirm, with
+        //:   a fuzzy comparison (since the return value is a floating-point
+        //:   number), the method's results using the value DA for calendar CA
+        //:   and DB for calendar CB.  (C-1)
         //:
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
@@ -359,11 +361,13 @@ int main(int argc, char *argv[])
         //: 2 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in days D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D.  (C-1)
+        //: 1 Specify two calendars, CA and CB, and a set S of {convention C,
+        //:   pairs of dates (d1, d2), their difference in days DA for CA, and
+        //:   their difference in days DB for CB}.  For the method under test,
+        //:   in a loop over the elements of S, apply the method to dates
+        //:   having the values d1 and d2 using convention C and confirm the
+        //:   method's results using the value DA for calendar CA and DB for
+        //:   calendar CB.  (C-1)
         //:
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //

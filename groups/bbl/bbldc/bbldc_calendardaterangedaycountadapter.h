@@ -136,6 +136,8 @@ class CalendarDateRangeDayCountAdapter : public DateRangeDayCount {
   private:
     // NOT IMPLEMENTED
     CalendarDateRangeDayCountAdapter(const CalendarDateRangeDayCountAdapter&);
+    CalendarDateRangeDayCountAdapter& operator=(
+                                      const CalendarDateRangeDayCountAdapter&);
 
   public:
     // CREATORS
