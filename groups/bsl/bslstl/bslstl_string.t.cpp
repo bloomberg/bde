@@ -945,12 +945,12 @@ struct TestDriver {
             return *d_data;
         }
 
-        bool operator==(const InputIterator& rhs)
+        bool operator==(const InputIterator& rhs) const
         {
             return d_data == rhs.d_data;
         }
 
-        bool operator!=(const InputIterator& rhs)
+        bool operator!=(const InputIterator& rhs) const
         {
             return d_data != rhs.d_data;
         }
