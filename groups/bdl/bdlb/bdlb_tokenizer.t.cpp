@@ -5,11 +5,9 @@
 #include <bsls_asserttest.h>
 #include <bdls_testutil.h>
 
-#include <bdlb_strtokenrefiter.h>         // for performance compare only
-
 #include <bsl_string.h>
 
-#include <bsl_cstdlib.h>                  // 'bsl::atoi()'
+#include <bsl_cstdlib.h>                  // 'bsl::atoi'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -52,7 +50,7 @@ using namespace bsl;
 ///Tokenizer_Data
 ///--------------
 //: o Primary Manipulators:
-//:   - Tokenizer_Data(const bslstl::StringRef& sd, const StringRef& hd);
+//:   - Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
 //: o Basic Accessors:
 //:   - int inputType(char character) const;
 //
@@ -103,8 +101,8 @@ using namespace bsl;
 //                      // ----------------------------
 // CREATORS
 // [ 2] Tokenizer_Data(const StringRef& softD);
-// [ 2] Tokenizer_Data(const bslstl::StringRef& softD, const StringRef& hardD);
-// [ 2] ~Tokenizer_Data()
+// [ 2] Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+// [ 2] ~Tokenizer_Data();
 //
 // ACCESSORS
 // [ 2] int inputType(char character) const;
@@ -128,7 +126,7 @@ using namespace bsl;
 // FREE OPERATORS
 // [ 8] bool operator==(const TokenizerIterator&,const TokenizerIterator&)
 // [ 8] bool operator!=(const TokenizerIterator&,const TokenizerIterator&)
-// [ 8] const TokenizerIterator operator++(TokenizerIterator& object, int);
+// [ 8] const TokenizerIterator operator++(TokenizerIterator& obj, int);
 //
 //                             // ===============
 //                             // class Tokenizer
@@ -145,16 +143,16 @@ using namespace bsl;
 // [ 4] ~Tokenizer();
 //
 // MANIPULATORS
-// [ 5] Tokenizer& operator++();
+// [ 4] Tokenizer& operator++();
 // [ 6] void reset(const char *input);
-// [ 6] void reset(const bslstl::StringRef& input);
+// [ 6] void reset(const StringRef& input);
 //
 // ACCESSORS
 // [ 5] bool hasPreviousSoft() const;
 // [ 5] bool hasTrailingSoft() const;
 // [ 5] bool isPreviousHard() const;
 // [ 5] bool isTrailingHard() const;
-// [ 5] bool isValid () const;
+// [ 5] bool isValid() const;
 // [ 4] StringRef previousDelimiter() const;
 // [ 4] StringRef token() const;
 // [ 4] StringRef trailingDelimiter() const;
@@ -164,15 +162,12 @@ using namespace bsl;
 // [  ] iterator end() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] TEST APPARATUS
 // [  ] OPERATOR POSTFIX ++ FOR TOKENIZER DOES NOT COMPILE
-// [  ] TOKENIZER IS NOT COPIABLE OR ASSIGNABLE
+// [  ] TOKENIZER IS NOT COPYABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-// [  ] USAGE EXAMPLE #1
-// [  ] USAGE EXAMPLE #2
-// [  ] USAGE EXAMPLE #3
-// [  ] USAGE EXAMPLE #4
-// [  ] USAGE EXAMPLE #5
+// [ 9] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -273,15 +268,13 @@ bool isValid(const StringRef input,
     // sets and return 'true' if the supplied character sets are valid and
     // 'false' otherwise.  Valid character sets must confirm to the following
     // rules:
-    // o There are no duplicates in the soft, hard and token character
-    //   sets.
+    // o There are no duplicates in the soft, hard and token character sets.
     //
     // o There are no duplicates in the input character set.
     //
-    // o All characters in the input string occur in the same relative
-    //   order as they do in each of the respective character sets and
-    //   that they do NOT skip over any characters in those respective
-    //   sets.
+    // o All characters in the input string occur in the same relative order as
+    //   they do in each of the respective character sets and that they do NOT
+    //   skip over any characters in those respective sets.
     //
     // o Only characters from the respective character sets appear in the
     //   input string.
@@ -297,7 +290,7 @@ bool isValid(const StringRef input,
     int hardLength  = static_cast<int>(hard.length());
     int tokenLength = static_cast<int>(token.length());
 
-    // Sets under test are small, using brute force implementation
+    // Sets under the test are small, using brute force implementation.
 
     // Check for duplicates in input.  We need to test for duplicates
     // separately for the cases when soft, hard and token character sets are
@@ -486,7 +479,7 @@ int main(int argc, char **argv)
         //   TokenizerIterator& operator=(const TokenizerIterator& rhs);
         //   bool operator==(const TokenizerIterator&,const TokenizerIterator&)
         //   bool operator!=(const TokenizerIterator&,const TokenizerIterator&)
-        //   const TokenizerIterator operator++(TokenizerIterator&, int);
+        //   const TokenizerIterator operator++(TokenizerIterator& obj, int);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -571,8 +564,8 @@ int main(int argc, char **argv)
                         break;
                     }
 
-                    const StringRef TOKEN    = DATA[ti].d_tokens[i];
-                    const StringRef MODEL_TOKEN = *It;
+                    const StringRef TOKEN              = DATA[ti].d_tokens[i];
+                    const StringRef MODEL_TOKEN        = *It;
                     const StringRef EXPERIMENTAL_TOKEN = *eIt;
 
                     // Testing the immutability of the source object.
@@ -770,8 +763,7 @@ int main(int argc, char **argv)
         //   StringRef operator*() const;
         // --------------------------------------------------------------------
 
-        if (verbose)
- cout << endl
+        if (verbose) cout << endl
       << "'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR" << endl
       << "===========================================================" << endl;
 
@@ -1072,8 +1064,8 @@ int main(int argc, char **argv)
         //: 4 Verify that defensive checks are addressed.  (C-4)
         //
         // Testing:
-        //   Tokenizer::reset(const char *);
-        //   Tokenizer::reset(StringRef&);
+        //   void reset(const char *input);
+        //   void reset(const StringRef& input);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1175,16 +1167,16 @@ int main(int argc, char **argv)
         {
             char ctorInput[255];
             char resetInput[255];
-            char delim = static_cast<char>(0);
+            char delim[1] = { static_cast<char>(0) };
 
             for (int i = 1; i < 256; ++i) {
                 ctorInput[i-1]      = static_cast<char>(i);
                 resetInput[256-i-1] = static_cast<char>(i);
             }
 
-            Obj        mTSoft(ctorInput, StringRef(&delim, 1), (StringRef()));
+            Obj        mTSoft(ctorInput, StringRef(delim, 1), (StringRef()));
             const Obj& TSoft = mTSoft;
-            Obj        mTHard(ctorInput, (StringRef()), StringRef(&delim, 1));
+            Obj        mTHard(ctorInput, (StringRef()), StringRef(delim, 1));
             const Obj& THard = mTHard;
 
             ASSERT(ctorInput == TSoft.token());
@@ -1214,19 +1206,19 @@ int main(int argc, char **argv)
       case 5: {
         // --------------------------------------------------------------------
         // NON-BASIC ACCESSORS
-        //   Verify the other than basic accessors functionality.
+        //   Verify the non-basic accessors functionality.
         //
         // Concerns:
         //: 1 Accessors correctly reflect current state of 'Tokenizer' object.
         //:
-        //: 2 Embedded null character is correctly handled by accessors.
+        //: 2 Embedded null character is correctly handled by the accessors.
         //
         // Plan:
-        //: 1 To take 'Tokenizer' object through different states and verify
+        //: 1 Take 'Tokenizer' object through different states and verify
         //:   accessors responses.  (C-1)
         //:
-        //: 2 To add embedded null character to soft delimiter, hard delimiter
-        //:   and token sets consecutively and verify accessors responses.
+        //: 2 Add embedded null character to soft delimiter, hard delimiter
+        //:   and token sets respectively and verify accessors responses.
         //:   (C-2)
         //
         // Testing:
@@ -1350,6 +1342,7 @@ int main(int argc, char **argv)
                           << endl;
         {
             const int  NUM_ITERATIONS = 6;
+
             static const struct {
                 int         d_line;                    // line number
                 const char *d_input;                   // input
@@ -1532,10 +1525,10 @@ int main(int argc, char **argv)
         //   Tokenizer(const StringRef&, const StringRef&, const StringRef&);
         //   Tokenizer(const char *, const StringRef&);
         //   Tokenizer(const StringRef&, const StringRef&);
-        //   Tokenizer::operator++();
-        //   StringRef Tokenizer::trailingDelimiter() const;
-        //   StringRef Tokenizer::previousDelimiter() const;
-        //   StringRef Tokenizer::token() const;
+        //   Tokenizer& operator++();
+        //   StringRef trailingDelimiter() const;
+        //   StringRef previousDelimiter() const;
+        //   StringRef token() const;
         //   ~Tokenizer();
         // --------------------------------------------------------------------
 
@@ -2070,8 +2063,8 @@ int main(int argc, char **argv)
                 char      input[(4*BUF_SIZE)+2];  // "s...s0...0H0...0s...s
 
                 for (int i = 0; i < BUF_SIZE; ++i) {
-                    softDelim[i]            = 's';
-                    token[i]                = '0';
+                    softDelim[i]                = 's';
+                    token[i]                    = '0';
 
                     input[i]                    = 's';
                     input[BUF_SIZE + i]         = '0';
@@ -2149,7 +2142,7 @@ int main(int argc, char **argv)
         //:   (C-1..4)
         //
         // Testing:
-        //   bool isValid(const StrRef,const StrRef,const StrRef,const StrRef);
+        //   TEST APPARATUS
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2168,9 +2161,230 @@ int main(int argc, char **argv)
             } DATA[] = {
                 //LINE  SOFT    HARD    TOKEN   INPUT   VALID
                 //----  ------  ------  ------  ------  -----
-                // Alternative testing patterns.  The test table uses previous
-                // patterns to elide already tested combinations.
-                // Uses white-box testing strategy ( known implementation ).
+                // Depth-ordered test.
+                // Depth 0.
+                { L_,   "",     "",     "",     "",     true  },
+                // Depth 1.
+                { L_,   "s",    "",     "",     "",     true  },
+                { L_,   "",     "H",    "",     "",     true  },
+                { L_,   "",     "",     "0",    "",     true  },
+                { L_,   "",     "",     "",     "a",    false },
+                // Depth 2.
+                { L_,   "ss",   "",     "",     "",     false },
+                { L_,   "st",   "",     "",     "",     true  },
+                { L_,   "s",    "s",    "",     "",     false },
+                { L_,   "s",    "H",    "",     "",     true  },
+                { L_,   "s",    "",     "s",    "",     false },
+                { L_,   "s",    "",     "0",    "",     true  },
+                { L_,   "s",    "",     "",     "s",    true  },
+                { L_,   "s",    "",     "",     "a",    false },
+                { L_,   "",     "HH",   "",     "",     false },
+                { L_,   "",     "HI",   "",     "",     true  },
+                { L_,   "",     "H",    "H",    "",     false },
+                { L_,   "",     "H",    "0",    "",     true  },
+                { L_,   "",     "H",    "",     "H",    true  },
+                { L_,   "",     "H",    "",     "a",    false },
+                { L_,   "",     "",     "00",   "",     false },
+                { L_,   "",     "",     "01",   "",     true  },
+                { L_,   "",     "",     "0",    "0",    true  },
+                { L_,   "",     "",     "0",    "a",    false },
+                // Depth 3.
+                { L_,   "sss",  "",     "",     "",     false },
+                { L_,   "sst",  "",     "",     "",     false },
+                { L_,   "sts",  "",     "",     "",     false },
+                { L_,   "stt",  "",     "",     "",     false },
+                { L_,   "stu",  "",     "",     "",     true  },
+                { L_,   "ss",   "s",    "",     "",     false },
+                { L_,   "ss",   "H",    "",     "",     false },
+                { L_,   "st",   "s",    "",     "",     false },
+                { L_,   "st",   "t",    "",     "",     false },
+                { L_,   "st",   "H",    "",     "",     true  },
+                { L_,   "s",    "ss",   "",     "",     false },
+                { L_,   "s",    "sH",   "",     "",     false },
+                { L_,   "s",    "Hs",   "",     "",     false },
+                { L_,   "s",    "HH",   "",     "",     false },
+                { L_,   "s",    "HI",   "",     "",     true  },
+                { L_,   "s",    "H",    "s",    "",     false },
+                { L_,   "s",    "H",    "H",    "",     false },
+                { L_,   "s",    "H",    "0",    "",     true  },
+                { L_,   "s",    "H",    "",     "s",    true  },
+                { L_,   "s",    "H",    "",     "H",    true  },
+                { L_,   "s",    "H",    "",     "a",    false },
+                { L_,   "s",    "",     "ss",   "",     false },
+                { L_,   "s",    "",     "s0",   "",     false },
+                { L_,   "s",    "",     "0s",   "",     false },
+                { L_,   "s",    "",     "00",   "",     false },
+                { L_,   "s",    "",     "01",   "",     true  },
+                { L_,   "s",    "",     "0",    "s",    true  },
+                { L_,   "s",    "",     "0",    "0",    true  },
+                { L_,   "s",    "",     "0",    "a",    false },
+                { L_,   "",     "HH",   "H",    "",     false },
+                { L_,   "",     "HH",   "0",    "",     false },
+                { L_,   "",     "HI",   "H",    "",     false },
+                { L_,   "",     "HI",   "I",    "",     false },
+                { L_,   "",     "HI",   "0",    "",     true  },
+                { L_,   "",     "HI",   "",     "H",    true  },
+                { L_,   "",     "HI",   "",     "I",    false },
+                { L_,   "",     "HI",   "",     "a",    false },
+                { L_,   "",     "H",    "H",    "H",    false },
+                { L_,   "",     "H",    "H",    "a",    false },
+                { L_,   "",     "H",    "0",    "H",    true  },
+                { L_,   "",     "H",    "0",    "0",    true  },
+                { L_,   "",     "H",    "0",    "a",    false },
+                { L_,   "",     "H",    "",     "HH",   false },
+                { L_,   "",     "H",    "",     "Ha",   false },
+                { L_,   "",     "H",    "",     "aH",   false },
+                { L_,   "",     "",     "00",   "0",    false },
+                { L_,   "",     "",     "00",   "a",    false },
+                { L_,   "",     "",     "01",   "0",    true  },
+                { L_,   "",     "",     "01",   "1",    false },
+                { L_,   "",     "",     "01",   "a",    false },
+                { L_,   "",     "",     "0",    "00",   false },
+                { L_,   "",     "",     "0",    "0a",   false },
+                { L_,   "",     "",     "0",    "a0",   false },
+                { L_,   "",     "",     "0",    "aa",   false },
+                // Depth-ordered test with single character in each input type
+                // Depth 0.
+                { L_,   "s",    "H",    "0",    "",     true  },
+                // Depth 1.
+                { L_,   "s",    "H",    "0",    "s",    true  },
+                { L_,   "s",    "H",    "0",    "H",    true  },
+                { L_,   "s",    "H",    "0",    "0",    true  },
+                { L_,   "s",    "H",    "0",    "a",    false },
+                // Depth 2.
+                { L_,   "s",    "H",    "0",    "ss",   false },
+                { L_,   "s",    "H",    "0",    "sH",   true  },
+                { L_,   "s",    "H",    "0",    "s0",   true  },
+                { L_,   "s",    "H",    "0",    "sa",   false },
+                { L_,   "s",    "H",    "0",    "Hs",   true  },
+                { L_,   "s",    "H",    "0",    "HH",   false },
+                { L_,   "s",    "H",    "0",    "H0",   true  },
+                { L_,   "s",    "H",    "0",    "Ha",   false },
+                { L_,   "s",    "H",    "0",    "0s",   true  },
+                { L_,   "s",    "H",    "0",    "0H",   true  },
+                { L_,   "s",    "H",    "0",    "00",   false },
+                { L_,   "s",    "H",    "0",    "0a",   false },
+                { L_,   "s",    "H",    "0",    "as",   false },
+                { L_,   "s",    "H",    "0",    "aH",   false },
+                { L_,   "s",    "H",    "0",    "a0",   false },
+                { L_,   "s",    "H",    "0",    "aa",   false },
+                // Depth 3.
+                { L_,   "s",    "H",    "0",    "sss",  false },
+                { L_,   "s",    "H",    "0",    "ssH",  false },
+                { L_,   "s",    "H",    "0",    "ss0",  false },
+                { L_,   "s",    "H",    "0",    "ssa",  false },
+                { L_,   "s",    "H",    "0",    "sHs",  false },
+                { L_,   "s",    "H",    "0",    "sHH",  false },
+                { L_,   "s",    "H",    "0",    "sH0",  true  },
+                { L_,   "s",    "H",    "0",    "sHa",  false },
+                { L_,   "s",    "H",    "0",    "s0s",  false },
+                { L_,   "s",    "H",    "0",    "s0H",  true  },
+                { L_,   "s",    "H",    "0",    "s00",  false },
+                { L_,   "s",    "H",    "0",    "s0a",  false },
+                { L_,   "s",    "H",    "0",    "sas",  false },
+                { L_,   "s",    "H",    "0",    "saH",  false },
+                { L_,   "s",    "H",    "0",    "sa0",  false },
+                { L_,   "s",    "H",    "0",    "saa",  false },
+                { L_,   "s",    "H",    "0",    "Hss",  false },
+                { L_,   "s",    "H",    "0",    "HsH",  false },
+                { L_,   "s",    "H",    "0",    "Hs0",  true  },
+                { L_,   "s",    "H",    "0",    "Hsa",  false },
+                { L_,   "s",    "H",    "0",    "HHs",  false },
+                { L_,   "s",    "H",    "0",    "HHH",  false },
+                { L_,   "s",    "H",    "0",    "HH0",  false },
+                { L_,   "s",    "H",    "0",    "HHa",  false },
+                { L_,   "s",    "H",    "0",    "H0s",  true  },
+                { L_,   "s",    "H",    "0",    "H0H",  false },
+                { L_,   "s",    "H",    "0",    "H00",  false },
+                { L_,   "s",    "H",    "0",    "H0a",  false },
+                { L_,   "s",    "H",    "0",    "Has",  false },
+                { L_,   "s",    "H",    "0",    "HaH",  false },
+                { L_,   "s",    "H",    "0",    "Ha0",  false },
+                { L_,   "s",    "H",    "0",    "Haa",  false },
+                { L_,   "s",    "H",    "0",    "0ss",  false },
+                { L_,   "s",    "H",    "0",    "0sH",  true  },
+                { L_,   "s",    "H",    "0",    "0s0",  false },
+                { L_,   "s",    "H",    "0",    "0sa",  false },
+                { L_,   "s",    "H",    "0",    "0Hs",  true  },
+                { L_,   "s",    "H",    "0",    "0HH",  false },
+                { L_,   "s",    "H",    "0",    "0H0",  false },
+                { L_,   "s",    "H",    "0",    "0Ha",  false },
+                { L_,   "s",    "H",    "0",    "00s",  false },
+                { L_,   "s",    "H",    "0",    "00H",  false },
+                { L_,   "s",    "H",    "0",    "000",  false },
+                { L_,   "s",    "H",    "0",    "00a",  false },
+                { L_,   "s",    "H",    "0",    "0as",  false },
+                { L_,   "s",    "H",    "0",    "0aH",  false },
+                { L_,   "s",    "H",    "0",    "0a0",  false },
+                { L_,   "s",    "H",    "0",    "0aa",  false },
+                { L_,   "s",    "H",    "0",    "ass",  false },
+                { L_,   "s",    "H",    "0",    "asH",  false },
+                { L_,   "s",    "H",    "0",    "as0",  false },
+                { L_,   "s",    "H",    "0",    "asa",  false },
+                { L_,   "s",    "H",    "0",    "aHs",  false },
+                { L_,   "s",    "H",    "0",    "aHH",  false },
+                { L_,   "s",    "H",    "0",    "aH0",  false },
+                { L_,   "s",    "H",    "0",    "aHa",  false },
+                { L_,   "s",    "H",    "0",    "a0s",  false },
+                { L_,   "s",    "H",    "0",    "a0H",  false },
+                { L_,   "s",    "H",    "0",    "a00",  false },
+                { L_,   "s",    "H",    "0",    "a0a",  false },
+                { L_,   "s",    "H",    "0",    "aas",  false },
+                { L_,   "s",    "H",    "0",    "aaH",  false },
+                { L_,   "s",    "H",    "0",    "aa0",  false },
+                { L_,   "s",    "H",    "0",    "aaa",  false },
+                // Depth-ordered test with double characters in each input type
+                // Depth 0.
+                { L_,   "st",   "HI",   "01",   "",     true  },
+                // Depth 1.
+                { L_,   "st",   "HI",   "01",   "s",    true  },
+                { L_,   "st",   "HI",   "01",   "t",    false },
+                { L_,   "st",   "HI",   "01",   "H",    true  },
+                { L_,   "st",   "HI",   "01",   "I",    false },
+                { L_,   "st",   "HI",   "01",   "0",    true  },
+                { L_,   "st",   "HI",   "01",   "1",    false },
+                { L_,   "st",   "HI",   "01",   "a",    false },
+                // Depth 2.
+                { L_,   "st",   "HI",   "01",   "ss",   false },
+                { L_,   "st",   "HI",   "01",   "st",   true  },
+                { L_,   "st",   "HI",   "01",   "sH",   true  },
+                { L_,   "st",   "HI",   "01",   "sI",   false },
+                { L_,   "st",   "HI",   "01",   "s0",   true  },
+                { L_,   "st",   "HI",   "01",   "s1",   false },
+                { L_,   "st",   "HI",   "01",   "ts",   false },
+                { L_,   "st",   "HI",   "01",   "tt",   false },
+                { L_,   "st",   "HI",   "01",   "tH",   false },
+                { L_,   "st",   "HI",   "01",   "tI",   false },
+                { L_,   "st",   "HI",   "01",   "t0",   false },
+                { L_,   "st",   "HI",   "01",   "t1",   false },
+                { L_,   "st",   "HI",   "01",   "Hs",   true  },
+                { L_,   "st",   "HI",   "01",   "Ht",   false },
+                { L_,   "st",   "HI",   "01",   "HH",   false },
+                { L_,   "st",   "HI",   "01",   "HI",   true  },
+                { L_,   "st",   "HI",   "01",   "H0",   true  },
+                { L_,   "st",   "HI",   "01",   "H1",   false },
+                { L_,   "st",   "HI",   "01",   "Is",   false },
+                { L_,   "st",   "HI",   "01",   "It",   false },
+                { L_,   "st",   "HI",   "01",   "IH",   false },
+                { L_,   "st",   "HI",   "01",   "II",   false },
+                { L_,   "st",   "HI",   "01",   "I0",   false },
+                { L_,   "st",   "HI",   "01",   "I1",   false },
+                { L_,   "st",   "HI",   "01",   "0s",   true  },
+                { L_,   "st",   "HI",   "01",   "0t",   false },
+                { L_,   "st",   "HI",   "01",   "0H",   true  },
+                { L_,   "st",   "HI",   "01",   "0I",   false },
+                { L_,   "st",   "HI",   "01",   "00",   false },
+                { L_,   "st",   "HI",   "01",   "01",   true  },
+                { L_,   "st",   "HI",   "01",   "1s",   false },
+                { L_,   "st",   "HI",   "01",   "1t",   false },
+                { L_,   "st",   "HI",   "01",   "1H",   false },
+                { L_,   "st",   "HI",   "01",   "1I",   false },
+                { L_,   "st",   "HI",   "01",   "10",   false },
+                { L_,   "st",   "HI",   "01",   "11",   false },
+
+                // Ad-hoc alternative testing.  The test table uses previous
+                // patterns to elide already tested combinations.  Uses
+                // white-box testing strategy ( known implementation ).
 
                 // Testing soft delimiter validity
                 { L_,   "s",    "",     "",     "",     true  },
@@ -2226,15 +2440,15 @@ int main(int argc, char **argv)
                 { L_,   "0",    "HI",   "01",   "",     false },
                 { L_,   "1",    "HI",   "01",   "",     false },
 
-                // Testing validity of the input up to depth 4.
-                // Self-testing pattern roll up.  The short pattern that
-                // returns 'false' is eliminated from patterns of longer depth.
-                // For example, 't' is first shortest 'false' pattern that
-                // tests that symbol 't' from the soft delimiter set cannot
-                // appear as a first soft delimiter.  All longer patterns that
-                // have first soft delimiter 't' are eliminated.  Some elided
-                // patterns are left in the table for illustration purposes and
-                // marked with "* (pattern)".
+                // Testing validity of the input up to depth 4.  Self-testing
+                // pattern roll up.  The short pattern that returns 'false' is
+                // eliminated from patterns of longer depth.  For example, 't'
+                // is first shortest 'false' pattern that tests that symbol 't'
+                // from the soft delimiter set cannot appear as a first soft
+                // delimiter.  All longer patterns that have first soft
+                // delimiter 't' are eliminated.  Some elided patterns are left
+                // in the table for illustration purposes and marked with "*
+                // (pattern)".
                 { L_,   "",     "",     "",     "",     true  }, // Depth 0
                 { L_,   "stuv", "HIJK", "0123", "",     true  },
                 { L_,   "stuv", "HIJK", "0123", "s",    true  }, // Depth 1
@@ -2387,7 +2601,7 @@ int main(int argc, char **argv)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING Tokenizer_Data
+        // TESTING 'Tokenizer_Data'
         //   Ensure that types of characters are specified correctly by
         //   'Tokenizer_Data' constructors and accessor returns them properly.
         //
@@ -2430,12 +2644,12 @@ int main(int argc, char **argv)
         //   Tokenizer_Data(const StringRef& softD);
         //   Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
         //   ~Tokenizer_Data();
-        //   int inputType(char character);
+        //   int inputType(char character) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING Tokenizer_Data" << endl
-                          << "======================" << endl;
+                          << "TESTING 'Tokenizer_Data'" << endl
+                          << "========================" << endl;
 
         // Copy of the input character to input type mapping.
 
@@ -2947,103 +3161,6 @@ int main(int argc, char **argv)
         }
 
 
-      } break;
-
-      case -1: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        //
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PERFORMANCE TEST" << endl
-                          << "================" << endl;
-
-
-        if (verbose) cout << "\n'bdlb::TokenizerIterator' test." << endl;
-        {
-            Obj      tokenizer(INPUT, StringRef(" "));
-            for (int i = 0; i < 1000000; ++i) {
-                for (Obj::iterator it  = tokenizer.begin(),
-                                   end = tokenizer.end();
-                                   it != end;
-                                   ++it) {
-                     *it;
-                }
-            }
-        }
-      } break;
-      case -2: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        //
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PERFORMANCE TEST" << endl
-                          << "================" << endl;
-
-
-        if (verbose) cout << "\n'bdlb::Tokenizer' test." << endl;
-        {
-            for (int i = 0; i < 1000000; ++i) {
-                for (Obj it(INPUT, StringRef(" ")); it.isValid(); ++it) {
-                     it.token();
-                }
-            }
-        }
-      } break;
-      case -3: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        //
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PERFORMANCE TEST" << endl
-                          << "================" << endl;
-
-
-        if (verbose) cout << "\n'bdlb::Tokenizer' test." << endl;
-        {
-            for (int i = 0; i < 1000000; ++i) {
-                for (Obj it(StringRef(INPUT), StringRef(" "));
-                         it.isValid();
-                         ++it) {
-                     it.token();
-                }
-            }
-        }
-      } break;
-      case -4: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        //
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PERFORMANCE TEST" << endl
-                          << "================" << endl;
-
-
-        if (verbose) cout << "\n'bdlb::StrTokenRefIter' test." << endl;
-        {
-            for (int i = 0; i < 1000000; ++i) {
-                for (bdlb::StrTokenRefIter it(StringRef(INPUT), " ");
-                                   it;
-                                   ++it) {
-                     it();
-                }
-            }
-        }
       } break;
 
       default: {
