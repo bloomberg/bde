@@ -1,4 +1,4 @@
-    btls5.txt
+ btls5.txt
 
 @PURPOSE: Support connecting through a network of SOCKS5 proxies.
 

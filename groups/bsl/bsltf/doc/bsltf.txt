@@ -97,4 +97,3 @@
 :
 : 'bsltf_uniontesttype':
 :      Provide an union test type.
-

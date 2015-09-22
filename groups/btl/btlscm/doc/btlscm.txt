@@ -1,4 +1,4 @@
-    btlscm.txt
+ btlscm.txt
 
 @PURPOSE: Provide versioning information for 'btl' library components.
 
@@ -20,7 +20,7 @@
 
   1. btlscm_versiontag
 ..
- 
+
 /Component Synopsis
 /------------------
 : 'btlscm_version':

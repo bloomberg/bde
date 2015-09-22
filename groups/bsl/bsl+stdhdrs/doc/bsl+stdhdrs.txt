@@ -6,8 +6,6 @@
 
 @AUTHOR: Arthur Chiu (achiu21)
 
-@LAST_MODIFIED: Mar 1, 2010
-
 @DESCRIPTION: The 'bsl+stdhdrs' package provides a compatibility layer for
  BDE-STL mode used by Bloomberg-managed code.  This document describes the
  contents of the 'bsl+stdhdrs' package, and also the design decisions and basic
@@ -179,19 +177,19 @@ supplied header):
 /Hierarchical Structure of Hybrid 'bsl' Mechanism
 /----------------------------------------------
 
-/bslstl
-/ - - -
+/'bslstl'
+/ - - - -
  'bslstl' contains Bloomberg's implementation of allocators and STL containers.
 
-/bsl+bslhdrs
-/- - - - - -
+/'bsl+bslhdrs'
+/- - - - - - -
  'bsl+bslhdrs' contains all the 'bsl_*' headers (corresponding to standard STL
  headers, e.g., '<bsl_string.h>' for '<string>').  When included, the files in
  this directory inject native STL symbols from the 'std' namespace into the
  'bsl' namespace, or include the corresponding 'Bloomberg' type.
 
-/bsl+stdhdrs
-/- - - - - -
+/'bsl+stdhdrs'
+/- - - - - - -
  'bsl+stdhdrs' contains all the headers used to intercept the inclusion of
  standard STL headers.  This directory also contains auxiliary files that
  implement pre-processor logic to support BDE-STL mode, such as
@@ -391,7 +389,6 @@ supplied header):
 :   included.  Therefore, the include guards in those files do not guard the
 :   entire file.
 :
-: o '.SUNWCCh' files are needed to override the native STL include files when 
-:   using the Oracle Studio compiler.  The file extension tells the compiler 
-:   that it is an STL header file. 
-
+: o '.SUNWCCh' files are needed to override the native STL include files when
+:   using the Oracle Studio compiler.  The file extension tells the compiler
+:   that it is an STL header file.

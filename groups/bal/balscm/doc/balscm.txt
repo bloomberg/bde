@@ -5,7 +5,7 @@
 @MNEMONIC: Basic Application Environment Source Control Management (balscm)
 
 @AUTHOR Tom Marshall (tmarshal)
- 
+
 @SEE_ALSO: bdescm
 
 @DESCRIPTION: This package is for use only by the BDE library.  Components in

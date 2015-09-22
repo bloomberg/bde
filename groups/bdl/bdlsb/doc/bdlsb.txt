@@ -1,4 +1,4 @@
-   bdlsb.txt
+ bdlsb.txt
 
 @PURPOSE: Provide concrete 'streambuf' implementations.
 
@@ -13,7 +13,7 @@
  fixed-size user-supplied buffer or else manage a buffer obtained from a
  user-supplied or default allocator.  Also, concrete implementations are
  specialized to implement either the input ot the output portion of the
- interface.  
+ interface.
 
 /Hierarchical Synopsis
 /---------------------

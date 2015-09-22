@@ -214,4 +214,3 @@
  (i.e., for an "out stream") and "unexternalization" (i.e., for an
  "in stream"), and provides concrete byte-array-based stream implementations of
  each kind of stream, including streams for testing.
-

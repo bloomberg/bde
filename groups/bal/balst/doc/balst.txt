@@ -82,10 +82,14 @@
 
 /Usage
 /-----
+ This section illustrates intended use of this package.
+
+/Example 1: Printing a Stack Trace to a Stream
+/- - - - - - - - - - - - - - - - - - - - - - -
  This example shows how to obtain a stack trace and print it to a stream, all
  by calling just the static function
  'balst_StackTracePrintUtil::printStackTrace'.
- 
+
  First, we define a recursive function 'recurseAndPrintStack' that recurses
  to the specified 'depth', then calls
  'balst_StackTracePrintUtil::printStackTrace' to obtain a stack trace and
@@ -106,7 +110,7 @@
       else {
           balst_StackTracePrintUtil::printStackTrace(cout);
       }
-  
+
       ++*depth;   // Prevent compiler from optimizing tail recursion as a
                   // loop.
   }

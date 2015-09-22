@@ -1,12 +1,10 @@
-    btlsc.txt
+ btlsc.txt
 
 @PURPOSE: Provide abstract interfaces for transport channels and factories.
 
 @MNEMONIC: Basic Transport Environment Stream-based Channels (btlsc)
 
 @AUTHOR: Tom Marshall (tmarshal)
-
-@LAST_MODIFIED: May 2, 2004
 
 @DESCRIPTION: The 'btlsc' package is designed to provide three parallel
  "families" of protocol (i.e., pure abstract interface) for stream-based
@@ -37,7 +35,7 @@
  An "allocator factory" is a dispenser of channel allocator objects.  In BDE,
  the terms "allocator" and "factory" are synonymous, but we use the two
  different words for clarity and to avoid any unintentional humor that the
- reduplicateive "allocator allocator" might evoke.  The initial "channel",
+ reduplicative "allocator allocator" might evoke.  The initial "channel",
  logically a part of the name of this entity, has also been omitted for brevity
  and clarity.  An "allocator factory" is basically a naming service that
  provides a channel allocator in response to a request for a connection to a
@@ -54,7 +52,7 @@
  and non-blocking objects, and objects that do and do not support timeout
  capability.  To facilitate good design and usage in the concrete
  implementations, each "timed" entity is derived from its "untimed"
- counterpart. 
+ counterpart.
 
 /Hierarchical Synopsis
 /---------------------

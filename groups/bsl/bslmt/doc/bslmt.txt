@@ -265,26 +265,26 @@
  mutex locks in a way more transparent, safer way, and also making sure the
  lock is released when an exception is thrown within the critical section.
 ..
-     static void myThreadsafeFunction(myObject *obj, bcemt_Mutex *mutex)
-     {
-         // creating the LockGuard calls mutex->lock()
-         bcemt_LockGuard<bcemt_Mutext> guard(mutex);
-         if (someCondition) {
-             obj->someMethod();
-             return;
-             // LockGuard is destroyed; this calls mutex->unlock()
-         } else if (someOtherCondition) {
-             obj->someOtherMethod();
-             return;
-             // LockGuard is destroyed; this calls mutex->unlock()
-         }
-         obj->defaultMethod();
-         return;
-         // LockGuard is destroyed; this calls mutex->unlock()
-     }
+  static void myThreadsafeFunction(myObject *obj, bcemt_Mutex *mutex)
+  {
+      // creating the LockGuard calls mutex->lock()
+      bcemt_LockGuard<bcemt_Mutext> guard(mutex);
+      if (someCondition) {
+          obj->someMethod();
+          return;
+          // LockGuard is destroyed; this calls mutex->unlock()
+      } else if (someOtherCondition) {
+          obj->someOtherMethod();
+          return;
+          // LockGuard is destroyed; this calls mutex->unlock()
+      }
+      obj->defaultMethod();
+      return;
+      // LockGuard is destroyed; this calls mutex->unlock()
+  }
 ..
 
-/Thread-specific storage
+/Thread-Specific storage
 /- - - - - - - - - - - -
  Thread-specific storage (also known as thread-local storage, or TLS) is a
  mechanism for referring to a single variable (identified by its 'Key' in
@@ -327,7 +327,7 @@
  'bcemt_ReaderWriterLock' along with a thread-specific counter used to store
  the number of recursive locks acquired by the current thread.
 
-/Static initialization
+/Static Initialization
 /- - - - - - - - - - -
  Initialization of a thread-specific static variable (such as a thread-local
  singleton) can be achieved by using the 'bcemt_once' component.  The
@@ -352,7 +352,6 @@
   |   bcemt_threadimpl_win32 | Template specialization for MS-Windows    |
   +--------------------------+-------------------------------------------+
 ..
-
  These components are visible and documented.  However, their intended use is
  to support component 'bcemt_thread'.  Clients should not expect to use them
  directly.

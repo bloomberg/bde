@@ -178,7 +178,7 @@
  pointer is declared to point to a function with a specific return type and a
  specific number of arguments of specific types.  For instance,
 ..
-   void (*fp)(int, const char*);
+  void (*fp)(int, const char*);
 ..
  declares a function pointer 'fp' that points to a function returning 'void',
  and taking exactly two arguments, an 'int' and a const pointer to 'char'.
@@ -186,45 +186,45 @@
  Assume, then, that we have one or more functions declared with the matching
  signature:
 ..
-   void f1(int x, const char* s);
-   void f2(int x, const char* s);
+  void f1(int x, const char* s);
+  void f2(int x, const char* s);
 ..
  After assigning a value to the function pointer, we can call the
  corresponding function:
 ..
-   fp = f1;
-        .
-        .
-        .
-   int my_x = 0;
-   int my_s = "Text String";
-   fp(my_x, my_s);          // invokes function f1
+  fp = f1;
+       .
+       .
+       .
+  int my_x = 0;
+  int my_s = "Text String";
+  fp(my_x, my_s);          // invokes function f1
 ..
  Functors are objects that behave syntactically and semantically like
  functions.  Functors implement a function-call operator ('operator()') whose
  signature characterizes the particular functor's type.  In this example, for
  instance, we could define a functor like this:
 ..
-   class MyFunctor {
-       // Class MyFunctor can be used like a function.
-        .
-        .
-        .
-   public:
-       void operator()(int x, const char* s);
-       // this provides invocation semantics
-        .
-        .
-        .
-   };
+  class MyFunctor {
+      // Class MyFunctor can be used like a function.
+       .
+       .
+       .
+  public:
+      void operator()(int x, const char* s);
+      // this provides invocation semantics
+       .
+       .
+       .
+  };
 
-   MyFunctor fn;
-        .
-        .
-        .
-   int my_x = 0;
-   int my_s = "Text String";
-   fn(my_x, my_s);          // "invokes" functor fn via fn::operator()
+  MyFunctor fn;
+       .
+       .
+       .
+  int my_x = 0;
+  int my_s = "Text String";
+  fn(my_x, my_s);          // "invokes" functor fn via fn::operator()
 ..
  Functors provide some interesting advantages over simple function pointers.
  Unlike a function pointer, a functor may be created with one or more
@@ -254,17 +254,18 @@
  use component 'bdlf_vfunc2' to create a functor object whose 'operator()'
  member function obeys the required signature.
 ..
- #include <bdlf_vfunc2.h>
+  #include <bdlf_vfunc2.h>
 
-     bdlf_Vfunc2<int, const char*> fn;  // template arguments specify arg types
-     // NOTE: This example is incomplete.
-     //       We still need code to initialize 'fn'
-        .
-        .
-        .
-     int my_x = 0;
-     int my_s = "Text String";
-     fn(my_x, my_s);                    // "invokes" functor fn
+      bdlf_Vfunc2<int, const char*> fn;  // template arguments specify arg
+                                         // types
+          // NOTE: This example is incomplete.
+          //       We still need code to initialize 'fn'
+      .
+      .
+      .
+      int my_x = 0;
+      int my_s = "Text String";
+      fn(my_x, my_s);                    // "invokes" functor fn
 ..
  Before a 'bdlf' functor is invoked as illustrated, the client is responsible
  for ensuring that it is valid; that is, it must contain a pointer to a
@@ -285,15 +286,15 @@
  by the type of function pointer required.  For example, 'bdlfu_vfunc2' defines
  the following *factory* *method* *families*:
 ..
-   bdlfu_Vfunc2::makeF()     generate a pointer to a free function
-                             and assign it to a 'bdlf_Vfunc2' object
-   bdlfu_Vfunc2::makeM()     generate a pointer to a member function
-                             and assign it to a 'bdlf_Vfunc2' object
-   bdlfu_Vfunc2::makeC()     generate a pointer to a const member
-                             function and assign it to a  'bdlf_Vfunc2'
-                             object
-   bdlfu_Vfunc2::makeNull()  initialize a 'bdlf_Vfunc2' object with
-                             an empty function
+  bdlfu_Vfunc2::makeF();    // generate a pointer to a free function
+                            // and assign it to a 'bdlf_Vfunc2' object
+  bdlfu_Vfunc2::makeM();    // generate a pointer to a member function
+                            // and assign it to a 'bdlf_Vfunc2' object
+  bdlfu_Vfunc2::makeC()     // generate a pointer to a const member
+                            // function and assign it to a  'bdlf_Vfunc2'
+                            // object
+  bdlfu_Vfunc2::makeNull(); // initialize a 'bdlf_Vfunc2' object with
+                            // an empty function
 ..
  These factory methods (except for 'makeNull') are templatized to support
  different return and argument types; in addition, each *factory* *method*
@@ -306,20 +307,20 @@
  For the simple example above, we would use component 'bdlfu_Vfunc2' as follows
  to initialize the 'bdlf_Vfunc2' object:
 ..
- #include <bdlf_vfunc2.h>
- #include <bdlfu_vfunc2.h>
+  #include <bdlf_vfunc2.h>
+  #include <bdlfu_vfunc2.h>
 
-     void f1(int x, const char* s);
-     void f2(int x, const char* s);
+      void f1(int x, const char* s);
+      void f2(int x, const char* s);
 
-     bdlf_Vfunc2<int, const char*> fn;  // template arguments define arg types
-     bdlfu_Vfunc2::makeF(&fn,f1);       // bind functor fn to function f1
-        .
-        .
-        .
-     int my_x = 0;
-     int my_s = "Text String";
-     fn(my_x, my_s);                    // "invokes" functor fn
+      bdlf_Vfunc2<int, const char*> fn;  // template arguments define arg types
+      bdlfu_Vfunc2::makeF(&fn,f1);       // bind functor fn to function f1
+         .
+         .
+         .
+      int my_x = 0;
+      int my_s = "Text String";
+      fn(my_x, my_s);                    // "invokes" functor fn
 ..
  The 'bdlfu_Vfunc2::makeF' *factory* *method* in the above example expects two
  arguments.  The first is a pointer to the functor object itself, and the
@@ -406,15 +407,15 @@
  be specified (later) at invocation time.  A binder is created by one of the
  three *factory* *method* *families* defined in component 'bdlf_bind':
 ..
-    bdlf_BindUtil::bind()      generate a binder with specified invocable and
-                               bound arguments (invocation arguments are
-                               indicated by place-holders)
-    bdlf_BindUtil::bindA()     same as above but also specify the allocator
-                               used to supply memory for creating the binder
-    bdlf_BindUtil::bindR()     same as 'bdlf_BindUtil::bind()' but explicitly
-                               specify the return type (in case it cannot be
-                               deduced by the compiler but should not be left
-                               undefined)
+  bdlf_BindUtil::bind();   // generate a binder with specified invocable and
+                           // bound arguments (invocation arguments are
+                           // indicated by place-holders)
+  bdlf_BindUtil::bindA();  // same as above but also specify the allocator
+                           // used to supply memory for creating the binder
+  bdlf_BindUtil::bindR();  // same as 'bdlf_BindUtil::bind()' but explicitly
+                           // specify the return type (in case it cannot be
+                           // deduced by the compiler but should not be left
+                           // undefined)
 ..
  Binders where the signature of the invocable can be deduced are called
  *explicit*.  Not all binders are explicit.  For non-explicit binders, the
@@ -500,54 +501,54 @@
  callback function two arguments at its invocation: a modifiable object of
  type 'MyGuiContext', and a non-modifiable object of type 'MyGuiLocation'.
 ..
-   class MyGuiContext {
-       int d_changedFlag;
+  class MyGuiContext {
+      int d_changedFlag;
 
-     public:
-       MyGuiContext() : d_changedFlag(0) { }
-       int isChanged() { return d_changedFlag; }
-       void changeState() { ++d_changedFlag; }
+    public:
+      MyGuiContext() : d_changedFlag(0) { }
+      int isChanged() { return d_changedFlag; }
+      void changeState() { ++d_changedFlag; }
 
-       // 'MyGuiContext' implementation
-   };
+      // 'MyGuiContext' implementation
+  };
 
-   class MyGuiLocation {
-     public:
-       MyGuiLocation() { };
+  class MyGuiLocation {
+    public:
+      MyGuiLocation() { };
 
-       // 'MyGuiLocation' implementation
-   };
+      // 'MyGuiLocation' implementation
+  };
 ..
  Here is the implementation of the 'MyGuiButton' class:
 ..
-   class MyGuiButton  {
-       bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> d_callback;
-           // Functor to execute when button is pressed.
+  class MyGuiButton  {
+      bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> d_callback;
+          // Functor to execute when button is pressed.
 
-     public:
-       MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
-                   MyGuiLocation>& buttonPressCallback);
-           // Create a graphical button object that executes the
-           // specified callback when 'pressButton' is invoked.
+    public:
+      MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
+                  MyGuiLocation>& buttonPressCallback);
+          // Create a graphical button object that executes the
+          // specified callback when 'pressButton' is invoked.
 
-       void pressButton(MyGuiContext *context,
-                        const MyGuiLocation& location);
-           // Execute the callback owned by this button object.
-   };
+      void pressButton(MyGuiContext *context,
+                       const MyGuiLocation& location);
+          // Execute the callback owned by this button object.
+  };
 
-   MyGuiButton::MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
-                            MyGuiLocation>& buttonPressCallback)
-   : d_callback(buttonPressCallback) // Retain a "copy" of the specified
-                                     // functor.
-   {
-   }
+  MyGuiButton::MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
+                           MyGuiLocation>& buttonPressCallback)
+  : d_callback(buttonPressCallback) // Retain a "copy" of the specified
+                                    // functor.
+  {
+  }
 
-   void MyGuiButton::pressButton(MyGuiContext *context,
-                                 const MyGuiLocation& location)
-   {
-       d_callback(context, location);
-           // Execute the contained callback object.
-   }
+  void MyGuiButton::pressButton(MyGuiContext *context,
+                                const MyGuiLocation& location)
+  {
+      d_callback(context, location);
+          // Execute the contained callback object.
+  }
 ..
  The 'context' and 'location' arguments are mandatory for every function
  called at the press of the button (the number '2' in the name of
@@ -556,15 +557,15 @@
  number of additional parameters, as in the 'buttonpressFunction' function
  presented below.
 ..
-   static void buttonpressFunction(MyGuiContext *a,
-                                   const MyGuiLocation& b,
-                                   int *invocationCounter)
-       // This function will be invoked by a functor to increment the
-       // specified 'invocationCounter'.
-   {
-           a->changeState();
-           ++*invocationCounter;
-   }
+  static void buttonpressFunction(MyGuiContext *a,
+                                  const MyGuiLocation& b,
+                                  int *invocationCounter)
+      // This function will be invoked by a functor to increment the
+      // specified 'invocationCounter'.
+  {
+          a->changeState();
+          ++*invocationCounter;
+  }
 ..
  The 'bdlf_Vfunc2<MyGuiContext, MyGuiLocation>' class used in 'MyGuiButton'
  class has a private member of an abstract class 'bdlfr_vfunc2', whose
@@ -576,56 +577,55 @@
  signature the user implements a concrete class derived from 'bdlfr_vfunc2'
  as follows:
 ..
-   template <class F, class A1, class A2, class D1>
-   class FuncRep : public bdlfr_Vfunc2<A1, A2> {
-       // This class defines the representation for a function object
-       // (functor), characterized by a function-call operator taking two
-       // arguments and returning 'void', that holds a pure procedure (i.e.,
-       // free function, static member function, or functor) taking one
-       // additional trailing argument, and this argument's corresponding
-       // value.
+  template <class F, class A1, class A2, class D1>
+  class FuncRep : public bdlfr_Vfunc2<A1, A2> {
+      // This class defines the representation for a function object (functor),
+      // characterized by a function-call operator taking two arguments and
+      // returning 'void', that holds a pure procedure (i.e., free function,
+      // static member function, or functor) taking one additional trailing
+      // argument, and this argument's corresponding value.
 
-       F  d_f;  // function pointer or function object (functor)
-       D1 d_d1; // first embedded argument
+      F  d_f;  // function pointer or function object (functor)
+      D1 d_d1; // first embedded argument
 
-     private:
-       // not implemented
-       FuncRep(const FuncRep<F, A1, A2, D1>&);
-       FuncRep<F, A1, A2, D1>& operator=(const FuncRep<F, A1, A2, D1>&);
+    private:
+      // not implemented
+      FuncRep(const FuncRep<F, A1, A2, D1>&);
+      FuncRep<F, A1, A2, D1>& operator=(const FuncRep<F, A1, A2, D1>&);
 
-     private:
-       ~FuncRep()
-           // Destroy this functor.  Note that destructor can be invoked only
-           // through the static 'deleteObject' method of the base class.
-       {
-       };
+    private:
+      ~FuncRep()
+          // Destroy this functor.  Note that destructor can be invoked only
+          // through the static 'deleteObject' method of the base class.
+      {
+      };
 
-     public:
-       // CREATORS
-       FuncRep(const F&         procedure,
-               const D1&        embeddedArg1,
-               bdlma_Allocator *basicAllocator)
-           // Create a representation for a function object (functor) taking
-           // two arguments and returning 'void', using the specified
-           // 'procedure' taking 1 additional trailing argument, and this
-           // argument's specified 'embeddedArg1' value.  Use
-           // the specified 'basicAllocator' to supply memory.
-       : bdlfr_Vfunc1<A1, A2>(basicAllocator)
-       , d_f(procedure)
-       , d_d1(embeddedArg1)
-       {
-       };
+    public:
+      // CREATORS
+      FuncRep(const F&         procedure,
+              const D1&        embeddedArg1,
+              bdlma_Allocator *basicAllocator)
+          // Create a representation for a function object (functor) taking two
+          // arguments and returning 'void', using the specified 'procedure'
+          // taking 1 additional trailing argument, and this argument's
+          // specified 'embeddedArg1' value.  Use the specified
+          // 'basicAllocator' to supply memory.
+      : bdlfr_Vfunc1<A1, A2>(basicAllocator)
+      , d_f(procedure)
+      , d_d1(embeddedArg1)
+      {
+      };
 
-       // ACCESSORS
-       void execute(const A1& argument1, const A2& argument2) const
-           // Invoke the underlying procedure (free function, static member
-           // function, or functor) with the specified 'argument1' and
-           // 'argument2' followed by the argument value specified at
-           // construction.
-       {
-           d_f(argument1, argument2, d_d1);
-       };
-   };
+      // ACCESSORS
+      void execute(const A1& argument1, const A2& argument2) const
+          // Invoke the underlying procedure (free function, static member
+          // function, or functor) with the specified 'argument1' and
+          // 'argument2' followed by the argument value specified at
+          // construction.
+      {
+          d_f(argument1, argument2, d_d1);
+      };
+  };
 ..
  Note that the required arguments are passed in at the functor invocation,
  and optional arguments are passed in at the functor initialization.
@@ -651,32 +651,32 @@
 
  The code is as follows:
 ..
-   // (1) Create the representation.
+  // (1) Create the representation.
 
-   typedef void (*BpFun)(const MyGuiContext *, const MyGuiLocation&, int *);
-   bdlma_Allocator *myAllocator = bdlma_Default::defaultAllocator();
+  typedef void (*BpFun)(const MyGuiContext *, const MyGuiLocation&, int *);
+  bdlma_Allocator *myAllocator = bdlma_Default::defaultAllocator();
 
-   int globalCounter = 0;
+  int globalCounter = 0;
 
-   bdlfr_Vfunc2<MyGuiContext *, MyGuiLocation>  *rep = new(myAllocator)
-       FuncRep<BpFun, MyGuiContext *, MyGuiLocation, int*>
-           (buttonpressFunction, &globalCounter, myAllocator);
+  bdlfr_Vfunc2<MyGuiContext *, MyGuiLocation>  *rep = new(myAllocator)
+      FuncRep<BpFun, MyGuiContext *, MyGuiLocation, int*>
+          (buttonpressFunction, &globalCounter, myAllocator);
 
-   // (2) Create the functor using the representation.
+  // (2) Create the functor using the representation.
 
-   bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> callbackFunctor(rep);
+  bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> callbackFunctor(rep);
 
-   // (3) Register the functor as a callback.
+  // (3) Register the functor as a callback.
 
-   MyGuiButton button(callbackFunctor);
+  MyGuiButton button(callbackFunctor);
 
-   // (4) Use the object.
+  // (4) Use the object.
 
-   MyGuiContext gc;
-   const MyGuiLocation gl;             assert(0 == globalCounter);
-                                       assert(0 == gc.isChanged());
-   button.pressButton(&gc, gl);        assert(1 == globalCounter);
-                                       assert(1 == gc.isChanged());
-   button.pressButton(&gc, gl);        assert(2 == globalCounter);
-                                       assert(2 == gc.isChanged());
+  MyGuiContext gc;
+  const MyGuiLocation gl;             assert(0 == globalCounter);
+                                      assert(0 == gc.isChanged());
+  button.pressButton(&gc, gl);        assert(1 == globalCounter);
+                                      assert(1 == gc.isChanged());
+  button.pressButton(&gc, gl);        assert(2 == globalCounter);
+                                      assert(2 == gc.isChanged());
 ..

@@ -265,7 +265,6 @@
        Example.wordCount [ count = 2, total = 9, min = 4, max = 5 ]
 ..
 
-
 /Features Overview
 /-----------------
  This section provides a brief summary of the features of the 'balm'
@@ -274,25 +273,25 @@
 
 : o A protocol to provide pluggable publishing behavior.  Users can define and
 :   register publishers with the metrics manager, which in turn defines the
-:   behavior of the "publish" operation (see 'balm_publisher')
+:   behavior of the "publish" operation (see {'balm_publisher'})
 :
 : o A default (singleton) metrics manager instance (see
-:   'balm_defaultmetricsmanager')
+:   {'balm_defaultmetricsmanager'})
 :
 : o Simple macros for recording metrics to the default (singleton) metrics
-:   manager instance (see 'balm_metrics')
+:   manager instance (see {'balm_metrics'})
 :
-: o Simple types for recording metrics (see 'balm_metric' and
-:   'balm_integermetric')
+: o Simple types for recording metrics (see {'balm_metric'} and
+:   {'balm_integermetric'})
 :
 : o A guard helper class for recording the elapsed time of a block of code to a
-:   metric (see 'balm_stopwatchscopedguard')
+:   metric (see {'balm_stopwatchscopedguard'})
 :
 : o The ability to enable and disable the collection and publication of
-:   categories of metrics (see 'balm_metricsmanager' and 'balm_category')
+:   categories of metrics (see {'balm_metricsmanager'} and {'balm_category'})
 :
 : o A scheduling mechanism for configuring the periodic publication of metrics
-:   (see 'balm_publicationscheduler')
+:   (see {'balm_publicationscheduler'})
 
 /Multi-Threading
 /---------------

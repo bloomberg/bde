@@ -75,10 +75,10 @@
 
 /Usage
 /-----
- This section is under construction.
+/ This section illustrates intended use of this package.
 
-/CRC-32 Example
-/- - - - - - -
+/Example 1: CRC-32
+/- - - - - - - - -
  The following snippets of code illustrate a typical use of the 'bdlde_Crc32'
  class.  Each function would typically execute in separate processes or
  potentially on separate machines.  The 'senderExample' function below
@@ -130,8 +130,8 @@
   }
 ..
 
-/MD5 Example
-/- - - - - -
+/Example 2: MD5
+/ - - - - - - -
  The following snippets of code illustrate a typical use of the 'bdlde_Md5'
  class.  Each function would typically execute in separate processes or
  potentially on separate machines.  The 'senderExample' function below

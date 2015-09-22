@@ -6,8 +6,6 @@
 
 @AUTHOR: Tom Marshall (tmarshal)
 
-@LAST_MODIFIED: June 5, 2014
-
 @DESCRIPTION: The 'btl' ("Basic Transport Environment") package group provides
  a variety of concrete transport (IPC) mechanisms and services that conform to
  a uniform set of pure abstract interfaces.  In addition, 'btl' supplies
@@ -90,7 +88,7 @@
 
 /btlsc
 /- - -
- 'btlsc' provides a suite of protocols (i.e., pure abstract interfaces)
+ {'btlsc'} provides a suite of protocols (i.e., pure abstract interfaces)
  abstracting the general behavior of communications "channels".  All
  abstractions in this package consider stream-based (as opposed to
  message-based) transport.  The three general abstractions are called

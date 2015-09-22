@@ -31,8 +31,8 @@
  element is available to satisfy the request.
 
  In general, components in 'bdlcc' support this blocking behavior where it
- makes sense. Refer to the individual component documentation to understand how
- this general principle is carried out in specific components.
+ makes sense.  Refer to the individual component documentation to understand
+ how this general principle is carried out in specific components.
 
 /Hierarchical Synopsis
 /---------------------
@@ -88,25 +88,27 @@
 /------------------
 /'bdlcc_queue':
 /- - - - - - -
- This component provides an in-place, indexable, double-ended queue.  Clients
- instantiate a template class, 'bdlcc_Queue<T>', where type 'T' is the data type
- of elements that the queue will hold.  Type 'T' must be defined to be copyable
- either by a copy constructor or by 'T::operator=()'; class 'bdlcc_Queue'
- places no additional requirements on 'T'.
+ The {'bdlcc_queue'} component provides an in-place, indexable, double-ended
+ queue.  Clients instantiate a template class, 'bdlcc_Queue<T>', where type 'T'
+ is the data type of elements that the queue will hold.  Type 'T' must be
+ defined to be copyable either by a copy constructor or by 'T::operator=()';
+ class 'bdlcc_Queue' Places no additional requirements on 'T'.
 
 /'bdlcc_timequeue'
 / - - - - - - - -
- This component provides an in-place, indexable queue, managed in time order.
- Clients instantiate a template class, 'bdlcc_TimeQueue<T>', where type 'T' is
- the data type of elements that the queue will hold.  Type 'T' must be defined
- to be copyable either by a copy constructor or by 'T::operator=()'; class
- 'bdlcc_TimeQueue' places no additional requirements on 'T'.
+ The {'bdlcc_timequeue'} component provides an in-place, indexable queue,
+ managed in time order.  Clients instantiate a template class,
+ 'bdlcc_TimeQueue<T>', where type 'T' is the data type of elements that the
+ queue will hold.  Type 'T' must be defined to be copyable either by a copy
+ constructor or by 'T::operator=()'; class 'bdlcc_TimeQueue' places no
+ additional requirements on 'T'.
 
- When clients add elements to a 'bdlcc_TimeQueue', they provide both the element
- 'T' to be added and a time value, of type 'bdet_TimeInterval'.  Elements can
- be extracted individually in time order using the overloaded 'popFront()'
- member functions; a block of elements can also be popped in a single
- operation, 'popLE()', which pops all elements before a given time value.
+ When clients add elements to a 'bdlcc_TimeQueue', they provide both the
+ element 'T' to be added and a time value, of type 'bdet_TimeInterval'.
+ Elements can be extracted individually in time order using the overloaded
+ 'popFront()' member functions; a block of elements can also be popped in a
+ single operation, 'popLE()', which pops all elements before a given time
+ value.
 
  The 'bdlcc_TimeQueue' is designed to support direct access to individual
  queued elements based upon their 'Handle'.  This means that 'bdlcc_TimeQueue'
@@ -115,17 +117,18 @@
 
 /'bdlcc_objectcatalog'
 / - - - - - - - - - -
- This component provides a thread-safe, indexable catalog of object.  Clients
- instantiate a template class, 'bdlcc_ObjectCatalog<T>', where type 'T' is the
- data type of elements that the catalog will hold.  Type 'T' must be defined to
- be copyable either by a copy constructor or by 'T::operator=()'; class
- 'bdlcc_ObjectCatalog' places no additional requirements on 'T'.
+ The {'bdlcc_objectcatalog'} component provides a thread-safe, indexable
+ catalog of object.  Clients instantiate a template class,
+ 'bdlcc_ObjectCatalog<T>', where type 'T' is the data type of elements that the
+ catalog will hold.  Type 'T' must be defined to be copyable either by a copy
+ constructor or by 'T::operator=()'; class 'bdlcc_ObjectCatalog' places no
+ additional requirements on 'T'.
 
  When clients add elements to a 'bdlcc_ObjectCatalog', the 'add' method returns
  a handle which can be used to refer to the element until the element is
  'remove'd.  Addition is not guaranteed to succeed and the return vaslue must
  be checked.  An element can be accessed through its handle by using the 'find'
- function and passing a buffer for holding the value.  Passing a  null buffer
+ function and passing a buffer for holding the value.  Passing a null buffer
  can be used for testing whether the handle is still valid (i.e., refers to an
  element that has not yet been removed from the catalog).
 
@@ -136,13 +139,13 @@
 
 /'bdlcc_pool'
 /- - - - - -
- This component provides a thread-safe memory pool of objects from a
- parameterized type 'T'.  Clients instantiate a 'bdlcc_ObjectPool<T>' where the
- type 'T' has no requirements.  The pool owns the memory and objects it
- contains.  An object pool manages creation of its objects via a user-installed
- functor (given to the pool constructor), and provides automatic destruction of
- its objects either upon the 'destroyObject' method, or upon the pool
- destruction.  An object can be obtained from the pool by calling the
+ The {'bdlcc_pool'} component provides a thread-safe memory pool of objects
+ from a parameterized type 'T'.  Clients instantiate a 'bdlcc_ObjectPool<T>'
+ where the type 'T' has no requirements.  The pool owns the memory and objects
+ it contains.  An object pool manages creation of its objects via a
+ user-installed functor (given to the pool constructor), and provides automatic
+ destruction of its objects either upon the 'destroyObject' method, or upon the
+ pool destruction.  An object can be obtained from the pool by calling the
  'getObject' method, and can be released back to the pool for further use
  within 'getObject' by calling the 'releaseObject' method.
 

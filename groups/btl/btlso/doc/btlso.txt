@@ -1,4 +1,4 @@
-    btlso.txt
+ btlso.txt
 
 @PURPOSE: Provide low-level support for sockets and event managers.
 
