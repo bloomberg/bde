@@ -2755,8 +2755,6 @@ void ChannelPool::connectCb(ConnectorMap::iterator idx)
     int        clientId = idx->first;
     Connector& cs       = idx->second;
 
-    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
-
     bslmt::LockGuard<bslmt::Mutex>  cGuard(&d_connectorsLock);
     bslma::ManagedPtr<StreamSocket> socket(cs.d_socket.managedPtr());
 
@@ -4614,7 +4612,7 @@ int ChannelPool::numEvents(int index) const
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(static_cast<int>(d_managers.size()) > index);
 
-    return &idx->second->d_endpoint;
+    return d_managers[index]->numEvents();
 }
 
                      // -----------------------------

@@ -300,19 +300,22 @@ struct NullFn4
 };
 
 template <class A1, class A2, class A3>
-void makeNull(bdlf::Function<void (*)(A1, A2, A3)> * f)
+void makeNull(bsl::function<void(A1, A2, A3)> * f)
 {
     *f = NullFn3<A1, A2, A3>();
 }
 
 template <class A1, class A2, class A3>
-void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3)> * f)
+void makeNull(bslma::Allocator *a, bsl::function<void(A1, A2, A3)> * f)
 {
-    *f = bdlf::Function<void (*)(A1, A2, A3)>(NullFn3<A1, A2, A3>(), a);
+    *f = bsl::function<void(A1, A2, A3)>(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<bsl::function<void(A1, A2, A3)> >(a),
+                       NullFn3<A1, A2, A3>());
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeNull(bdlf::Function<void (*)(A1, A2, A3, A4)> * f)
+void makeNull(bsl::function<void(A1, A2, A3, A4)> * f)
 {
     *f = NullFn4<A1, A2, A3, A4>();
 }
@@ -569,9 +572,9 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-              bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb,
-                                     this),
-              ma);
+      bsl::allocator_arg_t(),
+      bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(ma),
+      bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb, this));
 
         btlmt::ChannelPool::BlobBasedReadCallback    dataCb;
         btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
@@ -602,9 +605,9 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-              bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb,
-                                     this),
-              ma);
+      bsl::allocator_arg_t(),
+      bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(ma),
+      bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb, this));
 
         d_channelPool_p.load(
            new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
@@ -847,12 +850,14 @@ ReadServer::ReadServer(btlb::BlobBufferFactory *factory,
     cpc.setIncomingMessageSizes(1, 5, 10);
 
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                             bdlf::MemFnUtil::memFn(&ReadServer::poolCB, this),
-                             d_allocator_p);
+    bsl::allocator_arg_t(),
+    bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(d_allocator_p),
+    bdlf::MemFnUtil::memFn(&ReadServer::poolCB, this));
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                             bdlf::MemFnUtil::memFn(&ReadServer::chanCB, this),
-                             d_allocator_p);
+ bsl::allocator_arg_t(),
+ bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(d_allocator_p),
+ bdlf::MemFnUtil::memFn(&ReadServer::chanCB, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,

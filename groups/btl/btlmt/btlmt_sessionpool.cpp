@@ -602,12 +602,14 @@ int SessionPool::start()
     }
 
     ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-                    bdlf::MemFnUtil::memFn(&SessionPool::channelStateCb, this),
-                    d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<ChannelPool::ChannelStateChangeCallback>(d_allocator_p),
+        bdlf::MemFnUtil::memFn(&SessionPool::channelStateCb, this));
 
     ChannelPool::PoolStateChangeCallback poolStateFunctor(
-                       bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this),
-                       d_allocator_p);
+           bsl::allocator_arg_t(),
+           bsl::allocator<ChannelPool::PoolStateChangeCallback>(d_allocator_p),
+           bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this));
 
     ChannelPool::BlobBasedReadCallback dataFunctor =
                           bdlf::MemFnUtil::memFn(&SessionPool::blobBasedReadCb,

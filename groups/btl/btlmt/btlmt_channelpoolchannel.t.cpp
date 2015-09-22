@@ -114,12 +114,12 @@ static void aSsErT(int c, const char *s, int i)
 //          USAGE example from header(with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
 
-int encrypt(btlb::Blob *encryptedBlob, const btlb::Blob& blob)
+int encrypt(btlb::Blob *, const btlb::Blob&)
 {
     return 0;
 }
 
-int decrypt(btlb::Blob *decryptedBlob, const btlb::Blob& blob)
+int decrypt(btlb::Blob *, const btlb::Blob&)
 {
     return 0;
 }
@@ -801,12 +801,16 @@ my_Server::my_Server(const btlmt::ChannelPoolConfiguration&  config,
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     btlmt::ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-                      bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this),
-                      d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+        bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this));
 
     btlmt::ChannelPool::PoolStateChangeCallback poolStateFunctor(
-                         bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this),
-                         d_allocator_p);
+           bsl::allocator_arg_t(),
+           bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+           bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
                             bdlf::MemFnUtil::memFn(&my_Server::blobBasedReadCb,

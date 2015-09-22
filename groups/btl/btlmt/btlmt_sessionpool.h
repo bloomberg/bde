@@ -531,6 +531,8 @@ namespace BloombergLP {
 
 namespace btlso { class SocketOptions; }
 
+namespace btlmt {
+
 class ChannelPool;
 class Session;
 class SessionFactory;
@@ -690,15 +692,15 @@ class SessionPool {
 
     };
 
-    typedef bdlf::Function<void (*)(int      state,
-                                    int      handle,
-                                    Session *session,
-                                    void    *userData)> SessionStateCallback;
+    typedef bsl::function<void(int      state,
+                               int      handle,
+                               Session *session,
+                               void    *userData)> SessionStateCallback;
         // Session callback.
 
-    typedef bdlf::Function<void (*)(int   state,
-                                    int   source,
-                                    void *userData)> SessionPoolStateCallback;
+    typedef bsl::function<void(int   state,
+                               int   source,
+                               void *userData)> SessionPoolStateCallback;
         // Pool callback.
 
   private:
