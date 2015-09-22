@@ -4,6 +4,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_timeinterval.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -33,7 +34,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_trivially_copyable::value
 //
 // ----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
+// [ 3] TESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'
 // [ 2] EXTENDING bsl::is_trivially_copyable
 
 //=============================================================================
@@ -159,7 +161,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -224,6 +226,34 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_trivially_copyable<
                                            MyNonTriviallyCopyableType>::value);
 //..
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'
+        //   Ensure that 'bsl::is_trivially_copyable' meta-function is
+        //   specialized correctly for 'bsls::TimeInterval'.
+        //
+        // NOTE: This is not tested in 'bsls' for dependency reasons.
+        //
+        // Concerns:
+        //: 1 'bsl::is_trivially_copyable<bsls::TimeInterval>' is 'true'
+        //
+        // Plan:
+        //: 1 Verify 'bsl::is_trivially_copyable<bsls::TimeInterval>' is 'true'
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+              "\nTESTING: 'bsl::is_trivially_copyable<bsls::TimeInterval>'\n"
+              "\n=========================================================\n");
+
+        // C-1
+        ASSERT(bsl::is_trivially_copyable<bsls::TimeInterval>::value);
+
 
       } break;
       case 2: {
