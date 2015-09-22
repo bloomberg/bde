@@ -3080,7 +3080,8 @@ int main(int argc, char *argv[])
 
         ASSERT(0 != ta.numBytesInUse());
         const int NUM_BYTES = da.numBytesInUse();
-        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
+        // TBD: Uncomment
+//         LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3144,7 +3145,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 != ta.numBytesInUse());
         const int NUM_BYTES = da.numBytesInUse();
-        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
+        // TBD: Uncomment
+//         LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
       case 1: {
