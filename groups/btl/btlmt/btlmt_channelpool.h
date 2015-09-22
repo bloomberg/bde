@@ -968,11 +968,11 @@ class ChannelPool {
 
     bsl::map<int, Connector>            d_connectors;
 
-    mutable bdlqq::Mutex                d_connectorsLock;
+    mutable bslmt::Mutex                d_connectorsLock;
 
     bsl::map<int, ServerHandle>         d_acceptors;
 
-    mutable bdlqq::Mutex                d_acceptorsLock;
+    mutable bslmt::Mutex                d_acceptorsLock;
 
     bdlma::ConcurrentPoolAllocator      d_sharedPtrRepAllocator;
 
@@ -982,7 +982,7 @@ class ChannelPool {
     bslma::ManagedPtr<btlb::BlobBufferFactory>
                                         d_readBlobFactory;
 
-    bdlqq::Mutex                        d_timersLock;
+    bslmt::Mutex                        d_timersLock;
 
     bsl::map<int, TimerState>           d_timers;
 
@@ -1003,7 +1003,7 @@ class ChannelPool {
 
     bdlb::NullableValue<void *>         d_metricsTimerId;
 
-    bdlf::Function<void (*)()>          d_metricsFunctor;
+    bsl::function<void()>               d_metricsFunctor;
 
     ChannelStateChangeCallback          d_channelStateCb;
 

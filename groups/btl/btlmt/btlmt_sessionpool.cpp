@@ -163,7 +163,7 @@ void SessionPool::channelStateCb(int   channelId,
 
         int handleId = handle->d_handleId;
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
 
             if (handle->d_session_p) {
                 int handleId = handle->d_handleId;
@@ -220,7 +220,7 @@ void SessionPool::channelStateCb(int   channelId,
         // up and dies right away, it is possible that the CHANNEL_DOWN will be
         // received with a NULL userData and thus will ignored.
 
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
 
         if (SessionPool_Handle::e_ABORTED_CONNECT_SESSION == handle->d_type) {
             // We raced against 'closeHandle()'.
@@ -408,7 +408,7 @@ void SessionPool::poolStateCb(int state, int source, int)
             return;                                                   // RETURN
         }
 
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
 
         if (SessionPool_Handle::e_ABORTED_CONNECT_SESSION == handle->d_type) {
             return;                                                   // RETURN
@@ -747,7 +747,7 @@ int SessionPool::closeHandle(int handleId)
             int clockId = handleId;
             int ret;
             do {
-                bdlf::Function<void (*)()> fctor(
+                bsl::function<void()> fctor(
                     bdlf::BindUtil::bindA(d_allocator_p,
                                           bdlf::MemFnUtil::memFn(
                                              &SessionPool::connectAbortTimerCb,

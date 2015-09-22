@@ -252,7 +252,7 @@ void sessionStateCallbackWithBarrier(int             state,
                                      int             ,
                                      btlmt::Session *session,
                                      void           *,
-                                     bdlqq::Barrier *barrier)
+                                     bslmt::Barrier *barrier)
 {
     switch(state) {
       case btlmt::SessionPool::e_SESSION_DOWN: {
@@ -326,7 +326,7 @@ void readCbWithBlobAndBarrier(int             result,
                               btlb::Blob     *data,
                               int             channelId,
                               btlb::Blob     *blob,
-                              bdlqq::Barrier *barrier)
+                              bslmt::Barrier *barrier)
 {
     readCbWithBlob(result, numNeeded, data, channelId, blob);
     barrier->wait();
@@ -636,7 +636,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                    << MTENDL;
         }
         {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&mapMutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&mapMutex);
             sourceIdToChannelMap[handle] = session->channel();
         }
         ++*numUpConnections;
@@ -1085,7 +1085,7 @@ class TesterFactory : public btlmt::SessionFactory {
     // DATA
     int               d_mode;
 
-    bdlqq::Barrier   *d_barrier_p;    // held not owned
+    bslmt::Barrier   *d_barrier_p;    // held not owned
 
     TesterSession    *d_session_p;    // held not owned
 
@@ -1167,16 +1167,16 @@ void TesterSession::readCb(int         result,
     *numNeeded = 1;
     btlb::BlobUtil::erase(blob, 0, blob->length());
 
-    bdlqq::ThreadUtil::Handle handle(bdlqq::ThreadUtil::invalidHandle());
+    bslmt::ThreadUtil::Handle handle(bslmt::ThreadUtil::invalidHandle());
 
-    ASSERT(0 == bdlqq::ThreadUtil::create(&handle,
+    ASSERT(0 == bslmt::ThreadUtil::create(&handle,
                                           bdlf::BindUtil::bind(
                                         &TesterSession::delayedChannelAccessor,
                                         this,
                                         d_channel_sp,
                                         d_channel_sp->peerAddress())));
 
-    bdlqq::ThreadUtil::detach(handle);
+    bslmt::ThreadUtil::detach(handle);
 }
 
 int TesterSession::start()
@@ -1910,7 +1910,7 @@ int main(int argc, char *argv[])
 
         const int      SIZE = 88;
         btlb::Blob     blob;
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
 
         BlobReadCallback callback = bdlf::BindUtil::bind(
                                                     &readCbWithBlobAndBarrier,
@@ -2202,7 +2202,7 @@ int main(int argc, char *argv[])
                                               &channelCbBarrier));
 
             int              poolState;
-            bdlqq::Barrier   poolCbBarrier(2);
+            bslmt::Barrier   poolCbBarrier(2);
             btlmt::SessionPool::SessionPoolStateCallback
                 poolStateCb(bdlf::BindUtil::bind(&poolStateCallbackWithBarrier,
                                                  _1, _2, _3,

@@ -1168,7 +1168,7 @@ int main(int argc, char *argv[])
 
         IPv4Factory               factory(&ta);
         bsl::vector<TestData>     tests(NUM_DATA);
-        bdlqq::ThreadUtil::Handle handles[NUM_DATA];
+        bslmt::ThreadUtil::Handle handles[NUM_DATA];
         bsl::vector<bsl::string>  expData(NUM_DATA);
         bsl::vector<Socket *>     sockets(NUM_DATA);
 

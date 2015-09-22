@@ -627,7 +627,7 @@ class ChannelPoolStateCbTester {
     {
         bsls::TimeInterval             now     = bdlt::CurrentTime::now();
         bsls::TimeInterval             timeout = now + elapsedTime;
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
         int                            idx   = 0;
         bool                           found = false;
 
@@ -723,7 +723,7 @@ void blobBasedReadCb(int            *needed,
                      btlb::Blob     *msg,
                      int             channelId,
                      void           *,
-                     bdlqq::Barrier *barrier,
+                     bslmt::Barrier *barrier,
                      btlb::Blob     *savedMsg)
 {
     if (veryVerbose) {
@@ -1485,7 +1485,7 @@ void blobBasedReadCb(int        *needed,
 struct TestData {
     Obj            *d_pool_p;
     int             d_channelId;
-    bdlqq::Barrier *d_barrier_p;
+    bslmt::Barrier *d_barrier_p;
     btlb::Blob     *d_blob_p;
 };
 
@@ -1845,7 +1845,7 @@ public:
 void poolStateCb(int             state,
                  int             source,
                  int             severity,
-                 bdlqq::Barrier *barrier)
+                 bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
@@ -2263,7 +2263,7 @@ class ReadServer
     int                 d_expDataSize;
     bslma::Allocator   *d_allocator_p;
     btlmt::ChannelPool *d_cp_p;
-    bdlqq::Mutex       *d_coutMutex;
+    bslmt::Mutex       *d_coutMutex;
 
   private:
     // ChannelPool Callback Functions
@@ -2319,7 +2319,7 @@ class ReadServer
 
 // CREATORS
 ReadServer::ReadServer(
-        bdlqq::Mutex                           *coutMutex,
+        bslmt::Mutex                           *coutMutex,
         int                                     expDataSize,
         const btlmt::ChannelPoolConfiguration&  channelPoolConfig,
         bslma::Allocator                       *allocator)
@@ -2474,7 +2474,7 @@ class DataReader {
     int                  d_msgId;           // message id
     int                  d_msgLength;       // message length
     string               d_data;            // actual data
-    mutable bdlqq::Mutex d_mutex;           // mutex for data
+    mutable bslmt::Mutex d_mutex;           // mutex for data
 
   public:
     // CREATORS
@@ -2521,11 +2521,11 @@ class ReadServer
     bslma::Allocator        *d_allocator_p;
     btlmt::ChannelPool      *d_cp_p;
     ChannelMap               d_channelMap;
-    mutable bdlqq::Mutex     d_channelMapMutex;
+    mutable bslmt::Mutex     d_channelMapMutex;
     DataMap                  d_dataMap;
-    mutable bdlqq::Mutex     d_dataMapMutex;
-    mutable bdlqq::Mutex     d_generalMutex;
-    bdlqq::Mutex            *d_coutMutex;
+    mutable bslmt::Mutex     d_dataMapMutex;
+    mutable bslmt::Mutex     d_generalMutex;
+    bslmt::Mutex            *d_coutMutex;
 
   private:
     // ChannelPool Callback Functions
@@ -2583,7 +2583,7 @@ class ReadServer
 };
 
 ReadServer::ReadServer(
-        bdlqq::Mutex      *coutMutex,
+        bslmt::Mutex      *coutMutex,
         int                port,
         bslma::Allocator  *allocator)
 : d_port(port)
@@ -2696,7 +2696,7 @@ void ReadServer::blobBasedReadCb(int        *needed,
 DataReader *ReadServer::reader(int channelId, bool createNew)
 {
     int                            msgId;
-    bdlqq::LockGuard<bdlqq::Mutex> guard1(&d_channelMapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard1(&d_channelMapMutex);
     ChannelMap::const_iterator     citer = d_channelMap.find(channelId);
     if (citer == d_channelMap.end()) {
         if (!createNew) {
@@ -2904,7 +2904,7 @@ struct TestData {
     btlso::StreamSocket<btlso::IPv4Address> *d_socket_p;    // socket to write
                                                             // to
 
-    bdlqq::Barrier                          *d_barrier_p;   // barrier
+    bslmt::Barrier                          *d_barrier_p;   // barrier
 
     void run();
         // Run the test function.
@@ -5929,7 +5929,7 @@ void case10ChannelStateCallback(int                  channelId,
 namespace TEST_CASE_9_NAMESPACE {
 
 struct case9ThreadInfo {
-    bdlqq::Barrier   *d_barrier;
+    bslmt::Barrier   *d_barrier;
     bsls::AtomicInt  *d_threadCount;
     Obj              *d_channelPool_p;
     int               d_channelId;
@@ -7105,7 +7105,7 @@ static void case4ErrorPoolStateCb(int              poolState,
 /// monitorPool, from usage example 2, is reused.
 //-----------------------------------------------------------------------------
 
-static void monitorPool(bdlqq::Mutex              *coutLock,
+static void monitorPool(bslmt::Mutex              *coutLock,
                         const btlmt::ChannelPool&  pool,
                         int                        numTimes,
                         bool                       verbose = true)

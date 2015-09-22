@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsls::TimeInterval nextNextTime(nextTime);
 //      nextNextTime.addSeconds(TIME_OFFSET);
-//      bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(
 //                                                              &producer,
 //                                                              workQueue,
 //                                                              manager,
@@ -156,7 +156,7 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval nextTime(now);
 //      nextTime.addSeconds(TIME_OFFSET);
 //
-//      bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(
 //                                                              &producer,
 //                                                              &workQueue,
 //                                                              &manager,
@@ -382,7 +382,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                    d_requestQueue;    // queue of requests to
                                                       // dispatcher thread
 
-    mutable bdlqq::ThreadUtil::Handle
+    mutable bslmt::ThreadUtil::Handle
                                    d_dispatcher;      // dispatcher thread
                                                       // handle
 
@@ -392,11 +392,11 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     bsls::AtomicInt                d_terminateThread; // signals end of
                                                       // dispatcher
 
-    mutable bdlqq::RWMutex         d_stateLock;       // protects access to the
+    mutable bslmt::RWMutex         d_stateLock;       // protects access to the
                                                       // state changes via
                                                       // 'enable' and 'disable'
 
-    bdlf::Function<void (*)()>     d_dispatchThreadEntryPoint;
+    bsl::function<void()>     d_dispatchThreadEntryPoint;
                                                       // functor containing the
                                                       // dispatch thread's
                                                       // entry point
@@ -407,18 +407,18 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                                       // manager is internal or
                                                       // external
 
-    bsl::vector<bdlf::Function<void (*)()> >
+    bsl::vector<bsl::function<void()> >
                                   *d_executeQueue_p;  // queue of executed
                                                       // timers (pointer, to
                                                       // be swappable in
                                                       // dispatcher thread
                                                       // loop)
 
-    mutable bdlqq::Mutex           d_executeQueueLock;
+    mutable bslmt::Mutex           d_executeQueueLock;
                                                       // protects access to the
                                                       // execute queue
 
-    bdlcc::TimeQueue<bdlf::Function<void (*)()> >
+    bdlcc::TimeQueue<bsl::function<void()> >
                                    d_timerQueue;      // queue of registered
                                                       // timers
 
@@ -738,7 +738,7 @@ btlso::TimeMetrics *TcpTimerEventManager::timeMetrics() const
 }
 
 inline
-bdlqq::ThreadUtil::Handle TcpTimerEventManager::dispatcherThreadHandle() const
+bslmt::ThreadUtil::Handle TcpTimerEventManager::dispatcherThreadHandle() const
 {
     return d_dispatcher;
 }

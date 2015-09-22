@@ -82,7 +82,7 @@ void ChannelPoolChannel::registerTimeoutAndUpdateClockId(
 
     ReadQueue::iterator entryIter = d_readQueue.end();
     --entryIter;
-    bdlf::Function<void (*)()> timeoutCallback(bdlf::BindUtil::bind(
+    bsl::function<void()> timeoutCallback(bdlf::BindUtil::bind(
                   bdlf::MemFnUtil::memFn(&ChannelPoolChannel::timeoutCb, this),
                   entryIter));
 
@@ -264,7 +264,7 @@ void ChannelPoolChannel::cancelRead()
         btlb::Blob dummyBlob;
         for (ReadQueue::iterator it = cancelQueue.begin();
              it != cancelQueue.end(); ++it) {
-            bdlf::Function<void (*)()> cancelNotifyCallback(
+            bsl::function<void()> cancelNotifyCallback(
                                  bdlf::BindUtil::bind(it->d_readCallback,
                                                       AsyncChannel::e_CANCELED,
                                                       &dummy,
@@ -327,7 +327,7 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
     *numNeeded            = 1;
     int numBytesAvailable = msg->length();
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     d_callbackInProgress = true;
 
     while (!d_closed
@@ -351,7 +351,7 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
         numBytesAvailable = msg->length();
 
         {
-            bdlqq::LockGuardUnlock<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
             callback(e_SUCCESS, &nNeeded, msg, d_channelId);
             numConsumed = numBytesAvailable - msg->length();
         }

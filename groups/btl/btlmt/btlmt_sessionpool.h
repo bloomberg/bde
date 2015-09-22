@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 //                                                         // this server is
 //                                                         // listening
 //
-//      bdlqq::Mutex                    *d_coutLock_p;     // mutex protecting
+//      bslmt::Mutex                    *d_coutLock_p;     // mutex protecting
 //                                                         // bsl::cout
 //
 //      bslma::Allocator                *d_allocator_p;    // memory allocator
