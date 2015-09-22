@@ -1023,9 +1023,40 @@ template <class FUNC, class ARGS, int INDEX, int OFFSET>
                                              struct Bind_MapParameter;
 template <class RET, class FUNC, class LIST> struct Bind_ImplSelector;
 
-                         // ==========================
-                         // class Bind_BoundTupleValue
-                         // ==========================
+                           // =================================
+                           // struct Bind_AreAllBitwiseMoveable
+                           // =================================
+
+template <class A1 = int,  class A2  = int, class A3 = int,  class A4  = int,
+          class A5 = int,  class A6  = int, class A7 = int,  class A8  = int,
+          class A9 = int,  class A10 = int, class A11 = int, class A12 = int,
+          class A13 = int, class A14 = int>
+struct Bind_AreAllBitwiseMoveable {
+    // This metafunction will yield a 'VALUE' member constant of true if
+    // 'bslmf::IsBitwiseMoveable' is true for all of the specified template
+    // parameters 'A1' through 'A14'; otherwise a 'VALUE' of false.  Note that
+    // this metafunction can be instantiated with zero to 14 parameters,
+    // yielding true for if instantiated with zero parameters.
+
+    enum { VALUE = (bslmf::IsBitwiseMoveable<A1>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A2>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A3>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A4>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A5>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A6>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A7>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A8>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A9>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A10>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A11>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A12>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A13>::VALUE &&
+                    bslmf::IsBitwiseMoveable<A14>::VALUE) };
+};
+
+                        // ==========================
+                        // class Bind_BoundTupleValue
+                        // ==========================
 
 // IMPLEMENTATION NOTE: This class template, as well as the
 // 'bind_BoundTuple[0-14]' class templates, are always instantiated with
@@ -1093,6 +1124,10 @@ class Bind_BoundTupleValue {
 struct Bind_BoundTuple0 : bslmf::TypeList0 {
     // This 'struct' provides the creators for a list of zero arguments.
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_BoundTuple0,
+                                   bslmf::IsBitwiseMoveable);
+
     // CREATORS
     Bind_BoundTuple0()
     {
@@ -1109,6 +1144,11 @@ struct Bind_BoundTuple1 : bslmf::TypeList1<A1>
     // This 'struct' stores a list of one argument.  It does *not* use the
     // const-forwarding type of its argument, unlike 'Bind_Tuple1' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(Bind_BoundTuple1,
+                                      bslmf::IsBitwiseMoveable,
+                                      bslmf::IsBitwiseMoveable<A1>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -1141,7 +1181,10 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Bind, bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(Bind, bslmf::IsBitwiseMoveable,
+                                      bslmf::IsBitwiseMoveable<FUNC>::value &&
+                                      bslmf::IsBitwiseMoveable<LIST>::value)
 
     // CREATORS
     Bind(typename bslmf::ForwardingType<FUNC>::Type  func,
@@ -2784,9 +2827,9 @@ struct BindUtil {
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                           // =====================
-                           // class Bind_TupleValue
-                           // =====================
+                          // =====================
+                          // class Bind_TupleValue
+                          // =====================
 
 template <class TYPE>
 class Bind_TupleValue {
@@ -2897,9 +2940,9 @@ class Bind_TupleValue<TYPE const&> {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-                             // =================
-                             // class Bind_Tuple*
-                             // =================
+                           // =================
+                           // class Bind_Tuple*
+                           // =================
 
 struct Bind_Tuple0 : bslmf::TypeList0
 {
@@ -5142,9 +5185,9 @@ struct Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
 };
 }  // close package namespace
 
-                     // ==================================
-                     // class bdlf::Bind_CalcParameterMask
-                     // ==================================
+                    // ==================================
+                    // class bdlf::Bind_CalcParameterMask
+                    // ==================================
 
 // The following macro is used to compute the index of place holders within a
 // parameter list and its corresponding mapping to the place holder values.
@@ -5308,6 +5351,11 @@ struct Bind_BoundTuple2 : bslmf::TypeList2<A1,A2>
     // const-forwarding type of its argument, unlike 'Bind_Tuple2' which
     // applies that optimization to avoid unnecessary copying.
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple2, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2>::VALUE));
+
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
     Bind_BoundTupleValue<A2> d_a2;
@@ -5335,6 +5383,11 @@ struct Bind_BoundTuple3 : bslmf::TypeList3<A1,A2,A3>
     // This 'struct' stores a list of three arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple3' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple3, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5367,6 +5420,11 @@ struct Bind_BoundTuple4 : bslmf::TypeList4<A1,A2,A3,A4>
     // This 'struct' stores a list of four arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple4' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple4, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5403,6 +5461,11 @@ struct Bind_BoundTuple5 : bslmf::TypeList5<A1,A2,A3,A4,A5>
     // This 'struct' stores a list of five arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple5' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple5, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5443,6 +5506,11 @@ struct Bind_BoundTuple6 : bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     // This 'struct' stores a list of six arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple6' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple6, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5487,6 +5555,11 @@ struct Bind_BoundTuple7 : bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     // This 'struct' stores a list of seven arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple7' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple7, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5537,6 +5610,11 @@ struct Bind_BoundTuple8 : bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     // This 'struct' stores a list of eight arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple8' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple8, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,A8>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5591,6 +5669,11 @@ struct Bind_BoundTuple9 : bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     // This 'struct' stores a list of nine arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple9' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple9, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,A8,A9>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5649,6 +5732,12 @@ struct Bind_BoundTuple10 : bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
     // This 'struct' stores a list of ten arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple10' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple10, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
+                                         A8,A9,A10>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5711,6 +5800,12 @@ struct Bind_BoundTuple11
     // This 'struct' stores a list of eleven arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple11' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple11, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
+                                         A8,A9,A10,A11>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5777,6 +5872,12 @@ struct Bind_BoundTuple12
     // This 'struct' stores a list of twelve arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'Bind_Tuple12' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple12, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
+                                         A8,A9,A10,A11,A12>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5848,6 +5949,12 @@ struct Bind_BoundTuple13
     // This 'struct' stores a list of thirteen arguments.  It does *not* use
     // the const-forwarding type of its arguments, unlike 'Bind_Tuple13' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple13, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
+                                         A8,A9,A10,A11,A12,A13>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5923,6 +6030,12 @@ struct Bind_BoundTuple14
     // This 'struct' stores a list of fourteen arguments.  It does *not* use
     // the const-forwarding type of its arguments, unlike 'Bind_Tuple14' which
     // applies that optimization to avoid unnecessary copying.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        Bind_BoundTuple14, bslmf::IsBitwiseMoveable,
+        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
+                                         A8,A9,A10,A11,A12,A13,A14>::VALUE));
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;

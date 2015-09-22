@@ -602,7 +602,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tdescription" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(""));
+#if 0
+                // no null bslstl::StringRef
                 ASSERT_SAFE_FAIL(Obj( 0));
+#endif
             }
         }
       } break;
@@ -1958,7 +1961,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_,  0,  0, "DA", "HA", 0,   "["                                   NL
+        { L_,  0,  0, "DA", "",   0,   "["                                   NL
                                        "description = \"DA\""                NL
                                        "]"                                   NL
                                                                              },
@@ -1972,7 +1975,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_,  0,  1, "DA", "HA", 0,  "["                                    NL
+        { L_,  0,  1, "DA", "",   0,  "["                                    NL
                                        " description = \"DA\""               NL
                                        "]"                                   NL
                                                                              },
@@ -1986,7 +1989,7 @@ int main(int argc, char *argv[])
                                        "]"
                                                                              },
 
-        { L_,  0, -1, "DA", "HA", 0,   "["                                   SP
+        { L_,  0, -1, "DA", "",   0,   "["                                   SP
                                        "description = \"DA\""                SP
                                        "]"
                                                                              },
@@ -2000,7 +2003,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_,  0, -8, "DA", "HA", 0,   "["                                   NL
+        { L_,  0, -8, "DA", "",   0,   "["                                   NL
                                        "    description = \"DA\""            NL
                                        "]"                                   NL
                                                                              },
@@ -2021,7 +2024,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_,  3,  0, "DA", "HA", 0,   "["                                   NL
+        { L_,  3,  0, "DA", "",   0,   "["                                   NL
                                        "description = \"DA\""                NL
                                        "]"                                   NL
                                                                              },
@@ -2035,7 +2038,7 @@ int main(int argc, char *argv[])
                                        "      ]"                             NL
                                                                              },
 
-        { L_,  3,  2, "DA", "HA", 0,   "      ["                             NL
+        { L_,  3,  2, "DA", "",   0,   "      ["                             NL
                                        "        description = \"DA\""        NL
                                        "      ]"                             NL
                                                                              },
@@ -2049,7 +2052,7 @@ int main(int argc, char *argv[])
                                        "]"
                                                                              },
 
-        { L_,  3, -2, "DA", "HA", 0,   "      ["                             SP
+        { L_,  3, -2, "DA", "",   0,   "      ["                             SP
                                        "description = \"DA\""                SP
                                        "]"
                                                                              },
@@ -2064,7 +2067,7 @@ int main(int argc, char *argv[])
                            "            ]"                                   NL
                                                                              },
 
-        { L_,  3, -8, "DA", "HA", 0,
+        { L_,  3, -8, "DA", "",   0,
                            "            ["                                   NL
                            "                description = \"DA\""            NL
                            "            ]"                                   NL
@@ -2079,7 +2082,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_, -3,  0, "DA", "HA", 0,   "["                                   NL
+        { L_, -3,  0, "DA", "",   0,   "["                                   NL
                                        "description = \"DA\""                NL
                                        "]"                                   NL
                                                                              },
@@ -2093,7 +2096,7 @@ int main(int argc, char *argv[])
                                        "      ]"                             NL
                                                                              },
 
-        { L_, -3,  2, "DA", "HA", 0,   "["                                   NL
+        { L_, -3,  2, "DA", "",   0,   "["                                   NL
                                        "        description = \"DA\""        NL
                                        "      ]"                             NL
                                                                              },
@@ -2107,7 +2110,7 @@ int main(int argc, char *argv[])
                                        "]"
                                                                              },
 
-        { L_, -3, -2, "DA", "HA", 0,   "["                                   SP
+        { L_, -3, -2, "DA", "",   0,   "["                                   SP
                                        "description = \"DA\""                SP
                                        "]"
                                                                              },
@@ -2122,7 +2125,7 @@ int main(int argc, char *argv[])
                             "            ]"                                  NL
                                                                              },
 
-        { L_, -3, -8, "DA", "HA", 0,
+        { L_, -3, -8, "DA", "",   0,
                             "["                                              NL
                             "                description = \"DA\""           NL
                             "            ]"                                  NL
@@ -2144,7 +2147,7 @@ int main(int argc, char *argv[])
                                        "      ]"                             NL
                                                                              },
 
-        { L_,  2,  3, "DB", "HB", 0,   "      ["                             NL
+        { L_,  2,  3, "DB", "",   0,   "      ["                             NL
                                        "         description = \"DB\""       NL
                                        "      ]"                             NL
                                                                              },
@@ -2165,7 +2168,7 @@ int main(int argc, char *argv[])
                                        "]"                                   NL
                                                                              },
 
-        { L_, -8, -8, "DA", "HA", 0,   "["                                   NL
+        { L_, -8, -8, "DA", "",   0,   "["                                   NL
                                        "    description = \"DA\""            NL
                                        "]"                                   NL
                                                                              },
@@ -2188,7 +2191,7 @@ int main(int argc, char *argv[])
 
         { L_, -9, -9, "DA", "HA", 255,   "[ \"DA\" [ \"HA\" 255 ] ]"         },
 
-        { L_, -9, -9, "DA", "HA", 0,     "[ \"DA\" ]"                        },
+        { L_, -9, -9, "DA", "",   0,     "[ \"DA\" ]"                        },
 
         { L_, -9, -9, "DB", "HB", 65535, "[ \"DB\" [ \"HB\" 65535 ] ]"       },
 
@@ -2716,7 +2719,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tdescription" << endl;
             {
                 ASSERT_SAFE_PASS(Obj("", ADDR));
+#if 0
+                // no null bslstl::StringRef
                 ASSERT_SAFE_FAIL(Obj( 0, ADDR));
+#endif
             }
         }
       } break;
@@ -3043,7 +3049,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tdescription" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setDescription(""));
+#if 0
+                // no null bslstl::StringRef
                 ASSERT_SAFE_FAIL(obj.setDescription( 0));
+#endif
             }
         }
       } break;

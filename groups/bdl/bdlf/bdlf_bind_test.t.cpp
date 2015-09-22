@@ -57,7 +57,7 @@ using namespace bsl;
 // for 'bdlf_bind'.  Our main concerns are that the apparatus works as intended
 // for tracking the forwarding of parameters in the binders, the number of
 // memory allocations and the forwarding of allocators for allocated objects,
-// etc.  Although the 'bdef_Bind_TestType*' classes have value semantics, a
+// etc.  Although the 'bdlf::Bind_TestType*' classes have value semantics, a
 // full value-semantic test driver is an overkill here.
 //-----------------------------------------------------------------------------
 // [ 1] TESTING HELPER FUNCTIONS/CLASSES
@@ -111,6 +111,8 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef bsls::Types::Int64 Int64;
 
 typedef bdlf::Bind_TestTypeNoAlloc  NoAllocTestType;
 typedef bdlf::Bind_TestTypeAlloc    AllocTestType;
@@ -296,7 +298,7 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
 
         // 1 argument to function object, without placeholders.
         {
-            const int NUM_ALLOCS = Z0->numAllocations();
+            const Int64 NUM_ALLOCS = Z0->numAllocations();
 
                   bdlf::Bind_TestTypeNoAlloc  mX;
             const bdlf::Bind_TestTypeNoAlloc& X = mX;
@@ -349,7 +351,7 @@ namespace BDEF_BIND_TEST_USAGE_EXAMPLE {
         {
             using namespace bdlf::PlaceHolders;
 
-            const int NUM_ALLOCS = Z0->numAllocations();
+            const Int64 NUM_ALLOCS = Z0->numAllocations();
 
                   bdlf::Bind_TestTypeNoAlloc  mX;
             const bdlf::Bind_TestTypeNoAlloc& X = mX;
@@ -696,6 +698,8 @@ int main(int argc, char *argv[])
         //   work as intended.
         //
         // Plan:
+        //   'isBitwiseMoveableType': Returns true if called on bitwise
+        //       moveable types and false otherwise.
         //   '...NoAllocSlots':      set slots in sequence to produce the
         //       various rows of the 'NO_ALLOC_SLOTS' matrix.
         //   'class NoAllocTestType': check the constructor and comparison
@@ -715,6 +719,13 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING HELPER FUNCTIONS/CLASSES"
                             "\n================================\n");
+
+        if (verbose) printf("\tTestUtil machinery.\n");
+        ASSERT( bdlf::Bind_TestUtil::isBitwiseMoveableType(3));
+        ASSERT( bdlf::Bind_TestUtil::isBitwiseMoveableType(
+                    bdlf::Bind_TestArgNoAlloc<1>(0)));
+        ASSERT(!bdlf::Bind_TestUtil::isBitwiseMoveableType(
+                    bdlf::Bind_TestArgAlloc<1>(0)));
 
         if (verbose) printf("\tNoAllocSlots machinery.\n");
         {
@@ -1196,10 +1207,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\tclass bdef_Bind_TestArgAlloc.\n");
+        if (verbose) printf("\tclass bdlf::Bind_TestArgAlloc.\n");
         {
-            const int NUM_ALLOCS_Z0 = Z0->numAllocations();
-            const int NUM_ALLOCS_Z1 = Z1->numAllocations();
+            const Int64 NUM_ALLOCS_Z0 = Z0->numAllocations();
+            const Int64 NUM_ALLOCS_Z1 = Z1->numAllocations();
 
             // Concern: creation should allocate an int using proper allocator.
             bdlf::Bind_TestArgAlloc<0> mX(1,Z1);

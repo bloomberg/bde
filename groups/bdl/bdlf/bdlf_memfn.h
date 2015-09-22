@@ -169,6 +169,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include <bslalg_typetraitbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bslalg_typetraithaspointersemantics.h>
 #endif
@@ -346,8 +350,8 @@ class MemFn {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MemFn,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -851,6 +855,8 @@ class MemFnInstance {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     MemFnInstance(PROTOTYPE         func,

@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test apparatus for bdlf_bind.
 //
 //@CLASSES:
-//            bdlf::Bind_TestSlots: utility class for static test methods
+//             bdlf::Bind_TestUtil: utility class for static test methods
+//        bdlf::Bind_TestSlotsBase: base class for tracking arg & alloc objects
 //       bdlf::Bind_TestArgNoAlloc: argument type parameterized by index
 //      bdlf::Bind_TestTypeNoAlloc: invocable supporting up to 14 arguments
 // bdlf::Bind_TestFunctionsNoAlloc: global versions of test type methods
@@ -289,16 +290,24 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDIO
@@ -367,9 +376,23 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlf {
-                            // ====================
-                            // class Bind_TestSlots
-                            // ====================
+                      // ===================
+                      // class Bind_TestUtil
+                      // ===================
+
+struct Bind_TestUtil {
+    // Utility class for static functions useful in 'bdlf_bind' testing.
+
+    template <class T>
+    static bool isBitwiseMoveableType(const T&);
+        // Return true if the specified paramter type 'T' has the
+        // 'bslmf::IsBitwiseMovable' trait and false otherwise.
+};
+
+
+                      // ====================
+                      // class Bind_TestSlots
+                      // ====================
 
 template <class VALUE>
 struct Bind_TestSlotsBase {
@@ -406,18 +429,18 @@ struct Bind_TestSlotsBase {
         // do not compare equal.
 };
 
-                        // ==========================
-                        // type Bind_TestSlotsNoAlloc
-                        // ==========================
+                      // ==========================
+                      // type Bind_TestSlotsNoAlloc
+                      // ==========================
 
 typedef Bind_TestSlotsBase<int> Bind_TestSlotsNoAlloc;
     // When used within the methods of 'Bind_TestTypeNoAlloc', the 'VALUE' type
     // will be 'int' and will keep track of which arguments have been assigned
     // a value (in case 'bdlf_bind' accesses fields that it should not).
 
-                        // =========================
-                        // class Bind_TestArgNoAlloc
-                        // =========================
+                      // =========================
+                      // class Bind_TestArgNoAlloc
+                      // =========================
 
 template <int ID>
 class Bind_TestArgNoAlloc {
@@ -430,6 +453,10 @@ class Bind_TestArgNoAlloc {
     int d_value; // value held by this object
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestArgNoAlloc,
+                                   bslmf::IsBitwiseMoveable);
+
     // CREATORS
     Bind_TestArgNoAlloc(int value);                            // IMPLICIT
         // Create an object having the specified 'value'.
@@ -453,9 +480,9 @@ inline
 bool operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
                 Bind_TestArgNoAlloc<ID> const& rhs);
 
-                         // ==========================
-                         // class Bind_TestTypeNoAlloc
-                         // ==========================
+                      // ==========================
+                      // class Bind_TestTypeNoAlloc
+                      // ==========================
 
 class Bind_TestTypeNoAlloc {
     // This 'struct' provides a test class capable of holding up to 14 bound
@@ -487,6 +514,10 @@ class Bind_TestTypeNoAlloc {
                            const Bind_TestTypeNoAlloc& rhs);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestTypeNoAlloc,
+                                   bslmf::IsBitwiseMoveable);
+
     // TYPES
     typedef int ResultType;
         // Type returned by the function operator and test methods.
@@ -536,9 +567,9 @@ inline
 bool operator!=(const Bind_TestTypeNoAlloc& lhs,
                 const Bind_TestTypeNoAlloc& rhs);
 
-                      // ===============================
-                      // class Bind_TestFunctionsNoAlloc
-                      // ===============================
+                        // ===============================
+                        // class Bind_TestFunctionsNoAlloc
+                        // ===============================
 
 struct Bind_TestFunctionsNoAlloc {
     // Global versions of 'Bind_TestTypeNoAlloc' member functions.
@@ -558,9 +589,9 @@ struct Bind_TestFunctionsNoAlloc {
     L14(F)
 };
 
-                       // =============================
-                       // class Bind_TestSlotsAllocBase
-                       // =============================
+                      // =============================
+                      // class Bind_TestSlotsAllocBase
+                      // =============================
 
 template <class AllocPtr>
 struct Bind_TestSlotsAllocBase
@@ -586,9 +617,9 @@ struct Bind_TestSlotsAllocBase
     static AllocPtr getZ2();
 };
 
-                         // =========================
-                         // class Bind_TestSlotsAlloc
-                         // =========================
+                      // =========================
+                      // class Bind_TestSlotsAlloc
+                      // =========================
 
 class Bind_TestSlotsAlloc
 : public Bind_TestSlotsBase<const bslma::Allocator*>
@@ -609,15 +640,15 @@ class Bind_TestSlotsAlloc
         // do not compare equal.
 };
 
-                          // =======================
-                          // class Bind_TestArgAlloc
-                          // =======================
+                      // =======================
+                      // class Bind_TestArgAlloc
+                      // =======================
 
 template <int ID>
 class Bind_TestArgAlloc {
     // This class is used to disambiguate types in passing parameters due to
-    // the fact that 'Bind_TestArgNoAlloc<ID1>' is a different type than
-    // 'Bind_TestArgNoAlloc<ID2>' is ID1 != ID2.  This class is used for
+    // the fact that 'Bind_TestArgAlloc<ID1>' is a different type than
+    // 'Bind_TestArgAlloc<ID2>' is ID1 != ID2.  This class is used for
     // testing memory allocator issues.
 
     // PRIVATE DATA
@@ -627,8 +658,8 @@ class Bind_TestArgAlloc {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Bind_TestArgAlloc,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestArgAlloc,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
 
@@ -682,9 +713,9 @@ inline
 bool operator!=(const Bind_TestArgAlloc<ID>& lhs,
                 const Bind_TestArgAlloc<ID>& rhs);
 
-                          // ========================
-                          // class Bind_TestTypeAlloc
-                          // ========================
+                      // ========================
+                      // class Bind_TestTypeAlloc
+                      // ========================
 
 class Bind_TestTypeAlloc {
     // This class provides a test class capable of holding up to 14 bound
@@ -720,18 +751,18 @@ class Bind_TestTypeAlloc {
                            const Bind_TestTypeAlloc& rhs);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_TestTypeAlloc,
+                                   bslma::UsesBslmaAllocator);
+
     // PUBLIC TYPES
     typedef int ResultType;
         // Type returned by the function operator and test methods.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Bind_TestTypeAlloc,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
 #undef  F
 #define F(n) Arg##n a##n = k_N1
-    explicit Bind_TestTypeAlloc(bslma::Allocator *allocator, C14(F));
+    explicit Bind_TestTypeAlloc(bslma::Allocator *allocator = 0, C14(F));
         // This constructor does *not* participate in the
         // 'UsesBdemaAllocatorTraits' contract, it is here simply to allow to
         // construct expected values with a specified 'allocator' as the first
@@ -778,9 +809,9 @@ bool operator==(Bind_TestTypeAlloc const& lhs, Bind_TestTypeAlloc const& rhs);
 inline
 bool operator!=(Bind_TestTypeAlloc const& lhs, Bind_TestTypeAlloc const& rhs);
 
-                       // =============================
-                       // class Bind_TestFunctionsAlloc
-                       // =============================
+                        // =============================
+                        // class Bind_TestFunctionsAlloc
+                        // =============================
 
 struct Bind_TestFunctionsAlloc {
     // Global versions of 'Bind_TestTypeAlloc' member functions.
@@ -804,9 +835,18 @@ struct Bind_TestFunctionsAlloc {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                       // ------------------------------
-                       // class bdlf::Bind_TestSlotsBase
-                       // ------------------------------
+                      // -------------------------
+                      // class bdlf::Bind_TestUtil
+                      // -------------------------
+
+template <class T>
+inline bool bdlf::Bind_TestUtil::isBitwiseMoveableType(const T&) {
+    return bslmf::IsBitwiseMoveable<T>::VALUE;
+}
+
+                      // ------------------------------
+                      // class bdlf::Bind_TestSlotsBase
+                      // ------------------------------
 
 // PRIVATE CLASS DATA
 template <class VALUE>
@@ -836,7 +876,6 @@ void Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
 {
     s_slots[index] = value;
 }
-}  // close package namespace
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( push )
@@ -844,7 +883,7 @@ void Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
                                   // for MSVC
 #endif
 
-namespace bdlf {template <class VALUE>
+template <class VALUE>
 bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
                                             bool         verboseFlag)
 {
@@ -872,12 +911,11 @@ bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
 
     return equalFlag;
 }
-}  // close package namespace
+
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( pop )
 #endif
 
-namespace bdlf {
                       // -------------------------
                       // class Bind_TestArgNoAlloc
                       // -------------------------
@@ -925,9 +963,9 @@ bool bdlf::operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
 }
 
 namespace bdlf {
-                         // --------------------------
-                         // class Bind_TestTypeNoAlloc
-                         // --------------------------
+                      // --------------------------
+                      // class Bind_TestTypeNoAlloc
+                      // --------------------------
 
 // CREATORS
 #undef  F
@@ -1020,9 +1058,9 @@ bool bdlf::operator!=(const Bind_TestTypeNoAlloc& lhs,
 }
 
 namespace bdlf {
-                      // -------------------------------
-                      // class Bind_TestFunctionsNoAlloc
-                      // -------------------------------
+                         // -------------------------------
+                         // class Bind_TestFunctionsNoAlloc
+                         // -------------------------------
 
 // CLASS METHODS
 inline
@@ -1042,9 +1080,9 @@ L14(F)
 
 }  // close package namespace
 
-                    // -----------------------------------
-                    // class bdlf::Bind_TestSlotsAllocBase
-                    // -----------------------------------
+                      // -----------------------------------
+                      // class bdlf::Bind_TestSlotsAllocBase
+                      // -----------------------------------
 
 // CLASS DATA
 template <class AllocPtr>
@@ -1102,24 +1140,23 @@ AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 }
 }  // close package namespace
 
-                       // -----------------------------
-                       // class bdlf::Bind_TestArgAlloc
-                       // -----------------------------
+                      // -----------------------------
+                      // class bdlf::Bind_TestArgAlloc
+                      // -----------------------------
 
 // CREATORS
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 
 namespace bdlf {
+
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(int value)
 : d_allocator_p(bslma::Default::allocator(0))
 , d_value(new (*d_allocator_p) int(value))
 {
 }
-}  // close package namespace
 #endif
 
-namespace bdlf {
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(int               value,
                                          bslma::Allocator *allocator)
@@ -1127,21 +1164,16 @@ Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(int               value,
 , d_value(new (*d_allocator_p) int(value))
 {
 }
-}  // close package namespace
 
 #if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
-
-namespace bdlf {
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(const Bind_TestArgAlloc& original)
 : d_allocator_p(bslma::Default::allocator(0))
 , d_value(new (*d_allocator_p) int(original.value()))
 {
 }
-}  // close package namespace
 #endif
 
-namespace bdlf {
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(const Bind_TestArgAlloc&  original,
                                          bslma::Allocator         *allocator)
@@ -1181,6 +1213,7 @@ int Bind_TestArgAlloc<ID>::value() const
 {
     return *d_value;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -1201,9 +1234,9 @@ bool bdlf::operator!=(const Bind_TestArgAlloc<ID>& lhs,
 }
 
 namespace bdlf {
-                          // ------------------------
-                          // class Bind_TestTypeAlloc
-                          // ------------------------
+                      // ------------------------
+                      // class Bind_TestTypeAlloc
+                      // ------------------------
 
 // CREATORS
 
@@ -1314,9 +1347,9 @@ bool bdlf::operator!=(const Bind_TestTypeAlloc& lhs,
 }
 
 namespace bdlf {
-                       // -----------------------------
-                       // class Bind_TestFunctionsAlloc
-                       // -----------------------------
+                        // -----------------------------
+                        // class Bind_TestFunctionsAlloc
+                        // -----------------------------
 
 inline
 int Bind_TestFunctionsAlloc::func0(Bind_TestTypeAlloc *o)

@@ -2140,6 +2140,10 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
+        mapMutex.lock();
+        sourceIdToChannelMap.clear();
+        mapMutex.unlock();
+
         runTestFunction(connectThreads,
                         listenThreads,
                         &mX,
