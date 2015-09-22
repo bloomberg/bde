@@ -10,6 +10,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_timeinterval.h>
 
 /* TBD -- bind
 #include <bdlf_bind.h>
@@ -166,8 +167,8 @@ class My_TestAllocator : public bslma::Allocator{
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
-void enterAndWaitUntilDone(Obj            *sluice,
-                           int            *done,
+void enterAndWaitUntilDone(Obj             *sluice,
+                           int             *done,
                            bslmt::Mutex    *lock,
                            bsls::AtomicInt *iterations)
 {
@@ -184,11 +185,11 @@ void enterAndWaitUntilDone(Obj            *sluice,
     }
 }
 
-void enterPostSleepAndWait(Obj *sluice, bslmt::Semaphore *sem)
+void enterPostSleepAndWait(Obj *sluice, bslmt::Semaphore *semaphore)
 {
     const void *token = sluice->enter();
 
-    sem->post();
+    semaphore->post();
 
     bslmt::ThreadUtil::sleep(bsls::TimeInterval(2));
     sluice->wait(token);
@@ -209,7 +210,7 @@ int main(int argc, char *argv[])
 
     My_TestAllocator ta(veryVeryVerbose);
 
-    switch (test) {
+    switch (test) {  case 0:
       case 3: {
         // --------------------------------------------------------------------
         // STRESS AND ALLOCATOR TEST
@@ -235,15 +236,15 @@ int main(int argc, char *argv[])
         bslmt::Mutex lock;
         bsls::AtomicInt iterations(0);
 
-        bslmt::ThreadGroup tg;
+        bslmt::ThreadGroup threadGroup;
 
         ASSERT(k_NUM_WAITING_THREADS ==
-               tg.addThreads(bdlf::BindUtil::bind(&enterAndWaitUntilDone,
-                                                 &mX,
-                                                 &done,
-                                                 &lock,
-                                                 &iterations),
-                             k_NUM_WAITING_THREADS));
+            threadGroup.addThreads(bdlf::BindUtil::bind(&enterAndWaitUntilDone,
+                                                        &mX,
+                                                        &done,
+                                                        &lock,
+                                                        &iterations),
+                                   k_NUM_WAITING_THREADS));
         bsls::Stopwatch timer;
         timer.start();
         while (timer.elapsedTime() < k_NUM_TEST_SECONDS) {
@@ -258,7 +259,7 @@ int main(int argc, char *argv[])
         lock.unlock();
 
         mX.signalAll();
-        tg.joinAll();
+        threadGroup.joinAll();
 
         if (verbose) {
             P(iterations);
@@ -313,17 +314,19 @@ int main(int argc, char *argv[])
             mX.signalOne();
             bslmt::ThreadUtil::join(h);
 
-            bslmt::ThreadGroup tg;
-            rc = tg.addThreads(bdlf::BindUtil::bind(&enterPostSleepAndWait,
-                                                   &mX, &readySem),
-                               k_NUM_SIGNALED_THREADS);
+            bslmt::ThreadGroup threadGroup;
+            rc = threadGroup.addThreads(
+                                   bdlf::BindUtil::bind(&enterPostSleepAndWait,
+                                                        &mX,
+                                                        &readySem),
+                                   k_NUM_SIGNALED_THREADS);
             BSLS_ASSERT(k_NUM_SIGNALED_THREADS == rc); // test invariant
 
             for (int i = 0; i < k_NUM_SIGNALED_THREADS; ++i) {
                 readySem.wait();
             }
             mX.signalAll();
-            tg.joinAll();
+            threadGroup.joinAll();
         }
         */
       } break; // success if we can reach the end of the test

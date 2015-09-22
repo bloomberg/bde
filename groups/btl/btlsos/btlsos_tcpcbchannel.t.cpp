@@ -22,15 +22,19 @@
 
 #include <bsls_platform.h>
 
-#include <bsl_c_ctype.h>                        // 'isdigit'
+#include <bsl_c_ctype.h>     // 'isdigit'
 #include <bsl_csignal.h>
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>                       // 'atoi'
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 #include <unistd.h>
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+#include <signal.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

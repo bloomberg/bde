@@ -217,28 +217,33 @@ int main(int argc, char *argv[])
 // 'btlmt::ChannelStatus::Enum' to handle the different error conditions:
 //..
         switch(rc) {
-          case btlmt::ChannelStatus::e_SUCCESS:  // Success
-          {
+          case btlmt::ChannelStatus::e_SUCCESS: { // Success
+
               // ...
+
           } break;
 
           // We handle the different types of failures in the cases below.
 
-          case btlmt::ChannelStatus::e_CACHE_OVERFLOW:
-          {
+          case btlmt::ChannelStatus::e_CACHE_OVERFLOW: {
+
               // ...
+
           } break;
-          case btlmt::ChannelStatus::e_CACHE_HIGHWATER:
-          {
+          case btlmt::ChannelStatus::e_CACHE_HIGHWATER: {
+
               // ...
+
           } break;
-          case btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN:
-          {
+          case btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN: {
+
               // ...
+
           } break;
-          default:  // Handle other failures.
-          {
+          default: { // Handle other failures.
+
               //...
+
           }
         };
 //..
@@ -572,9 +577,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "'btlmt::ChannelStatus::Enum' AND 'btlmt::ChannelStatus::toAscii'"
+            << "'ChannelStatus::Enum' AND 'ChannelStatus::toAscii'"
             << endl
-            << "=============================================================="
+            << "=================================================="
             << endl;
 
 

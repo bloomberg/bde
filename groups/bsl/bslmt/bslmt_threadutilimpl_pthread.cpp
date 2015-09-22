@@ -94,7 +94,8 @@ static int initPthreadAttribute(pthread_attr_t                 *destination,
     }
 
     if (!src.inheritSchedule()) {
-        rc |= pthread_attr_setinheritsched(destination, PTHREAD_EXPLICIT_SCHED);
+        rc |= pthread_attr_setinheritsched(destination,
+                                           PTHREAD_EXPLICIT_SCHED);
 
         int pthreadPolicy = localPthreadsPolicy(src.schedulingPolicy());
         rc |= pthread_attr_setschedpolicy(destination, pthreadPolicy);

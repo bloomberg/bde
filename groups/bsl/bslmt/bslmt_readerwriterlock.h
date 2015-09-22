@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  int UserInfoCache::updateUserInfo(int userId, UserInfo *newInfo)
+//  int UserInfoCache::updateUserInfo(int userId, UserInfo *userInfo)
 //  {
 //      int ret = 1;
 //..
@@ -162,7 +162,7 @@ BSLS_IDENT("$Id: $")
 // could not have been changed by anyone else.
 //..
 //          if (d_infoMap.end() != it) {
-//              it->second = *newInfo;
+//              it->second = *userInfo;
 //              ret = 0;
 //          }
 //          d_lock.unlock();

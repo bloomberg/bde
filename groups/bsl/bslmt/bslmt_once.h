@@ -111,8 +111,6 @@ BSLS_IDENT("$Id: $")
 // macro is used to handle multiple entries to the function in a thread-safe
 // manner:
 //..
-//  #include <bslmt_once.h>
-//
 //  const bsl::string& singleton0(const char *s)
 //  {
 //      static bsl::string *theSingletonPtr = 0;
@@ -240,7 +238,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  const bsl::string& singleton3(const char *s)
 //  {
-//      static bslmt::Once   once            = BSLMT_ONCE_INITIALIZER;
+//      static bslmt::Once  once            = BSLMT_ONCE_INITIALIZER;
 //      static bsl::string *theSingletonPtr = 0;
 //..
 // We then declare a local 'bslmt::OnceGuard' object and associate it with the
@@ -312,7 +310,7 @@ BSLS_IDENT("$Id: $")
 // the singletons, the first singleton is set to "0 hello", the second
 // singleton to "1 hello", etc.
 //..
-//  int main()
+//  int usageExample1()
 //  {
 //      void startThread1();
 //      void startThread2();

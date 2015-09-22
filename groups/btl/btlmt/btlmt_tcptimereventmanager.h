@@ -16,20 +16,20 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann), Cheenu Srinivasan (csriniva)
 //
-//@DESCRIPTION: This component provides a concrete implementation of
-// a thread-enabled multiplexer for socket events and timers.  An interested
+//@DESCRIPTION: This component provides a concrete implementation of a
+// thread-enabled multiplexer for socket events and timers.  An interested
 // party can register a callback to be invoked whenever a particular event
-// occurs on a particular socket, or when a timer expires.  Socket events
-// have a permanent semantics (i.e., once registered, a callback is invoked
-// until it is explicitly deregistered).  Timers have "one-time" semantics
-// (i.e., a timer callback is invoked at most once).  Registering the same
-// socket handle and the same event with different instances of this event
-// manager may result in undefined behavior.  The timers are unstable with
-// respect to registration; that is, if two timer callbacks are
-// registered with the same time, they maybe invoked in an order different
-// from the order of registration.  Socket events take priority over timers;
-// if a socket event and a timer occur at the same time, a socket event
-// callback is invoked first.
+// occurs on a particular socket, or when a timer expires.  Socket events have
+// a permanent semantics (i.e., once registered, a callback is invoked until it
+// is explicitly deregistered).  Timers have "one-time" semantics (i.e., a
+// timer callback is invoked at most once).  Registering the same socket handle
+// and the same event with different instances of this event manager may result
+// in undefined behavior.  The timers are unstable with respect to
+// registration; that is, if two timer callbacks are registered with the same
+// time, they maybe invoked in an order different from the order of
+// registration.  Socket events take priority over timers; if a socket event
+// and a timer occur at the same time, a socket event callback is invoked
+// first.
 //
 // All registered callbacks are invoked from an internal thread managed by
 // 'this' event manager if its underlying thread is enabled (see below).  If
@@ -37,12 +37,12 @@ BSLS_IDENT("$Id: $")
 // thread-safe fashion) but no callbacks are invoked.  On UNIX platforms all
 // signals are disabled for this thread.
 //
-// An event manager can optimize its performance based on a hint provided
-// at construction.  Generally speaking, a particular usage falls into two
+// An event manager can optimize its performance based on a hint provided at
+// construction.  Generally speaking, a particular usage falls into two
 // categories: socket events are registered: 1)frequently, and 2)infrequently.
-// On some platforms, a significant performance improvement can be achieved
-// if the registrations are infrequent.  For this situation, the appropriate
-// hint should be provided to this event manager at construction for optimal
+// On some platforms, a significant performance improvement can be achieved if
+// the registrations are infrequent.  For this situation, the appropriate hint
+// should be provided to this event manager at construction for optimal
 // performance.
 //
 ///Thread safety
@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // This component minimizes the number of system calls for the set of
 // callbacks.  A significant performance improvement can be achieved if an
 // appropriate registration frequency "hint" is provided.  Supplying a false
-// hint (e.g., indicating infrequent registration when the reverse is true)
-// may result in significant performance degradation.
+// hint (e.g., indicating infrequent registration when the reverse is true) may
+// result in significant performance degradation.
 //
 // Given that T is the number of timers registered and S is the number of
 // socket events registered, the following complexity is guaranteed by this
@@ -102,14 +102,18 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // In the following usage example, we demonstrate how to use timer
-// functionality provided by 'btlmt::TcpTimerEventManager'.  For simplicity,
-// we simulate enqueueing a job to a queue periodically.  Let's assume that
-// a job is represented by an integer.  First, let's implement a function that
+// functionality provided by 'btlmt::TcpTimerEventManager'.  For simplicity, we
+// simulate enqueueing a job to a queue periodically.  Let's assume that a job
+// is represented by an integer.  First, let's implement a function that
 // enqueues a job to a given queue.  This function will also re-register the
 // "next" timer with the event manager since timers have "one-time" semantics.
 //..
-//  static void producer(bdlcc::Queue<int>            *workQueue,
+//  static void producer(bdlcc::Queue<int>           *workQueue,
 //                       btlmt::TcpTimerEventManager *manager,
 //                       bsls::TimeInterval           nextTime)
 //      // Enqueue a work item onto the specified 'workQueue' and register
@@ -126,8 +130,11 @@ BSLS_IDENT("$Id: $")
 //
 //      bsls::TimeInterval nextNextTime(nextTime);
 //      nextNextTime.addSeconds(TIME_OFFSET);
-//      bsl::function<void()> callback(
-//          bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(
+//                                                              &producer,
+//                                                              workQueue,
+//                                                              manager,
+//                                                              nextNextTime));
 //
 //      void *timerId = manager->registerTimer(nextTime, callback);
 //      assert(timerId);
@@ -149,8 +156,11 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval nextTime(now);
 //      nextTime.addSeconds(TIME_OFFSET);
 //
-//      bsl::function<void()> callback(
-//        bdlf::BindUtil::bind(&producer, &workQueue, &manager, nextNextTime));
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(
+//                                                              &producer,
+//                                                              &workQueue,
+//                                                              &manager,
+//                                                              nextNextTime));
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);
@@ -266,12 +276,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace btlmt {
 
-namespace btlmt {class TcpTimerEventManager_Request;
+class TcpTimerEventManager_Request;
 
-              // ===============================================
+              // =========================================
               // class TcpTimerEventManager_ControlChannel
-              // ===============================================
+              // =========================================
 
 class TcpTimerEventManager_ControlChannel {
     // This class is an implementation detail of 'TcpTimerEventManager'.
@@ -288,13 +299,13 @@ class TcpTimerEventManager_ControlChannel {
 
     int               d_numServerReads;      // read operations
     int               d_numServerBytesRead;  // total number of bytes read
-    bsls::AtomicInt    d_numPendingRequests;  // number of pending requests
+    bsls::AtomicInt   d_numPendingRequests;  // number of pending requests
 
     // NOT IMPLEMENTED
     TcpTimerEventManager_ControlChannel(
-                             const TcpTimerEventManager_ControlChannel&);
+                                   const TcpTimerEventManager_ControlChannel&);
     TcpTimerEventManager_ControlChannel& operator=(
-                             const TcpTimerEventManager_ControlChannel&);
+                                   const TcpTimerEventManager_ControlChannel&);
 
   public:
     // CREATORS
@@ -340,42 +351,19 @@ class TcpTimerEventManager_ControlChannel {
         // Return a handle to the server socket.
 };
 
-                       // ================================
+                       // ==========================
                        // class TcpTimerEventManager
-                       // ================================
+                       // ==========================
 
 class TcpTimerEventManager : public btlso::TimerEventManager {
-    // This class provides a thread-enabled implementation of an event
-    // manager for socket events and timers.  The supported event types for
-    // sockets are ACCEPT, CONNECT, READ, and WRITE; only READ and WRITE
-    // can be registered simultaneously for a single socket.  Timers are stable
-    // (i.e., the relative order of registrations is maintained).  Callbacks
-    // are invoked from dedicated threads, created internally for this purpose
-    // by this component.
+    // This class provides a thread-enabled implementation of an event manager
+    // for socket events and timers.  The supported event types for sockets are
+    // ACCEPT, CONNECT, READ, and WRITE; only READ and WRITE can be registered
+    // simultaneously for a single socket.  Timers are stable (i.e., the
+    // relative order of registrations is maintained).  Callbacks are invoked
+    // from dedicated threads, created internally for this purpose by this
+    // component.
 
-  public:
-    // TYPES
-    enum Hint {
-        // This enum lists the usage pattern hints that can be provided to this
-        // event manager.
-        //
-        // DEPRECATED: The enumerated hints are not supported and will be
-        // ignored by this component.
-
-        e_NO_HINT,                 // The (de)registrations will likely be
-                                       // frequent.
-
-        e_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
-                                       // infrequent.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BTEMT_NO_HINT = e_NO_HINT
-      , BTEMT_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
-      , NO_HINT                 = e_NO_HINT
-      , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-    };
-
-  private:
     // PRIVATE TYPES
     enum State {
         e_ENABLED  = 0,  // dispatching thread is running
@@ -387,77 +375,84 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // component and its internal dispatch thread.
 
     // DATA
-    mutable bdlma::ConcurrentPool         d_requestPool;     // memory pool for operations
+    mutable bdlma::ConcurrentPool  d_requestPool;     // memory pool for
+                                                      // operations
 
     mutable bdlcc::Queue<TcpTimerEventManager_Request*>
-                               d_requestQueue;    // queue of requests to
-                                                  // dispatcher thread
+                                   d_requestQueue;    // queue of requests to
+                                                      // dispatcher thread
 
     mutable bslmt::ThreadUtil::Handle
-                               d_dispatcher;      // dispatcher thread handle
+                                   d_dispatcher;      // dispatcher thread
+                                                      // handle
 
-    volatile State             d_state;           // the state of the
-                                                  // dispatcher thread
+    volatile State                 d_state;           // the state of the
+                                                      // dispatcher thread
 
-    bsls::AtomicInt            d_terminateThread; // signals end of dispatcher
+    bsls::AtomicInt                d_terminateThread; // signals end of
+                                                      // dispatcher
 
-    mutable bslmt::RWMutex     d_stateLock;       // protects access to the
-                                                  // state changes via
-                                                  // 'enable' and 'disable'
+    mutable bslmt::RWMutex         d_stateLock;       // protects access to the
+                                                      // state changes via
+                                                      // 'enable' and 'disable'
 
-    bsl::function<void()>      d_dispatchThreadEntryPoint;
-                                                  // functor containing the
-                                                  // dispatch thread's entry
-                                                  // point
+    bsl::function<void()>     d_dispatchThreadEntryPoint;
+                                                      // functor containing the
+                                                      // dispatch thread's
+                                                      // entry point
 
-    btlso::EventManager       *d_manager_p;       // socket event manager
+    btlso::EventManager           *d_manager_p;       // socket event manager
 
-    int                        d_isManagedFlag;   // whether or not event
-                                                  // manager is internal or
-                                                  // external
+    int                            d_isManagedFlag;   // whether or not event
+                                                      // manager is internal or
+                                                      // external
 
     bsl::vector<bsl::function<void()> >
-                              *d_executeQueue_p;  // queue of executed timers
-                                                  // (pointer, to be swappable
-                                                  // in dispatcher thread loop)
+                                  *d_executeQueue_p;  // queue of executed
+                                                      // timers (pointer, to
+                                                      // be swappable in
+                                                      // dispatcher thread
+                                                      // loop)
 
-    mutable bslmt::Mutex       d_executeQueueLock;
-                                                  // protects access to the
-                                                  // execute queue
+    mutable bslmt::Mutex           d_executeQueueLock;
+                                                      // protects access to the
+                                                      // execute queue
 
     bdlcc::TimeQueue<bsl::function<void()> >
-                               d_timerQueue;      // queue of registered timers
+                                   d_timerQueue;      // queue of registered
+                                                      // timers
 
     mutable bslma::ManagedPtr<ControlChannel>
-                               d_controlChannel_p;
-                                                  // channel for sending
-                                                  // control bytes from
-                                                  // external threads operating
-                                                  // on this manager to unlock
-                                                  // its internal 'dispatch'
-                                                  // thread after they post a
-                                                  // message for the 'dispatch'
-                                                  // thread to process
+                                   d_controlChannel_p;// channel for sending
+                                                      // control bytes from
+                                                      // external threads
+                                                      // operating on this
+                                                      // manager to unlock its
+                                                      // internal 'dispatch'
+                                                      // thread after they
+                                                      // post a message for
+                                                      // the 'dispatch' thread
+                                                      // to process
 
-    mutable btlso::TimeMetrics  d_metrics;         // cached metrics
+    mutable btlso::TimeMetrics     d_metrics;         // cached metrics
 
-    const bool                 d_collectMetrics;  // whether to update
-                                                  // 'd_metrics'
+    const bool                     d_collectMetrics;  // whether to update
+                                                      // 'd_metrics'
 
-    bsls::AtomicInt             d_numTotalSocketEvents;
-                                                  // the total number of all
-                                                  // socket events registered
-                                                  // (excluding registered
-                                                  // events of
-                                                  // 'd_controlChannel_p')
+    bsls::AtomicInt                d_numTotalSocketEvents;
+                                                      // the total number of
+                                                      // all socket events
+                                                      // registered (excluding
+                                                      // registered events of
+                                                      // 'd_controlChannel_p')
 
-    bsls::AtomicInt            d_numControlChannelReinitializations;
-                                                  // number of times the
-                                                  // control channel was
-                                                  // reinitialized
+    bsls::AtomicInt                d_numControlChannelReinitializations;
+                                                      // number of times the
+                                                      // control channel was
+                                                      // reinitialized
 
-    bslma::Allocator          *d_allocator_p;     // memory allocator (held,
-                                                  // not owned)
+    bslma::Allocator              *d_allocator_p;     // memory allocator
+                                                      // (held, not owned)
 
     // FRIENDS
     friend struct TcpTimerEventManager_TestUtil;
@@ -474,8 +469,8 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // Entry point for the dispatch thread.
 
     void controlCb();
-        // Internal callback method to process control information received
-        // on 'd_controlChannel_p.serverFd()'.
+        // Internal callback method to process control information received on
+        // 'd_controlChannel_p.serverFd()'.
 
     int initiateControlChannelRead();
         // Initiate a request to the internal control channel's 'serverFd' to
@@ -488,14 +483,12 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
 
   public:
     // CREATORS
-    explicit
-    TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
-    explicit
+    explicit TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
+    explicit TcpTimerEventManager(bool              collectTimeMetrics,
+                                  bslma::Allocator *basicAllocator = 0);
     TcpTimerEventManager(bool              collectTimeMetrics,
-                               bslma::Allocator *basicAllocator = 0);
-    TcpTimerEventManager(bool              collectTimeMetrics,
-                               bool              poolTimerMemory,
-                               bslma::Allocator *basicAllocator = 0);
+                         bool              poolTimerMemory,
+                         bslma::Allocator *basicAllocator = 0);
         // Create an event manager.  Optionally specify 'collectTimeMetrics'
         // indicating whether this event manager should collect timing metrics.
         // If 'collectTimeMetrics' is unspecified or 'true' then the event
@@ -512,50 +505,19 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // the dispatcher thread is NOT started by this method (i.e., it must
         // be started explicitly).
 
-    explicit
-    TcpTimerEventManager(Hint              registrationHint,
-                               bslma::Allocator *basicAllocator = 0);
-    TcpTimerEventManager(Hint              registrationHint,
-                               bool              collectTimeMetrics,
-                               bslma::Allocator *basicAllocator = 0);
-    TcpTimerEventManager(Hint              registrationHint,
-                               bool              collectTimeMetrics,
-                               bool              poolTimerMemory,
-                               bslma::Allocator *basicAllocator = 0);
-        // The 'registrationHint' parameter is ignored, the behavior is exactly
-        // as it would be had the corresponding constructor without that
-        // argument been called.  Create an event manager.  Optionally specify
-        // 'collectTimeMetrics' indicating whether this event manager should
-        // collect timing metrics.  If 'collectTimeMetrics' is unspecified or
-        // 'true' then the event manager will provide a categorization of the
-        // time it spends processing data via 'timeMetrics()', and if
-        // 'collectTimeMetrics' is 'false' the value of 'timeMetrics()' is
-        // unspecified.  Optionally specify 'poolTimerMemory' indicating
-        // whether the memory used for internal timers should be pooled.  If
-        // 'poolTimerMemory' is unspecified then the memory used for allocating
-        // timers will not be pooled.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless 'basicAllocator' refers to a *thread* *safe* allocator.  Note
-        // that the dispatcher thread is NOT started by this method (i.e., it
-        // must be started explicitly).
-        //
-        // DEPRECATED: Use the corresponding constructor without the
-        // 'registrationHint' argument.
-
-    TcpTimerEventManager(btlso::EventManager  *rawEventManager,
-                               bslma::Allocator    *basicAllocator = 0);
-        // Create an event manager with timer support that uses the
-        // specified 'rawEventManager' to monitor for socket events.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  'basicAllocator' must refer to a *thread* *safe* allocator,
-        // and the behavior is undefined, otherwise.  The value of the event
-        // manager's 'timeMetrics()' object will be unspecified, clients
-        // interested in those metrics must use the 'btlso::TimeMetrics'
-        // object provided to 'rawEventManager' on its construction.   Note
-        // that the dispatcher thread is NOT started by this method (and,
-        // therefore, must be started explicitly).
+    TcpTimerEventManager(btlso::EventManager *rawEventManager,
+                         bslma::Allocator    *basicAllocator = 0);
+        // Create an event manager with timer support that uses the specified
+        // 'rawEventManager' to monitor for socket events.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  'basicAllocator'
+        // must refer to a *thread* *safe* allocator, and the behavior is
+        // undefined, otherwise.  The value of the event manager's
+        // 'timeMetrics()' object will be unspecified, clients interested in
+        // those metrics must use the 'btlso::TimeMetrics' object provided to
+        // 'rawEventManager' on its construction.  Note that the dispatcher
+        // thread is NOT started by this method (and, therefore, must be
+        // started explicitly).
 
     virtual ~TcpTimerEventManager();
         // Terminate the dispatcher thread, if it is running, and destroy this
@@ -564,13 +526,13 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     // MANIPULATORS
     virtual void deregisterAllSocketEvents();
         // Deregister all callbacks associated with any event on any socket
-        // handle so that no callbacks are not invoked when any event occurs
-        // on any handle.
+        // handle so that no callbacks are not invoked when any event occurs on
+        // any handle.
 
     virtual void deregisterAllTimers();
         // Remove all timer callbacks currently registered.  The number of
-        // timers (as reported by 'numTimers') method is 0 after this
-        // method is completed.
+        // timers (as reported by 'numTimers') method is 0 after this method is
+        // completed.
 
     virtual void deregisterAll();
         // Deregister all callbacks currently registered.  Note that the
@@ -581,16 +543,16 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         //..
 
     virtual void deregisterSocketEvent(
-                                      const btlso::SocketHandle::Handle& handle,
-                                      btlso::EventType::Type             event);
+                                     const btlso::SocketHandle::Handle& handle,
+                                     btlso::EventType::Type             event);
         // Deregister the callback associated with the specified 'event' on the
         // specified 'handle' so that said callback will not be invoked if the
         // 'event' occurs.
 
     virtual void deregisterSocket(const btlso::SocketHandle::Handle& handle);
         // Deregister all callbacks associated with any event on the specified
-        // 'handle' such that no callback will be invoked if an event
-        // occurs on the 'handle'.
+        // 'handle' such that no callback will be invoked if an event occurs on
+        // the 'handle'.
 
     virtual void deregisterTimer(const void *timerId);
         // Deregister the callback associated with the specified 'timerId'
@@ -599,8 +561,8 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
 
     int disable();
         // Destroy the internal thread responsible for monitoring sockets and
-        // dispatching timer and socket callbacks.  Return 0 on success and
-        // a non-zero value otherwise.  If this event manager is not already
+        // dispatching timer and socket callbacks.  Return 0 on success and a
+        // non-zero value otherwise.  If this event manager is not already
         // enabled, as reported by 'isEnabled' method, this method returns
         // immediately with 0.  Otherwise, it will block until the internal
         // thread exits.  Note that 'disable' will always fail if invoked,
@@ -623,35 +585,34 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     void clearExecuteQueue();
         // Clear the functors enqueued to the execute queue.
 
-    virtual int registerSocketEvent(const btlso::SocketHandle::Handle&   handle,
-                                    btlso::EventType::Type               event,
-                                    const btlso::EventManager::Callback& cb);
+    virtual int registerSocketEvent(
+                                   const btlso::SocketHandle::Handle&   handle,
+                                   btlso::EventType::Type               event,
+                                   const btlso::EventManager::Callback& cb);
         // Register the specified 'cb' functor to be invoked whenever the
         // specified 'event' occurs on the socket specified by 'handle'.
         // Return 0 on success and a negative number on error.  No two
-        // different socket events can have callbacks registered with the
-        // same socket handle other than read and write.  Any invocation of
-        // this method that would cause this to occur will result in an error
-        // and the callback will not be registered.  The callback is recurring
+        // different socket events can have callbacks registered with the same
+        // socket handle other than read and write.  Any invocation of this
+        // method that would cause this to occur will result in an error and
+        // the callback will not be registered.  The callback is recurring
         // (i.e., it remains registered until it is explicitly deregistered).
-        // Note that the callback will be invoked only from the internal
-        // thread and that the callback may be invoked before this method
-        // returns.
+        // Note that the callback will be invoked only from the internal thread
+        // and that the callback may be invoked before this method returns.
 
     virtual void *registerTimer(const bsls::TimeInterval&            timeout,
                                 const btlso::EventManager::Callback& cb);
-        // Register the specified 'cb' functor to be invoked when the
-        // absolute time of the specified 'timeout' is reached or exceeded.
-        // Return a 'void*' registration id which can be used to deregister
-        // this timer before expiration.  Specifying a 'timeout'
-        // previous to the current time will result in the associated 'cb'
-        // being executed almost immediately.  Note also
-        // that the callback is not recurring (i.e., after being invoked it is
-        // deregistered automatically).  Note that the callback will be
-        // invoked only from the internal thread and that the callback
-        // may be invoked before this method returns.
+        // Register the specified 'cb' functor to be invoked when the absolute
+        // time of the specified 'timeout' is reached or exceeded.  Return a
+        // 'void*' registration id which can be used to deregister this timer
+        // before expiration.  Specifying a 'timeout' previous to the current
+        // time will result in the associated 'cb' being executed almost
+        // immediately.  Note also that the callback is not recurring (i.e.,
+        // after being invoked it is deregistered automatically).  Note that
+        // the callback will be invoked only from the internal thread and that
+        // the callback may be invoked before this method returns.
 
-    int rescheduleTimer(const void               *timerId,
+    int rescheduleTimer(const void                *timerId,
                         const bsls::TimeInterval&  timeout);
         // Reschedule the timer indicated by the specified 'timerId' such that
         // the callback function supplied to 'registerTimer' will be invoked
@@ -684,9 +645,9 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // Return the number of timers that are currently registered.
 
     virtual int numSocketEvents(
-                               const btlso::SocketHandle::Handle& handle) const;
-        // Return the number of callbacks registered for the specified
-        // socket 'handle'.
+                              const btlso::SocketHandle::Handle& handle) const;
+        // Return the number of callbacks registered for the specified socket
+        // 'handle'.
 
     int numTotalSocketEvents() const;
         // Return the number of socket callbacks registered with this event
@@ -703,30 +664,29 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // Return the thread handle of the dispatcher thread of this object.
 
     int isEnabled() const;
-        // Return 1 if the dispatch thread is created/running and 0
-        // otherwise.
+        // Return 1 if the dispatch thread is created/running and 0 otherwise.
 
     bool hasTimeMetrics() const;
         // Return 'true' if the object returned by 'timeMetrics()' contains a
         // valid value, and 'false' otherwise.  This value will be 'false' if
-        // either the (optional) 'collectTimeMetrics'  value supplied at
+        // either the (optional) 'collectTimeMetrics' value supplied at
         // construction was 'false', or if a 'rawEventManager' was provided at
         // construction.  Note that if the value is 'false', the value of the
         // object returned by 'timeMetrics()' is not specified.
 };
 
-                       // =========================================
+                       // ===================================
                        // class TcpTimerEventManager_TestUtil
-                       // =========================================
+                       // ===================================
 
 struct TcpTimerEventManager_TestUtil {
     // This 'struct' provides access to the internal control channel of a
-    // 'TcpTimerEventManager' object and is used for testing only.
-    // This 'struct' should *NOT* be used directly to gain access to the
-    // control channel.
+    // 'TcpTimerEventManager' object and is used for testing only.  This
+    // 'struct' should *NOT* be used directly to gain access to the control
+    // channel.
 
     static const TcpTimerEventManager_ControlChannel *getControlChannel(
-                                    const TcpTimerEventManager& manager);
+                                          const TcpTimerEventManager& manager);
         // Return a pointer providing non-modifiable access to the control
         // channel object held by the specified 'manager' or 0 if the control
         // channel has not been initialized.
@@ -736,28 +696,26 @@ struct TcpTimerEventManager_TestUtil {
 //                      INLINE FUNCTIONS DEFINITIONS
 //-----------------------------------------------------------------------------
 
-               // -----------------------------------------------
+               // -----------------------------------------
                // class TcpTimerEventManager_ControlChannel
-               // -----------------------------------------------
+               // -----------------------------------------
 
 // MANIPULATORS
 inline
-btlso::SocketHandle::Handle
-TcpTimerEventManager_ControlChannel::clientFd()
+btlso::SocketHandle::Handle TcpTimerEventManager_ControlChannel::clientFd()
 {
     return static_cast<btlso::SocketHandle::Handle>(d_fds[0].loadRelaxed());
 }
 
 inline
-btlso::SocketHandle::Handle
-TcpTimerEventManager_ControlChannel::serverFd()
+btlso::SocketHandle::Handle TcpTimerEventManager_ControlChannel::serverFd()
 {
     return static_cast<btlso::SocketHandle::Handle>(d_fds[1].loadRelaxed());
 }
 
-                        // --------------------------------
+                        // --------------------------
                         // class TcpTimerEventManager
-                        // --------------------------------
+                        // --------------------------
 
 // MANIPULATORS
 inline
@@ -780,8 +738,7 @@ btlso::TimeMetrics *TcpTimerEventManager::timeMetrics() const
 }
 
 inline
-bslmt::ThreadUtil::Handle
-TcpTimerEventManager::dispatcherThreadHandle() const
+bslmt::ThreadUtil::Handle TcpTimerEventManager::dispatcherThreadHandle() const
 {
     return d_dispatcher;
 }
@@ -792,17 +749,18 @@ bool TcpTimerEventManager::hasTimeMetrics() const
     return d_collectMetrics;
 }
 
-                        // -----------------------------------------
+                        // -----------------------------------
                         // class TcpTimerEventManager_TestUtil
-                        // -----------------------------------------
+                        // -----------------------------------
 
 inline
 const TcpTimerEventManager_ControlChannel *
 TcpTimerEventManager_TestUtil::getControlChannel(
-                                     const TcpTimerEventManager& manager)
+                                           const TcpTimerEventManager& manager)
 {
     return manager.d_controlChannel_p.ptr();
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

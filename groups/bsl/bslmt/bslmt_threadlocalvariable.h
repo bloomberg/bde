@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // CLASS METHODS
 //      static const RequestContext *requestContext();
-//          // Return the address of the non-modifiable, request context
-//          // for this thread, or 0 if none has been set.
+//          // Return the address of the non-modifiable, request context for
+//          // this thread, or 0 if none has been set.
 //
 //      // CREATORS
 //      RequestProcessor() {}

@@ -7,26 +7,43 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for representing channel type values.
+//@PURPOSE: Enumerate the set of channel types.
 //
 //@CLASSES:
-//   btlmt::ChannelType: namespace for enumerated channel type values
+//   btlmt::ChannelType: namespace for enumerating channel types
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides a namespace for enumerating
-// channel types, and provides a function that converts each of
-// these enumerators to its corresponding string representation.
-// Functionality is also provided to write the string form directly
-// to a standard 'ostream'.
+//@DESCRIPTION: This component provides a namespace, 'btlmt::ChannelType', for
+// enumerating channel types, and provides a function that converts each of
+// these enumerators to their corresponding string representation.
+// Functionality is also provided to write the string form directly to a
+// standard 'ostream'.
+//
+///Enumerators
+///-----------
+//..
+//  Name                    Description
+//  ----------------------  ------------------
+//  e_LISTENING_CHANNEL     Listening channel
+//  e_ACCEPTED_CHANNEL      Accepted channel
+//  e_CONNECTING_CHANNEL    Connecting channel
+//  e_CONNECTED_CHANNEL     Connected channel
+//  e_IMPORTED_CHANNEL      Imported channel
+//..
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // First, create a variable 'channelType' of type 'btlmt::ChannelType::Value'
-// and initialize it to the value 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL'.
+// and initialize it to the value
+// 'btlmt::ChannelType::e_CONNECTED_CHANNEL':
 //..
-//  btlmt::ChannelType::Value channelType
-//                                = btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL;
+//  btlmt::ChannelType::Value channelType =
+//                                     btlmt::ChannelType::e_CONNECTED_CHANNEL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
@@ -53,9 +70,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlmt {
-                        // =======================
-                        // class ChannelType
-                        // =======================
+                        // ==================
+                        // struct ChannelType
+                        // ==================
 
 struct ChannelType {
     // This class provides a namespace for enumerating channel type values.
@@ -68,28 +85,32 @@ struct ChannelType {
         e_CONNECTING_CHANNEL,
         e_CONNECTED_CHANNEL,
         e_IMPORTED_CHANNEL
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BTEMT_LISTENING_CHANNEL = e_LISTENING_CHANNEL
-      , BTEMT_ACCEPTED_CHANNEL = e_ACCEPTED_CHANNEL
+      , BTEMT_LISTENING_CHANNEL  = e_LISTENING_CHANNEL
+      , BTEMT_ACCEPTED_CHANNEL   = e_ACCEPTED_CHANNEL
       , BTEMT_CONNECTING_CHANNEL = e_CONNECTING_CHANNEL
-      , BTEMT_CONNECTED_CHANNEL = e_CONNECTED_CHANNEL
+      , BTEMT_CONNECTED_CHANNEL  = e_CONNECTED_CHANNEL
       , BTEMT_IMPORTED_CHANNEL   = e_IMPORTED_CHANNEL
-      , LISTENING_CHANNEL  = e_LISTENING_CHANNEL
-      , ACCEPTED_CHANNEL   = e_ACCEPTED_CHANNEL
-      , CONNECTING_CHANNEL = e_CONNECTING_CHANNEL
-      , CONNECTED_CHANNEL  = e_CONNECTED_CHANNEL
-      , IMPORTED_CHANNEL   = e_IMPORTED_CHANNEL
+      , LISTENING_CHANNEL        = e_LISTENING_CHANNEL
+      , ACCEPTED_CHANNEL         = e_ACCEPTED_CHANNEL
+      , CONNECTING_CHANNEL       = e_CONNECTING_CHANNEL
+      , CONNECTED_CHANNEL        = e_CONNECTED_CHANNEL
+      , IMPORTED_CHANNEL         = e_IMPORTED_CHANNEL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     enum {
+        // Define 'LENGTH' to be the number of consecutively valued enumerators
+        // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.
+
         e_LENGTH = e_IMPORTED_CHANNEL
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTEMT_LENGTH = e_LENGTH
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
-        // Define 'LENGTH' to be the number of consecutively valued enumerators
-        // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.
 
     // CLASS METHODS
     static const char *toAscii(Value channelType);
@@ -100,10 +121,11 @@ struct ChannelType {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, ChannelType::Value rhs);
-}  // close package namespace
     // Format to the specified output 'stream' the specified 'rhs' channel type
     // in a string representation matching the enumerator name (e.g.,
     // "LISTENING_CHANNEL"), and return a reference to the modifiable 'stream'.
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

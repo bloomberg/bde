@@ -61,13 +61,13 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 int IPv4Address::isLocalBroadcastAddress(const char *addr)
     // Windows XP currently does not support the inet_aton function as
     // specified by the contract above (inet_pton does not handle hexadecimal
-    // or octal numerals.)  In DRQS 44521942 it is noted that 255.255.255.255,
-    // while being a valid address, is not parsed correctly by inet_addr
-    // because -1 is used as an error code.  This function checks if the
-    // specified 'address' is an IP representation of a address with an integer
-    // value of -1.  This function is intended to detect all cases in which a
-    // valid address of 255.255.255.255 is wrongfully detected as an invalid
-    // address by inet_addr.
+    // or octal numerals.)  Note that 255.255.255.255, while being a valid
+    // address, is not parsed correctly by inet_addr because -1 is used as an
+    // error code.  This function checks if the specified 'address' is an IP
+    // representation of a address with an integer value of -1.  This function
+    // is intended to detect all cases in which a valid address of
+    // 255.255.255.255 is wrongfully detected as an invalid address by
+    // inet_addr.
 {
     unsigned long segs[4] = { 0, 0, 0, 0 };
     int           numSeg = 0;

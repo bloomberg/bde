@@ -16,7 +16,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_c_sys_time.h>
+#include <bsl_ctime.h>
 
 using namespace BloombergLP;
 

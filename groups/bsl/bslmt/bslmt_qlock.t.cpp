@@ -322,7 +322,7 @@ class Rand {
 
   public:
     // CREATORS
-    Rand(int seedParm) : d_seed(seedParm)
+    Rand(int seedParameter) : d_seed(seedParameter)
     {
         d_seed ^= (int)(bsl::size_t) this;
 
@@ -358,22 +358,21 @@ void printMetrics(bsl::ostream&     out,
 typedef bslmt::Semaphore Semaphore;
 
 // ----------------------------------------------------------------------------
-// TestCase 7. Multiple-threads, 2-qlocks
+// Test Case 7: Multiple-threads, 2-qlocks
 //
 // Concerns:
 //   Verify that each thread obtains the lock in the order in
 //   which it requested it.
 //
 // Plan:
-// The two qlocks are completely independent.  A thread locking one QLock does
-// not wait for a thread that holds the lock to the other.  Two context
-// structures, each with a QLock, a few threads on each context.  In the
-// critical region, each thread sets a flag in its context, reads the other
-// context's flag, sleeps briefly, clears its flag, exits the critical region,
-// and loops.  When every thread's flag has been represented in the other
-// context structure, all threads exit.  An error is reported if the maximum
-// loop count is reached.
-//
+//   The two qlocks are completely independent.  A thread locking one QLock
+//   does not wait for a thread that holds the lock to the other.  Two context
+//   structures, each with a QLock, a few threads on each context.  In the
+//   critical region, each thread sets a flag in its context, reads the other
+//   context's flag, sleeps briefly, clears its flag, exits the critical
+//   region, and loops.  When every thread's flag has been represented in the
+//   other context structure, all threads exit.  An error is reported if the
+//   maximum loop count is reached.
 // ----------------------------------------------------------------------------
 
 struct ContextCase7 {
@@ -437,7 +436,7 @@ void *testCase7(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-// TestCase 6. Fairness Test
+// Test Case 6: Fairness Test
 //
 // Concerns:
 //   Verify that each thread obtains the lock in the order in
@@ -765,7 +764,7 @@ void *testCase4_fn2(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-// Test Case 3. Hard Contention Test: many threads - one QLock
+// Test Case 3: Hard Contention Test: many threads - one QLock
 //
 // Concerns:
 //   Verify that single QLock allows only one thread at a time to
@@ -970,7 +969,7 @@ extern "C" void *testCase2(void *)
 }
 
 // ----------------------------------------------------------------------------
-// Test Case 1. BREATHING Test - Thread Function
+// Test Case 1: BREATHING Test - Thread Function
 //   Check that the global count value is zero on enter,
 //   wait on the barrier to synchronize competition for the lock.
 //   Execute the critical region: reads the global count

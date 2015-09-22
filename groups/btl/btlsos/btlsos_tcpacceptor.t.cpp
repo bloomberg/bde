@@ -370,7 +370,7 @@ static void* threadToCloseServer(void *arg)
         }
         return 0;
     }
-    bslmt::ThreadUtil::microSleep(3 * SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
 
     int ret = btlso::SocketImpUtil::close(serverSocket->handle());
 

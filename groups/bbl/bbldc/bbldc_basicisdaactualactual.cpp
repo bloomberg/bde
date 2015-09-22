@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(bbldc_basicisdaactualactual_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                        // ----------------------------
-                        // struct BasicIsdaActualActual
-                        // ----------------------------
+                       // ----------------------------
+                       // struct BasicIsdaActualActual
+                       // ----------------------------
 
 // CLASS METHODS
 double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,

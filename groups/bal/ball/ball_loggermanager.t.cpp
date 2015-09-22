@@ -246,7 +246,6 @@ typedef Obj::DefaultThresholdLevelsCallback Dtc;
 
 
 #define F_ __FILE__                           // current source file name
-#define L_ __LINE__                           // current Line number
 
 
 const int NUM_LOGGERS = 10;
@@ -3920,9 +3919,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'initSingleton'" << endl
                                   << "=======================" << endl;
 
-        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultTestAllocator("d", veryVeryVerbose);
+        bslma::TestAllocator globalTestAllocator("g", veryVeryVerbose);
+        bslma::TestAllocator objectTestAllocator("o", veryVeryVerbose);
 
         bslma::TestAllocator *DA = &defaultTestAllocator;
         bslma::TestAllocator *GA = &globalTestAllocator;

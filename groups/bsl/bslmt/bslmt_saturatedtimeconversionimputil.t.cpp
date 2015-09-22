@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //    Our implementations of 'toTimeSpec' make assumptions about
         //    whether the destination values are signed or unsigned.  Verify
-        //    thse assumptions here.
+        //    these assumptions here.
         //
         // Plan:
         //    Assign '-t' to both fields of 'TimeSpec' and verify that the
@@ -625,11 +625,11 @@ int main(int argc, char *argv[])
         // Plan:
         //: o Calculate 'maxSec' and 'maxNSec', the 'seconds' and 'nanoSeconds'
         //:   fields that a 'bsls::TimeInterval' will have and map to the exact
-        //:   highest value of DWORD (== uintMax) when properly converted
+        //:   highest value of 'DWORD (== uintMax)' when properly converted
         //:   by 'toMilliSec'.
         //: o Do trials with 'seconds() == maxSex', and 'nanoseconds()' varying
         //:   between the max possible value and 0 by increments of a million,
-        //:   observing that for nanonseconds greater than 'maxNSec', the
+        //:   observing that for nanoseconds greater than 'maxNSec', the
         //:   result is saturate, and below that it is not.
         //: o Vary input with 'seconds' from 'maxSec - 1000' to 'maxSec + 1000'
         //:   with 'nanoseconds == 0', verifying that for values below
@@ -836,7 +836,8 @@ int main(int argc, char *argv[])
             // Compute the threshold for saturating a Uint64 representation of
             // milliseconds.  I.e.,
             // 'bsls::TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)' should be the
-            // maxmimum representable Uint64 number of milliseconds.
+            // maximum representable Uint64 number of milliseconds.
+
             const Int64    SEC_LIMIT = MAX_UINT64 / k_MILLISECS_PER_SEC;
             const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
                                                     * k_NANOSECS_PER_MILLISEC;

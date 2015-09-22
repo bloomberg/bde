@@ -91,7 +91,7 @@ struct ThreadSpecificDestructor {
     // thread-specific key.
 
     bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Key  d_key;
-    KeyDestructorFunction                                d_destructor;
+    bslmt_KeyDestructorFunction                                d_destructor;
     ThreadSpecificDestructor                                  *d_next;
 };
 
@@ -465,8 +465,8 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::exit(void *status)
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::createKey(
-                                             Key                   *key,
-                                             KeyDestructorFunction  destructor)
+                                       Key                         *key,
+                                       bslmt_KeyDestructorFunction  destructor)
 {
     // It is not uncommon for applications to have global objects that make
     // calls to create thread-specific keys.  It is possible that those objects

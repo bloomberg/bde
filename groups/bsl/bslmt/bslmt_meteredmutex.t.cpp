@@ -10,7 +10,8 @@
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>       // 'atoi'
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -129,18 +130,18 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
     bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 
     void executeInParallel(int                               numThreads,
-                           bslmt::ThreadUtil::ThreadFunction func)
-        // Create the specified 'numThreads', each executing the
-        // specified 'func'.  Number each thread (sequentially from 0
-        // to 'numThreads-1') by passing i to i'th thread.  Finally
-        // join all the threads.
+                           bslmt::ThreadUtil::ThreadFunction function)
+        // Create the specified 'numThreads', each executing the specified
+        // 'function'.  Number each thread (sequentially from 0 to
+        // 'numThreads - 1') by passing i to i'th thread.  Finally join all the
+        // threads.
     {
         bslmt::ThreadUtil::Handle *threads =
                                      new bslmt::ThreadUtil::Handle[numThreads];
         ASSERT(threads);
 
         for (int i = 0; i < numThreads; ++i) {
-            bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
+            bslmt::ThreadUtil::create(&threads[i], function, (void*)i);
         }
         for (int i = 0; i < numThreads; ++i) {
             bslmt::ThreadUtil::join(threads[i]);
@@ -292,7 +293,6 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
-    // veryVeryVerbose = argc > 4; // not used
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -367,11 +367,10 @@ int main(int argc, char *argv[])
                           << "Testing 'lastResetTime', 'resetMetrics'" << endl
                           << "=======================================" << endl;
 
-        // TBD:
-        // Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this test
-        // case will not work on hp. executeInParallel(k_NUM_THREADS4,
-        // resetTest);
+        // TBD: Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this
+        // test case will not work on hp.
 
+        // executeInParallel(k_NUM_THREADS4, resetTest);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -419,10 +418,9 @@ int main(int argc, char *argv[])
         // for 'k_SLEEP_TIME3' time, the third thread to acquire the lock waits
         // for '2 * k_SLEEP_TIME3' and so on.  Thus the wait time accumulated
         // during one iteration = 0*k_SLEEP_TIME3 + 1*k_SLEEP_TIME3 +
-        // 2*k_SLEEP_TIME3
-        //  ..........+ (k_NUM_THREADS3-1)*k_SLEEP_TIME3
-        // =  ((k_NUM_THREADS3-1)*k_NUM_THREADS3)/2.0 * k_SLEEP_TIME3.
-        // We have k_NUM_ACQUIRE such iteration.
+        // 2*k_SLEEP_TIME3 ..........+ (k_NUM_THREADS3-1)*k_SLEEP_TIME3 =
+        // ((k_NUM_THREADS3-1)*k_NUM_THREADS3)/2.0 * k_SLEEP_TIME3.  We have
+        // k_NUM_ACQUIRE such iteration.
 
         bsls::Types::Int64 waitTime =
               (bsls::Types::Int64) (k_NUM_ACQUIRE

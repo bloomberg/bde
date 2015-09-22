@@ -57,9 +57,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bbldc {
 
-                        // ============================
-                        // struct BasicIsdaActualActual
-                        // ============================
+                       // ============================
+                       // struct BasicIsdaActualActual
+                       // ============================
 
 struct BasicIsdaActualActual {
     // This 'struct' provides a namespace for a suite of pure functions that
@@ -87,12 +87,12 @@ struct BasicIsdaActualActual {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // struct IsdaActualActual
-                          // -----------------------
+                         // -----------------------
+                         // struct IsdaActualActual
+                         // -----------------------
 
 // CLASS METHODS
 inline

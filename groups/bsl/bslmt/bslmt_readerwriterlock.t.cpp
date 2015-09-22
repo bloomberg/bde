@@ -121,10 +121,11 @@ class my_Condition {
     void wait(bslmt::Mutex *mutex);
         // Block until this condition is signaled by a call to 'signal' or
         // 'broadcast'.
-    int  timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &timeout);
+
+    int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &timeout);
         // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast', or until the specified timeout(in abs time).  Return 0
-        // if the condition was signaled, and a value of -1 if a timeout
+        // 'broadcast', or until the specified 'timeout' (in abs time).  Return
+        // 0 if the condition was signaled, and a value of -1 if a timeout
         // occurred.
 
     void signal();
@@ -157,8 +158,8 @@ void my_Condition::wait(bslmt::Mutex *mutex)
     mutex->lock();
 }
 
-int  my_Condition::timedWait(bslmt::Mutex             *mutex,
-                             const bsls::TimeInterval  &timeout)
+int my_Condition::timedWait(bslmt::Mutex              *mutex,
+                            const bsls::TimeInterval&  timeout)
 {
     d_mutex.lock();
     int bcastCount = d_bcastCount;
@@ -211,10 +212,10 @@ struct TestArguments {
     bslmt::Barrier    d_barrierAll;     // barrier for all threads
     bslmt::Barrier    d_barrier2;       // barrier for two threads
   public:
-    TestArguments(int iterations=0, int nThreads=k_NTHREADS);
+    TestArguments(int iterations = 0, int nThreads = k_NTHREADS);
         // Construct a 'TestArguments' object and initialize all counters to
-        // zero, 'd_iterations' to the specified 'iterations' and
-        // 'd_barrierAll' to 'nThreads' + 1.
+        // zero, 'd_iterations' to the optionally specified 'iterations' and
+        // 'd_barrierAll' to the optionally specified 'nThreads' + 1.
 
     void clearStart();
         // clear the start indicator flag.
@@ -523,7 +524,7 @@ void* TestUpgradeThread1(void *ptr)
     }
 
     inline
-    int UserInfoCache::updateUserInfo(int userId, UserInfo *newInfo)
+    int UserInfoCache::updateUserInfo(int userId, UserInfo *userInfo)
     {
         int ret = 1;
 //..
@@ -555,7 +556,7 @@ void* TestUpgradeThread1(void *ptr)
 // could not have been changed by anyone else.
 //..
             if (d_infoMap.end() != it) {
-                it->second = *newInfo;
+                it->second = *userInfo;
                 ret = 0;
             }
             d_lock.unlock();
@@ -862,9 +863,11 @@ extern "C" void *case7Thread(void *arg)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    // int verbose = argc > 2;
+    int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void)verbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

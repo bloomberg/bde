@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <btlmt_channelpool.h>
 #include <btlmt_channelpoolchannel.h>
 #include <btlmt_session.h>
+#include <btlmt_sessionfactory.h>
 
 #include <btlso_socketoptions.h>
 
@@ -34,21 +35,22 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlmt {
-                      // ========================
+
+                      // ------------------------
                       // class SessionPool_Handle
-                      // ========================
+                      // ------------------------
 
 struct SessionPool_Handle {
     // This opaque handle is used privately in this implementation.
 
     // PRIVATE TYPES
     enum Type {
-        LISTENER = 1,
-        REGULAR_SESSION = 2,
-        CONNECT_SESSION = 3,
-        IMPORTED_SESSION = 4,
-        INVALID_SESSION = 5,
-        ABORTED_CONNECT_SESSION = 6
+        e_LISTENER                = 1,
+        e_REGULAR_SESSION         = 2,
+        e_CONNECT_SESSION         = 3,
+        e_IMPORTED_SESSION        = 4,
+        e_INVALID_SESSION         = 5,
+        e_ABORTED_CONNECT_SESSION = 6
     };
 
     // DATA
@@ -63,8 +65,8 @@ struct SessionPool_Handle {
     SessionFactory                    *d_sessionFactory_p;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SessionPool_Handle,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(SessionPool_Handle,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     SessionPool_Handle(bslma::Allocator *basicAllocator = 0)
@@ -83,12 +85,13 @@ SessionPoolSessionIterator::SessionPoolSessionIterator(
                                                       SessionPool *sessionPool)
 : d_iterator(sessionPool->d_handles)
 {
-    if(d_iterator) {
+    if (d_iterator) {
         d_current_p = &d_current;
         bsl::pair<int, bsl::shared_ptr<SessionPool_Handle> >
                                                             curr(d_iterator());
         d_current.second = curr.second->d_session_p;
-        d_current.first = curr.first;
+        d_current.first  = curr.first;
+
         if (!d_current.second) {
             operator ++();
         }
@@ -124,11 +127,11 @@ typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                 btlmt::SessionPool::ConnectResolutionMode mode)
 {
-    if (mode == btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT) {
+    if (btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT == mode) {
         return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
     }
 
-    BSLS_ASSERT(mode == btlmt::SessionPool::e_RESOLVE_ONCE);
+    BSLS_ASSERT(btlmt::SessionPool::e_RESOLVE_ONCE == mode);
     return btlmt::ChannelPool::e_RESOLVE_ONCE;
 }
 
@@ -146,130 +149,141 @@ void SessionPool::channelStateCb(int   channelId,
 
     switch(state) {
       case ChannelPool::e_CHANNEL_DOWN: {
-          if (0 == userData) {
-              break;
-          }
+        if (0 == userData) {
+            break;
+        }
 
-          SessionPool_Handle *handlePtr = (SessionPool_Handle*) userData;
-          HandlePtr handle;
+        SessionPool_Handle *handlePtr =
+                                   static_cast<SessionPool_Handle *>(userData);
+        HandlePtr           handle;
 
-          if (d_handles.find(handlePtr->d_handleId, &handle)) {
-              return;                                                 // RETURN
-          }
+        if (d_handles.find(handlePtr->d_handleId, &handle)) {
+            return;                                                   // RETURN
+        }
 
-          int handleId = handle->d_handleId;
-          {
-              bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
+        int handleId = handle->d_handleId;
+        {
+            bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
 
-              if (handle->d_session_p) {
-                  int handleId = handle->d_handleId;
+            if (handle->d_session_p) {
+                int handleId = handle->d_handleId;
 
-                  handle->d_handleId = 0; // Zero out the handleId to indicate
+                handle->d_handleId = 0;   // Zero out the handleId to indicate
                                           // that SESSION_DOWN has been invoked
 
-                  lock.release()->unlock();
+                lock.release()->unlock();
 
-                  handle->d_session_p->stop();
-                  handle->d_sessionStateCB(e_SESSION_DOWN, handleId,
-                                           handle->d_session_p,
-                                           handle->d_userData_p);
-              }
-          }
+                handle->d_session_p->stop();
+                handle->d_sessionStateCB(e_SESSION_DOWN,
+                                         handleId,
+                                         handle->d_session_p,
+                                         handle->d_userData_p);
+            }
+        }
 
-          d_handles.remove(handleId);
+        d_handles.remove(handleId);
       } break;
 
       case ChannelPool::e_CHANNEL_UP: {
-          HandlePtr handle;
-          if (d_handles.find(sourceId, &handle)) {
-              // Handle not found, don't know this source
+        HandlePtr handle;
 
-              d_channelPool_p->shutdown(channelId,
-                                        ChannelPool::e_IMMEDIATE);
-              return;                                                 // RETURN
-          }
-          if (SessionPool_Handle::LISTENER == handle->d_type) {
-              // This connection originate from a listener socket,
-              // create a new handle for the new channel
+        if (d_handles.find(sourceId, &handle)) {
+            // Handle not found, don't know this source
 
-              HandlePtr newHandle(new (*d_allocator_p) SessionPool_Handle(),
+            d_channelPool_p->shutdown(channelId, ChannelPool::e_IMMEDIATE);
+            return;                                                   // RETURN
+        }
+
+        if (SessionPool_Handle::e_LISTENER == handle->d_type) {
+            // This connection originate from a listener socket, create a new
+            // handle for the new channel
+
+            HandlePtr newHandle(new (*d_allocator_p) SessionPool_Handle(),
                                   bdlf::MemFnUtil::memFn(
-                                      &SessionPool::handleDeleter,
-                                      this),
+                                                   &SessionPool::handleDeleter,
+                                                   this),
                                   d_allocator_p);
 
-              newHandle->d_type = SessionPool_Handle::REGULAR_SESSION;
-              newHandle->d_sessionStateCB = handle->d_sessionStateCB;
-              newHandle->d_userData_p = handle->d_userData_p;
-              newHandle->d_channel_p  = 0;
-              newHandle->d_session_p  = 0;
-              newHandle->d_sessionFactory_p = handle->d_sessionFactory_p;
+            newHandle->d_type = SessionPool_Handle::e_REGULAR_SESSION;
+            newHandle->d_sessionStateCB = handle->d_sessionStateCB;
+            newHandle->d_userData_p = handle->d_userData_p;
+            newHandle->d_channel_p  = 0;
+            newHandle->d_session_p  = 0;
+            newHandle->d_sessionFactory_p = handle->d_sessionFactory_p;
 
-              newHandle->d_handleId = d_handles.add(newHandle);
-              handle.swap(newHandle);
-          }
+            newHandle->d_handleId = d_handles.add(newHandle);
+            handle.swap(newHandle);
+        }
 
-          // It is important to set the channel context before any calls to the
-          // session state callback can be made.  Otherwise if a session
-          // becomes up and dies right away, it is possible that the
-          // CHANNEL_DOWN will be received with a NULL userData and thus will
-          // ignored.
+        // It is important to set the channel context before any calls to the
+        // session state callback can be made.  Otherwise if a session becomes
+        // up and dies right away, it is possible that the CHANNEL_DOWN will be
+        // received with a NULL userData and thus will ignored.
 
-          bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
-          if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
-              // We raced against 'closeHandle()'.
+        bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
 
-              d_channelPool_p->shutdown(channelId,
-                                        ChannelPool::e_IMMEDIATE);
-              return;                                                 // RETURN
-          }
+        if (SessionPool_Handle::e_ABORTED_CONNECT_SESSION == handle->d_type) {
+            // We raced against 'closeHandle()'.
 
-          d_channelPool_p->setChannelContext(channelId, handle.get());
+            d_channelPool_p->shutdown(channelId, ChannelPool::e_IMMEDIATE);
+            return;                                                   // RETURN
+        }
 
-          handle->d_channel_p = new (*d_allocator_p)
-                                ChannelPoolChannel(channelId,
-                                                   d_channelPool_p,
-                                                   d_blobBufferFactory.ptr(),
-                                                   &d_spAllocator,
-                                                   d_allocator_p);
+        d_channelPool_p->setChannelContext(channelId, handle.get());
 
-          lock.release()->unlock();
+        handle->d_channel_p = new (*d_allocator_p) ChannelPoolChannel(
+                                                     channelId,
+                                                     d_channelPool_p,
+                                                     d_blobBufferFactory.ptr(),
+                                                     &d_spAllocator,
+                                                     d_allocator_p);
 
-          // We're binding the 'handleId' instead of the shared pointer so if
-          // the channel goes down between the call to 'allocate' and the
-          // callback,  'handleDeleter' is invoked and invokes sessionStateCb.
-          // Note that in this case, we send 'CONNECT_ABORTED'.  We might want
-          // to have a specific event for this.
+        lock.release()->unlock();
 
-          bsl::shared_ptr<AsyncChannel> channel_sp(handle,
-                                                   handle->d_channel_p);
-          handle->d_sessionFactory_p->allocate(
-                   channel_sp,
-                   bdlf::BindUtil::bind(&SessionPool::sessionAllocationCb,
-                                       this, _1, _2, handle->d_handleId));
+        // We're binding the 'handleId' instead of the shared pointer so if the
+        // channel goes down between the call to 'allocate' and the callback,
+        // 'handleDeleter' is invoked and invokes sessionStateCb.  Note that in
+        // this case, we send 'e_CONNECT_ABORTED'.  We might want to have a
+        // specific event for this.
+
+        bsl::shared_ptr<AsyncChannel> channel_sp(handle, handle->d_channel_p);
+
+        handle->d_sessionFactory_p->allocate(channel_sp,
+                                             bdlf::BindUtil::bind(
+                                             &SessionPool::sessionAllocationCb,
+                                             this,
+                                             _1,
+                                             _2,
+                                             handle->d_handleId));
       } break;
       case ChannelPool::e_WRITE_CACHE_LOWWAT: {
           if (0 == userData) {
               break;
           }
-          SessionPool_Handle *handle = (SessionPool_Handle*) userData;
-          if (handle->d_session_p) {
-              handle->d_sessionStateCB(e_WRITE_CACHE_LOWWAT, handle->d_handleId,
-                                       handle->d_session_p,
-                                       handle->d_userData_p);
+
+          SessionPool_Handle *handlePtr =
+                                   static_cast<SessionPool_Handle *>(userData);
+
+          if (handlePtr->d_session_p) {
+              handlePtr->d_sessionStateCB(e_WRITE_CACHE_LOWWAT,
+                                          handlePtr->d_handleId,
+                                          handlePtr->d_session_p,
+                                          handlePtr->d_userData_p);
           }
       } break;
       case ChannelPool::e_WRITE_CACHE_HIWAT: {
           if (0 == userData) {
               break;
           }
-          SessionPool_Handle *handle =
-              (SessionPool_Handle*)userData;
-          if (handle->d_session_p) {
-              handle->d_sessionStateCB(e_WRITE_CACHE_HIWAT,
-                                       handle->d_handleId,
-                                       handle->d_session_p,
-                                       handle->d_userData_p);
+
+          SessionPool_Handle *handlePtr =
+                                   static_cast<SessionPool_Handle *>(userData);
+
+          if (handlePtr->d_session_p) {
+              handlePtr->d_sessionStateCB(e_WRITE_CACHE_HIWAT,
+                                          handlePtr->d_handleId,
+                                          handlePtr->d_session_p,
+                                          handlePtr->d_userData_p);
           }
       } break;
     }
@@ -293,19 +307,17 @@ void SessionPool::blobBasedReadCb(int        *numNeeded,
     HandlePtr spHandle; // Make sure that we hold a shared pointer
                         // until the callback is complete
 
-
-    SessionPool_Handle *handle = (SessionPool_Handle*) userData;
+    SessionPool_Handle *handle = static_cast<SessionPool_Handle *>(userData);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle)
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle->d_channel_p)
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle->d_channel_p)
+     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                  d_handles.find(handle->d_handleId, &spHandle))
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                               handle->d_channel_p->channelId() != channelId)) {
 
-        d_channelPool_p->shutdown(channelId,
-                                  ChannelPool::e_IMMEDIATE);
-        *numNeeded   = 1;
+        d_channelPool_p->shutdown(channelId, ChannelPool::e_IMMEDIATE);
+        *numNeeded = 1;
         return;                                                       // RETURN
     }
 
@@ -320,6 +332,7 @@ void SessionPool::terminateSession(SessionPool_Handle *handle)
                                  handle->d_handleId,
                                  handle->d_session_p,
                                  handle->d_userData_p);
+
         handle->d_handleId = 0;
     }
 }
@@ -328,17 +341,20 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
 {
     if (0 != handle->d_handleId ) {
 
-        if (SessionPool_Handle::LISTENER == handle->d_type) {
+        if (SessionPool_Handle::e_LISTENER == handle->d_type) {
             d_channelPool_p->close(handle->d_handleId);
         }
         else if (handle->d_session_p) {
             terminateSession(handle);
         }
-        else if (SessionPool_Handle::CONNECT_SESSION == handle->d_type
-              || SessionPool_Handle::ABORTED_CONNECT_SESSION ==
+        else if (SessionPool_Handle::e_CONNECT_SESSION == handle->d_type
+              || SessionPool_Handle::e_ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
-            handle->d_sessionStateCB(e_CONNECT_ABORTED, handle->d_handleId, 0,
+            handle->d_sessionStateCB(e_CONNECT_ABORTED,
+                                     handle->d_handleId,
+                                     0,
                                      handle->d_userData_p);
+
             d_poolStateCB(e_CONNECT_ABORTED, 0, handle->d_userData_p);
         }
     }
@@ -379,24 +395,31 @@ void SessionPool::poolStateCb(int state, int source, int)
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
+
         d_poolStateCB(e_ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
-      case ChannelPool::e_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
-      case ChannelPool::e_ERROR_SETTING_OPTIONS:          // FALL THROUGH
+      case ChannelPool::e_ERROR_BINDING_CLIENT_ADDR:            // FALL THROUGH
+      case ChannelPool::e_ERROR_SETTING_OPTIONS:                // FALL THROUGH
       case ChannelPool::e_ERROR_CONNECTING: {
+
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
             return;                                                   // RETURN
         }
+
         bslmt::LockGuard<bslmt::Mutex> lock(&handle->d_mutex);
-        if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
+
+        if (SessionPool_Handle::e_ABORTED_CONNECT_SESSION == handle->d_type) {
             return;                                                   // RETURN
         }
 
         if (!--handle->d_numAttemptsRemaining) {
-            handle->d_type = SessionPool_Handle::INVALID_SESSION;
+
+            handle->d_type = SessionPool_Handle::e_INVALID_SESSION;
+
             lock.release()->unlock();
+
             handle->d_sessionStateCB(e_CONNECT_FAILED,
                                      handle->d_handleId,
                                      0,
@@ -415,6 +438,7 @@ void SessionPool::poolStateCb(int state, int source, int)
             handle->d_sessionStateCB(e_CONNECT_ATTEMPT_FAILED,
                                      handle->d_handleId, 0,
                                      handle->d_userData_p);
+
             d_poolStateCB(e_CONNECT_ATTEMPT_FAILED,
                           source,
                           handle->d_userData_p);
@@ -432,20 +456,19 @@ void SessionPool::init()
     ChannelPoolConfiguration defaultValues;
     if (d_config.readTimeout() == defaultValues.readTimeout()) {
         // If the supplied 'config' has the default read-timeout value, then
-        // disable the channel pool configuration's read timeout  Note that
-        // the channel pool's read timeout events are ignored by session pool
-        // - so they provide no benefit and should be disabled by default
-        // (DRQS 16796796).
+        // disable the channel pool configuration's read timeout Note that the
+        // channel pool's read timeout events are ignored by session pool - so
+        // they provide no benefit and should be disabled by default.
 
         d_config.setReadTimeout(0.0);
     }
 
     if (!d_blobBufferFactory) {
-        d_blobBufferFactory.load(
-                     new (*d_allocator_p) btlb::PooledBlobBufferFactory(
+        d_blobBufferFactory.load(new (*d_allocator_p)
+                                    btlb::PooledBlobBufferFactory(
                                              d_config.maxIncomingMessageSize(),
                                              d_allocator_p),
-                     d_allocator_p);
+                                 d_allocator_p);
     }
 }
 
@@ -456,17 +479,17 @@ int SessionPool::makeConnectHandle(
                          SessionFactory                           *factory)
 {
     HandlePtr handle(new (*d_allocator_p) SessionPool_Handle(),
-                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter,
-                                           this),
+                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter, this),
                      d_allocator_p);
 
-    handle->d_type = SessionPool_Handle::CONNECT_SESSION;
-    handle->d_sessionStateCB = cb;
-    handle->d_session_p = 0;
-    handle->d_channel_p = 0;
+    handle->d_type                 = SessionPool_Handle::e_CONNECT_SESSION;
+    handle->d_sessionStateCB       = cb;
+    handle->d_session_p            = 0;
+    handle->d_channel_p            = 0;
     handle->d_numAttemptsRemaining = numAttempts;
-    handle->d_userData_p = userData;
-    handle->d_sessionFactory_p = factory;
+    handle->d_userData_p           = userData;
+    handle->d_sessionFactory_p     = factory;
+
     return (handle->d_handleId = d_handles.add(handle));
 }
 
@@ -502,6 +525,7 @@ void SessionPool::sessionAllocationCb(int      result,
                                  handle->d_handleId,
                                  session,
                                  handle->d_userData_p);
+
         handle->d_sessionFactory_p->deallocate(session);
 
         // Session failed to start, shutdown the channel.
@@ -583,16 +607,16 @@ int SessionPool::start()
         bdlf::MemFnUtil::memFn(&SessionPool::channelStateCb, this));
 
     ChannelPool::PoolStateChangeCallback poolStateFunctor(
-        bsl::allocator_arg_t(),
-        bsl::allocator<ChannelPool::PoolStateChangeCallback>(d_allocator_p),
-        bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this));
+           bsl::allocator_arg_t(),
+           bsl::allocator<ChannelPool::PoolStateChangeCallback>(d_allocator_p),
+           bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this));
 
     ChannelPool::BlobBasedReadCallback dataFunctor =
-            bdlf::MemFnUtil::memFn(&SessionPool::blobBasedReadCb,
-                                  this);
+                          bdlf::MemFnUtil::memFn(&SessionPool::blobBasedReadCb,
+                                                 this);
 
-    d_channelPool_p = new (*d_allocator_p)
-                                         ChannelPool(d_blobBufferFactory.ptr(),
+    d_channelPool_p = new (*d_allocator_p) ChannelPool(
+                                                     d_blobBufferFactory.ptr(),
                                                      channelStateFunctor,
                                                      dataFunctor,
                                                      poolStateFunctor,
@@ -611,10 +635,9 @@ int SessionPool::stop()
     const int NUM_HANDLES = 32;
     const int SIZE        = NUM_HANDLES * sizeof(HandlePtr);
 
-    char BUFFER[SIZE];
+    char                               BUFFER[SIZE];
     bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
-
-    bsl::vector<HandlePtr> handles(&bufferAllocator);
+    bsl::vector<HandlePtr>             handles(&bufferAllocator);
     {
         bdlcc::ObjectCatalogIter<HandlePtr> itr(d_handles);
 
@@ -651,10 +674,9 @@ int SessionPool::stopAndRemoveAllSessions()
     const int NUM_HANDLES = 32;
     const int SIZE        = NUM_HANDLES * sizeof(HandlePtr);
 
-    char BUFFER[SIZE];
+    char                               BUFFER[SIZE];
     bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
-
-    bsl::vector<HandlePtr> handles(&bufferAllocator);
+    bsl::vector<HandlePtr>             handles(&bufferAllocator);
     {
         bdlcc::ObjectCatalogIter<HandlePtr> itr(d_handles);
 
@@ -683,7 +705,7 @@ int SessionPool::closeHandle(int handleId)
         return -1;                                                    // RETURN
     }
 
-    if(SessionPool_Handle::LISTENER == handle->d_type) {
+    if (SessionPool_Handle::e_LISTENER == handle->d_type) {
         d_channelPool_p->close(handle->d_handleId);
         d_handles.remove(handle->d_handleId);
 
@@ -703,9 +725,9 @@ int SessionPool::closeHandle(int handleId)
             // No channel yet, waiting for a connect.  Simply remove the
             // handle.
 
-            if (handle->d_type == SessionPool_Handle::CONNECT_SESSION) {
+            if (SessionPool_Handle::e_CONNECT_SESSION == handle->d_type) {
 
-                handle->d_type = SessionPool_Handle::ABORTED_CONNECT_SESSION;
+                handle->d_type = SessionPool_Handle::e_ABORTED_CONNECT_SESSION;
             }
 
             // The handle needs to be destroyed in a channel pool thread.  We
@@ -720,15 +742,15 @@ int SessionPool::closeHandle(int handleId)
             // events.  So we make an educated first guess (set to 'handleId')
             // so as not to conflict with the clocks registered by other
             // handles.  But if that fails we will increment the 'clockId' by
-            // '0x01000000' on each attempt.  The successful 'clockId' is
-            // bound to the passed functor so that the callback can be
-            // deregistered later.
+            // '0x01000000' on each attempt.  The successful 'clockId' is bound
+            // to the passed functor so that the callback can be deregistered
+            // later.
 
             int clockId = handleId;
             int ret;
             do {
-                bsl::function<void()> fctor(bdlf::BindUtil::bindA(
-                                          d_allocator_p,
+                bsl::function<void()> fctor(
+                    bdlf::BindUtil::bindA(d_allocator_p,
                                           bdlf::MemFnUtil::memFn(
                                              &SessionPool::connectAbortTimerCb,
                                              this),
@@ -736,10 +758,10 @@ int SessionPool::closeHandle(int handleId)
                                           clockId));
 
                 ret = d_channelPool_p->registerClock(
-                                fctor,
-                                bdlt::CurrentTime::now(),
-                                bsls::TimeInterval(0, 1 * 1000 * 1000), // 1 ms
-                                clockId);
+                                        fctor,
+                                        bdlt::CurrentTime::now(),
+                                        bsls::TimeInterval(0, 1 * 1000 * 1000),
+                                        clockId);
 
                 clockId += 0x01000000;
             } while (0 != ret);
@@ -924,22 +946,22 @@ int SessionPool::import(
     BSLS_ASSERT(d_channelPool_p);
 
     HandlePtr handle(new (*d_allocator_p) SessionPool_Handle(),
-                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter,
-                                           this),
+                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter, this),
                      d_allocator_p);
 
-    handle->d_type = SessionPool_Handle::IMPORTED_SESSION;
-    handle->d_sessionStateCB = cb;
-    handle->d_session_p  = 0;
-    handle->d_channel_p  = 0;
-    handle->d_userData_p = userData;
+    handle->d_type             = SessionPool_Handle::e_IMPORTED_SESSION;
+    handle->d_sessionStateCB   = cb;
+    handle->d_session_p        = 0;
+    handle->d_channel_p        = 0;
+    handle->d_userData_p       = userData;
     handle->d_sessionFactory_p = sessionFactory;
-    handle->d_handleId = d_handles.add(handle);
-    *handleBuffer = handle->d_handleId;
+    handle->d_handleId         = d_handles.add(handle);
+    *handleBuffer              = handle->d_handleId;
 
     int ret = d_channelPool_p->import(streamSocket,
                                       handle->d_handleId,
                                       false);
+
     if (ret) {
         d_handles.remove(handle->d_handleId);
         return ret;                                                   // RETURN
@@ -958,6 +980,7 @@ int SessionPool::listen(
 {
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
+
     return listen(handleBuffer,
                   cb,
                   endpoint,
@@ -980,6 +1003,7 @@ int SessionPool::listen(
 {
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
+
     return listen(handleBuffer,
                   cb,
                   endpoint,
@@ -1022,18 +1046,17 @@ int SessionPool::listen(
     BSLS_ASSERT(d_channelPool_p);
 
     HandlePtr handle(new (*d_allocator_p) SessionPool_Handle(),
-                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter,
-                                           this),
+                     bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter, this),
                      d_allocator_p);
 
-    handle->d_type = SessionPool_Handle::LISTENER;
-    handle->d_sessionStateCB = cb;
-    handle->d_session_p  = 0;
-    handle->d_channel_p  = 0;
-    handle->d_userData_p = userData;
+    handle->d_type             = SessionPool_Handle::e_LISTENER;
+    handle->d_sessionStateCB   = cb;
+    handle->d_session_p        = 0;
+    handle->d_channel_p        = 0;
+    handle->d_userData_p       = userData;
     handle->d_sessionFactory_p = factory;
-    handle->d_handleId = d_handles.add(handle);
-    *handleBuffer = handle->d_handleId;
+    handle->d_handleId         = d_handles.add(handle);
+    *handleBuffer              = handle->d_handleId;
 
     int ret = d_channelPool_p->listen(endpoint,
                                       backlog,
@@ -1077,12 +1100,14 @@ int SessionPool::setWriteCacheWatermarks(int handleId,
 // ACCESSORS
 int SessionPool::portNumber(int handle) const
 {
-    const btlso::IPv4Address *address = d_channelPool_p->serverAddress(handle);
-    if (address) {
-        return address->portNumber();                                 // RETURN
+    btlso::IPv4Address address;
+    const int rc = d_channelPool_p->getServerAddress(&address, handle);
+    if (!rc) {
+        return address.portNumber();                                  // RETURN
     }
     return -1;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

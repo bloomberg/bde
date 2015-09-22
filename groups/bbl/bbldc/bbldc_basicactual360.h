@@ -72,9 +72,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // =====================
-                         // struct BasicActual360
-                         // =====================
+                          // =====================
+                          // struct BasicActual360
+                          // =====================
 
 struct BasicActual360 {
     // This 'struct' provides a namespace for a suite of pure functions that
@@ -101,12 +101,12 @@ struct BasicActual360 {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // ----------------
-                           // struct Actual360
-                           // ----------------
+                             // ----------------
+                             // struct Actual360
+                             // ----------------
 
 // CLASS METHODS
 inline

@@ -2279,6 +2279,7 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+    ball::LoggerManager::shutDownSingleton();
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

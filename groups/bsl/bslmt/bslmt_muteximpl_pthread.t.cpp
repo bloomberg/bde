@@ -6,6 +6,7 @@
 #include <bsls_atomic.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_ctime.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

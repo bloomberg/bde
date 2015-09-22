@@ -23,7 +23,7 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // [ 1] btlmt::ChannelPoolConfiguration();
-// [ 1] btlmt::ChannelPoolConfiguration(const btlmt::ChannelPoolConfiguration&);
+// [ 1] btlmt::ChannelPoolConfiguration(original);
 // [ 1] ~btlmt::ChannelPoolConfiguration();
 // [ 1] btlmt::ChannelPoolConfiguration&
 // [ 1] operator=(const btlmt::ChannelPoolConfiguration& rhs);
@@ -31,10 +31,8 @@ using namespace bsl;  // automatically added by script
 // [ 2] int setOutgoingMessageSizes(int min, int typical, int max);
 // [ 2] int setMaxConnections(int maxConnections);
 // [ 2] int setMaxThreads(int maxThreads);
-// [ 2] int setMaxWriteCache(int numBytes);
 // [ 2] int setMetricsInterval(double metricsInterval);
 // [ 2] int setReadTimeout(double readTimeout);
-// [ 2] int setWorkloadThreshold(int threshold);
 // [ 1] int minIncomingMessageSize() const;
 // [ 1] int typicalIncomingMessageSize() const;
 // [ 1] int maxIncomingMessageSize() const;
@@ -43,7 +41,6 @@ using namespace bsl;  // automatically added by script
 // [ 1] int maxOutgoingMessageSize() const;
 // [ 1] int maxConnections() const;
 // [ 1] int maxThreads() const;
-// [ 1] int maxWriteCache() const;
 // [ 1] double metricsInterval() const;
 // [ 1] double readTimeout() const;
 //
@@ -133,7 +130,6 @@ const int MAXMESSAGESIZEOUT[NUM_VALUES]= {1<<20,14,  24,  304, 404, 504, 604 };
 const int MINMESSAGESIZEIN[NUM_VALUES] = { 1,   15,  25,  305, 405, 505, 605 };
 const int TYPMESSAGESIZEIN[NUM_VALUES] = { 1,   16,  26,  306, 406, 506, 606 };
 const int MAXMESSAGESIZEIN[NUM_VALUES] = { 1024,17,  27,  307, 407, 507, 607 };
-const int WORKLOADTHRESHOLD[NUM_VALUES]= { 100, 18,  28,  308, 408, 508, 608 };
 const int THREADSTACKSIZE[NUM_VALUES]  = { 1048576, 512, 600, 700, 800, 900,
                                                                          999 };
 const bool COLLECTMETRICS[NUM_VALUES] =
@@ -254,7 +250,7 @@ int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
 
 template <class RVALUE_TYPE>
 template <class LVALUE_TYPE, class INFO_TYPE>
-int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object,
+int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *,
                                          const INFO_TYPE&) const
 {
     return -1;
@@ -268,8 +264,6 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -396,8 +390,8 @@ int main(int argc, char *argv[])
         {
             btlmt::ChannelPoolConfiguration cpc;
             for (int i = 0; i <  NUM_NAMES; ++i) {
-                bdlat_AttributeInfo info
-                     = btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[i];
+                bdlat_AttributeInfo info =
+                      btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[i];
 
                 LOOP_ASSERT(i, NAMES[i] == bsl::string(info.name(),
                                                            info.nameLength()));
@@ -639,15 +633,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX1.setMaxThreads(1));
             ASSERT(1 == X1.maxThreads());
         }
-        if (verbose) cout << "\t Check maxWriteCache contraint. " << endl;
-        {
-            ASSERT(0 != mX1.setMaxWriteCache(-1));
-            ASSERT(MAXWRITECACHE[0] == mX1.maxWriteCache());
-            ASSERT(0 == mX1.setMaxWriteCache(0));
-            ASSERT(0 == X1.maxWriteCache());
-            ASSERT(0 == mX1.setMaxWriteCache(1));
-            ASSERT(1 == X1.maxWriteCache());
-        }
         if (verbose) cout << "\t Check readTimeOut contraint. " << endl;
         {
             ASSERT(0 != mX1.setReadTimeout(-1.1));
@@ -665,12 +650,6 @@ int main(int argc, char *argv[])
             ASSERT(0.0 == X1.metricsInterval());
             ASSERT(0 == mX1.setMetricsInterval(0.1));
             ASSERT(0.1 == X1.metricsInterval());
-        }
-        if (verbose) cout << "\t Check workloadThreshold contraint. " << endl;
-        {                                                         // DEPRECATED
-            ASSERT(0 != mX1.setWorkloadThreshold(-1));
-            ASSERT(0 == mX1.setWorkloadThreshold(0));
-            ASSERT(0 == mX1.setWorkloadThreshold(1));
         }
         if (verbose) cout << "\t Check messageSizeIn contraint. " << endl;
         {
@@ -747,12 +726,22 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // Basic Attribute Test:
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Basic Attribute Test" << endl
-                          << "=====================" << endl;
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         Obj mX1, mY1; const Obj& X1 = mX1; const Obj& Y1 = mY1;
         Obj mZ1; const Obj& Z1 = mZ1; // Z1 is the control
@@ -768,7 +757,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -788,7 +776,6 @@ int main(int argc, char *argv[])
                                                 MAXMESSAGESIZEOUT[0]));
         ASSERT(0 == mX1.setMaxConnections(MAXCONNECTIONS[0]));
         ASSERT(0 == mX1.setMaxThreads(MAXNUMTHREADS[0]));
-        ASSERT(0 == mX1.setMaxWriteCache(MAXWRITECACHE[0]));
         ASSERT(0 == mX1.setMetricsInterval(METRICSINTERVAL[0]));
         ASSERT(0 == mX1.setReadTimeout(READTIMEOUT[0]));
         ASSERT(0 == mX1.setThreadStackSize(THREADSTACKSIZE[0]));
@@ -814,7 +801,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -860,7 +846,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[1] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -904,7 +889,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[1] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -946,7 +930,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[1] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -979,49 +962,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t Change attribute 4." << endl;
 
-        ASSERT(0 == mX1.setMaxWriteCache(MAXWRITECACHE[1]));
-        ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
-        ASSERT( TYPMESSAGESIZEIN[0] == X1.typicalIncomingMessageSize());
-        ASSERT( MAXMESSAGESIZEIN[0] == X1.maxIncomingMessageSize());
-        ASSERT(MINMESSAGESIZEOUT[0] == X1.minOutgoingMessageSize());
-        ASSERT(TYPMESSAGESIZEOUT[0] == X1.typicalOutgoingMessageSize());
-        ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
-        ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
-        ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[1] == X1.maxWriteCache());
-        ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
-        ASSERT(      READTIMEOUT[0] == X1.readTimeout());
-        ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
-        ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
-
-        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
-        ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
-        ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
-        ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
-        {
-            Obj C(X1);
-            ASSERT(C == X1 == 1);          ASSERT(C != X1 == 0);
-        }
-
-        mY1 = X1;
-        ASSERT(1 == (Y1 == Y1));          ASSERT(0 == (Y1 != Y1));
-        ASSERT(1 == (Y1 == X1));          ASSERT(0 == (Y1 != X1));
-        ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
-
-        ASSERT(0 == mX1.setMaxWriteCache(MAXWRITECACHE[0]));
-        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
-        ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
-        ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
-
-        mX1 = mY1 = Z1;
-        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
-        ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
-        ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\t Change attribute 5." << endl;
-
         ASSERT(0 == mX1.setMetricsInterval(METRICSINTERVAL[1]));
         ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
         ASSERT( TYPMESSAGESIZEIN[0] == X1.typicalIncomingMessageSize());
@@ -1031,7 +971,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[1] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -1063,7 +1002,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\t Change attribute 6." << endl;
+        if (verbose) cout << "\t Change attribute 5." << endl;
 
         ASSERT(0 == mX1.setReadTimeout(READTIMEOUT[1]));
         ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
@@ -1074,7 +1013,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[1] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -1106,7 +1044,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\t Change attribute 7." << endl;
+        if (verbose) cout << "\t Change attribute 6." << endl;
 
         ASSERT(0 == mX1.setThreadStackSize(THREADSTACKSIZE[1]));
         ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
@@ -1117,7 +1055,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[1] == X1.threadStackSize());
@@ -1149,7 +1086,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\t Change attribute 8." << endl;
+        if (verbose) cout << "\t Change attribute 7." << endl;
 
         ASSERT(0 == mX1.setCollectTimeMetrics(COLLECTMETRICS[1]));
         ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
@@ -1160,7 +1097,6 @@ int main(int argc, char *argv[])
         ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
         ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
         ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
-        ASSERT(    MAXWRITECACHE[0] == X1.maxWriteCache());
         ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
@@ -1202,7 +1138,6 @@ int main(int argc, char *argv[])
                                                 MAXMESSAGESIZEOUT[1]));
         ASSERT(0 == mY1.setMaxConnections(MAXCONNECTIONS[1]));
         ASSERT(0 == mY1.setMaxThreads(MAXNUMTHREADS[1]));
-        ASSERT(0 == mY1.setMaxWriteCache(MAXWRITECACHE[1]));
         ASSERT(0 == mY1.setMetricsInterval(METRICSINTERVAL[1]));
         ASSERT(0 == mY1.setReadTimeout(READTIMEOUT[1]));
         ASSERT(0 == mY1.setThreadStackSize(THREADSTACKSIZE[1]));
@@ -1242,7 +1177,7 @@ int main(int argc, char *argv[])
                 "\tmaxConnections         : 10" NL
                 "\tmaxThreads             : 11" NL
                 "\twriteCacheLowWat       : 0" NL
-                "\twriteCacheHiWat        : 512" NL
+                "\twriteCacheHiWat        : 1048576" NL
                 "\treadTimeout            : 60" NL
                 "\tmetricsInterval        : 61.1" NL
                 "\tminOutgoingMessageSize : 12" NL

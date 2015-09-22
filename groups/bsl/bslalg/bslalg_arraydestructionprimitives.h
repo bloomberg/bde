@@ -209,8 +209,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
-    destroy(begin, end,
-            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
+    typename bsl::is_trivially_copyable<TARGET_TYPE>::type dummy;
+    destroy(begin, end, dummy);
 }
 
 }  // close package namespace

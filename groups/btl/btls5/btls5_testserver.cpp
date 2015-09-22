@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 #include <bsls_atomic.h>
 #include <btlmt_asyncchannel.h>
 #include <btlmt_session.h>
+#include <btlmt_sessionfactory.h>
 #include <btlmt_sessionpool.h>
 #include <btlmt_tcptimereventmanager.h>
 

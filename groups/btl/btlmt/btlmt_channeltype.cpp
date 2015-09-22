@@ -9,6 +9,11 @@ BSLS_IDENT_RCSID(btlmt_channeltype_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlmt {
+
+                     // ------------------
+                     // struct ChannelType
+                     // ------------------
+
 const char *ChannelType::toAscii(Value channelType)
 {
 #define CASE(X) case(e_ ## X): return #X
@@ -24,10 +29,10 @@ const char *ChannelType::toAscii(Value channelType)
 
 #undef CASE
 }
+
 }  // close package namespace
 
-bsl::ostream&
-btlmt::operator<<(bsl::ostream& output, ChannelType::Value rhs)
+bsl::ostream& btlmt::operator<<(bsl::ostream& output, ChannelType::Value rhs)
 {
     return output << ChannelType::toAscii(rhs);
 }

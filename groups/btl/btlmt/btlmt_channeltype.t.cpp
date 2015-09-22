@@ -3,7 +3,7 @@
 #include <btlmt_channeltype.h>
 
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -18,8 +18,8 @@ using namespace bsl;  // automatically added by script
 //                                  --------
 // Standard enumeration test plan.
 // ----------------------------------------------------------------------------
-// [ 1] enum VAlue { ... };
-// [ 1] enum { LENGTH = ... };
+// [ 1] enum Value { ... };
+// [ 1] enum { e_LENGTH = ... };
 // [ 1] static const char *toAscii(Day value);
 //
 // [ 1] operator<<(ostream&, btlmt::ChannelType::Value rhs);
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef btlmt::ChannelType  Class;
+typedef btlmt::ChannelType Class;
 typedef Class::Value       Enum;
 
 //=============================================================================
@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -100,7 +99,7 @@ int main(int argc, char *argv[]) {
 // and initialize it to the value 'btlmt::ChannelType::e_CONNECTED_CHANNEL'.
 //..
     btlmt::ChannelType::Value channelType =
-                                    btlmt::ChannelType::e_CONNECTED_CHANNEL;
+                                       btlmt::ChannelType::e_CONNECTED_CHANNEL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
@@ -118,15 +117,43 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 1: {
-        // --------------------------------------------------------
+        // -------------------------------------------------------------------
+        // TESTING 'enum' AND 'toAscii'
+        //
+        // Concerns:
+        //: 1 The enumerator values are sequential, starting from 0.
+        //:
+        //: 2 The 'toAscii' method returns the expected string representation
+        //:   for each enumerator.
+        //:
+        //: 3 The 'toAscii' method returns a distinguished string when passed
+        //:   an out-of-band value.
+        //:
+        //: 4 The string returned by 'toAscii' is non-modifiable.
+        //:
+        //: 5 The 'toAscii' method has the expected signature.
+        //
+        // Plan:
+        //: 1 Verify that the enumerator values are sequential, starting from
+        //:   0.  (C-1)
+        //:
+        //: 2 Verify that the 'toAscii' method returns the expected string
+        //:   representation for each enumerator.  (C-2)
+        //:
+        //: 3 Verify that the 'toAscii' method returns a distinguished string
+        //:   when passed an out-of-band value.  (C-3)
+        //:
+        //: 4 Take the address of the 'toAscii' (class) method and use the
+        //:   result to initialize a variable of the appropriate type.
+        //:   (C-4..5)
+        //
         // Testing:
-        //   static const char *toAscii(Day dayOfWeek);
-        //   ostream& operator<<(ostream& output,
-        //                       bdlt::DayOfWeek::Enum dayOfWeek);
-        // --------------------------------------------------------
+        //   enum Enum { ... };
+        //   const char *toAscii(baetzo_LocalTimeValidity::Enum val);
+        // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BASIC TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) cout << endl << "TESTING 'enum' AND 'toAscii'" << endl
+                                  << "============================" << endl;
 
         static const struct {
             int         d_line;                // Line number
@@ -147,6 +174,19 @@ int main(int argc, char *argv[]) {
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        const int NUM_ENUMERATORS = 5;
+
+        if (verbose) cout << "\nVerify enumerator values are sequential."
+                          << endl;
+
+        for (int i = 0; i < NUM_ENUMERATORS; ++i) {
+            const Enum VALUE = (Enum) DATA[i].d_intType;
+
+            if (veryVerbose) { P_(i); P(VALUE); }
+
+            LOOP_ASSERT(i, i + 1 == VALUE);
+        }
+
         if (verbose) cout << "Testing 'toAscii'." << endl;
         {
             for (int i = 0 ; i < NUM_DATA; ++i) {
@@ -162,27 +202,15 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "Testing 'operator<<'." << endl;
         {
-            const int   SIZE = 100;
-            char        buf[SIZE];
-            const char  XX = (char) 0xFF;   // Value for an unset char.
-            char        mCtrl[SIZE];           memset(mCtrl, XX, SIZE);
-            const char *CTRL = mCtrl;
-
             for (int i = 0 ; i < NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const Enum  TYPE  = (Enum) DATA[i].d_intType;
-                const char *EXP  = DATA[i].d_exp;
+                const int    LINE = DATA[i].d_line;
+                const Enum   TYPE = (Enum) DATA[i].d_intType;
+                const string EXP  = DATA[i].d_exp;
 
-                memset(buf, XX, SIZE);
-                ostrstream out(buf, SIZE);
-                out << TYPE << ends;
+                ostringstream os;
+                os << TYPE;
 
-                const int SZ = strlen(EXP) + 1;
-                if (veryVerbose) { cout << '\t'; P_(i); P(buf); }
-                LOOP2_ASSERT(LINE, i, XX == buf[SIZE - 1]);
-                LOOP2_ASSERT(LINE, i,  0 == memcmp(buf, EXP, SZ));
-                LOOP2_ASSERT(LINE, i,
-                             0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
+                LOOP_ASSERT(LINE, EXP == os.str());
             }
         }
 

@@ -30,6 +30,7 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlmt {
+
                        // ------------------------
                        // class ChannelPoolChannel
                        // ------------------------
@@ -81,8 +82,7 @@ void ChannelPoolChannel::registerTimeoutAndUpdateClockId(
 
     ReadQueue::iterator entryIter = d_readQueue.end();
     --entryIter;
-    bsl::function<void()> timeoutCallback(
-           bdlf::BindUtil::bind(
+    bsl::function<void()> timeoutCallback(bdlf::BindUtil::bind(
                   bdlf::MemFnUtil::memFn(&ChannelPoolChannel::timeoutCb, this),
                   entryIter));
 
@@ -109,8 +109,9 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
     d_channelPool_p->deregisterClock(timerId);
 
     if (invokeCallback) {
-        int          dummy;
+        int        dummy;
         btlb::Blob dummyBlob;
+
         callback(cancellationCode, &dummy, &dummyBlob, 0);
     }
 }
@@ -119,7 +120,7 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 ChannelPoolChannel::ChannelPoolChannel(
                              int                             channelId,
                              ChannelPool                    *channelPool,
-                             btlb::BlobBufferFactory      *blobBufferFactory,
+                             btlb::BlobBufferFactory        *blobBufferFactory,
                              bdlma::ConcurrentPoolAllocator *spAllocator,
                              bslma::Allocator               *basicAllocator)
 : d_mutex()
@@ -174,8 +175,7 @@ int ChannelPoolChannel::timedRead(int                          numBytes,
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
-int ChannelPoolChannel::write(const btlb::Blob& blob,
-                              int                 highWaterMark)
+int ChannelPoolChannel::write(const btlb::Blob& blob, int highWaterMark)
 {
     return d_channelPool_p->write(d_channelId, blob, highWaterMark);
 }
@@ -184,7 +184,6 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    // TBD FIX ME
     // It seems that at this point, 'd_callbackInProgress' must be false.  We
     // need to investigate and remove the if statement if this is true.
 
@@ -207,11 +206,119 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
 
             int          dummy = 0;
             btlb::Blob emptyBlob;
+
             callback(AsyncChannel::e_TIMEOUT,
                      &dummy,
                      &emptyBlob,
                      d_channelId);
         }
+    }
+}
+
+void ChannelPoolChannel::cancelRead()
+{
+    const int NUM_ENTRIES = 16;
+    const int SIZE        = NUM_ENTRIES * sizeof(ReadQueueEntry);
+
+    char                               BUFFER[SIZE];
+    bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
+    ReadQueue cancelQueue(&bufferAllocator);
+
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        if (!d_readQueue.size()) {
+            return;                                                   // RETURN
+        }
+
+        ReadQueue::iterator it = d_readQueue.begin();
+
+        if (d_callbackInProgress) {
+            it->d_progress = AsyncChannel::e_CANCELED;
+            ++it;
+        }
+
+        if (!d_closed) {
+            cancelQueue.insert(cancelQueue.end(), it, d_readQueue.end());
+        }
+
+        for (ReadQueue::iterator it2 = it; it2 != d_readQueue.end(); ++it2) {
+            if (bsls::TimeInterval(0) != it2->d_timeOut) {
+                d_channelPool_p->deregisterClock(it2->d_timeOutTimerId);
+            }
+        }
+
+        d_readQueue.erase(it, d_readQueue.end());
+    }
+
+    if (!d_closed) {
+        // We do not invoke callbacks on a closed channel, because to be
+        // correct those callbacks should only be involved in the dispatcher
+        // thread of the channel pool's manager corresponding to this channel,
+        // but this object might be being destroyed and no further callbacks
+        // referencing this channel should be invoked.
+
+        bsls::TimeInterval now = bdlt::CurrentTime::now();
+        int dummy = 0;
+        btlb::Blob dummyBlob;
+        for (ReadQueue::iterator it = cancelQueue.begin();
+             it != cancelQueue.end(); ++it) {
+            bsl::function<void()> cancelNotifyCallback(
+                                 bdlf::BindUtil::bind(it->d_readCallback,
+                                                      AsyncChannel::e_CANCELED,
+                                                      &dummy,
+                                                      &dummyBlob,
+                                                      d_channelId));
+
+            int rc;
+            while (1 == (rc = d_channelPool_p->registerClock(
+                                                        cancelNotifyCallback,
+                                                        now,
+                                                        bsls::TimeInterval(0),
+                                                        ++d_nextClockId,
+                                                        d_channelId))) {
+                d_nextClockId += 0x01000000;
+            }
+
+            if (rc) {
+                // The channel was already cleaned up in channel pool because
+                // the connection was closed at the other end.  We assume that
+                // this is the event manager's dispatcher thread and it is safe
+                // to invoke the cancel notify callback from this thread.
+
+                cancelNotifyCallback();
+            }
+        }
+    }
+}
+
+void ChannelPoolChannel::close()
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+    if (!d_closed) {
+        d_closed = true;
+        d_channelPool_p->shutdown(d_channelId, ChannelPool::e_IMMEDIATE);
+
+        if (!d_readQueue.size()) {
+            return;                                                   // RETURN
+        }
+
+        ReadQueue::iterator it = d_readQueue.begin();
+
+        if (d_callbackInProgress) {
+            it->d_progress = AsyncChannel::e_CLOSED;
+            ++it;
+        }
+
+        for (ReadQueue::iterator it2 = it; it2 != d_readQueue.end(); ++it2) {
+            if (bsls::TimeInterval(0) != it2->d_timeOut) {
+                d_channelPool_p->deregisterClock(it2->d_timeOutTimerId);
+            }
+        }
+
+        d_readQueue.erase(it, d_readQueue.end());
     }
 }
 
@@ -273,113 +380,7 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
     lock.release()->unlock();
 }
 
-void ChannelPoolChannel::cancelRead()
-{
-    const int NUM_ENTRIES = 16;
-    const int SIZE        = NUM_ENTRIES * sizeof(ReadQueueEntry);
-
-    char BUFFER[SIZE];
-    bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
-
-    ReadQueue cancelQueue(&bufferAllocator);
-
-    {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-        if (!d_readQueue.size()) {
-            return;                                                   // RETURN
-        }
-
-        ReadQueue::iterator it = d_readQueue.begin();
-
-        if (d_callbackInProgress) {
-            it->d_progress = AsyncChannel::e_CANCELED;
-            ++it;
-        }
-
-        if (!d_closed) {
-            cancelQueue.insert(cancelQueue.end(), it, d_readQueue.end());
-        }
-
-        for (ReadQueue::iterator it2 = it; it2 != d_readQueue.end(); ++it2) {
-            if (bsls::TimeInterval(0) != it2->d_timeOut) {
-                d_channelPool_p->deregisterClock(it2->d_timeOutTimerId);
-            }
-        }
-
-        d_readQueue.erase(it, d_readQueue.end());
-    }
-
-    if (!d_closed) {
-        // We do not invoke callbacks on a closed channel, because to be
-        // correct those callbacks should only be involved in the dispatcher
-        // thread of the channel pool's manager corresponding to this channel,
-        // but this object might be being destroyed and no further callbacks
-        // referencing this channel should be invoked.
-
-        bsls::TimeInterval now = bdlt::CurrentTime::now();
-        int dummy = 0;
-        btlb::Blob dummyBlob;
-        for (ReadQueue::iterator it = cancelQueue.begin();
-             it != cancelQueue.end(); ++it) {
-            bsl::function<void()> cancelNotifyCallback(
-                        bdlf::BindUtil::bind(it->d_readCallback,
-                                             AsyncChannel::e_CANCELED,
-                                             &dummy,
-                                             &dummyBlob,
-                                             d_channelId));
-
-            int rc;
-            while (1 == (rc = d_channelPool_p->registerClock(
-                                                        cancelNotifyCallback,
-                                                        now,
-                                                        bsls::TimeInterval(0),
-                                                        ++d_nextClockId,
-                                                        d_channelId))) {
-                d_nextClockId += 0x01000000;
-            }
-            if (rc) {
-                // The channel was already cleaned up in channel pool
-                // because the connection was closed at the other end.
-                // We assume that this is the event manager's dispatcher
-                // thread and it is safe to invoke the cancel notify
-                // callback from this thread.
-
-                cancelNotifyCallback();
-            }
-        }
-    }
-}
-
-void ChannelPoolChannel::close()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    if (!d_closed) {
-        d_closed = true;
-        d_channelPool_p->shutdown(d_channelId, ChannelPool::e_IMMEDIATE);
-
-        if (!d_readQueue.size()) {
-            return;                                                   // RETURN
-        }
-
-        ReadQueue::iterator it = d_readQueue.begin();
-
-        if (d_callbackInProgress) {
-            it->d_progress = AsyncChannel::e_CLOSED;
-            ++it;
-        }
-
-        for (ReadQueue::iterator it2 = it; it2 != d_readQueue.end(); ++it2) {
-            if (bsls::TimeInterval(0) != it2->d_timeOut) {
-                d_channelPool_p->deregisterClock(it2->d_timeOutTimerId);
-            }
-        }
-
-        d_readQueue.erase(it, d_readQueue.end());
-    }
-}
-
+// ACCESSORS
 btlso::IPv4Address ChannelPoolChannel::localAddress() const
 {
     return d_localAddress;

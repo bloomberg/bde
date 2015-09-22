@@ -67,7 +67,7 @@ using namespace bdlf::PlaceHolders;
 
 enum {
 
-    MAX_IOVEC_SIZE =  btlmt::ChannelPool_MessageUtil::e_MAX_IOVEC_SIZE
+    k_MAX_IOVEC_SIZE =  btlmt::ChannelPool_MessageUtil::e_MAX_IOVEC_SIZE
 };
 
 // IMPLEMENTATION NOTES: This implementation file is quite large and uses a
@@ -125,32 +125,33 @@ enum {
 enum {
     // Metrics categories.
 
-    IO_BOUND           = 0,
-    CPU_BOUND          = 1,
+    e_IO_BOUND           = 0,
+    e_CPU_BOUND          = 1,
 
     // Spin optimization for enableRead waiting for e_CHANNEL_UP.
 
-    MAX_SPIN           = 1000,         // iterations
+    k_MAX_SPIN           = 1000,         // iterations
 
     // Exponential backoff parameters in acceptCb (if FD limit reached).
 
-    WAIT_FOR_RESOURCES = 1,            // 1s
-    MAX_EXP_BACKOFF    = 64,           // 64s
+    k_WAIT_FOR_RESOURCES = 1,            // 1s
+    k_MAX_EXP_BACKOFF    = 64,           // 64s
 
     // Error codes
-    SET_NONBLOCKING_FAILED      = -7, // matches what 'listen' returns
-    FAILED_RESOLUTION           = -2,
-    NOT_RUNNING                 = -1,
-    SUCCESS                     =  0,
-    DUPLICATE_ID                =  1
+
+    e_SET_NONBLOCKING_FAILED = -7, // matches what 'listen' returns
+    e_FAILED_RESOLUTION      = -2,
+    e_NOT_RUNNING            = -1,
+    e_SUCCESS                =  0,
+    e_DUPLICATE_ID           =  1
 };
 
 enum ChannelDownMask {
     // Channel down masks (for half-closed connections).
 
-    CLOSED_SEND_MASK    = 0x1,
-    CLOSED_RECEIVE_MASK = 0x2,
-    CLOSED_BOTH_MASK    = CLOSED_SEND_MASK | CLOSED_RECEIVE_MASK
+    e_CLOSED_SEND_MASK    = 0x1,
+    e_CLOSED_RECEIVE_MASK = 0x2,
+    e_CLOSED_BOTH_MASK    = e_CLOSED_SEND_MASK | e_CLOSED_RECEIVE_MASK
 };
 
                     // ===================
@@ -165,8 +166,8 @@ class Channel {
     //
     // Reading from a channel is triggered by a registered socket event which
     // calls, when data is available for reading, calling 'readCb'.  This
-    // method extracts the data from the socket, appends it into a
-    // 'btlb::Blob' and invokes the registered data callback as needed.
+    // method extracts the data from the socket, appends it into a 'btlb::Blob'
+    // and invokes the registered data callback as needed.
     //
     // Writing is done first in the calling thread, and if no more space is
     // available on the socket, is enqueued into the outgoing message, or if
@@ -193,7 +194,7 @@ class Channel {
         // Blob based callback for reading data, if reading is enabled on this
         // channel.
 
-    typedef bsl::shared_ptr<Channel> ChannelHandle;
+    typedef bsl::shared_ptr<Channel>                ChannelHandle;
         // Handle shared by all the callbacks and functions which are at some
         // point enqueued in the time queue of an event manager, to ensure that
         // the channel lives at least as long as the callbacks that reference
@@ -202,135 +203,166 @@ class Channel {
     // PRIVATE DATA MEMBERS
 
     // Socket section
-    bslma::ManagedPtr<StreamSocket> d_socket;                // socket
+
+    bslma::ManagedPtr<StreamSocket>  d_socket;           // socket
 
     // Callbacks functors section
-    ChannelStateChangeCallback      d_channelStateCb;
-    BlobBasedReadCallback           d_blobBasedReadCb;
+
+    ChannelStateChangeCallback       d_channelStateCb;
+
+    BlobBasedReadCallback            d_blobBasedReadCb;
 
     // Callback data section
-    const int                       d_channelId;
-    const int                       d_sourceId;
-    void                           *d_userData;              // (held)
+
+    const int                        d_channelId;
+
+    const int                        d_sourceId;
+
+    void                            *d_userData;         // (held)
 
     // Channel incoming data section
-    btls::Iovec                     d_ivecs[MAX_IOVEC_SIZE]; // local buffer,
-                                                             // stack-allocated
 
-    int                             d_numUsedIVecs;          // num buffers
-                                                             // in 'd_ivecs'
+    btls::Iovec                      d_ivecs[k_MAX_IOVEC_SIZE];
+                                                         // local buffer,
+                                                         // stack-allocated
 
-    int                             d_minBytesBeforeNextCb;
-                                            // minimum number of bytes to be
-                                            // accumulated before invoking next
-                                            // user callback
+    int                              d_numUsedIVecs;     // num buffers
+                                                         // in 'd_ivecs'
+
+    int                              d_minBytesBeforeNextCb;
+                                                         // minimum number of
+                                                         // bytes to be
+                                                         // accumulated before
+                                                         // invoking next user
+                                                         // callback
 
     // Channel outgoing data section
-    btls::Iovec                     d_ovecs[MAX_IOVEC_SIZE]; // local buffer,
-                                                             // stack-allocated
 
-    volatile bool                   d_hiWatermarkHitFlag;    // already full
+    btls::Iovec                      d_ovecs[k_MAX_IOVEC_SIZE];
+                                                         // local buffer,
+                                                         // stack-allocated
+
+    volatile bool                    d_hiWatermarkHitFlag;
+                                                         // already full
 
     // Channel state section (here for packing boolean flags together)
 
-    char                            d_channelType;           // created how?
+    char                             d_channelType;      // created how?
 
-    bool                            d_enableReadFlag;        // are we reading?
+    bool                             d_enableReadFlag;   // are we reading?
 
     // Channel parameters section
-    bool                            d_keepHalfOpenMode;
 
-    const bool                      d_useReadTimeout;
-                                            // 'true' if read timeouts should
-                                            // be registered
+    bool                             d_keepHalfOpenMode;
 
-    bsls::TimeInterval              d_readTimeout;           // read timeout
-                                                             // interval
+    const bool                       d_useReadTimeout;   // 'true' if read
+                                                         // timeouts should be
+                                                         // registered
 
-    int                             d_writeCacheLowWat;
+    bsls::TimeInterval               d_readTimeout;      // read timeout
+                                                         // interval
 
-    int                             d_writeCacheHiWat;
+    int                              d_writeCacheLowWat;
 
-    const int                       d_minIncomingMessageSize;
+    int                              d_writeCacheHiWat;
+
+    const int                        d_minIncomingMessageSize;
 
     // Channel state section (continued)
-    bsls::AtomicInt                 d_channelDownFlag;       // are we down?
 
-    volatile int                    d_channelUpFlag;         // are we running?
+    bsls::AtomicInt                  d_channelDownFlag;  // are we down?
+
+    volatile int                     d_channelUpFlag;    // are we running?
 
     // Channel managers section
-    ChannelPool                    *d_channelPool_p;         // (held)
+    ChannelPool                     *d_channelPool_p;    // (held)
 
-    TcpTimerEventManager           *d_eventManager_p;        // (held)
+    TcpTimerEventManager            *d_eventManager_p;   // (held)
 
-    void                           *d_readTimeoutTimerId;
+    void                            *d_readTimeoutTimerId;
 
     // Channel statistics section
-    bsls::TimeInterval              d_creationTime;          // time this
-                                                             // object was
-                                                             // created
+    bsls::TimeInterval               d_creationTime;     // time this object
+                                                         // was created
 
-    volatile bsls::Types::Int64     d_numBytesRead;
-                                            // bytes read from channel, should
-                                            // only be updated by callbacks
-                                            // executing in the event manager
-                                            // thread
+    volatile bsls::Types::Int64      d_numBytesRead;     // bytes read from
+                                                         // channel, should
+                                                         // only be updated by
+                                                         // callbacks
+                                                         // executing in the
+                                                         // event manager
+                                                         // thread
 
-    volatile bsls::Types::Int64     d_numBytesWritten;
-                                            // bytes written to channel,
-                                            // modification synchronized with
-                                            // output to channel (i.e.,
-                                            // 'd_writeMutex' and
-                                            // 'd_isWriteActive')
+    volatile bsls::Types::Int64      d_numBytesWritten;  // bytes written to
+                                                         // channel,
+                                                         // modification
+                                                         // synchronized with
+                                                         // output to channel
+                                                         // (i.e.,
+                                                         // 'd_writeMutex' and
+                                                         // 'd_isWriteActive')
 
-    volatile bsls::Types::Int64     d_numBytesRequestedToBeWritten;
-                                            // bytes requested to be written
-                                            // to channel; modification
-                                            // synchronized with 'd_writeMutex'
+    volatile bsls::Types::Int64      d_numBytesRequestedToBeWritten;
+                                                         // bytes requested to
+                                                         // be written to
+                                                         // channel;
+                                                         // modification
+                                                         // synchronized with
+                                                         // 'd_writeMutex'
 
-    bsls::AtomicInt                 d_recordedMaxWriteCacheSize;
-                                            // maximum recorded size of the
-                                            // write cache
+    bsls::AtomicInt                  d_recordedMaxWriteCacheSize;
+                                                         // maximum recorded
+                                                         // size of the write
+                                                         // cache
 
     // DO NOT CHANGE THE ORDER OF THESE TWO DATA MEMBERS
-    btlb::BlobBufferFactory      *d_readBlobFactory_p;  // for d_blobReadData
-    btlb::Blob                    d_blobReadData;       // blob for read data
 
-    btlso::IPv4Address              d_peerAddress;        // peer address
+    btlb::BlobBufferFactory         *d_readBlobFactory_p;// factory for
+                                                         // 'd_blobReadData'
+
+    btlb::Blob                       d_blobReadData;     // blob for read data
+
+    btlso::IPv4Address               d_peerAddress;      // peer address
 
     // Memory allocation section (pointers held, not owned)
-    btlb::BlobBufferFactory      *d_writeBlobFactory_p;
-                                            // for d_writeActiveData and
-                                            // d_writeEnqueuedData
 
-    bsl::shared_ptr<btlb::Blob>   d_writeEnqueuedData;   // outgoing msgs,
-                                                           // concatenated
+    btlb::BlobBufferFactory         *d_writeBlobFactory_p;
+                                                         // factory for
+                                                         // d_writeActiveData
+                                                         // and
+                                                         // d_writeEnqueuedData
 
-    bsl::shared_ptr<btlb::Blob>   d_writeActiveData;     // first msg to go
+    bsl::shared_ptr<btlb::Blob>      d_writeEnqueuedData;// outgoing msgs,
+                                                         // concatenated
 
-    int                             d_writeActiveDataCurrentBuffer;
+    bsl::shared_ptr<btlb::Blob>      d_writeActiveData;  // first msg to go
 
-    int                             d_writeActiveDataCurrentOffset;
+    int                              d_writeActiveDataCurrentBuffer;
 
-    bslmt::Mutex                    d_writeMutex;
-                                            // synching access to the 'write'
-                                            // data members (variables
-                                            // 'd_write*', and
-                                            // 'd_isWriteActive'.
+    int                              d_writeActiveDataCurrentOffset;
 
-    bool                            d_isWriteActive; // a thread is actively
-                                                     // writing
+    bslmt::Mutex                     d_writeMutex;       // synching access to
+                                                         // the 'write' data
+                                                         // members (variables
+                                                         // 'd_write*', and
+                                                         // 'd_isWriteActive'.
 
-    bsls::AtomicInt                 d_writeActiveCacheSize;
-                                            // number of bytes currently being
-                                            // written (including in
-                                            // d_writeActiveData)
+    bool                             d_isWriteActive;    // a thread is
+                                                         // actively writing
 
-    bdlma::ConcurrentPoolAllocator *d_sharedPtrRepAllocator_p;
+    bsls::AtomicInt                  d_writeActiveCacheSize;
+                                                         // number of bytes
+                                                         // currently being
+                                                         // written (including
+                                                         // in
+                                                         // d_writeActiveData)
 
-    bslma::Allocator               *d_allocator_p;        // for memory
+    bdlma::ConcurrentPoolAllocator  *d_sharedPtrRepAllocator_p;
+
+    bslma::Allocator                *d_allocator_p;      // for memory
 
     // PRIVATE MANIPULATORS
+
     void allocateNextReadBuffers(int numBytes, int totalBufferSize);
         // Allocate the buffers required for the next read operation, where the
         // specified 'numBytes' are read from the socket and there were the
@@ -396,8 +428,9 @@ class Channel {
         // (e.g., the callback that invoked the shutdown in the first place),
         // and this would lead to deadlock.
 
-    int protectAndCheckCallback(const ChannelHandle& self,
-                                ChannelDownMask      mask = CLOSED_BOTH_MASK);
+    int protectAndCheckCallback(
+                               const ChannelHandle& self,
+                               ChannelDownMask      mask = e_CLOSED_BOTH_MASK);
         // Check that the specified 'self' channel is identical to 'this', and
         // that this method is executed in the dispatcher thread of the event
         // manager associated with this channel.  Return 1 if the channel is
@@ -468,8 +501,8 @@ class Channel {
             bool                             mode,
             ChannelStateChangeCallback       channelCb,
             BlobBasedReadCallback            blobBasedReadCb,
-            btlb::BlobBufferFactory       *writeBlobBufferPool,
-            btlb::BlobBufferFactory       *readBlobBufferPool,
+            btlb::BlobBufferFactory         *writeBlobBufferPool,
+            btlb::BlobBufferFactory         *readBlobBufferPool,
             TcpTimerEventManager            *eventManager,
             ChannelPool                     *channelPool,
             bdlma::ConcurrentPoolAllocator  *sharedPtrAllocator,
@@ -578,10 +611,10 @@ class Channel {
 
     bool isChannelDown(ChannelDownMask mask) const;
         // Return 'true' is this channel is down for the specified 'mask'
-        // (meaning completely down if 'mask' is CLOSED_BOTH_MASK, and
+        // (meaning completely down if 'mask' is e_CLOSED_BOTH_MASK, and
         // completely down or down at least for the corresponding half-duplex
-        // connection if 'mask' is 'CLOSED_RECEIVE_MASK' or
-        // 'CLOSED_SEND_MASK'), and 'false' otherwise.
+        // connection if 'mask' is 'e_CLOSED_RECEIVE_MASK' or
+        // 'e_CLOSED_SEND_MASK'), and 'false' otherwise.
 
     bsls::Types::Int64 numBytesRead() const;
         // Return the number of bytes read from this channel since its
@@ -753,17 +786,17 @@ class Connector {
                                                        // unless the resolution
                                                        // flag is set
 
-    btlso::IPv4Address              d_serverAddress;   // server to connect to
+    btlso::IPv4Address             d_serverAddress;    // server to connect to
 
-    bsls::TimeInterval              d_creationTime;    // time at which
+    bsls::TimeInterval             d_creationTime;     // time at which
                                                        // connection was
                                                        // initiated
 
-    bsls::TimeInterval              d_period;          // timeout period
+    bsls::TimeInterval             d_period;           // timeout period
                                                        // between connection
                                                        //  attempts
 
-    bsls::TimeInterval              d_start;           // last absolute
+    bsls::TimeInterval             d_start;            // last absolute
                                                        // timeout
 
     void                          *d_timeoutTimerId;   // timer registered by
@@ -817,8 +850,7 @@ class Connector {
         // 'basicAllocator' is 0, use the currently installed default
         // allocator.
 
-    Connector(const Connector&  original,
-              bslma::Allocator *basicAllocator = 0);
+    Connector(const Connector& original, bslma::Allocator *basicAllocator = 0);
         // Create a copy of the specified 'original' connector.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, use the currently installed default
@@ -973,9 +1005,10 @@ void Channel::allocateNextReadBuffers(int numBytes, int totalBufferSize)
 
     if (numBytes
      && totalBufferSize == numBytes
-     && d_numUsedIVecs < MAX_IOVEC_SIZE) {
+     && d_numUsedIVecs < k_MAX_IOVEC_SIZE) {
         ++d_numUsedIVecs;
     }
+
     d_blobReadData.reserveBufferCapacity(
                              d_blobReadData.numDataBuffers() + d_numUsedIVecs);
 
@@ -987,8 +1020,9 @@ void Channel::allocateNextReadBuffers(int numBytes, int totalBufferSize)
     const int numDataBufs     = d_blobReadData.numDataBuffers();
     const int lastBufferLen   = d_blobReadData.lastDataBufferLength();
 
-    if (numDataBufs && lastBufferLen && lastBufferLen <
-                               d_blobReadData.buffer(numDataBufs - 1).size()) {
+    if (numDataBufs
+     && lastBufferLen
+     && lastBufferLen < d_blobReadData.buffer(numDataBufs - 1).size()) {
         ++numAvailBuffers;
     }
 
@@ -1025,10 +1059,10 @@ int Channel::populateIVecs()
     BSLS_ASSERT(d_numUsedIVecs <=
             d_blobReadData.numBuffers() - d_blobReadData.numDataBuffers() + 1);
 
-    int         totalBufferSize = 0;
-    int         startIdx        = d_blobReadData.numDataBuffers();
-    int         lastBufferLen   = d_blobReadData.lastDataBufferLength();
-    int         numIVecsToFill  = d_numUsedIVecs;
+    int          totalBufferSize = 0;
+    int          startIdx        = d_blobReadData.numDataBuffers();
+    int          lastBufferLen   = d_blobReadData.lastDataBufferLength();
+    int          numIVecsToFill  = d_numUsedIVecs;
     btls::Iovec *ivec            = d_ivecs;
 
     if (lastBufferLen
@@ -1038,7 +1072,7 @@ int Channel::populateIVecs()
 
         bsls::PerformanceHint::prefetchForWriting(buffer.data() +
                                                                 lastBufferLen);
-        ivec->setBuffer((void *)(buffer.data() + lastBufferLen),
+        ivec->setBuffer(static_cast<void *>(buffer.data() + lastBufferLen),
                         remainingBufferLen);
         totalBufferSize += remainingBufferLen;
         ++ivec;
@@ -1047,8 +1081,9 @@ int Channel::populateIVecs()
 
     for (int i = 0; i < numIVecsToFill; ++i, ++ivec) {
         const btlb::BlobBuffer& buffer = d_blobReadData.buffer(startIdx + i);
+
         bsls::PerformanceHint::prefetchForWriting(buffer.data());
-        ivec->setBuffer((void*)buffer.data(), buffer.size());
+        ivec->setBuffer(static_cast<void *>(buffer.data()), buffer.size());
         totalBufferSize += buffer.size();
     }
     return totalBufferSize;
@@ -1096,7 +1131,8 @@ namespace btlmt {
 void Channel::invokeChannelDown(ChannelHandle              self,
                                 ChannelPool::ChannelEvents type)
 {
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
 
@@ -1107,13 +1143,12 @@ void Channel::invokeChannelDown(ChannelHandle              self,
     if (ChannelPool::e_CHANNEL_DOWN_READ == type) {
         if (d_eventManager_p->isRegistered(socket()->handle(),
                                            btlso::EventType::e_READ)) {
-            d_eventManager_p->deregisterSocketEvent(
-                                                 socket()->handle(),
-                                                 btlso::EventType::e_READ);
+            d_eventManager_p->deregisterSocketEvent(socket()->handle(),
+                                                    btlso::EventType::e_READ);
         }
     }
     else if (ChannelPool::e_CHANNEL_DOWN == type) {
-        d_eventManager_p->deregisterSocket(this->socket()->handle());
+        d_eventManager_p->deregisterSocket(socket()->handle());
     }
 
     // Do not deregister the read time out if not closing the read part.
@@ -1131,12 +1166,15 @@ void Channel::invokeChannelDown(ChannelHandle              self,
 
 void Channel::invokeChannelUp(ChannelHandle)
 {
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
 
-    d_channelStateCb(d_channelId, d_sourceId,
+    d_channelStateCb(d_channelId,
+                     d_sourceId,
                      ChannelPool::e_CHANNEL_UP,
                      d_userData);
+
     d_channelUpFlag = 1;
 }
 
@@ -1163,22 +1201,26 @@ void Channel::notifyChannelDown(ChannelHandle             self,
 
     // Determine mask to apply to channel down flag.
 
-    int channelDownMask = CLOSED_BOTH_MASK;
+    int channelDownMask = e_CLOSED_BOTH_MASK;
+
     if (btlso::Flag::e_SHUTDOWN_RECEIVE == type) {
-        channelDownMask = CLOSED_RECEIVE_MASK;
+        channelDownMask = e_CLOSED_RECEIVE_MASK;
     }
+
     if (btlso::Flag::e_SHUTDOWN_SEND == type) {
-        channelDownMask = CLOSED_SEND_MASK;
+        channelDownMask = e_CLOSED_SEND_MASK;
     }
 
     // Atomically apply the mask to d_channelDownFlag and determine which
     // callbacks we are responsible for.
 
-    int channelDownFlag = d_channelDownFlag;
+    int channelDownFlag    = d_channelDownFlag;
     int newChannelDownFlag = channelDownFlag | channelDownMask;
-    while (channelDownFlag != d_channelDownFlag.testAndSwap(channelDownFlag,
+
+    while (channelDownFlag != d_channelDownFlag.testAndSwap(
+                                                         channelDownFlag,
                                                          newChannelDownFlag)) {
-        channelDownFlag = d_channelDownFlag;
+        channelDownFlag    = d_channelDownFlag;
         newChannelDownFlag = channelDownFlag | channelDownMask;
     }
 
@@ -1186,52 +1228,49 @@ void Channel::notifyChannelDown(ChannelHandle             self,
     // two, or all three callbacks in half-open mode, but only the last one if
     // half-open mode is not enabled.
 
-    if (d_keepHalfOpenMode &&
-        (channelDownFlag & CLOSED_RECEIVE_MASK)
-                               != (newChannelDownFlag & CLOSED_RECEIVE_MASK)) {
+    if (d_keepHalfOpenMode
+     && (channelDownFlag & e_CLOSED_RECEIVE_MASK)
+                             != (newChannelDownFlag & e_CLOSED_RECEIVE_MASK)) {
         if (serializedFlag) {
-            invokeChannelDown(self,
-                              ChannelPool::e_CHANNEL_DOWN_READ);
+            invokeChannelDown(self, ChannelPool::e_CHANNEL_DOWN_READ);
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &Channel::invokeChannelDown
-                      , this
-                      , self
-                      , ChannelPool::e_CHANNEL_DOWN_READ));
-
+                                            d_allocator_p,
+                                            &Channel::invokeChannelDown,
+                                            this,
+                                            self,
+                                            ChannelPool::e_CHANNEL_DOWN_READ));
             d_eventManager_p->execute(cb);
         }
     }
 
-    if (d_keepHalfOpenMode &&
-        (channelDownFlag & CLOSED_SEND_MASK)
-                                  != (newChannelDownFlag & CLOSED_SEND_MASK)) {
+    if (d_keepHalfOpenMode
+     && (channelDownFlag & e_CLOSED_SEND_MASK)
+                                != (newChannelDownFlag & e_CLOSED_SEND_MASK)) {
         if (serializedFlag) {
-            invokeChannelDown(self,
-                              ChannelPool::e_CHANNEL_DOWN_WRITE);
+            invokeChannelDown(self, ChannelPool::e_CHANNEL_DOWN_WRITE);
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &Channel::invokeChannelDown
-                      , this
-                      , self
-                      , ChannelPool::e_CHANNEL_DOWN_WRITE));
-
+                                           d_allocator_p,
+                                           &Channel::invokeChannelDown,
+                                           this,
+                                           self,
+                                           ChannelPool::e_CHANNEL_DOWN_WRITE));
             d_eventManager_p->execute(cb);
         }
     }
 
-    if (channelDownFlag != newChannelDownFlag &&
-        newChannelDownFlag == CLOSED_BOTH_MASK) {
-        bsls::TimeInterval intv = (d_channelPool_p->d_lastResetTime >
-                                                                 d_creationTime
-                               ? d_channelPool_p->d_lastResetTime
-                               : d_creationTime);
+    if (channelDownFlag    != newChannelDownFlag
+     && newChannelDownFlag == e_CLOSED_BOTH_MASK) {
+        bsls::TimeInterval intv =
+                             (d_channelPool_p->d_lastResetTime > d_creationTime
+                             ? d_channelPool_p->d_lastResetTime
+                             : d_creationTime);
 
         intv = bdlt::CurrentTime::now() - intv;
+
         d_channelPool_p->d_totalConnectionsLifetime.add(
                                    static_cast<int>(intv.totalMicroseconds()));
 
@@ -1239,14 +1278,18 @@ void Channel::notifyChannelDown(ChannelHandle             self,
             // Note that this lock must be held to ensure that updating the
             // adjustment to the metric totals, and removing the channel is
             // handled atomically.
+
             bslmt::LockGuard<bslmt::Mutex> guard(
-                                   &d_channelPool_p->d_metricAdjustmentMutex);
-            d_channelPool_p->d_totalBytesWrittenAdjustment+= d_numBytesWritten;
-            d_channelPool_p->d_totalBytesReadAdjustment   += d_numBytesRead;
+                                    &d_channelPool_p->d_metricAdjustmentMutex);
+
+            d_channelPool_p->d_totalBytesWrittenAdjustment +=
+                                                             d_numBytesWritten;
+            d_channelPool_p->d_totalBytesReadAdjustment    += d_numBytesRead;
             d_channelPool_p->d_totalBytesRequestedWrittenAdjustment +=
                                                d_numBytesRequestedToBeWritten;
 
             int rc = d_channelPool_p->d_channels.remove(d_channelId);
+
             BSLS_ASSERT(0 == rc);
         }
 
@@ -1255,11 +1298,11 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &Channel::invokeChannelDown
-                      , this
-                      , self
-                      , ChannelPool::e_CHANNEL_DOWN));
+                                                 d_allocator_p,
+                                                 &Channel::invokeChannelDown,
+                                                 this,
+                                                 self,
+                                                 ChannelPool::e_CHANNEL_DOWN));
 
             d_eventManager_p->execute(cb);
         }
@@ -1271,7 +1314,8 @@ int Channel::protectAndCheckCallback(const ChannelHandle& self,
                                      ChannelDownMask      mask)
 {
     BSLS_ASSERT(this == self.get());
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(isChannelDown(mask))) {
@@ -1289,7 +1333,7 @@ int Channel::protectAndCheckCallback(const ChannelHandle& self,
 void Channel::readCb(ChannelHandle self)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                    0 != protectAndCheckCallback(self, CLOSED_RECEIVE_MASK))) {
+                  0 != protectAndCheckCallback(self, e_CLOSED_RECEIVE_MASK))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
     }
@@ -1314,13 +1358,13 @@ void Channel::readCb(ChannelHandle self)
 
     int skip = 0;
     while (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_channelUpFlag)) {
-        // Spin until e_CHANNEL_UP messages is delivered.  This is done so
-        // that the user won't get DATA callback before a e_CHANNEL_UP]
-        // event is delivered.  We don't expect the loop to take very long, but
-        // just in case let's yield if the flag doesn't catch up.
+        // Spin until e_CHANNEL_UP messages is delivered.  This is done so that
+        // the user won't get DATA callback before a e_CHANNEL_UP] event is
+        // delivered.  We don't expect the loop to take very long, but just in
+        // case let's yield if the flag doesn't catch up.
 
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        if (skip < MAX_SPIN) {
+        if (skip < k_MAX_SPIN) {
             ++skip;
         }
         else {
@@ -1330,7 +1374,7 @@ void Channel::readCb(ChannelHandle self)
     bsls::PerformanceHint::prefetchForReading(d_userData);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         isChannelDown(CLOSED_RECEIVE_MASK))) {
+                                       isChannelDown(e_CLOSED_RECEIVE_MASK))) {
         // This readCb was invoked by a socket event after we executed
         // 'notifyChannelDown' in a different thread (from 'shutdown') and the
         // socket has not yet been deregistered (in pending
@@ -1343,6 +1387,7 @@ void Channel::readCb(ChannelHandle self)
     }
 
     // Note that 'lastRead' is used only to re-initialize the read timeout.
+
     bsls::TimeInterval lastRead;
     if (d_useReadTimeout) {
         lastRead = bdlt::CurrentTime::now();
@@ -1360,14 +1405,14 @@ void Channel::readCb(ChannelHandle self)
         // called back again.
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         isChannelDown(CLOSED_RECEIVE_MASK))) {
+                                       isChannelDown(e_CLOSED_RECEIVE_MASK))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             return;                                                   // RETURN
         }
 
         int totalBufferSize = populateIVecs();
 
-        readRet = this->socket()->readv(d_ivecs, d_numUsedIVecs);
+        readRet = socket()->readv(d_ivecs, d_numUsedIVecs);
 
         if (readRet < 0) {
             if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == readRet) {
@@ -1379,8 +1424,7 @@ void Channel::readCb(ChannelHandle self)
                 break;
             }
 
-            BSLS_ASSERT(
-                      btlso::SocketHandle::e_ERROR_INTERRUPTED != readRet);
+            BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != readRet);
 
             notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_RECEIVE);
             return;                                                   // RETURN
@@ -1391,6 +1435,7 @@ void Channel::readCb(ChannelHandle self)
 
         // Note that 'd_numBytesRead' is only updated by this callback, which
         // executes in the (single) event manager thread.
+
         d_numBytesRead += readRet;
 
         if (d_useReadTimeout) {
@@ -1411,6 +1456,7 @@ void Channel::readCb(ChannelHandle self)
 
     if (d_useReadTimeout) {
         const bsls::TimeInterval timeout = lastRead + d_readTimeout;
+
         if (!d_readTimeoutTimerId) {
             registerReadTimeoutCallback(timeout, self);
         }
@@ -1425,7 +1471,7 @@ void Channel::readCb(ChannelHandle self)
 
 void Channel::readTimeoutCb(ChannelHandle self)
 {
-    if (0 != protectAndCheckCallback(self, CLOSED_RECEIVE_MASK)) {
+    if (0 != protectAndCheckCallback(self, e_CLOSED_RECEIVE_MASK)) {
         return;                                                       // RETURN
     }
 
@@ -1477,38 +1523,39 @@ void Channel::registerReadTimeoutCallback(bsls::TimeInterval   timeout,
     BSLS_ASSERT(0 == d_readTimeoutTimerId);
 
     bsl::function<void()> readTimeoutFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &Channel::readTimeoutCb
-              , this
-              , self));
+                                                       d_allocator_p,
+                                                       &Channel::readTimeoutCb,
+                                                       this,
+                                                       self));
 
-    d_readTimeoutTimerId = d_eventManager_p->registerTimer(
-                                                timeout,
-                                                readTimeoutFunctor);
+    d_readTimeoutTimerId = d_eventManager_p->registerTimer(timeout,
+                                                           readTimeoutFunctor);
 }
 
 void Channel::registerWriteCb(ChannelHandle self)
 {
     // This callback is executed whenever data is available in
     // 'd_writeActiveData'.
-    if (0 != protectAndCheckCallback(self, CLOSED_SEND_MASK)) {
+
+    if (0 != protectAndCheckCallback(self, e_CLOSED_SEND_MASK)) {
         return;                                                       // RETURN
     }
 
-    bsl::function<void()> writeFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &Channel::writeCb
-              , this
-              , self));
+    bsl::function<void()> writeFunctor(bdlf::BindUtil::bindA(d_allocator_p,
+                                                             &Channel::writeCb,
+                                                             this,
+                                                             self));
 
     int rCode = d_eventManager_p->registerSocketEvent(
-                                                 this->socket()->handle(),
-                                                 btlso::EventType::e_WRITE,
-                                                 writeFunctor);
+                                                     this->socket()->handle(),
+                                                     btlso::EventType::e_WRITE,
+                                                     writeFunctor);
 
     if (0 != rCode) {
-        if (isChannelDown(CLOSED_SEND_MASK)) {
-            d_channelStateCb(d_channelId, d_sourceId,
+        if (isChannelDown(e_CLOSED_SEND_MASK)) {
+
+            d_channelStateCb(d_channelId,
+                             d_sourceId,
                              ChannelPool::e_MESSAGE_DISCARDED,
                              d_userData);
         }
@@ -1516,6 +1563,7 @@ void Channel::registerWriteCb(ChannelHandle self)
             notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND);
         }
     }
+
     // We simply wait until the socket calls us back.
 }
 
@@ -1523,6 +1571,7 @@ void Channel::writeCb(ChannelHandle self)
 {
     // This callback is executed whenever the write buffer of 'd_socket_p' has
     // some space available, always in the event manager's dispatcher thread.
+
     if (0 != protectAndCheckCallback(self)) {
         return;                                                       // RETURN
     }
@@ -1541,8 +1590,10 @@ void Channel::writeCb(ChannelHandle self)
     // field (offset in current buffer of first byte not written).
 
     BSLS_ASSERT(0 < d_writeActiveData->length());
-    int numBuffers    = d_writeActiveData->numDataBuffers();
+
+    int numBuffers = d_writeActiveData->numDataBuffers();
     BSLS_ASSERT(0 < numBuffers);
+
     int currentBuffer = d_writeActiveDataCurrentBuffer;
     int currentOffset = d_writeActiveDataCurrentOffset;
 
@@ -1551,9 +1602,11 @@ void Channel::writeCb(ChannelHandle self)
 
     BSLS_ASSERT(0 <= currentBuffer);
     BSLS_ASSERT(currentBuffer < numBuffers);
-    int bufSize       = currentBuffer < numBuffers - 1
-                      ? d_writeActiveData->buffer(currentBuffer).size()
-                      : d_writeActiveData->lastDataBufferLength();
+
+    int bufSize = currentBuffer < numBuffers - 1
+                  ? d_writeActiveData->buffer(currentBuffer).size()
+                  : d_writeActiveData->lastDataBufferLength();
+
     BSLS_ASSERT(0 <= currentOffset);
     BSLS_ASSERT(currentOffset < bufSize);
 
@@ -1562,24 +1615,26 @@ void Channel::writeCb(ChannelHandle self)
 
         int numVecs = 1;
         int numMaxVecs = bsl::min(numBuffers - currentBuffer,
-                                  (int)MAX_IOVEC_SIZE);
+                                  static_cast<int>(k_MAX_IOVEC_SIZE));
 
         d_ovecs[0].setBuffer(
                d_writeActiveData->buffer(currentBuffer).data() + currentOffset,
                bufSize - currentOffset);
 
         for (int i = currentBuffer + 1; numVecs < numMaxVecs; ++i, ++numVecs) {
-            const btlb::BlobBuffer& blobBuffer =
-                                                  d_writeActiveData->buffer(i);
-            char *buf = blobBuffer.data();
+            const btlb::BlobBuffer&  blobBuffer = d_writeActiveData->buffer(i);
+            char                    *buf = blobBuffer.data();
+
             bsls::PerformanceHint::prefetchForReading(buf);
-            d_ovecs[numVecs].setBuffer(buf,
-                                 i < numBuffers - 1
-                                 ? blobBuffer.size()
-                                 : d_writeActiveData->lastDataBufferLength());
+
+            d_ovecs[numVecs].setBuffer(
+                                  buf,
+                                  i < numBuffers - 1
+                                  ? blobBuffer.size()
+                                  : d_writeActiveData->lastDataBufferLength());
         }
 
-        int writeRet = this->socket()->writev(d_ovecs, numVecs);
+        int writeRet = socket()->writev(d_ovecs, numVecs);
 
         if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == writeRet) {
             // In theory, this is the only writing thread so if 'writeCb' we
@@ -1590,16 +1645,16 @@ void Channel::writeCb(ChannelHandle self)
             return;                                                   // RETURN
         }
 
-        // In case of error, shut down channel.   There is no need to call
+        // In case of error, shut down channel.  There is no need to call
         // 'deregisterSocketWrite' since 'notifyChannelDown' deregisters all
         // socket events.
 
         if (writeRet <= 0) {
-            BSLS_ASSERT(
-                     btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
+            BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
-            if (isChannelDown(CLOSED_SEND_MASK)) {
-                d_channelStateCb(d_channelId, d_sourceId,
+            if (isChannelDown(e_CLOSED_SEND_MASK)) {
+                d_channelStateCb(d_channelId,
+                                 d_sourceId,
                                  ChannelPool::e_MESSAGE_DISCARDED,
                                  d_userData);
             }
@@ -1619,27 +1674,30 @@ void Channel::writeCb(ChannelHandle self)
 
             if (d_hiWatermarkHitFlag
              && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
+
                 d_hiWatermarkHitFlag = false;
+
                 oGuard.release()->unlock();
-                d_channelStateCb(d_channelId, d_sourceId,
+
+                d_channelStateCb(d_channelId,
+                                 d_sourceId,
                                  ChannelPool::e_WRITE_CACHE_LOWWAT,
                                  d_userData);
             }
         } // End of the lock guard.
 
-        // Advance the buffer count for the outgoing message.  Note that
-        // there are no locks required here.  Status gets subtracted by the
-        // number of bytes written in the iovec write buffers, and should
-        // be 0, except if the last buffer is not completely written.
+        // Advance the buffer count for the outgoing message.  Note that there
+        // are no locks required here.  Status gets subtracted by the number of
+        // bytes written in the iovec write buffers, and should be 0, except if
+        // the last buffer is not completely written.
 
-        while (0 < writeRet && bufSize <= writeRet + currentOffset)
-        {
+        while (0 < writeRet && bufSize <= writeRet + currentOffset) {
             writeRet -= bufSize - currentOffset;
             ++currentBuffer;
             currentOffset = 0;
             bufSize = currentBuffer < numBuffers - 1
-                    ? d_writeActiveData->buffer(currentBuffer).size()
-                    : d_writeActiveData->lastDataBufferLength();
+                      ? d_writeActiveData->buffer(currentBuffer).size()
+                      : d_writeActiveData->lastDataBufferLength();
         }
         currentOffset += writeRet;
         BSLS_ASSERT(currentBuffer <= numBuffers);
@@ -1658,18 +1716,17 @@ void Channel::writeCb(ChannelHandle self)
             BSLS_ASSERT(0 == currentOffset);
 
             // There is no more data to write from 'd_writeActiveData'.  Empty
-            // the outgoing message since all the data there has been
-            // written.
+            // the outgoing message since all the data there has been written.
 
             d_writeActiveData->removeAll();
             d_writeActiveDataCurrentBuffer = 0;
             d_writeActiveDataCurrentOffset = 0;
 
-            // We must try again with the next messages in the queue, so
-            // now we need to lock to gain access to the d_writeEnqueuedData.
-            // This is done in 'refillOutgoingMsg'.
+            // We must try again with the next messages in the queue, so now we
+            // need to lock to gain access to the d_writeEnqueuedData.  This is
+            // done in 'refillOutgoingMsg'.
 
-            if (isChannelDown(CLOSED_SEND_MASK) || !refillOutgoingMsg()) {
+            if (isChannelDown(e_CLOSED_SEND_MASK) || !refillOutgoingMsg()) {
                 // There isn't any pending data, our work here is done.
 
                 deregisterSocketWrite(self);
@@ -1684,8 +1741,8 @@ void Channel::writeCb(ChannelHandle self)
             currentBuffer = 0;
             currentOffset = 0;
             bufSize       = 1 < numBuffers
-                          ? d_writeActiveData->buffer(0).size()
-                          : d_writeActiveData->lastDataBufferLength();
+                            ? d_writeActiveData->buffer(0).size()
+                            : d_writeActiveData->lastDataBufferLength();
         }
     }
 
@@ -1701,8 +1758,8 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
                  bool                             mode,
                  ChannelStateChangeCallback       channelCb,
                  BlobBasedReadCallback            blobBasedReadCb,
-                 btlb::BlobBufferFactory       *writeBlobBufferPool,
-                 btlb::BlobBufferFactory       *readBlobBufferPool,
+                 btlb::BlobBufferFactory         *writeBlobBufferPool,
+                 btlb::BlobBufferFactory         *readBlobBufferPool,
                  TcpTimerEventManager            *eventManager,
                  ChannelPool                     *channelPool,
                  bdlma::ConcurrentPoolAllocator  *sharedPtrAllocator,
@@ -1712,7 +1769,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_blobBasedReadCb(blobBasedReadCb)
 , d_channelId(channelId)
 , d_sourceId(sourceId)
-, d_userData((void*)0)
+, d_userData(static_cast<void *>(0))
 , d_numUsedIVecs(0)
 , d_minBytesBeforeNextCb(config.minIncomingMessageSize())
 , d_hiWatermarkHitFlag(false)
@@ -1750,12 +1807,13 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
     d_socket->peerAddress(&d_peerAddress);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Set close-on-exec flag (DRQS 6748730): this only makes sense in Unix,
-    // there is no equivalent for Windows.
+    // Set close-on-exec flag: this only makes sense in Unix, there is no
+    // equivalent for Windows.
 
-    int fd = this->socket()->handle();
+    int fd    = this->socket()->handle();
     int flags = fcntl(fd, F_GETFD);
-    int ret = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+    int ret   = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+
     BSLS_ASSERT( -1 != ret);
 #endif
 
@@ -1788,11 +1846,13 @@ Channel::~Channel()
 // MANIPULATORS
 void Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 {
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
 
     deregisterSocketRead(self);
+
     if (d_readTimeoutTimerId) {
         d_eventManager_p->deregisterTimer(d_readTimeoutTimerId);
         d_readTimeoutTimerId = 0;
@@ -1801,13 +1861,12 @@ void Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 
     if (enqueueStateChangeCb) {
         bsl::function<void()> stateCbFunctor(
-                    bdlf::BindUtil::bindA(
-                                   d_allocator_p,
-                                   d_channelStateCb,
-                                   d_channelId,
-                                   d_sourceId,
-                                   ChannelPool::e_AUTO_READ_DISABLED,
-                                   d_userData));
+                       bdlf::BindUtil::bindA(d_allocator_p,
+                                             d_channelStateCb,
+                                             d_channelId,
+                                             d_sourceId,
+                                             ChannelPool::e_AUTO_READ_DISABLED,
+                                             d_userData));
 
         d_eventManager_p->execute(stateCbFunctor);
     }
@@ -1822,35 +1881,32 @@ void Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 int Channel::initiateReadSequence(ChannelHandle self)
 {
     if (0 != protectAndCheckCallback(self) || d_enableReadFlag) {
-        // There is no point doing this twice, if 'd_enableReadFlag' is
-        // already set.
+        // There is no point doing this twice, if 'd_enableReadFlag' is already
+        // set.
 
         return 0;                                                     // RETURN
     }
     BSLS_ASSERT(d_channelUpFlag);
     BSLS_ASSERT(d_socket);
 
-    bsl::function<void()> readFunctor;
+    bsl::function<void()> readFunctor = bdlf::BindUtil::bindA(d_allocator_p,
+                                                              &Channel::readCb,
+                                                              this,
+                                                              self);
 
-    readFunctor = bdlf::BindUtil::bindA(
-             d_allocator_p
-           , &Channel::readCb
-           , this
-           , self);
-
-    int rCode = d_eventManager_p->registerSocketEvent(
-                                                  this->socket()->handle(),
-                                                  btlso::EventType::e_READ,
-                                                  readFunctor);
+    int rCode = d_eventManager_p->registerSocketEvent(this->socket()->handle(),
+                                                      btlso::EventType::e_READ,
+                                                      readFunctor);
 
     if (0 == rCode) {
         d_enableReadFlag = true;
-        d_channelStateCb(d_channelId, d_sourceId,
+        d_channelStateCb(d_channelId,
+                         d_sourceId,
                          ChannelPool::e_AUTO_READ_ENABLED,
                          d_userData);
 
-        // Only register a read timeout if there is a valid timeout value
-        // (DRQS 16796796).
+        // Only register a read timeout if there is a valid timeout value.
+
         if (d_useReadTimeout) {
             registerReadTimeoutCallback(
                                bdlt::CurrentTime::now() + d_readTimeout, self);
@@ -1871,17 +1927,17 @@ int Channel::writeMessage(const MessageType&   msg,
     typedef ChannelPool_MessageUtil MessageUtil;
 
     enum {
-        CACHE_HIWAT     = -1,
-        HIT_CACHE_HIWAT = -2,
-        CHANNEL_DOWN    = -3,
-        ENQUEUE_WAT     = -4,
-        SUCCESS         =  0
+        e_CACHE_HIWAT     = -1,
+        e_HIT_CACHE_HIWAT = -2,
+        e_CHANNEL_DOWN    = -3,
+        e_ENQUEUE_WAT     = -4,
+        e_SUCCESS         =  0
     };
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                            isChannelDown(CLOSED_SEND_MASK))) {
+                                          isChannelDown(e_CLOSED_SEND_MASK))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return CHANNEL_DOWN;                                          // RETURN
+        return e_CHANNEL_DOWN;                                        // RETURN
     }
 
     bsls::Types::Int64 dataLength = MessageUtil::length(msg);
@@ -1906,14 +1962,14 @@ int Channel::writeMessage(const MessageType&   msg,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return CACHE_HIWAT;                                           // RETURN
+        return e_CACHE_HIWAT;                                         // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         d_hiWatermarkHitFlag = true;
-        return ENQUEUE_WAT;                                           // RETURN
+        return e_ENQUEUE_WAT;                                         // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -1922,26 +1978,25 @@ int Channel::writeMessage(const MessageType&   msg,
         if(!d_hiWatermarkHitFlag) {
             d_hiWatermarkHitFlag = true;
 
-            bsl::function<void()> functor(
-                    bdlf::BindUtil::bindA(
-                                     d_allocator_p
-                                   , d_channelStateCb
-                                   , d_channelId
-                                   , d_sourceId
-                                   , ChannelPool::e_WRITE_CACHE_HIWAT
-                                   , d_userData));
+            bsl::function<void()> functor(bdlf::BindUtil::bindA(
+                                              d_allocator_p,
+                                              d_channelStateCb,
+                                              d_channelId,
+                                              d_sourceId,
+                                              ChannelPool::e_WRITE_CACHE_HIWAT,
+                                              d_userData));
 
             d_eventManager_p->execute(functor);
 
             // We must release the mutex AFTER 'functor' is enqueued to be
             // executed.  Otherwise, another thread can come in between and
-            // 'e_WRITE_CACHE_LOWWAT' can be generated and the flag reset
-            // to false BEFORE the callback is delivered.  This way, the user
-            // will see the following sequence: LOWWAT, HIWAT, HIWAT (maybe),
+            // 'e_WRITE_CACHE_LOWWAT' can be generated and the flag reset to
+            // false BEFORE the callback is delivered.  This way, the user will
+            // see the following sequence: LOWWAT, HIWAT, HIWAT (maybe),
             // LOWWAT, which is wrong, especially if no messages are queued
             // after HIWAT.
         }
-        return HIT_CACHE_HIWAT;                                       // RETURN
+        return e_HIT_CACHE_HIWAT;                                     // RETURN
     }
 
     if (d_recordedMaxWriteCacheSize.loadRelaxed() < writeCacheSize) {
@@ -1950,12 +2005,12 @@ int Channel::writeMessage(const MessageType&   msg,
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
         // This message is the first and only in the outgoing queue.  Note that
-        // if 'blob' were a 'bsl::shared_ptr<btlb::Blob> msg' instead, we
-        // could simply assign 'd_writeActiveData = msg' (which would assign
-        // the shared pointer to the blob) but this would have the problem that
-        // we could not know if the blob of 'msg' was created with the proper
-        // blob buffer factory or allocator, and also this might not preserve
-        // the capacity (in buffers) of the outgoing message.  It might also
+        // if 'blob' were a 'bsl::shared_ptr<btlb::Blob> msg' instead, we could
+        // simply assign 'd_writeActiveData = msg' (which would assign the
+        // shared pointer to the blob) but this would have the problem that we
+        // could not know if the blob of 'msg' was created with the proper blob
+        // buffer factory or allocator, and also this might not preserve the
+        // capacity (in buffers) of the outgoing message.  It might also
         // introduce extra (non-data) buffers into the blob of the outgoing
         // message.  Instead we want to append the blob buffers to the existing
         // outgoing message, have no non-data buffers after the last data
@@ -1975,12 +2030,13 @@ int Channel::writeMessage(const MessageType&   msg,
         oGuard.release()->unlock();
 
         // Let's first attempt to write the blob directly using iovec.
+
         int writeRet = MessageUtil::write(this->socket(), d_ovecs, msg);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
             // 'd_numBytesWritten' is modified only in the 'writeCb' or
-            // 'notifyChannelDown' which will run only in the dispatcher
-            // thread and when 'd_isWriteActive' is 'true'.
+            // 'notifyChannelDown' which will run only in the dispatcher thread
+            // and when 'd_isWriteActive' is 'true'.
 
             d_numBytesWritten += writeRet;
         }
@@ -1996,11 +2052,11 @@ int Channel::writeMessage(const MessageType&   msg,
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             // The socket is dead: close this channel for write.
-            BSLS_ASSERT(
-                     btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
+
+            BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
             notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND, false);
-            return CHANNEL_DOWN;                                      // RETURN
+            return e_CHANNEL_DOWN;                                    // RETURN
         }
 
         d_writeActiveCacheSize.addRelaxed(-writeRet);
@@ -2018,15 +2074,16 @@ int Channel::writeMessage(const MessageType&   msg,
             if (!refillOutgoingMsg()) {
                 // There isn't any pending data, our work here is done.
 
-                return SUCCESS;                                       // RETURN
+                return e_SUCCESS;                                     // RETURN
             }
         }
         else {
             // If we did not succeed, then enqueue the rest into the outgoing
             // message.  Note that 'loadBlob' will trim off the last buffer.
 
-            int startingIndex =
-                 MessageUtil::loadBlob(d_writeActiveData.get(), msg, writeRet);
+            int startingIndex = MessageUtil::loadBlob(d_writeActiveData.get(),
+                                                      msg,
+                                                      writeRet);
 
             d_writeActiveDataCurrentBuffer = 0;
             d_writeActiveDataCurrentOffset = startingIndex;
@@ -2034,15 +2091,14 @@ int Channel::writeMessage(const MessageType&   msg,
 
         // There is data available, let the event manager know.
 
-        bsl::function<void()> initWriteFunctor(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &Channel::registerWriteCb
-                  , this
-                  , self));
+        bsl::function<void()> initWriteFunctor(bdlf::BindUtil::bindA(
+                                                     d_allocator_p,
+                                                     &Channel::registerWriteCb,
+                                                     this,
+                                                     self));
 
         d_eventManager_p->execute(initWriteFunctor);
-        return SUCCESS;                                               // RETURN
+        return e_SUCCESS;                                             // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
@@ -2057,13 +2113,13 @@ int Channel::writeMessage(const MessageType&   msg,
     // that we should *never* have trailing buffers by design.
 
     BSLS_ASSERT(d_writeEnqueuedData->numDataBuffers() ==
-                d_writeEnqueuedData->numBuffers());
+                                            d_writeEnqueuedData->numBuffers());
 
     d_writeEnqueuedData->trimLastDataBuffer();
 
     MessageUtil::appendToBlob(d_writeEnqueuedData.get(), msg);
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int Channel::setWriteCacheHiWatermark(int numBytes)
@@ -2089,12 +2145,12 @@ void Channel::setWriteCacheHiWatermarkRaw(int numBytes)
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
         bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &d_channelStateCb
-                  , d_channelId
-                  , d_sourceId
-                  , ChannelPool::e_WRITE_CACHE_HIWAT
-                  , d_userData));
+                                              d_allocator_p,
+                                              &d_channelStateCb,
+                                              d_channelId,
+                                              d_sourceId,
+                                              ChannelPool::e_WRITE_CACHE_HIWAT,
+                                              d_userData));
 
         d_eventManager_p->execute(functor);
     }
@@ -2131,12 +2187,12 @@ void Channel::setWriteCacheLowWatermarkRaw(int numBytes)
 
         d_hiWatermarkHitFlag = false;
         bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &d_channelStateCb
-                  , d_channelId
-                  , d_sourceId
-                  , ChannelPool::e_WRITE_CACHE_LOWWAT
-                  , d_userData));
+                                             d_allocator_p,
+                                             &d_channelStateCb,
+                                             d_channelId,
+                                             d_sourceId,
+                                             ChannelPool::e_WRITE_CACHE_LOWWAT,
+                                             d_userData));
 
         d_eventManager_p->execute(functor);
     }
@@ -2170,14 +2226,14 @@ void Channel::resetRecordedMaxWriteCacheSize()
                              // -----------
 
 // PRIVATE MANIPULATORS
-TcpTimerEventManager *
-ChannelPool::allocateEventManager()
+TcpTimerEventManager *ChannelPool::allocateEventManager()
 {
     int numManagers = d_managers.size();
     BSLS_ASSERT(numManagers == d_config.maxThreads());
 
-    // If there's a single thread, there's no need to choose the event
-    // manager with the least usage (since there is only 1 option).
+    // If there's a single thread, there's no need to choose the event manager
+    // with the least usage (since there is only 1 option).
+
     if (1 == numManagers) {
         return d_managers[0];                                         // RETURN
     }
@@ -2189,12 +2245,16 @@ ChannelPool::allocateEventManager()
 
     if (d_collectTimeMetrics) {
         int minMetrics =
-                     d_managers[result]->timeMetrics()->percentage(CPU_BOUND);
+                    d_managers[result]->timeMetrics()->percentage(e_CPU_BOUND);
+
         minMetrics += d_managers[result]->numEvents();
+
         for (int i = 1; i < numManagers; ++i) {
             int currentMetrics =
-                          d_managers[i]->timeMetrics()->percentage(CPU_BOUND);
+                         d_managers[i]->timeMetrics()->percentage(e_CPU_BOUND);
+
             currentMetrics += d_managers[i]->numEvents();
+
             if (currentMetrics < minMetrics) {
                 result = i;
                 minMetrics = currentMetrics;
@@ -2221,15 +2281,16 @@ ChannelPool::allocateEventManager()
 void ChannelPool::init()
 {
     // Note that, if there is a single thread, there is no need to choose the
-    // event manager with the least usage (as there is only 1 option) - in
-    // that case we may disable the collection of time metrics unless
-    // the client has explicitly requested those metrics
-    // (i.e. 'd_config.requireTimeMetrics() == false').  DRQS 16796407.
+    // event manager with the least usage (as there is only 1 option) - in that
+    // case we may disable the collection of time metrics unless the client has
+    // explicitly requested those metrics (i.e.
+    // 'd_config.requireTimeMetrics() == false').
 
     bsls::AtomicOperations::initInt(&d_capacity, 0);
-    d_metricsFunctor = bdlf::BindUtil::bindA( d_allocator_p
-                                           , &ChannelPool::metricsCb
-                                           , this);
+
+    d_metricsFunctor = bdlf::BindUtil::bindA(d_allocator_p,
+                                             &ChannelPool::metricsCb,
+                                             this);
 
     int maxThread = d_config.maxThreads();
     BSLS_ASSERT(0 < maxThread);
@@ -2239,12 +2300,12 @@ void ChannelPool::init()
     // whether d_allocators.size() == d_config.maxThreads() will always kick
     // in).  The reason for this is that dynamic manager allocation does not
     // work very well.
+
     for (int i = 0; i < maxThread; ++i) {
         TcpTimerEventManager *manager =
-            new (*d_allocator_p) TcpTimerEventManager(
-                                           TcpTimerEventManager::e_NO_HINT,
-                                           d_collectTimeMetrics,
-                                           d_allocator_p);
+                new (*d_allocator_p) TcpTimerEventManager(d_collectTimeMetrics,
+                                                          d_allocator_p);
+
         if (d_startFlag) {
             bslmt::ThreadAttributes attr;
             attr.setStackSize(d_config.threadStackSize());
@@ -2267,23 +2328,23 @@ void ChannelPool::init()
     if (!d_writeBlobFactory) {
         d_writeBlobFactory.load(
            new (*d_allocator_p) btlb::PooledBlobBufferFactory(
-                                         d_config.maxOutgoingMessageSize(),
-                                         d_allocator_p),
+                                             d_config.maxOutgoingMessageSize(),
+                                             d_allocator_p),
            d_allocator_p);
     }
+
     if (!d_readBlobFactory) {
         d_readBlobFactory.load(
            new (*d_allocator_p) btlb::PooledBlobBufferFactory(
-                                         d_config.maxIncomingMessageSize(),
-                                         d_allocator_p),
+                                             d_config.maxIncomingMessageSize(),
+                                             d_allocator_p),
            d_allocator_p);
     }
 }
 
                                   // *** Server part ***
 
-void ChannelPool::acceptCb(int                          serverId,
-                           bsl::shared_ptr<ServerState> server)
+void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
 {
     // Always executed in the event manager's dispatcher thread.
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
@@ -2298,48 +2359,45 @@ void ChannelPool::acceptCb(int                          serverId,
 
     int status = server->d_socket_p->accept(&connection);
     if (status) {
-        if (btlso::SocketHandle::e_ERROR_WOULDBLOCK != status &&
-            btlso::SocketHandle::e_ERROR_INTERRUPTED != status) {
+        if (btlso::SocketHandle::e_ERROR_WOULDBLOCK  != status
+         && btlso::SocketHandle::e_ERROR_INTERRUPTED != status) {
             // Deregister the socket event to avoid spewing and spinning.
 
             bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
             if (server->d_isClosedFlag) {
-                d_poolStateCb(e_ERROR_ACCEPTING,
-                              serverId,
-                              e_ALERT);
+                d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_ALERT);
                 return;                                               // RETURN
             }
 
             server->d_manager_p->deregisterSocketEvent(
-                                               server->d_socket_p->handle(),
-                                               btlso::EventType::e_ACCEPT);
+                                                  server->d_socket_p->handle(),
+                                                  btlso::EventType::e_ACCEPT);
             aGuard.release()->unlock();
 
             bsl::function<void()> acceptRetryFunctor(
-                 bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &ChannelPool::acceptRetryCb
-                      , this
-                      , serverId
-                      , server));
+                             bdlf::BindUtil::bindA(d_allocator_p,
+                                                   &ChannelPool::acceptRetryCb,
+                                                   this,
+                                                   serverId,
+                                                   server));
 
-            if (server->d_exponentialBackoff < MAX_EXP_BACKOFF) {
+            if (server->d_exponentialBackoff < k_MAX_EXP_BACKOFF) {
                 server->d_exponentialBackoff *= 2;
                 ++server->d_exponentialBackoff;     // in case it was 0
             }
-            bsls::TimeInterval exponentialDelay(server->d_exponentialBackoff *
-                                                        WAIT_FOR_RESOURCES, 0);
-            bsls::TimeInterval exponentialBackoff = bdlt::CurrentTime::now() +
-                                                              exponentialDelay;
+
+            bsls::TimeInterval exponentialDelay(
+                       server->d_exponentialBackoff * k_WAIT_FOR_RESOURCES, 0);
+
+            bsls::TimeInterval exponentialBackoff =
+                                   bdlt::CurrentTime::now() + exponentialDelay;
 
             server->d_acceptAgainId = server->d_manager_p->registerTimer(
-                                                exponentialBackoff,
-                                                acceptRetryFunctor);
+                                                           exponentialBackoff,
+                                                           acceptRetryFunctor);
 
-            d_poolStateCb(e_ERROR_ACCEPTING,
-                          serverId,
-                          e_ALERT);
+            d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_ALERT);
         }
         else {
             // Ignore blocking and interrupts, but reset the exponential
@@ -2361,15 +2419,15 @@ void ChannelPool::acceptCb(int                          serverId,
     typedef btlso::StreamSocketFactoryDeleter Deleter;
 
     bslma::ManagedPtr<StreamSocket> socket(
-        connection, &d_factory, &Deleter::deleteObject<btlso::IPv4Address>);
+                                   connection,
+                                   &d_factory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
 
     int numChannels = d_channels.length();
     if (d_config.maxConnections() <= numChannels) {
         // Too many channels, move on
 
-        d_poolStateCb(e_CHANNEL_LIMIT,
-                      serverId,
-                      e_CRITICAL);
+        d_poolStateCb(e_CHANNEL_LIMIT, serverId, e_CRITICAL);
         return;                                                       // RETURN
     }
 
@@ -2384,19 +2442,21 @@ void ChannelPool::acceptCb(int                          serverId,
     ++numChannels;
     BSLS_ASSERT(newId);
 
-    Channel *channelPtr = new (d_pool) Channel(
-                                     &socket,
-                                     newId, serverId,
-                                     d_config,
-                                     ChannelType::e_ACCEPTED_CHANNEL,
-                                     server->d_keepHalfOpenMode,
-                                     d_channelStateCb,
-                                     d_blobBasedReadCb,
-                                     d_writeBlobFactory.ptr(),
-                                     d_readBlobFactory.ptr(),
-                                     manager, this,
-                                     &d_sharedPtrRepAllocator,
-                                     d_allocator_p);
+    Channel *channelPtr = new (d_pool) Channel(&socket,
+                                               newId,
+                                               serverId,
+                                               d_config,
+                                               ChannelType::e_ACCEPTED_CHANNEL,
+                                               server->d_keepHalfOpenMode,
+                                               d_channelStateCb,
+                                               d_blobBasedReadCb,
+                                               d_writeBlobFactory.ptr(),
+                                               d_readBlobFactory.ptr(),
+                                               manager,
+                                               this,
+                                               &d_sharedPtrRepAllocator,
+                                               d_allocator_p);
+
     channelHandle.reset(channelPtr, &d_pool, d_allocator_p);
     BSLS_ASSERT(channelHandle);
 
@@ -2409,34 +2469,33 @@ void ChannelPool::acceptCb(int                          serverId,
         BSLS_ASSERT(server->d_timeoutTimerId);
         server->d_manager_p->deregisterTimer(server->d_timeoutTimerId);
 
-        bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &ChannelPool::acceptTimeoutCb
-                  , this
-                  , serverId
-                  , server));
+        bsl::function<void()> acceptTimeoutFunctor(
+                           bdlf::BindUtil::bindA(d_allocator_p,
+                                                 &ChannelPool::acceptTimeoutCb,
+                                                 this,
+                                                 serverId,
+                                                 server));
 
         server->d_start = bdlt::CurrentTime::now() + server->d_timeout;
         server->d_timeoutTimerId = server->d_manager_p->registerTimer(
-                                              server->d_start,
-                                              acceptTimeoutFunctor);
+                                                         server->d_start,
+                                                         acceptTimeoutFunctor);
         BSLS_ASSERT(server->d_timeoutTimerId);
     }
 
-    bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &Channel::invokeChannelUp
-              , channelPtr
-              , channelHandle));
+    bsl::function<void()> invokeChannelUpCommand(
+                               bdlf::BindUtil::bindA(d_allocator_p,
+                                                     &Channel::invokeChannelUp,
+                                                     channelPtr,
+                                                     channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (server->d_readEnabledFlag) {
-        initiateReadCommand
-            = bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &Channel::initiateReadSequence
-                  , channelPtr
-                  , channelHandle);
+        initiateReadCommand = bdlf::BindUtil::bindA(
+                                                d_allocator_p,
+                                                &Channel::initiateReadSequence,
+                                                channelPtr,
+                                                channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
@@ -2453,6 +2512,7 @@ void ChannelPool::acceptRetryCb(int                          serverId,
                                 bsl::shared_ptr<ServerState> server)
 {
     // Always executed in the event manager's dispatcher thread.
+
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                bslmt::ThreadUtil::self(),
                                server->d_manager_p->dispatcherThreadHandle()));
@@ -2461,22 +2521,20 @@ void ChannelPool::acceptRetryCb(int                          serverId,
         return;                                                       // RETURN
     }
 
-    bsl::function<void()> acceptFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::acceptCb
-              , this
-              , serverId
-              , server));
+    bsl::function<void()> acceptFunctor(
+                                  bdlf::BindUtil::bindA(d_allocator_p,
+                                                        &ChannelPool::acceptCb,
+                                                        this,
+                                                        serverId,
+                                                        server));
 
     if (0 != server->d_manager_p->registerSocketEvent(
-                                                server->d_socket_p->handle(),
-                                                btlso::EventType::e_ACCEPT,
-                                                acceptFunctor)) {
+                                                  server->d_socket_p->handle(),
+                                                  btlso::EventType::e_ACCEPT,
+                                                  acceptFunctor)) {
         close(serverId);
 
-        d_poolStateCb(e_ERROR_ACCEPTING,
-                      serverId,
-                      e_CRITICAL);
+        d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_CRITICAL);
     }
 }
 
@@ -2494,16 +2552,16 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
     }
 
     bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::acceptTimeoutCb
-              , this
-              , serverId
-              , server));
+                                                 d_allocator_p,
+                                                 &ChannelPool::acceptTimeoutCb,
+                                                 this,
+                                                 serverId,
+                                                 server));
 
     server->d_start += server->d_timeout;
     server->d_timeoutTimerId = server->d_manager_p->registerTimer(
-                                              server->d_start,
-                                              acceptTimeoutFunctor);
+                                                         server->d_start,
+                                                         acceptTimeoutFunctor);
     BSLS_ASSERT(server->d_timeoutTimerId);
 
     d_poolStateCb(e_ACCEPT_TIMEOUT, serverId, e_ALERT);
@@ -2520,32 +2578,32 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         const btlso::SocketOptions *socketOptions)
 {
     enum {
-        AMBIGUOUS_REUSE_ADDRESS     = -11,
-        SET_SOCKET_OPTION_FAILED    = -10,
-        SET_CLOEXEC_FAILED          = -9,
-        REGISTER_FAILED             = -8,
-        SET_NONBLOCKING_FAILED      = -7,
-        LISTEN_FAILED               = -6,
-        LOCAL_ADDRESS_FAILED        = -5,
-        BIND_FAILED                 = -4,
-        SET_OPTION_FAILED           = -3,
-        ALLOCATE_FAILED             = -2,
-        CAPACITY_REACHED            = -1,
-        SUCCESS                     =  0,
-        DUPLICATE_ID                =  1
+        e_AMBIGUOUS_REUSE_ADDRESS     = -11,
+        e_SET_SOCKET_OPTION_FAILED    = -10,
+        e_SET_CLOEXEC_FAILED          = -9,
+        e_REGISTER_FAILED             = -8,
+        e_SET_NONBLOCKING_FAILED      = -7,
+        e_LISTEN_FAILED               = -6,
+        e_LOCAL_ADDRESS_FAILED        = -5,
+        e_BIND_FAILED                 = -4,
+        e_SET_OPTION_FAILED           = -3,
+        e_ALLOCATE_FAILED             = -2,
+        e_CAPACITY_REACHED            = -1,
+        e_SUCCESS                     =  0,
+        e_DUPLICATE_ID                =  1
     };
 
     if (socketOptions
      && !socketOptions->reuseAddress().isNull()
      && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
-        return AMBIGUOUS_REUSE_ADDRESS;                               // RETURN
+        return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
     }
 
     bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
     if (idx != d_acceptors.end()) {
-        return DUPLICATE_ID;                                          // RETURN
+        return e_DUPLICATE_ID;                                        // RETURN
     }
 
     bsl::shared_ptr<ServerState> server;
@@ -2570,14 +2628,14 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     ss->d_readEnabledFlag    = readEnabledFlag;
     ss->d_keepHalfOpenMode   = mode;
 
-    // Open the server socket: from btlsos_tcptimedcbacceptor.
-    // Upon early return, destroying the shared ptr 'server' destroys 'ss'.
-    // (In particular, it will deallocate the socket, which is why it must be
-    // set to 0 above in case we exit before 'ss->d_socket_p = serverSocket'.)
+    // Open the server socket: from btlsos_tcptimedcbacceptor.  Upon early
+    // return, destroying the shared ptr 'server' destroys 'ss'.  (In
+    // particular, it will deallocate the socket, which is why it must be set
+    // to 0 above in case we exit before 'ss->d_socket_p = serverSocket'.)
 
     StreamSocket *serverSocket = d_factory.allocate();
     if (!serverSocket) {
-        return ALLOCATE_FAILED;                                       // RETURN
+        return e_ALLOCATE_FAILED;                                     // RETURN
     }
     ss->d_socket_p = serverSocket;
 
@@ -2588,58 +2646,59 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     if (0 != serverSocket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
                                      btlso::SocketOptUtil::k_REUSEADDRESS,
                                      !!reuseAddress)) {
-        return SET_OPTION_FAILED;                                     // RETURN
+        return e_SET_OPTION_FAILED;                                   // RETURN
     }
 
     if (socketOptions) {
         const int rc = btlso::SocketOptUtil::setSocketOptions(
                                                         serverSocket->handle(),
-                                                        *socketOptions);
+                                                       *socketOptions);
         if (rc) {
-            return SET_SOCKET_OPTION_FAILED;                          // RETURN
+            return e_SET_SOCKET_OPTION_FAILED;                        // RETURN
         }
     }
 
-    if (0 != serverSocket->bind(endpoint))
-    {
-        return BIND_FAILED;                                           // RETURN
+    if (0 != serverSocket->bind(endpoint)) {
+        return e_BIND_FAILED;                                         // RETURN
     }
 
-    if (0 != serverSocket->localAddress(&serverAddress))
-    {
-        return LOCAL_ADDRESS_FAILED;                                  // RETURN
+    if (0 != serverSocket->localAddress(&serverAddress)) {
+        return e_LOCAL_ADDRESS_FAILED;                                // RETURN
     }
+
     BSLS_ASSERT(serverAddress.portNumber());
     ss->d_endpoint = serverAddress;
 
     if (0 != serverSocket->listen(backlog)) {
-        return LISTEN_FAILED;                                         // RETURN
+        return e_LISTEN_FAILED;                                       // RETURN
     }
 
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
-        // Windows has a bug -- setting listening socket to non-blocking
-        // mode will force subsequent 'accept' calls to return
-        // WSAEWOULDBLOCK *even when connection is present*.
+        // Windows has a bug -- setting listening socket to non-blocking mode
+        // will force subsequent 'accept' calls to return WSAEWOULDBLOCK *even
+        // when connection is present*.
 
-    if (0 != serverSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE))
-    {
-        return SET_NONBLOCKING_FAILED;                                // RETURN
+    if (0 != serverSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
+        return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
+
 #endif
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Set close-on-exec flag (DRQS 10646260): this only makes sense in Unix,
-    // there is no equivalent for Windows.
+    // Set close-on-exec flag: this only makes sense in Unix, there is no
+    // equivalent for Windows.
 
-    int fd = serverSocket->handle();
+    int fd    = serverSocket->handle();
     int flags = fcntl(fd, F_GETFD);
-    int ret = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
-    if ( -1 == ret) {
-        return SET_CLOEXEC_FAILED;                                    // RETURN
+    int ret   = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+
+    if (-1 == ret) {
+        return e_SET_CLOEXEC_FAILED;                                  // RETURN
     }
+
 #endif
 
-    bsl::pair<ServerStateMap::iterator,bool> idx_status =
+    bsl::pair<ServerStateMap::iterator, bool> idx_status =
                                     d_acceptors.insert(bsl::make_pair(serverId,
                                                                       server));
     idx = idx_status.first;
@@ -2654,30 +2713,29 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     // callback in the event manager's dispatcher thread.
 
     bsl::function<void()> acceptFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::acceptCb
-              , this
-              , serverId
-              , server));
+                                                        d_allocator_p,
+                                                        &ChannelPool::acceptCb,
+                                                        this,
+                                                        serverId,
+                                                        server));
 
     if (0 != manager->registerSocketEvent(serverSocket->handle(),
                                           btlso::EventType::e_ACCEPT,
-                                          acceptFunctor))
-    {
+                                          acceptFunctor)) {
         d_acceptors.erase(idx);
 
         aGuard.release()->unlock();
 
-        return REGISTER_FAILED;                                       // RETURN
+        return e_REGISTER_FAILED;                                     // RETURN
     }
 
     if (isTimedFlag) {
         bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &ChannelPool::acceptTimeoutCb
-                  , this
-                  , serverId
-                  , server));
+                                                 d_allocator_p,
+                                                 &ChannelPool::acceptTimeoutCb,
+                                                 this,
+                                                 serverId,
+                                                 server));
 
         ss->d_timeoutTimerId = manager->registerTimer(
                                             bdlt::CurrentTime::now() + timeout,
@@ -2685,7 +2743,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         BSLS_ASSERT(ss->d_timeoutTimerId);
     }
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
                                   // *** Client part ***
@@ -2694,15 +2752,11 @@ void ChannelPool::connectCb(ConnectorMap::iterator idx)
 {
     // Always executed in the event manager's dispatcher thread.
 
-    int clientId = idx->first;
-    Connector& cs = idx->second;
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
-                                    bslmt::ThreadUtil::self(),
-                                    cs.d_manager_p->dispatcherThreadHandle()));
+    int        clientId = idx->first;
+    Connector& cs       = idx->second;
 
-    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
-
-    bslma::ManagedPtr<StreamSocket> socket( cs.d_socket.managedPtr() );
+    bslmt::LockGuard<bslmt::Mutex>  cGuard(&d_connectorsLock);
+    bslma::ManagedPtr<StreamSocket> socket(cs.d_socket.managedPtr());
 
     bool readEnabledFlag = cs.d_readEnabledFlag;
     bool halfOpenMode    = cs.d_keepHalfOpenMode;
@@ -2717,8 +2771,9 @@ void ChannelPool::connectCb(ConnectorMap::iterator idx)
     TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
-    bslma::ManagedPtrDeleter deleter;
-    StreamSocket *pointer = socket.release(&deleter);
+    bslma::ManagedPtrDeleter  deleter;
+    StreamSocket             *pointer = socket.release(&deleter);
+
     importCb(pointer,
              deleter,
              manager,
@@ -2734,14 +2789,15 @@ void ChannelPool::connectEventCb(ConnectorMap::iterator idx)
     // Called by socket even CONNECT on the underlying 'cs.d_socket'.
     // Always executed in the event manager's dispatcher thread.
 
-    int clientId = idx->first;
-    Connector& cs = idx->second;
-    TcpTimerEventManager *manager = cs.d_manager_p;
+    int                   clientId = idx->first;
+    Connector&            cs       = idx->second;
+    TcpTimerEventManager *manager  = cs.d_manager_p;
+
     BSLS_ASSERT(manager);
     BSLS_ASSERT(cs.d_socket);
     BSLS_ASSERT(cs.d_timeoutTimerId);
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                          manager->dispatcherThreadHandle()));
+                                           manager->dispatcherThreadHandle()));
 
     manager->deregisterSocket(cs.d_socket->handle());
 
@@ -2754,9 +2810,7 @@ void ChannelPool::connectEventCb(ConnectorMap::iterator idx)
             cs.d_socket.reset();
             cs.d_inProgress = false;
 
-            d_poolStateCb(e_ERROR_CONNECTING,
-                          clientId,
-                          e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
 
             if (0 == cs.d_numAttempts) {
                 // There is no reason to wait until next timeout to remove the
@@ -2794,13 +2848,14 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 {
     // Always executed in the event manager's dispatcher thread.
 
-    int clientId = idx->first;
-    Connector& cs = idx->second;
-    TcpTimerEventManager *manager = cs.d_manager_p;
+    int                   clientId = idx->first;
+    Connector&            cs       = idx->second;
+    TcpTimerEventManager *manager  = cs.d_manager_p;
+
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == cs.d_timeoutTimerId);
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                          manager->dispatcherThreadHandle()));
+                                           manager->dispatcherThreadHandle()));
 
     // Decrease number of attempts, now reflecting number of calls to
     // connectInitiateCb and no longer calls to 'socket->connect()'.  Possible
@@ -2817,12 +2872,10 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     if (cs.d_resolutionFlag) {
         int errorCode;
         int retCode = btlso::ResolveUtil::getAddress(&cs.d_serverAddress,
-                                                    cs.d_serverName.c_str(),
-                                                    &errorCode);
+                                                     cs.d_serverName.c_str(),
+                                                     &errorCode);
         if (retCode) {
-            d_poolStateCb(e_ERROR_CONNECTING,
-                          clientId,
-                          e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
             continueFlag = false;
         }
     }
@@ -2832,25 +2885,22 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
-                                         btlso::Flag::e_NONBLOCKING_MODE)) {
+                                            btlso::Flag::e_NONBLOCKING_MODE)) {
 
                 typedef btlso::StreamSocketFactory<btlso::IPv4Address> Factory;
                 cs.d_socket.reset(connectionSocket,
-                                  bdlf::MemFnUtil::memFn(
-                                      &Factory::deallocate, &d_factory),
+                                  bdlf::MemFnUtil::memFn(&Factory::deallocate,
+                                                         &d_factory),
                                   d_allocator_p);
             }
             else {
                 d_factory.deallocate(connectionSocket);
-                d_poolStateCb(e_ERROR_CONNECTING,
-                              clientId,e_ALERT);
+                d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
                 continueFlag = false;
             }
         }
         else {
-            d_poolStateCb(e_ERROR_CONNECTING,
-                          clientId,
-                          e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
             continueFlag = false;
         }
     }
@@ -2867,9 +2917,8 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                                                    cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(e_ERROR_SETTING_OPTIONS,
-                              clientId,
-                              e_ALERT);
+                d_poolStateCb(e_ERROR_SETTING_OPTIONS, clientId, e_ALERT);
+
                 bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
                 return;                                               // RETURN
@@ -2885,6 +2934,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 d_poolStateCb(e_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               e_ALERT);
+
                 bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
                 return;                                               // RETURN
@@ -2902,8 +2952,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 cs.d_socket.reset();
                 cs.d_inProgress = false;
 
-                d_poolStateCb(e_ERROR_CONNECTING,
-                              clientId,e_ALERT);
+                d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
                 continueFlag = false;
             }
             else {
@@ -2912,11 +2961,11 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == retCode) {
-          bsl::function<void()> connectEventFunctor(bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &ChannelPool::connectEventCb
-                      , this
-                      , idx));
+          bsl::function<void()> connectEventFunctor(
+                            bdlf::BindUtil::bindA(d_allocator_p,
+                                                  &ChannelPool::connectEventCb,
+                                                  this,
+                                                  idx));
 
             // Keep guard active for makeM(&connectTimeoutFunctor, ...) below.
 
@@ -2930,9 +2979,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         else {
             cs.d_socket.reset();
 
-            d_poolStateCb(e_ERROR_CONNECTING,
-                         clientId,
-                         e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
             continueFlag = false;
         }
     }
@@ -2940,6 +2987,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     if (!continueFlag && 0 == cs.d_numAttempts) {
         // Unless we are blocking in connect, there is no reason to wait until
         // timeoutCb removes the connector.  Do it now instead of scheduling.
+ 
         connectTimeoutCb(idx);
         return;                                                       // RETURN
     }
@@ -2948,26 +2996,25 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     cs.d_start += cs.d_period;
 
     bsl::function<void()> connectTimeoutFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::connectTimeoutCb
-              , this
-              , idx));
+                                                d_allocator_p,
+                                                &ChannelPool::connectTimeoutCb,
+                                                this,
+                                                idx));
 
-    cs.d_timeoutTimerId = manager->registerTimer(
-                                             cs.d_start,
-                                             connectTimeoutFunctor);
+    cs.d_timeoutTimerId = manager->registerTimer(cs.d_start,
+                                                 connectTimeoutFunctor);
     BSLS_ASSERT(cs.d_timeoutTimerId);
 }
 
 void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
 {
     // Always executed in the event manager's dispatcher thread.
-    int clientId = idx->first;
-    Connector& cs = idx->second;
-    TcpTimerEventManager *manager = cs.d_manager_p;
+    int                   clientId = idx->first;
+    Connector&            cs       = idx->second;
+    TcpTimerEventManager *manager  = cs.d_manager_p;
+
     BSLS_ASSERT(manager);
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
-                                           bslmt::ThreadUtil::self(),
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                            manager->dispatcherThreadHandle()));
 
     if (cs.d_socket) {
@@ -2979,7 +3026,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
     // to cache some of its data fields.
 
     const bool removeConnectorFlag = (0 == cs.d_numAttempts);
-    const bool isInProgress = cs.d_inProgress;
+    const bool isInProgress        = cs.d_inProgress;
 
     if (removeConnectorFlag) {
         // Final attempt timed out.  Remove the connector before calling back
@@ -2994,9 +3041,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
         // The callback was already invoked if the connection failed earlier,
         // do not invoke it twice.
 
-        d_poolStateCb(e_ERROR_CONNECTING,
-                      clientId,
-                      e_ALERT);
+        d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
     }
 
     if (removeConnectorFlag) {
@@ -3007,6 +3052,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
     cs.d_inProgress = false;
 
     // Try again.
+
     connectInitiateCb(idx);
 }
 
@@ -3027,17 +3073,22 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     } else {
         // the ManagedPtr that originally managed this socket was an alias.
         // recreate the original alias using the information in the deleter.
-        bslma::ManagedPtr<void> alias(deleter.object(), deleter.factory(),
-                                     deleter.deleter());
+
+        bslma::ManagedPtr<void> alias(deleter.object(),
+                                      deleter.factory(),
+                                      deleter.deleter());
+
         socket = bslma::ManagedPtr<StreamSocket>(alias, socket_p);
     }
 
     // Always executed in the source event manager's dispatcher thread.
+
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                         bslmt::ThreadUtil::self(),
                                         srcManager->dispatcherThreadHandle()));
 
     // Reserve location for new channel.
+
     ChannelHandle channelHandle;
     int newId = d_channels.add(channelHandle);
     BSLS_ASSERT(newId);
@@ -3047,8 +3098,9 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     // aCC (aC++/ANSI C B3910B A.06.00 [Aug 25 2004]).
 
     ChannelType::Value type = imported
-                                  ? ChannelType::e_IMPORTED_CHANNEL
-                                  : ChannelType::e_CONNECTED_CHANNEL;
+                              ? ChannelType::e_IMPORTED_CHANNEL
+                              : ChannelType::e_CONNECTED_CHANNEL;
+
     Channel *channelPtr = new (d_pool) Channel(&socket,
                                                newId,
                                                sourceId,
@@ -3063,6 +3115,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
                                                this,
                                                &d_sharedPtrRepAllocator,
                                                d_allocator_p);
+
     channelHandle.reset(channelPtr, &d_pool, d_allocator_p);
     BSLS_ASSERT(channelHandle);
 
@@ -3070,36 +3123,35 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     BSLS_ASSERT(0 == rc);
 
     bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &Channel::invokeChannelUp
-              , channelPtr
-              , channelHandle));
+                                                     d_allocator_p,
+                                                     &Channel::invokeChannelUp,
+                                                     channelPtr,
+                                                     channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (readEnabledFlag) {
-        initiateReadCommand
-            = bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &Channel::initiateReadSequence
-                      , channelPtr
-                      , channelHandle);
+        initiateReadCommand = bdlf::BindUtil::bindA(
+                                                d_allocator_p,
+                                                &Channel::initiateReadSequence,
+                                                channelPtr,
+                                                channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
+
     if (readEnabledFlag) {
         manager->execute(initiateReadCommand);
     }
-    if (d_config.maxConnections() == d_channels.length()) {
-        d_poolStateCb(e_CHANNEL_LIMIT,
-                      sourceId,
-                      e_ALERT);
-    }
 
+    if (d_config.maxConnections() == d_channels.length()) {
+        d_poolStateCb(e_CHANNEL_LIMIT, sourceId, e_ALERT);
+    }
 }
 
                                   // *** Clock management ***
 
-void ChannelPool::timerCb(int clockId) {
+void ChannelPool::timerCb(int clockId)
+{
     bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
 
     TimerStateMap::iterator tsit = d_timers.find(clockId);
@@ -3109,7 +3161,7 @@ void ChannelPool::timerCb(int clockId) {
         return;                                                       // RETURN
     }
 
-    TimerState& ts = tsit->second;
+    TimerState&           ts = tsit->second;
     bsl::function<void()> cb = ts.d_callback;
 
     if (ts.d_period > 0) {
@@ -3120,14 +3172,14 @@ void ChannelPool::timerCb(int clockId) {
         tGuard.release()->unlock();
 
         bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &ChannelPool::timerCb
-                  , this
-                  , clockId));
+                                                         d_allocator_p,
+                                                         &ChannelPool::timerCb,
+                                                         this,
+                                                         clockId));
 
-        ts.d_eventManagerId =
-                ts.d_eventManager_p->registerTimer(ts.d_absoluteTime,
-                                                   functor);
+        ts.d_eventManagerId = ts.d_eventManager_p->registerTimer(
+                                                             ts.d_absoluteTime,
+                                                             functor);
     }
     else {
         // This is a one-time timer, we can deregister the 'clockId'.
@@ -3144,23 +3196,26 @@ void ChannelPool::timerCb(int clockId) {
 void ChannelPool::metricsCb()
 {
     int s = 0;
-    BSLS_ASSERT((int)d_managers.size() <= d_config.maxThreads());
+    BSLS_ASSERT(static_cast<int>(d_managers.size()) <= d_config.maxThreads());
     int numManagers = d_managers.size();
 
     BSLS_ASSERT(0 < numManagers);
     BSLS_ASSERT(0 < d_config.maxThreads());
 
     for (int i = 0; i < numManagers; ++i) {
-        s += d_managers[i]->timeMetrics()->percentage(CPU_BOUND);
+        s += d_managers[i]->timeMetrics()->percentage(e_CPU_BOUND);
         d_managers[i]->timeMetrics()->resetAll();
     }
 
-    double d = double(s) / d_config.maxThreads();
+    double d = static_cast<double>(s) / d_config.maxThreads();
+
     BSLS_ASSERT(0 <= d);
     BSLS_ASSERT(100 >= d);
+
     bsls::AtomicOperations::setInt(&d_capacity, (int)d);
 
-    d_metricsTimerId.makeValue(d_managers[0]->registerTimer(
+    d_metricsTimerId.makeValue(
+        d_managers[0]->registerTimer(
                          bdlt::CurrentTime::now() + d_config.metricsInterval(),
                          d_metricsFunctor));
 }
@@ -3200,7 +3255,7 @@ ChannelPool::ChannelPool(ChannelStateChangeCallback       channelStateCb,
     init();
 }
 
-ChannelPool::ChannelPool(btlb::BlobBufferFactory       *blobBufferFactory,
+ChannelPool::ChannelPool(btlb::BlobBufferFactory         *blobBufferFactory,
                          ChannelStateChangeCallback       channelStateCb,
                          BlobBasedReadCallback            blobBasedReadCb,
                          PoolStateChangeCallback          poolStateCb,
@@ -3266,16 +3321,15 @@ ChannelPool::~ChannelPool()
 int ChannelPool::close(int serverId)
 {
     enum {
-        SUCCESS        =  0,
-        NOT_FOUND      = -1,
-        ALREADY_CLOSED = -2
+        e_SUCCESS   =  0,
+        e_NOT_FOUND = -1
     };
 
     bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     ServerState *ss = idx->second.get();
@@ -3306,7 +3360,7 @@ int ChannelPool::close(int serverId)
 
     d_acceptors.erase(idx);
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int ChannelPool::listen(int                         port,
@@ -3316,17 +3370,18 @@ int ChannelPool::listen(int                         port,
                         bool                        readEnabledFlag,
                         const btlso::SocketOptions *socketOptions)
 {
-    enum { IS_NOT_TIMED = 0 };
+    enum { e_IS_NOT_TIMED = 0 };
 
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(port);
+
     return this->listen(endpoint,
                         backlog,
                         serverId,
                         reuseAddress,
                         readEnabledFlag,
                         e_CLOSE_BOTH,
-                        IS_NOT_TIMED,
+                        e_IS_NOT_TIMED,
                         bsls::TimeInterval(),
                         socketOptions);
 }
@@ -3339,17 +3394,18 @@ int ChannelPool::listen(int                         port,
                         bool                        readEnabledFlag,
                         const btlso::SocketOptions *socketOptions)
 {
-    enum { IS_TIMED = 1 };
+    enum { e_IS_TIMED = 1 };
 
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(port);
+
     return this->listen(endpoint,
                         backlog,
                         serverId,
                         reuseAddress,
                         readEnabledFlag,
                         e_CLOSE_BOTH,
-                        IS_TIMED,
+                        e_IS_TIMED,
                         timeout,
                         socketOptions);
 }
@@ -3361,7 +3417,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         bool                        readEnabledFlag,
                         const btlso::SocketOptions *socketOptions)
 {
-    enum { IS_NOT_TIMED = 0 };
+    enum { e_IS_NOT_TIMED = 0 };
 
     return this->listen(endpoint,
                         backlog,
@@ -3369,7 +3425,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         reuseAddress,
                         readEnabledFlag,
                         e_CLOSE_BOTH,
-                        IS_NOT_TIMED,
+                        e_IS_NOT_TIMED,
                         bsls::TimeInterval(),
                         socketOptions);
 }
@@ -3383,7 +3439,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         KeepHalfOpenMode            mode,
                         const btlso::SocketOptions *socketOptions)
 {
-    enum { IS_TIMED = 1 };
+    enum { e_IS_TIMED = 1 };
 
     return this->listen(endpoint,
                         backlog,
@@ -3391,7 +3447,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         reuseAddress,
                         readEnabledFlag,
                         mode,
-                        IS_TIMED,
+                        e_IS_TIMED,
                         timeout,
                         socketOptions);
 }
@@ -3415,7 +3471,7 @@ int ChannelPool::connect(
 
     if (0 != socket
      && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
-        return SET_NONBLOCKING_FAILED;                                // RETURN
+        return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
     return connectImp(hostname,
@@ -3432,21 +3488,21 @@ int ChannelPool::connect(
 }
 
 int ChannelPool::connect(
-               const btlso::IPv4Address&  serverAddress,
-               int                        numAttempts,
-               const bsls::TimeInterval&  interval,
-               int                        sourceId,
-               bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                         *socket,
-               bool                       readEnabledFlag,
-               KeepHalfOpenMode           mode)
+                    const btlso::IPv4Address&  serverAddress,
+                    int                        numAttempts,
+                    const bsls::TimeInterval&  interval,
+                    int                        sourceId,
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                              *socket,
+                    bool                       readEnabledFlag,
+                    KeepHalfOpenMode           mode)
 {
     BSLS_ASSERT(0 < numAttempts);
     BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
 
     if (0 != socket
      && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
-        return SET_NONBLOCKING_FAILED;                                // RETURN
+        return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
     return connectImp(serverAddress,
@@ -3477,14 +3533,14 @@ int ChannelPool::connectImp(
     BSLS_ASSERT(0 == socketOptions || (0 == socket && 0 == localAddress));
 
     if (!d_startFlag) {
-        return NOT_RUNNING;                                           // RETURN
+        return e_NOT_RUNNING;                                         // RETURN
     }
 
     bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
-        return DUPLICATE_ID;                                          // RETURN
+        return e_DUPLICATE_ID;                                        // RETURN
     }
 
     TcpTimerEventManager *manager = allocateEventManager();
@@ -3498,7 +3554,7 @@ int ChannelPool::connectImp(
         if (btlso::ResolveUtil::getAddress(&serverAddress,
                                            serverName,
                                            &errorCode)) {
-            return FAILED_RESOLUTION;                                 // RETURN
+            return e_FAILED_RESOLUTION;                               // RETURN
         }
         resolutionFlag = false;
     }
@@ -3515,37 +3571,36 @@ int ChannelPool::connectImp(
     }
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
-                   d_connectors.insert(
-                        bsl::make_pair(clientId,
-                                       Connector(socket_sp,
-                                                 manager,
-                                                 numAttempts,
-                                                 interval,
-                                                 readEnabledFlag,
-                                                 keepHalfOpenMode,
-                                                 socketOptions,
-                                                 localAddress)));
+                 d_connectors.insert(bsl::make_pair(clientId,
+                                                    Connector(socket_sp,
+                                                              manager,
+                                                              numAttempts,
+                                                              interval,
+                                                              readEnabledFlag,
+                                                              keepHalfOpenMode,
+                                                              socketOptions,
+                                                              localAddress)));
     idx = idx_status.first;
     BSLS_ASSERT(idx_status.second);
 
     Connector& cs = idx->second;
 
-    cs.d_serverName       = serverName;
-    cs.d_serverAddress    = serverAddress;
+    cs.d_serverName     = serverName;
+    cs.d_serverAddress  = serverAddress;
     cs.d_serverAddress.setPortNumber(portNumber);  // never overwritten
-    cs.d_resolutionFlag   = resolutionFlag;
+    cs.d_resolutionFlag = resolutionFlag;
 
     cGuard.release()->unlock();
 
     bsl::function<void()> connectFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::connectInitiateCb
-              , this
-              , idx));
+                                               d_allocator_p,
+                                               &ChannelPool::connectInitiateCb,
+                                               this,
+                                               idx));
 
     manager->execute(connectFunctor);
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int ChannelPool::connectImp(
@@ -3563,14 +3618,14 @@ int ChannelPool::connectImp(
     BSLS_ASSERT(0 == socketOptions || 0 == socket);
 
     if (!d_startFlag) {
-        return NOT_RUNNING;                                           // RETURN
+        return e_NOT_RUNNING;                                         // RETURN
     }
 
     bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
-        return DUPLICATE_ID;                                          // RETURN
+        return e_DUPLICATE_ID;                                        // RETURN
     }
 
     TcpTimerEventManager *manager = allocateEventManager();
@@ -3584,15 +3639,15 @@ int ChannelPool::connectImp(
     }
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
-                        d_connectors.insert(bsl::make_pair(clientId,
-                                              Connector(socket_sp,
-                                                        manager,
-                                                        numAttempts,
-                                                        interval,
-                                                        readEnabledFlag,
-                                                        mode,
-                                                        socketOptions,
-                                                        localAddress)));
+                  d_connectors.insert(bsl::make_pair(clientId,
+                                                     Connector(socket_sp,
+                                                               manager,
+                                                               numAttempts,
+                                                               interval,
+                                                               readEnabledFlag,
+                                                               mode,
+                                                               socketOptions,
+                                                               localAddress)));
     idx = idx_status.first;
     BSLS_ASSERT(idx_status.second);
     idx->second.d_serverAddress = server;
@@ -3600,25 +3655,25 @@ int ChannelPool::connectImp(
     cGuard.release()->unlock();
 
     bsl::function<void()> connectFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::connectInitiateCb
-              , this
-              , idx));
+                                               d_allocator_p,
+                                               &ChannelPool::connectInitiateCb,
+                                               this,
+                                               idx));
 
     manager->execute(connectFunctor);
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
                          // *** Channel management ***
 
 int ChannelPool::disableRead(int channelId)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     Channel *channel = channelHandle.get();
@@ -3631,11 +3686,11 @@ int ChannelPool::disableRead(int channelId)
     }
     else {
         bsl::function<void()> disableReadCommand(bdlf::BindUtil::bindA(
-                                                   d_allocator_p,
-                                                   &Channel::disableRead,
-                                                   channel,
-                                                   channelHandle,
-                                                   false));
+                                                         d_allocator_p,
+                                                         &Channel::disableRead,
+                                                         channel,
+                                                         channelHandle,
+                                                         false));
 
         channel->eventManager()->execute(disableReadCommand);
     }
@@ -3644,86 +3699,63 @@ int ChannelPool::disableRead(int channelId)
 
 int ChannelPool::enableRead(int channelId)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
     Channel *channel = channelHandle.get();
 
     bsl::function<void()> initiateReadCommand(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &Channel::initiateReadSequence
-              , channel
-              , channelHandle));
+                                                d_allocator_p,
+                                                &Channel::initiateReadSequence,
+                                                channel,
+                                                channelHandle));
 
     channel->eventManager()->execute(initiateReadCommand);
     return 0;
 }
 
 int ChannelPool::import(
-               btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
-               btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-               int                                             sourceId,
-               bool                                            readEnabledFlag,
-               KeepHalfOpenMode                                mode)
-{
-    typedef btlso::StreamSocketFactoryDeleter Deleter;
-
-    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                     managedSocket(streamSocket,
-                                   factory,
-                                   &Deleter::deleteObject<btlso::IPv4Address>);
-
-    int rc = import(&managedSocket, sourceId, readEnabledFlag, mode);
-    if (0 != rc) {
-        // if this function fails, the owner is expected to deallocate the
-        // socket, so we need to release the ManagedPtr from managing it.
-
-        managedSocket.release();
-    }
-    return rc;
-}
-
-int ChannelPool::import(
-            bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                              *streamSocket,
-            int                                                sourceId,
-            bool                                               readEnabledFlag,
-            KeepHalfOpenMode                                   mode)
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                     *streamSocket,
+                    int               sourceId,
+                    bool              readEnabledFlag,
+                    KeepHalfOpenMode  mode)
 {
     enum {
-        CHANNEL_LIMIT = -1,
-        SUCCESS       =  0
+        e_CHANNEL_LIMIT = -1,
+        e_SUCCESS       =  0
     };
 
     if (d_config.maxConnections() == d_channels.length()) {
-        return CHANNEL_LIMIT;                                         // RETURN
+        return e_CHANNEL_LIMIT;                                       // RETURN
     }
 
     TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
-    bslma::ManagedPtrDeleter deleter;
-    StreamSocket *pointer = streamSocket->release(&deleter);
-    bsl::function<void()> importFunctor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::importCb
-              , this
-              , pointer
-              , deleter
-              , manager
-              , manager
-              , sourceId
-              , readEnabledFlag
-              , mode
-              , true));
+    bslma::ManagedPtrDeleter  deleter;
+    StreamSocket             *pointer = streamSocket->release(&deleter);
+
+    bsl::function<void()> importFunctor(
+                                  bdlf::BindUtil::bindA(d_allocator_p,
+                                                        &ChannelPool::importCb,
+                                                        this,
+                                                        pointer,
+                                                        deleter,
+                                                        manager,
+                                                        manager,
+                                                        sourceId,
+                                                        readEnabledFlag,
+                                                        mode,
+                                                        true));
 
     manager->execute(importFunctor);
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int ChannelPool::shutdown(int channelId, ShutdownMode how)
@@ -3731,40 +3763,40 @@ int ChannelPool::shutdown(int channelId, ShutdownMode how)
     return shutdown(channelId, btlso::Flag::e_SHUTDOWN_BOTH, how);
 }
 
-int ChannelPool::shutdown(int                      channelId,
+int ChannelPool::shutdown(int                       channelId,
                           btlso::Flag::ShutdownType type,
-                          ShutdownMode             how)
+                          ShutdownMode              how)
 {
     BSLS_ASSERT(e_IMMEDIATE == how);
 
     enum {
-        NOT_FOUND    = -1,
-        SUCCESS      = 0,
-        ALREADY_DEAD = 1
+        e_NOT_FOUND    = -1,
+        e_SUCCESS      = 0,
+        e_ALREADY_DEAD = 1
     };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
-    ChannelDownMask channelDownMask = CLOSED_BOTH_MASK;
+    ChannelDownMask channelDownMask = e_CLOSED_BOTH_MASK;
     if (btlso::Flag::e_SHUTDOWN_RECEIVE == type) {
-        channelDownMask = CLOSED_RECEIVE_MASK;
+        channelDownMask = e_CLOSED_RECEIVE_MASK;
     }
     else if (btlso::Flag::e_SHUTDOWN_SEND == type) {
-        channelDownMask = CLOSED_SEND_MASK;
+        channelDownMask = e_CLOSED_SEND_MASK;
     }
 
     Channel *channel = channelHandle.get();
     if (channel->isChannelDown(channelDownMask)) {
-        return ALREADY_DEAD;                                          // RETURN
+        return e_ALREADY_DEAD;                                        // RETURN
     }
 
     channel->notifyChannelDown(channelHandle, type, false);
 
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int ChannelPool::stopAndRemoveAllChannels()
@@ -3782,6 +3814,7 @@ int ChannelPool::stopAndRemoveAllChannels()
            while(--i >= 0) {
                bslmt::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
+
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
            }
@@ -3810,8 +3843,8 @@ int ChannelPool::stopAndRemoveAllChannels()
 
     d_channels.removeAll();
 
-    // Deregister all events associated with the event managers ensuring
-    // that any held shared pointers are released.
+    // Deregister all events associated with the event managers ensuring that
+    // any held shared pointers are released.
 
     for (int i = 0; i < numManagers; ++i) {
         d_managers[i]->deregisterAll();
@@ -3931,75 +3964,71 @@ void ChannelPool::setChannelContext(int channelId, void *context)
     }
 }
 
-int ChannelPool::write(int                 channelId,
+int ChannelPool::write(int               channelId,
                        const btlb::Blob& blob,
-                       int                 enqueueWatermark)
+                       int               enqueueWatermark)
 {
-    enum { NOT_FOUND = -5 };
+    enum { e_NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                            !channelHandle->isChannelDown(CLOSED_SEND_MASK))) {
+                          !channelHandle->isChannelDown(e_CLOSED_SEND_MASK))) {
         return channelHandle->writeMessage(blob,
                                            enqueueWatermark,
                                            channelHandle);            // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    return NOT_FOUND;
+    return e_NOT_FOUND;
 }
 
-int ChannelPool::write(int               channelId,
-                       const btls::Iovec vecs[],
-                       int               numVecs)
+int ChannelPool::write(int channelId, const btls::Iovec vecs[], int numVecs)
 {
-    enum { NOT_FOUND = -5 };
+    enum { e_NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                            !channelHandle->isChannelDown(CLOSED_SEND_MASK))) {
+                          !channelHandle->isChannelDown(e_CLOSED_SEND_MASK))) {
         return channelHandle->writeMessage(
                     ChannelPool_IovecArray<btls::Iovec>(vecs, numVecs),
                     0x7FFFFFFF,
                     channelHandle);                                   // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    return NOT_FOUND;
+    return e_NOT_FOUND;
 }
 
-int ChannelPool::write(int              channelId,
-                       const btls::Ovec vecs[],
-                       int              numVecs)
+int ChannelPool::write(int channelId, const btls::Ovec vecs[], int numVecs)
 {
-    enum { NOT_FOUND = -5 };
+    enum { e_NOT_FOUND = -5 };
 
     ChannelHandle channelHandle;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                            !channelHandle->isChannelDown(CLOSED_SEND_MASK))) {
+                          !channelHandle->isChannelDown(e_CLOSED_SEND_MASK))) {
         return channelHandle->writeMessage(
                     ChannelPool_IovecArray<btls::Ovec>(vecs, numVecs),
                     0x7FFFFFFF,
                     channelHandle);                                   // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    return NOT_FOUND;
+    return e_NOT_FOUND;
 }
 
                           // *** Clock management ***
@@ -4010,37 +4039,36 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
                                int                          clockId)
 {
     enum {
-        SUCCESS      = 0,
-        DUPLICATE_ID = 1
+        e_SUCCESS      = 0,
+        e_DUPLICATE_ID = 1
     };
 
     TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
     TimerState ts;
-    ts.d_absoluteTime = startTime;
-    ts.d_period = period;
+    ts.d_absoluteTime   = startTime;
+    ts.d_period         = period;
     ts.d_eventManager_p = manager;
-    ts.d_callback = command;
+    ts.d_callback       = command;
 
-    bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::timerCb
-              , this
-              , clockId));
+    bsl::function<void()> functor(bdlf::BindUtil::bindA(d_allocator_p,
+                                                        &ChannelPool::timerCb,
+                                                        this,
+                                                        clockId));
 
     bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
-        return DUPLICATE_ID;                                          // RETURN
+        return e_DUPLICATE_ID;                                        // RETURN
     }
 
-    bsl::pair<TimerStateMap::iterator,bool> tsp =
-                                  d_timers.insert(bsl::make_pair(clockId, ts));
+    bsl::pair<TimerStateMap::iterator,bool> tsp = d_timers.insert(
+                                                  bsl::make_pair(clockId, ts));
     BSLS_ASSERT(tsp.second);
 
-    tsp.first->second.d_eventManagerId =
-                         manager->registerTimer(startTime, functor);
-    return SUCCESS;
+    tsp.first->second.d_eventManagerId = manager->registerTimer(startTime,
+                                                                functor);
+    return e_SUCCESS;
 }
 
 int ChannelPool::registerClock(const bsl::function<void()>& command,
@@ -4050,53 +4078,54 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
                                int                          channelId)
 {
     enum {
-        SUCCESS            = 0,
-        DUPLICATE_ID       = 1,
-        INVALID_CHANNEL_ID = 2
+        e_SUCCESS            = 0,
+        e_DUPLICATE_ID       = 1,
+        e_INVALID_CHANNEL_ID = 2
     };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return INVALID_CHANNEL_ID;                                    // RETURN
+        return e_INVALID_CHANNEL_ID;                                  // RETURN
     }
 
     TcpTimerEventManager *manager = channelHandle->eventManager();
-    TimerState ts;
-    ts.d_absoluteTime = startTime;
-    ts.d_period = period;
+    TimerState            ts;
+    ts.d_absoluteTime   = startTime;
+    ts.d_period         = period;
     ts.d_eventManager_p = manager;
-    ts.d_callback = command;
+    ts.d_callback       = command;
 
-    bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &ChannelPool::timerCb
-              , this
-              , clockId));
+    bsl::function<void()> functor(bdlf::BindUtil::bindA(d_allocator_p,
+                                                        &ChannelPool::timerCb,
+                                                        this,
+                                                        clockId));
 
     bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
-        return DUPLICATE_ID;                                          // RETURN
+        return e_DUPLICATE_ID;                                        // RETURN
     }
 
     bsl::pair<TimerStateMap::iterator,bool> tsp =
                                   d_timers.insert(bsl::make_pair(clockId, ts));
     BSLS_ASSERT(tsp.second);
 
-    tsp.first->second.d_eventManagerId =
-                         manager->registerTimer(startTime, functor);
-    return SUCCESS;
+    tsp.first->second.d_eventManagerId = manager->registerTimer(startTime,
+                                                                functor);
+    return e_SUCCESS;
 }
 
 void ChannelPool::deregisterClock(int clockId)
 {
     TcpTimerEventManager *manager = 0;
-    void *timerId = 0;
+    void                 *timerId = 0;
     {
         bslmt::LockGuard<bslmt::Mutex> tGuard1(&d_timersLock);
-        TimerStateMap::iterator tsit = d_timers.find(clockId);
+        TimerStateMap::iterator        tsit = d_timers.find(clockId);
+
         if (d_timers.end() == tsit) {
             return;                                                   // RETURN
         }
+
         manager = tsit->second.d_eventManager_p;
         timerId = tsit->second.d_eventManagerId;
     }
@@ -4108,7 +4137,7 @@ void ChannelPool::deregisterClock(int clockId)
 
     {
         bslmt::LockGuard<bslmt::Mutex> tGuard2(&d_timersLock);
-        TimerStateMap::iterator tsit = d_timers.find(clockId);
+        TimerStateMap::iterator        tsit = d_timers.find(clockId);
         if (d_timers.end() == tsit) {
             // We could be racing against another thread, and the previous
             // value of 'tsit' may no longer be valid.  This is not an error.
@@ -4125,11 +4154,11 @@ int ChannelPool::getLingerOption(
                              btlso::SocketOptUtil::LingerData *result,
                              int                               channelId) const
 {
-    enum  { NOT_FOUND = 1 };
+    enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
     return channelHandle->socket()->lingerOption(result);
 }
@@ -4140,13 +4169,13 @@ ChannelPool::getServerSocketOption(int *result,
                                    int  level,
                                    int  serverId) const
 {
-    enum { NOT_FOUND = 1 };
+    enum { e_NOT_FOUND = 1 };
 
     bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return idx->second->d_socket_p->socketOption(result, level, option);
@@ -4159,11 +4188,11 @@ int ChannelPool::getSocketOption(int *result,
 {
     BSLS_ASSERT(result);
 
-    enum { NOT_FOUND = 1 };
+    enum { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return channelHandle->socket()->socketOption(result, level, option);
@@ -4173,11 +4202,11 @@ int ChannelPool::setLingerOption(
                              const btlso::SocketOptUtil::LingerData& value,
                              int                                     channelId)
 {
-    enum  { NOT_FOUND = 1 };
+    enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return channelHandle->socket()->setLingerOption(value);
@@ -4188,12 +4217,13 @@ int ChannelPool::setServerSocketOption(int option,
                                        int value,
                                        int serverId)
 {
-    enum  { NOT_FOUND = 1 };
+    enum  { e_NOT_FOUND = 1 };
+
     bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
     BSLS_ASSERT(idx->second->d_socket_p);
 
@@ -4205,11 +4235,11 @@ int ChannelPool::setSocketOption(int option,
                                  int value,
                                  int channelId)
 {
-    enum  { NOT_FOUND = 1 };
+    enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return channelHandle->socket()->setOption(level, option, value);
@@ -4224,14 +4254,16 @@ double ChannelPool::reportWeightedAverageReset()
     bsls::Types::Int64 sum = d_totalConnectionsLifetime.swap(0);
 
     for (bdlcc::ObjectCatalogIter<ChannelHandle > it(d_channels); it; ++it) {
-        bsl::pair<int, ChannelHandle > p = it();
-        if (!p.second || p.second->isChannelDown(CLOSED_BOTH_MASK)) {
+        bsl::pair<int, ChannelHandle> p = it();
+
+        if (!p.second || p.second->isChannelDown(e_CLOSED_BOTH_MASK)) {
             continue;
         }
+
         bsls::TimeInterval intv = d_lastResetTime -
                                           (resetTime > p.second->creationTime()
-                               ? resetTime
-                               : p.second->creationTime());
+                                          ? resetTime
+                                          : p.second->creationTime());
 
         sum += intv.totalMicroseconds();
     }
@@ -4247,11 +4279,12 @@ void ChannelPool::totalBytesReadReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
+
+    bslmt::LockGuard<bslmt::Mutex>          guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRead();
         }
@@ -4264,11 +4297,12 @@ void ChannelPool::totalBytesWrittenReset(bsls::Types::Int64 *result)
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
+
     bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesWritten();
         }
@@ -4282,11 +4316,12 @@ void ChannelPool::totalBytesRequestedToBeWrittenReset(
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
+
     bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
 
     bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRequestedToBeWritten();
         }
@@ -4311,8 +4346,8 @@ ChannelPool::streamSocket(int channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
-        bsl::shared_ptr<const btlso::StreamSocket<btlso::IPv4Address> > ptr(
-                                                      channelHandle,
+        bsl::shared_ptr<const btlso::StreamSocket<btlso::IPv4Address> >
+                                                  ptr(channelHandle,
                                                       channelHandle->socket());
         return ptr;                                                   // RETURN
     }
@@ -4328,9 +4363,11 @@ int ChannelPool::getChannelStatistics(
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         Channel *channel = channelHandle.get();
-        *numRead = channel->numBytesRead();
+
+        *numRead                 = channel->numBytesRead();
         *numRequestedToBeWritten = channel->numBytesRequestedToBeWritten();
-        *numWritten = channel->numBytesWritten();
+        *numWritten              = channel->numBytesWritten();
+
         return 0;                                                     // RETURN
     }
     return 1;
@@ -4343,8 +4380,10 @@ int ChannelPool::getChannelWriteCacheStatistics(int *recordedMaxWriteCacheSize,
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         Channel *channel = channelHandle.get();
+
         *recordedMaxWriteCacheSize = channel->recordedMaxWriteCacheSize();
         *currentWriteCacheSize     = channel->currentWriteCacheSize();
+
         return 0;                                                     // RETURN
     }
     return 1;
@@ -4362,7 +4401,8 @@ void ChannelPool::getHandleStatistics(
 
     int idx = handleInfo->size();
 
-    {   // Item 1.  Oops: misses sockets after accept(&connection) but before
+    {
+        // Item 1.  Oops: misses sockets after accept(&connection) but before
         // the d_channels.add(channelHandle).  OK.
 
         bslmt::LockGuard<bslmt::Mutex> dGuard(&d_acceptorsLock);
@@ -4372,7 +4412,7 @@ void ChannelPool::getHandleStatistics(
 
         handleInfo->resize(idx + d_acceptors.size());
         for (; iter != last; ++iter, ++idx) {
-            HandleInfo&              info = (*handleInfo)[idx];
+            HandleInfo&        info = (*handleInfo)[idx];
             const ServerState& ss   = *(iter->second);
 
             // Because we hold the 'd_acceptorsLock', it's impossible that
@@ -4388,7 +4428,8 @@ void ChannelPool::getHandleStatistics(
         }
     }
 
-    {   // Item 2.  Oops: misses sockets after d_connectors.erase(idx) but
+    {
+        // Item 2.  Oops: misses sockets after d_connectors.erase(idx) but
         // before the d_channels.add(channelHandle).  Might be OK.
 
         bslmt::LockGuard<bslmt::Mutex> dGuard(&d_connectorsLock);
@@ -4414,7 +4455,9 @@ void ChannelPool::getHandleStatistics(
         }
     }
 
-    {   // Item 3.
+    {
+        // Item 3.
+
         handleInfo->reserve(idx + d_channels.length());
         for (bdlcc::ObjectCatalogIter<bsl::shared_ptr<Channel> >
                                               iter(d_channels); iter; ++iter) {
@@ -4516,10 +4559,12 @@ void ChannelPool::totalBytesWritten(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
+
+    bslmt::LockGuard<bslmt::Mutex>          guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    bsls::Types::Int64                      total = 0;
+
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesWritten();
         }
@@ -4531,10 +4576,12 @@ void ChannelPool::totalBytesRead(bsls::Types::Int64 *result) const
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
+
+    bslmt::LockGuard<bslmt::Mutex>          guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    bsls::Types::Int64                      total = 0;
+
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRead();
         }
@@ -4547,10 +4594,12 @@ void ChannelPool::totalBytesRequestedToBeWritten(
 {
     // Note that this lock must be held to ensure that updating the adjustment
     // to the metric total, and removing the channel is handled atomically.
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_metricAdjustmentMutex);
+
+    bslmt::LockGuard<bslmt::Mutex>          guard(&d_metricAdjustmentMutex);
     bdlcc::ObjectCatalogIter<ChannelHandle> it(d_channels);
-    bsls::Types::Int64 total = 0;
-    for ( ; it; ++it) {
+    bsls::Types::Int64                      total = 0;
+
+    for (; it; ++it) {
         if (it().second) {
             total += it().second->numBytesRequestedToBeWritten();
         }
@@ -4561,20 +4610,9 @@ void ChannelPool::totalBytesRequestedToBeWritten(
 int ChannelPool::numEvents(int index) const
 {
     BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT((int)d_managers.size() > index);
+    BSLS_ASSERT(static_cast<int>(d_managers.size()) > index);
+
     return d_managers[index]->numEvents();
-}
-
-const btlso::IPv4Address *ChannelPool::serverAddress(int serverId) const
-{
-    bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
-
-    ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
-    if (idx == d_acceptors.end()) {
-        return NULL;                                                  // RETURN
-    }
-
-    return &idx->second->d_endpoint;
 }
 
                      // -----------------------------
@@ -4582,18 +4620,19 @@ const btlso::IPv4Address *ChannelPool::serverAddress(int serverId) const
                      // -----------------------------
 
 // CLASS METHODS
-int ChannelPool_MessageUtil::loadIovec(btls::Iovec         *dest,
+int ChannelPool_MessageUtil::loadIovec(btls::Iovec       *dest,
                                        const btlb::Blob&  msg)
 {
-    int numVecs = 0;
+    int       numVecs        = 0;
     const int numDataBuffers = msg.numDataBuffers();
-    int numBuffers = (MAX_IOVEC_SIZE < numDataBuffers)
-                   ?  MAX_IOVEC_SIZE : numDataBuffers;
+    int       numBuffers     = (k_MAX_IOVEC_SIZE < numDataBuffers)
+                               ? k_MAX_IOVEC_SIZE
+                               : numDataBuffers;
 
     for (int i = 0; i < numBuffers; ++i, ++numVecs) {
         int bufSize = i < numDataBuffers - 1
-                        ? msg.buffer(i).size()
-                        : msg.lastDataBufferLength();
+                      ? msg.buffer(i).size()
+                      : msg.lastDataBufferLength();
 
         dest[numVecs].setBuffer(msg.buffer(i).data(), bufSize);
     }
@@ -4603,7 +4642,7 @@ int ChannelPool_MessageUtil::loadIovec(btls::Iovec         *dest,
 
 int ChannelPool_MessageUtil::loadBlob(btlb::Blob        *dest,
                                       const btlb::Blob&  msg,
-                                      int                  msgOffset)
+                                      int                msgOffset)
 {
     BSLS_ASSERT(0 == dest->length());
 
@@ -4611,11 +4650,11 @@ int ChannelPool_MessageUtil::loadBlob(btlb::Blob        *dest,
     int       bufIdx         = 0;
     int       prefixSize     = 0;
 
-    // Because each buffer may be of  different size, we must walk the blob to
+    // Because each buffer may be of different size, we must walk the blob to
     // find the buffer containing 'msgOffset'.
 
-    while (bufIdx < numDataBuffers &&
-           prefixSize + msg.buffer(bufIdx).size() <= msgOffset) {
+    while (bufIdx < numDataBuffers
+        && prefixSize + msg.buffer(bufIdx).size() <= msgOffset) {
         // We don't need to append those buffers, all their data falls before
         // 'startingIndex'.
 

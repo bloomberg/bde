@@ -16,7 +16,9 @@
 #include <bdlf_bind.h>
 */
 
+#include <bsls_atomic.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -98,11 +100,11 @@ typedef bslmt::RWMutex Obj;
 //                 TEST PLAN: Negative test cases
 //
 // The negative test cases are for manual benchmarking of the POSIX RW mutex
-// vs. the bslmt_readerwriterlock component.  Case -1 is a speed benchmark of
-// the POSIX RW mutex.  If POSIX is not available on the platform this driver
-// was built for, the test will fail.  Case -2 is a speed benchmark of the
-// bslmt_readerwriterlock component.  Case -3 checks the 'bias' of the POSIX RW
-// mutex (a concern on IBM) and case -4 checks it for the
+// versus the bslmt_readerwriterlock component.  Case -1 is a speed benchmark
+// of the POSIX RW mutex.  If POSIX is not available on the platform this
+// driver was built for, the test will fail.  Case -2 is a speed benchmark of
+// the bslmt_readerwriterlock component.  Case -3 checks the 'bias' of the
+// POSIX RW mutex (a concern on IBM) and case -4 checks it for the
 // bslmt_readerwriterlock component.
 //
 // For case -1 and -2, the speed benchmarks, there are two tests done: a
@@ -123,7 +125,7 @@ struct WriteThread
    bslmt::Semaphore *d_startSema;
    bslmt::Barrier   *d_releaseBarrier;
 
-   WriteThread(LOCK *lock = 0,
+   WriteThread(LOCK             *lock = 0,
                bslmt::Semaphore *startSema = 0,
                bslmt::Barrier   *releaseBarrier = 0)
       : d_lock(lock),
@@ -142,12 +144,12 @@ struct WriteThread
 template <class LOCK>
 struct ReadThread
 {
-   LOCK            *d_lock;
+   LOCK             *d_lock;
    bslmt::Barrier   *d_holdBarrier;
    bslmt::Barrier   *d_releaseBarrier;
    bslmt::Semaphore *d_doneSema;
 
-   ReadThread(LOCK *lock = 0,
+   ReadThread(LOCK             *lock = 0,
               bslmt::Barrier   *holdBarrier = 0,
               bslmt::Barrier   *releaseBarrier = 0,
               bslmt::Semaphore *doneSema = 0)
@@ -171,13 +173,13 @@ struct ReadThread
 template <class LOCK>
 struct ReadWaitThread
 {
-   LOCK*            d_lock;
+   LOCK             *d_lock;
    bslmt::Semaphore *d_startSema;
-   int*             d_haveLock;
+   int              *d_haveLock;
 
-   ReadWaitThread(LOCK            *lock = 0,
+   ReadWaitThread(LOCK             *lock = 0,
                   bslmt::Semaphore *startSema = 0,
-                  int             *haveLock = 0)
+                  int              *haveLock = 0)
       : d_lock(lock),
         d_startSema(startSema),
         d_haveLock(haveLock)
@@ -194,15 +196,17 @@ struct ReadWaitThread
 template <class LOCK>
 struct PingPongWriter
 {
-   LOCK*            d_locks;
+   LOCK             *d_locks;
    bslmt::Semaphore *d_readySema;
    bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
-   double          *d_score;
+   double           *d_score;
 
-   PingPongWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
-                  bslmt::Semaphore *readySema=0,
-                  bslmt::Barrier *barrier=0)
+   PingPongWriter(LOCK             *locks = 0,
+                  bsls::AtomicInt  *stop = 0,
+                  double           *score = 0,
+                  bslmt::Semaphore *readySema = 0,
+                  bslmt::Barrier   *barrier = 0)
       : d_locks(locks),
         d_readySema(readySema),
         d_stop(stop),
@@ -249,15 +253,17 @@ struct PingPongWriter
 template <class LOCK>
 struct PingPongReader
 {
-   LOCK            *d_locks;
+   LOCK             *d_locks;
    bslmt::Semaphore *d_readySema;
    bslmt::Barrier   *d_barrier;
    bsls::AtomicInt  *d_stop;
-   double          *d_score;
+   double           *d_score;
 
-   PingPongReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
-                  bslmt::Semaphore *readySema=0,
-                  bslmt::Barrier *barrier=0)
+   PingPongReader(LOCK             *locks = 0,
+                  bsls::AtomicInt  *stop = 0,
+                  double           *score = 0,
+                  bslmt::Semaphore *readySema = 0,
+                  bslmt::Barrier   *barrier = 0)
       : d_locks(locks),
         d_readySema(readySema),
         d_stop(stop),
@@ -304,13 +310,15 @@ struct PingPongReader
 template <class LOCK>
 struct ContentionWriter
 {
-   LOCK*            d_locks;
-   bslmt::Barrier   *d_barrier;
-   bsls::AtomicInt  *d_stop;
+   LOCK            *d_locks;
+   bslmt::Barrier  *d_barrier;
+   bsls::AtomicInt *d_stop;
    double          *d_score;
 
-   ContentionWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
-                    double *score=0, bslmt::Barrier *barrier=0)
+   ContentionWriter(LOCK            *locks = 0,
+                    bsls::AtomicInt *stop = 0,
+                    double          *score = 0,
+                    bslmt::Barrier  *barrier = 0)
       : d_locks(locks),
         d_stop(stop),
         d_score(score),
@@ -348,13 +356,14 @@ template <class LOCK>
 struct ContentionReader
 {
    LOCK            *d_locks;
-   bslmt::Barrier   *d_barrier;
-   bsls::AtomicInt  *d_stop;
+   bslmt::Barrier  *d_barrier;
+   bsls::AtomicInt *d_stop;
    double          *d_score;
 
-   ContentionReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
-                    double *score=0,
-                    bslmt::Barrier *barrier=0)
+   ContentionReader(LOCK            *locks = 0,
+                    bsls::AtomicInt *stop = 0,
+                    double          *score = 0,
+                    bslmt::Barrier  *barrier = 0)
       : d_locks(locks),
         d_stop(stop),
         d_score(score),
@@ -393,8 +402,8 @@ struct ContentionReader
 };
 
 template <class LOCK>
-int benchmarkSpeed (LOCK*       lock,
-                    const char* lockName,
+int benchmarkSpeed (LOCK       *lock,
+                    const char *lockName,
                     int         numWriters,
                     int         numReaders)
 {
@@ -585,7 +594,8 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    bslmt::ThreadUtil::yield();
 
    // There is one thread blocked waiting for the write lock.  Create a thread
-   // that will block waiting for the read qlock.
+   // that will block waiting for the read 'qlock'.
+
    int rwThreadHasLock = 0;
    ReadWaitThread<LOCK> readWaitThread(lock, &readStart,
                                        &rwThreadHasLock);

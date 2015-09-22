@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //
-//  my_Account::my_Account(const my_Account& obj)
-//  : d_money(obj.d_money)
+//  my_Account::my_Account(const my_Account& original)
+//  : d_money(original.d_money)
 //  {
 //  }
 //
@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 // implementation.  Note the typical use of 'mutable' for the lock:
 //..
 //  class my_SafeAccountHandle {
-//      // This 'class' provides a thread-safe handle to an account (held,
-//      // not owned) passed at construction.
+//      // This 'class' provides a thread-safe handle to an account (held, not
+//      // owned) passed at construction.
 //
 //      // DATA
 //      my_Account          *d_account_p;  // held, not owned
