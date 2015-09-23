@@ -72,7 +72,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // ============================================================================
 
 #undef  TRACES
-#define TRACES 2    // 0 == debugging traces off
+#define TRACES 0    // 0 == debugging traces off
                     // 1 == debugging traces on
                     // 2 == debugging traces on, eprintf core dumps
 
@@ -626,6 +626,13 @@ struct Section {
         return d_offset <= section.d_offset &&
                         section.d_offset + section.d_size <= d_offset + d_size;
     }
+
+    bool overlaps(const Section& section) const
+    {
+        return d_offset <= section.d_offset
+               ? d_offset + d_size > section.d_offset
+               : section.d_offset + section.d_size > d_offset;
+    }
 };
 
 #ifdef BALST_DWARF
@@ -638,25 +645,6 @@ void readValue(TYPE        *dst,
 {
     bsl::memcpy(dst, *readPtr, sizeof(*dst));
     *readPtr += sizeof(*dst);
-}
-
-inline
-void readUintPtrFrom4AlignedBytes(UintPtr     *dst,
-                                  const char **readPtr)
-{
-    enum { e_BIG_UINTPTR      = sizeof(UintPtr) > sizeof(unsigned),
-           e_LOW_ORDER_OFFSET = e_BIG_UINTPTR && e_IS_BIG_ENDIAN };
-
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)
-    const UintPtr scalar = reinterpret_cast<UintPtr>(*readPtr);
-    BSLS_ASSERT_SAFE(0 == (scalar & (sizeof(unsigned) - 1)));
-#endif
-    if (e_BIG_UINTPTR) {
-        *dst = 0;
-    }
-    *(reinterpret_cast<unsigned *>(dst) + e_LOW_ORDER_OFFSET) =
-                                 *reinterpret_cast<const unsigned *>(*readPtr);
-    *readPtr += 4;
 }
 
 inline
@@ -747,10 +735,12 @@ class FrameRec {
         d_address = reinterpret_cast<const void *>(value);
     }
 
+#ifdef BALST_DWARF
     void setCompileUnitOffset(const UintPtr value)
     {
         d_compileUnitOffset = value;
     }
+#endif
 
     void setDone()
         // Set this frame as being done.
@@ -778,10 +768,12 @@ class FrameRec {
         return d_address;
     }
 
+#ifdef BALST_DWARF
     UintPtr compileUnitOffset()
     {
         return d_compileUnitOffset;
     }
+#endif
 
     balst::StackTraceFrame& frame() const
         // Return a reference to the modifiable 'frame' referenced by this
@@ -965,17 +957,6 @@ local::StackTraceResolver::CurrentSegment::CurrentSegment(
 #ifdef BALST_DWARF
 int local::StackTraceResolver::CurrentSegment::readAranges()
 {
-    enum { MIN_SIZE_INITIAL_LENGTH    = sizeof(unsigned),
-           SIZE_VERSION               = sizeof(short),
-           MIN_SIZE_DEBUG_INFO_OFFSET = sizeof(unsigned),
-           SIZE_ADDRESS_SIZE          = sizeof(char),
-           SIZE_SEGMENT_SIZE          = sizeof(char),
-           MIN_SIZE_PAIR              = 2 * sizeof(unsigned),
-           MIN_READ_LENGTH            = MIN_SIZE_INITIAL_LENGTH +
-                                                                 SIZE_VERSION +
-                               MIN_SIZE_DEBUG_INFO_OFFSET + SIZE_ADDRESS_SIZE +
-                                       SIZE_SEGMENT_SIZE + 2 * MIN_SIZE_PAIR };
-
     static const char fn[] = { "readAranges:" };
 
     local::FrameRecVecIt end = d_frameRecsEnd;
@@ -987,17 +968,19 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
     UintPtr offset     = d_arangesSec.d_offset;
     UintPtr arangesEnd = offset + d_arangesSec.d_size;
 
-    local::Section  addressRange;
+    local::Section  addressRange, prevRange;
     local::FrameRec dummyFrameRec(0);
+
+    const int shortMinReadLength = local::minArangesReadLength(true, true);
 
     const char *readPtr;
     for (; offset < arangesEnd; offset += readPtr - d_scratchBuf_p) {
-        UintPtr lengthToRead = static_cast<int>(
+        int lengthToRead = static_cast<int>(
                                     bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
                                                       arangesEnd - offset));
-        if (lengthToRead < local::minArangesReadLength(true, true)) {
-            eprintf("%s Unacceptably short read %u bytes, < min %u bytes\n",
-                                            fn, lengthToRead, MIN_READ_LENGTH);
+        if (lengthToRead < shortMinReadLength) {
+            eprintf("%s Unacceptably short read %u bytes, < min %d bytes\n",
+                                         fn, lengthToRead, shortMinReadLength);
             return -1;                                                // RETURN
         }
 
@@ -1006,46 +989,51 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                                        offset);
         if (rc) {
             eprintf("fn read failed\n", fn);
-
             return -1;                                                // RETURN
         }
 
-        // Note 'arangesEndPtr' may stack way past the end of the buffer.
+        // Note 'arangesEndPtr' may point way past the end of the buffer.
 
-        const char * const arangesEndPtr = d_scratchBuf_p +
+        const char *arangesEndPtr = d_scratchBuf_p +
                         d_arangesSec.d_size - (offset - d_arangesSec.d_offset);
 
         readPtr = d_scratchBuf_p;
-        const char * const endPtr = readPtr + lengthToRead;
+        const char *endPtr = readPtr + lengthToRead;
         BSLS_ASSERT(endPtr <= arangesEndPtr);
         for (;;) {
             if (endPtr - readPtr < local::minArangesReadLength(true, true)) {
                 break;    // go back and re-read buffer
             }
 
-            const char * const startPtr = readPtr;
+            const char *startPtr = readPtr;
 
             UintPtr rangeLength;
             unsigned u, u2;
             local::readValue(&u, &readPtr);
-            bool shortInitialLength;
+            bool isShortInitialLength;
             if (0xffffffff == u) {
                 local::readValue(&rangeLength, &readPtr);
-                shortInitialLength = false;
+                isShortInitialLength = false;
             }
             else {
                 if (u >= 0xfffffff0) {
                     eprintf("%s illegal preNum:0x%x\n", fn, u);
                     return -1;                                        // RETURN
                 }
-                shortInitialLength = true;
+                isShortInitialLength = true;
                 rangeLength = u;
             }
-//          if (4096 < rangeLength) {
-//              eprintf("%s absurd rangeLength:%lu\n", fn, rangeLength);
-//              return -1;                                            // RETURN
-//          }
+            const bool isLongRangeLength =
+                                   rangeLength > local::k_SCRATCH_BUF_LEN - 12;
+            if (isLongRangeLength) {
+                zprintf("Long range, length %lu, encountered\n", rangeLength);
+            }
             const char *rangeEnd = readPtr + rangeLength;
+            if (rangeEnd > arangesEndPtr) {
+                eprintf("%s attempt to read 0%ld bytes past end of aranges\n",
+                                                 fn, rangeEnd - arangesEndPtr);
+                return -1;
+            }
             if (rangeEnd > endPtr) {
                 if (rangeEnd > arangesEndPtr) {
                     eprintf("%s range end:%p > arangesEndPtr:%p\n", fn,
@@ -1053,10 +1041,12 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                     return -1;                                        // RETURN
                 }
 
-                readPtr = startPtr;
-                break;    // go back and re-read buffer
+                if (!isLongRangeLength) {
+                    readPtr = startPtr;
+                    break;    // go back and re-read buffer
+                }
             }
-            BSLS_ASSERT(rangeEnd <= endPtr);
+            BSLS_ASSERT(rangeEnd <= endPtr || isLongRangeLength);
             unsigned short version;
             local::readValue(&version, &readPtr);
             if (2 != version) {
@@ -1064,7 +1054,7 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                 return -1;                                            // RETURN
             }
             UintPtr debugInfoOffset;
-            if (shortInitialLength) {
+            if (isShortInitialLength) {
                 local::readValue(&u, &readPtr);
                 debugInfoOffset = u;
             }
@@ -1076,26 +1066,30 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                                                           fn, debugInfoOffset);
                 return -1;                                            // RETURN
             }
-            debugInfoOffset += d_infoSec.d_offset;
             zprintf("%s %s debugInfoOffset: 0x%lx\n", fn,
-                       shortInitialLength ? "short" : "long", debugInfoOffset);
+                     isShortInitialLength ? "short" : "long", debugInfoOffset);
             const unsigned char addressSize = *readPtr++;
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-            if (sizeof(UintPtr) != addressSize && sizeof(int) != addressSize) {
-                eprintf("%s invalid address size:%u\n", fn, addressSize);
-                return -1;                                            // RETURN
+            bool isShortAddressSize;
+            if      (sizeof(UintPtr)  == addressSize) {
+                isShortAddressSize = false;
             }
+            else if (sizeof(unsigned) == addressSize) {
+                isShortAddressSize = true;
+            }
+            else {
 #else
+            const bool isShortAddressSize = false;
             if (sizeof(UintPtr) != addressSize) {
+#endif
                 eprintf("%s invalid address size:%u\n", fn, addressSize);
                 return -1;                                            // RETURN
             }
-#endif
-            zprintf("%s addressSize: %u\n", fn, addressSize);
-            const bool shortAddressSize = sizeof(unsigned) == addressSize;
+            // zprintf("%s addressSize: %u\n", fn, addressSize);
+
             if (endPtr - startPtr < local::minArangesReadLength(
-                                                         shortInitialLength,
-                                                         shortAddressSize)) {
+                                                         isShortInitialLength,
+                                                         isShortAddressSize)) {
                 readPtr = startPtr;
                 break;    // go back and re-read buffer
             }
@@ -1104,35 +1098,62 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                 eprintf("%s invalid segment size:%u\n", fn, segmentSize);
                 return -1;                                            // RETURN
             }
-//          if (0 != (rangeEnd - readPtr) % (shortAddressSize
-//                                           ? 2 * sizeof(unsigned)
-//                                           : 2 * sizeof(UintPtr))) {
-//              eprintf("%s strange rangeLength\n", fn);
-//              return -1;                                            // RETURN
-//          }
+            readPtr += sizeof(unsigned);    // This isn't in the spec, but
+                                            // everything didn't start working
+                                            // until I put it in.
+
+            if (0 != (rangeEnd - readPtr) % (isShortAddressSize
+                                             ? 2 * sizeof(unsigned)
+                                             : 2 * sizeof(UintPtr))) {
+                eprintf("%s strange rangeLength\n", fn);
+                return -1;                                            // RETURN
+            }
             for (;;) {
-                if (readPtr >= rangeEnd) {
+                const char *afterReadPtr = readPtr + 2 * addressSize;
+
+                if (afterReadPtr > rangeEnd) {
                     eprintf("%s set not terminated by 0's\n", fn);
                     return -1;                                        // RETURN
                 }
+                if (afterReadPtr > endPtr) {
+                    BSLS_ASSERT(isLongRangeLength);
+
+                    // We're in a long range and have run to the end of the
+                    // buffer.  Read more.
+
+                    const unsigned shift = readPtr - d_scratchBuf_p;
+                    rangeEnd      -= shift;
+                    offset        += shift;
+                    lengthToRead = static_cast<int>(
+                                    bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
+                                                      arangesEnd - offset));
+                    rc = d_helper_p->readExact(d_scratchBuf_p,
+                                               lengthToRead,
+                                               offset);
+                    if (rc) {
+                        eprintf("fn read failed\n", fn);
+
+                        return -1;                                    // RETURN
+                    }
+                    readPtr       = d_scratchBuf_p;
+                    startPtr      = d_scratchBuf_p;
+                    endPtr        = d_scratchBuf_p + lengthToRead;
+                    arangesEndPtr = d_scratchBuf_p + (arangesEnd - offset);
+                }
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-                if (shortAddressSize) {
+                if (isShortAddressSize) {
                     local::readValue(&u,  &readPtr);
                     local::readValue(&u2, &readPtr);
                     addressRange.reset(u, u2);
                 }
                 else {
-                    local::readUintPtrFrom4AlignedBytes(&addressRange.d_offset,
-                                                        &readPtr);
-                    local::readUintPtrFrom4AlignedBytes(&addressRange.d_size,
-                                                        &readPtr);
+                    local::readValue(&addressRange.d_offset, &readPtr);
+                    local::readValue(&addressRange.d_size,   &readPtr);
                 }
 #else
-                local::readUintPtrFrom4AlignedBytes(&addressRange.d_offset,
-                                                    &readPtr);
-                local::readUintPtrFrom4AlignedBytes(&addressRange.d_size,
-                                                    &readPtr);
+                local::readValue(&addressRange.d_offset, &readPtr);
+                local::readValue(&addressRange.d_size,   &readPtr);
 #endif
 
                 if (0 == addressRange.d_offset && 0 == addressRange.d_size) {
@@ -1146,22 +1167,32 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                     break;
                 }
 
-                zprintf("%s range:[%p, 0x%lx)\n", fn, addressRange.d_offset,
-                                                          addressRange.d_size);
+#ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
+                if (prevRange.overlaps(addressRange)) {
+                    eprintf("%s overlapping ranges [%p, %p) & [%p, %p)\n",
+                                          prevRange.d_offset, prevRange.d_size,
+                                   addressRange.d_offset, addressRange.d_size);
+                    return -1;                                        // RETURN
+                }
+                prevRange = addressRange;
+#endif
+
+                // zprintf("%s range:[%p, 0x%lx)\n", fn, addressRange.d_offset,
+                //                                        addressRange.d_size);
 
                 dummyFrameRec.setAddress(addressRange.d_offset);
                 local::FrameRecVecIt begin =
                         bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
                 for (local::FrameRecVecIt it = begin; it < end &&
                                   addressRange.contains(it->address()); ++it) {
-                    const bool redundant = 0 != it->compileUnitOffset();
+                    const bool isRedundant = 0 != it->compileUnitOffset();
                     zprintf("%s%s range (%p, 0x%lx) matches frame %ld,"
                                                     " address: %p\n",
-                                             fn, redundant ? " redundant" : "",
+                                           fn, isRedundant ? " redundant" : "",
                                     addressRange.d_offset, addressRange.d_size,
                                           &it->frame() - &(*d_stackTrace_p)[0],
                                                                 it->address());
-                    if (redundant) {
+                    if (isRedundant) {
                         continue;
                     }
 
@@ -1362,7 +1393,8 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             return -1;                                                // RETURN
         }
 
-        zprintf("Other section: type:%d name:%s\n", sec->sh_type, sectionName);
+        // zprintf("Other section: type:%d name:%s\n", sec->sh_type,
+        //                                                        sectionName);
 
         switch (sec->sh_type) {
           case SHT_STRTAB: {
@@ -1458,7 +1490,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 #ifdef BALST_DWARF
     rc = d_seg_p->readDwarf();
     if (rc) {
-        eprintf("readDwarf failed\n");
+        zprintf("readDwarf failed\n");
         return -1;                                                    // RETURN
     }
 #endif
