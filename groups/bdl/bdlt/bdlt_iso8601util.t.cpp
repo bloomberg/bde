@@ -60,6 +60,18 @@ using namespace bsl;
 // [ 5] int generate(char *, int, const TimeTz&, const Config&);
 // [ 6] int generate(char *, int, const DatetimeTz&);
 // [ 6] int generate(char *, int, const DatetimeTz&, const Config&);
+// [ 1] int generate(string *, const Date&);
+// [ 1] int generate(string *, const Date&, const Config&);
+// [ 2] int generate(string *, const Time&);
+// [ 2] int generate(string *, const Time&, const Config&);
+// [ 3] int generate(string *, const Datetime&);
+// [ 3] int generate(string *, const Datetime&, const Config&);
+// [ 4] int generate(string *, const DateTz&);
+// [ 4] int generate(string *, const DateTz&, const Config&);
+// [ 5] int generate(string *, const TimeTz&);
+// [ 5] int generate(string *, const TimeTz&, const Config&);
+// [ 6] int generate(string *, const DatetimeTz&);
+// [ 6] int generate(string *, const DatetimeTz&, const Config&);
 // [ 1] ostream generate(ostream&, const Date&);
 // [ 1] ostream generate(ostream&, const Date&, const Config&);
 // [ 2] ostream generate(ostream&, const Time&);
@@ -1867,6 +1879,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const DatetimeTz&);
         //   int generate(char *, int, const DatetimeTz&, const Config&);
+        //   int generate(string *, const DatetimeTz&);
+        //   int generate(string *, const DatetimeTz&, const Config&);
         //   ostream generate(ostream&, const DatetimeTz&);
         //   ostream generate(ostream&, const DatetimeTz&, const Config&);
         //   int generateRaw(char *, const DatetimeTz&);
@@ -2344,6 +2358,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const TimeTz&);
         //   int generate(char *, int, const TimeTz&, const Config&);
+        //   int generate(string *, const TimeTz&);
+        //   int generate(string *, const TimeTz&, const Config&);
         //   ostream generate(ostream&, const TimeTz&);
         //   ostream generate(ostream&, const TimeTz&, const Config&);
         //   int generateRaw(char *, const TimeTz&);
@@ -2798,6 +2814,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const DateTz&);
         //   int generate(char *, int, const DateTz&, const Config&);
+        //   int generate(string *, const DateTz&);
+        //   int generate(string *, const DateTz&, const Config&);
         //   ostream generate(ostream&, const DateTz&);
         //   ostream generate(ostream&, const DateTz&, const Config&);
         //   int generateRaw(char *, const DateTz&);
@@ -3247,6 +3265,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const Datetime&);
         //   int generate(char *, int, const Datetime&, const Config&);
+        //   int generate(string *, const Datetime&);
+        //   int generate(string *, const Datetime&, const Config&);
         //   ostream generate(ostream&, const Datetime&);
         //   ostream generate(ostream&, const Datetime&, const Config&);
         //   int generateRaw(char *, const Datetime&);
@@ -3599,6 +3619,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const Time&);
         //   int generate(char *, int, const Time&, const Config&);
+        //   int generate(string *, const Time&);
+        //   int generate(string *, const Time&, const Config&);
         //   ostream generate(ostream&, const Time&);
         //   ostream generate(ostream&, const Time&, const Config&);
         //   int generateRaw(char *, const Time&);
@@ -3926,6 +3948,8 @@ if (veryVerbose)
         // Testing:
         //   int generate(char *, int, const Date&);
         //   int generate(char *, int, const Date&, const Config&);
+        //   int generate(string *, const Date&);
+        //   int generate(string *, const Date&, const Config&);
         //   ostream generate(ostream&, const Date&);
         //   ostream generate(ostream&, const Date&, const Config&);
         //   int generateRaw(char *, const Date&);

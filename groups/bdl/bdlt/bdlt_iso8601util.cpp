@@ -602,6 +602,102 @@ int Iso8601Util::generate(char                            *buffer,
     return outLen;
 }
 
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATE_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATE_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Time&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_TIME_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_TIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Datetime&                  object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETIME_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const DateTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const TimeTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_TIMETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_TIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const DatetimeTz&                object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETIMETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
 int Iso8601Util::generateRaw(
                           char                            *buffer,
                           const Date&                      object,
