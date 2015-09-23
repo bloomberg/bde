@@ -1258,8 +1258,8 @@ int main(int argc, char **argv)
                 const char *d_input;                   // input
                 const struct {
                     const char *d_delim;    // previous delimiter
-                    const bool  d_hasSoft;  // has soft character
-                    const bool  d_isHard;   // has hard character
+                    bool        d_hasSoft;  // has soft character
+                    bool        d_isHard;   // has hard character
                 }           d_values[NUM_ITERATIONS];  // values array
             } DATA[] = {
                 //LINE  INPUT           PREV    HAS     IS
@@ -1324,8 +1324,8 @@ int main(int argc, char **argv)
 
                 for(int i = 0; DATA[ti].d_values[i].d_delim; ++i) {
                     const StringRef DELIM    = DATA[ti].d_values[i].d_delim;
-                    bool            HAS_SOFT = DATA[ti].d_values[i].d_hasSoft;
-                    bool            IS_HARD  = DATA[ti].d_values[i].d_isHard;
+                    const bool      HAS_SOFT = DATA[ti].d_values[i].d_hasSoft;
+                    const bool      IS_HARD  = DATA[ti].d_values[i].d_isHard;
 
                     ASSERTV(LINE, DELIM, DELIM    == T.previousDelimiter());
                     ASSERTV(LINE, DELIM, HAS_SOFT == T.hasPreviousSoft());
@@ -1348,8 +1348,8 @@ int main(int argc, char **argv)
                 const char *d_input;                   // input
                 const struct {
                     const char *d_delim;    // trailing delimiter
-                    const bool  d_hasSoft;  // has soft character
-                    const bool  d_isHard;   // has hard character
+                    bool        d_hasSoft;  // has soft character
+                    bool        d_isHard;   // has hard character
                 }           d_values[NUM_ITERATIONS];  // values array
             } DATA[] = {
                 //LINE  INPUT           DELIM   HAS     IS
@@ -1406,8 +1406,8 @@ int main(int argc, char **argv)
 
                 for (int i = 0; DATA[ti].d_values[i].d_delim; ++i) {
                     const StringRef DELIM    = DATA[ti].d_values[i].d_delim;
-                    bool            HAS_SOFT = DATA[ti].d_values[i].d_hasSoft;
-                    bool            IS_HARD  = DATA[ti].d_values[i].d_isHard;
+                    const bool      HAS_SOFT = DATA[ti].d_values[i].d_hasSoft;
+                    const bool      IS_HARD  = DATA[ti].d_values[i].d_isHard;
 
                     ASSERTV(LINE, DELIM, DELIM    == T.trailingDelimiter());
                     ASSERTV(LINE, DELIM, HAS_SOFT == T.hasTrailingSoft());
