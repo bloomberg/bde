@@ -86,9 +86,9 @@ enum {
 
 namespace btlsos {
 
-                          // =======================
-                          // class TcpCbAcceptor_Reg
-                          // =======================
+                         // =======================
+                         // class TcpCbAcceptor_Reg
+                         // =======================
 
 class TcpCbAcceptor_Reg {
     // This class stores a callback, and allows to invoke it.
@@ -230,12 +230,12 @@ int TcpCbAcceptor_Reg::isTimedResult() const
 }
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                            // -------------------
-                            // class TcpCbAcceptor
-                            // -------------------
+                           // -------------------
+                           // class TcpCbAcceptor
+                           // -------------------
 
 //PRIVATE MANIPULATORS
 

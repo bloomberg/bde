@@ -151,12 +151,12 @@ RESULT *timedAllocate(int                                     *status,
 namespace btlsos {
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class TcpTimedAcceptor
-                           // ----------------------
+                          // ----------------------
+                          // class TcpTimedAcceptor
+                          // ----------------------
 
 // CREATORS
 TcpTimedAcceptor::TcpTimedAcceptor(

@@ -33,9 +33,9 @@ enum {
     e_ERROR_UNCLASSIFIED = -3
 };
 
-                       // ==============================
-                       // local function adjustVecBuffer
-                       // ==============================
+                      // ==============================
+                      // local function adjustVecBuffer
+                      // ==============================
 
 template <class VECTYPE>
 inline
@@ -80,9 +80,9 @@ namespace btlsos {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                              // ----------------
-                              // class TcpChannel
-                              // ----------------
+                             // ----------------
+                             // class TcpChannel
+                             // ----------------
 
 // PRIVATE MANIPULATORS
 

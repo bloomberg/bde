@@ -167,10 +167,11 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(factory);
 //      assert(manager);
-//      d_allocateFunctor
-//          = bsl::function<void(btlsc::TimedCbChannel*, int)>(
-//                    bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this),
-//                    basicAllocator);
+//      d_allocateFunctor = bsl::function<void(btlsc::TimedCbChannel *, int)>(
+//          bsl::allocator_arg_t(),
+//          bsl::allocator<bsl::function<void(btlsc::TimedCbChannel *, int)> >(
+//              basicAllocator),
+//          bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this));
 //  }
 //
 //  my_EchoServer::~my_EchoServer() {
@@ -450,9 +451,9 @@ namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
 namespace btlsos {class TcpCbAcceptor_Reg; // component-local class declaration
 
-                            // ===================
-                            // class TcpCbAcceptor
-                            // ===================
+                           // ===================
+                           // class TcpCbAcceptor
+                           // ===================
 
 class TcpCbAcceptor : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style callback-based channel allocator
@@ -677,7 +678,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

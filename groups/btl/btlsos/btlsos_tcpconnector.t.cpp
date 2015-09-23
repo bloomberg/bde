@@ -1527,14 +1527,14 @@ int main(int argc, char *argv[]) {
   // Solaris and AIX will incorrectly return very quickly from this call to
   // connect.  The other platforms would timeout at some point but it would
   // have taken a very long time.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+  {L_, 'A', e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+  {L_, 'A', e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>

@@ -105,9 +105,9 @@ enum {
 
 namespace btlsos {
 
-                        // ============================
-                        // class TcpTimedCbAcceptor_Reg
-                        // ============================
+                       // ============================
+                       // class TcpTimedCbAcceptor_Reg
+                       // ============================
 
 class TcpTimedCbAcceptor_Reg {
     // This class stores either a callback or a timed callback, and allows to
@@ -294,12 +294,12 @@ const bsls::TimeInterval& TcpTimedCbAcceptor_Reg::timeout() const {
 }
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                          // ------------------------
-                          // class TcpTimedCbAcceptor
-                          // ------------------------
+                         // ------------------------
+                         // class TcpTimedCbAcceptor
+                         // ------------------------
 
 // PRIVATE MANIPULATORS
 void TcpTimedCbAcceptor::acceptCb()

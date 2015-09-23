@@ -479,9 +479,9 @@ static void* threadToCloseSocket(void *arg)
         PT(threadInfo->d_socketHandle);
     }
 #ifdef BSLS_PLATFORM_OS_LINUX
-    //bslmt::ThreadUtil::microSleep(1 * SLEEP_TIME);
+    //bslmt::ThreadUtil::microSleep(1 * k_SLEEP_TIME);
 #else
-    bslmt::ThreadUtil::microSleep(7 * SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
 #endif
 
     int ret = btlso::SocketImpUtil::close(threadInfo->d_socketHandle);
@@ -1575,72 +1575,72 @@ int main(int argc, char *argv[]) {
             #else
             // commands set 1: to resolve concern 4 - 6.
             {
-              {L_,  WVRO,           1,         0,           1,         0   },
-              {L_,    W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
-              {L_,   WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
-              {L_, e_SIGNAL,          2,   READ_OP,           0,         0   },
-              {L_,  WVRO,           6,         1,        1024,         0   },
+              {L_,  e_WVRO,           1,         0,           1,         0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
+              {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
+              {L_,  e_WVRO,           6,         1,        1024,         0   },
             },
             {
-              {L_,  WVRI,           1,         0,           1,         0   },
-              {L_,    W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
-              {L_,   WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
-              {L_, e_SIGNAL,          2,   READ_OP,           0,         0   },
-              {L_,  WVRI,           6,         1,        1024,         0   },
+              {L_,  e_WVRI,           1,         0,           1,         0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
+              {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
+              {L_,  e_WVRI,           6,         1,        1024,         0   },
             },
             {
-              {L_, WVROA,           1,         0,           1,         0   },
-              {L_,    W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
-              {L_,   WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
-              {L_, e_SIGNAL,          2,   READ_OP,           0,         0   },
-              {L_, WVROA,           6,         1,        1024,         0   },
+              {L_, e_WVROA,           1,         0,           1,         0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
+              {L_,   e_WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
+              {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
+              {L_, e_WVROA,           6,         1,        1024,         0   },
             },
             {
-              {L_, WVRIA,           1,         0,           1,         0   },
-              {L_,    W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
-              {L_,   WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
-              {L_, e_SIGNAL,          2,   READ_OP,           0,         0   },
-              {L_, WVRIA,           6,         1,        1024,         0   },
+              {L_, e_WVRIA,           1,         0,           1,         0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
+              {L_,   e_WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
+              {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
+              {L_, e_WVRIA,           6,         1,        1024,         0   },
             },
             // commands set 13: to resolve concern 4 - 6.
             {
-              {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  WVRO,           7,          1,        1024,        0   },
+              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
+              {L_,  e_WVRO,           7,          1,        1024,        0   },
               {L_,  e_SIGNAL,         2,          0,           0,        0   },
-              {L_,   WVO,           7,          0,       24740,        0   },
+              {L_,   e_WVO,           7,          0,       24740,        0   },
             },
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_, WVRO,           1,         0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_, WVRO,           6,         0,        1024,          0   },
+              {L_, e_WVRO,           1,         0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_, e_WVRO,           6,         0,        1024,          0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_, WVRI,           1,         0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_, WVRI,           6,         0,        1024,          0   },
+              {L_, e_WVRI,           1,         0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_, e_WVRI,           6,         0,        1024,          0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_, WVROA,          1,         0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_, WVROA,          6,         0,        1024,          0   },
+              {L_, e_WVROA,          1,         0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_, e_WVROA,          6,         0,        1024,          0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_, WVRIA,          1,         0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_, WVRIA,          6,         0,        1024,          0   },
+              {L_, e_WVRIA,          1,         0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_, e_WVRIA,          6,         0,        1024,          0   },
             },
             #endif
 
@@ -2009,28 +2009,28 @@ int main(int argc, char *argv[]) {
             // commands set 13: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,         2,       READ_OP,       0,          0   },
+             {L_,  e_SIGNAL,         2,     e_READ_OP,       0,          0   },
               {L_,   WVO,           7,          0,      24740,          0   },
             },
 
             // commands set 14: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
+             {L_,  e_SIGNAL,        2,     e_READ_OP,        0,          0   },
               {L_,   WVI,          7,           0,      24740,          0   },
             },
 
             // commands set 15: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
+             {L_,  e_SIGNAL,        2,     e_READ_OP,        0,          0   },
               {L_,  WVOA,          7,           0,      24740,          0   },
             },
 
             // commands set 16: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
+             {L_,  e_SIGNAL,        2,     e_READ_OP,        0,          0   },
               {L_,  WVIA,          7,           0,      24740,          0   },
             },
             #elif defined(BSLS_PLATFORM_OS_LINUX)
@@ -2457,7 +2457,7 @@ int main(int argc, char *argv[]) {
             {
               {L_,    WR,     BUF_WRITE,        0,      BUF_WRITE,      0   },
               {L_,    WR,   SYS_DEPENDENT_LEN,  1,        8192,         0   },
-             {L_,  e_SIGNAL,          2,   READ_OP,           0,         0   },
+             {L_,  e_SIGNAL,          2, e_READ_OP,           0,         0   },
               {L_,    WR,    BUF_WRITE,         1,       40960,         0   },
             },
 
@@ -2465,14 +2465,14 @@ int main(int argc, char *argv[]) {
             {
               {L_,   WRA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
               {L_,   WRA,   SYS_DEPENDENT_LEN,  1,        8192,         0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,        0,         0   },
+             {L_,  e_SIGNAL,          2,    e_READ_OP,        0,         0   },
               {L_,   WRA,    BUF_WRITE,         1,       40960,         0   },
             },
             // commands set 7: to resolve concern 4 - 6.
             {
               {L_,    WR,     BUF_WRITE,        0,      BUF_WRITE,      0   },
               {L_,    WR,   SYS_DEPENDENT_LEN,  1,        8192,         0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,        0,         0   },
+             {L_,  e_SIGNAL,          2,    e_READ_OP,        0,         0   },
               {L_,    WR,   SYS_DEPENDENT_LEN,  0,   SYS_DEPENDENT_LEN, 0   },
             },
 
@@ -2480,7 +2480,7 @@ int main(int argc, char *argv[]) {
             {
               {L_,   WRA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
               {L_,   WRA,   SYS_DEPENDENT_LEN,  1,        8192,         0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,       0,          0   },
+             {L_,  e_SIGNAL,          2,    e_READ_OP,       0,          0   },
               {L_,   WRA,        10000,         0,      10000,          0   },
             },
             #elif defined(BSLS_PLATFORM_OS_LINUX)
@@ -2514,47 +2514,46 @@ int main(int argc, char *argv[]) {
             // commands set 6: to resolve concern 4 - 6.
             {
               {L_,   e_WA,           1,         0,           1,          0   },
-              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,        SYS_DEPENDENT_LEN,
-               0   },
+              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,   SYS_DEPENDENT_LEN,  0   },
               {L_,  e_WRA,    BUF_WRITE,        0,        1024,          0   },
-            {L_,  e_SIGNAL,        2,      e_READ_OP,        0,          0   },
+              {L_, e_SIGNAL,       2,      e_READ_OP,        0,          0   },
               {L_,   e_WRA,       1000,         0,        1000,          0   },
             },
 
             #else                // ibm test data
             // commands set 3: to resolve concern 4 - 6.
             {
-              {L_,    WR,            1,        0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,    0   },
-              {L_,   WR,    BUF_WRITE,        0,      BUF_WRITE,        0   },
-             {L_,  e_SIGNAL,          2,   READ_OP,          0,          0   },
-              {L_,    WR,    BUF_WRITE,        1,        1024,          0   },
+              {L_,   e_WR,            1,        0,           1,          0   },
+              {L_,   e_W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,    0   },
+              {L_,  e_WR,    BUF_WRITE,        0,      BUF_WRITE,        0   },
+              {L_, e_SIGNAL,          2, e_READ_OP,          0,          0   },
+              {L_,   e_WR,    BUF_WRITE,        1,        1024,          0   },
             },
             // commands set 4: to resolve concern 4 - 6.
             {
-              {L_,  WRA,            1,        0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,  SYS_DEPENDENT_LEN,   0   },
-              {L_,  WRA,    BUF_WRITE,        0,      BUF_WRITE,       0   },
-              {L_,  e_SIGNAL,         2,   READ_OP,          0,          0   },
-              {L_,  WRA,    BUF_WRITE,        1,        1024,          0   },
+              {L_,  e_WRA,            1,        0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,  SYS_DEPENDENT_LEN,   0   },
+              {L_,  e_WRA,    BUF_WRITE,        0,      BUF_WRITE,       0   },
+              {L_,  e_SIGNAL,         2, e_READ_OP,          0,          0   },
+              {L_,  e_WRA,    BUF_WRITE,        1,        1024,          0   },
             },
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    W,           1,         0,           1,          0   },
-              {L_,    W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_,   WR,        1000,         0,        1000,          0   },
+              {L_,    e_W,           1,         0,           1,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_,   e_WR,        1000,         0,        1000,          0   },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,   WA,           1,         0,           1,          0   },
-              {L_,   WA,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,  WRA,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      READ_OP,        0,          0   },
-              {L_,   WRA,       1000,         0,        1000,          0   },
+              {L_,   e_WA,           1,         0,           1,          0   },
+              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,  e_WRA,    BUF_WRITE,        0,        1024,          0   },
+              {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
+              {L_,   e_WRA,       1000,         0,        1000,          0   },
             },
 
             #endif
@@ -2808,14 +2807,14 @@ int main(int argc, char *argv[]) {
             // commands set 9: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,       0,          0   },
+             {L_,  e_SIGNAL,          2,    e_READ_OP,       0,          0   },
               {L_,     W,   SYS_DEPENDENT_LEN,  0,   SYS_DEPENDENT_LEN, 0   },
             },
 
             // commands set 10: to resolve concern 4 - 6.
             {
               {L_,    WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,       0,          0   },
+             {L_,  e_SIGNAL,          2,    e_READ_OP,       0,          0   },
               {L_,    WA,        10000,         0,      10000,          0   },
             },
 
@@ -2871,13 +2870,13 @@ int main(int argc, char *argv[]) {
             // commands set 3: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     W,           1,         0,           1,         0   },
-              {L_,     W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
-              {L_,     W,        30000,        1,       30000,         0   },
+              {L_,     e_W,           1,         0,           1,         0   },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,     e_W,        30000,        1,       30000,         0   },
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,     W,   SYS_DEPENDENT_LEN, 1,        8192,         0   },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,         0   },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
@@ -2886,13 +2885,13 @@ int main(int argc, char *argv[]) {
             // commands set 4: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     WA,           1,         0,           1,         0   },
-              {L_,     WA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
-              {L_,    WRA,       30000,         1,       30000,         0   },
+              {L_,    e_WA,           1,         0,           1,         0   },
+              {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WRA,       30000,         1,       30000,         0   },
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-            {L_,  e_SIGNAL,         30,          0,           0,         0   },
-            {L_,     WA,       60000,          1,        2000, e_INTERRUPTED },
+              {L_,  e_SIGNAL,       30,          0,           0,         0   },
+              {L_,     e_WA,     60000,         1,       2000, e_INTERRUPTED },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the
@@ -2901,18 +2900,18 @@ int main(int argc, char *argv[]) {
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    WA,            1,         0,          1,          0   },
-              {L_,    WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,       0,          0   },
-              {L_,     W,         2000,         0,       2000,          0   },
+              {L_,   e_WA,            1,         0,          1,          0   },
+              {L_,   e_WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_SIGNAL,          2,   e_READ_OP,       0,          0   },
+              {L_,    e_W,         2000,         0,       2000,          0   },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,    WA,            1,         0,           1,         0   },
-              {L_,    WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,          2,      READ_OP,        0,         0   },
-              {L_,    WA,         2000,         0,        2000,         0   },
+              {L_,   e_WA,            1,         0,           1,         0   },
+              {L_,   e_WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_SIGNAL,          2,   e_READ_OP,        0,         0   },
+              {L_,   e_WA,         2000,         0,        2000,         0   },
             },
 
             #endif

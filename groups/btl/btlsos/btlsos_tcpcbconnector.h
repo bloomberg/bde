@@ -498,9 +498,9 @@ namespace btlsos {
 
 class TcpCbConnector_Reg; // component-local class declaration
 
-                            // ====================
-                            // class TcpCbConnector
-                            // ====================
+                           // ====================
+                           // class TcpCbConnector
+                           // ====================
 
 class TcpCbConnector : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style timed callback-based channel
@@ -717,7 +717,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

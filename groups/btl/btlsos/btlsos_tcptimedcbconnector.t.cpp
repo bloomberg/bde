@@ -471,7 +471,7 @@ void *echoClientThread(void *arg) {
 }
 
 // ----------------------------------------------------------------------------
-//                        USAGE EXAMPLE: Data stream
+//                         USAGE EXAMPLE: Data stream
 // ----------------------------------------------------------------------------
 
 ///Dual control and data channels

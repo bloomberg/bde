@@ -844,7 +844,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    numConnections = DEFAULT_NUM_CONNECTIONS;
+                    numConnections = k_DEFAULT_NUM_CONNECTIONS;
                 }
 
                 if (argc > 3) {
@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    portNumber = DEFAULT_PORT_NUMBER;
+                    portNumber = k_DEFAULT_PORT_NUMBER;
                 }
 
                 if (argc > 4) {
@@ -942,7 +942,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    numConnections = DEFAULT_NUM_CONNECTIONS;
+                    numConnections = k_DEFAULT_NUM_CONNECTIONS;
                 }
 
                 if (argc > 3) {
@@ -953,7 +953,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    portNumber = DEFAULT_PORT_NUMBER;
+                    portNumber = k_DEFAULT_PORT_NUMBER;
                 }
 
                 if (argc > 4) {
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    numMessages = DEFAULT_NUM_MESSAGES;
+                    numMessages = k_DEFAULT_NUM_MESSAGES;
                 }
                 btlso::TcpTimerEventManager::Hint hint
                      = btlso::TcpTimerEventManager::e_NO_HINT;

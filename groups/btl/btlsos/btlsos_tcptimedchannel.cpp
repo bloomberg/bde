@@ -38,9 +38,9 @@ enum {
     e_ERROR_UNCLASSIFIED = -3
 };
 
-                       // ==============================
-                       // local function adjustVecBuffer
-                       // ==============================
+                      // ==============================
+                      // local function adjustVecBuffer
+                      // ==============================
 
 template <class VECTYPE>
 inline
@@ -82,12 +82,12 @@ int adjustVecBuffer(const VECTYPE        *buffers,
 namespace btlsos {
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // class TcpTimedChannel
-                           // ---------------------
+                          // ---------------------
+                          // class TcpTimedChannel
+                          // ---------------------
 
 // PRIVATE MANIPULATORS
 

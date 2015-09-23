@@ -1105,7 +1105,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
 #ifdef BSLS_PLATFORM_OS_LINUX
         bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
 #else
-        bslmt::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
 #endif
 
     } break;
@@ -1510,7 +1510,7 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
                               timeout2(2, 0),
                               longTime(120, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
@@ -1976,7 +1976,7 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
                               timeout2(2, 0),
                               longTime(120, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
@@ -2597,7 +2597,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
                               timeout2(2, 0),
                               longTime(120, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
@@ -2942,7 +2942,7 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
                               timeout2(2, 0),
                               longTime(120, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
@@ -5476,7 +5476,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            TestCommand COMMANDS_SET[][MAX_CMD] =
+            TestCommand COMMANDS_SET[][k_MAX_CMD] =
             //line   command    numToUse   interruptFlags   expRet   expAugStat
             //----   -------    --------   --------------   ------   ----------
 //==========>
@@ -5945,17 +5945,20 @@ int main(int argc, char *argv[]) {
                                                        // test endpoint, while
                                                        // handles[1] is the
                                                        // control endpoint.
-                char buf0[WVECBUF_LEN1], buf1[k_VECBUF_LEN3] = "\0",
-                     buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
+                char buf0[k_WVECBUF_LEN1],
+                     buf1[k_VECBUF_LEN3] = "\0",
+                     buf2[k_WVECBUF_LEN20] = "\0",
+                     buf3[k_WVECBUF_LEN60] = "\0",
 
                      #ifdef BSLS_PLATFORM_OS_SOLARIS
-                     buf4[WVECBUF_LEN80] = "\0",
-                     buf5[WVECBUF_LEN8K] = "\0",
+                     buf4[k_WVECBUF_LEN80] = "\0",
+                     buf5[k_WVECBUF_LEN8K] = "\0",
                      #else
-                     buf4[WVECBUF_LEN500] = "\0",
-                     buf5[WVECBUF_LEN1K] = "\0",
+                     buf4[k_WVECBUF_LEN500] = "\0",
+                     buf5[k_WVECBUF_LEN1K] = "\0",
                      #endif
-                     buf6[WVECBUF_LEN16K] = "\0", buf7[WVECBUF_LEN32K] = "\0";
+                     buf6[k_WVECBUF_LEN16K] = "\0",
+                     buf7[k_WVECBUF_LEN32K] = "\0";
 
                 btls::Ovec ovecBuffer[k_MAX_VECBUF];
                 ovecBuffer[0].setBuffer(buf0, sizeof buf0);
@@ -6498,8 +6501,8 @@ int main(int argc, char *argv[]) {
                 char buf0[k_WVECBUF_LEN1], buf1[k_VECBUF_LEN3] = "\0",
                     buf2[k_WVECBUF_LEN20] = "\0", buf3[k_WVECBUF_LEN60] = "\0",
                      #ifdef BSLS_PLATFORM_OS_SOLARIS
-                         buf4[WVECBUF_LEN80] = "\0",
-                         buf5[WVECBUF_LEN8K] = "\0",
+                         buf4[k_WVECBUF_LEN80] = "\0",
+                         buf5[k_WVECBUF_LEN8K] = "\0",
                      #else
                          buf4[k_WVECBUF_LEN500] = "\0",
                          buf5[k_WVECBUF_LEN1K] = "\0",
