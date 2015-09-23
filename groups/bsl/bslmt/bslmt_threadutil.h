@@ -409,10 +409,11 @@ public:
         // explicitly "detached" (by invoking the 'detach' class method with
         // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
         // to 'join' must be made to reclaim any system resources associated
-        // with the newly-created thread.  Also note that the platform-specific
-        // values of default thread stack size vary wildly between platforms;
-        // failure to specify a stack size, either through 'attributes' or
-        // 'bslmt::Configuration', can lead to non-portable code.
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
+        // default stack size is surprisingly small on some platforms.
+
 
     template <class INVOKABLE>
     static int create(Handle                  *handle,
@@ -428,21 +429,23 @@ public:
         // 'attributes' describing the properties for the new thread to create.
         // If 'attributes' is not supplied, a default 'ThreadAttributes' object
         // is used.  Return 0 on success, and a non-zero value otherwise.
-        // 'INVOKABLE' shall be a copy-constructible type that can be called as
-        // if it supplies a function call operator having the signature
-        // 'void operator()()'.  'bslmt::Configuration' is used to determine
-        // the created thread's default stack-size if either 'attributes' is
-        // not supplied or if 'attributes.stackSize()' has the unset value.
-        // The behavior is undefined unless unless 'attributes', if specified,
-        // has a 'stackSize' that is either greater than 0 or
-        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
-        // explicitly "detached" (by invoking the 'detach' class method with
-        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
-        // to 'join' must be made to reclaim any system resources associated
-        // with the newly-created thread.  Also note that the platform-specific
-        // values of default thread stack size vary wildly between platforms;
-        // failure to specify a stack size, either through 'attributes' or
-        // 'bslmt::Configuration', can lead to non-portable code.
+        // 'function' shall be a reference to a type, 'INVOKABLE', that can be
+        // copy-constructed, and where the expression '(void)function()' will
+        // execute a function call (i.e., either a 'void()()' function, or a
+        // functor object implementing 'void operator()()').
+        // 'bslmt::Configuration' is used to determine the created thread's
+        // default stack-size if either 'attributes' is not supplied or if
+        // 'attributes.stackSize()' has the unset value.  The behavior is
+        // undefined unless unless 'attributes', if specified, has a
+        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
+        // Note that unless the created thread is explicitly "detached" (by
+        // invoking the 'detach' class method with 'handle') or the
+        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that users are encouraged to either
+        // explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration',  because the 
+        // default stack size is surprisingly small on some platforms.
 
     template <class INVOKABLE>
     static int createWithAllocator(Handle                  *handle,
@@ -461,23 +464,25 @@ public:
         // 'attributes' describing the properties for the new thread to create.
         // If 'attributes' is not supplied, a default 'ThreadAttributes' object
         // is used.  Return 0 on success, and a non-zero value otherwise.
-        // 'INVOKABLE' shall be a copy-constructible type that can be called as
-        // if it supplied a function call operator having the signature
-        // 'void operator()()'.  'bslmt::Configuration' is used to determine
-        // the created thread's default stack-size if either 'attributes' is
-        // not supplied or if 'attributes.stackSize()' has the unset value.
-        // The behavior is undefined unless unless 'attributes', if specified,
-        // has a 'stackSize' that is either greater than 0 or
-        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
-        // explicitly "detached" (by invoking the 'detach' class method with
-        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
-        // to 'join' must be made to reclaim any system resources associated
-        // with the newly-created thread.  Also note that the lifetime of
-        // 'allocator' must exceed the lifetime of the thread.  Also note that
-        // the platform-specific values of default thread stack size vary
-        // wildly between platforms; failure to specify a stack size, either
-        // through 'attributes' or 'bslmt::Configuration', can lead to
-        // non-portable code.
+        // 'function' shall be a reference to a type, 'INVOKABLE', that can be
+        // copy-constructed, and where the expression '(void)function()' will
+        // execute a function call (i.e., either a 'void()()' function, or a
+        // functor object implementing 'void operator()()').
+        // 'bslmt::Configuration' is used to determine the created thread's
+        // default stack-size if either 'attributes' is not supplied or if
+        // 'attributes.stackSize()' has the unset value.  The behavior is
+        // undefined unless unless 'attributes', if specified, has a
+        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
+        // Note that unless the created thread is explicitly "detached" (by
+        // invoking the 'detach' class method with 'handle') or the
+        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that the lifetime of 'allocator'
+        // must exceed the lifetime of the thread.  Also note that users are
+        // encouraged to either explicitly provide a stack size attribute, or
+        // configure a 'bslmt'-wide default using 'bslmt::Configuration',
+        // because the default stack size is surprisingly small on some
+        // platforms.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
