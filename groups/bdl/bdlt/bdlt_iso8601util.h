@@ -46,13 +46,14 @@ BSLS_IDENT("$Id: $")
 // object, which is discussed shortly.)
 //
 // Each function that *parses* ISO 8601 strings (named 'parse') take the
-// address of a target 'bdlt' object and a 'const char *', and loads the object
-// with the result of parsing the character string.  Since parsing can fail,
-// the parse functions return an 'int' status value (0 for success and a
-// non-zero value for failure).  Note that, besides elementary syntactical
-// considerations, the validity of parsed strings are subject to the semantic
-// constraints imposed by the various 'isValid*' class methods, (i.e.,
-// 'Date::isValidYearMonthDay', 'Time::isValid', etc.).
+// address of a target 'bdlt' object and a 'const char *' (paired with a
+// 'length' argument) or 'bslstl::StringRef', and loads the object with the
+// result of parsing the character string.  Since parsing can fail, the parse
+// functions return an 'int' status value (0 for success and a non-zero value
+// for failure).  Note that, besides elementary syntactical considerations, the
+// validity of parsed strings are subject to the semantic constraints imposed
+// by the various 'isValid*' class methods, (i.e., 'Date::isValidYearMonthDay',
+// 'Time::isValid', etc.).
 //
 ///ISO 8601 String Generation
 ///--------------------------
@@ -825,6 +826,126 @@ struct Iso8601Util {
         // be absent or indicate GMT.  The behavior is undefined unless
         // '0 <= length'.
 
+    static int parse(Date *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'Date' value, and load
+        // the value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If the optional zone
+        // designator is present in 'string', it is parsed but ignored.  The
+        // behavior is undefined unless 'string.data()' is non-null.
+
+    static int parse(Time *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'Time' value, and load
+        // the value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than three digits is present in
+        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // the optional zone designator is present in 'string', the resulting
+        // 'Time' value is converted to the equivalent GMT time; if the zone
+        // designator is absent, GMT is assumed.  If a leap second is detected
+        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
+        // Seconds}), the 'second' attribute is taken to be 59, then an
+        // additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate GMT.  The behavior is undefined unless 'string.data()'
+        // is non-null.
+
+    static int parse(Datetime *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'Datetime' value, and
+        // load the value into the specified 'result'.  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
+        //..
+        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than three digits is present in
+        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // the optional zone designator is present in 'string', the resulting
+        // 'Datetime' value is converted to the equivalent GMT value; if the
+        // zone designator is absent, GMT is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate GMT.  The behavior is undefined unless 'string.data()'
+        // is non-null.
+
+    static int parse(DateTz *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'DateTz' value, and load
+        // the value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If the optional zone
+        // designator is not present in 'string', GMT is assumed.  The behavior
+        // is undefined unless 'string.data()' is non-null.
+
+    static int parse(TimeTz *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'TimeTz' value, and load
+        // the value into the specified 'result'.  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.  'string' is assumed to
+        // be of the form:
+        //..
+        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than three digits is present in
+        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // the optional zone designator is not present in 'string', GMT is
+        // assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate GMT.  The behavior is
+        // undefined unless 'string.data()' is non-null.
+
+    static int parse(DatetimeTz *result, const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'DatetimeTz' value, and
+        // load the value into the specified 'result'.  Return 0 on success,
+        // and a non-zero value (with no effect) otherwise.  'string' is
+        // assumed to be of the form:
+        //..
+        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //..
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than three digits is present in
+        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // the optional zone designator is not present in 'string', GMT is
+        // assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate GMT.  The behavior is
+        // undefined unless 'string.data()' is non-null.
+
 #ifndef BDE_OPENSOURCE_PUBLICATION
     static int generate(char              *buffer,
                         const Date&        object,
@@ -1217,6 +1338,54 @@ int Iso8601Util::generateRaw(char *buffer, const DatetimeTz& object)
     return generateRaw(buffer,
                        object,
                        Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+int Iso8601Util::parse(Date *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parse(Time *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parse(Datetime *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parse(DateTz *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parse(TimeTz *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
+}
+
+inline
+int Iso8601Util::parse(DatetimeTz *result, const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
 }
 
 #ifndef BDE_OPENSOURCE_PUBLICATION

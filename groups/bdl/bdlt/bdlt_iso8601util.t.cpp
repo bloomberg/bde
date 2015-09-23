@@ -102,6 +102,12 @@ using namespace bsl;
 // [ 7] int parse(DateTz *, const char *, int);
 // [ 8] int parse(TimeTz *, const char *, int);
 // [ 9] int parse(DatetimeTz *, const char *, int);
+// [ 7] int parse(Date *result, const StringRef& string);
+// [ 8] int parse(Time *result, const StringRef& string);
+// [ 9] int parse(Datetime *result, const StringRef& string);
+// [ 7] int parse(DateTz *result, const StringRef& string);
+// [ 8] int parse(TimeTz *result, const StringRef& string);
+// [ 9] int parse(DatetimeTz *result, const StringRef& string);
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // [ 1] int generate(char *, const Date&, int);
 // [ 2] int generate(char *, const Time&, int);
@@ -906,6 +912,8 @@ if (veryVerbose)
         // Testing:
         //   int parse(Datetime *, const char *, int);
         //   int parse(DatetimeTz *, const char *, int);
+        //   int parse(Datetime *result, const StringRef& string);
+        //   int parse(DatetimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1380,6 +1388,8 @@ if (veryVerbose)
         // Testing:
         //   int parse(Time *, const char *, int);
         //   int parse(TimeTz *, const char *, int);
+        //   int parse(Time *result, const StringRef& string);
+        //   int parse(TimeTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1617,6 +1627,8 @@ if (veryVerbose)
         // Testing:
         //   int parse(Date *, const char *, int);
         //   int parse(DateTz *, const char *, int);
+        //   int parse(Date *result, const StringRef& string);
+        //   int parse(DateTz *result, const StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
