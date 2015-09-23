@@ -1236,15 +1236,15 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::Handle handles[2];
         int rc;
 
-        rc = Obj::create(&handles[0],
-                         attr,
-                         BigFunctor(),
-                         &ta);
+        rc = Obj::createWithAllocator(&handles[0],
+                                      attr,
+                                      BigFunctor(),
+                                      &ta);
         ASSERT(0 == rc);
 
-        rc = Obj::create(&handles[1],
-                         BigFunctor(),
-                         &ta);
+        rc = Obj::createWithAllocator(&handles[1],
+                                      BigFunctor(),
+                                      &ta);
         ASSERT(0 == rc);
 
         rc = Obj::join(handles[0]);
