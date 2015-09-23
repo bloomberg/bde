@@ -119,7 +119,7 @@ static bool warnHandler(const char *expr,
 
 static bool warnPrint(const char *expr, void *value)
 {
-    zprintf("%s = 0x%p\n", expr, value);
+    zprintf("%s = %p\n", expr, value);
 
     return false;
 }
@@ -630,6 +630,7 @@ struct Section {
 
 #ifdef BALST_DWARF
 template <class TYPE>
+inline
 void readValue(TYPE        *dst,
                const char **readPtr)
     // Copy the memory pointed at by the specified '*readPtr' to the specified
@@ -639,19 +640,51 @@ void readValue(TYPE        *dst,
     *readPtr += sizeof(*dst);
 }
 
-template <class TYPE>
-void readAlignedValue(TYPE        *dst,
-                      const char **readPtr)
-    // Copy the memory pointed at by the specified '*readPtr' to the specified
-    // '*dst', then increment the '*readPtr' by the size of the memory read.
-    // The behavior is undefined unless 'sizeof(TYPE)' is a power of 2 and
-    // '*readPtr' is aligned for a 'TYPE *'.
+inline
+void readUintPtrFrom4AlignedBytes(UintPtr     *dst,
+                                  const char **readPtr)
 {
-    BSLMF_ASSERT(0 == (sizeof(TYPE) & (sizeof(TYPE) - 1)));       // power of 2
-    BSLS_ASSERT_SAFE(0 == (reinterpret_cast<UintPtr>(*readPtr) &
-                                                          (sizeof(TYPE) - 1)));
-    *dst = *reinterpret_cast<const TYPE *>(*readPtr);
-    *readPtr += sizeof(*dst);
+    enum { e_BIG_UINTPTR      = sizeof(UintPtr) > sizeof(unsigned),
+           e_LOW_ORDER_OFFSET = e_BIG_UINTPTR && e_IS_BIG_ENDIAN };
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)
+    const UintPtr scalar = reinterpret_cast<UintPtr>(*readPtr);
+    BSLS_ASSERT_SAFE(0 == (scalar & (sizeof(unsigned) - 1)));
+#endif
+    if (e_BIG_UINTPTR) {
+        *dst = 0;
+    }
+    *(reinterpret_cast<unsigned *>(dst) + e_LOW_ORDER_OFFSET) =
+                                 *reinterpret_cast<const unsigned *>(*readPtr);
+    *readPtr += 4;
+}
+
+inline
+UintPtr minArangesReadLength(bool shortInitialLength,
+                             bool shortAddresses)
+{
+    enum { MIN_SIZE_INITIAL_LENGTH    = sizeof(unsigned),
+           MAX_SIZE_INITIAL_LENGTH    = sizeof(unsigned) + sizeof(UintPtr),
+           SIZE_VERSION               = sizeof(short),
+           MIN_SIZE_DEBUG_INFO_OFFSET = sizeof(unsigned),
+           MAX_SIZE_DEBUG_INFO_OFFSET = sizeof(UintPtr),
+           SIZE_ADDRESS_SIZE          = sizeof(char),
+           SIZE_SEGMENT_SIZE          = sizeof(char),
+           MIN_SIZE_PAIR_PAIRS        = 4 * sizeof(unsigned),
+           MAX_SIZE_PAIR_PAIRS        = 4 * sizeof(UintPtr) };
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+   return SIZE_VERSION + SIZE_ADDRESS_SIZE + SIZE_SEGMENT_SIZE +
+                     (shortInitialLength
+                      ? MIN_SIZE_INITIAL_LENGTH + MIN_SIZE_DEBUG_INFO_OFFSET
+                      : MAX_SIZE_INITIAL_LENGTH + MAX_SIZE_DEBUG_INFO_OFFSET) +
+                                        (shortAddresses ? MIN_SIZE_PAIR_PAIRS
+                                                        : MAX_SIZE_PAIR_PAIRS);
+#else
+   return SIZE_VERSION + SIZE_ADDRESS_SIZE + SIZE_SEGMENT_SIZE +
+                         MIN_SIZE_INITIAL_LENGTH + MIN_SIZE_DEBUG_INFO_OFFSET +
+                                                           MIN_SIZE_PAIR_PAIRS;
+#endif
 }
 #endif
 
@@ -932,21 +965,16 @@ local::StackTraceResolver::CurrentSegment::CurrentSegment(
 #ifdef BALST_DWARF
 int local::StackTraceResolver::CurrentSegment::readAranges()
 {
-    enum { SIZE_INITIAL_LENGTH    = (8 == sizeof(void *) ? sizeof(int) : 0) +
-                                                               sizeof(UintPtr),
-           SIZE_VERSION           = sizeof(short),
-           SIZE_DEBUG_INFO_OFFSET = sizeof(UintPtr),
-           SIZE_ADDRESS_SIZE      = sizeof(char),
-           SIZE_SEGMENT_SIZE      = sizeof(char),
-           SIZE_PAIR              = 2 * sizeof(UintPtr),
-           MIN_READ_LENGTH        = SIZE_INITIAL_LENGTH + SIZE_VERSION +
-                                   SIZE_DEBUG_INFO_OFFSET + SIZE_ADDRESS_SIZE +
-                                           SIZE_SEGMENT_SIZE + 2 * SIZE_PAIR };
-
-    // This compile-time assert establishes that the 'ptr, length' pairs at
-    // the end of each set are 'UintPtr' aligned.
-
-    BSLMF_ASSERT(0 == MIN_READ_LENGTH % sizeof(UintPtr));
+    enum { MIN_SIZE_INITIAL_LENGTH    = sizeof(unsigned),
+           SIZE_VERSION               = sizeof(short),
+           MIN_SIZE_DEBUG_INFO_OFFSET = sizeof(unsigned),
+           SIZE_ADDRESS_SIZE          = sizeof(char),
+           SIZE_SEGMENT_SIZE          = sizeof(char),
+           MIN_SIZE_PAIR              = 2 * sizeof(unsigned),
+           MIN_READ_LENGTH            = MIN_SIZE_INITIAL_LENGTH +
+                                                                 SIZE_VERSION +
+                               MIN_SIZE_DEBUG_INFO_OFFSET + SIZE_ADDRESS_SIZE +
+                                       SIZE_SEGMENT_SIZE + 2 * MIN_SIZE_PAIR };
 
     static const char fn[] = { "readAranges:" };
 
@@ -964,10 +992,10 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
 
     const char *readPtr;
     for (; offset < arangesEnd; offset += readPtr - d_scratchBuf_p) {
-        int lengthToRead = static_cast<int>(
+        UintPtr lengthToRead = static_cast<int>(
                                     bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
                                                       arangesEnd - offset));
-        if (lengthToRead < MIN_READ_LENGTH) {
+        if (lengthToRead < local::minArangesReadLength(true, true)) {
             eprintf("%s Unacceptably short read %u bytes, < min %u bytes\n",
                                             fn, lengthToRead, MIN_READ_LENGTH);
             return -1;                                                // RETURN
@@ -991,7 +1019,7 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
         const char * const endPtr = readPtr + lengthToRead;
         BSLS_ASSERT(endPtr <= arangesEndPtr);
         for (;;) {
-            if (endPtr - readPtr < MIN_READ_LENGTH) {
+            if (endPtr - readPtr < local::minArangesReadLength(true, true)) {
                 break;    // go back and re-read buffer
             }
 
@@ -1000,27 +1028,27 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
             UintPtr rangeLength;
             unsigned u, u2;
             local::readValue(&u, &readPtr);
-            bool bit32;
+            bool shortInitialLength;
             if (0xffffffff == u) {
                 local::readValue(&rangeLength, &readPtr);
-                bit32 = false;
+                shortInitialLength = false;
             }
             else {
                 if (u >= 0xfffffff0) {
                     eprintf("%s illegal preNum:0x%x\n", fn, u);
                     return -1;                                        // RETURN
                 }
-                bit32 = true;
+                shortInitialLength = true;
                 rangeLength = u;
             }
-            if (4096 < rangeLength) {
-                eprintf("%s absurd rangeLength:%lu\n", fn, rangeLength);
-                return -1;                                            // RETURN
-            }
+//          if (4096 < rangeLength) {
+//              eprintf("%s absurd rangeLength:%lu\n", fn, rangeLength);
+//              return -1;                                            // RETURN
+//          }
             const char *rangeEnd = readPtr + rangeLength;
             if (rangeEnd > endPtr) {
                 if (rangeEnd > arangesEndPtr) {
-                    eprintf("%s range end:0x%p > arangesEndPtr:0x%p\n", fn,
+                    eprintf("%s range end:%p > arangesEndPtr:%p\n", fn,
                                                       rangeEnd, arangesEndPtr);
                     return -1;                                        // RETURN
                 }
@@ -1036,7 +1064,7 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                 return -1;                                            // RETURN
             }
             UintPtr debugInfoOffset;
-            if (bit32) {
+            if (shortInitialLength) {
                 local::readValue(&u, &readPtr);
                 debugInfoOffset = u;
             }
@@ -1048,7 +1076,10 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                                                           fn, debugInfoOffset);
                 return -1;                                            // RETURN
             }
-            unsigned char addressSize = *readPtr++;
+            debugInfoOffset += d_infoSec.d_offset;
+            zprintf("%s %s debugInfoOffset: 0x%lx\n", fn,
+                       shortInitialLength ? "short" : "long", debugInfoOffset);
+            const unsigned char addressSize = *readPtr++;
 #ifdef BSLS_PLATFORM_CPU_64_BIT
             if (sizeof(UintPtr) != addressSize && sizeof(int) != addressSize) {
                 eprintf("%s invalid address size:%u\n", fn, addressSize);
@@ -1060,17 +1091,25 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                 return -1;                                            // RETURN
             }
 #endif
-            unsigned char segmentSize = *readPtr++;
+            zprintf("%s addressSize: %u\n", fn, addressSize);
+            const bool shortAddressSize = sizeof(unsigned) == addressSize;
+            if (endPtr - startPtr < local::minArangesReadLength(
+                                                         shortInitialLength,
+                                                         shortAddressSize)) {
+                readPtr = startPtr;
+                break;    // go back and re-read buffer
+            }
+            const unsigned char segmentSize = *readPtr++;
             if (0 != segmentSize) {
                 eprintf("%s invalid segment size:%u\n", fn, segmentSize);
                 return -1;                                            // RETURN
             }
-            if (0 != (rangeEnd - readPtr) % (sizeof(unsigned) == addressSize
-                                             ? (2 * sizeof(unsigned))
-                                             : (2 * sizeof(UintPtr)))) {
-                eprintf("%s strange rangeLength\n", fn);
-                return -1;                                            // RETURN
-            }
+//          if (0 != (rangeEnd - readPtr) % (shortAddressSize
+//                                           ? 2 * sizeof(unsigned)
+//                                           : 2 * sizeof(UintPtr))) {
+//              eprintf("%s strange rangeLength\n", fn);
+//              return -1;                                            // RETURN
+//          }
             for (;;) {
                 if (readPtr >= rangeEnd) {
                     eprintf("%s set not terminated by 0's\n", fn);
@@ -1078,24 +1117,25 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                 }
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-                if (sizeof(unsigned) == addressSize) {
-                    local::readAlignedValue(&u,  &readPtr);
-                    local::readAlignedValue(&u2, &readPtr);
+                if (shortAddressSize) {
+                    local::readValue(&u,  &readPtr);
+                    local::readValue(&u2, &readPtr);
                     addressRange.reset(u, u2);
                 }
                 else {
-                    local::readAlignedValue(&addressRange.d_offset, &readPtr);
-                    local::readAlignedValue(&addressRange.d_size,   &readPtr);
+                    local::readUintPtrFrom4AlignedBytes(&addressRange.d_offset,
+                                                        &readPtr);
+                    local::readUintPtrFrom4AlignedBytes(&addressRange.d_size,
+                                                        &readPtr);
                 }
 #else
-                local::readAlignedValue(&addressRange.d_offset, &readPtr);
-                local::readAlignedValue(&addressRange.d_size,   &readPtr);
+                local::readUintPtrFrom4AlignedBytes(&addressRange.d_offset,
+                                                    &readPtr);
+                local::readUintPtrFrom4AlignedBytes(&addressRange.d_size,
+                                                    &readPtr);
 #endif
 
-                if (0 == addressRange.d_offset) {
-                    if (0 != addressRange.d_size) {
-                        eprintf("%s partial zero\n", fn);
-                    }
+                if (0 == addressRange.d_offset && 0 == addressRange.d_size) {
                     if (readPtr != rangeEnd) {
                         eprintf("%s terminating 0's %s range end\n", fn,
                                           readPtr < rangeEnd ? "reached before"
@@ -1106,18 +1146,21 @@ int local::StackTraceResolver::CurrentSegment::readAranges()
                     break;
                 }
 
+                zprintf("%s range:[%p, 0x%lx)\n", fn, addressRange.d_offset,
+                                                          addressRange.d_size);
+
                 dummyFrameRec.setAddress(addressRange.d_offset);
                 local::FrameRecVecIt begin =
                         bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
                 for (local::FrameRecVecIt it = begin; it < end &&
                                   addressRange.contains(it->address()); ++it) {
                     const bool redundant = 0 != it->compileUnitOffset();
-                    zprintf("%s%s range (0x%lx, %lu) matches frame %lu,"
-                                                    " compile unit at 0x%lx\n",
+                    zprintf("%s%s range (%p, 0x%lx) matches frame %ld,"
+                                                    " address: %p\n",
                                              fn, redundant ? " redundant" : "",
                                     addressRange.d_offset, addressRange.d_size,
                                           &it->frame() - &(*d_stackTrace_p)[0],
-                                                              debugInfoOffset);
+                                                                it->address());
                     if (redundant) {
                         continue;
                     }
