@@ -4034,7 +4034,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
