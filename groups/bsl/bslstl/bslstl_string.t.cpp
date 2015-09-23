@@ -9934,17 +9934,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             { L_,        4   },
             { L_,        5   },
             { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-            { L_,       11   },
-            { L_,       12   },
-            { L_,       13   },
-            { L_,       15   }
-#else
             { L_,       23   },
             { L_,       24   },
             { L_,       25   },
             { L_,       30   }
-#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10527,17 +10520,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-        { L_,       11   },
-        { L_,       12   },
-        { L_,       13   },
-        { L_,       15   }
-#else
         { L_,       23   },
         { L_,       24   },
         { L_,       25   },
         { L_,       30   }
-#endif
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10554,19 +10540,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-        { L_,   "ABCDEABCDEA"                        }, // 11
-        { L_,   "ABCDEABCDEAB"                       }, // 12
-        { L_,   "ABCDEABCDEABC"                      }, // 13
-        { L_,   "ABCDEABCDEABCDE"                    }  // 15
-#else
         { L_,   "ABCDEABCDEABCDEABCDEABC"            }, // 23
         { L_,   "ABCDEABCDEABCDEABCDEABCD"           }, // 24
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
-#endif
     };
     const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+
+    {
+        const Obj dummy;
+        ASSERT(dummy.capacity() < DATA[NUM_DATA - 1].d_length);
+    }
 
     if (verbose) printf("\tUsing 'CONTAINER::const_iterator'.\n");
     {
