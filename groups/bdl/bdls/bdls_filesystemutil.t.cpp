@@ -18,6 +18,7 @@
 #include <bsl_c_errno.h>
 #include <bsl_c_stdio.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>

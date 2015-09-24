@@ -375,6 +375,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
 #endif
