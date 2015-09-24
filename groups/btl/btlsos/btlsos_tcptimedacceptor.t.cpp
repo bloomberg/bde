@@ -2047,41 +2047,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
    0    },
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
    0    },
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
+  {L_, 'C', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
    0    },
 
 };
@@ -2184,7 +2184,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
    0    };
 // ===================>
 
@@ -2474,41 +2474,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,   0,        1,          1,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
    0    },
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
    0    },
 
 };
@@ -2611,7 +2611,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A',  CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
    0    };
 // ===================>
 
