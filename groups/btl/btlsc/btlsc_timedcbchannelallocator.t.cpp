@@ -476,7 +476,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
                 ::myPrintTick(bsl::cout, buffer, msgSize);
             }
             if (1 == curNumTicks) {
-                bdlf::Function<void (*)()> timerFunctor(bdlf::BindUtil::bind(
+                bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
                         bdlf::MemFnUtil::memFn(&my_TickReporter::timeCb, this),
                         0,
                         &curNumTicks,
@@ -543,7 +543,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
         cout << "The read rate is " << (int)(numTicks / numSeconds)
              << " Ticks/second."    << endl << endl;
 
-        bdlf::Function<void (*)()> timerFunctor(bdlf::BindUtil::bind(
+        bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
                         bdlf::MemFnUtil::memFn(&my_TickReporter::timeCb, this),
                         *curNumTicks,
                         curNumTicks,
@@ -654,10 +654,8 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
                                                         // errors
         const int                       d_inputSize;    // input packet size
 
-        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                        d_allocateFunctor;
-        btlsc::TimedCbChannel::BufferedReadCallback
-                                        d_readFunctor;  // reused
+        bsl::function<void(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
+        btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 
       private:
         void connectCb(btlsc::TimedCbChannel *serverChannel,
@@ -821,7 +819,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
             }
 
             if (1 == curNumTicks) {
-                bdlf::Function<void (*)()> timerFunctor(bdlf::BindUtil::bind(
+                bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
                        bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::timeCb,
                                               this),
                        0,
@@ -896,7 +894,7 @@ void myTimedCbFn(btlsc::TimedCbChannel *, int) { }
         cout << "The send rate is " << (int)(numTicks / numSeconds)
              << " Ticks/second."    << endl << endl;
         if (*curNumTicks < maxTicks) {
-            bdlf::Function<void (*)()> timerFunctor(bdlf::BindUtil::bind(
+            bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
                        bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::timeCb,
                                               this),
                        *curNumTicks, curNumTicks, maxTicks,

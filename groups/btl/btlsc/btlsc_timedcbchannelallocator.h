@@ -513,7 +513,7 @@ BSLS_IDENT("$Id: $")
 //           << " Ticks/second."    << endl << endl;
 //
 //      bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
-//                      bdlf::MemFnUtil::my_TickReporter::memFn(&timeCb, this),
+//                      bdlf::MemFnUtil::memFn(&my_TickReporter::timeCb, this),
 //                      *curNumTicks,
 //                      curNumTicks,
 //                      now));
@@ -621,8 +621,7 @@ BSLS_IDENT("$Id: $")
 //                                                      // errors
 //      const int                       d_inputSize;    // input packet size
 //
-//      bsl::function<void(btlsc::TimedCbChannel*, int)>
-//                                                 d_allocateFunctor;
+//      bsl::function<void(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
 //      btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 //
 //    private:
