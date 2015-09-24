@@ -191,6 +191,8 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlt::Iso8601Util              Util;
 typedef bdlt::Iso8601UtilConfiguration Config;
 
+typedef bslstl::StringRef              StrRef;
+
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
@@ -1019,6 +1021,23 @@ if (veryVerbose)
                                     DATETIME == Z.localDatetime());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                            0 == Z.offset());
+
+                            mX = XX;
+                            mZ = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == Z.localDatetime());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                           0 == Z.offset());
                         }
 
                         // with zone designator in parsed string
@@ -1053,6 +1072,21 @@ if (veryVerbose)
                                     0 == Util::parse(&mZ, buffer, LENGTH));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
+
+                            mX = XX;
+                            mZ = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ.utcDatetime() == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ               == Z);
                         }
                     }  // loop over 'CNFG_DATA'
                 }  // loop over 'ZONE_DATA'
@@ -1069,9 +1103,9 @@ if (veryVerbose)
                 int         d_month;
                 int         d_day;
                 int         d_hour;
-                int         d_minute;
-                int         d_second;
-                int         d_millisecond;
+                int         d_min;
+                int         d_sec;
+                int         d_msec;
             } DATA[] = {
                 // Test range end points
                 { L_, "0001-01-01T00:00:00.000"  ,
@@ -1124,34 +1158,42 @@ if (veryVerbose)
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const char *INPUT = DATA[i].d_input;
+                const int   LINE   = DATA[i].d_line;
+                const char *INPUT  = DATA[i].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
 
-                bdlt::Datetime   result(4321,1,2,3,4,5,6);
-                bdlt::DatetimeTz resultTz(result, -123);
+                bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
+                bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
                 bdlt::Datetime   EXPECTED(DATA[i].d_year,
-                                         DATA[i].d_month,
-                                         DATA[i].d_day,
-                                         DATA[i].d_hour,
-                                         DATA[i].d_minute,
-                                         DATA[i].d_second,
-                                         DATA[i].d_millisecond);
+                                          DATA[i].d_month,
+                                          DATA[i].d_day,
+                                          DATA[i].d_hour,
+                                          DATA[i].d_min,
+                                          DATA[i].d_sec,
+                                          DATA[i].d_msec);
                 bdlt::DatetimeTz EXPECTEDTZ(EXPECTED, 0);
 
-                ASSERTV(LINE,
-                        0 == Util::parse(&result,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
-                ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+                ASSERTV(LINE, EXPECTED,   X, EXPECTED   == X);
 
-                ASSERTV(LINE,
-                        0 == Util::parse(&resultTz,
-                                        INPUT,
-                                        static_cast<int>(strlen(INPUT))));
-                ASSERTV(LINE, EXPECTEDTZ, resultTz, EXPECTEDTZ == resultTz);
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, INPUT, LENGTH));
+                ASSERTV(LINE, EXPECTEDTZ, Z, EXPECTEDTZ == Z);
+
+                mX = XX;
+                mZ = ZZ;
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, EXPECTED,   X, EXPECTED   == X);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, EXPECTEDTZ, Z, EXPECTEDTZ == Z);
             }
         }
 
@@ -1167,9 +1209,9 @@ if (veryVerbose)
                 int         d_month;
                 int         d_day;
                 int         d_hour;
-                int         d_minute;
-                int         d_second;
-                int         d_millisecond;
+                int         d_min;
+                int         d_sec;
+                int         d_msec;
                 int         d_tzOffset;
             } DATA[] = {
                 { L_, "0001-01-01T00:00:00.000+00:01",
@@ -1184,35 +1226,40 @@ if (veryVerbose)
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const char *INPUT = DATA[i].d_input;
+                const int   LINE   = DATA[i].d_line;
+                const char *INPUT  = DATA[i].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
 
                 if (veryVerbose) { T_ P_(i) P(INPUT) }
 
-                bdlt::Datetime   result(4321,1,2,3,4,5,6);
-                bdlt::DatetimeTz resultTz(result, -213);
+                bdlt::Datetime   mX(XX);
+                bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
                 bdlt::DatetimeTz EXPECTED(bdlt::Datetime(DATA[i].d_year,
-                                                       DATA[i].d_month,
-                                                       DATA[i].d_day,
-                                                       DATA[i].d_hour,
-                                                       DATA[i].d_minute,
-                                                       DATA[i].d_second,
-                                                       DATA[i].d_millisecond),
-                                         DATA[i].d_tzOffset);
+                                                         DATA[i].d_month,
+                                                         DATA[i].d_day,
+                                                         DATA[i].d_hour,
+                                                         DATA[i].d_min,
+                                                         DATA[i].d_sec,
+                                                         DATA[i].d_msec),
+                                          DATA[i].d_tzOffset);
 
-                ASSERTV(LINE, INPUT, EXPECTED,
-                        0 == Util::parse(&resultTz,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 != Util::parse(&mX, INPUT, LENGTH));
 
-                ASSERTV(LINE, INPUT, EXPECTED, resultTz,
-                        EXPECTED == resultTz);
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, INPUT, LENGTH));
+                ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
 
-                ASSERTV(LINE, INPUT, EXPECTED,
-                        0 != Util::parse(&result,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
+                mX = XX;
+                mZ = ZZ;
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
             }
         }
 
@@ -1243,6 +1290,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
 
             const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
@@ -1267,6 +1322,11 @@ if (veryVerbose)
 
                     ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
                     ASSERT(DD != D);
+
+                    mD = DD;
+
+                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT(DD != D);
                 }
 
                 bad.append("T");
@@ -1281,6 +1341,14 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
+                ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
 
@@ -1306,6 +1374,11 @@ if (veryVerbose)
 
                     ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
                     ASSERT(XX != D);
+
+                    mD = XX;
+
+                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT(XX != D);
                 }
 
                 // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
@@ -1328,6 +1401,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
 
@@ -1338,6 +1419,9 @@ if (veryVerbose)
 
             const char *INPUT  = "2013-10-23T01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+            const StrRef stringRef(INPUT, LENGTH);
+            const StrRef nullRef;
 
             bdlt::Datetime   result;
             bdlt::DatetimeTz resultTz;
@@ -1352,6 +1436,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(    badTz, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(      bad, stringRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(    badTz, stringRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid input'" << endl;
@@ -1361,6 +1451,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(&resultTz,     0, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(  &result, nullRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(&resultTz, nullRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid length'" << endl;
@@ -1469,6 +1565,18 @@ if (veryVerbose)
                                 0 == Util::parse(&mZ, buffer, LENGTH));
                         ASSERTV(ILINE, JLINE, CLINE, TIME == Z.localTime());
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, TIME == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, TIME == Z.localTime());
+                        ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
 
                     // with zone designator in parsed string
@@ -1491,6 +1599,17 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
                     }
                 }  // loop over 'CNFG_DATA'
@@ -1520,6 +1639,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
 
             const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
@@ -1544,6 +1671,11 @@ if (veryVerbose)
 
                     ASSERT( 0 == Util::parse(&mT, STRING, LENGTH));
                     ASSERT(XX != T);
+
+                    mT = XX;
+
+                    ASSERT( 0 == Util::parse(&mT, StrRef(STRING, LENGTH)));
+                    ASSERT(XX != T);
                 }
 
                 // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
@@ -1566,6 +1698,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
 
@@ -1576,6 +1716,9 @@ if (veryVerbose)
 
             const char *INPUT  = "01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+            const StrRef stringRef(INPUT, LENGTH);
+            const StrRef nullRef;
 
             bdlt::Time   result;
             bdlt::TimeTz resultTz;
@@ -1590,6 +1733,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(    badTz, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(      bad, stringRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(    badTz, stringRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid input'" << endl;
@@ -1599,6 +1748,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(&resultTz,     0, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(  &result, nullRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(&resultTz, nullRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid length'" << endl;
@@ -1703,6 +1858,18 @@ if (veryVerbose)
                                 0 == Util::parse(&mZ, buffer, LENGTH));
                         ASSERTV(ILINE, JLINE, CLINE, DATE == Z.localDate());
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, DATE == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, DATE == Z.localDate());
+                        ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
 
                     // with zone designator in parsed string
@@ -1725,6 +1892,17 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, DATE   == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
                     }
                 }  // loop over 'CNFG_DATA'
@@ -1752,6 +1930,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
 
             const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
@@ -1776,6 +1962,11 @@ if (veryVerbose)
 
                     ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
                     ASSERT(XX != D);
+
+                    mD = XX;
+
+                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT(XX != D);
                 }
 
                 bad.append(ZONE_DATA[ti].d_invalid);
@@ -1790,6 +1981,14 @@ if (veryVerbose)
 
                 ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
                 ASSERTV(LINE, STRING, ZZ == Z);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
 
@@ -1800,6 +1999,9 @@ if (veryVerbose)
 
             const char *INPUT  = "2013-10-23";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+            const StrRef stringRef(INPUT, LENGTH);
+            const StrRef nullRef;
 
             bdlt::Date   result;
             bdlt::DateTz resultTz;
@@ -1814,6 +2016,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(    badTz, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(      bad, stringRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(    badTz, stringRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid input'" << endl;
@@ -1823,6 +2031,12 @@ if (veryVerbose)
 
                 ASSERT_PASS(Util::parse(&resultTz, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(&resultTz,     0, LENGTH));
+
+                ASSERT_PASS(Util::parse(  &result, stringRef));
+                ASSERT_FAIL(Util::parse(  &result, nullRef));
+
+                ASSERT_PASS(Util::parse(&resultTz, stringRef));
+                ASSERT_FAIL(Util::parse(&resultTz, nullRef));
             }
 
             if (veryVerbose) cout << "\t'Invalid length'" << endl;
